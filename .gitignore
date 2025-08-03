@@ -139,10 +139,13 @@ js/dist
 js/lib
 js/node_modules
 js/*.tgz
+dau_core/extension
 
 # Jupyter
 .ipynb_checkpoints
 .autoversion
+!dau_core/extension/dau_core.json
+!dau_core/extension/install.json
 dau_core/nbextension
 dau_core/labextension
 
