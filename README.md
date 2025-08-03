@@ -9,6 +9,5 @@ dau core ip
 
 ## Overview
 
-
 > [!NOTE]
 > This library was generated using [copier](https://copier.readthedocs.io/en/stable/) from the [Base Python Project Template repository](https://github.com/python-project-templates/base).
