@@ -1,6 +1,14 @@
 from .aggregations import EmptyInputError, UnsupportedAggregationError, aggregate_values, synthetic_values
 from .capabilities import DeviceCapabilities, DmaConstraints, OperatorCapability
-from .registers import DAU_MAGIC_WORD, RegisterMapVersion, RegisterOffset, ResetScope, StreamProtocolVersion
+from .registers import (
+    DAU_MAGIC_WORD,
+    RegisterBlockSnapshot,
+    RegisterMapVersion,
+    RegisterOffset,
+    RegisterWriteError,
+    ResetScope,
+    StreamProtocolVersion,
+)
 from .stream import (
     BatchHeader,
     ColumnDescriptor,
@@ -30,7 +38,9 @@ __all__ = [
     "OperatorCapability",
     "PolicyFlag",
     "RegisterMapVersion",
+    "RegisterBlockSnapshot",
     "RegisterOffset",
+    "RegisterWriteError",
     "ResetScope",
     "StreamFlag",
     "StreamProtocolVersion",

@@ -27,6 +27,10 @@ class DmaConstraints:
     def is_aligned(self, value: int) -> bool:
         return value % self.alignment_bytes == 0
 
+    @property
+    def max_aligned_transfer_bytes(self) -> int:
+        return self.max_transfer_bytes - (self.max_transfer_bytes % self.alignment_bytes)
+
 
 @dataclass(frozen=True)
 class OperatorCapability:
