@@ -63,6 +63,19 @@ class RegisterOffset(IntEnum):
     ROWS_HIGH = 0x0044
     BATCHES = 0x0048
     STALLS = 0x004C
+    JOB_CONTROL = 0x0050
+    JOB_STATUS = 0x0054
+    INPUT_ADDRESS_LOW = 0x0058
+    INPUT_ADDRESS_HIGH = 0x005C
+    INPUT_LENGTH_LOW = 0x0060
+    INPUT_LENGTH_HIGH = 0x0064
+    OUTPUT_ADDRESS_LOW = 0x0068
+    OUTPUT_ADDRESS_HIGH = 0x006C
+    OUTPUT_LENGTH_LOW = 0x0070
+    OUTPUT_LENGTH_HIGH = 0x0074
+    OPERATION = 0x0078
+    RESULT_LENGTH_LOW = 0x007C
+    RESULT_LENGTH_HIGH = 0x0080
 
 
 class ResetScope(IntFlag):
@@ -72,11 +85,65 @@ class ResetScope(IntFlag):
     SHELL = 1 << 3
 
 
+class JobControlFlag(IntFlag):
+    START = 1 << 0
+    ABORT = 1 << 1
+
+
+class JobStatusFlag(IntFlag):
+    IDLE = 1 << 0
+    BUSY = 1 << 1
+    DONE = 1 << 2
+    ERROR = 1 << 3
+
+
 class RegisterWriteError(ValueError):
     pass
 
 
 _RESET_SCOPE_MASK = int(ResetScope.OPERATOR | ResetScope.STREAM | ResetScope.DMA | ResetScope.SHELL)
+_JOB_CONTROL_MASK = int(JobControlFlag.START | JobControlFlag.ABORT)
+
+
+@dataclass(frozen=True)
+class StreamJobRegisterContract:
+    register_window_offset: int = 0x1000
+    input_buffer_address: int = 0x0000_0000
+    input_buffer_bytes: int = 0x0010_0000
+    output_buffer_address: int = 0x0010_0000
+    output_buffer_bytes: int = 0x0010_0000
+    result_bytes: int = 136
+    start_offset: RegisterOffset = RegisterOffset.JOB_CONTROL
+    status_offset: RegisterOffset = RegisterOffset.JOB_STATUS
+    error_offset: RegisterOffset = RegisterOffset.LAST_ERROR
+    result_length_low_offset: RegisterOffset = RegisterOffset.RESULT_LENGTH_LOW
+
+    def __post_init__(self) -> None:
+        _validate_u32("register_window_offset", self.register_window_offset)
+        for name in ("input_buffer_address", "input_buffer_bytes", "output_buffer_address", "output_buffer_bytes", "result_bytes"):
+            _validate_u64(name, getattr(self, name))
+
+    def manifest_items(self) -> tuple[tuple[str, str], ...]:
+        return (
+            ("register_window_offset", _hex32(self.register_window_offset)),
+            ("job_control_offset", _hex32(int(self.start_offset))),
+            ("job_status_offset", _hex32(int(self.status_offset))),
+            ("last_error_offset", _hex32(int(self.error_offset))),
+            ("input_address_low_offset", _hex32(int(RegisterOffset.INPUT_ADDRESS_LOW))),
+            ("input_length_low_offset", _hex32(int(RegisterOffset.INPUT_LENGTH_LOW))),
+            ("output_address_low_offset", _hex32(int(RegisterOffset.OUTPUT_ADDRESS_LOW))),
+            ("output_length_low_offset", _hex32(int(RegisterOffset.OUTPUT_LENGTH_LOW))),
+            ("result_length_low_offset", _hex32(int(self.result_length_low_offset))),
+            ("job_start_bit", str(_flag_bit(JobControlFlag.START))),
+            ("job_busy_bit", str(_flag_bit(JobStatusFlag.BUSY))),
+            ("job_done_bit", str(_flag_bit(JobStatusFlag.DONE))),
+            ("job_error_bit", str(_flag_bit(JobStatusFlag.ERROR))),
+            ("input_buffer_address", _hex64(self.input_buffer_address)),
+            ("input_buffer_bytes", _hex64(self.input_buffer_bytes)),
+            ("output_buffer_address", _hex64(self.output_buffer_address)),
+            ("output_buffer_bytes", _hex64(self.output_buffer_bytes)),
+            ("result_bytes", _hex64(self.result_bytes)),
+        )
 
 
 @dataclass(frozen=True)
@@ -95,12 +162,29 @@ class RegisterBlockSnapshot:
     rows: int = 0
     batches: int = 0
     stalls: int = 0
+    job_status: int = int(JobStatusFlag.IDLE)
+    input_address: int = 0x0000_0000
+    input_length: int = 0
+    output_address: int = 0x0010_0000
+    output_length: int = 136
+    operation: int = 0
+    result_length: int = 0
 
     def __post_init__(self) -> None:
         _platform_id_to_u32(self.platform_id)
-        for name in ("shell_version", "status", "dma_constraints", "operator_bitmap", "last_error", "batches", "stalls"):
+        for name in ("shell_version", "status", "dma_constraints", "operator_bitmap", "last_error", "batches", "stalls", "job_status", "operation"):
             _validate_u32(name, getattr(self, name))
-        for name in ("build_id", "h2c_bytes", "c2h_bytes", "rows"):
+        for name in (
+            "build_id",
+            "h2c_bytes",
+            "c2h_bytes",
+            "rows",
+            "input_address",
+            "input_length",
+            "output_address",
+            "output_length",
+            "result_length",
+        ):
             _validate_u64(name, getattr(self, name))
 
     def read_u32(self, offset: RegisterOffset | int) -> int:
@@ -125,6 +209,19 @@ class RegisterBlockSnapshot:
             RegisterOffset.ROWS_HIGH: _high_u32(self.rows),
             RegisterOffset.BATCHES: self.batches,
             RegisterOffset.STALLS: self.stalls,
+            RegisterOffset.JOB_CONTROL: 0,
+            RegisterOffset.JOB_STATUS: self.job_status,
+            RegisterOffset.INPUT_ADDRESS_LOW: _low_u32(self.input_address),
+            RegisterOffset.INPUT_ADDRESS_HIGH: _high_u32(self.input_address),
+            RegisterOffset.INPUT_LENGTH_LOW: _low_u32(self.input_length),
+            RegisterOffset.INPUT_LENGTH_HIGH: _high_u32(self.input_length),
+            RegisterOffset.OUTPUT_ADDRESS_LOW: _low_u32(self.output_address),
+            RegisterOffset.OUTPUT_ADDRESS_HIGH: _high_u32(self.output_address),
+            RegisterOffset.OUTPUT_LENGTH_LOW: _low_u32(self.output_length),
+            RegisterOffset.OUTPUT_LENGTH_HIGH: _high_u32(self.output_length),
+            RegisterOffset.OPERATION: self.operation,
+            RegisterOffset.RESULT_LENGTH_LOW: _low_u32(self.result_length),
+            RegisterOffset.RESULT_LENGTH_HIGH: _high_u32(self.result_length),
         }
         try:
             register_offset = RegisterOffset(offset)
@@ -132,14 +229,18 @@ class RegisterBlockSnapshot:
             return 0xFFFF_FFFF
         return values.get(register_offset, 0xFFFF_FFFF)
 
-    def write_u32(self, offset: RegisterOffset | int, value: int) -> ResetScope:
+    def write_u32(self, offset: RegisterOffset | int, value: int) -> ResetScope | JobControlFlag:
         _validate_u32("value", value)
         register_offset = RegisterOffset(offset)
-        if register_offset != RegisterOffset.RESET:
-            raise RegisterWriteError(f"{register_offset.name} is read-only")
-        if value & ~_RESET_SCOPE_MASK:
-            raise RegisterWriteError(f"unknown reset scope bits: 0x{value & ~_RESET_SCOPE_MASK:x}")
-        return ResetScope(value)
+        if register_offset == RegisterOffset.RESET:
+            if value & ~_RESET_SCOPE_MASK:
+                raise RegisterWriteError(f"unknown reset scope bits: 0x{value & ~_RESET_SCOPE_MASK:x}")
+            return ResetScope(value)
+        if register_offset == RegisterOffset.JOB_CONTROL:
+            if value & ~_JOB_CONTROL_MASK:
+                raise RegisterWriteError(f"unknown job control bits: 0x{value & ~_JOB_CONTROL_MASK:x}")
+            return JobControlFlag(value)
+        raise RegisterWriteError(f"{register_offset.name} is read-only")
 
 
 def _platform_id_to_u32(platform_id: str) -> int:
@@ -157,6 +258,23 @@ def _high_u32(value: int) -> int:
     return (value >> 32) & 0xFFFF_FFFF
 
 
+def _hex32(value: int) -> str:
+    _validate_u32("value", value)
+    return f"0x{value:08x}"
+
+
+def _hex64(value: int) -> str:
+    _validate_u64("value", value)
+    return f"0x{value:016x}"
+
+
+def _flag_bit(flag: IntFlag) -> int:
+    value = int(flag)
+    if value == 0 or value & (value - 1):
+        raise ValueError(f"flag must contain exactly one bit: {flag}")
+    return value.bit_length() - 1
+
+
 def _validate_u16(name: str, value: int) -> None:
     if not 0 <= value <= 0xFFFF:
         raise ValueError(f"{name} must fit in 16 bits")
@@ -170,3 +288,6 @@ def _validate_u32(name: str, value: int) -> None:
 def _validate_u64(name: str, value: int) -> None:
     if not 0 <= value <= 0xFFFFFFFFFFFFFFFF:
         raise ValueError(f"{name} must fit in 64 bits")
+
+
+DEFAULT_STREAM_JOB_REGISTER_CONTRACT = StreamJobRegisterContract()

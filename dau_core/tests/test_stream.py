@@ -1,4 +1,13 @@
-from dau_core.stream import BatchHeader, ColumnDescriptor, GroupRole, LogicalType, OperationCode, OperationDescriptor, PolicyFlag
+from dau_core.stream import (
+    BatchHeader,
+    ColumnDescriptor,
+    GroupRole,
+    LogicalType,
+    OperationCode,
+    OperationDescriptor,
+    PolicyFlag,
+    StreamAggregationErrorCode,
+)
 
 
 def test_batch_header_packs_to_exactly_sixty_four_bytes():
@@ -56,3 +65,9 @@ def test_operation_descriptor_records_float64_average_policy_and_group_key_set()
 
     assert len(packed) == OperationDescriptor.SIZE_BYTES == 64
     assert OperationDescriptor.unpack(packed) == descriptor
+
+
+def test_stream_aggregation_error_codes_match_hdl_contract_values():
+    assert int(StreamAggregationErrorCode.DESCRIPTOR) == 1
+    assert int(StreamAggregationErrorCode.OPCODE) == 2
+    assert int(StreamAggregationErrorCode.TILE) == 3

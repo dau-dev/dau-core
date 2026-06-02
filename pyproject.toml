@@ -97,16 +97,10 @@ packages = [
     "dau_core",
 ]
 
-[tool.hatch.build.targets.sdist.force-include]
-"dau_core/hdl" = "dau_core/hdl"
-
 [tool.hatch.build.targets.wheel]
 packages = [
     "dau_core",
 ]
-
-[tool.hatch.build.targets.wheel.force-include]
-"dau_core/hdl" = "dau_core/hdl"
 
 [tool.hatch.build.targets.wheel.shared-data]
 
