@@ -5,6 +5,9 @@ import pytest
 from dau_core.capabilities import DeviceCapabilities, DmaConstraints, OperatorCapability
 from dau_core.registers import (
     DAU_MAGIC_WORD,
+    DEFAULT_STREAM_JOB_REGISTER_CONTRACT,
+    JobControlFlag,
+    JobStatusFlag,
     RegisterBlockSnapshot,
     RegisterMapVersion,
     RegisterOffset,
@@ -21,6 +24,12 @@ def test_register_contract_uses_dau_magic_and_aligned_offsets():
     assert StreamProtocolVersion(0, 1).to_u32() == 0x00000001
     assert RegisterOffset.MAGIC == 0x0000
     assert RegisterOffset.STREAM_PROTOCOL_VERSION % 4 == 0
+    assert RegisterOffset.JOB_CONTROL == 0x0050
+    assert RegisterOffset.JOB_STATUS == 0x0054
+    assert RegisterOffset.INPUT_ADDRESS_LOW == 0x0058
+    assert RegisterOffset.OUTPUT_ADDRESS_LOW == 0x0068
+    assert JobControlFlag.START == 1
+    assert JobStatusFlag.ERROR == 1 << 3
     assert ResetScope.OPERATOR | ResetScope.STREAM == ResetScope.OPERATOR | ResetScope.STREAM
 
 
@@ -38,6 +47,12 @@ def test_register_block_snapshot_reads_identity_status_and_counters_as_u32_words
         rows=0x2122_2324_2526_2728,
         batches=9,
         stalls=10,
+        job_status=int(JobStatusFlag.DONE),
+        input_address=0x0000_0000_0000_1000,
+        input_length=0x0000_0000_0000_00C0,
+        output_address=0x0000_0000_0000_2000,
+        output_length=0x0000_0000_0000_0088,
+        result_length=0x0000_0000_0000_0088,
     )
 
     assert snapshot.read_u32(RegisterOffset.MAGIC) == DAU_MAGIC_WORD
@@ -58,6 +73,13 @@ def test_register_block_snapshot_reads_identity_status_and_counters_as_u32_words
     assert snapshot.read_u32(RegisterOffset.ROWS_HIGH) == 0x2122_2324
     assert snapshot.read_u32(RegisterOffset.BATCHES) == 9
     assert snapshot.read_u32(RegisterOffset.STALLS) == 10
+    assert snapshot.read_u32(RegisterOffset.JOB_CONTROL) == 0
+    assert snapshot.read_u32(RegisterOffset.JOB_STATUS) == int(JobStatusFlag.DONE)
+    assert snapshot.read_u32(RegisterOffset.INPUT_ADDRESS_LOW) == 0x0000_1000
+    assert snapshot.read_u32(RegisterOffset.INPUT_LENGTH_LOW) == 0x0000_00C0
+    assert snapshot.read_u32(RegisterOffset.OUTPUT_ADDRESS_LOW) == 0x0000_2000
+    assert snapshot.read_u32(RegisterOffset.OUTPUT_LENGTH_LOW) == 0x0000_0088
+    assert snapshot.read_u32(RegisterOffset.RESULT_LENGTH_LOW) == 0x0000_0088
     assert snapshot.read_u32(0x0FFC) == 0xFFFF_FFFF
 
 
@@ -66,11 +88,50 @@ def test_register_block_snapshot_models_reset_write_side_effects_only():
 
     assert snapshot.write_u32(RegisterOffset.RESET, int(ResetScope.OPERATOR | ResetScope.DMA)) == ResetScope.OPERATOR | ResetScope.DMA
     assert snapshot.write_u32(RegisterOffset.RESET, 0) == ResetScope(0)
+    assert snapshot.write_u32(RegisterOffset.JOB_CONTROL, int(JobControlFlag.START)) == JobControlFlag.START
 
     with pytest.raises(RegisterWriteError, match="MAGIC.*read-only"):
         snapshot.write_u32(RegisterOffset.MAGIC, 1)
     with pytest.raises(RegisterWriteError, match="unknown reset scope bits"):
         snapshot.write_u32(RegisterOffset.RESET, 0x10)
+    with pytest.raises(RegisterWriteError, match="unknown job control bits"):
+        snapshot.write_u32(RegisterOffset.JOB_CONTROL, 0x4)
+
+
+def test_stream_job_register_contract_names_host_trigger_status_and_result_addresses():
+    contract = DEFAULT_STREAM_JOB_REGISTER_CONTRACT
+
+    assert contract.register_window_offset == 0x1000
+    assert contract.input_buffer_address == 0x0000_0000
+    assert contract.input_buffer_bytes == 0x0010_0000
+    assert contract.output_buffer_address == 0x0010_0000
+    assert contract.output_buffer_bytes == 0x0010_0000
+    assert contract.result_bytes == 136
+    assert contract.start_offset == RegisterOffset.JOB_CONTROL
+    assert contract.status_offset == RegisterOffset.JOB_STATUS
+    assert contract.error_offset == RegisterOffset.LAST_ERROR
+    assert contract.result_length_low_offset == RegisterOffset.RESULT_LENGTH_LOW
+
+    assert dict(contract.manifest_items()) == {
+        "register_window_offset": "0x00001000",
+        "job_control_offset": "0x00000050",
+        "job_status_offset": "0x00000054",
+        "last_error_offset": "0x0000002c",
+        "input_address_low_offset": "0x00000058",
+        "input_length_low_offset": "0x00000060",
+        "output_address_low_offset": "0x00000068",
+        "output_length_low_offset": "0x00000070",
+        "result_length_low_offset": "0x0000007c",
+        "job_start_bit": "0",
+        "job_busy_bit": "1",
+        "job_done_bit": "2",
+        "job_error_bit": "3",
+        "input_buffer_address": "0x0000000000000000",
+        "input_buffer_bytes": "0x0000000000100000",
+        "output_buffer_address": "0x0000000000100000",
+        "output_buffer_bytes": "0x0000000000100000",
+        "result_bytes": "0x0000000000000088",
+    }
 
 
 def test_packaged_identity_register_hdl_exposes_reset_write_pulse_ports():

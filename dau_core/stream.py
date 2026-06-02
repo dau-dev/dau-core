@@ -33,6 +33,12 @@ class OperationCode(IntEnum):
     AVERAGE = 5
 
 
+class StreamAggregationErrorCode(IntEnum):
+    DESCRIPTOR = 1
+    OPCODE = 2
+    TILE = 3
+
+
 class GroupRole(IntEnum):
     VALUE = 0
     KEY = 1

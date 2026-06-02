@@ -2,11 +2,15 @@ from .aggregations import EmptyInputError, UnsupportedAggregationError, aggregat
 from .capabilities import DeviceCapabilities, DmaConstraints, OperatorCapability
 from .registers import (
     DAU_MAGIC_WORD,
+    DEFAULT_STREAM_JOB_REGISTER_CONTRACT,
+    JobControlFlag,
+    JobStatusFlag,
     RegisterBlockSnapshot,
     RegisterMapVersion,
     RegisterOffset,
     RegisterWriteError,
     ResetScope,
+    StreamJobRegisterContract,
     StreamProtocolVersion,
 )
 from .stream import (
@@ -18,6 +22,7 @@ from .stream import (
     OperationCode,
     OperationDescriptor,
     PolicyFlag,
+    StreamAggregationErrorCode,
     StreamFlag,
 )
 
@@ -27,11 +32,14 @@ __all__ = [
     "BatchHeader",
     "ColumnDescriptor",
     "DAU_MAGIC_WORD",
+    "DEFAULT_STREAM_JOB_REGISTER_CONTRACT",
     "DeviceCapabilities",
     "DmaConstraints",
     "EmptyInputError",
     "GroupRole",
     "InvalidStreamError",
+    "JobControlFlag",
+    "JobStatusFlag",
     "LogicalType",
     "OperationCode",
     "OperationDescriptor",
@@ -42,7 +50,9 @@ __all__ = [
     "RegisterOffset",
     "RegisterWriteError",
     "ResetScope",
+    "StreamAggregationErrorCode",
     "StreamFlag",
+    "StreamJobRegisterContract",
     "StreamProtocolVersion",
     "UnsupportedAggregationError",
     "aggregate_values",
