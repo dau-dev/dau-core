@@ -34,12 +34,14 @@ The first hardware aggregation job contract reserves the DAU register window at 
 
 - `dau_core/tests/test_stream.py`: stream framing and error-code contract checks.
 - `dau_core/tests/test_aggregation_tile_hdl.py`: packaged HDL text-contract checks.
-- `dau-sim` consumes these contracts in real cocotb-on-Verilator benches and standalone Verilator SystemVerilog benches.
+- `dau_core/tests/test_hdl_verilator.py`: standalone Verilator SystemVerilog benches for packaged DAU HDL.
+- `dau_core/tests/test_hdl_cocotb.py`: real cocotb-on-Verilator benches for packaged DAU HDL.
+- `dau-sim` remains generic simulation infrastructure; DAU-specific HDL verification lives in this package.
 
 ## Near-Term Direction
 
 - Keep contracts versioned and explicit while growing from packed stream simulation toward DDR/register integration.
-- Ensure stream error-code behavior remains synchronized across HDL, `dau-core` models, and `dau-sim` tests.
+- Ensure stream error-code behavior remains synchronized across HDL, `dau-core` models, and DAU-owned simulation tests.
 
 > [!NOTE]
 > This library was generated using [copier](https://copier.readthedocs.io/en/stable/) from the [Base Python Project Template repository](https://github.com/python-project-templates/base).

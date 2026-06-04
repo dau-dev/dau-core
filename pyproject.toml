@@ -37,6 +37,8 @@ develop = [
     "bump-my-version",
     "check-dist",
     "codespell",
+    "cocotb",
+    "dau-sim",
     "hatchling",
     "mdformat",
     "mdformat-tables>=1",
@@ -124,6 +126,10 @@ combine-as-imports = true
 default-section = "third-party"
 known-first-party = [
     "dau_core",
+]
+known-third-party = [
+    "cocotb",
+    "dau_sim",
 ]
 section-order = [
     "future",
