@@ -63,7 +63,10 @@ module dau_axi_burst_reader #(
 
     assign m_axi_arsize = 3'b011;   // 8 bytes
     assign m_axi_arburst = 2'b01;   // INCR
-    assign m_axi_rready = 1'b1;
+    // credit reservation should make a full FIFO unreachable while beats
+    // are in flight; the rready gate makes overwriting unconsumed slots
+    // physically impossible regardless (deasserting mid-burst is legal)
+    assign m_axi_rready = fifo_count != (FIFO_BITS + 1)'(FIFO_DEPTH);
 
     assign stream_valid = running && (fifo_count != '0);
     assign stream_data = read_fifo[fifo_rd_ptr];

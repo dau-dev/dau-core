@@ -140,7 +140,10 @@ module dau_axi_stream_job #(
     assign tile_input_valid = (job_state == JOB_RUN) && (fifo_count != '0);
     assign tile_input_data = read_fifo[fifo_rd_ptr];
     assign tile_input_last = stream_words_remaining == 32'd1;
-    assign m_axi_rready = 1'b1;
+    // credit reservation should make a full FIFO unreachable while beats
+    // are in flight; the rready gate makes overwriting unconsumed slots
+    // physically impossible regardless (deasserting mid-burst is legal)
+    assign m_axi_rready = fifo_count != (FIFO_BITS + 1)'(FIFO_DEPTH);
 
     assign rbeat_fire = m_axi_rvalid && m_axi_rready;
     assign consume_fire = tile_input_valid && tile_input_ready;

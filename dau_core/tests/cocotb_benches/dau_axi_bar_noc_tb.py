@@ -57,6 +57,18 @@ async def noc_multi_burst_batch(dut):
 
 
 @cocotb.test()
+async def noc_deep_backpressure_batch(dut):
+    # frequent bar close-outs stall every lane while the reader keeps many
+    # bursts in flight: the regime where the hardware run lost records
+    await _start(dut)
+    rows = [(index // 3, 100 + (index % 13) - 6, 1 + index % 3, index % 5) for index in range(3000)]
+    lanes = await _run_job(dut, rows)
+    for lane in range(NUM_LANES):
+        golden = bar_aggregate_rows(filter_bar_rows_by_key(rows, key_mask=NUM_LANES - 1, key_match=lane))
+        assert lanes[lane] == golden, f"lane {lane} mismatch"
+
+
+@cocotb.test()
 async def noc_repeated_jobs(dut):
     await _start(dut)
     first = await _run_job(dut, _TRADES)
