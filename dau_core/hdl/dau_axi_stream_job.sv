@@ -104,6 +104,7 @@ module dau_axi_stream_job #(
     logic [ADDR_WIDTH-1:0] read_address;
     logic [31:0] ar_words_remaining;      // words not yet covered by an issued AR
     logic [31:0] stream_words_remaining;  // words not yet delivered to the tile
+    logic [31:0] beats_unarrived;         // issued words whose data has not landed
     logic        read_error;
     logic [63:0] read_fifo [FIFO_DEPTH];
     logic [FIFO_BITS-1:0] fifo_wr_ptr;
@@ -185,6 +186,7 @@ module dau_axi_stream_job #(
                             read_address <= input_address;
                             ar_words_remaining <= {3'd0, input_length_bytes[31:3]};
                             stream_words_remaining <= {3'd0, input_length_bytes[31:3]};
+                            beats_unarrived <= 32'd0;
                             fifo_wr_ptr <= '0;
                             fifo_rd_ptr <= '0;
                             fifo_count <= '0;
@@ -198,7 +200,10 @@ module dau_axi_stream_job #(
                 JOB_RUN: begin
                     run_read_engine();
                     run_write_engine();
-                    if ((stream_words_remaining == 32'd0) && tile_status_valid) begin
+                    // leave the run only when every issued beat has landed:
+                    // exiting with responses in flight would poison the
+                    // next job's stream
+                    if ((stream_words_remaining == 32'd0) && (beats_unarrived == 32'd0) && tile_status_valid) begin
                         job_state <= JOB_WAIT_STATUS;
                     end
                 end
@@ -257,6 +262,9 @@ module dau_axi_stream_job #(
             end else if (m_axi_arvalid && m_axi_arready) begin
                 m_axi_arvalid <= 1'b0;
             end
+            beats_unarrived <= beats_unarrived
+                + (issue_fire ? {24'd0, next_burst_beats} : 32'd0)
+                - {31'd0, rbeat_fire};
 
             if (rbeat_fire) begin
                 read_fifo[fifo_wr_ptr] <= m_axi_rdata;
@@ -340,6 +348,7 @@ module dau_axi_stream_job #(
             read_address <= '0;
             ar_words_remaining <= 32'd0;
             stream_words_remaining <= 32'd0;
+            beats_unarrived <= 32'd0;
             fifo_wr_ptr <= '0;
             fifo_rd_ptr <= '0;
             fifo_count <= '0;

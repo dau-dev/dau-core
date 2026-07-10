@@ -49,6 +49,7 @@ module dau_axi_burst_reader #(
     logic [ADDR_WIDTH-1:0] next_address;
     logic [31:0] ar_words_remaining;      // words not yet covered by an issued AR
     logic [31:0] stream_words_remaining;  // words not yet delivered downstream
+    logic [31:0] beats_unarrived;         // issued words whose data has not landed
     logic        read_error;
     logic [63:0] read_fifo [FIFO_DEPTH];
     logic [FIFO_BITS-1:0] fifo_wr_ptr;
@@ -91,8 +92,14 @@ module dau_axi_burst_reader #(
             end else if (m_axi_arvalid && m_axi_arready) begin
                 m_axi_arvalid <= 1'b0;
             end
+            beats_unarrived <= beats_unarrived
+                + (issue_fire ? {24'd0, next_burst_beats} : 32'd0)
+                - {31'd0, rbeat_fire && running};
 
-            if (rbeat_fire) begin
+            // beats landing outside a run are orphans (a wedged or aborted
+            // job left responses in the interconnect): discard them so the
+            // next job's stream cannot start with another job's data
+            if (rbeat_fire && running) begin
                 read_fifo[fifo_wr_ptr] <= m_axi_rdata;
                 fifo_wr_ptr <= fifo_wr_ptr + 1'b1;
                 if (m_axi_rresp != 2'b00) begin
@@ -104,7 +111,7 @@ module dau_axi_burst_reader #(
                 stream_words_remaining <= stream_words_remaining - 32'd1;
             end
             fifo_count <= fifo_count
-                + {{FIFO_BITS {1'b0}}, rbeat_fire}
+                + {{FIFO_BITS {1'b0}}, rbeat_fire && running}
                 - {{FIFO_BITS {1'b0}}, consume_fire};
             fifo_space <= fifo_space
                 + {{FIFO_BITS {1'b0}}, consume_fire}
@@ -127,13 +134,16 @@ module dau_axi_burst_reader #(
                         next_address <= read_address;
                         ar_words_remaining <= {3'd0, read_length_bytes[31:3]};
                         stream_words_remaining <= {3'd0, read_length_bytes[31:3]};
+                        beats_unarrived <= 32'd0;
                         fifo_wr_ptr <= '0;
                         fifo_rd_ptr <= '0;
                         fifo_count <= '0;
                         fifo_space <= (FIFO_BITS + 1)'(FIFO_DEPTH);
                     end
                 end
-            end else if ((stream_words_remaining == 32'd0) || (consume_fire && stream_last)) begin
+            end else if ((stream_words_remaining == 32'd0) && (beats_unarrived == 32'd0)) begin
+                // finish only when every issued beat has landed: exiting
+                // with responses in flight would poison the next job
                 running <= 1'b0;
                 busy <= 1'b0;
                 done <= 1'b1;
@@ -153,6 +163,7 @@ module dau_axi_burst_reader #(
             next_address <= '0;
             ar_words_remaining <= 32'd0;
             stream_words_remaining <= 32'd0;
+            beats_unarrived <= 32'd0;
             read_error <= 1'b0;
             fifo_wr_ptr <= '0;
             fifo_rd_ptr <= '0;
