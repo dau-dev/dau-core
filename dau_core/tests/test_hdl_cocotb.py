@@ -7,18 +7,23 @@ import pytest
 
 from dau_core.hdl import (
     DAU_AGGREGATION_PKG_SV,
+    DAU_AXI_BURST_READER_SV,
     DAU_AXI_RAM_SIM_SV,
+    DAU_AXI_RECORD_WRITER_SV,
     DAU_AXI_STREAM_JOB_SV,
+    DAU_AXI_WRITE_MUX_SV,
     DAU_INT32_AGGREGATION_TILE_SV,
     DAU_INT32_ARROW_LITE_STREAM_AGGREGATION_SV,
     DAU_INT32_BAR_AGGREGATION_SV,
     DAU_INT32_GROUPED_AGGREGATION_SV,
     DAU_INT32_MAP_ALU_SV,
+    DAU_INT32_PAIR_KEY_FILTER_SV,
     DAU_INT32_PREDICATE_FILTER_SV,
     DAU_INT32_RECORD_BATCH_AGGREGATION_SV,
     DAU_INT32_STREAM_AGGREGATION_SV,
     DAU_MAP_ALU_PKG_SV,
     DAU_PREDICATE_PKG_SV,
+    DAU_STREAM_BROADCAST_SV,
 )
 
 _COCOTB_BENCH_PREFIX = "dau_core.tests.cocotb_benches"
@@ -86,6 +91,35 @@ def test_axi_bar_job_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> N
         ),
         hdl_toplevel="dau_axi_bar_job_sim",
         test_module=f"{_COCOTB_BENCH_PREFIX}.dau_axi_bar_job_tb",
+        tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_pair_key_filter_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_PAIR_KEY_FILTER_SV)),),
+        hdl_toplevel="dau_int32_pair_key_filter",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_pair_key_filter_tb",
+        tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_axi_bar_noc_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
+    _run_cocotb_verilator(
+        sources=(
+            Path(str(DAU_AXI_BURST_READER_SV)),
+            Path(str(DAU_AXI_RECORD_WRITER_SV)),
+            Path(str(DAU_AXI_WRITE_MUX_SV)),
+            Path(str(DAU_STREAM_BROADCAST_SV)),
+            Path(str(DAU_INT32_PAIR_KEY_FILTER_SV)),
+            Path(str(DAU_INT32_BAR_AGGREGATION_SV)),
+            Path(str(DAU_AXI_RAM_SIM_SV)),
+            _SV_TB_DIR / "dau_axi_bar_noc_sim.sv",
+        ),
+        hdl_toplevel="dau_axi_bar_noc_sim",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_axi_bar_noc_tb",
         tmp_path=tmp_path,
     )
 

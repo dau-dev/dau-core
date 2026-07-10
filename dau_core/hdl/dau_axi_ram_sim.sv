@@ -66,6 +66,16 @@ module dau_axi_ram_sim #(
     logic [7:0] read_beats_left;
     logic [7:0] read_wait;
 
+    // pipelined AR acceptance: real controllers take multiple bursts in
+    // flight, and masters with credit-based FIFOs only misbehave (or
+    // prove themselves) under that pressure
+    localparam int unsigned AR_QUEUE_DEPTH = 8;
+    logic [ADDR_WIDTH-1:0] ar_queue_addr [AR_QUEUE_DEPTH];
+    logic [7:0] ar_queue_len [AR_QUEUE_DEPTH];
+    logic [$clog2(AR_QUEUE_DEPTH)-1:0] ar_queue_wr;
+    logic [$clog2(AR_QUEUE_DEPTH)-1:0] ar_queue_rd;
+    logic [$clog2(AR_QUEUE_DEPTH):0] ar_queue_count;
+
     write_state_t write_state;
     logic [INDEX_BITS-1:0] write_index;
 
@@ -76,7 +86,7 @@ module dau_axi_ram_sim #(
     assign stall_read = tick == 3'd5;
     assign stall_write = tick == 3'd2;
 
-    assign s_axi_arready = (read_state == READ_IDLE) && !stall_read;
+    assign s_axi_arready = (ar_queue_count != AR_QUEUE_DEPTH[$clog2(AR_QUEUE_DEPTH):0]) && !stall_read;
     assign s_axi_rvalid = (read_state == READ_DATA) && !stall_read;
     assign s_axi_rdata = mem[read_index];
     assign s_axi_rresp = 2'b00;
@@ -95,17 +105,32 @@ module dau_axi_ram_sim #(
             read_index <= '0;
             read_beats_left <= 8'd0;
             read_wait <= 8'd0;
+            ar_queue_wr <= '0;
+            ar_queue_rd <= '0;
+            ar_queue_count <= '0;
             write_state <= WRITE_IDLE;
             write_index <= '0;
             tick <= 3'd0;
         end else begin
             tick <= tick + 3'd1;
 
+            if (s_axi_arvalid && s_axi_arready) begin
+                ar_queue_addr[ar_queue_wr] <= s_axi_araddr;
+                ar_queue_len[ar_queue_wr] <= s_axi_arlen;
+                ar_queue_wr <= ar_queue_wr + 1'b1;
+            end
+            ar_queue_count <= ar_queue_count
+                + {{$clog2(AR_QUEUE_DEPTH) {1'b0}}, s_axi_arvalid && s_axi_arready}
+                - {{$clog2(AR_QUEUE_DEPTH) {1'b0}},
+                   ((read_state == READ_IDLE) && (ar_queue_count != '0))
+                   || ((read_state == READ_DATA) && s_axi_rvalid && s_axi_rready && (read_beats_left == 8'd0) && (ar_queue_count != '0))};
+
             case (read_state)
                 READ_IDLE: begin
-                    if (s_axi_arvalid && s_axi_arready) begin
-                        read_index <= s_axi_araddr[INDEX_BITS+2:3];
-                        read_beats_left <= s_axi_arlen;
+                    if (ar_queue_count != '0) begin
+                        read_index <= ar_queue_addr[ar_queue_rd][INDEX_BITS+2:3];
+                        read_beats_left <= ar_queue_len[ar_queue_rd];
+                        ar_queue_rd <= ar_queue_rd + 1'b1;
                         read_wait <= 8'(READ_LATENCY);
                         read_state <= READ_WAIT;
                     end
@@ -121,7 +146,17 @@ module dau_axi_ram_sim #(
                     if (s_axi_rvalid && s_axi_rready) begin
                         read_index <= read_index + 1'b1;
                         if (read_beats_left == 8'd0) begin
-                            read_state <= READ_IDLE;
+                            // stream queued bursts back-to-back: real
+                            // controllers deliver continuous rvalid across
+                            // burst boundaries, the fill regime where
+                            // credit FIFOs must prove themselves
+                            if (ar_queue_count != '0) begin
+                                read_index <= ar_queue_addr[ar_queue_rd][INDEX_BITS+2:3];
+                                read_beats_left <= ar_queue_len[ar_queue_rd];
+                                ar_queue_rd <= ar_queue_rd + 1'b1;
+                            end else begin
+                                read_state <= READ_IDLE;
+                            end
                         end else begin
                             read_beats_left <= read_beats_left - 8'd1;
                         end
