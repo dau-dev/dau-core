@@ -76,6 +76,18 @@ class RegisterOffset(IntEnum):
     OPERATION = 0x0078
     RESULT_LENGTH_LOW = 0x007C
     RESULT_LENGTH_HIGH = 0x0080
+    # static composed-pipeline configuration (the OHLCV shell): the filter
+    # row count comes from INPUT_LENGTH (one row per 64-bit word), never a
+    # separate register
+    PIPELINE_FILTER_OP = 0x0090  # [2:0] op0, [5:4] combine, [10:8] op1, [16] target lane
+    PIPELINE_FILTER_CONSTANT0 = 0x0094
+    PIPELINE_FILTER_CONSTANT1 = 0x0098
+    PIPELINE_MAP_OP = 0x009C  # [2:0] op, [12:8] shift, [16] target lane
+    PIPELINE_MAP_CONSTANT = 0x00A0
+    PIPELINE_SELECTED_COUNT_LOW = 0x00B0
+    PIPELINE_SELECTED_COUNT_HIGH = 0x00B4
+    PIPELINE_GROUP_COUNT_LOW = 0x00B8
+    PIPELINE_GROUP_COUNT_HIGH = 0x00BC
 
 
 class ResetScope(IntFlag):
