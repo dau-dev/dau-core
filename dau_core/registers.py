@@ -90,6 +90,28 @@ class RegisterOffset(IntEnum):
     PIPELINE_GROUP_COUNT_HIGH = 0x00BC
 
 
+# broadcast-NoC lane register block: one NOC_LANE_STRIDE-sized window per
+# lane starting at NOC_LANE_BASE (inside the 4 KiB register window; the
+# global JOB_*/INPUT_* registers stay authoritative for the shared scan)
+NOC_LANE_BASE = 0x0100
+NOC_LANE_STRIDE = 0x20
+
+
+class NocLaneRegisterOffset(IntEnum):
+    OUTPUT_ADDRESS_LOW = 0x00
+    RESULT_LENGTH_LOW = 0x04
+    RECORD_COUNT_LOW = 0x08
+    RECORD_COUNT_HIGH = 0x0C
+    LANE_ERROR = 0x10
+
+
+def noc_lane_register(lane: int, offset: NocLaneRegisterOffset | int) -> int:
+    """BAR window offset of one lane's register."""
+    if lane < 0:
+        raise ValueError("lane must be non-negative")
+    return NOC_LANE_BASE + lane * NOC_LANE_STRIDE + int(offset)
+
+
 class ResetScope(IntFlag):
     OPERATOR = 1 << 0
     STREAM = 1 << 1
