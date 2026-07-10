@@ -191,6 +191,49 @@ class GroupAggregate:
     count: int
 
 
+@dataclass(frozen=True)
+class BarAggregate:
+    """One closed bar from the fused single-pass bar-aggregation tile: price
+    OHLC statistics plus the exact micro-share volume decomposition, all in
+    one pass over (key, price, shares, frac) rows."""
+
+    key: int
+    open: int
+    close: int
+    low: int
+    high: int
+    shares: int
+    frac: int
+    count: int
+
+
+def bar_aggregate_rows(rows: Iterable[tuple[int, int, int, int]]) -> list[BarAggregate]:
+    """Golden semantics for the fused bar-aggregation tile (ordered
+    close-out): consecutive rows with equal keys form a bar; volume is
+    ``shares * SCALE + frac`` recombined on the host."""
+    results: list[BarAggregate] = []
+    current: BarAggregate | None = None
+    for key, price, shares, frac in rows:
+        if current is None or key != current.key:
+            if current is not None:
+                results.append(current)
+            current = BarAggregate(key=key, open=price, close=price, low=price, high=price, shares=shares, frac=frac, count=1)
+        else:
+            current = BarAggregate(
+                key=key,
+                open=current.open,
+                close=price,
+                low=min(current.low, price),
+                high=max(current.high, price),
+                shares=current.shares + shares,
+                frac=current.frac + frac,
+                count=current.count + 1,
+            )
+    if current is not None:
+        results.append(current)
+    return results
+
+
 def grouped_aggregate_rows(rows: Iterable[tuple[int, int]]) -> list[GroupAggregate]:
     """Golden semantics for the ordered grouped-aggregation tile
     (close-out mode): consecutive rows with equal keys form a group; a group

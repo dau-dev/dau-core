@@ -7,8 +7,11 @@ import pytest
 
 from dau_core.hdl import (
     DAU_AGGREGATION_PKG_SV,
+    DAU_AXI_RAM_SIM_SV,
+    DAU_AXI_STREAM_JOB_SV,
     DAU_INT32_AGGREGATION_TILE_SV,
     DAU_INT32_ARROW_LITE_STREAM_AGGREGATION_SV,
+    DAU_INT32_BAR_AGGREGATION_SV,
     DAU_INT32_GROUPED_AGGREGATION_SV,
     DAU_INT32_MAP_ALU_SV,
     DAU_INT32_PREDICATE_FILTER_SV,
@@ -61,6 +64,37 @@ def test_arrow_lite_stream_aggregation_systemverilog_bench_runs_under_verilator(
     )
 
     assert "DAU_INT32_ARROW_LITE_STREAM_AGGREGATION_TB_OK" in result.stdout
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_bar_aggregation_systemverilog_bench_runs_under_verilator(tmp_path: Path) -> None:
+    result = _run_verilator_testbench(
+        sources=(
+            Path(str(DAU_INT32_BAR_AGGREGATION_SV)),
+            _SV_DIR / "dau_int32_bar_aggregation_tb.sv",
+        ),
+        top_module="dau_int32_bar_aggregation_tb",
+        work_dir=tmp_path,
+    )
+
+    assert "DAU_INT32_BAR_AGGREGATION_TB_OK" in result.stdout
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_axi_bar_job_systemverilog_bench_runs_under_verilator(tmp_path: Path) -> None:
+    result = _run_verilator_testbench(
+        sources=(
+            Path(str(DAU_AXI_STREAM_JOB_SV)),
+            Path(str(DAU_INT32_BAR_AGGREGATION_SV)),
+            Path(str(DAU_AXI_RAM_SIM_SV)),
+            _SV_DIR / "dau_axi_bar_job_sim.sv",
+            _SV_DIR / "dau_axi_bar_job_tb.sv",
+        ),
+        top_module="dau_axi_bar_job_tb",
+        work_dir=tmp_path,
+    )
+
+    assert "DAU_AXI_BAR_JOB_TB_OK" in result.stdout
 
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")

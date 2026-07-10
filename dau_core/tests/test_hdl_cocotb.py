@@ -7,8 +7,11 @@ import pytest
 
 from dau_core.hdl import (
     DAU_AGGREGATION_PKG_SV,
+    DAU_AXI_RAM_SIM_SV,
+    DAU_AXI_STREAM_JOB_SV,
     DAU_INT32_AGGREGATION_TILE_SV,
     DAU_INT32_ARROW_LITE_STREAM_AGGREGATION_SV,
+    DAU_INT32_BAR_AGGREGATION_SV,
     DAU_INT32_GROUPED_AGGREGATION_SV,
     DAU_INT32_MAP_ALU_SV,
     DAU_INT32_PREDICATE_FILTER_SV,
@@ -58,6 +61,31 @@ def test_arrow_lite_stream_aggregation_runs_real_cocotb_against_systemverilog(tm
         ),
         hdl_toplevel="dau_int32_arrow_lite_stream_aggregation",
         test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_arrow_lite_stream_aggregation_tb",
+        tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_bar_aggregation_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_BAR_AGGREGATION_SV)),),
+        hdl_toplevel="dau_int32_bar_aggregation",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_bar_aggregation_tb",
+        tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_axi_bar_job_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
+    _run_cocotb_verilator(
+        sources=(
+            Path(str(DAU_AXI_STREAM_JOB_SV)),
+            Path(str(DAU_INT32_BAR_AGGREGATION_SV)),
+            Path(str(DAU_AXI_RAM_SIM_SV)),
+            _SV_TB_DIR / "dau_axi_bar_job_sim.sv",
+        ),
+        hdl_toplevel="dau_axi_bar_job_sim",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_axi_bar_job_tb",
         tmp_path=tmp_path,
     )
 

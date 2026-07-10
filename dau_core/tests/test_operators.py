@@ -3,12 +3,14 @@ from __future__ import annotations
 import pytest
 
 from dau_core.operators import (
+    BarAggregate,
     FilterPredicate,
     GroupAggregate,
     MapConfig,
     MapOp,
     PredicateCombine,
     PredicateOp,
+    bar_aggregate_rows,
     filter_rows,
     filter_values,
     grouped_aggregate_rows,
@@ -169,3 +171,38 @@ def test_ohlcv_graph_golden_composition() -> None:
     assert [bar.key for bar in bars] == [570, 571]
     assert bars[0] == GroupAggregate(key=570, first=100, last=105, minimum=100, maximum=105, total=205, count=2)
     assert bars[1] == GroupAggregate(key=571, first=95, last=102, minimum=95, maximum=102, total=197, count=2)
+
+
+def test_bar_aggregate_fuses_price_stats_and_volume() -> None:
+    rows = [
+        (570, 100, 10, 500_000),
+        (570, 105, 3, 0),
+        (570, 95, 2, 250_000),
+        (571, 102, 7, 0),
+    ]
+    bars = bar_aggregate_rows(rows)
+    assert bars == [
+        BarAggregate(key=570, open=100, close=95, low=95, high=105, shares=15, frac=750_000, count=3),
+        BarAggregate(key=571, open=102, close=102, low=102, high=102, shares=7, frac=0, count=1),
+    ]
+
+
+def test_bar_aggregate_matches_composed_goldens() -> None:
+    import random
+
+    rng = random.Random(11)
+    rows = []
+    key = 0
+    for _ in range(500):
+        key += rng.random() < 0.1
+        rows.append((key, rng.randint(-1000, 1000), rng.randint(0, 10_000), rng.randint(0, 999_999)))
+    fused = bar_aggregate_rows(rows)
+    prices = grouped_aggregate_rows([(k, p) for k, p, _, _ in rows])
+    shares = grouped_aggregate_rows([(k, s) for k, _, s, _ in rows])
+    fracs = grouped_aggregate_rows([(k, f) for k, _, _, f in rows])
+    assert [b.key for b in fused] == [g.key for g in prices]
+    for bar, price, share, frac in zip(fused, prices, shares, fracs):
+        assert (bar.open, bar.close, bar.low, bar.high) == (price.first, price.last, price.minimum, price.maximum)
+        assert bar.shares == share.total
+        assert bar.frac == frac.total
+        assert bar.count == price.count
