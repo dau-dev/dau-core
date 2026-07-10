@@ -5,15 +5,30 @@ from shutil import which
 
 import pytest
 
-from dau_core.hdl import DAU_INT32_AGGREGATION_TILE_SV, DAU_INT32_ARROW_LITE_STREAM_AGGREGATION_SV, DAU_INT32_STREAM_AGGREGATION_SV
+from dau_core.hdl import (
+    DAU_AGGREGATION_PKG_SV,
+    DAU_INT32_AGGREGATION_TILE_SV,
+    DAU_INT32_ARROW_LITE_STREAM_AGGREGATION_SV,
+    DAU_INT32_GROUPED_AGGREGATION_SV,
+    DAU_INT32_MAP_ALU_SV,
+    DAU_INT32_PREDICATE_FILTER_SV,
+    DAU_INT32_RECORD_BATCH_AGGREGATION_SV,
+    DAU_INT32_STREAM_AGGREGATION_SV,
+    DAU_MAP_ALU_PKG_SV,
+    DAU_PREDICATE_PKG_SV,
+)
 
 _COCOTB_BENCH_PREFIX = "dau_core.tests.cocotb_benches"
+_SV_TB_DIR = Path(__file__).parent / "sv"
 
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_int32_aggregation_tile_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
     _run_cocotb_verilator(
-        sources=(Path(str(DAU_INT32_AGGREGATION_TILE_SV)),),
+        sources=(
+            Path(str(DAU_AGGREGATION_PKG_SV)),
+            Path(str(DAU_INT32_AGGREGATION_TILE_SV)),
+        ),
         hdl_toplevel="dau_int32_aggregation_tile",
         test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_aggregation_tile_tb",
         tmp_path=tmp_path,
@@ -24,6 +39,7 @@ def test_int32_aggregation_tile_runs_real_cocotb_against_systemverilog(tmp_path:
 def test_int32_stream_aggregation_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
     _run_cocotb_verilator(
         sources=(
+            Path(str(DAU_AGGREGATION_PKG_SV)),
             Path(str(DAU_INT32_AGGREGATION_TILE_SV)),
             Path(str(DAU_INT32_STREAM_AGGREGATION_SV)),
         ),
@@ -36,9 +52,55 @@ def test_int32_stream_aggregation_runs_real_cocotb_against_systemverilog(tmp_pat
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_arrow_lite_stream_aggregation_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
     _run_cocotb_verilator(
-        sources=(Path(str(DAU_INT32_ARROW_LITE_STREAM_AGGREGATION_SV)),),
+        sources=(
+            Path(str(DAU_AGGREGATION_PKG_SV)),
+            Path(str(DAU_INT32_ARROW_LITE_STREAM_AGGREGATION_SV)),
+        ),
         hdl_toplevel="dau_int32_arrow_lite_stream_aggregation",
         test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_arrow_lite_stream_aggregation_tb",
+        tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_grouped_aggregation_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_GROUPED_AGGREGATION_SV)),),
+        hdl_toplevel="dau_int32_grouped_aggregation",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_grouped_aggregation_tb",
+        tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_map_alu_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_MAP_ALU_PKG_SV)), Path(str(DAU_INT32_MAP_ALU_SV))),
+        hdl_toplevel="dau_int32_map_alu",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_map_alu_tb",
+        tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_predicate_filter_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_PREDICATE_PKG_SV)), Path(str(DAU_INT32_PREDICATE_FILTER_SV))),
+        hdl_toplevel="dau_int32_predicate_filter",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_predicate_filter_tb",
+        tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_record_batch_aggregation_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
+    _run_cocotb_verilator(
+        sources=(
+            Path(str(DAU_AGGREGATION_PKG_SV)),
+            Path(str(DAU_INT32_RECORD_BATCH_AGGREGATION_SV)),
+        ),
+        hdl_toplevel="dau_int32_record_batch_aggregation",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_record_batch_aggregation_tb",
         tmp_path=tmp_path,
     )
 

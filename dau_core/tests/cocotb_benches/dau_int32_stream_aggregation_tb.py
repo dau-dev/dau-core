@@ -4,7 +4,7 @@ import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge
 
-from dau_core.aggregations import aggregate_values
+from dau_core.operators import aggregate_values
 from dau_core.stream import LogicalType, OperationCode, StreamAggregationErrorCode
 
 

@@ -1,5 +1,6 @@
-from .aggregations import EmptyInputError, UnsupportedAggregationError, aggregate_values, synthetic_values
 from .capabilities import DeviceCapabilities, DmaConstraints, OperatorCapability
+from .design import DauDesign, OperatorUnit, UnitKind, format_units, parse_units
+from .operators import EmptyInputError, UnsupportedAggregationError, aggregate_values, synthetic_values
 from .registers import (
     DAU_MAGIC_WORD,
     DEFAULT_STREAM_JOB_REGISTER_CONTRACT,
@@ -14,6 +15,7 @@ from .registers import (
     StreamProtocolVersion,
 )
 from .stream import (
+    DEFAULT_RECORD_BATCH_LIMITS,
     BatchHeader,
     ColumnDescriptor,
     GroupRole,
@@ -22,8 +24,10 @@ from .stream import (
     OperationCode,
     OperationDescriptor,
     PolicyFlag,
+    RecordBatchLimits,
     StreamAggregationErrorCode,
     StreamFlag,
+    validate_record_batch,
 )
 
 __version__ = "0.1.0"
@@ -32,7 +36,9 @@ __all__ = [
     "BatchHeader",
     "ColumnDescriptor",
     "DAU_MAGIC_WORD",
+    "DEFAULT_RECORD_BATCH_LIMITS",
     "DEFAULT_STREAM_JOB_REGISTER_CONTRACT",
+    "DauDesign",
     "DeviceCapabilities",
     "DmaConstraints",
     "EmptyInputError",
@@ -44,7 +50,9 @@ __all__ = [
     "OperationCode",
     "OperationDescriptor",
     "OperatorCapability",
+    "OperatorUnit",
     "PolicyFlag",
+    "RecordBatchLimits",
     "RegisterMapVersion",
     "RegisterBlockSnapshot",
     "RegisterOffset",
@@ -54,7 +62,11 @@ __all__ = [
     "StreamFlag",
     "StreamJobRegisterContract",
     "StreamProtocolVersion",
+    "UnitKind",
     "UnsupportedAggregationError",
     "aggregate_values",
+    "format_units",
+    "parse_units",
     "synthetic_values",
+    "validate_record_batch",
 ]

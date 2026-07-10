@@ -32,6 +32,24 @@ class OperationCode(IntEnum):
     COUNT = 4
     AVERAGE = 5
 
+    @classmethod
+    def from_name(cls, name: str) -> OperationCode:
+        try:
+            return cls[name.strip().upper()]
+        except KeyError:
+            known = ", ".join(opcode.name.lower() for opcode in cls)
+            raise ValueError(f"unknown operation {name!r}; expected one of: {known}") from None
+
+
+def output_type_for(opcode: OperationCode) -> LogicalType:
+    """The wire type an aggregation opcode produces (single source of truth
+    for every backend, API layer, and example)."""
+    if opcode is OperationCode.AVERAGE:
+        return LogicalType.FLOAT64
+    if opcode is OperationCode.COUNT:
+        return LogicalType.UINT64
+    return LogicalType.INT64
+
 
 class StreamAggregationErrorCode(IntEnum):
     DESCRIPTOR = 1
@@ -256,6 +274,64 @@ class OperationDescriptor:
             policy_flags=PolicyFlag(unpacked[6]),
             group_key_set_id=unpacked[7],
         )
+
+
+@dataclass(frozen=True)
+class RecordBatchLimits:
+    """Caps for multi-column record batches (see dau-docs record-batch contract).
+
+    Defaults are sized to the 1 MiB stream-job staging buffers: header +
+    descriptor table + payload must fit one staging region.
+    """
+
+    max_columns: int = 16
+    max_rows: int = 1 << 20
+    max_batch_bytes: int = 0x0010_0000
+    alignment_bytes: int = 64
+
+    def __post_init__(self) -> None:
+        if self.max_columns < 1:
+            raise ValueError("max_columns must be positive")
+        if self.max_rows < 1:
+            raise ValueError("max_rows must be positive")
+        if self.max_batch_bytes < 1:
+            raise ValueError("max_batch_bytes must be positive")
+        if self.alignment_bytes < 1:
+            raise ValueError("alignment_bytes must be positive")
+
+
+DEFAULT_RECORD_BATCH_LIMITS = RecordBatchLimits()
+
+
+def validate_record_batch(
+    header: BatchHeader, columns: tuple[ColumnDescriptor, ...], *, limits: RecordBatchLimits = DEFAULT_RECORD_BATCH_LIMITS
+) -> None:
+    """Validate the multi-column batch shape shared by host codecs and HDL models."""
+    if header.column_count != len(columns):
+        raise InvalidStreamError(f"header column_count {header.column_count} does not match {len(columns)} descriptors")
+    if not columns:
+        raise InvalidStreamError("record batch requires at least one column")
+    if len(columns) > limits.max_columns:
+        raise InvalidStreamError(f"column count {len(columns)} exceeds limit {limits.max_columns}")
+    if header.row_count > limits.max_rows:
+        raise InvalidStreamError(f"row_count {header.row_count} exceeds limit {limits.max_rows}")
+    batch_end = header.payload_offset + header.payload_length
+    if batch_end > limits.max_batch_bytes:
+        raise InvalidStreamError(f"batch extent {batch_end} exceeds limit {limits.max_batch_bytes}")
+    field_ids = [column.field_id for column in columns]
+    if len(set(field_ids)) != len(field_ids):
+        raise InvalidStreamError("column field_id values must be unique")
+    previous_end = header.payload_offset
+    for column in columns:
+        if column.row_count != header.row_count:
+            raise InvalidStreamError(f"column {column.field_id} row_count does not match batch header")
+        if column.payload_offset % limits.alignment_bytes != 0:
+            raise InvalidStreamError(f"column {column.field_id} payload offset must be {limits.alignment_bytes}-byte aligned")
+        if column.payload_offset < previous_end:
+            raise InvalidStreamError(f"column {column.field_id} payload overlaps the previous column")
+        if column.payload_offset + column.payload_length > batch_end:
+            raise InvalidStreamError(f"column {column.field_id} payload extends beyond the batch payload window")
+        previous_end = column.payload_offset + column.payload_length
 
 
 def _validate_u8(name: str, value: int) -> None:

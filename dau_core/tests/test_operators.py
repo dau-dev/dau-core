@@ -1,0 +1,171 @@
+from __future__ import annotations
+
+import pytest
+
+from dau_core.operators import (
+    FilterPredicate,
+    GroupAggregate,
+    MapConfig,
+    MapOp,
+    PredicateCombine,
+    PredicateOp,
+    filter_rows,
+    filter_values,
+    grouped_aggregate_rows,
+    map_rows,
+    map_values,
+)
+
+_VALUES = [7, -2, 5, 11, 5, 0, -100, 2**31 - 1, -(2**31)]
+
+
+@pytest.mark.parametrize(
+    ("op", "constant", "expected"),
+    [
+        (PredicateOp.EQ, 5, [5, 5]),
+        (PredicateOp.NE, 5, [7, -2, 11, 0, -100, 2**31 - 1, -(2**31)]),
+        (PredicateOp.LT, 0, [-2, -100, -(2**31)]),
+        (PredicateOp.LE, 0, [-2, 0, -100, -(2**31)]),
+        (PredicateOp.GT, 5, [7, 11, 2**31 - 1]),
+        (PredicateOp.GE, 5, [7, 5, 11, 5, 2**31 - 1]),
+    ],
+)
+def test_single_predicate_ops(op: PredicateOp, constant: int, expected: list[int]) -> None:
+    assert filter_values(_VALUES, FilterPredicate(op, constant)) == expected
+
+
+def test_and_combine_is_range_filter() -> None:
+    predicate = FilterPredicate(PredicateOp.GE, 0, PredicateCombine.AND, PredicateOp.LT, 10)
+    assert filter_values(_VALUES, predicate) == [7, 5, 5, 0]
+
+
+def test_or_combine_is_union() -> None:
+    predicate = FilterPredicate(PredicateOp.LT, -50, PredicateCombine.OR, PredicateOp.GT, 50)
+    assert filter_values(_VALUES, predicate) == [-100, 2**31 - 1, -(2**31)]
+
+
+def test_empty_selection_and_empty_input() -> None:
+    predicate = FilterPredicate(PredicateOp.GT, 2**31 - 1)
+    assert filter_values(_VALUES, predicate) == []
+    assert filter_values([], FilterPredicate(PredicateOp.EQ, 0)) == []
+
+
+def test_order_is_preserved() -> None:
+    predicate = FilterPredicate(PredicateOp.NE, 0)
+    result = filter_values(_VALUES, predicate)
+    assert result == [value for value in _VALUES if value != 0]
+
+
+def test_constants_must_fit_int32() -> None:
+    with pytest.raises(ValueError, match="int32"):
+        FilterPredicate(PredicateOp.EQ, 2**31)
+
+
+def test_map_add_sub_mul() -> None:
+    values = [7, -2, 5, 0, -100]
+    assert map_values(values, MapConfig(op=MapOp.ADD, constant=3)) == [10, 1, 8, 3, -97]
+    assert map_values(values, MapConfig(op=MapOp.SUB, constant=3)) == [4, -5, 2, -3, -103]
+    assert map_values(values, MapConfig(op=MapOp.MUL, constant=-2)) == [-14, 4, -10, 0, 200]
+
+
+def test_map_wraps_int32() -> None:
+    assert map_values([2**31 - 1], MapConfig(op=MapOp.ADD, constant=1)) == [-(2**31)]
+    assert map_values([-(2**31)], MapConfig(op=MapOp.SUB, constant=1)) == [2**31 - 1]
+    assert map_values([2**30], MapConfig(op=MapOp.MUL, constant=4)) == [0]
+
+
+def test_map_mulshr_is_bucket_derivation() -> None:
+    # seconds -> minutes via multiply-shift: floor(v * 139811 / 2**23) == v // 60,
+    # exact over the full day range [0, 86400)
+    config = MapConfig(op=MapOp.MULSHR, constant=139811, shift=23)
+    seconds = [0, 59, 60, 61, 3599, 3600, 34200, 57600, 86399]
+    assert map_values(seconds, config) == [s // 60 for s in seconds]
+
+
+def test_map_mulshr_arithmetic_shift_on_negative() -> None:
+    assert map_values([-7], MapConfig(op=MapOp.MULSHR, constant=1, shift=1)) == [-4]
+
+
+def test_map_shift_and_bitwise_key_packing() -> None:
+    # pack a small id into the high bits then OR in a low field
+    assert map_values([5], MapConfig(op=MapOp.SHL, shift=16)) == [5 << 16]
+    assert map_values([0x1234_0000 - 2**31], MapConfig(op=MapOp.AND, constant=0x0FF0_0000)) == [0x0230_0000]
+    assert map_values([1 << 16], MapConfig(op=MapOp.OR, constant=0x2A)) == [(1 << 16) | 0x2A]
+
+
+def test_map_order_and_count_preserved() -> None:
+    values = list(range(-5, 6))
+    result = map_values(values, MapConfig(op=MapOp.ADD, constant=0))
+    assert result == values
+
+
+def test_map_config_validation() -> None:
+    with pytest.raises(ValueError, match="int32"):
+        MapConfig(op=MapOp.ADD, constant=2**31)
+    with pytest.raises(ValueError, match="shift"):
+        MapConfig(op=MapOp.SHL, shift=32)
+
+
+def test_grouped_aggregate_consecutive_keys() -> None:
+    rows = [(1, 10), (1, 5), (1, 20), (2, -3), (3, 7), (3, 7)]
+    assert grouped_aggregate_rows(rows) == [
+        GroupAggregate(key=1, first=10, last=20, minimum=5, maximum=20, total=35, count=3),
+        GroupAggregate(key=2, first=-3, last=-3, minimum=-3, maximum=-3, total=-3, count=1),
+        GroupAggregate(key=3, first=7, last=7, minimum=7, maximum=7, total=14, count=2),
+    ]
+
+
+def test_grouped_aggregate_reappearing_key_opens_new_partial() -> None:
+    rows = [(5, 1), (7, 2), (5, 3)]
+    results = grouped_aggregate_rows(rows)
+    assert [group.key for group in results] == [5, 7, 5]
+    assert results[0].total == 1
+    assert results[2].total == 3
+
+
+def test_grouped_aggregate_single_group_and_empty() -> None:
+    assert grouped_aggregate_rows([]) == []
+    ohlcv = grouped_aggregate_rows([(9, 100), (9, 105), (9, 95), (9, 102)])
+    assert ohlcv == [GroupAggregate(key=9, first=100, last=102, minimum=95, maximum=105, total=402, count=4)]
+
+
+def test_grouped_aggregate_int64_sum_of_int32_extremes() -> None:
+    rows = [(1, 2**31 - 1)] * 4
+    result = grouped_aggregate_rows(rows)[0]
+    assert result.total == 4 * (2**31 - 1)
+    assert result.count == 4
+
+
+def test_filter_rows_on_value_lane_keeps_pairs_aligned() -> None:
+    rows = [(570, 100), (570, 0), (571, -5), (571, 99)]
+    predicate = FilterPredicate(PredicateOp.GT, 0)
+    assert filter_rows(rows, predicate) == [(570, 100), (571, 99)]
+
+
+def test_filter_rows_on_key_lane() -> None:
+    rows = [(570, 100), (571, 99), (572, 5)]
+    predicate = FilterPredicate(PredicateOp.LE, 571)
+    assert filter_rows(rows, predicate, on_key=True) == [(570, 100), (571, 99)]
+
+
+def test_map_rows_key_lane_derives_buckets_value_passthrough() -> None:
+    # (time_seconds, price) -> (minute_bucket, price)
+    config = MapConfig(op=MapOp.MULSHR, constant=139811, shift=23)
+    rows = [(34200, 100), (34259, 105), (34260, 95)]
+    assert map_rows(rows, config, on_key=True) == [(570, 100), (570, 105), (571, 95)]
+
+
+def test_map_rows_value_lane_key_passthrough() -> None:
+    config = MapConfig(op=MapOp.ADD, constant=1000)
+    assert map_rows([(1, 5), (2, -5)], config) == [(1, 1005), (2, 995)]
+
+
+def test_ohlcv_graph_golden_composition() -> None:
+    # filter eligibility -> derive minute buckets -> bars
+    trades = [(34200, 100), (34210, 0), (34259, 105), (34260, 95), (34261, 102)]
+    eligible = filter_rows(trades, FilterPredicate(PredicateOp.GT, 0))
+    keyed = map_rows(eligible, MapConfig(op=MapOp.MULSHR, constant=139811, shift=23), on_key=True)
+    bars = grouped_aggregate_rows(keyed)
+    assert [bar.key for bar in bars] == [570, 571]
+    assert bars[0] == GroupAggregate(key=570, first=100, last=105, minimum=100, maximum=105, total=205, count=2)
+    assert bars[1] == GroupAggregate(key=571, first=95, last=102, minimum=95, maximum=102, total=197, count=2)

@@ -2,7 +2,7 @@ import math
 
 import pytest
 
-from dau_core.aggregations import EmptyInputError, aggregate_values, synthetic_values
+from dau_core.operators import EmptyInputError, aggregate_values, synthetic_values
 from dau_core.stream import LogicalType, OperationCode
 
 

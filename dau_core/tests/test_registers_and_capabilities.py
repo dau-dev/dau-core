@@ -145,7 +145,7 @@ def test_packaged_identity_register_hdl_exposes_reset_write_pulse_ports():
 
 def test_device_capabilities_report_supported_operations_and_dma_constraints():
     capabilities = DeviceCapabilities(
-        platform_id="nitefury",
+        platform_id="dpv1",
         pci_vendor_id=0x10EE,
         pci_device_id=0x7011,
         register_map_version=RegisterMapVersion(0, 1),

@@ -68,8 +68,8 @@ module dau_int32_arrow_lite_stream_aggregation_tb;
 
     task automatic send_word(input logic [63:0] word, input logic last_word);
         begin
-            if (input_ready !== 1'b1) begin
-                $fatal(1, "input_ready was low before input word");
+            while (input_ready !== 1'b1) begin
+                tick();
             end
             input_data = word;
             input_last = last_word;

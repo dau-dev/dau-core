@@ -4,9 +4,9 @@ import struct
 
 import cocotb
 from cocotb.clock import Clock
-from cocotb.triggers import RisingEdge
+from cocotb.triggers import ReadOnly, RisingEdge
 
-from dau_core.aggregations import aggregate_values
+from dau_core.operators import aggregate_values
 from dau_core.stream import (
     BatchHeader,
     ColumnDescriptor,
@@ -124,15 +124,21 @@ async def _reset(dut) -> None:
 
 
 async def _send_words(dut, words: list[int]) -> None:
+    # the one-sample-per-cycle payload path deasserts input_ready every other
+    # payload cycle; sample ready in the ReadOnly phase and only advance on a
+    # real fire
     for index, word in enumerate(words):
-        while int(dut.input_ready.value) == 0:
-            await RisingEdge(dut.clk)
         dut.input_data.value = word
         dut.input_last.value = int(index == len(words) - 1)
         dut.input_valid.value = 1
-        await RisingEdge(dut.clk)
-        dut.input_valid.value = 0
-        dut.input_last.value = 0
+        while True:
+            await ReadOnly()
+            fired = int(dut.input_ready.value) == 1
+            await RisingEdge(dut.clk)
+            if fired:
+                break
+    dut.input_valid.value = 0
+    dut.input_last.value = 0
 
 
 async def _collect_output_words(dut) -> list[int]:

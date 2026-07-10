@@ -19,34 +19,13 @@ module dau_int32_aggregation_tile (
     localparam logic [2:0] OP_COUNT = 3'd4;
 
     logic signed [63:0] accumulator;
-    logic signed [63:0] sample_value;
     logic signed [63:0] next_accumulator;
     logic [63:0]        sample_count;
     logic [63:0]        next_sample_count;
 
     assign input_ready = !result_valid;
-    assign sample_value = {{32{input_value[31]}}, input_value};
     assign next_sample_count = sample_count + 64'd1;
-
-    always_comb begin
-        unique case (input_opcode)
-            OP_MIN: begin
-                next_accumulator = (sample_count == 64'd0) ? sample_value : ((sample_value < accumulator) ? sample_value : accumulator);
-            end
-            OP_MAX: begin
-                next_accumulator = (sample_count == 64'd0) ? sample_value : ((sample_value > accumulator) ? sample_value : accumulator);
-            end
-            OP_SUM: begin
-                next_accumulator = (sample_count == 64'd0) ? sample_value : (accumulator + sample_value);
-            end
-            OP_COUNT: begin
-                next_accumulator = $signed(next_sample_count);
-            end
-            default: begin
-                next_accumulator = 64'sd0;
-            end
-        endcase
-    end
+    assign next_accumulator = dau_aggregation_pkg::aggregate_next(input_opcode, accumulator, sample_count, input_value, next_sample_count);
 
     always_ff @(posedge clk) begin
         if (rst) begin

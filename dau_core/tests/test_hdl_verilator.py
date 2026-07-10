@@ -5,7 +5,18 @@ from shutil import which
 
 import pytest
 
-from dau_core.hdl import DAU_INT32_AGGREGATION_TILE_SV, DAU_INT32_ARROW_LITE_STREAM_AGGREGATION_SV, DAU_INT32_STREAM_AGGREGATION_SV
+from dau_core.hdl import (
+    DAU_AGGREGATION_PKG_SV,
+    DAU_INT32_AGGREGATION_TILE_SV,
+    DAU_INT32_ARROW_LITE_STREAM_AGGREGATION_SV,
+    DAU_INT32_GROUPED_AGGREGATION_SV,
+    DAU_INT32_MAP_ALU_SV,
+    DAU_INT32_PREDICATE_FILTER_SV,
+    DAU_INT32_RECORD_BATCH_AGGREGATION_SV,
+    DAU_INT32_STREAM_AGGREGATION_SV,
+    DAU_MAP_ALU_PKG_SV,
+    DAU_PREDICATE_PKG_SV,
+)
 
 _SV_DIR = Path(__file__).parent / "sv"
 
@@ -13,7 +24,7 @@ _SV_DIR = Path(__file__).parent / "sv"
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_int32_aggregation_tile_systemverilog_bench_runs_under_verilator(tmp_path: Path) -> None:
     result = _run_verilator_testbench(
-        sources=(Path(str(DAU_INT32_AGGREGATION_TILE_SV)), _SV_DIR / "dau_int32_aggregation_tile_tb.sv"),
+        sources=(Path(str(DAU_AGGREGATION_PKG_SV)), Path(str(DAU_INT32_AGGREGATION_TILE_SV)), _SV_DIR / "dau_int32_aggregation_tile_tb.sv"),
         top_module="dau_int32_aggregation_tile_tb",
         work_dir=tmp_path,
     )
@@ -25,6 +36,7 @@ def test_int32_aggregation_tile_systemverilog_bench_runs_under_verilator(tmp_pat
 def test_int32_stream_aggregation_systemverilog_bench_runs_under_verilator(tmp_path: Path) -> None:
     result = _run_verilator_testbench(
         sources=(
+            Path(str(DAU_AGGREGATION_PKG_SV)),
             Path(str(DAU_INT32_AGGREGATION_TILE_SV)),
             Path(str(DAU_INT32_STREAM_AGGREGATION_SV)),
             _SV_DIR / "dau_int32_stream_aggregation_tb.sv",
@@ -40,6 +52,7 @@ def test_int32_stream_aggregation_systemverilog_bench_runs_under_verilator(tmp_p
 def test_arrow_lite_stream_aggregation_systemverilog_bench_runs_under_verilator(tmp_path: Path) -> None:
     result = _run_verilator_testbench(
         sources=(
+            Path(str(DAU_AGGREGATION_PKG_SV)),
             Path(str(DAU_INT32_ARROW_LITE_STREAM_AGGREGATION_SV)),
             _SV_DIR / "dau_int32_arrow_lite_stream_aggregation_tb.sv",
         ),
@@ -48,6 +61,65 @@ def test_arrow_lite_stream_aggregation_systemverilog_bench_runs_under_verilator(
     )
 
     assert "DAU_INT32_ARROW_LITE_STREAM_AGGREGATION_TB_OK" in result.stdout
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_grouped_aggregation_systemverilog_bench_runs_under_verilator(tmp_path: Path) -> None:
+    result = _run_verilator_testbench(
+        sources=(
+            Path(str(DAU_INT32_GROUPED_AGGREGATION_SV)),
+            _SV_DIR / "dau_int32_grouped_aggregation_tb.sv",
+        ),
+        top_module="dau_int32_grouped_aggregation_tb",
+        work_dir=tmp_path,
+    )
+
+    assert "DAU_INT32_GROUPED_AGGREGATION_TB_OK" in result.stdout
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_map_alu_systemverilog_bench_runs_under_verilator(tmp_path: Path) -> None:
+    result = _run_verilator_testbench(
+        sources=(
+            Path(str(DAU_MAP_ALU_PKG_SV)),
+            Path(str(DAU_INT32_MAP_ALU_SV)),
+            _SV_DIR / "dau_int32_map_alu_tb.sv",
+        ),
+        top_module="dau_int32_map_alu_tb",
+        work_dir=tmp_path,
+    )
+
+    assert "DAU_INT32_MAP_ALU_TB_OK" in result.stdout
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_predicate_filter_systemverilog_bench_runs_under_verilator(tmp_path: Path) -> None:
+    result = _run_verilator_testbench(
+        sources=(
+            Path(str(DAU_PREDICATE_PKG_SV)),
+            Path(str(DAU_INT32_PREDICATE_FILTER_SV)),
+            _SV_DIR / "dau_int32_predicate_filter_tb.sv",
+        ),
+        top_module="dau_int32_predicate_filter_tb",
+        work_dir=tmp_path,
+    )
+
+    assert "DAU_INT32_PREDICATE_FILTER_TB_OK" in result.stdout
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_record_batch_aggregation_systemverilog_bench_runs_under_verilator(tmp_path: Path) -> None:
+    result = _run_verilator_testbench(
+        sources=(
+            Path(str(DAU_AGGREGATION_PKG_SV)),
+            Path(str(DAU_INT32_RECORD_BATCH_AGGREGATION_SV)),
+            _SV_DIR / "dau_int32_record_batch_aggregation_tb.sv",
+        ),
+        top_module="dau_int32_record_batch_aggregation_tb",
+        work_dir=tmp_path,
+    )
+
+    assert "DAU_INT32_RECORD_BATCH_AGGREGATION_TB_OK" in result.stdout
 
 
 def _run_verilator_testbench(**kwargs):
