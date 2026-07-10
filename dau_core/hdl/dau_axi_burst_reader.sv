@@ -37,7 +37,13 @@ module dau_axi_burst_reader #(
     output logic             stream_valid,
     input  wire logic        stream_ready,
     output logic [63:0]      stream_data,
-    output logic             stream_last
+    output logic             stream_last,
+
+    // debug taps: state of the last completed run and boundary anomalies
+    output logic [63:0]      dbg_first_stream_word,
+    output logic [31:0]      dbg_first_araddr,
+    output logic [31:0]      dbg_beats_while_idle,
+    output logic [31:0]      dbg_final_fifo_count
 );
     localparam logic [7:0] ERR_JOB_LENGTH = 8'hFE;
     localparam logic [7:0] ERR_AXI_READ = 8'hFC;
@@ -61,6 +67,8 @@ module dau_axi_burst_reader #(
     logic consume_fire;
     logic issue_fire;
     logic [7:0] next_burst_beats;
+    logic dbg_first_word_seen;
+    logic dbg_first_araddr_seen;
 
     assign m_axi_arsize = 3'b011;   // 8 bytes
     assign m_axi_arburst = 2'b01;   // INCR
@@ -117,12 +125,26 @@ module dau_axi_burst_reader #(
                 + {{FIFO_BITS {1'b0}}, consume_fire}
                 - (issue_fire ? {{(FIFO_BITS - 7) {1'b0}}, next_burst_beats} : '0);
 
+            if (rbeat_fire && !running) begin
+                dbg_beats_while_idle <= dbg_beats_while_idle + 32'd1;
+            end
+            if (consume_fire && !dbg_first_word_seen) begin
+                dbg_first_word_seen <= 1'b1;
+                dbg_first_stream_word <= stream_data;
+            end
+            if (issue_fire && !dbg_first_araddr_seen) begin
+                dbg_first_araddr_seen <= 1'b1;
+                dbg_first_araddr <= next_address[31:0];
+            end
+
             if (!running) begin
                 if (start) begin
                     done <= 1'b0;
                     error <= 1'b0;
                     error_code <= 8'd0;
                     read_error <= 1'b0;
+                    dbg_first_word_seen <= 1'b0;
+                    dbg_first_araddr_seen <= 1'b0;
                     if ((read_length_bytes == 32'd0)
                             || (read_length_bytes[LENGTH_ALIGN_BITS-1:0] != '0)) begin
                         done <= 1'b1;
@@ -149,6 +171,7 @@ module dau_axi_burst_reader #(
                 done <= 1'b1;
                 error <= read_error;
                 error_code <= read_error ? ERR_AXI_READ : 8'd0;
+                dbg_final_fifo_count <= {{(31 - FIFO_BITS) {1'b0}}, fifo_count};
             end
         end
     end
@@ -172,6 +195,12 @@ module dau_axi_burst_reader #(
             m_axi_araddr <= '0;
             m_axi_arlen <= 8'd0;
             m_axi_arvalid <= 1'b0;
+            dbg_first_stream_word <= 64'd0;
+            dbg_first_araddr <= 32'd0;
+            dbg_beats_while_idle <= 32'd0;
+            dbg_final_fifo_count <= 32'd0;
+            dbg_first_word_seen <= 1'b0;
+            dbg_first_araddr_seen <= 1'b0;
         end
     endtask
 endmodule
