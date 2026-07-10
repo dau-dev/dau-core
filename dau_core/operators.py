@@ -207,6 +207,13 @@ class BarAggregate:
     count: int
 
 
+def filter_bar_rows_by_key(rows: Iterable[tuple[int, int, int, int]], *, key_mask: int, key_match: int) -> list[tuple[int, int, int, int]]:
+    """Golden semantics for the pair-row key partition filter: whole
+    (key, price, shares, frac) rows pass when ``(key & mask) == match``
+    (32-bit two's-complement key lane), order preserved."""
+    return [row for row in rows if ((row[0] & 0xFFFF_FFFF) & (key_mask & 0xFFFF_FFFF)) == (key_match & 0xFFFF_FFFF)]
+
+
 def bar_aggregate_rows(rows: Iterable[tuple[int, int, int, int]]) -> list[BarAggregate]:
     """Golden semantics for the fused bar-aggregation tile (ordered
     close-out): consecutive rows with equal keys form a bar; volume is

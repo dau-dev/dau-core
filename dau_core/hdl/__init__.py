@@ -20,11 +20,21 @@ DAU_INT32_KEYED_MAP_ALU_SV = files(__package__).joinpath("dau_int32_keyed_map_al
 DAU_BRAM_STREAM_JOB_SV = files(__package__).joinpath("dau_bram_stream_job.sv")
 DAU_AXI_STREAM_JOB_SV = files(__package__).joinpath("dau_axi_stream_job.sv")
 DAU_AXI_RAM_SIM_SV = files(__package__).joinpath("dau_axi_ram_sim.sv")
+DAU_AXI_BURST_READER_SV = files(__package__).joinpath("dau_axi_burst_reader.sv")
+DAU_AXI_RECORD_WRITER_SV = files(__package__).joinpath("dau_axi_record_writer.sv")
+DAU_AXI_WRITE_MUX_SV = files(__package__).joinpath("dau_axi_write_mux.sv")
+DAU_STREAM_BROADCAST_SV = files(__package__).joinpath("dau_stream_broadcast.sv")
+DAU_INT32_PAIR_KEY_FILTER_SV = files(__package__).joinpath("dau_int32_pair_key_filter.sv")
 
 __all__ = (
     "DAU_AGGREGATION_PKG_SV",
+    "DAU_AXI_BURST_READER_SV",
     "DAU_AXI_RAM_SIM_SV",
+    "DAU_AXI_RECORD_WRITER_SV",
     "DAU_AXI_STREAM_JOB_SV",
+    "DAU_AXI_WRITE_MUX_SV",
+    "DAU_INT32_PAIR_KEY_FILTER_SV",
+    "DAU_STREAM_BROADCAST_SV",
     "DAU_MAP_ALU_PKG_SV",
     "DAU_PREDICATE_PKG_SV",
     "DAU_BRAM_STREAM_JOB_SV",
