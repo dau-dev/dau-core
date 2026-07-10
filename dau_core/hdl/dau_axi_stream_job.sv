@@ -4,12 +4,16 @@
 // window from memory through a tile and writes the tile's output stream
 // back to memory.
 //
-// Read engine: single-outstanding INCR bursts (up to BURST_BEATS x 64-bit),
-// asserting input_last on the final beat of the final burst. Write engine:
-// buffers tile output words and flushes INCR bursts (partial burst at
-// stream end); done waits for the final write response. Addresses and the
-// byte length come from the job registers (the input length must be a
-// multiple of 8 bytes; tiles impose their own row grids).
+// Read engine: pipelined INCR bursts (up to BURST_BEATS x 64-bit) with
+// multiple bursts in flight, credit-reserved against an internal FIFO so
+// rready never needs to backpressure mid-burst — memory latency is hidden
+// behind outstanding requests instead of paid per burst. input_last
+// asserts on the final word delivered to the tile. Write engine: buffers
+// tile output words and flushes INCR bursts (partial burst at stream
+// end); done waits for the final write response. Addresses and the byte
+// length come from the job registers (the input length must be a multiple
+// of 8 bytes; tiles impose their own row grids; the host keeps staging
+// addresses 4 KiB-aligned so bursts never cross a 4 KiB boundary).
 //
 // Errors: tile status errors surface with the tile's code;
 // non-OKAY AXI responses surface as ERR_AXI_READ / ERR_AXI_WRITE.
@@ -77,6 +81,8 @@ module dau_axi_stream_job #(
     localparam logic [7:0] ERR_AXI_WRITE = 8'hFB;
 
     localparam int unsigned BURST_BITS = $clog2(BURST_BEATS);
+    localparam int unsigned FIFO_DEPTH = 8 * BURST_BEATS;
+    localparam int unsigned FIFO_BITS = $clog2(FIFO_DEPTH);
 
     typedef enum logic [2:0] {
         JOB_IDLE,
@@ -87,26 +93,23 @@ module dau_axi_stream_job #(
     } job_state_t;
 
     typedef enum logic [1:0] {
-        RD_IDLE,
-        RD_ADDR,
-        RD_DATA,
-        RD_DONE
-    } read_state_t;
-
-    typedef enum logic [1:0] {
         WR_COLLECT,
         WR_ADDR,
         WR_DATA
     } write_state_t;
 
     job_state_t job_state;
-    read_state_t read_state;
     write_state_t write_state;
 
     logic [ADDR_WIDTH-1:0] read_address;
-    logic [31:0] read_words_remaining;
-    logic [7:0]  read_burst_len;  // beats-1 of the in-flight burst
+    logic [31:0] ar_words_remaining;      // words not yet covered by an issued AR
+    logic [31:0] stream_words_remaining;  // words not yet delivered to the tile
     logic        read_error;
+    logic [63:0] read_fifo [FIFO_DEPTH];
+    logic [FIFO_BITS-1:0] fifo_wr_ptr;
+    logic [FIFO_BITS-1:0] fifo_rd_ptr;
+    logic [FIFO_BITS:0] fifo_count;
+    logic [FIFO_BITS:0] fifo_space;       // free minus in-flight reservations
 
     logic [ADDR_WIDTH-1:0] write_address;
     logic [63:0] write_buffer [BURST_BEATS];
@@ -127,11 +130,23 @@ module dau_axi_stream_job #(
     assign m_axi_wstrb = 8'hFF;
     assign m_axi_bready = 1'b1;
 
-    // read data flows straight to the tile
-    assign tile_input_valid = (read_state == RD_DATA) && m_axi_rvalid;
-    assign tile_input_data = m_axi_rdata;
-    assign tile_input_last = (read_words_remaining == 32'd1);
-    assign m_axi_rready = (read_state == RD_DATA) && tile_input_ready;
+    // read data lands in the FIFO (space reserved at AR issue, so rready
+    // never mid-burst-stalls the memory side) and the tile drains it
+    logic rbeat_fire;
+    logic consume_fire;
+    logic issue_fire;
+    logic [7:0] next_burst_beats;
+
+    assign tile_input_valid = (job_state == JOB_RUN) && (fifo_count != '0);
+    assign tile_input_data = read_fifo[fifo_rd_ptr];
+    assign tile_input_last = stream_words_remaining == 32'd1;
+    assign m_axi_rready = 1'b1;
+
+    assign rbeat_fire = m_axi_rvalid && m_axi_rready;
+    assign consume_fire = tile_input_valid && tile_input_ready;
+    assign next_burst_beats = (ar_words_remaining >= BURST_BEATS) ? 8'(BURST_BEATS) : ar_words_remaining[7:0];
+    assign issue_fire = (job_state == JOB_RUN) && (ar_words_remaining != 32'd0) && !m_axi_arvalid
+        && (fifo_space >= {{(FIFO_BITS - 7) {1'b0}}, next_burst_beats});
 
     // the write engine owns tile output acceptance
     assign tile_output_ready = (job_state == JOB_RUN) && (write_state == WR_COLLECT) && (write_fill != BURST_BEATS[BURST_BITS:0]);
@@ -165,9 +180,13 @@ module dau_axi_stream_job #(
                         end else begin
                             busy <= 1'b1;
                             read_address <= input_address;
-                            read_words_remaining <= {3'd0, input_length_bytes[31:3]};
+                            ar_words_remaining <= {3'd0, input_length_bytes[31:3]};
+                            stream_words_remaining <= {3'd0, input_length_bytes[31:3]};
+                            fifo_wr_ptr <= '0;
+                            fifo_rd_ptr <= '0;
+                            fifo_count <= '0;
+                            fifo_space <= (FIFO_BITS + 1)'(FIFO_DEPTH);
                             write_address <= output_address;
-                            read_state <= RD_ADDR;
                             write_state <= WR_COLLECT;
                             job_state <= JOB_RUN;
                         end
@@ -176,7 +195,7 @@ module dau_axi_stream_job #(
                 JOB_RUN: begin
                     run_read_engine();
                     run_write_engine();
-                    if ((read_state == RD_DONE) && tile_status_valid) begin
+                    if ((stream_words_remaining == 32'd0) && tile_status_valid) begin
                         job_state <= JOB_WAIT_STATUS;
                     end
                 end
@@ -204,7 +223,6 @@ module dau_axi_stream_job #(
                     error_code <= tile_error_seen ? tile_error_code : (read_error ? ERR_AXI_READ : (write_error ? ERR_AXI_WRITE : 8'd0));
                     result_length_bytes <= (tile_error_seen || read_error || write_error) ? 32'd0 : (words_written << 3);
                     job_state <= JOB_IDLE;
-                    read_state <= RD_IDLE;
                 end
                 default: begin
                     reset_state();
@@ -225,36 +243,35 @@ module dau_axi_stream_job #(
 
     task automatic run_read_engine;
         begin
-            case (read_state)
-                RD_ADDR: begin
-                    if (read_words_remaining == 32'd0) begin
-                        read_state <= RD_DONE;
-                        m_axi_arvalid <= 1'b0;
-                    end else if (!m_axi_arvalid) begin
-                        m_axi_araddr <= read_address;
-                        m_axi_arlen <= (read_words_remaining >= BURST_BEATS) ? 8'(BURST_BEATS - 1) : 8'(read_words_remaining - 1);
-                        m_axi_arvalid <= 1'b1;
-                    end else if (m_axi_arready) begin
-                        m_axi_arvalid <= 1'b0;
-                        read_burst_len <= m_axi_arlen;
-                        read_state <= RD_DATA;
-                    end
+            // pipelined AR issue: reserve FIFO space per burst so responses
+            // always have room; multiple bursts stay in flight
+            if (issue_fire) begin
+                m_axi_araddr <= read_address;
+                m_axi_arlen <= next_burst_beats - 8'd1;
+                m_axi_arvalid <= 1'b1;
+                read_address <= read_address + ({24'd0, next_burst_beats} << 3);
+                ar_words_remaining <= ar_words_remaining - {24'd0, next_burst_beats};
+            end else if (m_axi_arvalid && m_axi_arready) begin
+                m_axi_arvalid <= 1'b0;
+            end
+
+            if (rbeat_fire) begin
+                read_fifo[fifo_wr_ptr] <= m_axi_rdata;
+                fifo_wr_ptr <= fifo_wr_ptr + 1'b1;
+                if (m_axi_rresp != 2'b00) begin
+                    read_error <= 1'b1;
                 end
-                RD_DATA: begin
-                    if (m_axi_rvalid && m_axi_rready) begin
-                        if (m_axi_rresp != 2'b00) begin
-                            read_error <= 1'b1;
-                        end
-                        read_words_remaining <= read_words_remaining - 32'd1;
-                        if (m_axi_rlast) begin
-                            read_address <= read_address + (({24'd0, read_burst_len} + 32'd1) << 3);
-                            read_state <= RD_ADDR;
-                        end
-                    end
-                end
-                RD_IDLE, RD_DONE: ;
-                default: ;
-            endcase
+            end
+            if (consume_fire) begin
+                fifo_rd_ptr <= fifo_rd_ptr + 1'b1;
+                stream_words_remaining <= stream_words_remaining - 32'd1;
+            end
+            fifo_count <= fifo_count
+                + {{FIFO_BITS {1'b0}}, rbeat_fire}
+                - {{FIFO_BITS {1'b0}}, consume_fire};
+            fifo_space <= fifo_space
+                + {{FIFO_BITS {1'b0}}, consume_fire}
+                - (issue_fire ? {{(FIFO_BITS - 7) {1'b0}}, next_burst_beats} : '0);
         end
     endtask
 
@@ -311,7 +328,6 @@ module dau_axi_stream_job #(
     task automatic reset_state;
         begin
             job_state <= JOB_IDLE;
-            read_state <= RD_IDLE;
             write_state <= WR_COLLECT;
             busy <= 1'b0;
             done <= 1'b0;
@@ -319,8 +335,12 @@ module dau_axi_stream_job #(
             error_code <= 8'd0;
             result_length_bytes <= 32'd0;
             read_address <= '0;
-            read_words_remaining <= 32'd0;
-            read_burst_len <= 8'd0;
+            ar_words_remaining <= 32'd0;
+            stream_words_remaining <= 32'd0;
+            fifo_wr_ptr <= '0;
+            fifo_rd_ptr <= '0;
+            fifo_count <= '0;
+            fifo_space <= (FIFO_BITS + 1)'(FIFO_DEPTH);
             read_error <= 1'b0;
             write_address <= '0;
             write_fill <= '0;
