@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import random
 import struct
 
 import cocotb
@@ -88,6 +89,58 @@ async def record_batch_repeated_batches_reuse_module(dut):
         output_words = await _collect_output_words(dut)
         await _accept_success_status(dut)
         assert _result_payload(output_words, signed=True) == int(aggregate_values(opcode, values, LogicalType.INT32))
+
+
+@cocotb.test()
+async def record_batch_many_back_to_back_batches_reuse_module(dut):
+    # a long run of varied batches (row count, opcode, selected column, column
+    # count) through the module with no reset between them — state must not
+    # leak from one batch into the next
+    clock = Clock(dut.clk, 10, unit="ns")
+    cocotb.start_soon(clock.start(start_high=False))
+
+    batches = [
+        ([5], OperationCode.SUM, 0),
+        ([3, -8], OperationCode.MIN, 0),
+        ([1, 2, 3], OperationCode.MAX, 0),
+        (list(range(-2, 3)), OperationCode.SUM, 0),
+        ([7] * 9, OperationCode.COUNT, 1),
+        (list(range(32)), OperationCode.SUM, 1),
+        ([-1, -1, -1], OperationCode.MAX, 0),
+        ([100, -100, 50, -50, 0], OperationCode.MIN, 0),
+    ]
+
+    await _reset(dut)
+    for values, opcode, column_id in batches:
+        # values live in the selected column; the other column is skipped
+        columns = [(LogicalType.INT32, values if idx == column_id else [0] * len(values)) for idx in range(2)]
+        await _send_words(dut, _words_from_bytes(_encode_batch(columns, opcode, input_column_id=column_id)))
+        output_words = await _collect_output_words(dut)
+        await _accept_success_status(dut)
+        expected = int(aggregate_values(opcode, values, LogicalType.INT32))
+        assert _result_payload(output_words, signed=True) == expected, (values, opcode)
+
+
+@cocotb.test()
+async def record_batch_survives_input_and_output_stalls(dut):
+    # randomized host-side backpressure on both stream directions: input_valid
+    # gaps mid-stream and output_ready gaps mid-result, with the held word
+    # checked stable while ready is low. Deterministic (seeded).
+    clock = Clock(dut.clk, 10, unit="ns")
+    cocotb.start_soon(clock.start(start_high=False))
+    rng = random.Random(0xB47C)
+
+    await _reset(dut)
+    for _ in range(6):
+        row_count = rng.randint(1, 20)
+        values = [rng.randint(-1000, 1000) for _ in range(row_count)]
+        opcode = rng.choice([OperationCode.SUM, OperationCode.MIN, OperationCode.MAX, OperationCode.COUNT])
+        columns = [(LogicalType.INT32, [0] * row_count), (LogicalType.INT32, values)]
+        await _send_words(dut, _words_from_bytes(_encode_batch(columns, opcode, input_column_id=1)), rng=rng)
+        output_words = await _collect_output_words(dut, rng=rng)
+        await _accept_success_status(dut, rng=rng)
+        expected = int(aggregate_values(opcode, values, LogicalType.INT32))
+        assert _result_payload(output_words, signed=True) == expected, (values, opcode)
 
 
 @cocotb.test()
@@ -201,11 +254,16 @@ async def _reset(dut) -> None:
     await RisingEdge(dut.clk)
 
 
-async def _send_words(dut, words: list[int]) -> None:
+async def _send_words(dut, words: list[int], *, rng: random.Random | None = None) -> None:
     # The one-sample-per-cycle payload path deasserts input_ready every other
     # payload cycle, so sample ready in the ReadOnly phase and only advance on
     # an actual fire (pre-fix, post-edge sampling silently dropped words).
+    # With rng, inject host-side stalls (input_valid low) before each word.
     for index, word in enumerate(words):
+        if rng is not None:
+            for _ in range(rng.randint(0, 3)):
+                dut.input_valid.value = 0
+                await RisingEdge(dut.clk)
         dut.input_data.value = word
         dut.input_last.value = int(index == len(words) - 1)
         dut.input_valid.value = 1
@@ -219,7 +277,7 @@ async def _send_words(dut, words: list[int]) -> None:
     dut.input_last.value = 0
 
 
-async def _collect_output_words(dut) -> list[int]:
+async def _collect_output_words(dut, *, rng: random.Random | None = None) -> list[int]:
     words: list[int] = []
     dut.output_ready.value = 0
     for _ in range(64):
@@ -236,17 +294,44 @@ async def _collect_output_words(dut) -> list[int]:
         assert int(dut.output_data.value) == held_word
 
     dut.output_ready.value = 1
-    for _ in range(64):
+    for _ in range(256):
+        await ReadOnly()
+        fired = int(dut.output_valid.value) == 1 and int(dut.output_ready.value) == 1
+        if fired:
+            word = int(dut.output_data.value)
+            last = int(dut.output_last.value) == 1
         await RisingEdge(dut.clk)
-        if int(dut.output_valid.value) == 1:
-            words.append(int(dut.output_data.value))
-            if int(dut.output_last.value) == 1:
+        if not fired:
+            continue
+        words.append(word)
+        if last:
+            dut.output_ready.value = 0
+            return words
+        if rng is not None:
+            # stall the sink: hold ready low and confirm the next word is held
+            # valid and stable until we accept it
+            stall = rng.randint(0, 3)
+            if stall:
                 dut.output_ready.value = 0
-                return words
+                await RisingEdge(dut.clk)
+                await ReadOnly()
+                assert int(dut.output_valid.value) == 1
+                held = int(dut.output_data.value)
+                for _ in range(stall - 1):
+                    await RisingEdge(dut.clk)
+                    await ReadOnly()
+                    assert int(dut.output_valid.value) == 1
+                    assert int(dut.output_data.value) == held
+                await RisingEdge(dut.clk)
+                dut.output_ready.value = 1
     raise AssertionError("timed out collecting output stream")
 
 
-async def _accept_success_status(dut) -> None:
+async def _accept_success_status(dut, *, rng: random.Random | None = None) -> None:
+    if rng is not None:
+        for _ in range(rng.randint(0, 3)):
+            dut.status_ready.value = 0
+            await RisingEdge(dut.clk)
     dut.status_ready.value = 1
     for _ in range(16):
         if int(dut.status_valid.value) == 1:
