@@ -40,6 +40,20 @@ def test_every_operator_has_a_golden() -> None:
         assert definition.golden is not None, f"operator {definition.name} has no golden"
 
 
+def test_legacy_operators_stay_verified_but_are_not_selectable() -> None:
+    from dau_core.cores import selectable_operators
+
+    legacy = [d for d in cores_of_kind(CoreKind.OPERATOR) if d.legacy]
+    assert {d.name for d in legacy} == {"int32-aggregation-tile"}, "legacy operator set changed — confirm intent"
+    for definition in legacy:
+        # legacy tiles stay in the registry and stay tested against their golden
+        assert definition.golden is not None and definition.bench is not None, definition.name
+        # ...but a planner/new composition is never offered them
+        assert definition not in selectable_operators(), definition.name
+        # and the composition validator refuses them regardless (no status counter)
+        assert definition.count_port is None, definition.name
+
+
 def test_sources_for_closes_dependencies_in_order() -> None:
     sources = sources_for("int32-stream-aggregation")
     names = [path.name for path in sources]

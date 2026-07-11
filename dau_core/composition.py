@@ -63,6 +63,8 @@ class ScanCompositionSpec:
             tile = lane.tile.definition()
             if tile.kind != CoreKind.OPERATOR:
                 raise CompositionError(f"lane tile {lane.tile.core!r} is {tile.kind.value}, not an operator")
+            if tile.legacy:
+                raise CompositionError(f"lane tile {lane.tile.core!r} is legacy (predates the stream+status contract); not for new compositions")
             if tile.count_port is None:
                 raise CompositionError(f"lane tile {lane.tile.core!r} does not expose a status counter")
             if lane.partition is not None and lane.partition.definition().kind != CoreKind.OPERATOR:

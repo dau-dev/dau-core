@@ -26,6 +26,8 @@ def test_spec_validates_lane_tiles() -> None:
         ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=TileSpec(core="stream-broadcast")),))
     with pytest.raises(CompositionError, match="status counter"):
         ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=TileSpec(core="int32-map-alu")),))
+    with pytest.raises(CompositionError, match="legacy"):
+        ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=TileSpec(core="int32-aggregation-tile")),))
 
 
 def test_core_names_cover_infrastructure_and_lanes() -> None:
