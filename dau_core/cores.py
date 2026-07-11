@@ -50,6 +50,7 @@ class CoreDefinition:
     golden: str | None = None  # "module:callable" defining the semantics
     bench: str | None = None  # cocotb bench module
     resources: ResourceEnvelope | None = None
+    count_port: str | None = None  # the tile's trailing status counter, if any
 
     def source_path(self) -> Path:
         from . import hdl
@@ -99,6 +100,7 @@ CORES: tuple[CoreDefinition, ...] = (
         golden="dau_core.operators:filter_values",
         bench=f"{_BENCHES}.dau_int32_predicate_filter_tb",
         resources=ResourceEnvelope(lut=985, ff=376, bram36=0.0, dsp=0),
+        count_port="selected_count",
     ),
     CoreDefinition(
         name="int32-keyed-predicate-filter",
@@ -140,6 +142,7 @@ CORES: tuple[CoreDefinition, ...] = (
         golden="dau_core.operators:grouped_aggregate_rows",
         bench=f"{_BENCHES}.dau_int32_grouped_aggregation_tb",
         resources=ResourceEnvelope(lut=672, ff=563, bram36=0.0, dsp=0),
+        count_port="group_count",
     ),
     CoreDefinition(
         name="int32-bar-aggregation",
@@ -150,6 +153,7 @@ CORES: tuple[CoreDefinition, ...] = (
         golden="dau_core.operators:bar_aggregate_rows",
         bench=f"{_BENCHES}.dau_int32_bar_aggregation_tb",
         resources=ResourceEnvelope(lut=829, ff=631, bram36=0.0, dsp=0),
+        count_port="bar_count",
     ),
     CoreDefinition(
         name="int32-pair-key-filter",
