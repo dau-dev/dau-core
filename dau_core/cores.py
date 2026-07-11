@@ -1,0 +1,306 @@
+"""Machine-readable core registry: every HDL building block, what it is,
+what it depends on, which golden defines its semantics, and what it costs.
+
+This is the inventory a shell composer or query planner enumerates: until
+now the tile ↔ golden ↔ bench association lived only in naming convention
+enforced by tests, and utilization numbers were written to reports and
+never read back. Resource envelopes are measured out-of-context or
+routed-design attributions; ``measured=False`` marks estimates awaiting a
+synthesis pass.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from enum import Enum
+from importlib import import_module
+from pathlib import Path
+
+
+class CoreKind(Enum):
+    OPERATOR = "operator"
+    STREAM_INFRA = "stream-infra"
+    SHELL_ADAPTER = "shell-adapter"
+    PACKAGE = "package"
+    SIM_MODEL = "sim-model"
+
+
+@dataclass(frozen=True)
+class ResourceEnvelope:
+    """Post-synthesis footprint on the target part (dpv1 XC7A200T unless
+    noted). ``measured=False`` marks an engineering estimate."""
+
+    lut: int
+    ff: int
+    bram36: float
+    dsp: int
+    measured: bool = True
+
+
+@dataclass(frozen=True)
+class CoreDefinition:
+    """One HDL building block and its contract surround."""
+
+    name: str
+    kind: CoreKind
+    module: str
+    source: str
+    description: str
+    depends: tuple[str, ...] = ()
+    golden: str | None = None  # "module:callable" defining the semantics
+    bench: str | None = None  # cocotb bench module
+    resources: ResourceEnvelope | None = None
+
+    def source_path(self) -> Path:
+        from . import hdl
+
+        return Path(str(getattr(hdl, "__path__")[0])) / self.source
+
+    def golden_callable(self):
+        if self.golden is None:
+            return None
+        module_name, _, attr = self.golden.partition(":")
+        return getattr(import_module(module_name), attr)
+
+
+_BENCHES = "dau_core.tests.cocotb_benches"
+
+CORES: tuple[CoreDefinition, ...] = (
+    # packages
+    CoreDefinition(
+        name="aggregation-pkg",
+        kind=CoreKind.PACKAGE,
+        module="dau_aggregation_pkg",
+        source="dau_aggregation_pkg.sv",
+        description="Shared accumulate-step definition for every aggregation core.",
+    ),
+    CoreDefinition(
+        name="predicate-pkg",
+        kind=CoreKind.PACKAGE,
+        module="dau_predicate_pkg",
+        source="dau_predicate_pkg.sv",
+        description="Predicate opcodes and comparison step.",
+    ),
+    CoreDefinition(
+        name="map-alu-pkg",
+        kind=CoreKind.PACKAGE,
+        module="dau_map_alu_pkg",
+        source="dau_map_alu_pkg.sv",
+        description="Map/ALU opcodes and arithmetic step.",
+    ),
+    # operator tiles (the standard 64-bit stream + status contract)
+    CoreDefinition(
+        name="int32-predicate-filter",
+        kind=CoreKind.OPERATOR,
+        module="dau_int32_predicate_filter",
+        source="dau_int32_predicate_filter.sv",
+        description="Compacting predicate filter over INT32 values.",
+        depends=("predicate-pkg",),
+        golden="dau_core.operators:filter_values",
+        bench=f"{_BENCHES}.dau_int32_predicate_filter_tb",
+    ),
+    CoreDefinition(
+        name="int32-keyed-predicate-filter",
+        kind=CoreKind.OPERATOR,
+        module="dau_int32_keyed_predicate_filter",
+        source="dau_int32_keyed_predicate_filter.sv",
+        description="Row-atomic keyed predicate filter (composed-pipeline stage).",
+        depends=("predicate-pkg",),
+        golden="dau_core.operators:filter_rows",
+    ),
+    CoreDefinition(
+        name="int32-map-alu",
+        kind=CoreKind.OPERATOR,
+        module="dau_int32_map_alu",
+        source="dau_int32_map_alu.sv",
+        description="Per-value ALU map over INT32 values.",
+        depends=("map-alu-pkg",),
+        golden="dau_core.operators:map_values",
+        bench=f"{_BENCHES}.dau_int32_map_alu_tb",
+    ),
+    CoreDefinition(
+        name="int32-keyed-map-alu",
+        kind=CoreKind.OPERATOR,
+        module="dau_int32_keyed_map_alu",
+        source="dau_int32_keyed_map_alu.sv",
+        description="Keyed lane-selectable ALU map (composed-pipeline stage).",
+        depends=("map-alu-pkg",),
+        golden="dau_core.operators:map_rows",
+    ),
+    CoreDefinition(
+        name="int32-grouped-aggregation",
+        kind=CoreKind.OPERATOR,
+        module="dau_int32_grouped_aggregation",
+        source="dau_int32_grouped_aggregation.sv",
+        description="Ordered close-out grouped aggregation (first/last/min/max/sum/count).",
+        golden="dau_core.operators:grouped_aggregate_rows",
+        bench=f"{_BENCHES}.dau_int32_grouped_aggregation_tb",
+    ),
+    CoreDefinition(
+        name="int32-bar-aggregation",
+        kind=CoreKind.OPERATOR,
+        module="dau_int32_bar_aggregation",
+        source="dau_int32_bar_aggregation.sv",
+        description="Fused single-pass OHLCV bar aggregation over 16-byte rows.",
+        golden="dau_core.operators:bar_aggregate_rows",
+        bench=f"{_BENCHES}.dau_int32_bar_aggregation_tb",
+    ),
+    CoreDefinition(
+        name="int32-pair-key-filter",
+        kind=CoreKind.OPERATOR,
+        module="dau_int32_pair_key_filter",
+        source="dau_int32_pair_key_filter.sv",
+        description="Key partition filter for 16-byte pair rows (NoC lane splitter).",
+        golden="dau_core.operators:filter_bar_rows_by_key",
+        bench=f"{_BENCHES}.dau_int32_pair_key_filter_tb",
+    ),
+    CoreDefinition(
+        name="int32-stream-aggregation",
+        kind=CoreKind.OPERATOR,
+        module="dau_int32_stream_aggregation",
+        source="dau_int32_stream_aggregation.sv",
+        description="Arrow-lite scalar stream aggregation.",
+        depends=("aggregation-pkg", "int32-aggregation-tile"),
+        golden="dau_core.operators:aggregate_values",
+        bench=f"{_BENCHES}.dau_int32_stream_aggregation_tb",
+    ),
+    CoreDefinition(
+        name="int32-arrow-lite-stream-aggregation",
+        kind=CoreKind.OPERATOR,
+        module="dau_int32_arrow_lite_stream_aggregation",
+        source="dau_int32_arrow_lite_stream_aggregation.sv",
+        description="Arrow-lite single-column aggregation core.",
+        depends=("aggregation-pkg",),
+        golden="dau_core.operators:aggregate_values",
+        bench=f"{_BENCHES}.dau_int32_arrow_lite_stream_aggregation_tb",
+    ),
+    CoreDefinition(
+        name="int32-record-batch-aggregation",
+        kind=CoreKind.OPERATOR,
+        module="dau_int32_record_batch_aggregation",
+        source="dau_int32_record_batch_aggregation.sv",
+        description="Record-batch column aggregation core.",
+        depends=("aggregation-pkg",),
+        golden="dau_core.operators:aggregate_values",
+        bench=f"{_BENCHES}.dau_int32_record_batch_aggregation_tb",
+    ),
+    CoreDefinition(
+        name="int32-aggregation-tile",
+        kind=CoreKind.OPERATOR,
+        module="dau_int32_aggregation_tile",
+        source="dau_int32_aggregation_tile.sv",
+        description="Legacy value/opcode aggregation core (predates the stream+status contract; not runner-attachable).",
+        depends=("aggregation-pkg",),
+        golden="dau_core.operators:aggregate_values",
+        bench=f"{_BENCHES}.dau_int32_aggregation_tile_tb",
+    ),
+    # stream infrastructure
+    CoreDefinition(
+        name="stream-broadcast",
+        kind=CoreKind.STREAM_INFRA,
+        module="dau_stream_broadcast",
+        source="dau_stream_broadcast.sv",
+        description="N-way stream fanout with taken-bit bookkeeping.",
+    ),
+    CoreDefinition(
+        name="axi-burst-reader",
+        kind=CoreKind.STREAM_INFRA,
+        module="dau_axi_burst_reader",
+        source="dau_axi_burst_reader.sv",
+        description="Pipelined AXI4 burst read master streaming a memory window.",
+    ),
+    CoreDefinition(
+        name="axi-record-writer",
+        kind=CoreKind.STREAM_INFRA,
+        module="dau_axi_record_writer",
+        source="dau_axi_record_writer.sv",
+        description="AXI4 burst write master draining one record stream to a region.",
+    ),
+    CoreDefinition(
+        name="axi-write-mux",
+        kind=CoreKind.STREAM_INFRA,
+        module="dau_axi_write_mux",
+        source="dau_axi_write_mux.sv",
+        description="N:1 AXI write-channel mux, round-robin, locked AW to B.",
+    ),
+    # shell adapters / runners
+    CoreDefinition(
+        name="bram-stream-job",
+        kind=CoreKind.SHELL_ADAPTER,
+        module="dau_bram_stream_job",
+        source="dau_bram_stream_job.sv",
+        description="BRAM-staged tile-agnostic job runner.",
+    ),
+    CoreDefinition(
+        name="axi-stream-job",
+        kind=CoreKind.SHELL_ADAPTER,
+        module="dau_axi_stream_job",
+        source="dau_axi_stream_job.sv",
+        description="DDR-staged AXI4 master job runner (reader + writer halves fused).",
+        bench=f"{_BENCHES}.dau_axi_bar_job_tb",
+    ),
+    CoreDefinition(
+        name="identity-registers",
+        kind=CoreKind.SHELL_ADAPTER,
+        module="dau_identity_registers",
+        source="dau_identity_registers.sv",
+        description="Identity/capability register block.",
+    ),
+    CoreDefinition(
+        name="identity-axil",
+        kind=CoreKind.SHELL_ADAPTER,
+        module="dau_identity_axil",
+        source="dau_identity_axil.v",
+        description="AXI-Lite identity shell adapter.",
+    ),
+    # sim-only models
+    CoreDefinition(
+        name="axi-ram-sim",
+        kind=CoreKind.SIM_MODEL,
+        module="dau_axi_ram_sim",
+        source="dau_axi_ram_sim.sv",
+        description="Behavioral AXI4 RAM with pipelined ARs, back-to-back bursts, stall injection, backdoor.",
+    ),
+)
+
+_BY_NAME = {core.name: core for core in CORES}
+_BY_MODULE = {core.module: core for core in CORES}
+
+
+class UnknownCoreError(KeyError):
+    pass
+
+
+def core(name: str) -> CoreDefinition:
+    try:
+        return _BY_NAME[name]
+    except KeyError:
+        raise UnknownCoreError(f"unknown core {name!r}; known: {sorted(_BY_NAME)}") from None
+
+
+def core_for_module(module: str) -> CoreDefinition:
+    try:
+        return _BY_MODULE[module]
+    except KeyError:
+        raise UnknownCoreError(f"no core defines module {module!r}") from None
+
+
+def cores_of_kind(kind: CoreKind) -> tuple[CoreDefinition, ...]:
+    return tuple(definition for definition in CORES if definition.kind == kind)
+
+
+def sources_for(*names: str) -> tuple[Path, ...]:
+    """Dependency-closed, deduplicated source paths for a set of cores —
+    packages and dependencies first, in registry order."""
+    selected: dict[str, CoreDefinition] = {}
+
+    def visit(name: str) -> None:
+        definition = core(name)
+        for dependency in definition.depends:
+            visit(dependency)
+        selected.setdefault(definition.name, definition)
+
+    for name in names:
+        visit(name)
+    ordered = [definition for definition in CORES if definition.name in selected]
+    return tuple(definition.source_path() for definition in ordered)
