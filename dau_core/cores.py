@@ -51,6 +51,7 @@ class CoreDefinition:
     bench: str | None = None  # cocotb bench module
     resources: ResourceEnvelope | None = None
     count_port: str | None = None  # the tile's trailing status counter, if any
+    legacy: bool = False  # predates the stream+status contract; kept verified, not for new compositions
 
     def source_path(self) -> Path:
         from . import hdl
@@ -203,11 +204,12 @@ CORES: tuple[CoreDefinition, ...] = (
         kind=CoreKind.OPERATOR,
         module="dau_int32_aggregation_tile",
         source="dau_int32_aggregation_tile.sv",
-        description="Legacy value/opcode aggregation core (predates the stream+status contract; not runner-attachable).",
+        description="Legacy value/opcode aggregation core (predates the stream+status contract; not runner-attachable). Replaced by int32-record-batch-aggregation / int32-bar-aggregation for new work.",
         depends=("aggregation-pkg",),
         golden="dau_core.operators:aggregate_values",
         bench=f"{_BENCHES}.dau_int32_aggregation_tile_tb",
         resources=ResourceEnvelope(lut=283, ff=194, bram36=0.0, dsp=0),
+        legacy=True,
     ),
     # stream infrastructure
     CoreDefinition(
@@ -309,6 +311,14 @@ def core_for_module(module: str) -> CoreDefinition:
 
 def cores_of_kind(kind: CoreKind) -> tuple[CoreDefinition, ...]:
     return tuple(definition for definition in CORES if definition.kind == kind)
+
+
+def selectable_operators() -> tuple[CoreDefinition, ...]:
+    """Operator tiles a planner or new composition may pick — legacy cores
+    (predating the stream+status contract) are excluded. Legacy tiles stay
+    in the registry, verified against their goldens, but are not offered
+    for new work."""
+    return tuple(definition for definition in cores_of_kind(CoreKind.OPERATOR) if not definition.legacy)
 
 
 def sources_for(*names: str) -> tuple[Path, ...]:
