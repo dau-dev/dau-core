@@ -168,19 +168,12 @@ def test_record_batch_aggregation_runs_real_cocotb_against_systemverilog(tmp_pat
 
 
 def _run_cocotb_verilator(*, sources: tuple[Path, ...], hdl_toplevel: str, test_module: str, tmp_path: Path) -> None:
-    runner_module = pytest.importorskip("cocotb_tools.runner", reason="cocotb runner not installed")
-    runner = runner_module.get_runner("verilator")
-    build_dir = tmp_path / hdl_toplevel
-    runner.build(
+    # one canonical cocotb-on-Verilator flag set for every functional bench
+    cocotb_integration = pytest.importorskip("dau_sim.integrations.cocotb", reason="dau-sim cocotb integration not installed")
+    cocotb_integration.run_cocotb_testbench(
         sources=sources,
         hdl_toplevel=hdl_toplevel,
-        build_dir=build_dir,
-        always=True,
-        build_args=("--timing", "-Wno-fatal"),
-    )
-    runner.test(
-        hdl_toplevel=hdl_toplevel,
         test_module=test_module,
-        build_dir=build_dir,
-        results_xml=str(tmp_path / f"{hdl_toplevel}-cocotb-results.xml"),
+        build_dir=tmp_path / hdl_toplevel,
+        results_xml=tmp_path / f"{hdl_toplevel}-cocotb-results.xml",
     )
