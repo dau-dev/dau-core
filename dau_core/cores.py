@@ -98,6 +98,7 @@ CORES: tuple[CoreDefinition, ...] = (
         depends=("predicate-pkg",),
         golden="dau_core.operators:filter_values",
         bench=f"{_BENCHES}.dau_int32_predicate_filter_tb",
+        resources=ResourceEnvelope(lut=985, ff=376, bram36=0.0, dsp=0),
     ),
     CoreDefinition(
         name="int32-keyed-predicate-filter",
@@ -107,6 +108,7 @@ CORES: tuple[CoreDefinition, ...] = (
         description="Row-atomic keyed predicate filter (composed-pipeline stage).",
         depends=("predicate-pkg",),
         golden="dau_core.operators:filter_rows",
+        resources=ResourceEnvelope(lut=644, ff=342, bram36=0.0, dsp=0),
     ),
     CoreDefinition(
         name="int32-map-alu",
@@ -117,6 +119,7 @@ CORES: tuple[CoreDefinition, ...] = (
         depends=("map-alu-pkg",),
         golden="dau_core.operators:map_values",
         bench=f"{_BENCHES}.dau_int32_map_alu_tb",
+        resources=ResourceEnvelope(lut=1338, ff=383, bram36=0.0, dsp=8),
     ),
     CoreDefinition(
         name="int32-keyed-map-alu",
@@ -126,6 +129,7 @@ CORES: tuple[CoreDefinition, ...] = (
         description="Keyed lane-selectable ALU map (composed-pipeline stage).",
         depends=("map-alu-pkg",),
         golden="dau_core.operators:map_rows",
+        resources=ResourceEnvelope(lut=904, ff=316, bram36=0.0, dsp=4),
     ),
     CoreDefinition(
         name="int32-grouped-aggregation",
@@ -135,6 +139,7 @@ CORES: tuple[CoreDefinition, ...] = (
         description="Ordered close-out grouped aggregation (first/last/min/max/sum/count).",
         golden="dau_core.operators:grouped_aggregate_rows",
         bench=f"{_BENCHES}.dau_int32_grouped_aggregation_tb",
+        resources=ResourceEnvelope(lut=672, ff=563, bram36=0.0, dsp=0),
     ),
     CoreDefinition(
         name="int32-bar-aggregation",
@@ -144,6 +149,7 @@ CORES: tuple[CoreDefinition, ...] = (
         description="Fused single-pass OHLCV bar aggregation over 16-byte rows.",
         golden="dau_core.operators:bar_aggregate_rows",
         bench=f"{_BENCHES}.dau_int32_bar_aggregation_tb",
+        resources=ResourceEnvelope(lut=829, ff=631, bram36=0.0, dsp=0),
     ),
     CoreDefinition(
         name="int32-pair-key-filter",
@@ -153,6 +159,7 @@ CORES: tuple[CoreDefinition, ...] = (
         description="Key partition filter for 16-byte pair rows (NoC lane splitter).",
         golden="dau_core.operators:filter_bar_rows_by_key",
         bench=f"{_BENCHES}.dau_int32_pair_key_filter_tb",
+        resources=ResourceEnvelope(lut=106, ff=330, bram36=0.0, dsp=0),
     ),
     CoreDefinition(
         name="int32-stream-aggregation",
@@ -163,6 +170,7 @@ CORES: tuple[CoreDefinition, ...] = (
         depends=("aggregation-pkg", "int32-aggregation-tile"),
         golden="dau_core.operators:aggregate_values",
         bench=f"{_BENCHES}.dau_int32_stream_aggregation_tb",
+        resources=ResourceEnvelope(lut=446, ff=400, bram36=0.0, dsp=0),
     ),
     CoreDefinition(
         name="int32-arrow-lite-stream-aggregation",
@@ -173,6 +181,7 @@ CORES: tuple[CoreDefinition, ...] = (
         depends=("aggregation-pkg",),
         golden="dau_core.operators:aggregate_values",
         bench=f"{_BENCHES}.dau_int32_arrow_lite_stream_aggregation_tb",
+        resources=ResourceEnvelope(lut=1874, ff=636, bram36=0.0, dsp=0),
     ),
     CoreDefinition(
         name="int32-record-batch-aggregation",
@@ -183,6 +192,7 @@ CORES: tuple[CoreDefinition, ...] = (
         depends=("aggregation-pkg",),
         golden="dau_core.operators:aggregate_values",
         bench=f"{_BENCHES}.dau_int32_record_batch_aggregation_tb",
+        resources=ResourceEnvelope(lut=2266, ff=2741, bram36=0.0, dsp=0),
     ),
     CoreDefinition(
         name="int32-aggregation-tile",
@@ -193,6 +203,7 @@ CORES: tuple[CoreDefinition, ...] = (
         depends=("aggregation-pkg",),
         golden="dau_core.operators:aggregate_values",
         bench=f"{_BENCHES}.dau_int32_aggregation_tile_tb",
+        resources=ResourceEnvelope(lut=283, ff=194, bram36=0.0, dsp=0),
     ),
     # stream infrastructure
     CoreDefinition(
@@ -201,6 +212,7 @@ CORES: tuple[CoreDefinition, ...] = (
         module="dau_stream_broadcast",
         source="dau_stream_broadcast.sv",
         description="N-way stream fanout with taken-bit bookkeeping.",
+        resources=ResourceEnvelope(lut=5, ff=2, bram36=0.0, dsp=0),
     ),
     CoreDefinition(
         name="axi-burst-reader",
@@ -208,6 +220,7 @@ CORES: tuple[CoreDefinition, ...] = (
         module="dau_axi_burst_reader",
         source="dau_axi_burst_reader.sv",
         description="Pipelined AXI4 burst read master streaming a memory window.",
+        resources=ResourceEnvelope(lut=529, ff=340, bram36=0.0, dsp=0),
     ),
     CoreDefinition(
         name="axi-record-writer",
@@ -215,6 +228,7 @@ CORES: tuple[CoreDefinition, ...] = (
         module="dau_axi_record_writer",
         source="dau_axi_record_writer.sv",
         description="AXI4 burst write master draining one record stream to a region.",
+        resources=ResourceEnvelope(lut=406, ff=1266, bram36=0.0, dsp=0),
     ),
     CoreDefinition(
         name="axi-write-mux",
@@ -222,6 +236,7 @@ CORES: tuple[CoreDefinition, ...] = (
         module="dau_axi_write_mux",
         source="dau_axi_write_mux.sv",
         description="N:1 AXI write-channel mux, round-robin, locked AW to B.",
+        resources=ResourceEnvelope(lut=133, ff=4, bram36=0.0, dsp=0),
     ),
     # shell adapters / runners
     CoreDefinition(
@@ -230,6 +245,7 @@ CORES: tuple[CoreDefinition, ...] = (
         module="dau_bram_stream_job",
         source="dau_bram_stream_job.sv",
         description="BRAM-staged tile-agnostic job runner.",
+        resources=ResourceEnvelope(lut=104, ff=232, bram36=0.0, dsp=0),
     ),
     CoreDefinition(
         name="axi-stream-job",
@@ -238,6 +254,7 @@ CORES: tuple[CoreDefinition, ...] = (
         source="dau_axi_stream_job.sv",
         description="DDR-staged AXI4 master job runner (reader + writer halves fused).",
         bench=f"{_BENCHES}.dau_axi_bar_job_tb",
+        resources=ResourceEnvelope(lut=3341, ff=9712, bram36=0.0, dsp=0),
     ),
     CoreDefinition(
         name="identity-registers",
@@ -245,6 +262,7 @@ CORES: tuple[CoreDefinition, ...] = (
         module="dau_identity_registers",
         source="dau_identity_registers.sv",
         description="Identity/capability register block.",
+        resources=ResourceEnvelope(lut=45, ff=0, bram36=0.0, dsp=0),
     ),
     CoreDefinition(
         name="identity-axil",

@@ -57,3 +57,13 @@ def test_lookup_errors_are_typed() -> None:
     with pytest.raises(UnknownCoreError):
         core_for_module("no_such_module")
     assert core_for_module("dau_int32_bar_aggregation").name == "int32-bar-aggregation"
+
+
+def test_synthesizable_cores_carry_measured_envelopes() -> None:
+    """Every operator/stream-infra core carries a measured OOC envelope
+    (xc7a200tfbg484-2, Vivado 2025.2 out-of-context synthesis)."""
+    for definition in CORES:
+        if definition.kind in (CoreKind.OPERATOR, CoreKind.STREAM_INFRA):
+            assert definition.resources is not None, definition.name
+            assert definition.resources.measured, definition.name
+            assert definition.resources.lut > 0, definition.name
