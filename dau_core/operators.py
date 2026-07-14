@@ -214,6 +214,21 @@ def filter_bar_rows_by_key(rows: Iterable[tuple[int, int, int, int]], *, key_mas
     return [row for row in rows if ((row[0] & 0xFFFF_FFFF) & (key_mask & 0xFFFF_FFFF)) == (key_match & 0xFFFF_FFFF)]
 
 
+def range_partition_bar_rows(rows: Iterable[tuple[int, int, int, int]], *, splitters: Iterable[int]) -> list[list[tuple[int, int, int, int]]]:
+    """Golden semantics for the range partitioner: route each
+    (key, price, shares, frac) row to partition
+    ``p = #{ s in splitters : signed32(key) >= signed32(s) }`` (splitters
+    monotonic non-decreasing, signed 32-bit key lane), order preserved within
+    each partition. Returns one ordered list per partition
+    (length ``len(splitters) + 1``)."""
+    bounds = [_wrap_int32(s) for s in splitters]
+    parts: list[list[tuple[int, int, int, int]]] = [[] for _ in range(len(bounds) + 1)]
+    for row in rows:
+        key = _wrap_int32(row[0])
+        parts[sum(1 for bound in bounds if key >= bound)].append(tuple(row))
+    return parts
+
+
 def bar_aggregate_rows(rows: Iterable[tuple[int, int, int, int]]) -> list[BarAggregate]:
     """Golden semantics for the fused bar-aggregation tile (ordered
     close-out): consecutive rows with equal keys form a bar; volume is

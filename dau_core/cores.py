@@ -167,6 +167,16 @@ CORES: tuple[CoreDefinition, ...] = (
         resources=ResourceEnvelope(lut=106, ff=330, bram36=0.0, dsp=0),
     ),
     CoreDefinition(
+        name="int32-range-partitioner",
+        kind=CoreKind.OPERATOR,
+        module="dau_int32_range_partitioner",
+        source="dau_int32_range_partitioner.sv",
+        description="HARP-style range partitioner: fans one scan of 16-byte pair rows to NUM_PARTITIONS key-ordered lanes.",
+        golden="dau_core.operators:range_partition_bar_rows",
+        bench=f"{_BENCHES}.dau_int32_range_partitioner_tb",
+        resources=ResourceEnvelope(lut=374, ff=1124, bram36=0.0, dsp=0),  # OOC N=4
+    ),
+    CoreDefinition(
         name="int32-stream-aggregation",
         kind=CoreKind.OPERATOR,
         module="dau_int32_stream_aggregation",
