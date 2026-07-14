@@ -19,6 +19,7 @@ from dau_core.hdl import (
     DAU_INT32_MAP_ALU_SV,
     DAU_INT32_PAIR_KEY_FILTER_SV,
     DAU_INT32_PREDICATE_FILTER_SV,
+    DAU_INT32_RANGE_PARTITIONER_SV,
     DAU_INT32_RECORD_BATCH_AGGREGATION_SV,
     DAU_INT32_STREAM_AGGREGATION_SV,
     DAU_MAP_ALU_PKG_SV,
@@ -106,6 +107,29 @@ def test_pair_key_filter_runs_real_cocotb_against_systemverilog(tmp_path: Path) 
 
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_range_partitioner_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_RANGE_PARTITIONER_SV)),),
+        hdl_toplevel="dau_int32_range_partitioner",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_range_partitioner_tb",
+        tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_range_partitioner_non_power_of_two_partitions(tmp_path: Path) -> None:
+    # 3 partitions (2 splitters): exercises the decode's non-power-of-two
+    # destination width; the N-agnostic bench tests run, the N==4 ones skip
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_RANGE_PARTITIONER_SV)),),
+        hdl_toplevel="dau_int32_range_partitioner",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_range_partitioner_tb",
+        tmp_path=tmp_path,
+        parameters={"NUM_PARTITIONS": 3},
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_axi_bar_noc_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
     _run_cocotb_verilator(
         sources=(
@@ -167,7 +191,7 @@ def test_record_batch_aggregation_runs_real_cocotb_against_systemverilog(tmp_pat
     )
 
 
-def _run_cocotb_verilator(*, sources: tuple[Path, ...], hdl_toplevel: str, test_module: str, tmp_path: Path) -> None:
+def _run_cocotb_verilator(*, sources: tuple[Path, ...], hdl_toplevel: str, test_module: str, tmp_path: Path, parameters=None) -> None:
     # one canonical cocotb-on-Verilator flag set for every functional bench
     cocotb_integration = pytest.importorskip("dau_sim.integrations.cocotb", reason="dau-sim cocotb integration not installed")
     cocotb_integration.run_cocotb_testbench(
@@ -176,4 +200,5 @@ def _run_cocotb_verilator(*, sources: tuple[Path, ...], hdl_toplevel: str, test_
         test_module=test_module,
         build_dir=tmp_path / hdl_toplevel,
         results_xml=tmp_path / f"{hdl_toplevel}-cocotb-results.xml",
+        parameters=parameters,
     )
