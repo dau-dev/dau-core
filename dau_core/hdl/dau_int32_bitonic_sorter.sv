@@ -16,9 +16,10 @@
 // torn row and reports ERR_STREAM — torn detection takes precedence over
 // overflow (a lone last-carrying w0 after CAPACITY rows is ERR_STREAM, the
 // universal rule across cores, not ERR_CAPACITY). A legal batch of n rows
-// emits exactly n rows with input_last landing on the final word. Status
-// raises only for the error close-outs; a clean batch's output stream is
-// its own receipt.
+// emits exactly n rows with input_last landing on the final word, then a
+// success close-out status (the tile convention: the record writer's done
+// waits on a consumed producer status). Error close-outs report through
+// the same status stream.
 module dau_int32_bitonic_sorter #(
     parameter int CAPACITY = 16  // power of two >= 2
 ) (
@@ -35,7 +36,10 @@ module dau_int32_bitonic_sorter #(
     output logic             status_valid,
     input  wire logic        status_ready,
     output logic             status_error,
-    output logic [7:0]       status_error_code
+    output logic [7:0]       status_error_code,
+    // rows drained by the last completed batch (the tile's trailing status
+    // counter for the NoC lane register block); 0 after an error close-out
+    output logic [63:0]      sorted_count
 );
     localparam logic [7:0] ERR_STREAM = 8'd2;
     localparam logic [7:0] ERR_CAPACITY = 8'd3;
@@ -52,7 +56,7 @@ module dau_int32_bitonic_sorter #(
         STATE_SORT,    // one bitonic compare-exchange stage per cycle
         STATE_DRAIN,   // emit sorted rows
         STATE_DISCARD, // overflowed batch: consume to input_last, then error
-        STATE_STATUS   // hold an error close-out until accepted
+        STATE_STATUS   // hold a close-out (success or error) until accepted
     } state_t;
 
     state_t state;
@@ -176,8 +180,14 @@ module dau_int32_bitonic_sorter #(
                         end else begin
                             drain_phase <= 1'b0;
                             if (drain_index == count - 1'b1) begin
+                                // success close-out: the downstream unit
+                                // (record writer) waits on a consumed status
+                                sorted_count <= 64'(count);
                                 count <= '0;
-                                state <= STATE_W0;
+                                status_valid <= 1'b1;
+                                status_error <= 1'b0;
+                                status_error_code <= 8'd0;
+                                state <= STATE_STATUS;
                             end else begin
                                 drain_index <= drain_index + 1'b1;
                             end
@@ -207,6 +217,7 @@ module dau_int32_bitonic_sorter #(
     task automatic raise_status(input logic [7:0] code);
         begin
             count <= '0;
+            sorted_count <= 64'd0;
             status_valid <= 1'b1;
             status_error <= 1'b1;
             status_error_code <= code;
@@ -226,6 +237,7 @@ module dau_int32_bitonic_sorter #(
             status_valid <= 1'b0;
             status_error <= 1'b0;
             status_error_code <= 8'd0;
+            sorted_count <= 64'd0;
         end
     endtask
 endmodule

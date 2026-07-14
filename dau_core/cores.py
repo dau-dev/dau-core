@@ -185,6 +185,7 @@ CORES: tuple[CoreDefinition, ...] = (
         golden="dau_core.operators:sort_bar_rows_by_key",
         bench=f"{_BENCHES}.dau_int32_bitonic_sorter_tb",
         resources=ResourceEnvelope(lut=5970, ff=2285, bram36=0.0, dsp=0),  # OOC CAPACITY=16
+        count_port="sorted_count",
     ),
     CoreDefinition(
         name="int32-stream-aggregation",

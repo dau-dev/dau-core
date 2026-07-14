@@ -49,16 +49,28 @@ class LaneSpec:
 @dataclass(frozen=True)
 class ScanCompositionSpec:
     """One scan fanned to ``len(lanes)`` lanes with per-lane output
-    regions and the NoC lane register block."""
+    regions and the NoC lane register block.
+
+    Two fan-out shapes: the default broadcasts the scan to every lane
+    (each lane's optional ``partition`` filter selects its rows), or a
+    shared ``partitioner`` (e.g. the range partitioner) routes each row
+    to exactly one lane — lanes then carry no per-lane partition."""
 
     name: str
     lanes: tuple[LaneSpec, ...]
     burst_beats: int = 32
     addr_width: int = 32
+    partitioner: TileSpec | None = None
 
     def __post_init__(self) -> None:
         if not self.lanes:
             raise CompositionError("a scan composition needs at least one lane")
+        if self.partitioner is not None:
+            definition = self.partitioner.definition()
+            if definition.kind != CoreKind.OPERATOR:
+                raise CompositionError(f"partitioner {self.partitioner.core!r} is not an operator")
+            if definition.legacy:
+                raise CompositionError(f"partitioner {self.partitioner.core!r} is legacy; not for new compositions")
         for lane in self.lanes:
             tile = lane.tile.definition()
             if tile.kind != CoreKind.OPERATOR:
@@ -67,15 +79,22 @@ class ScanCompositionSpec:
                 raise CompositionError(f"lane tile {lane.tile.core!r} is legacy (predates the stream+status contract); not for new compositions")
             if tile.count_port is None:
                 raise CompositionError(f"lane tile {lane.tile.core!r} does not expose a status counter")
+            if lane.partition is not None and self.partitioner is not None:
+                raise CompositionError(f"lane tile {lane.tile.core!r} carries a partition filter but the scan already has a shared partitioner")
             if lane.partition is not None and lane.partition.definition().kind != CoreKind.OPERATOR:
                 raise CompositionError(f"lane partition {lane.partition.core!r} is not an operator")
 
     def core_names(self) -> tuple[str, ...]:
         """Every registry core the composition instantiates, infrastructure
-        included, deduplicated in first-use order."""
+        included, deduplicated in first-use order. A shared partitioner
+        replaces the broadcast."""
         names: dict[str, None] = {}
         for name in SCAN_INFRASTRUCTURE_CORES:
+            if self.partitioner is not None and name == "stream-broadcast":
+                continue
             names.setdefault(name)
+        if self.partitioner is not None:
+            names.setdefault(self.partitioner.core)
         for lane in self.lanes:
             if lane.partition is not None:
                 names.setdefault(lane.partition.core)
@@ -103,8 +122,12 @@ def estimated_resources(spec: ScanCompositionSpec) -> ResourceEnvelope:
         dsp += envelope.dsp
         measured = measured and envelope.measured
 
-    for name in ("axi-burst-reader", "stream-broadcast", "axi-write-mux", "identity-registers"):
+    for name in ("axi-burst-reader", "axi-write-mux", "identity-registers"):
         add(name)
+    if spec.partitioner is not None:
+        add(spec.partitioner.core)
+    else:
+        add("stream-broadcast")
     for lane in spec.lanes:
         add("axi-record-writer")
         if lane.partition is not None:

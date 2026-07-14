@@ -244,6 +244,7 @@ async def _run(dut, rows, *, ready_pattern=(1,)):
     send = cocotb.start_soon(_send_rows(dut, rows))
     words = await _collect_output(dut, ready_pattern, expect_words=2 * len(rows))
     await send
+    assert int(dut.sorted_count.value) == len(rows), "sorted_count != rows drained"
     out = []
     for offset in range(0, len(words), 2):
         w0, w1 = words[offset], words[offset + 1]
@@ -307,6 +308,9 @@ async def _collect_output(dut, ready_pattern, *, expect_words: int) -> list[int]
             words.append(word)
             if last == 1:
                 assert len(words) == expect_words, f"expected {expect_words} words, got {len(words)}"
+                # the drain ends with a success close-out status (the record
+                # writer's done waits on a consumed producer status)
+                await _expect_status(dut, error=False)
                 await _assert_quiescent(dut)
                 return words
     raise AssertionError(f"timed out collecting sorter output ({len(words)}/{expect_words} words)")
@@ -338,6 +342,8 @@ async def _expect_status(dut, *, error: bool, code: int = 0) -> None:
             assert observed_error == int(error)
             if error:
                 assert observed_code == code, f"status code {observed_code} != {code}"
+            else:
+                assert observed_code == 0, f"success close-out carried code {observed_code}"
             dut.status_ready.value = 0
             return
     raise AssertionError("timed out waiting for sorter status")
