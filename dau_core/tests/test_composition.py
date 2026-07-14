@@ -49,3 +49,54 @@ def test_single_lane_filterless_scan_is_valid() -> None:
     spec = ScanCompositionSpec(name="bar-scan", lanes=(LaneSpec(tile=_BAR),))
     assert "int32-pair-key-filter" not in spec.core_names()
     assert estimated_resources(spec).lut > 0
+
+
+def _range_partitioner(lanes: int) -> TileSpec:
+    splitters = ", ".join(f"32'd{10 * (index + 1)}" for index in range(lanes - 1))
+    return TileSpec(core="int32-range-partitioner", config={"cfg_splitters": f"{{{splitters}}}"})
+
+
+def sorted_scan_spec(lanes: int = 4) -> ScanCompositionSpec:
+    return ScanCompositionSpec(
+        name=f"sorted-scan-{lanes}",
+        lanes=tuple(LaneSpec(tile=TileSpec(core="int32-bitonic-sorter")) for _ in range(lanes)),
+        partitioner=_range_partitioner(lanes),
+    )
+
+
+def test_shared_partitioner_replaces_broadcast() -> None:
+    spec = sorted_scan_spec()
+    names = spec.core_names()
+    assert "int32-range-partitioner" in names
+    assert "stream-broadcast" not in names
+    assert "int32-bitonic-sorter" in names
+
+
+def test_shared_partitioner_rejects_per_lane_partitions() -> None:
+    with pytest.raises(CompositionError, match="already has a shared partitioner"):
+        ScanCompositionSpec(
+            name="bad",
+            lanes=(LaneSpec(tile=_BAR, partition=_partition(0, 4)),),
+            partitioner=_range_partitioner(4),
+        )
+
+
+def test_shared_partitioner_must_be_operator() -> None:
+    with pytest.raises(CompositionError, match="not an operator"):
+        ScanCompositionSpec(
+            name="bad",
+            lanes=(LaneSpec(tile=_BAR),),
+            partitioner=TileSpec(core="stream-broadcast"),
+        )
+
+
+def test_sorted_scan_resources_use_partitioner_envelope() -> None:
+    spec = sorted_scan_spec()
+    envelope = estimated_resources(spec)
+    assert envelope.measured
+    partitioner = core("int32-range-partitioner").resources
+    broadcast = core("stream-broadcast").resources
+    assert partitioner is not None and broadcast is not None
+    # the partitioner, not the broadcast, is in the sum
+    without = estimated_resources(bar_noc_spec())
+    assert envelope.lut != without.lut

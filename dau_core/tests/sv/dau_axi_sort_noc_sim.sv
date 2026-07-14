@@ -206,7 +206,8 @@ module dau_axi_sort_noc_sim #(
             .status_valid(sort_status_valid[lane]),
             .status_ready(sort_status_ready[lane]),
             .status_error(sort_status_error[lane]),
-            .status_error_code(sort_status_error_code[lane])
+            .status_error_code(sort_status_error_code[lane]),
+            .sorted_count()
         );
 
         // one lane closes out through exactly one of the two producers:

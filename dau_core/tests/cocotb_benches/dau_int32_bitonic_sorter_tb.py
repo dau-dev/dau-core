@@ -244,6 +244,7 @@ async def _run(dut, rows, *, ready_pattern=(1,)):
     send = cocotb.start_soon(_send_rows(dut, rows))
     words = await _collect_output(dut, ready_pattern, expect_words=2 * len(rows))
     await send
+    assert int(dut.sorted_count.value) == len(rows), "sorted_count != rows drained"
     out = []
     for offset in range(0, len(words), 2):
         w0, w1 = words[offset], words[offset + 1]

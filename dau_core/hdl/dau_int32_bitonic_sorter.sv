@@ -36,7 +36,10 @@ module dau_int32_bitonic_sorter #(
     output logic             status_valid,
     input  wire logic        status_ready,
     output logic             status_error,
-    output logic [7:0]       status_error_code
+    output logic [7:0]       status_error_code,
+    // rows drained by the last completed batch (the tile's trailing status
+    // counter for the NoC lane register block); 0 after an error close-out
+    output logic [63:0]      sorted_count
 );
     localparam logic [7:0] ERR_STREAM = 8'd2;
     localparam logic [7:0] ERR_CAPACITY = 8'd3;
@@ -179,6 +182,7 @@ module dau_int32_bitonic_sorter #(
                             if (drain_index == count - 1'b1) begin
                                 // success close-out: the downstream unit
                                 // (record writer) waits on a consumed status
+                                sorted_count <= 64'(count);
                                 count <= '0;
                                 status_valid <= 1'b1;
                                 status_error <= 1'b0;
@@ -213,6 +217,7 @@ module dau_int32_bitonic_sorter #(
     task automatic raise_status(input logic [7:0] code);
         begin
             count <= '0;
+            sorted_count <= 64'd0;
             status_valid <= 1'b1;
             status_error <= 1'b1;
             status_error_code <= code;
@@ -232,6 +237,7 @@ module dau_int32_bitonic_sorter #(
             status_valid <= 1'b0;
             status_error <= 1'b0;
             status_error_code <= 8'd0;
+            sorted_count <= 64'd0;
         end
     endtask
 endmodule
