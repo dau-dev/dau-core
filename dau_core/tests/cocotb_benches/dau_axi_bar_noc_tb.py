@@ -129,7 +129,7 @@ async def _run_job(dut, rows):
     await _wait_done(dut)
     assert int(dut.error.value) == 0, f"job errored with code {int(dut.error_code.value)}"
     result_lengths = _u32_lanes(int(dut.lane_result_length_bytes.value))
-    bar_counts = _u64_lanes(int(dut.lane_bar_count.value))
+    bar_counts = _u64_lanes(int(dut.lane_count.value))
     lanes = []
     for lane in range(NUM_LANES):
         assert result_lengths[lane] % 48 == 0, "bar records are 48 bytes"

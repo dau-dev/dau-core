@@ -32,6 +32,58 @@ _COCOTB_BENCH_PREFIX = "dau_core.tests.cocotb_benches"
 _SV_TB_DIR = Path(__file__).parent / "sv"
 
 
+def _bar_noc_sim_sv(tmp_path: Path) -> Path:
+    """Generate the broadcast-NoC sim harness (four key-filtered bar lanes)
+    from the same composition data the shell top is walked from."""
+    scan_composition = pytest.importorskip("dau_build.scan_composition", reason="dau-build not installed")
+    composition = scan_composition.ScanComposition(
+        name="bar-noc-4",
+        module_name="dau_axi_bar_noc",
+        burst_beats=16,
+        lanes=tuple(
+            scan_composition.LaneTile(
+                module="dau_int32_bar_aggregation",
+                config={"cfg_mode": "2'd0", "cfg_row_count": "64'd0"},
+                count_port="bar_count",
+                partition=scan_composition.TileInstance(
+                    module="dau_int32_pair_key_filter",
+                    config={"cfg_key_mask": "32'd3", "cfg_key_match": f"32'd{lane}"},
+                ),
+            )
+            for lane in range(4)
+        ),
+    )
+    path = tmp_path / "dau_axi_bar_noc_sim.v"
+    path.write_text(scan_composition.generate_scan_composition_sim_sv(composition, module_name="dau_axi_bar_noc_sim"))
+    return path
+
+
+def _sort_noc_sim_sv(tmp_path: Path) -> Path:
+    """Generate the sorted-scan sim harness (shared range partitioner into
+    four sorter lanes) with the splitters surfaced as a testbench-driven
+    config input."""
+    scan_composition = pytest.importorskip("dau_build.scan_composition", reason="dau-build not installed")
+    composition = scan_composition.ScanComposition(
+        name="sorted-scan",
+        module_name="dau_axi_sort_noc",
+        burst_beats=16,
+        lanes=tuple(scan_composition.LaneTile(module="dau_int32_bitonic_sorter", count_port="sorted_count") for _ in range(4)),
+        partitioner=scan_composition.TileInstance(
+            module="dau_int32_range_partitioner",
+            config={"cfg_splitters": "cfg_splitters"},
+        ),
+    )
+    path = tmp_path / "dau_axi_sort_noc_sim.v"
+    path.write_text(
+        scan_composition.generate_scan_composition_sim_sv(
+            composition,
+            module_name="dau_axi_sort_noc_sim",
+            config_inputs={"cfg_splitters": 96},
+        )
+    )
+    return path
+
+
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_int32_aggregation_tile_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
     _run_cocotb_verilator(
@@ -167,7 +219,7 @@ def test_axi_bar_noc_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> N
             Path(str(DAU_INT32_PAIR_KEY_FILTER_SV)),
             Path(str(DAU_INT32_BAR_AGGREGATION_SV)),
             Path(str(DAU_AXI_RAM_SIM_SV)),
-            _SV_TB_DIR / "dau_axi_bar_noc_sim.sv",
+            _bar_noc_sim_sv(tmp_path),
         ),
         hdl_toplevel="dau_axi_bar_noc_sim",
         test_module=f"{_COCOTB_BENCH_PREFIX}.dau_axi_bar_noc_tb",
@@ -186,7 +238,7 @@ def test_axi_sort_noc_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> 
             Path(str(DAU_INT32_RANGE_PARTITIONER_SV)),
             Path(str(DAU_INT32_BITONIC_SORTER_SV)),
             Path(str(DAU_AXI_RAM_SIM_SV)),
-            _SV_TB_DIR / "dau_axi_sort_noc_sim.sv",
+            _sort_noc_sim_sv(tmp_path),
         ),
         hdl_toplevel="dau_axi_sort_noc_sim",
         test_module=f"{_COCOTB_BENCH_PREFIX}.dau_axi_sort_noc_tb",
