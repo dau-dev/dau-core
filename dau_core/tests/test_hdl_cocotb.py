@@ -176,6 +176,25 @@ def test_axi_bar_noc_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> N
 
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_axi_sort_noc_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
+    # partition -> local sort -> concat: the sorted-scan NoC composition
+    _run_cocotb_verilator(
+        sources=(
+            Path(str(DAU_AXI_BURST_READER_SV)),
+            Path(str(DAU_AXI_RECORD_WRITER_SV)),
+            Path(str(DAU_AXI_WRITE_MUX_SV)),
+            Path(str(DAU_INT32_RANGE_PARTITIONER_SV)),
+            Path(str(DAU_INT32_BITONIC_SORTER_SV)),
+            Path(str(DAU_AXI_RAM_SIM_SV)),
+            _SV_TB_DIR / "dau_axi_sort_noc_sim.sv",
+        ),
+        hdl_toplevel="dau_axi_sort_noc_sim",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_axi_sort_noc_tb",
+        tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_grouped_aggregation_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
     _run_cocotb_verilator(
         sources=(Path(str(DAU_INT32_GROUPED_AGGREGATION_SV)),),
