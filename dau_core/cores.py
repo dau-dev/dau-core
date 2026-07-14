@@ -177,6 +177,16 @@ CORES: tuple[CoreDefinition, ...] = (
         resources=ResourceEnvelope(lut=374, ff=1124, bram36=0.0, dsp=0),  # OOC N=4
     ),
     CoreDefinition(
+        name="int32-bitonic-sorter",
+        kind=CoreKind.OPERATOR,
+        module="dau_int32_bitonic_sorter",
+        source="dau_int32_bitonic_sorter.sv",
+        description="Batch bitonic sorter: up to CAPACITY pair rows ascending by key, stable; overflow reports partition-first.",
+        golden="dau_core.operators:sort_bar_rows_by_key",
+        bench=f"{_BENCHES}.dau_int32_bitonic_sorter_tb",
+        resources=ResourceEnvelope(lut=5970, ff=2285, bram36=0.0, dsp=0),  # OOC CAPACITY=16
+    ),
+    CoreDefinition(
         name="int32-stream-aggregation",
         kind=CoreKind.OPERATOR,
         module="dau_int32_stream_aggregation",

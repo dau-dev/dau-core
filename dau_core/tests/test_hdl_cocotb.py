@@ -15,6 +15,7 @@ from dau_core.hdl import (
     DAU_INT32_AGGREGATION_TILE_SV,
     DAU_INT32_ARROW_LITE_STREAM_AGGREGATION_SV,
     DAU_INT32_BAR_AGGREGATION_SV,
+    DAU_INT32_BITONIC_SORTER_SV,
     DAU_INT32_GROUPED_AGGREGATION_SV,
     DAU_INT32_MAP_ALU_SV,
     DAU_INT32_PAIR_KEY_FILTER_SV,
@@ -113,6 +114,32 @@ def test_range_partitioner_runs_real_cocotb_against_systemverilog(tmp_path: Path
         hdl_toplevel="dau_int32_range_partitioner",
         test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_range_partitioner_tb",
         tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_bitonic_sorter_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_BITONIC_SORTER_SV)),),
+        hdl_toplevel="dau_int32_bitonic_sorter",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_bitonic_sorter_tb",
+        tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+@pytest.mark.parametrize("capacity", [2, 4])
+def test_bitonic_sorter_small_capacity(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capacity: int) -> None:
+    # CAPACITY=2 is the minimum legal network (a single compare-exchange);
+    # CAPACITY=4 is the smallest multi-stage one. The bench reads the env var
+    # to size its vectors to the DUT.
+    monkeypatch.setenv("DAU_SORTER_CAPACITY", str(capacity))
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_BITONIC_SORTER_SV)),),
+        hdl_toplevel="dau_int32_bitonic_sorter",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_bitonic_sorter_tb",
+        tmp_path=tmp_path,
+        parameters={"CAPACITY": capacity},
     )
 
 

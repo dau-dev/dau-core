@@ -229,6 +229,18 @@ def range_partition_bar_rows(rows: Iterable[tuple[int, int, int, int]], *, split
     return parts
 
 
+class SorterErrorCode(IntEnum):
+    STREAM = 2
+    CAPACITY = 3
+
+
+def sort_bar_rows_by_key(rows: Iterable[tuple[int, int, int, int]]) -> list[tuple[int, int, int, int]]:
+    """Golden semantics for the batch bitonic sorter: rows ascending by the
+    signed 32-bit key, STABLE (rows with equal keys keep input order — the
+    tile tie-breaks on load index)."""
+    return sorted((tuple(row) for row in rows), key=lambda row: _wrap_int32(row[0]))
+
+
 def bar_aggregate_rows(rows: Iterable[tuple[int, int, int, int]]) -> list[BarAggregate]:
     """Golden semantics for the fused bar-aggregation tile (ordered
     close-out): consecutive rows with equal keys form a bar; volume is

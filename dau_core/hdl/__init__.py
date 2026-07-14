@@ -26,6 +26,7 @@ DAU_AXI_WRITE_MUX_SV = files(__package__).joinpath("dau_axi_write_mux.sv")
 DAU_STREAM_BROADCAST_SV = files(__package__).joinpath("dau_stream_broadcast.sv")
 DAU_INT32_PAIR_KEY_FILTER_SV = files(__package__).joinpath("dau_int32_pair_key_filter.sv")
 DAU_INT32_RANGE_PARTITIONER_SV = files(__package__).joinpath("dau_int32_range_partitioner.sv")
+DAU_INT32_BITONIC_SORTER_SV = files(__package__).joinpath("dau_int32_bitonic_sorter.sv")
 
 __all__ = (
     "DAU_AGGREGATION_PKG_SV",
@@ -34,6 +35,7 @@ __all__ = (
     "DAU_AXI_RECORD_WRITER_SV",
     "DAU_AXI_STREAM_JOB_SV",
     "DAU_AXI_WRITE_MUX_SV",
+    "DAU_INT32_BITONIC_SORTER_SV",
     "DAU_INT32_PAIR_KEY_FILTER_SV",
     "DAU_INT32_RANGE_PARTITIONER_SV",
     "DAU_STREAM_BROADCAST_SV",
