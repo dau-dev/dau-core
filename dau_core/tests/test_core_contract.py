@@ -23,7 +23,9 @@ def test_every_operator_conforms_to_the_stream_tile_contract() -> None:
         try:
             import dau_build.sv_contract as sv_contract
         except ImportError:
-            pytest.fail("dau_build.sv_contract is missing in CI: the develop install (dau-build extra) is broken, so the registry conformance check cannot run")
+            pytest.fail(
+                "dau_build.sv_contract is missing in CI: the develop install (dau-build extra) is broken, so the registry conformance check cannot run"
+            )
     else:
         sv_contract = pytest.importorskip("dau_build.sv_contract", reason="dau-build not installed")
 
