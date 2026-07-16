@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from dau_core import hdl
-from dau_core.cores import CORES, CoreKind, UnknownCoreError, core, core_for_module, cores_of_kind, sources_for
+from dau_core.cores import CORES, ContractKind, CoreKind, UnknownCoreError, core, core_for_module, cores_of_kind, sources_for
 
 
 def test_every_hdl_file_belongs_to_exactly_one_core() -> None:
@@ -52,6 +52,24 @@ def test_legacy_operators_stay_verified_but_are_not_selectable() -> None:
         assert definition not in selectable_operators(), definition.name
         # and the composition validator refuses them regardless (no status counter)
         assert definition.count_port is None, definition.name
+
+
+def test_every_selectable_operator_declares_its_contract_kind() -> None:
+    """A new core declares its stream contract in the registry — contract
+    tests select validators from this tag, never from test-local exemption
+    sets."""
+    for definition in cores_of_kind(CoreKind.OPERATOR):
+        if definition.legacy:
+            # predates the stream+status contract; declares none
+            assert definition.contract_kind is None, definition.name
+        else:
+            assert definition.contract_kind is not None, f"operator {definition.name} declares no contract_kind"
+    # the one descriptor-driven tile is registry data, not a test special case
+    assert core("int32-stream-aggregation").contract_kind is ContractKind.ARROW_LITE_DESCRIPTOR
+    # only operators declare a stream contract
+    for definition in CORES:
+        if definition.kind is not CoreKind.OPERATOR:
+            assert definition.contract_kind is None, definition.name
 
 
 def test_sources_for_closes_dependencies_in_order() -> None:

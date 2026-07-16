@@ -25,6 +25,15 @@ class CoreKind(Enum):
     SIM_MODEL = "sim-model"
 
 
+class ContractKind(Enum):
+    """Which streaming interface contract an operator tile speaks. Contract
+    tests select their validator from this tag; a new core declares its
+    contract here rather than being special-cased in test code."""
+
+    ROW_STREAM = "row-stream"  # the standard 64-bit stream + status tile contract
+    ARROW_LITE_DESCRIPTOR = "arrow-lite-descriptor"  # descriptor-driven Arrow-lite protocol
+
+
 @dataclass(frozen=True)
 class ResourceEnvelope:
     """Post-synthesis footprint on the target part (dpv1 XC7A200T unless
@@ -52,6 +61,7 @@ class CoreDefinition:
     resources: ResourceEnvelope | None = None
     count_port: str | None = None  # the tile's trailing status counter, if any
     legacy: bool = False  # predates the stream+status contract; kept verified, not for new compositions
+    contract_kind: ContractKind | None = None  # required for non-legacy operators; None elsewhere (no declared stream contract)
 
     def source_path(self) -> Path:
         from . import hdl
@@ -102,6 +112,7 @@ CORES: tuple[CoreDefinition, ...] = (
         bench=f"{_BENCHES}.dau_int32_predicate_filter_tb",
         resources=ResourceEnvelope(lut=985, ff=376, bram36=0.0, dsp=0),
         count_port="selected_count",
+        contract_kind=ContractKind.ROW_STREAM,
     ),
     CoreDefinition(
         name="int32-keyed-predicate-filter",
@@ -112,6 +123,7 @@ CORES: tuple[CoreDefinition, ...] = (
         depends=("predicate-pkg",),
         golden="dau_core.operators:filter_rows",
         resources=ResourceEnvelope(lut=644, ff=342, bram36=0.0, dsp=0),
+        contract_kind=ContractKind.ROW_STREAM,
     ),
     CoreDefinition(
         name="int32-map-alu",
@@ -123,6 +135,7 @@ CORES: tuple[CoreDefinition, ...] = (
         golden="dau_core.operators:map_values",
         bench=f"{_BENCHES}.dau_int32_map_alu_tb",
         resources=ResourceEnvelope(lut=1338, ff=383, bram36=0.0, dsp=8),
+        contract_kind=ContractKind.ROW_STREAM,
     ),
     CoreDefinition(
         name="int32-keyed-map-alu",
@@ -133,6 +146,7 @@ CORES: tuple[CoreDefinition, ...] = (
         depends=("map-alu-pkg",),
         golden="dau_core.operators:map_rows",
         resources=ResourceEnvelope(lut=904, ff=316, bram36=0.0, dsp=4),
+        contract_kind=ContractKind.ROW_STREAM,
     ),
     CoreDefinition(
         name="int32-grouped-aggregation",
@@ -144,6 +158,7 @@ CORES: tuple[CoreDefinition, ...] = (
         bench=f"{_BENCHES}.dau_int32_grouped_aggregation_tb",
         resources=ResourceEnvelope(lut=672, ff=563, bram36=0.0, dsp=0),
         count_port="group_count",
+        contract_kind=ContractKind.ROW_STREAM,
     ),
     CoreDefinition(
         name="int32-bar-aggregation",
@@ -155,6 +170,7 @@ CORES: tuple[CoreDefinition, ...] = (
         bench=f"{_BENCHES}.dau_int32_bar_aggregation_tb",
         resources=ResourceEnvelope(lut=829, ff=631, bram36=0.0, dsp=0),
         count_port="bar_count",
+        contract_kind=ContractKind.ROW_STREAM,
     ),
     CoreDefinition(
         name="int32-pair-key-filter",
@@ -165,6 +181,7 @@ CORES: tuple[CoreDefinition, ...] = (
         golden="dau_core.operators:filter_bar_rows_by_key",
         bench=f"{_BENCHES}.dau_int32_pair_key_filter_tb",
         resources=ResourceEnvelope(lut=106, ff=330, bram36=0.0, dsp=0),
+        contract_kind=ContractKind.ROW_STREAM,
     ),
     CoreDefinition(
         name="int32-range-partitioner",
@@ -175,6 +192,7 @@ CORES: tuple[CoreDefinition, ...] = (
         golden="dau_core.operators:range_partition_bar_rows",
         bench=f"{_BENCHES}.dau_int32_range_partitioner_tb",
         resources=ResourceEnvelope(lut=374, ff=1124, bram36=0.0, dsp=0),  # OOC N=4
+        contract_kind=ContractKind.ROW_STREAM,
     ),
     CoreDefinition(
         name="int32-bitonic-sorter",
@@ -186,6 +204,7 @@ CORES: tuple[CoreDefinition, ...] = (
         bench=f"{_BENCHES}.dau_int32_bitonic_sorter_tb",
         resources=ResourceEnvelope(lut=5970, ff=2285, bram36=0.0, dsp=0),  # OOC CAPACITY=16
         count_port="sorted_count",
+        contract_kind=ContractKind.ROW_STREAM,
     ),
     CoreDefinition(
         name="int32-stream-aggregation",
@@ -197,6 +216,7 @@ CORES: tuple[CoreDefinition, ...] = (
         golden="dau_core.operators:aggregate_values",
         bench=f"{_BENCHES}.dau_int32_stream_aggregation_tb",
         resources=ResourceEnvelope(lut=446, ff=400, bram36=0.0, dsp=0),
+        contract_kind=ContractKind.ARROW_LITE_DESCRIPTOR,
     ),
     CoreDefinition(
         name="int32-arrow-lite-stream-aggregation",
@@ -208,6 +228,7 @@ CORES: tuple[CoreDefinition, ...] = (
         golden="dau_core.operators:aggregate_values",
         bench=f"{_BENCHES}.dau_int32_arrow_lite_stream_aggregation_tb",
         resources=ResourceEnvelope(lut=1874, ff=636, bram36=0.0, dsp=0),
+        contract_kind=ContractKind.ROW_STREAM,
     ),
     CoreDefinition(
         name="int32-record-batch-aggregation",
@@ -219,6 +240,7 @@ CORES: tuple[CoreDefinition, ...] = (
         golden="dau_core.operators:aggregate_values",
         bench=f"{_BENCHES}.dau_int32_record_batch_aggregation_tb",
         resources=ResourceEnvelope(lut=2266, ff=2741, bram36=0.0, dsp=0),
+        contract_kind=ContractKind.ROW_STREAM,
     ),
     CoreDefinition(
         name="int32-aggregation-tile",
