@@ -64,8 +64,11 @@ def test_every_selectable_operator_declares_its_contract_kind() -> None:
             assert definition.contract_kind is None, definition.name
         else:
             assert definition.contract_kind is not None, f"operator {definition.name} declares no contract_kind"
-    # the one descriptor-driven tile is registry data, not a test special case
-    assert core("int32-stream-aggregation").contract_kind is ContractKind.ARROW_LITE_DESCRIPTOR
+    # the one descriptor-driven tile is registry data, not a test special case;
+    # pinned as a set: no Arrow-lite validator exists yet, so a newly
+    # descriptor-tagged operator would skip conformance — confirm intent here
+    descriptor = {d.name for d in cores_of_kind(CoreKind.OPERATOR) if d.contract_kind is ContractKind.ARROW_LITE_DESCRIPTOR}
+    assert descriptor == {"int32-stream-aggregation"}, "descriptor-tagged operator set changed — confirm intent"
     # only operators declare a stream contract
     for definition in CORES:
         if definition.kind is not CoreKind.OPERATOR:
