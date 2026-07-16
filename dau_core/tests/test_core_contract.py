@@ -4,12 +4,7 @@ import os
 
 import pytest
 
-from dau_core.cores import CoreKind, cores_of_kind
-
-# genuinely different interfaces, exempt by design (not drift):
-# - int32-stream-aggregation speaks the descriptor-driven Arrow-lite protocol,
-#   not the row-stream tile contract (a registry contract tag is future work)
-_NOT_ROW_STREAM_TILES = {"int32-stream-aggregation"}
+from dau_core.cores import ContractKind, CoreKind, cores_of_kind
 
 
 def test_every_operator_conforms_to_the_stream_tile_contract() -> None:
@@ -31,7 +26,10 @@ def test_every_operator_conforms_to_the_stream_tile_contract() -> None:
 
     failures = []
     for definition in cores_of_kind(CoreKind.OPERATOR):
-        if definition.legacy or definition.name in _NOT_ROW_STREAM_TILES:
+        # validator selection is registry data: only row-stream tiles run this
+        # check (int32-stream-aggregation declares the descriptor-driven
+        # Arrow-lite contract, which has no slang validator yet)
+        if definition.legacy or definition.contract_kind is not ContractKind.ROW_STREAM:
             continue
         violations = sv_contract.validate_stream_tile([definition.source_path()], definition.module, count_port=definition.count_port)
         if violations:
