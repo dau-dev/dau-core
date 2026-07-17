@@ -308,6 +308,67 @@ def field_sum_rows(rows: Iterable[tuple[int, int, int, int]], *, field_mask: int
     return FieldSumAggregate(field_mask=field_mask, sums=tuple(sums), count=count)
 
 
+class GroupedFieldSumErrorCode(IntEnum):
+    CONFIG = 1
+    STREAM = 2
+
+
+@dataclass(frozen=True)
+class GroupedFieldSumAggregate:
+    """One closed group from the ordered grouped field-sum aggregation
+    tile: exact INT64 sums of the mask-selected fields (ascending field
+    order) plus the group's row count. Record format on the wire: the
+    group key sign-extended to one 64-bit word, one 64-bit word per
+    selected field (two's-complement sum, ascending field index), then the
+    count word. ``output_last`` is set only on the final group's count
+    word — the batch's group records form one record stream and the tile
+    closes out once per batch, after the last group (the composition
+    invariant: exactly one success close-out per lane per batch)."""
+
+    key: int
+    field_mask: int
+    sums: tuple[int, ...]
+    count: int
+
+    def record_words(self) -> list[int]:
+        """The group record as unsigned 64-bit stream words: sign-extended
+        key, sums re-encoded to two's complement, count last."""
+        mask64 = 0xFFFF_FFFF_FFFF_FFFF
+        return [self.key & mask64] + [sum_value & mask64 for sum_value in self.sums] + [self.count]
+
+
+def grouped_field_sum_rows(rows: Iterable[tuple[int, int, int, int]], *, field_mask: int) -> list[GroupedFieldSumAggregate]:
+    """Golden semantics for the ordered grouped field-sum aggregation tile
+    (close-out mode): consecutive (key, value, aux0, aux1) rows with equal
+    signed 32-bit keys form a group; a group closes when the key changes or
+    input ends, emitting an INT64 sum per mask-selected field plus the row
+    count. A key that reappears later opens a NEW group — partials merge on
+    the host, never in the tile (the partial-bar contract). ``field_mask``
+    bit i selects field i; at least one field must be selected (a zero mask
+    is an unconfigured tile and reports CONFIG on hardware)."""
+    if not 1 <= field_mask <= 15:
+        raise ValueError("field_mask must select at least one of the four fields")
+    selected = [i for i in range(4) if field_mask & (1 << i)]
+    results: list[GroupedFieldSumAggregate] = []
+    current_key: int | None = None
+    sums: list[int] = []
+    count = 0
+    for row in rows:
+        key = _wrap_int32(row[0])
+        if current_key is None or key != current_key:
+            if current_key is not None:
+                results.append(GroupedFieldSumAggregate(key=current_key, field_mask=field_mask, sums=tuple(sums), count=count))
+            current_key = key
+            sums = [0] * len(selected)
+            count = 0
+        for slot, field in enumerate(selected):
+            sums[slot] += _wrap_int32(row[field])
+        count += 1
+    if current_key is not None:
+        results.append(GroupedFieldSumAggregate(key=current_key, field_mask=field_mask, sums=tuple(sums), count=count))
+    return results
+
+
 GROUPED_AGGREGATION_CONFIG_VERSION = "0.1"
 
 

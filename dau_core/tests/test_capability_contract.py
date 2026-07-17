@@ -38,11 +38,12 @@ def test_registry_declares_hardware_opcodes_only_for_opcode_driven_tiles() -> No
         "int32-record-batch-aggregation",
         "int32-aggregation-tile",
         "int32-field-sum-aggregation",
+        "int32-grouped-field-sum-aggregation",
     }
     for definition in declared.values():
-        if definition.name == "int32-field-sum-aggregation":
-            # the field-sum tile has a sum+count datapath only: it must never
-            # over-declare MIN/MAX it cannot execute
+        if definition.name in ("int32-field-sum-aggregation", "int32-grouped-field-sum-aggregation"):
+            # the field-sum tiles have a sum+count datapath only: they must
+            # never over-declare MIN/MAX they cannot execute
             assert definition.opcodes == (OperationCode.SUM, OperationCode.COUNT), definition.name
         else:
             assert definition.opcodes == _HW_AGGREGATION_OPCODES, definition.name
