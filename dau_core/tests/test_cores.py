@@ -116,3 +116,6 @@ def test_silent_on_success_operator_set_is_pinned() -> None:
         "int32-row-predicate-filter",
         "int32-row-map-alu",
     }
+    # the grouped multi-sum tile emits many group records but exactly ONE
+    # success close-out per batch (after the final group) — terminal-legal
+    assert core("int32-grouped-field-sum-aggregation").success_close_out

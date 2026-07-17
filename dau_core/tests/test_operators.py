@@ -7,6 +7,7 @@ from dau_core.operators import (
     FieldSumAggregate,
     FilterPredicate,
     GroupAggregate,
+    GroupedFieldSumAggregate,
     MapConfig,
     MapOp,
     PredicateCombine,
@@ -21,6 +22,7 @@ from dau_core.operators import (
     filter_rows_by_predicate,
     filter_values,
     grouped_aggregate_rows,
+    grouped_field_sum_rows,
     map_row_fields,
     map_rows,
     map_values,
@@ -332,3 +334,50 @@ def test_field_sum_empty_batch_and_mask_validation() -> None:
         field_sum_rows(_QUAD_ROWS, field_mask=0)
     with pytest.raises(ValueError, match="field_mask"):
         field_sum_rows(_QUAD_ROWS, field_mask=16)
+
+
+_GROUPED_ROWS = [
+    (3, 1000, 5, 10),
+    (3, 2000, 6, 30),
+    (7, -500, 6, 24),
+    (9, 3000, 4, 1),
+    (9, 1, 2, 3),
+]
+
+
+def test_grouped_field_sum_groups_consecutive_equal_keys() -> None:
+    result = grouped_field_sum_rows(_GROUPED_ROWS, field_mask=0b1010)
+    assert result == [
+        GroupedFieldSumAggregate(key=3, field_mask=0b1010, sums=(3000, 40), count=2),
+        GroupedFieldSumAggregate(key=7, field_mask=0b1010, sums=(-500, 24), count=1),
+        GroupedFieldSumAggregate(key=9, field_mask=0b1010, sums=(3001, 4), count=2),
+    ]
+
+
+def test_grouped_field_sum_record_words_carry_key_sums_count() -> None:
+    groups = grouped_field_sum_rows(_GROUPED_ROWS, field_mask=0b0010)
+    assert groups[0].record_words() == [3, 3000, 2]
+    negative = grouped_field_sum_rows([(-3, -1000, 0, 0)], field_mask=0b0010)
+    # the key word is the signed key sign-extended to 64 bits
+    assert negative[0].record_words() == [(-3) & 0xFFFF_FFFF_FFFF_FFFF, (-1000) & 0xFFFF_FFFF_FFFF_FFFF, 1]
+
+
+def test_grouped_field_sum_reappearing_key_opens_a_new_group() -> None:
+    result = grouped_field_sum_rows([(5, 10, 0, 0), (6, 20, 0, 0), (5, 30, 0, 0)], field_mask=0b0010)
+    assert [group.key for group in result] == [5, 6, 5]
+    assert [group.sums for group in result] == [(10,), (20,), (30,)]
+
+
+def test_grouped_field_sum_int64_accumulation_and_masks() -> None:
+    rows = [(1, 2**31 - 1, -(2**31), 7)] * 4
+    result = grouped_field_sum_rows(rows, field_mask=0b1110)
+    assert result[0].sums == (4 * (2**31 - 1), 4 * -(2**31), 28)
+    assert result[0].count == 4
+
+
+def test_grouped_field_sum_empty_and_mask_validation() -> None:
+    assert grouped_field_sum_rows([], field_mask=0b0001) == []
+    with pytest.raises(ValueError, match="field_mask"):
+        grouped_field_sum_rows(_GROUPED_ROWS, field_mask=0)
+    with pytest.raises(ValueError, match="field_mask"):
+        grouped_field_sum_rows(_GROUPED_ROWS, field_mask=16)
