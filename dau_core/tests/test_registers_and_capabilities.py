@@ -4,6 +4,7 @@ import pytest
 
 from dau_core.capabilities import DeviceCapabilities, DmaConstraints, OperatorCapability
 from dau_core.registers import (
+    CURRENT_REGISTER_MAP_VERSION,
     DAU_MAGIC_WORD,
     DEFAULT_STREAM_JOB_REGISTER_CONTRACT,
     JobControlFlag,
@@ -28,6 +29,13 @@ def test_register_contract_uses_dau_magic_and_aligned_offsets():
     assert RegisterOffset.JOB_STATUS == 0x0054
     assert RegisterOffset.INPUT_ADDRESS_LOW == 0x0058
     assert RegisterOffset.OUTPUT_ADDRESS_LOW == 0x0068
+    # register map 0.2: composed-capability words, additive, below the NoC
+    # lane block at 0x0100
+    assert CURRENT_REGISTER_MAP_VERSION == RegisterMapVersion(0, 2)
+    assert CURRENT_REGISTER_MAP_VERSION.to_u32() == 0x00000002
+    assert RegisterOffset.LANE_COUNT == 0x00C0
+    assert RegisterOffset.HOST_OPCODE_BITMAP == 0x00C4
+    assert RegisterOffset.SORT_CAPACITY == 0x00C8
     assert JobControlFlag.START == 1
     assert JobStatusFlag.ERROR == 1 << 3
     assert ResetScope.OPERATOR | ResetScope.STREAM == ResetScope.OPERATOR | ResetScope.STREAM
@@ -53,6 +61,9 @@ def test_register_block_snapshot_reads_identity_status_and_counters_as_u32_words
         output_address=0x0000_0000_0000_2000,
         output_length=0x0000_0000_0000_0088,
         result_length=0x0000_0000_0000_0088,
+        lane_count=4,
+        host_opcode_bitmap=0x20,
+        sort_capacity=16,
     )
 
     assert snapshot.read_u32(RegisterOffset.MAGIC) == DAU_MAGIC_WORD
@@ -80,6 +91,9 @@ def test_register_block_snapshot_reads_identity_status_and_counters_as_u32_words
     assert snapshot.read_u32(RegisterOffset.OUTPUT_ADDRESS_LOW) == 0x0000_2000
     assert snapshot.read_u32(RegisterOffset.OUTPUT_LENGTH_LOW) == 0x0000_0088
     assert snapshot.read_u32(RegisterOffset.RESULT_LENGTH_LOW) == 0x0000_0088
+    assert snapshot.read_u32(RegisterOffset.LANE_COUNT) == 4
+    assert snapshot.read_u32(RegisterOffset.HOST_OPCODE_BITMAP) == 0x20
+    assert snapshot.read_u32(RegisterOffset.SORT_CAPACITY) == 16
     assert snapshot.read_u32(0x0FFC) == 0xFFFF_FFFF
 
 
@@ -143,6 +157,21 @@ def test_packaged_identity_register_hdl_exposes_reset_write_pulse_ports():
     assert "assign reset_request = (wen && (addr == 16'h0020)) ? wdata : 32'h0000_0000;" in source
 
 
+def test_packaged_identity_register_hdl_advertises_the_current_register_map():
+    """The SV default and decode stay pinned to the Python contract: the
+    0.2 bump adds the composed-capability words at 0x00c0..0x00c8."""
+    source = files("dau_core.hdl").joinpath("dau_identity_registers.sv").read_text()
+
+    version_word = CURRENT_REGISTER_MAP_VERSION.to_u32()
+    assert f"parameter logic [31:0] REGISTER_MAP_VERSION = 32'h{version_word >> 16:04x}_{version_word & 0xFFFF:04x}" in source
+    assert "parameter logic [31:0] LANE_COUNT = 32'h0000_0000" in source
+    assert "parameter logic [31:0] HOST_OPCODE_BITMAP = 32'h0000_0000" in source
+    assert "parameter logic [31:0] SORT_CAPACITY = 32'h0000_0000" in source
+    assert "(addr == 16'h00c0) ? LANE_COUNT :" in source
+    assert "(addr == 16'h00c4) ? HOST_OPCODE_BITMAP :" in source
+    assert "(addr == 16'h00c8) ? SORT_CAPACITY :" in source
+
+
 def test_device_capabilities_report_supported_operations_and_dma_constraints():
     capabilities = DeviceCapabilities(
         platform_id="dpv1",
@@ -167,3 +196,31 @@ def test_device_capabilities_report_supported_operations_and_dma_constraints():
     assert capabilities.dma.is_aligned(128)
     assert not capabilities.dma.is_aligned(96)
     assert capabilities.dma.max_aligned_transfer_bytes == (1 << 28) - 64
+
+
+def test_device_capabilities_keep_host_computed_operators_apart_from_hardware():
+    """AVERAGE is a protocol-level host divide over SUM/COUNT results — it
+    is advertised in host_operators, never as a hardware operator."""
+    average = OperatorCapability(
+        opcode=OperationCode.AVERAGE,
+        input_types=(LogicalType.INT32,),
+        output_type=LogicalType.FLOAT64,
+        supports_group_by=False,
+    )
+    capabilities = DeviceCapabilities(
+        platform_id="dpv1",
+        pci_vendor_id=0x10EE,
+        pci_device_id=0x7011,
+        register_map_version=RegisterMapVersion(0, 2),
+        stream_protocol_version=StreamProtocolVersion(0, 1),
+        dma=DmaConstraints(alignment_bytes=64, descriptor_bytes=32, max_transfer_bytes=(1 << 28) - 1, read_channels=1, write_channels=1),
+        operators=(
+            OperatorCapability(opcode=OperationCode.SUM, input_types=(LogicalType.INT32,), output_type=LogicalType.INT64, supports_group_by=False),
+        ),
+        host_operators=(average,),
+    )
+
+    assert capabilities.supports(OperationCode.SUM, LogicalType.INT32)
+    assert not capabilities.supports(OperationCode.AVERAGE, LogicalType.INT32)
+    assert capabilities.supports_host_computed(OperationCode.AVERAGE, LogicalType.INT32)
+    assert not capabilities.supports_host_computed(OperationCode.SUM, LogicalType.INT32)

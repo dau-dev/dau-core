@@ -1,7 +1,10 @@
 `default_nettype none
 
 module dau_identity_registers #(
-    parameter logic [31:0] REGISTER_MAP_VERSION = 32'h0000_0001,
+    // register map 0.2: OPERATOR_BITMAP is the hardware truth of the
+    // composed design; LANE_COUNT / HOST_OPCODE_BITMAP / SORT_CAPACITY
+    // advertise the composition (0 = not advertised).
+    parameter logic [31:0] REGISTER_MAP_VERSION = 32'h0000_0002,
     parameter logic [31:0] STREAM_PROTOCOL_VERSION = 32'h0000_0001,
     parameter logic [31:0] PLATFORM_ID = 32'h4554_494e,
     parameter logic [31:0] SHELL_VERSION = 32'h0000_0000,
@@ -9,6 +12,9 @@ module dau_identity_registers #(
     parameter logic [31:0] STATUS = 32'h0000_0000,
     parameter logic [31:0] DMA_CONSTRAINTS = 32'h0000_0000,
     parameter logic [31:0] OPERATOR_BITMAP = 32'h0000_0000,
+    parameter logic [31:0] LANE_COUNT = 32'h0000_0000,
+    parameter logic [31:0] HOST_OPCODE_BITMAP = 32'h0000_0000,
+    parameter logic [31:0] SORT_CAPACITY = 32'h0000_0000,
     parameter logic [31:0] LAST_ERROR = 32'h0000_0000,
     parameter logic [63:0] H2C_BYTES = 64'h0000_0000_0000_0000,
     parameter logic [63:0] C2H_BYTES = 64'h0000_0000_0000_0000,
@@ -45,6 +51,9 @@ module dau_identity_registers #(
         (addr == 16'h0044) ? ROWS[63:32] :
         (addr == 16'h0048) ? BATCHES :
         (addr == 16'h004c) ? STALLS :
+        (addr == 16'h00c0) ? LANE_COUNT :
+        (addr == 16'h00c4) ? HOST_OPCODE_BITMAP :
+        (addr == 16'h00c8) ? SORT_CAPACITY :
         32'hffff_ffff;
 endmodule
 

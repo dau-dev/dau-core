@@ -1,7 +1,17 @@
 from .capabilities import DeviceCapabilities, DmaConstraints, OperatorCapability
+from .capability_contract import (
+    CAPABILITY_CONTRACT_SCHEMA,
+    CapabilityContract,
+    LaneCapability,
+    TileCapability,
+    capability_contract,
+    opcode_bitmap,
+    tile_capability,
+)
 from .design import DauDesign, OperatorUnit, UnitKind, format_units, parse_units
 from .operators import EmptyInputError, UnsupportedAggregationError, aggregate_values, synthetic_values
 from .registers import (
+    CURRENT_REGISTER_MAP_VERSION,
     DAU_MAGIC_WORD,
     DEFAULT_STREAM_JOB_REGISTER_CONTRACT,
     JobControlFlag,
@@ -34,6 +44,9 @@ __version__ = "0.1.0"
 
 __all__ = [
     "BatchHeader",
+    "CAPABILITY_CONTRACT_SCHEMA",
+    "CURRENT_REGISTER_MAP_VERSION",
+    "CapabilityContract",
     "ColumnDescriptor",
     "DAU_MAGIC_WORD",
     "DEFAULT_RECORD_BATCH_LIMITS",
@@ -46,6 +59,7 @@ __all__ = [
     "InvalidStreamError",
     "JobControlFlag",
     "JobStatusFlag",
+    "LaneCapability",
     "LogicalType",
     "OperationCode",
     "OperationDescriptor",
@@ -62,11 +76,15 @@ __all__ = [
     "StreamFlag",
     "StreamJobRegisterContract",
     "StreamProtocolVersion",
+    "TileCapability",
     "UnitKind",
     "UnsupportedAggregationError",
     "aggregate_values",
+    "capability_contract",
     "format_units",
+    "opcode_bitmap",
     "parse_units",
     "synthetic_values",
+    "tile_capability",
     "validate_record_batch",
 ]

@@ -16,6 +16,9 @@ from enum import Enum
 from importlib import import_module
 from pathlib import Path
 
+from .design import UnitKind
+from .stream import LogicalType, OperationCode
+
 
 class CoreKind(Enum):
     OPERATOR = "operator"
@@ -62,6 +65,15 @@ class CoreDefinition:
     count_port: str | None = None  # the tile's trailing status counter, if any
     legacy: bool = False  # predates the stream+status contract; kept verified, not for new compositions
     contract_kind: ContractKind | None = None  # required for non-legacy operators; None elsewhere (no declared stream contract)
+    # capability facts (HDL truth, consumed by the composition-derived
+    # capability contract): the descriptor-selectable OperationCodes a tile
+    # executes in hardware and the logical types those opcodes accept.
+    # AVERAGE is never declared here — it is not a hardware opcode (the host
+    # divides the SUM/COUNT results at protocol level).
+    opcodes: tuple[OperationCode, ...] = ()
+    opcode_input_types: tuple[LogicalType, ...] = ()
+    row_capacity: int | None = None  # batch row capacity for buffered tiles (bitonic sorter CAPACITY)
+    unit_kind: UnitKind | None = None  # the design-inventory unit an instance of this tile contributes
 
     def source_path(self) -> Path:
         from . import hdl
@@ -205,6 +217,8 @@ CORES: tuple[CoreDefinition, ...] = (
         resources=ResourceEnvelope(lut=5970, ff=2285, bram36=0.0, dsp=0),  # OOC CAPACITY=16
         count_port="sorted_count",
         contract_kind=ContractKind.ROW_STREAM,
+        row_capacity=16,  # HDL parameter CAPACITY default
+        unit_kind=UnitKind.SORT,
     ),
     CoreDefinition(
         name="int32-stream-aggregation",
@@ -217,6 +231,9 @@ CORES: tuple[CoreDefinition, ...] = (
         bench=f"{_BENCHES}.dau_int32_stream_aggregation_tb",
         resources=ResourceEnvelope(lut=446, ff=400, bram36=0.0, dsp=0),
         contract_kind=ContractKind.ARROW_LITE_DESCRIPTOR,
+        opcodes=(OperationCode.MIN, OperationCode.MAX, OperationCode.SUM, OperationCode.COUNT),
+        opcode_input_types=(LogicalType.INT32,),
+        unit_kind=UnitKind.AGGREGATION,
     ),
     CoreDefinition(
         name="int32-arrow-lite-stream-aggregation",
@@ -229,6 +246,9 @@ CORES: tuple[CoreDefinition, ...] = (
         bench=f"{_BENCHES}.dau_int32_arrow_lite_stream_aggregation_tb",
         resources=ResourceEnvelope(lut=1874, ff=636, bram36=0.0, dsp=0),
         contract_kind=ContractKind.ROW_STREAM,
+        opcodes=(OperationCode.MIN, OperationCode.MAX, OperationCode.SUM, OperationCode.COUNT),
+        opcode_input_types=(LogicalType.INT32,),
+        unit_kind=UnitKind.AGGREGATION,
     ),
     CoreDefinition(
         name="int32-record-batch-aggregation",
@@ -241,6 +261,9 @@ CORES: tuple[CoreDefinition, ...] = (
         bench=f"{_BENCHES}.dau_int32_record_batch_aggregation_tb",
         resources=ResourceEnvelope(lut=2266, ff=2741, bram36=0.0, dsp=0),
         contract_kind=ContractKind.ROW_STREAM,
+        opcodes=(OperationCode.MIN, OperationCode.MAX, OperationCode.SUM, OperationCode.COUNT),
+        opcode_input_types=(LogicalType.INT32,),
+        unit_kind=UnitKind.AGGREGATION,
     ),
     CoreDefinition(
         name="int32-aggregation-tile",
@@ -253,6 +276,9 @@ CORES: tuple[CoreDefinition, ...] = (
         bench=f"{_BENCHES}.dau_int32_aggregation_tile_tb",
         resources=ResourceEnvelope(lut=283, ff=194, bram36=0.0, dsp=0),
         legacy=True,
+        opcodes=(OperationCode.MIN, OperationCode.MAX, OperationCode.SUM, OperationCode.COUNT),
+        opcode_input_types=(LogicalType.INT32,),
+        unit_kind=UnitKind.AGGREGATION,
     ),
     # stream infrastructure
     CoreDefinition(
