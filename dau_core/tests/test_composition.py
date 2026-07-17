@@ -167,3 +167,6 @@ def test_exactly_one_success_close_out_per_lane_is_enforced() -> None:
     # the same one-close-out rule holds for the partition slot
     with pytest.raises(CompositionError, match="partition 'int32-keyed-predicate-filter' emits a success close-out"):
         ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR, partition=TileSpec(core="int32-keyed-predicate-filter")),))
+    # and the partition slot rejects legacy tiles like every other slot
+    with pytest.raises(CompositionError, match="partition 'int32-aggregation-tile' is legacy"):
+        ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR, partition=TileSpec(core="int32-aggregation-tile")),))

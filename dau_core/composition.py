@@ -99,6 +99,8 @@ class ScanCompositionSpec:
                 partition = lane.partition.definition()
                 if partition.kind != CoreKind.OPERATOR:
                     raise CompositionError(f"lane partition {lane.partition.core!r} is not an operator")
+                if partition.legacy:
+                    raise CompositionError(f"lane partition {lane.partition.core!r} is legacy (predates the stream+status contract); not for new compositions")
                 if partition.success_close_out:
                     raise CompositionError(
                         f"lane partition {lane.partition.core!r} emits a success close-out per batch; the lane status mux allows exactly one — "
