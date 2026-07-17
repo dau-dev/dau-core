@@ -146,3 +146,37 @@ def test_composition_and_hand_built_contracts_share_one_tile_derivation() -> Non
     spec = ScanCompositionSpec(name="bar-scan", lanes=(LaneSpec(tile=TileSpec(core="int32-bar-aggregation", config={"cfg_mode": "2'd0"})),))
     contract = capability_contract(spec)
     assert contract.lanes[0].tile == tile_capability(TileSpec(core="int32-bar-aggregation", config={"cfg_mode": "2'd0"}))
+
+
+def test_chain_lanes_carry_chain_capabilities_and_opcode_truth() -> None:
+    from dau_core.tests.test_composition import q6_scan_spec
+
+    contract = capability_contract(q6_scan_spec(lanes=4))
+    lane = contract.lanes[0]
+    assert [stage.core for stage in lane.chain] == [
+        "int32-row-predicate-filter",
+        "int32-row-predicate-filter",
+        "int32-row-map-alu",
+    ]
+    assert lane.tile.core == "int32-field-sum-aggregation"
+    assert lane.tile.count_port == "aggregated_count"
+    # the field-sum tile's real HDL opcodes reach the bitmap; AVERAGE derives
+    # host-side from SUM+COUNT and never appears as hardware
+    assert contract.hardware_opcodes == (OperationCode.SUM, OperationCode.COUNT)
+    assert contract.operator_bitmap == opcode_bitmap((OperationCode.SUM, OperationCode.COUNT))
+    assert contract.host_opcodes == (OperationCode.AVERAGE,)
+    assert OperationCode.AVERAGE not in contract.hardware_opcodes
+
+    mapping = contract.to_mapping()
+    assert len(mapping["lanes"][0]["chain"]) == 3
+    restored = CapabilityContract.from_mapping(json.loads(json.dumps(mapping)))
+    assert restored == contract
+
+
+def test_chainless_lane_mapping_round_trips_without_chain_key() -> None:
+    # older manifests carry no "chain" key: absence decodes as an empty chain
+    contract = capability_contract(bar_noc_spec(lanes=1))
+    mapping = contract.to_mapping()
+    del mapping["lanes"][0]["chain"]
+    restored = CapabilityContract.from_mapping(json.loads(json.dumps(mapping)))
+    assert restored == contract

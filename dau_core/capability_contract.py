@@ -95,15 +95,18 @@ class TileCapability:
 
 @dataclass(frozen=True)
 class LaneCapability:
-    """One scan lane: the operator tile plus its optional partition filter."""
+    """One scan lane: the terminal operator tile, its optional partition
+    filter, and the ordered mid-lane operator ``chain`` between them."""
 
     tile: TileCapability
     partition: TileCapability | None = None
+    chain: tuple[TileCapability, ...] = ()
 
     def to_mapping(self) -> dict[str, Any]:
         return {
             "tile": self.tile.to_mapping(),
             "partition": self.partition.to_mapping() if self.partition is not None else None,
+            "chain": [stage.to_mapping() for stage in self.chain],
         }
 
     @classmethod
@@ -112,6 +115,7 @@ class LaneCapability:
         return cls(
             tile=TileCapability.from_mapping(mapping["tile"]),
             partition=TileCapability.from_mapping(partition) if partition else None,
+            chain=tuple(TileCapability.from_mapping(stage) for stage in mapping.get("chain", ())),
         )
 
 
@@ -130,15 +134,16 @@ class CapabilityContract:
 
     @property
     def hardware_opcodes(self) -> tuple[OperationCode, ...]:
-        """Union of the lanes' HDL opcodes, ordered by opcode value."""
-        opcodes = {opcode for lane in self.lanes for opcode in lane.tile.opcodes}
+        """Union of the lanes' HDL opcodes (terminal tiles and chain
+        stages), ordered by opcode value."""
+        opcodes = {opcode for lane in self.lanes for tile in (lane.tile, *lane.chain) for opcode in tile.opcodes}
         return tuple(sorted(opcodes, key=int))
 
     @property
     def host_opcodes(self) -> tuple[OperationCode, ...]:
         """Protocol-level opcodes derivable host-side (AVERAGE when a tile
         provides both SUM and COUNT); explicitly not hardware opcodes."""
-        opcodes = {opcode for lane in self.lanes for opcode in lane.tile.host_opcodes}
+        opcodes = {opcode for lane in self.lanes for tile in (lane.tile, *lane.chain) for opcode in tile.host_opcodes}
         return tuple(sorted(opcodes, key=int))
 
     @property
@@ -235,6 +240,7 @@ def capability_contract(spec: ScanCompositionSpec) -> CapabilityContract:
             LaneCapability(
                 tile=tile_capability(lane.tile),
                 partition=tile_capability(lane.partition) if lane.partition is not None else None,
+                chain=tuple(tile_capability(stage) for stage in lane.chain),
             )
             for lane in spec.lanes
         ),

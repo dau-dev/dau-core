@@ -74,6 +74,13 @@ class CoreDefinition:
     opcode_input_types: tuple[LogicalType, ...] = ()
     row_capacity: int | None = None  # batch row capacity for buffered tiles (bitonic sorter CAPACITY)
     unit_kind: UnitKind | None = None  # the design-inventory unit an instance of this tile contributes
+    # HDL status truth: True when the tile emits a status close-out after
+    # every successfully completed batch (terminal-tile behavior — the record
+    # writer's done waits on it); False when the tile is silent on success
+    # and raises status only for what the downstream cannot see (zero-rows
+    # compaction, torn row, bad config — the chain-stage/partition contract,
+    # exactly one close-out per lane per batch).
+    success_close_out: bool = False
 
     def source_path(self) -> Path:
         from . import hdl
@@ -116,6 +123,7 @@ CORES: tuple[CoreDefinition, ...] = (
     CoreDefinition(
         name="int32-predicate-filter",
         kind=CoreKind.OPERATOR,
+        success_close_out=True,
         module="dau_int32_predicate_filter",
         source="dau_int32_predicate_filter.sv",
         description="Compacting predicate filter over INT32 values.",
@@ -129,6 +137,7 @@ CORES: tuple[CoreDefinition, ...] = (
     CoreDefinition(
         name="int32-keyed-predicate-filter",
         kind=CoreKind.OPERATOR,
+        success_close_out=True,
         module="dau_int32_keyed_predicate_filter",
         source="dau_int32_keyed_predicate_filter.sv",
         description="Row-atomic keyed predicate filter (composed-pipeline stage).",
@@ -140,6 +149,7 @@ CORES: tuple[CoreDefinition, ...] = (
     CoreDefinition(
         name="int32-map-alu",
         kind=CoreKind.OPERATOR,
+        success_close_out=True,
         module="dau_int32_map_alu",
         source="dau_int32_map_alu.sv",
         description="Per-value ALU map over INT32 values.",
@@ -152,6 +162,7 @@ CORES: tuple[CoreDefinition, ...] = (
     CoreDefinition(
         name="int32-keyed-map-alu",
         kind=CoreKind.OPERATOR,
+        success_close_out=True,
         module="dau_int32_keyed_map_alu",
         source="dau_int32_keyed_map_alu.sv",
         description="Keyed lane-selectable ALU map (composed-pipeline stage).",
@@ -163,6 +174,7 @@ CORES: tuple[CoreDefinition, ...] = (
     CoreDefinition(
         name="int32-grouped-aggregation",
         kind=CoreKind.OPERATOR,
+        success_close_out=True,
         module="dau_int32_grouped_aggregation",
         source="dau_int32_grouped_aggregation.sv",
         description="Ordered close-out grouped aggregation (first/last/min/max/sum/count).",
@@ -175,6 +187,7 @@ CORES: tuple[CoreDefinition, ...] = (
     CoreDefinition(
         name="int32-bar-aggregation",
         kind=CoreKind.OPERATOR,
+        success_close_out=True,
         module="dau_int32_bar_aggregation",
         source="dau_int32_bar_aggregation.sv",
         description="Fused single-pass OHLCV bar aggregation over 16-byte rows.",
@@ -209,6 +222,7 @@ CORES: tuple[CoreDefinition, ...] = (
     CoreDefinition(
         name="int32-bitonic-sorter",
         kind=CoreKind.OPERATOR,
+        success_close_out=True,
         module="dau_int32_bitonic_sorter",
         source="dau_int32_bitonic_sorter.sv",
         description="Batch bitonic sorter: up to CAPACITY pair rows ascending by key, stable; overflow reports partition-first.",
@@ -248,6 +262,7 @@ CORES: tuple[CoreDefinition, ...] = (
     CoreDefinition(
         name="int32-field-sum-aggregation",
         kind=CoreKind.OPERATOR,
+        success_close_out=True,
         module="dau_int32_field_sum_aggregation",
         source="dau_int32_field_sum_aggregation.sv",
         description="Batch field-sum aggregation over 16-byte quad rows: one INT64 sum per mask-selected field plus the row count in a single close-out record (q6 = one-bit mask; q1's multi-sum is a wider mask).",
@@ -263,6 +278,7 @@ CORES: tuple[CoreDefinition, ...] = (
     CoreDefinition(
         name="int32-stream-aggregation",
         kind=CoreKind.OPERATOR,
+        success_close_out=True,
         module="dau_int32_stream_aggregation",
         source="dau_int32_stream_aggregation.sv",
         description="Arrow-lite scalar stream aggregation.",
@@ -278,6 +294,7 @@ CORES: tuple[CoreDefinition, ...] = (
     CoreDefinition(
         name="int32-arrow-lite-stream-aggregation",
         kind=CoreKind.OPERATOR,
+        success_close_out=True,
         module="dau_int32_arrow_lite_stream_aggregation",
         source="dau_int32_arrow_lite_stream_aggregation.sv",
         description="Arrow-lite single-column aggregation core.",
@@ -293,6 +310,7 @@ CORES: tuple[CoreDefinition, ...] = (
     CoreDefinition(
         name="int32-record-batch-aggregation",
         kind=CoreKind.OPERATOR,
+        success_close_out=True,
         module="dau_int32_record_batch_aggregation",
         source="dau_int32_record_batch_aggregation.sv",
         description="Record-batch column aggregation core.",

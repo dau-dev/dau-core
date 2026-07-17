@@ -39,11 +39,15 @@ class TileSpec:
 
 @dataclass(frozen=True)
 class LaneSpec:
-    """One lane of the scan: an optional row-atomic partition filter ahead
-    of the operator tile."""
+    """One lane of the scan: an optional row-atomic partition filter, an
+    optional ordered ``chain`` of mid-lane operator stages
+    (filter -> map -> ...), and the terminal operator tile. Chain stages
+    speak the stream+status contract but need no status counter; the
+    terminal tile's count port backs the lane register block."""
 
     tile: TileSpec
     partition: TileSpec | None = None
+    chain: tuple[TileSpec, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -71,6 +75,11 @@ class ScanCompositionSpec:
                 raise CompositionError(f"partitioner {self.partitioner.core!r} is not an operator")
             if definition.legacy:
                 raise CompositionError(f"partitioner {self.partitioner.core!r} is legacy; not for new compositions")
+            if definition.success_close_out:
+                raise CompositionError(
+                    f"partitioner {self.partitioner.core!r} emits a success close-out per batch; the lane status mux allows exactly one — "
+                    "only the terminal tile may close out on success"
+                )
         for lane in self.lanes:
             tile = lane.tile.definition()
             if tile.kind != CoreKind.OPERATOR:
@@ -79,10 +88,35 @@ class ScanCompositionSpec:
                 raise CompositionError(f"lane tile {lane.tile.core!r} is legacy (predates the stream+status contract); not for new compositions")
             if tile.count_port is None:
                 raise CompositionError(f"lane tile {lane.tile.core!r} does not expose a status counter")
+            if not tile.success_close_out:
+                raise CompositionError(
+                    f"lane tile {lane.tile.core!r} is silent on success; the record writer's done waits on a consumed close-out, "
+                    "so the terminal tile must emit one per batch"
+                )
             if lane.partition is not None and self.partitioner is not None:
                 raise CompositionError(f"lane tile {lane.tile.core!r} carries a partition filter but the scan already has a shared partitioner")
-            if lane.partition is not None and lane.partition.definition().kind != CoreKind.OPERATOR:
-                raise CompositionError(f"lane partition {lane.partition.core!r} is not an operator")
+            if lane.partition is not None:
+                partition = lane.partition.definition()
+                if partition.kind != CoreKind.OPERATOR:
+                    raise CompositionError(f"lane partition {lane.partition.core!r} is not an operator")
+                if partition.success_close_out:
+                    raise CompositionError(
+                        f"lane partition {lane.partition.core!r} emits a success close-out per batch; the lane status mux allows exactly one — "
+                        "only the terminal tile may close out on success"
+                    )
+            for stage in lane.chain:
+                definition = stage.definition()
+                if definition.kind != CoreKind.OPERATOR:
+                    raise CompositionError(f"lane chain stage {stage.core!r} is {definition.kind.value}, not an operator")
+                if definition.legacy:
+                    raise CompositionError(
+                        f"lane chain stage {stage.core!r} is legacy (predates the stream+status contract); not for new compositions"
+                    )
+                if definition.success_close_out:
+                    raise CompositionError(
+                        f"lane chain stage {stage.core!r} emits a success close-out per batch; the lane status mux allows exactly one — "
+                        "chain stages must be silent on success"
+                    )
 
     def core_names(self) -> tuple[str, ...]:
         """Every registry core the composition instantiates, infrastructure
@@ -98,6 +132,8 @@ class ScanCompositionSpec:
         for lane in self.lanes:
             if lane.partition is not None:
                 names.setdefault(lane.partition.core)
+            for stage in lane.chain:
+                names.setdefault(stage.core)
             names.setdefault(lane.tile.core)
         return tuple(names)
 
@@ -132,5 +168,7 @@ def estimated_resources(spec: ScanCompositionSpec) -> ResourceEnvelope:
         add("axi-record-writer")
         if lane.partition is not None:
             add(lane.partition.core)
+        for stage in lane.chain:
+            add(stage.core)
         add(lane.tile.core)
     return ResourceEnvelope(lut=lut, ff=ff, bram36=bram, dsp=dsp, measured=measured)

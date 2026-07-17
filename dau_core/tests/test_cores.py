@@ -102,3 +102,17 @@ def test_synthesizable_cores_carry_measured_envelopes() -> None:
             assert definition.resources is not None, definition.name
             assert definition.resources.measured, definition.name
             assert definition.resources.lut > 0, definition.name
+
+
+def test_silent_on_success_operator_set_is_pinned() -> None:
+    """The status contract's two classes are registry truth: silent-on-success
+    cores (chain-stage/partition legal) versus per-batch success close-out
+    cores (terminal-tile legal). Changing a core's class changes lane status
+    semantics — confirm intent here."""
+    silent = {d.name for d in cores_of_kind(CoreKind.OPERATOR) if not d.legacy and not d.success_close_out}
+    assert silent == {
+        "int32-pair-key-filter",
+        "int32-range-partitioner",
+        "int32-row-predicate-filter",
+        "int32-row-map-alu",
+    }
