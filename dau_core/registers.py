@@ -189,7 +189,7 @@ class StreamJobRegisterContract:
 
 @dataclass(frozen=True)
 class RegisterBlockSnapshot:
-    register_map_version: RegisterMapVersion = field(default_factory=lambda: RegisterMapVersion(0, 1))
+    register_map_version: RegisterMapVersion = field(default_factory=lambda: CURRENT_REGISTER_MAP_VERSION)
     stream_protocol_version: StreamProtocolVersion = field(default_factory=lambda: StreamProtocolVersion(0, 1))
     platform_id: str = "NITE"
     shell_version: int = 0

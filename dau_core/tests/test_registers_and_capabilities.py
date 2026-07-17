@@ -171,6 +171,17 @@ def test_packaged_identity_register_hdl_advertises_the_current_register_map():
     assert "(addr == 16'h00c4) ? HOST_OPCODE_BITMAP :" in source
     assert "(addr == 16'h00c8) ? SORT_CAPACITY :" in source
 
+    # the AXI-Lite wrapper forwards the capability words and matches the
+    # 0.2 default — a wrapper-based shell must not pin the old ABI
+    wrapper = files("dau_core.hdl").joinpath("dau_identity_axil.v").read_text()
+    assert f"parameter [31:0] REGISTER_MAP_VERSION = 32'h{version_word >> 16:04x}_{version_word & 0xFFFF:04x}" in wrapper
+    for parameter in ("LANE_COUNT", "HOST_OPCODE_BITMAP", "SORT_CAPACITY"):
+        assert f"parameter [31:0] {parameter} = 32'h0000_0000" in wrapper
+        assert f".{parameter}({parameter})" in wrapper
+
+    # the host-side snapshot default tracks the current register map
+    assert RegisterBlockSnapshot().register_map_version == CURRENT_REGISTER_MAP_VERSION
+
 
 def test_device_capabilities_report_supported_operations_and_dma_constraints():
     capabilities = DeviceCapabilities(

@@ -1,7 +1,7 @@
 `default_nettype none
 
 module dau_identity_axil #(
-    parameter [31:0] REGISTER_MAP_VERSION = 32'h0000_0001,
+    parameter [31:0] REGISTER_MAP_VERSION = 32'h0000_0002,
     parameter [31:0] STREAM_PROTOCOL_VERSION = 32'h0000_0001,
     parameter [31:0] PLATFORM_ID = 32'h4554_494e,
     parameter [31:0] SHELL_VERSION = 32'h0000_0000,
@@ -9,6 +9,9 @@ module dau_identity_axil #(
     parameter [31:0] STATUS = 32'h0000_0000,
     parameter [31:0] DMA_CONSTRAINTS = 32'h0000_0000,
     parameter [31:0] OPERATOR_BITMAP = 32'h0000_0000,
+    parameter [31:0] LANE_COUNT = 32'h0000_0000,
+    parameter [31:0] HOST_OPCODE_BITMAP = 32'h0000_0000,
+    parameter [31:0] SORT_CAPACITY = 32'h0000_0000,
     parameter [31:0] LAST_ERROR = 32'h0000_0000,
     parameter [63:0] H2C_BYTES = 64'h0000_0000_0000_0000,
     parameter [63:0] C2H_BYTES = 64'h0000_0000_0000_0000,
@@ -83,6 +86,9 @@ module dau_identity_axil #(
         .STATUS(STATUS),
         .DMA_CONSTRAINTS(DMA_CONSTRAINTS),
         .OPERATOR_BITMAP(OPERATOR_BITMAP),
+        .LANE_COUNT(LANE_COUNT),
+        .HOST_OPCODE_BITMAP(HOST_OPCODE_BITMAP),
+        .SORT_CAPACITY(SORT_CAPACITY),
         .LAST_ERROR(LAST_ERROR),
         .H2C_BYTES(H2C_BYTES),
         .C2H_BYTES(C2H_BYTES),
