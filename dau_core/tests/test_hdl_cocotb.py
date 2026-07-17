@@ -16,12 +16,15 @@ from dau_core.hdl import (
     DAU_INT32_ARROW_LITE_STREAM_AGGREGATION_SV,
     DAU_INT32_BAR_AGGREGATION_SV,
     DAU_INT32_BITONIC_SORTER_SV,
+    DAU_INT32_FIELD_SUM_AGGREGATION_SV,
     DAU_INT32_GROUPED_AGGREGATION_SV,
     DAU_INT32_MAP_ALU_SV,
     DAU_INT32_PAIR_KEY_FILTER_SV,
     DAU_INT32_PREDICATE_FILTER_SV,
     DAU_INT32_RANGE_PARTITIONER_SV,
     DAU_INT32_RECORD_BATCH_AGGREGATION_SV,
+    DAU_INT32_ROW_MAP_ALU_SV,
+    DAU_INT32_ROW_PREDICATE_FILTER_SV,
     DAU_INT32_STREAM_AGGREGATION_SV,
     DAU_MAP_ALU_PKG_SV,
     DAU_PREDICATE_PKG_SV,
@@ -205,6 +208,36 @@ def test_range_partitioner_non_power_of_two_partitions(tmp_path: Path) -> None:
         test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_range_partitioner_tb",
         tmp_path=tmp_path,
         parameters={"NUM_PARTITIONS": 3},
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_row_predicate_filter_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_PREDICATE_PKG_SV)), Path(str(DAU_INT32_ROW_PREDICATE_FILTER_SV))),
+        hdl_toplevel="dau_int32_row_predicate_filter",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_row_predicate_filter_tb",
+        tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_row_map_alu_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_MAP_ALU_PKG_SV)), Path(str(DAU_INT32_ROW_MAP_ALU_SV))),
+        hdl_toplevel="dau_int32_row_map_alu",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_row_map_alu_tb",
+        tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_field_sum_aggregation_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_FIELD_SUM_AGGREGATION_SV)),),
+        hdl_toplevel="dau_int32_field_sum_aggregation",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_field_sum_aggregation_tb",
+        tmp_path=tmp_path,
     )
 
 

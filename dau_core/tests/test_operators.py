@@ -4,16 +4,24 @@ import pytest
 
 from dau_core.operators import (
     BarAggregate,
+    FieldSumAggregate,
     FilterPredicate,
     GroupAggregate,
     MapConfig,
     MapOp,
     PredicateCombine,
     PredicateOp,
+    RowField,
+    RowMapConfig,
+    RowPredicateConfig,
+    RowPredicateTerm,
     bar_aggregate_rows,
+    field_sum_rows,
     filter_rows,
+    filter_rows_by_predicate,
     filter_values,
     grouped_aggregate_rows,
+    map_row_fields,
     map_rows,
     map_values,
 )
@@ -206,3 +214,121 @@ def test_bar_aggregate_matches_composed_goldens() -> None:
         assert bar.shares == share.total
         assert bar.frac == frac.total
         assert bar.count == price.count
+
+
+# (key, value, aux0, aux1) = (shipdate-bucket, extendedprice, discount, quantity)
+_QUAD_ROWS = [
+    (568, 1000, 5, 10),
+    (569, 2000, 6, 30),
+    (568, 1500, 7, 23),
+    (570, -500, 6, 24),
+    (568, 3000, 4, 1),
+]
+
+
+def test_row_predicate_single_term_on_each_field() -> None:
+    assert filter_rows_by_predicate(_QUAD_ROWS, RowPredicateConfig(term0=RowPredicateTerm(RowField.KEY, PredicateOp.EQ, 568))) == [
+        (568, 1000, 5, 10),
+        (568, 1500, 7, 23),
+        (568, 3000, 4, 1),
+    ]
+    assert filter_rows_by_predicate(_QUAD_ROWS, RowPredicateConfig(term0=RowPredicateTerm(RowField.VALUE, PredicateOp.LT, 0))) == [(570, -500, 6, 24)]
+    assert filter_rows_by_predicate(_QUAD_ROWS, RowPredicateConfig(term0=RowPredicateTerm(RowField.AUX0, PredicateOp.GE, 7))) == [(568, 1500, 7, 23)]
+    assert filter_rows_by_predicate(_QUAD_ROWS, RowPredicateConfig(term0=RowPredicateTerm(RowField.AUX1, PredicateOp.NE, 30))) == [
+        row for row in _QUAD_ROWS if row[3] != 30
+    ]
+
+
+def test_row_predicate_three_term_tree_is_the_q6_where() -> None:
+    # shipdate bucket EQ AND discount GE lo AND quantity LT 24
+    config = RowPredicateConfig(
+        term0=RowPredicateTerm(RowField.KEY, PredicateOp.EQ, 568),
+        combine01=PredicateCombine.AND,
+        term1=RowPredicateTerm(RowField.AUX0, PredicateOp.GE, 5),
+        combine2=PredicateCombine.AND,
+        term2=RowPredicateTerm(RowField.AUX1, PredicateOp.LT, 24),
+    )
+    assert filter_rows_by_predicate(_QUAD_ROWS, config) == [(568, 1000, 5, 10), (568, 1500, 7, 23)]
+
+
+def test_row_predicate_or_of_and_levels() -> None:
+    # (value > 2000 OR key == 570) AND aux1 < 30
+    config = RowPredicateConfig(
+        term0=RowPredicateTerm(RowField.VALUE, PredicateOp.GT, 2000),
+        combine01=PredicateCombine.OR,
+        term1=RowPredicateTerm(RowField.KEY, PredicateOp.EQ, 570),
+        combine2=PredicateCombine.AND,
+        term2=RowPredicateTerm(RowField.AUX1, PredicateOp.LT, 30),
+    )
+    assert filter_rows_by_predicate(_QUAD_ROWS, config) == [(570, -500, 6, 24), (568, 3000, 4, 1)]
+
+
+def test_row_predicate_validation() -> None:
+    with pytest.raises(ValueError, match="int32"):
+        RowPredicateTerm(RowField.KEY, PredicateOp.EQ, 2**31)
+    with pytest.raises(ValueError, match="term1"):
+        RowPredicateConfig(term0=RowPredicateTerm(RowField.KEY, PredicateOp.EQ, 0), combine01=PredicateCombine.AND)
+    with pytest.raises(ValueError, match="term2"):
+        RowPredicateConfig(term0=RowPredicateTerm(RowField.KEY, PredicateOp.EQ, 0), combine2=PredicateCombine.OR)
+
+
+def test_row_map_q6_revenue_is_fixed_point_mulshr() -> None:
+    config = RowMapConfig(op=MapOp.MULSHR, dst=RowField.VALUE, src_a=RowField.VALUE, src_b=RowField.AUX0, shift=15)
+    rows = [(568, 1000, 5 << 10, 10)]
+    # 1000 * 5120 >> 15 = 156 (floor)
+    assert map_row_fields(rows, config) == [(568, 156, 5 << 10, 10)]
+
+
+def test_row_map_other_fields_pass_through() -> None:
+    config = RowMapConfig(op=MapOp.ADD, dst=RowField.AUX1, src_a=RowField.KEY, src_b=RowField.VALUE)
+    for row, mapped in zip(_QUAD_ROWS, map_row_fields(_QUAD_ROWS, config)):
+        assert mapped[:3] == row[:3]
+        assert mapped[3] == ((row[0] + row[1] + 2**31) % 2**32) - 2**31
+
+
+def test_row_map_wraps_int32() -> None:
+    config = RowMapConfig(op=MapOp.MUL, dst=RowField.KEY, src_a=RowField.KEY, src_b=RowField.KEY)
+    assert map_row_fields([(2**16, 0, 0, 0)], config) == [(0, 0, 0, 0)]
+
+
+def test_row_map_shift_validation() -> None:
+    with pytest.raises(ValueError, match="shift"):
+        RowMapConfig(op=MapOp.MULSHR, dst=RowField.KEY, src_a=RowField.KEY, src_b=RowField.KEY, shift=32)
+
+
+def test_field_sum_single_field_mask_is_q6() -> None:
+    result = field_sum_rows(_QUAD_ROWS, field_mask=0b0010)
+    assert result == FieldSumAggregate(field_mask=0b0010, sums=(7000,), count=5)
+    assert result.record_words() == [7000, 5]
+
+
+def test_field_sum_full_mask_is_the_q1_shape() -> None:
+    result = field_sum_rows(_QUAD_ROWS, field_mask=0b1111)
+    assert result.sums == (
+        sum(row[0] for row in _QUAD_ROWS),
+        sum(row[1] for row in _QUAD_ROWS),
+        sum(row[2] for row in _QUAD_ROWS),
+        sum(row[3] for row in _QUAD_ROWS),
+    )
+    assert result.count == 5
+    assert len(result.record_words()) == 5
+
+
+def test_field_sum_negative_sum_encodes_twos_complement() -> None:
+    result = field_sum_rows([(0, -1000, 0, 0), (0, -2000, 0, 0)], field_mask=0b0010)
+    assert result.sums == (-3000,)
+    assert result.record_words() == [(-3000) & 0xFFFF_FFFF_FFFF_FFFF, 2]
+
+
+def test_field_sum_int32_extremes_stay_exact() -> None:
+    rows = [(-(2**31), 2**31 - 1, 0, 0)] * 6
+    result = field_sum_rows(rows, field_mask=0b0011)
+    assert result.sums == (6 * -(2**31), 6 * (2**31 - 1))
+
+
+def test_field_sum_empty_batch_and_mask_validation() -> None:
+    assert field_sum_rows([], field_mask=0b0001) == FieldSumAggregate(field_mask=0b0001, sums=(0,), count=0)
+    with pytest.raises(ValueError, match="field_mask"):
+        field_sum_rows(_QUAD_ROWS, field_mask=0)
+    with pytest.raises(ValueError, match="field_mask"):
+        field_sum_rows(_QUAD_ROWS, field_mask=16)
