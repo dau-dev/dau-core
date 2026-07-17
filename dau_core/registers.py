@@ -88,6 +88,13 @@ class RegisterOffset(IntEnum):
     PIPELINE_SELECTED_COUNT_HIGH = 0x00B4
     PIPELINE_GROUP_COUNT_LOW = 0x00B8
     PIPELINE_GROUP_COUNT_HIGH = 0x00BC
+    # composed-capability words (register map 0.2, additive): the identity
+    # block advertises the composition truth instead of a static bitmap.
+    # 0 in any of these words means "not advertised" (a 0.2 shell built
+    # before its generator learned the word), never "advertised empty".
+    LANE_COUNT = 0x00C0  # number of NoC lane register blocks at NOC_LANE_BASE (0 = no lane block)
+    HOST_OPCODE_BITMAP = 0x00C4  # opcodes computable at protocol level from hardware results (host divide), not hardware opcodes
+    SORT_CAPACITY = 0x00C8  # max sorter batch row capacity across lanes (0 = no sorter)
 
 
 # broadcast-NoC lane register block: one NOC_LANE_STRIDE-sized window per
@@ -182,7 +189,7 @@ class StreamJobRegisterContract:
 
 @dataclass(frozen=True)
 class RegisterBlockSnapshot:
-    register_map_version: RegisterMapVersion = field(default_factory=lambda: RegisterMapVersion(0, 1))
+    register_map_version: RegisterMapVersion = field(default_factory=lambda: CURRENT_REGISTER_MAP_VERSION)
     stream_protocol_version: StreamProtocolVersion = field(default_factory=lambda: StreamProtocolVersion(0, 1))
     platform_id: str = "NITE"
     shell_version: int = 0
@@ -203,10 +210,27 @@ class RegisterBlockSnapshot:
     output_length: int = 136
     operation: int = 0
     result_length: int = 0
+    # composed-capability words (register map 0.2; 0 = not advertised)
+    lane_count: int = 0
+    host_opcode_bitmap: int = 0
+    sort_capacity: int = 0
 
     def __post_init__(self) -> None:
         _platform_id_to_u32(self.platform_id)
-        for name in ("shell_version", "status", "dma_constraints", "operator_bitmap", "last_error", "batches", "stalls", "job_status", "operation"):
+        for name in (
+            "shell_version",
+            "status",
+            "dma_constraints",
+            "operator_bitmap",
+            "last_error",
+            "batches",
+            "stalls",
+            "job_status",
+            "operation",
+            "lane_count",
+            "host_opcode_bitmap",
+            "sort_capacity",
+        ):
             _validate_u32(name, getattr(self, name))
         for name in (
             "build_id",
@@ -256,6 +280,9 @@ class RegisterBlockSnapshot:
             RegisterOffset.OPERATION: self.operation,
             RegisterOffset.RESULT_LENGTH_LOW: _low_u32(self.result_length),
             RegisterOffset.RESULT_LENGTH_HIGH: _high_u32(self.result_length),
+            RegisterOffset.LANE_COUNT: self.lane_count,
+            RegisterOffset.HOST_OPCODE_BITMAP: self.host_opcode_bitmap,
+            RegisterOffset.SORT_CAPACITY: self.sort_capacity,
         }
         try:
             register_offset = RegisterOffset(offset)
@@ -325,3 +352,11 @@ def _validate_u64(name: str, value: int) -> None:
 
 
 DEFAULT_STREAM_JOB_REGISTER_CONTRACT = StreamJobRegisterContract()
+
+# Register-map history: 0.1 is the original identity/job window (the
+# proven resident dpv1 bitstreams report it; its OPERATOR_BITMAP was a
+# static advertisement). 0.2 adds the composed-capability words
+# (LANE_COUNT / HOST_OPCODE_BITMAP / SORT_CAPACITY) and redefines
+# OPERATOR_BITMAP as the hardware truth of the composed design: a bit is
+# set only for OperationCodes some tile executes in HDL.
+CURRENT_REGISTER_MAP_VERSION = RegisterMapVersion(0, 2)

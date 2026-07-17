@@ -54,6 +54,14 @@ class OperatorCapability:
 
 @dataclass(frozen=True)
 class DeviceCapabilities:
+    """What a probed device advertises.
+
+    ``operators`` are hardware capabilities — opcodes some tile executes in
+    HDL. ``host_operators`` are protocol-level capabilities the host derives
+    from hardware results (AVERAGE = host divide of SUM/COUNT); they must
+    never be submitted to the device as operations.
+    """
+
     platform_id: str
     pci_vendor_id: int
     pci_device_id: int
@@ -61,6 +69,10 @@ class DeviceCapabilities:
     stream_protocol_version: StreamProtocolVersion
     dma: DmaConstraints
     operators: tuple[OperatorCapability, ...]
+    host_operators: tuple[OperatorCapability, ...] = ()
 
     def supports(self, opcode: OperationCode, logical_type: LogicalType) -> bool:
         return any(operator.supports(opcode, logical_type) for operator in self.operators)
+
+    def supports_host_computed(self, opcode: OperationCode, logical_type: LogicalType) -> bool:
+        return any(operator.supports(opcode, logical_type) for operator in self.host_operators)
