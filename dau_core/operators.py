@@ -167,6 +167,147 @@ def map_rows(rows: Iterable[tuple[int, int]], config: MapConfig, *, on_key: bool
     return [(key, config.apply(value)) for key, value in rows]
 
 
+class RowField(IntEnum):
+    """Field selectors for 16-byte quad rows (two 64-bit words,
+    w0 = {value, key}, w1 = {aux1, aux0}): field i is the i-th 32-bit lane
+    in row order (key, value, aux0, aux1)."""
+
+    KEY = 0
+    VALUE = 1
+    AUX0 = 2
+    AUX1 = 3
+
+
+@dataclass(frozen=True)
+class RowPredicateTerm:
+    """One comparison term of a row predicate: ``field <op> constant``
+    (signed 32-bit). Matches one term's config-port triple on the tile."""
+
+    field: RowField
+    op: PredicateOp
+    constant: int
+
+    def __post_init__(self) -> None:
+        if not -(1 << 31) <= self.constant <= (1 << 31) - 1:
+            raise ValueError("constant must fit in int32")
+
+    def matches(self, row: tuple[int, int, int, int]) -> bool:
+        return _compare(self.op, _wrap_int32(row[self.field]), self.constant)
+
+
+@dataclass(frozen=True)
+class RowPredicateConfig:
+    """Compound row predicate: up to three terms combined by the two-level
+    tree ``(term0 <combine01> term1) <combine2> term2``. ``SINGLE`` at a
+    level ignores the right-hand term (the 2-term filter's combine,
+    extended to three terms). Matches the tile's config ports."""
+
+    term0: RowPredicateTerm
+    combine01: PredicateCombine = PredicateCombine.SINGLE
+    term1: RowPredicateTerm | None = None
+    combine2: PredicateCombine = PredicateCombine.SINGLE
+    term2: RowPredicateTerm | None = None
+
+    def __post_init__(self) -> None:
+        if self.combine01 != PredicateCombine.SINGLE and self.term1 is None:
+            raise ValueError("combine01 requires term1")
+        if self.combine2 != PredicateCombine.SINGLE and self.term2 is None:
+            raise ValueError("combine2 requires term2")
+
+    def matches(self, row: tuple[int, int, int, int]) -> bool:
+        result = self.term0.matches(row)
+        if self.combine01 != PredicateCombine.SINGLE:
+            second = self.term1.matches(row)
+            result = (result and second) if self.combine01 == PredicateCombine.AND else (result or second)
+        if self.combine2 != PredicateCombine.SINGLE:
+            third = self.term2.matches(row)
+            result = (result and third) if self.combine2 == PredicateCombine.AND else (result or third)
+        return result
+
+
+def filter_rows_by_predicate(rows: Iterable[tuple[int, int, int, int]], config: RowPredicateConfig) -> list[tuple[int, int, int, int]]:
+    """Golden semantics for the row predicate filter tile: whole
+    (key, value, aux0, aux1) rows pass when the compound predicate over the
+    selected fields matches (signed 32-bit compares), order preserved."""
+    return [tuple(row) for row in rows if config.matches(tuple(row))]
+
+
+@dataclass(frozen=True)
+class RowMapConfig:
+    """Per-row field ALU configuration: ``dst = src_a <op> src_b`` over the
+    four row fields (MULSHR/SHL also use ``shift``; SHL ignores ``src_b``).
+    All arithmetic is INT32 two's-complement wraparound — the golden and the
+    tile agree bit-for-bit. Matches the tile's config ports."""
+
+    op: MapOp
+    dst: RowField
+    src_a: RowField
+    src_b: RowField
+    shift: int = 0
+
+    def __post_init__(self) -> None:
+        if not 0 <= self.shift <= 31:
+            raise ValueError("shift must be in [0, 31]")
+
+    def apply(self, row: tuple[int, int, int, int]) -> int:
+        a = _wrap_int32(row[self.src_a])
+        b = _wrap_int32(row[self.src_b])
+        return MapConfig(op=self.op, constant=b, shift=self.shift).apply(a)
+
+
+def map_row_fields(rows: Iterable[tuple[int, int, int, int]], config: RowMapConfig) -> list[tuple[int, int, int, int]]:
+    """Golden semantics for the row map/ALU tile: the configured destination
+    field is rewritten from the two source-field operands; the other fields
+    pass through unchanged, order and count preserved."""
+    out: list[tuple[int, int, int, int]] = []
+    for row in rows:
+        mapped = list(row)
+        mapped[config.dst] = config.apply(tuple(row))
+        out.append(tuple(mapped))
+    return out
+
+
+class FieldSumErrorCode(IntEnum):
+    CONFIG = 1
+    STREAM = 2
+
+
+@dataclass(frozen=True)
+class FieldSumAggregate:
+    """The one record the field-sum aggregation tile emits per batch: exact
+    INT64 sums of the mask-selected fields (ascending field order) plus the
+    row count. Record format on the wire: one 64-bit word per selected
+    field (two's-complement sum, ascending field index), then the count
+    word, ``output_last`` on the count word."""
+
+    field_mask: int
+    sums: tuple[int, ...]
+    count: int
+
+    def record_words(self) -> list[int]:
+        """The record as unsigned 64-bit stream words (sums re-encoded to
+        two's complement), count last."""
+        return [sum_value & 0xFFFF_FFFF_FFFF_FFFF for sum_value in self.sums] + [self.count]
+
+
+def field_sum_rows(rows: Iterable[tuple[int, int, int, int]], *, field_mask: int) -> FieldSumAggregate:
+    """Golden semantics for the batch field-sum aggregation tile: one pass
+    over (key, value, aux0, aux1) rows accumulating an INT64 sum per
+    mask-selected field plus the row count. ``field_mask`` bit i selects
+    field i; at least one field must be selected (a zero mask is an
+    unconfigured tile and reports CONFIG on hardware)."""
+    if not 1 <= field_mask <= 15:
+        raise ValueError("field_mask must select at least one of the four fields")
+    selected = [i for i in range(4) if field_mask & (1 << i)]
+    sums = [0] * len(selected)
+    count = 0
+    for row in rows:
+        for slot, field in enumerate(selected):
+            sums[slot] += _wrap_int32(row[field])
+        count += 1
+    return FieldSumAggregate(field_mask=field_mask, sums=tuple(sums), count=count)
+
+
 GROUPED_AGGREGATION_CONFIG_VERSION = "0.1"
 
 
