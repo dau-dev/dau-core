@@ -195,6 +195,47 @@ async def torn_row_on_a_group_boundary_reports_stream_error(dut):
 
 
 @cocotb.test()
+async def torn_row_after_emitted_group_records_invalidates_the_batch(dut):
+    # earlier groups close and drain as their keys change; a torn row later
+    # in the batch must still resolve to a stream error with group_count 0 —
+    # the error close-out invalidates the already-drained records
+    await _start(dut)
+    dut.cfg_field_mask.value = 0b0010
+    dut.output_ready.value = 1
+    good = [(1, 10, 0, 0), (1, 20, 0, 0), (2, 30, 0, 0)]
+    send = cocotb.start_soon(_send_words(dut, _pack_rows(good) + [(999 << 32) | 3]))
+    drained = []
+    collect_done = False
+
+    async def _drain():
+        nonlocal collect_done
+        for _ in range(4096):
+            await ReadOnly()
+            fired = int(dut.output_valid.value) == 1
+            word = int(dut.output_data.value)
+            await RisingEdge(dut.clk)
+            if fired:
+                drained.append(word)
+            if int(dut.status_valid.value) == 1:
+                break
+        collect_done = True
+
+    drain = cocotb.start_soon(_drain())
+    await _expect_status(dut, error=True, code=GroupedFieldSumErrorCode.STREAM)
+    await send
+    await drain
+    assert collect_done
+    dut.output_ready.value = 0
+    # the group-1 record drained before the error hit; the error close-out
+    # is the invalidation signal
+    assert drained == grouped_field_sum_rows(good[:2], field_mask=0b0010)[0].record_words()
+    assert int(dut.group_count.value) == 0
+
+    words = await _run(dut, _ROWS, field_mask=_Q1_MASK)
+    assert words == _record_words(_ROWS, _Q1_MASK)
+
+
+@cocotb.test()
 async def error_status_survives_backpressure(dut):
     # while status_ready is held low the error close-out must stay stable
     # and the tile must refuse new input; recovery only after the handshake

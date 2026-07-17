@@ -24,7 +24,11 @@
 //
 // The mask is latched at the first row of a batch; a zero mask is an
 // unconfigured tile and drains the batch to report ERR_CONFIG. input_last
-// on a w0 is a torn row and reports ERR_STREAM.
+// on a w0 is a torn row and reports ERR_STREAM. An error close-out
+// invalidates the whole batch: group records already drained before the
+// error (earlier groups close as their key changes) must be discarded by
+// the consumer — group_count reads 0 and the record writer's done never
+// sees a success close-out for the batch.
 module dau_int32_grouped_field_sum_aggregation (
     input  wire logic        clk,
     input  wire logic        rst,

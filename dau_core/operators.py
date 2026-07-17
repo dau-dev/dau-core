@@ -316,8 +316,10 @@ class GroupedFieldSumErrorCode(IntEnum):
 @dataclass(frozen=True)
 class GroupedFieldSumAggregate:
     """One closed group from the ordered grouped field-sum aggregation
-    tile: exact INT64 sums of the mask-selected fields (ascending field
-    order) plus the group's row count. Record format on the wire: the
+    tile: INT64 sums of the mask-selected fields (ascending field order)
+    plus the group's row count — exact for every feasible batch (an INT64
+    accumulator of int32 addends cannot overflow below 2**32 rows in one
+    group, far past any stageable batch). Record format on the wire: the
     group key sign-extended to one 64-bit word, one 64-bit word per
     selected field (two's-complement sum, ascending field index), then the
     count word. ``output_last`` is set only on the final group's count
