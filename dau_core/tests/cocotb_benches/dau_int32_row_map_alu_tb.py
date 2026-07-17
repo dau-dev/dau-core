@@ -266,14 +266,22 @@ async def _drain_words(dut) -> None:
 async def _collect_output(dut, ready_pattern, *, expect_words: int) -> list[int]:
     words: list[int] = []
     pattern_index = 0
+    held = None
     for _ in range(200000):
         ready = ready_pattern[pattern_index % len(ready_pattern)]
         pattern_index += 1
         dut.output_ready.value = ready
         await ReadOnly()
-        fired = ready == 1 and int(dut.output_valid.value) == 1
+        valid = int(dut.output_valid.value) == 1
+        fired = ready == 1 and valid
         word = int(dut.output_data.value)
         last = int(dut.output_last.value)
+        if held is not None:
+            # valid/ready hold rule: a stalled beat must stay asserted and
+            # byte-stable until it fires
+            assert valid, "output_valid dropped while a beat was stalled"
+            assert (word, last) == held, "output beat changed while stalled"
+        held = None if (fired or not valid) else (word, last)
         await RisingEdge(dut.clk)
         if fired:
             words.append(word)

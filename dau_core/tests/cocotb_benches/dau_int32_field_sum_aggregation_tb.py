@@ -171,6 +171,52 @@ async def error_status_survives_backpressure(dut):
 
 
 @cocotb.test()
+async def success_status_survives_backpressure(dut):
+    # the success close-out must hold stable while status_ready is low and
+    # the tile must refuse new input until the handshake completes
+    await _start(dut)
+    dut.cfg_field_mask.value = _VALUE_MASK
+    dut.status_ready.value = 0
+    send = cocotb.start_soon(_send_rows(dut, _ROWS))
+    # drain the record with status_ready still low
+    dut.output_ready.value = 1
+    words = []
+    for _ in range(4096):
+        await ReadOnly()
+        fired = int(dut.output_valid.value) == 1
+        word = int(dut.output_data.value)
+        last = int(dut.output_last.value)
+        await RisingEdge(dut.clk)
+        if fired:
+            words.append(word)
+            if last:
+                break
+    await send
+    dut.output_ready.value = 0
+    assert words == field_sum_rows(_ROWS, field_mask=_VALUE_MASK).record_words()
+
+    found = False
+    for _ in range(8):
+        await ReadOnly()
+        found = int(dut.status_valid.value) == 1
+        await RisingEdge(dut.clk)
+        if found:
+            break
+    assert found, "success status never asserted"
+    for _ in range(6):
+        await ReadOnly()
+        assert int(dut.status_valid.value) == 1, "success status not held"
+        assert int(dut.status_error.value) == 0
+        assert int(dut.status_error_code.value) == 0
+        assert int(dut.input_ready.value) == 0, "tile accepted input while status pending"
+        await RisingEdge(dut.clk)
+
+    await _expect_status(dut, error=False)
+    record = await _run(dut, _ROWS, field_mask=_VALUE_MASK)
+    assert record == field_sum_rows(_ROWS, field_mask=_VALUE_MASK).record_words()
+
+
+@cocotb.test()
 async def constrained_random_batches_match_golden(dut):
     await _start(dut)
     rng = random.Random(0x5F1E1D)
@@ -251,14 +297,22 @@ async def _send_rows(dut, rows) -> None:
 async def _collect_output(dut, ready_pattern, *, expect_words: int) -> list[int]:
     words: list[int] = []
     pattern_index = 0
+    held = None
     for _ in range(200000):
         ready = ready_pattern[pattern_index % len(ready_pattern)]
         pattern_index += 1
         dut.output_ready.value = ready
         await ReadOnly()
-        fired = ready == 1 and int(dut.output_valid.value) == 1
+        valid = int(dut.output_valid.value) == 1
+        fired = ready == 1 and valid
         word = int(dut.output_data.value)
         last = int(dut.output_last.value)
+        if held is not None:
+            # valid/ready hold rule: a stalled beat must stay asserted and
+            # byte-stable until it fires
+            assert valid, "output_valid dropped while a beat was stalled"
+            assert (word, last) == held, "output beat changed while stalled"
+        held = None if (fired or not valid) else (word, last)
         await RisingEdge(dut.clk)
         if fired:
             words.append(word)
