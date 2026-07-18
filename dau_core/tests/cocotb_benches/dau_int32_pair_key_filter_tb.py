@@ -80,6 +80,73 @@ async def filter_torn_row_reports_stream_error(dut):
     assert await _run(dut, _ROWS, mask=0, match=0) == _ROWS
 
 
+@cocotb.test()
+async def status_close_out_waits_for_backpressured_tail(dut):
+    # Cross-batch re-arm under output backpressure. Batch A forwards two kept
+    # rows and its final beat is held under backpressure; batch B follows
+    # immediately and would raise a success close-out (zero forwarded rows).
+    # The filter must not present B's close-out on the status stream until A's
+    # last output beat has handshaked -- otherwise B's per-batch close-out
+    # overtakes A's still-in-flight tail (the lane status mux serialises one
+    # close-out per batch, and the record writer's done waits on it).
+    await _start(dut)
+    dut.cfg_key_mask.value = 3
+    dut.cfg_key_match.value = 0
+
+    a_rows = [(568, 111, 1, 1), (572, 222, 2, 2)]  # both in lane 0: A forwards 2, last kept
+    b_rows = [(569, 999, 9, 9)]  # lane 1: zero forwarded -> success close-out
+    expected = [(word, int(i == 3)) for i, word in enumerate(_pack_rows(a_rows))]
+
+    sender = cocotb.start_soon(_send_batches(dut, [_pack_rows(a_rows), _pack_rows(b_rows)]))
+    dut.status_ready.value = 1  # a downstream mux ready to accept a close-out
+
+    words: list[tuple[int, int]] = []
+    fires = 0
+    a_tail_done = False
+    holding = False
+    hold = 0
+    for _ in range(400):
+        if fires < 2:
+            ready = 1  # drain A's first row and trigger the flush-load of its tail
+        elif not holding and not a_tail_done:
+            holding = True
+            ready = 0
+        elif holding and hold < 15:
+            ready = 0
+        else:
+            ready = 1  # release: A's tail drains, then B's close-out may appear
+        dut.output_ready.value = ready
+
+        await ReadOnly()
+        valid = int(dut.output_valid.value) == 1
+        last = int(dut.output_last.value) == 1
+        word = int(dut.output_data.value)
+        status = int(dut.status_valid.value) == 1
+        fired = ready == 1 and valid
+        # THE PROPERTY: no status close-out while a prior batch's output beat is
+        # still un-drained (A's final beat has not yet handshaked).
+        assert not (status and not a_tail_done), (
+            "batch B success close-out asserted (status_valid=1) before batch A's "
+            "final output beat handshaked -- cross-batch status overtake under backpressure"
+        )
+        await RisingEdge(dut.clk)
+        if holding:
+            hold += 1
+        if fired:
+            words.append((word, last))
+            fires += 1
+            if last:
+                a_tail_done = True
+                break
+
+    assert a_tail_done, "A's final beat never handshaked"
+    assert words == expected, f"forwarded beats/last wrong: {words} != {expected}"
+
+    # only now may B's success close-out appear
+    await _expect_status(dut, error=False)
+    await sender
+
+
 async def _start(dut) -> None:
     clock = Clock(dut.clk, 10, unit="ns")
     cocotb.start_soon(clock.start(start_high=False))
@@ -109,11 +176,35 @@ async def _run(dut, rows, *, mask: int, match: int, ready_pattern=(1,)):
     return out
 
 
-async def _send_rows(dut, rows) -> None:
+def _pack_rows(rows) -> list[int]:
     words = []
     for key, price, shares, frac in rows:
         words.append(((price & 0xFFFFFFFF) << 32) | (key & 0xFFFFFFFF))
         words.append(((frac & 0xFFFFFFFF) << 32) | (shares & 0xFFFFFFFF))
+    return words
+
+
+async def _send_batches(dut, batches) -> None:
+    # drive several back-to-back batches with input_last on the final word of
+    # each, holding input_valid across the boundaries so the next batch follows
+    # the previous one with no gap
+    for words in batches:
+        for index, word in enumerate(words):
+            dut.input_data.value = word
+            dut.input_last.value = int(index == len(words) - 1)
+            dut.input_valid.value = 1
+            while True:
+                await ReadOnly()
+                fired = int(dut.input_ready.value) == 1
+                await RisingEdge(dut.clk)
+                if fired:
+                    break
+    dut.input_valid.value = 0
+    dut.input_last.value = 0
+
+
+async def _send_rows(dut, rows) -> None:
+    words = _pack_rows(rows)
     for index, word in enumerate(words):
         dut.input_data.value = word
         dut.input_last.value = int(index == len(words) - 1)
