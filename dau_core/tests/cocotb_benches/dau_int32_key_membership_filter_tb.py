@@ -390,8 +390,7 @@ async def error_close_out_waits_for_backpressured_tail(dut):
         await ReadOnly()
         assert int(dut.output_valid.value) == 1, "the kept tail is not in flight"
         assert int(dut.status_valid.value) == 0, (
-            "ERR_STREAM close-out asserted while a prior kept beat is still "
-            "un-drained -- intra-batch error overtake under backpressure"
+            "ERR_STREAM close-out asserted while a prior kept beat is still un-drained -- intra-batch error overtake under backpressure"
         )
         await RisingEdge(dut.clk)
 
