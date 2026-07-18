@@ -10,6 +10,9 @@ from dau_core.operators import (
     GroupedFieldSumAggregate,
     MapConfig,
     MapOp,
+    MembershipBuildSet,
+    MembershipKind,
+    MembershipMode,
     PredicateCombine,
     PredicateOp,
     RowField,
@@ -19,6 +22,7 @@ from dau_core.operators import (
     bar_aggregate_rows,
     field_sum_rows,
     filter_rows,
+    filter_rows_by_membership,
     filter_rows_by_predicate,
     filter_values,
     grouped_aggregate_rows,
@@ -381,3 +385,83 @@ def test_grouped_field_sum_empty_and_mask_validation() -> None:
         grouped_field_sum_rows(_GROUPED_ROWS, field_mask=0)
     with pytest.raises(ValueError, match="field_mask"):
         grouped_field_sum_rows(_GROUPED_ROWS, field_mask=16)
+
+
+_MEMBERSHIP_ROWS = [
+    (7, 1000, 5, 10),
+    (100, 2000, 6, 30),
+    (7, 1500, 7, 23),
+    (191, -500, 6, 24),
+    (63, 3000, 4, 1),
+]
+
+
+def test_membership_semi_keeps_members_anti_keeps_non_members() -> None:
+    build = MembershipBuildSet.from_keys({7, 63}, key_space=192)
+    assert filter_rows_by_membership(_MEMBERSHIP_ROWS, build, mode=MembershipMode.SEMI) == [
+        (7, 1000, 5, 10),
+        (7, 1500, 7, 23),
+        (63, 3000, 4, 1),
+    ]
+    assert filter_rows_by_membership(_MEMBERSHIP_ROWS, build, mode=MembershipMode.ANTI) == [
+        (100, 2000, 6, 30),
+        (191, -500, 6, 24),
+    ]
+
+
+def test_membership_empty_and_full_sets() -> None:
+    empty = MembershipBuildSet.from_keys((), key_space=64)
+    assert filter_rows_by_membership(_MEMBERSHIP_ROWS, empty, mode=MembershipMode.SEMI) == []
+    assert filter_rows_by_membership(_MEMBERSHIP_ROWS, empty, mode=MembershipMode.ANTI) == _MEMBERSHIP_ROWS
+    full = MembershipBuildSet.from_keys(range(192), key_space=192)
+    # every in-range key is a member; all _MEMBERSHIP_ROWS keys are in [0, 192)
+    assert filter_rows_by_membership(_MEMBERSHIP_ROWS, full, mode=MembershipMode.SEMI) == _MEMBERSHIP_ROWS
+    assert filter_rows_by_membership(_MEMBERSHIP_ROWS, full, mode=MembershipMode.ANTI) == []
+
+
+def test_membership_out_of_range_keys_are_non_members() -> None:
+    build = MembershipBuildSet.from_keys({0, 63}, key_space=64)
+    rows = [(0, 0, 0, 0), (63, 0, 0, 0), (64, 0, 0, 0), (-1, 0, 0, 0), (-(2**31), 0, 0, 0), (2**31 - 1, 0, 0, 0)]
+    # exact: in-range members kept by semi; every out-of-range key (>= key_space
+    # or negative) is definitionally a non-member
+    assert filter_rows_by_membership(rows, build, mode=MembershipMode.SEMI) == [(0, 0, 0, 0), (63, 0, 0, 0)]
+    assert build.member(0) and build.member(63)
+    assert not build.member(64) and not build.member(-1) and not build.member(2**31 - 1)
+
+
+def test_membership_image_words_round_trip_is_exact() -> None:
+    build = MembershipBuildSet.from_keys({0, 1, 63, 64, 65, 4095}, key_space=4096)
+    words = build.image_words()
+    assert len(words) == build.word_count == 64
+    # bit b of word w encodes id 64*w + b
+    assert words[0] & 1 and words[0] & 2 and words[0] & (1 << 63)  # ids 0, 1, 63
+    assert words[1] & 1 and words[1] & 2  # ids 64, 65
+    assert words[63] & (1 << 63)  # id 4095
+    assert MembershipBuildSet.from_image_words(words, key_space=4096) == build
+
+
+def test_membership_build_set_validation() -> None:
+    with pytest.raises(ValueError, match="multiple of 64"):
+        MembershipBuildSet.from_keys((), key_space=100)
+    with pytest.raises(ValueError, match="multiple of 64"):
+        MembershipBuildSet.from_keys((), key_space=0)
+    with pytest.raises(ValueError, match="outside key space"):
+        MembershipBuildSet.from_keys({64}, key_space=64)
+    with pytest.raises(ValueError, match="outside key space"):
+        MembershipBuildSet.from_keys({-1}, key_space=64)
+    with pytest.raises(ValueError, match="expected"):
+        MembershipBuildSet.from_image_words([0, 0], key_space=64)
+
+
+def test_membership_kind_and_mode_are_one_hot_config() -> None:
+    # kind zero is reserved (unconfigured fails explicitly); bloom is a
+    # reserved future kind, not built in v0
+    assert MembershipKind.EXACT_BITMAP == 1
+    assert MembershipKind.BLOOM == 2
+    assert int(MembershipMode.SEMI) == 0 and int(MembershipMode.ANTI) == 1
+
+
+def test_membership_order_is_preserved() -> None:
+    build = MembershipBuildSet.from_keys({7}, key_space=64)
+    rows = [(7, i, 0, 0) for i in range(5)]
+    assert filter_rows_by_membership(rows, build, mode=MembershipMode.SEMI) == rows

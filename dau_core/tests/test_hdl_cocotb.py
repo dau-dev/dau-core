@@ -19,6 +19,7 @@ from dau_core.hdl import (
     DAU_INT32_FIELD_SUM_AGGREGATION_SV,
     DAU_INT32_GROUPED_AGGREGATION_SV,
     DAU_INT32_GROUPED_FIELD_SUM_AGGREGATION_SV,
+    DAU_INT32_KEY_MEMBERSHIP_FILTER_SV,
     DAU_INT32_MAP_ALU_SV,
     DAU_INT32_PAIR_KEY_FILTER_SV,
     DAU_INT32_PREDICATE_FILTER_SV,
@@ -249,6 +250,29 @@ def test_grouped_field_sum_aggregation_runs_real_cocotb_against_systemverilog(tm
         hdl_toplevel="dau_int32_grouped_field_sum_aggregation",
         test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_grouped_field_sum_aggregation_tb",
         tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_key_membership_filter_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_KEY_MEMBERSHIP_FILTER_SV)),),
+        hdl_toplevel="dau_int32_key_membership_filter",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_key_membership_filter_tb",
+        tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_key_membership_filter_single_word_bitmap_runs_real_cocotb(tmp_path: Path) -> None:
+    # KEY_SPACE=64 is the WORDS==1 corner: a single-word bitmap (AWIDTH forced
+    # to 1, the LOAD phase closing out from S_ARM without entering S_LOAD)
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_KEY_MEMBERSHIP_FILTER_SV)),),
+        hdl_toplevel="dau_int32_key_membership_filter",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_key_membership_filter_single_word_tb",
+        tmp_path=tmp_path,
+        parameters={"KEY_SPACE": 64},
     )
 
 
