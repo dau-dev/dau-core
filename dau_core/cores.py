@@ -205,7 +205,7 @@ CORES: tuple[CoreDefinition, ...] = (
         description="Key partition filter for 16-byte pair rows (NoC lane splitter).",
         golden="dau_core.operators:filter_bar_rows_by_key",
         bench=f"{_BENCHES}.dau_int32_pair_key_filter_tb",
-        resources=ResourceEnvelope(lut=106, ff=330, bram36=0.0, dsp=0),
+        resources=ResourceEnvelope(lut=182, ff=331, bram36=0.0, dsp=0),
         contract_kind=ContractKind.ROW_STREAM,
     ),
     CoreDefinition(
@@ -243,7 +243,7 @@ CORES: tuple[CoreDefinition, ...] = (
         depends=("predicate-pkg",),
         golden="dau_core.operators:filter_rows_by_predicate",
         bench=f"{_BENCHES}.dau_int32_row_predicate_filter_tb",
-        resources=ResourceEnvelope(lut=735, ff=516, bram36=0.0, dsp=0),
+        resources=ResourceEnvelope(lut=703, ff=514, bram36=0.0, dsp=0),
         count_port="selected_count",
         contract_kind=ContractKind.ROW_STREAM,
     ),
@@ -302,7 +302,7 @@ CORES: tuple[CoreDefinition, ...] = (
         description="Key-set membership filter over 16-byte quad rows: the join tier's entry. A build set is loaded into an exact direct-mapped bitmap (BRAM) in a load phase (the two-phase membership job), then whole rows keep/drop by whether the row key (w0.lo) is a member; cfg_mode selects semi (keep members: IN / semi-join / distinct-probe) vs anti (keep non-members: NOT IN / anti-join). Exact — no false positives (bloom is a reserved future kind).",
         golden="dau_core.operators:filter_rows_by_membership",
         bench=f"{_BENCHES}.dau_int32_key_membership_filter_tb",
-        resources=ResourceEnvelope(lut=178, ff=409, bram36=1.0, dsp=0),  # OOC KEY_SPACE=4096; bitmap is one RAMB36, 8 ns met
+        resources=ResourceEnvelope(lut=363, ff=413, bram36=1.0, dsp=0),  # OOC KEY_SPACE=4096; bitmap is one RAMB36, 8 ns met
         count_port="selected_count",
         contract_kind=ContractKind.ROW_STREAM,
         unit_kind=UnitKind.MEMBERSHIP,

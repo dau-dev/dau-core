@@ -295,6 +295,116 @@ async def success_status_survives_backpressure(dut):
 
 
 @cocotb.test()
+async def status_close_out_waits_for_backpressured_tail(dut):
+    # Cross-batch re-arm under output backpressure. Batch A forwards two kept
+    # rows and its final beat is held under backpressure; batch B follows
+    # immediately and would raise a success close-out (zero forwarded rows).
+    # The filter must not present B's close-out on the status stream until A's
+    # last output beat has handshaked -- otherwise B's per-batch close-out
+    # overtakes A's still-in-flight tail (the lane status mux serialises one
+    # close-out per batch, and the record writer's done waits on it).
+    await _start(dut)
+    await _load(dut, _build_set({7, 63}))
+    _drive_cfg(dut, load=0, mode=MembershipMode.SEMI, kind=MembershipKind.EXACT_BITMAP)
+
+    a_rows = [(7, 111, 1, 1), (63, 222, 2, 2)]  # both members: A forwards 2, last kept
+    b_rows = [(100, 999, 9, 9)]  # non-member: zero forwarded -> success close-out
+    expected = [(word, int(i == 3)) for i, word in enumerate(_pack_rows(a_rows))]
+
+    sender = cocotb.start_soon(_send_batches(dut, [_pack_rows(a_rows), _pack_rows(b_rows)]))
+    dut.status_ready.value = 1  # a downstream mux ready to accept a close-out
+
+    words: list[tuple[int, int]] = []
+    fires = 0
+    a_tail_done = False
+    holding = False
+    hold = 0
+    for _ in range(400):
+        if fires < 2:
+            ready = 1  # drain A's first row and trigger the flush-load of its tail
+        elif not holding and not a_tail_done:
+            holding = True
+            ready = 0
+        elif holding and hold < 15:
+            ready = 0
+        else:
+            ready = 1  # release: A's tail drains, then B's close-out may appear
+        dut.output_ready.value = ready
+
+        await ReadOnly()
+        valid = int(dut.output_valid.value) == 1
+        last = int(dut.output_last.value) == 1
+        word = int(dut.output_data.value)
+        status = int(dut.status_valid.value) == 1
+        fired = ready == 1 and valid
+        # THE PROPERTY: no status close-out while a prior batch's output beat is
+        # still un-drained (A's final beat has not yet handshaked).
+        assert not (status and not a_tail_done), (
+            "batch B success close-out asserted (status_valid=1) before batch A's "
+            "final output beat handshaked -- cross-batch status overtake under backpressure"
+        )
+        await RisingEdge(dut.clk)
+        if holding:
+            hold += 1
+        if fired:
+            words.append((word, last))
+            fires += 1
+            if last:
+                a_tail_done = True
+                break
+
+    assert a_tail_done, "A's final beat never handshaked"
+    assert words == expected, f"forwarded beats/last wrong: {words} != {expected}"
+
+    # only now may B's success close-out appear; then the lane is quiescent
+    await _expect_status(dut, error=False)
+    assert int(dut.selected_count.value) == 0
+    await _assert_quiescent(dut)
+    await sender
+
+
+@cocotb.test()
+async def error_close_out_waits_for_backpressured_tail(dut):
+    # Intra-batch error ordering under output backpressure. Two kept rows are
+    # driven, then a torn w0 (input_last on a w0) raises ERR_STREAM. Accepting
+    # the second kept row displaces the first into the emit engine, where it
+    # stalls under backpressure; the torn w0 is then accepted (word-0 state is
+    # unconditionally ready) and raises the error. The error close-out must not
+    # handshake until that stalled beat drains -- otherwise the error status
+    # overtakes a still-valid output beat, which the record writer would strand
+    # into the next job once it consumes the status.
+    await _start(dut)
+    await _load(dut, _build_set({7, 63}))
+    _drive_cfg(dut, load=0, mode=MembershipMode.SEMI, kind=MembershipKind.EXACT_BITMAP)
+
+    dut.output_ready.value = 0
+    dut.status_ready.value = 1
+    # row1 (7) kept, row2 (63) kept, then a torn w0; all accepted while output
+    # is backpressured (input acceptance here does not depend on the output)
+    words = _pack_rows([(7, 111, 1, 1), (63, 222, 2, 2)]) + [(999 << 32) | 100]
+    await _send_words(dut, words)
+
+    # a kept beat is now stalled in the emit engine and ERR_STREAM has been
+    # raised internally; the status must stay silent while output is un-drained
+    for _ in range(15):
+        await ReadOnly()
+        assert int(dut.output_valid.value) == 1, "the kept tail is not in flight"
+        assert int(dut.status_valid.value) == 0, (
+            "ERR_STREAM close-out asserted while a prior kept beat is still un-drained -- intra-batch error overtake under backpressure"
+        )
+        await RisingEdge(dut.clk)
+
+    # release: the stalled beats drain, then the error close-out may appear
+    dut.output_ready.value = 1
+    await _expect_status(dut, error=True, code=MembershipErrorCode.STREAM)
+    assert int(dut.selected_count.value) == 0
+    # recovers: the next probe filters normally (the drained stalled beat did
+    # not leak into it)
+    build = _build_set({7, 63})
+    assert await _probe(dut, _ROWS, MembershipMode.SEMI) == filter_rows_by_membership(_ROWS, build, mode=MembershipMode.SEMI)
+
+
+@cocotb.test()
 async def constrained_random_batches_match_golden(dut):
     await _start(dut)
     rng = random.Random(0x3E37B17)
@@ -376,6 +486,25 @@ async def _send_words(dut, words) -> None:
 
 async def _send_rows(dut, rows) -> None:
     await _send_words(dut, _pack_rows(rows))
+
+
+async def _send_batches(dut, batches) -> None:
+    # drive several back-to-back batches with input_last on the final word of
+    # each, holding input_valid across the boundaries so the next batch follows
+    # the previous one with no gap
+    for words in batches:
+        for index, word in enumerate(words):
+            dut.input_data.value = word & _MASK64
+            dut.input_last.value = int(index == len(words) - 1)
+            dut.input_valid.value = 1
+            while True:
+                await ReadOnly()
+                fired = int(dut.input_ready.value) == 1
+                await RisingEdge(dut.clk)
+                if fired:
+                    break
+    dut.input_valid.value = 0
+    dut.input_last.value = 0
 
 
 async def _drain_words(dut) -> None:

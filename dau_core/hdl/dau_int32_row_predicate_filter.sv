@@ -58,6 +58,8 @@ module dau_int32_row_predicate_filter
         STATE_W0,      // accept w0 of a row (batch config latches on the first)
         STATE_W1,      // accept w1 of a row, evaluate the predicate
         STATE_FLUSH,   // release the held final row with last set
+        STATE_FLUSH_DRAIN, // hold input closed until the flushed final beat drains, then re-arm
+        STATE_ERR_DRAIN, // torn row: drain the in-flight forwarded beat, then ERR_STREAM
         STATE_DISCARD, // bad config: consume the batch to input_last
         STATE_STATUS   // hold a close-out (success or error) until accepted
     } state_t;
@@ -221,9 +223,18 @@ module dau_int32_row_predicate_filter
                                 state <= STATE_DISCARD;
                             end
                         end else if (input_last) begin
-                            // torn row: the batch is invalid regardless of
-                            // what was already forwarded
-                            raise_error(ERR_STREAM);
+                            // torn row: the batch is invalid regardless of what
+                            // was already forwarded. If a forwarded beat is
+                            // still in flight, drain it before the error
+                            // close-out so status cannot overtake it.
+                            if (emit_state == EMIT_IDLE) begin
+                                raise_error(ERR_STREAM);
+                            end else begin
+                                held_valid <= 1'b0;
+                                selected_count <= 64'd0;
+                                batch_open <= 1'b0;
+                                state <= STATE_ERR_DRAIN;
+                            end
                         end else begin
                             row_w0 <= input_data;
                             state <= STATE_W1;
@@ -258,11 +269,28 @@ module dau_int32_row_predicate_filter
                     end
                 end
                 STATE_FLUSH: begin
+                    // release the held final row tagged last; do NOT re-arm yet
+                    // (input stays closed via STATE_FLUSH_DRAIN) so a following
+                    // batch's close-out cannot overtake this still-in-flight tail
                     if (emit_free) begin
                         start_emit(held_w0, held_w1, 1'b1);
                         held_valid <= 1'b0;
                         batch_open <= 1'b0;
+                        state <= STATE_FLUSH_DRAIN;
+                    end
+                end
+                STATE_FLUSH_DRAIN: begin
+                    // re-arm only once the flushed final beat has drained from
+                    // the emit engine (silent on success)
+                    if (emit_state == EMIT_IDLE) begin
                         state <= STATE_W0;
+                    end
+                end
+                STATE_ERR_DRAIN: begin
+                    // hold input closed until the in-flight forwarded beat has
+                    // drained, then raise the torn-row error close-out
+                    if (emit_state == EMIT_IDLE) begin
+                        raise_error(ERR_STREAM);
                     end
                 end
                 STATE_DISCARD: begin
