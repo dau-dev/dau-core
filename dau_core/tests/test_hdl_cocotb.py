@@ -264,6 +264,19 @@ def test_key_membership_filter_runs_real_cocotb_against_systemverilog(tmp_path: 
 
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_key_membership_filter_single_word_bitmap_runs_real_cocotb(tmp_path: Path) -> None:
+    # KEY_SPACE=64 is the WORDS==1 corner: a single-word bitmap (AWIDTH forced
+    # to 1, the LOAD phase closing out from S_ARM without entering S_LOAD)
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_KEY_MEMBERSHIP_FILTER_SV)),),
+        hdl_toplevel="dau_int32_key_membership_filter",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_key_membership_filter_single_word_tb",
+        tmp_path=tmp_path,
+        parameters={"KEY_SPACE": 64},
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_axi_bar_noc_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
     _run_cocotb_verilator(
         sources=(
