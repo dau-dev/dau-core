@@ -82,6 +82,7 @@ module dau_int32_key_membership_filter #(
         S_W0,         // probe: accept a row's w0, issue the membership read
         S_W1,         // probe: w1 in, membership result ready, keep/drop the row
         S_FLUSH,      // probe: release the held final row with last=1 (silent on success)
+        S_FLUSH_DRAIN,// hold input closed until the flushed final beat drains, then re-arm
         S_DISCARD,    // drain a bad-kind batch to input_last, then ERR_CONFIG
         S_DRAIN_LOAD, // drain an over-long image to input_last, then ERR_LOAD
         S_STATUS      // hold a close-out (success or error) until accepted
@@ -140,7 +141,7 @@ module dau_int32_key_membership_filter #(
     always_comb begin
         unique case (state)
             S_W1:    input_ready = (!held_valid || emit_free);
-            S_FLUSH, S_STATUS: input_ready = 1'b0;
+            S_FLUSH, S_FLUSH_DRAIN, S_STATUS: input_ready = 1'b0;
             default: input_ready = 1'b1;  // S_ARM, S_LOAD, S_W0, S_DISCARD, S_DRAIN_LOAD
         endcase
     end
@@ -290,11 +291,20 @@ module dau_int32_key_membership_filter #(
                     end
                 end
                 S_FLUSH: begin
-                    // release the held final row tagged last, then re-arm
-                    // silently — the downstream terminal owns the success status
+                    // release the held final row tagged last; do NOT re-arm yet
+                    // (input stays closed via S_FLUSH_DRAIN) so a following
+                    // batch's close-out cannot overtake this still-in-flight tail
                     if (emit_free) begin
                         start_emit(held_w0, held_w1, 1'b1);
                         held_valid <= 1'b0;
+                        state <= S_FLUSH_DRAIN;
+                    end
+                end
+                S_FLUSH_DRAIN: begin
+                    // re-arm only once the flushed final beat has drained from
+                    // the emit engine (silent on success — the downstream
+                    // terminal owns the success status)
+                    if (emit_state == EMIT_IDLE) begin
                         state <= S_ARM;
                     end
                 end

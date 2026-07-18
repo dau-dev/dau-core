@@ -36,6 +36,7 @@ module dau_int32_pair_key_filter (
         STATE_W0,
         STATE_W1,
         STATE_FLUSH,
+        STATE_FLUSH_DRAIN,  // hold input closed until the flushed final beat drains, then re-arm
         STATE_STATUS
     } state_t;
 
@@ -138,9 +139,19 @@ module dau_int32_pair_key_filter (
                     end
                 end
                 STATE_FLUSH: begin
+                    // release the held final row tagged last; do NOT re-arm yet
+                    // (input stays closed via STATE_FLUSH_DRAIN) so a following
+                    // batch's close-out cannot overtake this still-in-flight tail
                     if (emit_free) begin
                         start_emit(held_w0, held_w1, 1'b1);
                         held_valid <= 1'b0;
+                        state <= STATE_FLUSH_DRAIN;
+                    end
+                end
+                STATE_FLUSH_DRAIN: begin
+                    // re-arm only once the flushed final beat has drained from
+                    // the emit engine (silent on success)
+                    if (emit_state == EMIT_IDLE) begin
                         state <= STATE_W0;
                     end
                 end
