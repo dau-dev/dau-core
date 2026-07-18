@@ -371,6 +371,116 @@ def grouped_field_sum_rows(rows: Iterable[tuple[int, int, int, int]], *, field_m
     return results
 
 
+MEMBERSHIP_CONFIG_VERSION = "0.1"
+
+
+class MembershipKind(IntEnum):
+    """Membership-structure kind for the key-set membership filter tile. Zero
+    is reserved so an unconfigured tile fails explicitly. v0 implements only
+    ``EXACT_BITMAP`` — a direct-mapped bitmap over the configured dictionary-id
+    key space, with no false positives. ``BLOOM`` is a reserved future config (a
+    hashed bitmap trading exactness for an unbounded key space, its false
+    positives verified host-side); the v0 tile rejects it with a config
+    error."""
+
+    EXACT_BITMAP = 1
+    BLOOM = 2  # reserved; not built in v0 (rejected as ERR_CONFIG)
+
+
+class MembershipMode(IntEnum):
+    """Probe-phase disposition — one config bit: keep members (semi/IN) or keep
+    non-members (anti/NOT IN)."""
+
+    SEMI = 0  # keep rows whose key is a member — semi-join / IN / distinct probe
+    ANTI = 1  # keep rows whose key is NOT a member — anti-join / NOT IN
+
+
+class MembershipErrorCode(IntEnum):
+    CONFIG = 1  # unconfigured / unsupported membership kind (bloom is not built in v0)
+    STREAM = 2  # torn probe row (input_last on a w0)
+    LOAD = 3  # build-set image length != key_space // 64
+
+
+@dataclass(frozen=True)
+class MembershipBuildSet:
+    """The membership memory: a direct-mapped EXACT bitmap over the configured
+    dictionary-id key space ``[0, key_space)``. Key ``k`` is a member iff
+    ``0 <= k < key_space`` and bit ``k`` is set.
+
+    Addressing decision (and its exactness). The IN-list / semi-join key column
+    is dictionary-encoded host-side (dau-polars) into dense ids ``[0, N)``, and
+    ``key_space`` is that dictionary's cardinality rounded up to a multiple of
+    64. Because every id maps to exactly one bit, membership is EXACT — no false
+    positives AND no false negatives — over the id space. A full ``2**32``
+    bitmap would be 512 MB, impossible; the bounded dictionary space is the
+    natural fit and keeps the whole memory BRAM-resident. A probe key outside
+    ``[0, key_space)`` is definitionally a non-member: the build set only ever
+    holds in-range dictionary ids, so an out-of-range probe key (signed int32,
+    so negatives and ids ``>= key_space`` included) cannot be in it. This is the
+    honest, verifiable v0; ``MembershipKind.BLOOM`` is the future inexact
+    alternative for unbounded key spaces (host-verified false positives).
+
+    The bitmap loads as ``key_space // 64`` little-endian 64-bit image words:
+    word ``w`` bit ``b`` is id ``64*w + b``."""
+
+    key_space: int
+    members: frozenset[int]
+
+    def __post_init__(self) -> None:
+        if self.key_space <= 0 or self.key_space % 64 != 0:
+            raise ValueError("key_space must be a positive multiple of 64")
+        for member in self.members:
+            if not 0 <= member < self.key_space:
+                raise ValueError(f"member {member} outside key space [0, {self.key_space})")
+
+    @property
+    def word_count(self) -> int:
+        return self.key_space // 64
+
+    def member(self, key: int) -> bool:
+        return 0 <= key < self.key_space and key in self.members
+
+    def image_words(self) -> list[int]:
+        """The bitmap as ``key_space // 64`` little-endian 64-bit words — the
+        LOAD-phase stream: word ``w`` bit ``b`` set iff ``64*w + b`` is a
+        member."""
+        words = [0] * self.word_count
+        for member in self.members:
+            words[member >> 6] |= 1 << (member & 0x3F)
+        return words
+
+    @classmethod
+    def from_keys(cls, keys: Iterable[int], *, key_space: int) -> MembershipBuildSet:
+        return cls(key_space=key_space, members=frozenset(keys))
+
+    @classmethod
+    def from_image_words(cls, words: Iterable[int], *, key_space: int) -> MembershipBuildSet:
+        image = list(words)
+        if len(image) != key_space // 64:
+            raise ValueError(f"image has {len(image)} words, expected {key_space // 64}")
+        members = {64 * index + bit for index, word in enumerate(image) for bit in range(64) if word & (1 << bit)}
+        return cls(key_space=key_space, members=frozenset(members))
+
+
+def filter_rows_by_membership(
+    rows: Iterable[tuple[int, int, int, int]],
+    build_set: MembershipBuildSet,
+    *,
+    mode: MembershipMode,
+) -> list[tuple[int, int, int, int]]:
+    """Golden semantics for the key-set membership filter tile (probe phase):
+    whole (key, value, aux0, aux1) rows pass by whether the row key (``w0.lo``,
+    signed int32) is a member of ``build_set``. ``SEMI`` keeps members, ``ANTI``
+    keeps non-members; order preserved. Exact bitmap membership — no false
+    positives."""
+    out: list[tuple[int, int, int, int]] = []
+    for row in rows:
+        is_member = build_set.member(_wrap_int32(row[0]))
+        if is_member == (mode == MembershipMode.SEMI):
+            out.append(tuple(row))
+    return out
+
+
 GROUPED_AGGREGATION_CONFIG_VERSION = "0.1"
 
 

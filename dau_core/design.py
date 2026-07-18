@@ -10,6 +10,7 @@ from .stream import LogicalType, OperationCode
 class UnitKind(StrEnum):
     AGGREGATION = "aggregation"
     JOIN = "join"
+    MEMBERSHIP = "membership"
     SORT = "sort"
 
 
