@@ -147,6 +147,43 @@ async def status_close_out_waits_for_backpressured_tail(dut):
     await sender
 
 
+@cocotb.test()
+async def error_close_out_waits_for_backpressured_tail(dut):
+    # Intra-batch error ordering under output backpressure. Two kept rows are
+    # driven, then a torn w0 (input_last on a w0) raises ERR_STREAM. Accepting
+    # the second kept row displaces the first into the emit engine, where it
+    # stalls under backpressure; the torn w0 is then accepted (word-0 state is
+    # unconditionally ready) and raises the error. The error close-out must not
+    # handshake until that stalled beat drains -- otherwise the error status
+    # overtakes a still-valid output beat, which the record writer would strand
+    # into the next job once it consumes the status.
+    await _start(dut)
+    dut.cfg_key_mask.value = 3
+    dut.cfg_key_match.value = 0
+
+    dut.output_ready.value = 0
+    dut.status_ready.value = 1
+    # two rows in lane 0, then a torn w0; all accepted while output is
+    # backpressured (input acceptance here does not depend on the output)
+    words = _pack_rows([(568, 111, 1, 1), (572, 222, 2, 2)]) + [(999 << 32) | 999]
+    await _send_batches(dut, [words])
+
+    for _ in range(15):
+        await ReadOnly()
+        assert int(dut.output_valid.value) == 1, "the kept tail is not in flight"
+        assert int(dut.status_valid.value) == 0, (
+            "ERR_STREAM close-out asserted while a prior kept beat is still "
+            "un-drained -- intra-batch error overtake under backpressure"
+        )
+        await RisingEdge(dut.clk)
+
+    dut.output_ready.value = 1
+    await _expect_status(dut, error=True, code=ERR_STREAM)
+    # recovers: the next batch filters normally (the drained stalled beat did
+    # not leak into it)
+    assert await _run(dut, _ROWS, mask=0, match=0) == _ROWS
+
+
 async def _start(dut) -> None:
     clock = Clock(dut.clk, 10, unit="ns")
     cocotb.start_soon(clock.start(start_high=False))

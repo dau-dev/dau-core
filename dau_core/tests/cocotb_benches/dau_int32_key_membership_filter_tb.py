@@ -364,6 +364,48 @@ async def status_close_out_waits_for_backpressured_tail(dut):
 
 
 @cocotb.test()
+async def error_close_out_waits_for_backpressured_tail(dut):
+    # Intra-batch error ordering under output backpressure. Two kept rows are
+    # driven, then a torn w0 (input_last on a w0) raises ERR_STREAM. Accepting
+    # the second kept row displaces the first into the emit engine, where it
+    # stalls under backpressure; the torn w0 is then accepted (word-0 state is
+    # unconditionally ready) and raises the error. The error close-out must not
+    # handshake until that stalled beat drains -- otherwise the error status
+    # overtakes a still-valid output beat, which the record writer would strand
+    # into the next job once it consumes the status.
+    await _start(dut)
+    await _load(dut, _build_set({7, 63}))
+    _drive_cfg(dut, load=0, mode=MembershipMode.SEMI, kind=MembershipKind.EXACT_BITMAP)
+
+    dut.output_ready.value = 0
+    dut.status_ready.value = 1
+    # row1 (7) kept, row2 (63) kept, then a torn w0; all accepted while output
+    # is backpressured (input acceptance here does not depend on the output)
+    words = _pack_rows([(7, 111, 1, 1), (63, 222, 2, 2)]) + [(999 << 32) | 100]
+    await _send_words(dut, words)
+
+    # a kept beat is now stalled in the emit engine and ERR_STREAM has been
+    # raised internally; the status must stay silent while output is un-drained
+    for _ in range(15):
+        await ReadOnly()
+        assert int(dut.output_valid.value) == 1, "the kept tail is not in flight"
+        assert int(dut.status_valid.value) == 0, (
+            "ERR_STREAM close-out asserted while a prior kept beat is still "
+            "un-drained -- intra-batch error overtake under backpressure"
+        )
+        await RisingEdge(dut.clk)
+
+    # release: the stalled beats drain, then the error close-out may appear
+    dut.output_ready.value = 1
+    await _expect_status(dut, error=True, code=MembershipErrorCode.STREAM)
+    assert int(dut.selected_count.value) == 0
+    # recovers: the next probe filters normally (the drained stalled beat did
+    # not leak into it)
+    build = _build_set({7, 63})
+    assert await _probe(dut, _ROWS, MembershipMode.SEMI) == filter_rows_by_membership(_ROWS, build, mode=MembershipMode.SEMI)
+
+
+@cocotb.test()
 async def constrained_random_batches_match_golden(dut):
     await _start(dut)
     rng = random.Random(0x3E37B17)

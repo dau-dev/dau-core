@@ -83,6 +83,7 @@ module dau_int32_key_membership_filter #(
         S_W1,         // probe: w1 in, membership result ready, keep/drop the row
         S_FLUSH,      // probe: release the held final row with last=1 (silent on success)
         S_FLUSH_DRAIN,// hold input closed until the flushed final beat drains, then re-arm
+        S_ERR_DRAIN,  // torn row: drain the in-flight forwarded beat, then ERR_STREAM
         S_DISCARD,    // drain a bad-kind batch to input_last, then ERR_CONFIG
         S_DRAIN_LOAD, // drain an over-long image to input_last, then ERR_LOAD
         S_STATUS      // hold a close-out (success or error) until accepted
@@ -141,7 +142,7 @@ module dau_int32_key_membership_filter #(
     always_comb begin
         unique case (state)
             S_W1:    input_ready = (!held_valid || emit_free);
-            S_FLUSH, S_FLUSH_DRAIN, S_STATUS: input_ready = 1'b0;
+            S_FLUSH, S_FLUSH_DRAIN, S_ERR_DRAIN, S_STATUS: input_ready = 1'b0;
             default: input_ready = 1'b1;  // S_ARM, S_LOAD, S_W0, S_DISCARD, S_DRAIN_LOAD
         endcase
     end
@@ -263,7 +264,16 @@ module dau_int32_key_membership_filter #(
                 S_W0: begin
                     if (input_fire) begin
                         if (input_last) begin
-                            raise_error(ERR_STREAM);         // torn row
+                            // torn row: the batch is invalid. If a forwarded
+                            // beat is still in flight, drain it before the
+                            // error close-out so status cannot overtake it.
+                            if (emit_state == EMIT_IDLE) begin
+                                raise_error(ERR_STREAM);
+                            end else begin
+                                held_valid <= 1'b0;
+                                selected_count <= 64'd0;
+                                state <= S_ERR_DRAIN;
+                            end
                         end else begin
                             row_w0 <= input_data;
                             state <= S_W1;
@@ -306,6 +316,13 @@ module dau_int32_key_membership_filter #(
                     // terminal owns the success status)
                     if (emit_state == EMIT_IDLE) begin
                         state <= S_ARM;
+                    end
+                end
+                S_ERR_DRAIN: begin
+                    // hold input closed until the in-flight forwarded beat has
+                    // drained, then raise the torn-row error close-out
+                    if (emit_state == EMIT_IDLE) begin
+                        raise_error(ERR_STREAM);
                     end
                 end
                 S_DISCARD: begin
