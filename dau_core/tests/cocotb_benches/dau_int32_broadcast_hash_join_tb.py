@@ -47,6 +47,19 @@ _Q3_MIX = BroadcastJoinConfig(JoinSource.B0, JoinSource.V0, JoinSource.B2)
 
 
 @cocotb.test()
+async def probe_before_any_load_misses(dut):
+    # MUST stay the first test in this module: it validates the power-on /
+    # zero-initialised empty table. The table is BRAM and rst does NOT clear it
+    # (only the load-phase sweep or the INIT does), so once a later test loads
+    # build rows the table is no longer empty. Run first, before any load
+    # populates the BRAM, the initial content is 0 (every slot invalid) and
+    # every probe misses.
+    await _start(dut)
+    assert await _probe(dut, _PROBE, _CARRY_BUILD) == []
+    assert int(dut.joined_count.value) == 0
+
+
+@cocotb.test()
 async def load_then_probe_inner_join(dut):
     await _start(dut)
     await _load(dut, _BUILD)
@@ -294,6 +307,46 @@ async def out_select_seven_reports_config_error(dut):
     send = cocotb.start_soon(_send_rows(dut, _PROBE[:1]))
     await _expect_status(dut, error=True, code=JoinErrorCode.CONFIG)
     await send
+
+
+@cocotb.test()
+async def config_precedence_over_torn_and_out_of_range_first_row(dut):
+    # config validity is checked at the first probe row and takes precedence
+    # over stream shape: a first row that is ALSO torn or out-of-range still
+    # reports CONFIG, not STREAM / RANGE
+    await _start(dut)
+    await _load(dut, _BUILD)
+    _drive_cfg(dut, load=0, cfg=_CARRY_BUILD)
+    dut.cfg_out0_sel.value = 6  # reserved source
+    await _send_words(dut, [(1000 << 32) | 7])  # torn w0 AND bad config -> CONFIG
+    await _expect_status(dut, error=True, code=JoinErrorCode.CONFIG)
+
+    _drive_cfg(dut, load=0, cfg=_CARRY_BUILD)
+    dut.cfg_out2_sel.value = 7  # reserved source
+    send = cocotb.start_soon(_send_rows(dut, [(_KEY_SPACE, 1, 1, 1)]))  # out-of-range key AND bad config
+    await _expect_status(dut, error=True, code=JoinErrorCode.CONFIG)
+    await send
+
+    assert await _probe(dut, _PROBE, _CARRY_BUILD) == broadcast_hash_join_rows(_BUILD, _PROBE, out_sel=_CARRY_BUILD, key_space=_KEY_SPACE)
+
+
+@cocotb.test()
+async def field_select_latches_at_first_row(dut):
+    # the field-select is latched at the first probe row; changing the cfg
+    # ports mid-batch must not re-select the emitted fields
+    await _start(dut)
+    await _load(dut, _BUILD)
+    _drive_cfg(dut, load=0, cfg=_CARRY_BUILD)  # first row latches CARRY_BUILD
+    # after the first word fires, flip the live cfg to CARRY_PROBE
+    send = cocotb.start_soon(_send_words_flip_cfg(dut, _pack_rows([(7, 1, 1, 1), (63, 2, 2, 2)]), flip_after=0, new_cfg=_CARRY_PROBE))
+    words = await _collect_probe_output(dut, (1,))
+    await send
+    out = [
+        (_signed32(words[o] & _MASK32), _signed32(words[o] >> 32), _signed32(words[o + 1] & _MASK32), _signed32(words[o + 1] >> 32))
+        for o in range(0, len(words), 2)
+    ]
+    # both rows carry the BUILD payload (the latched cfg), not the live probe cfg
+    assert out == [(7, 100, 101, 102), (63, 300, 301, 302)]
 
 
 @cocotb.test()
@@ -571,6 +624,25 @@ async def _send_words(dut, words) -> None:
 
 async def _send_rows(dut, rows) -> None:
     await _send_words(dut, _pack_rows(rows))
+
+
+async def _send_words_flip_cfg(dut, words, *, flip_after: int, new_cfg: BroadcastJoinConfig) -> None:
+    # drive words back-to-back, flipping the live field-select cfg after the
+    # word at index flip_after handshakes (to prove the batch latch)
+    for index, word in enumerate(words):
+        dut.input_data.value = word & _MASK64
+        dut.input_last.value = int(index == len(words) - 1)
+        dut.input_valid.value = 1
+        while True:
+            await ReadOnly()
+            fired = int(dut.input_ready.value) == 1
+            await RisingEdge(dut.clk)
+            if fired:
+                break
+        if index == flip_after:
+            _drive_cfg(dut, load=0, cfg=new_cfg)
+    dut.input_valid.value = 0
+    dut.input_last.value = 0
 
 
 async def _send_batches(dut, batches) -> None:

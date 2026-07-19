@@ -540,7 +540,14 @@ def broadcast_hash_join_rows(
     ``out_sel`` from the six sources ``(b0, b1, b2, v0, v1, v2)``; a probe miss
     drops. Order is preserved. Every build and probe key must lie in
     ``[0, key_space)`` — an out-of-range key is ``ERR_RANGE`` on the tile and
-    raises here. All fields are INT32 (two's-complement wraparound)."""
+    raises here. All fields are INT32 (two's-complement wraparound).
+
+    An empty ``build_rows`` is the mathematically empty table (every probe
+    misses). On the tile, an empty table is the cleared/initial state reached
+    by the load-phase sweep or power-on ``INIT`` — a *load batch* itself always
+    carries at least one build row, since the stream contract delimits a batch
+    with ``input_last`` on a data word and so cannot express a zero-row
+    batch."""
     table: dict[int, tuple[int, int, int]] = {}
     for row in build_rows:
         key = _wrap_int32(row[0])
