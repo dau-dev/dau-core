@@ -310,6 +310,22 @@ CORES: tuple[CoreDefinition, ...] = (
         unit_kind=UnitKind.MEMBERSHIP,
     ),
     CoreDefinition(
+        name="int32-broadcast-hash-join",
+        kind=CoreKind.OPERATOR,
+        # silent on success in the probe phase (a mid-lane join stage before a
+        # downstream terminal); the zero-emitted-row compaction and the
+        # load-done both close out, like the membership filter
+        module="dau_int32_broadcast_hash_join",
+        source="dau_int32_broadcast_hash_join.sv",
+        description="Broadcast hash join over 16-byte quad rows: the join tier's payload-emitting Joiner (the q3 join spine). A build side (key, b0, b1, b2) is broadcast into a direct-mapped payload table (BRAM) in a load phase (the two-phase join job), then probe rows (key, v0, v1, v2) inner-join against it — a hit emits one (key, out0, out1, out2) row whose data fields are chosen per cfg_out{0,1,2}_sel from the six sources {b0,b1,b2,v0,v1,v2}, a miss drops. Last-writer-wins on a duplicate build key; a build/probe key outside [0, KEY_SPACE) is ERR_RANGE.",
+        golden="dau_core.operators:broadcast_hash_join_rows",
+        bench=f"{_BENCHES}.dau_int32_broadcast_hash_join_tb",
+        resources=ResourceEnvelope(lut=713, ff=422, bram36=3.0, dsp=0),  # OOC KEY_SPACE=1024; payload table is 3 RAMB36, 8 ns met (WNS +3.421)
+        count_port="joined_count",
+        contract_kind=ContractKind.ROW_STREAM,
+        unit_kind=UnitKind.JOIN,
+    ),
+    CoreDefinition(
         name="int32-stream-aggregation",
         kind=CoreKind.OPERATOR,
         success_close_out=True,

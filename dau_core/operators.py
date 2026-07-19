@@ -481,6 +481,85 @@ def filter_rows_by_membership(
     return out
 
 
+class JoinSource(IntEnum):
+    """Output field-select sources for the broadcast hash join tile: the six
+    32-bit operands an emitted output field may carry — the matched build row's
+    three data fields (``b0``/``b1``/``b2``) and the probe row's three
+    (``v0``/``v1``/``v2``). Selectors 6 and 7 are reserved (the tile rejects
+    them as ``ERR_CONFIG``). The emitted row's key is always the matched key,
+    so it is not a selectable source."""
+
+    B0 = 0  # build value (build row w0.hi)
+    B1 = 1  # build aux0  (build row w1.lo)
+    B2 = 2  # build aux1  (build row w1.hi)
+    V0 = 3  # probe value (probe row w0.hi)
+    V1 = 4  # probe aux0  (probe row w1.lo)
+    V2 = 5  # probe aux1  (probe row w1.hi)
+
+
+class JoinErrorCode(IntEnum):
+    CONFIG = 1  # an output field-select is a reserved source (6 or 7)
+    STREAM = 2  # torn row (input_last on a w0)
+    RANGE = 3  # a build or probe key is outside [0, key_space)
+
+
+@dataclass(frozen=True)
+class BroadcastJoinConfig:
+    """Output field-select for the broadcast hash join: each of the emitted
+    row's three data fields (``out0``, ``out1``, ``out2``) is chosen from the
+    six join sources. The emitted key is always the matched probe key. Matches
+    the tile's ``cfg_out{0,1,2}_sel`` config ports."""
+
+    out0: JoinSource
+    out1: JoinSource
+    out2: JoinSource
+
+    def __post_init__(self) -> None:
+        for sel in (self.out0, self.out1, self.out2):
+            if not 0 <= int(sel) <= 5:
+                raise ValueError("output field-select must be a JoinSource in [0, 5]")
+
+    def select(self, sources: tuple[int, int, int, int, int, int]) -> tuple[int, int, int]:
+        return (sources[self.out0], sources[self.out1], sources[self.out2])
+
+
+def broadcast_hash_join_rows(
+    build_rows: Iterable[tuple[int, int, int, int]],
+    probe_rows: Iterable[tuple[int, int, int, int]],
+    *,
+    out_sel: BroadcastJoinConfig,
+    key_space: int = 1024,
+) -> list[tuple[int, int, int, int]]:
+    """Golden semantics for the broadcast hash join tile (the join tier's
+    payload-emitting Joiner). The build side of ``(key, b0, b1, b2)`` rows is
+    loaded into a direct-mapped payload table over the key space
+    ``[0, key_space)`` — one slot per key, last-writer-wins on a duplicate
+    build key (the build side is expected unique/PK). Then ``(key, v0, v1, v2)``
+    probe rows inner-join against it: a probe key that hits emits one
+    ``(key, out0, out1, out2)`` row whose three data fields are chosen by
+    ``out_sel`` from the six sources ``(b0, b1, b2, v0, v1, v2)``; a probe miss
+    drops. Order is preserved. Every build and probe key must lie in
+    ``[0, key_space)`` — an out-of-range key is ``ERR_RANGE`` on the tile and
+    raises here. All fields are INT32 (two's-complement wraparound)."""
+    table: dict[int, tuple[int, int, int]] = {}
+    for row in build_rows:
+        key = _wrap_int32(row[0])
+        if not 0 <= key < key_space:
+            raise ValueError(f"build key {key} outside key space [0, {key_space})")
+        table[key] = (_wrap_int32(row[1]), _wrap_int32(row[2]), _wrap_int32(row[3]))
+    out: list[tuple[int, int, int, int]] = []
+    for row in probe_rows:
+        key = _wrap_int32(row[0])
+        if not 0 <= key < key_space:
+            raise ValueError(f"probe key {key} outside key space [0, {key_space})")
+        if key in table:
+            b0, b1, b2 = table[key]
+            v0, v1, v2 = _wrap_int32(row[1]), _wrap_int32(row[2]), _wrap_int32(row[3])
+            out0, out1, out2 = out_sel.select((b0, b1, b2, v0, v1, v2))
+            out.append((key, out0, out1, out2))
+    return out
+
+
 GROUPED_AGGREGATION_CONFIG_VERSION = "0.1"
 
 
