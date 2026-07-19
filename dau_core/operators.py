@@ -267,6 +267,54 @@ def map_row_fields(rows: Iterable[tuple[int, int, int, int]], config: RowMapConf
     return out
 
 
+UNPACK_CONFIG_VERSION = "0.1"
+
+
+class UnpackErrorCode(IntEnum):
+    CONFIG = 1
+
+
+@dataclass(frozen=True)
+class UnpackFieldSpec:
+    """One output field's slice of a packed row: the ``width``-bit field at bit
+    ``offset`` of the (<=64-bit) packed word, sign-extended (``signed``) or
+    zero-extended to int32. Matches the tile's
+    ``cfg_field{i}_{offset,width,signed}`` config ports."""
+
+    offset: int
+    width: int
+    signed: bool = False
+
+    def __post_init__(self) -> None:
+        if not 0 <= self.offset <= 63:
+            raise ValueError("offset must be in [0, 63]")
+        if not 1 <= self.width <= 32:
+            raise ValueError("width must be in [1, 32]")
+        if self.offset + self.width > 64:
+            raise ValueError("offset + width must not exceed 64")
+
+    def extract(self, packed: int) -> int:
+        """Extract this field from ``packed`` as an int32-domain signed value
+        (the exact 32-bit pattern the tile emits, read back as signed int32)."""
+        raw = (packed >> self.offset) & ((1 << self.width) - 1)
+        if self.signed and (raw >> (self.width - 1)) & 1:
+            raw -= 1 << self.width
+        return _wrap_int32(raw)
+
+
+def unpack_rows(packed_words: Iterable[int], field_specs: Sequence[UnpackFieldSpec]) -> list[tuple[int, int, int, int]]:
+    """Golden semantics for the row-unpack front-end feed tile: widen each
+    packed input word (one <=64-bit packed row per word) into a 16-byte int32
+    quad row. Output field i is ``packed[offset_i +: width_i]`` sign/zero
+    extended to int32; the four fields map to (key, value, aux0, aux1) — the
+    exact quad-row layout downstream row tiles consume (field 0 = key =
+    w0.lo). One packed word in, one quad row out, order and count preserved."""
+    specs = tuple(field_specs)
+    if len(specs) != 4:
+        raise ValueError("row-unpack needs exactly four field specs (key, value, aux0, aux1)")
+    return [tuple(spec.extract(word) for spec in specs) for word in packed_words]
+
+
 class FieldSumErrorCode(IntEnum):
     CONFIG = 1
     STREAM = 2
