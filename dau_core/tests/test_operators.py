@@ -21,6 +21,7 @@ from dau_core.operators import (
     RowMapConfig,
     RowPredicateConfig,
     RowPredicateTerm,
+    UnpackFieldSpec,
     bar_aggregate_rows,
     broadcast_hash_join_rows,
     field_sum_rows,
@@ -34,6 +35,7 @@ from dau_core.operators import (
     map_rows,
     map_values,
     pack_splitters,
+    unpack_rows,
 )
 
 _VALUES = [7, -2, 5, 11, 5, 0, -100, 2**31 - 1, -(2**31)]
@@ -560,3 +562,126 @@ def test_broadcast_join_bounded_key_space_and_order_preserved() -> None:
     probe = [(63, 0, 0, 0), (0, 0, 0, 0)]  # reversed order preserved on the probe side
     out = broadcast_hash_join_rows(build, probe, out_sel=_CARRY_BUILD, key_space=64)
     assert out == [(63, 4, 5, 6), (0, 1, 2, 3)]
+
+
+def _pack(specs: list[UnpackFieldSpec], fields: tuple[int, int, int, int]) -> int:
+    """Pack four field values into one word at the specs' offsets/widths
+    (two's-complement within each width)."""
+    word = 0
+    for spec, value in zip(specs, fields):
+        word |= (value & ((1 << spec.width) - 1)) << spec.offset
+    return word
+
+
+# q6-like packing: (shipdate-bucket, extendedprice, discount, quantity) into 59
+# bits — 16 + 25 + 10 + 8, offsets 0/16/41/51
+_Q6_SPECS = [
+    UnpackFieldSpec(offset=0, width=16),
+    UnpackFieldSpec(offset=16, width=25, signed=True),
+    UnpackFieldSpec(offset=41, width=10),
+    UnpackFieldSpec(offset=51, width=8),
+]
+# q1-like packing: 63 bits — 10 + 32 + 13 + 8, offsets 0/10/42/55
+_Q1_SPECS = [
+    UnpackFieldSpec(offset=0, width=10),
+    UnpackFieldSpec(offset=10, width=32, signed=True),
+    UnpackFieldSpec(offset=42, width=13),
+    UnpackFieldSpec(offset=55, width=8),
+]
+
+
+def test_unpack_single_word_exact_quad_row_tuple() -> None:
+    specs = [
+        UnpackFieldSpec(offset=0, width=8),
+        UnpackFieldSpec(offset=8, width=8),
+        UnpackFieldSpec(offset=16, width=8),
+        UnpackFieldSpec(offset=24, width=8),
+    ]
+    word = _pack(specs, (0x11, 0x22, 0x33, 0x44))
+    assert unpack_rows([word], specs) == [(0x11, 0x22, 0x33, 0x44)]
+
+
+def test_unpack_zero_extend_keeps_field_positive() -> None:
+    # width-8 unsigned field with the high bit set stays positive (0..255)
+    specs = [UnpackFieldSpec(offset=o, width=8) for o in (0, 8, 16, 24)]
+    word = _pack(specs, (0xFF, 0x80, 0x7F, 0x00))
+    assert unpack_rows([word], specs) == [(0xFF, 0x80, 0x7F, 0x00)]
+
+
+def test_unpack_sign_extend_recovers_negative() -> None:
+    # width-8 signed field: 0xFF -> -1, 0x80 -> -128, 0x7F -> 127
+    specs = [UnpackFieldSpec(offset=o, width=8, signed=True) for o in (0, 8, 16, 24)]
+    word = _pack(specs, (-1, -128, 127, 0))
+    assert unpack_rows([word], specs) == [(-1, -128, 127, 0)]
+
+
+def test_unpack_fields_cross_byte_boundaries() -> None:
+    # unaligned offsets and widths that straddle byte lanes
+    specs = [
+        UnpackFieldSpec(offset=3, width=13),
+        UnpackFieldSpec(offset=16, width=17, signed=True),
+        UnpackFieldSpec(offset=33, width=11),
+        UnpackFieldSpec(offset=44, width=20, signed=True),
+    ]
+    fields = (0x1ABC & 0x1FFF, -12345, 0x5A5, -7)
+    word = _pack(specs, fields)
+    out = unpack_rows([word], specs)
+    assert out == [(0x1ABC & 0x1FFF, -12345, 0x5A5, -7)]
+
+
+def test_unpack_boundary_widths_one_and_thirtytwo() -> None:
+    # width 1 (signed 1 => -1/0, unsigned 1 => 1/0) and width 32 (full int32)
+    specs = [
+        UnpackFieldSpec(offset=0, width=1, signed=True),
+        UnpackFieldSpec(offset=1, width=1),
+        UnpackFieldSpec(offset=2, width=32, signed=True),
+        UnpackFieldSpec(offset=34, width=30),
+    ]
+    word = _pack(specs, (-1, 1, -(2**31), (1 << 30) - 1))
+    assert unpack_rows([word], specs) == [(-1, 1, -(2**31), (1 << 30) - 1)]
+
+
+def test_unpack_width32_unsigned_wraps_to_signed_int32() -> None:
+    # a full-width unsigned field with the top bit set reads back as signed
+    specs = [
+        UnpackFieldSpec(offset=0, width=32),
+        UnpackFieldSpec(offset=32, width=32, signed=True),
+        UnpackFieldSpec(offset=0, width=1),
+        UnpackFieldSpec(offset=1, width=1),
+    ]
+    word = (0xFFFF_FFFF << 32) | 0x8000_0000
+    out = unpack_rows([word], specs)
+    # low 32 unsigned 0x80000000 -> -2**31; high 32 signed 0xFFFFFFFF -> -1
+    assert out == [(-(2**31), -1, 0, 0)]
+
+
+def test_unpack_q6_like_packing() -> None:
+    rows = [(568, 1000, 5, 10), (569, -500, 6, 30), (570, 12000, 1023, 255)]
+    words = [_pack(_Q6_SPECS, row) for row in rows]
+    assert unpack_rows(words, _Q6_SPECS) == rows
+
+
+def test_unpack_q1_like_packing_and_order_preserved() -> None:
+    rows = [(3, 2**31 - 1, 8191, 7), (3, -(2**31), 0, 255), (9, -1, 4096, 1)]
+    words = [_pack(_Q1_SPECS, row) for row in rows]
+    assert unpack_rows(words, _Q1_SPECS) == rows
+
+
+def test_unpack_field_spec_config_rejects() -> None:
+    with pytest.raises(ValueError, match="width"):
+        UnpackFieldSpec(offset=0, width=0)
+    with pytest.raises(ValueError, match="width"):
+        UnpackFieldSpec(offset=0, width=33)
+    with pytest.raises(ValueError, match="offset \\+ width"):
+        UnpackFieldSpec(offset=40, width=32)
+    with pytest.raises(ValueError, match="offset"):
+        UnpackFieldSpec(offset=64, width=1)
+
+
+def test_unpack_requires_four_specs() -> None:
+    with pytest.raises(ValueError, match="four field specs"):
+        unpack_rows([0], [UnpackFieldSpec(offset=0, width=8)])
+
+
+def test_unpack_empty_input() -> None:
+    assert unpack_rows([], _Q6_SPECS) == []

@@ -262,6 +262,23 @@ CORES: tuple[CoreDefinition, ...] = (
         contract_kind=ContractKind.ROW_STREAM,
     ),
     CoreDefinition(
+        name="int32-row-unpack",
+        kind=CoreKind.OPERATOR,
+        # front-end feed transform: silent on success (a mid-lane feed stage
+        # ahead of the operators, whose close-out is authoritative); raises
+        # status only for an invalid field-descriptor config (ERR_CONFIG). No
+        # unit_kind: like the other pure stream transforms (pair-key filter,
+        # range partitioner, row filter/map) it is capacity plumbing, not a
+        # counted aggregation/join/membership/sort unit in the design inventory.
+        module="dau_int32_row_unpack",
+        source="dau_int32_row_unpack.sv",
+        description="Row-unpack front-end feed over <=64-bit packed rows: bit-extracts four configured fields (offset/width/signed) from one packed word and widens them into the standard 16-byte int32 quad row (field 0 = key = w0.lo) the operator tiles consume. The compact-row feed answer to the DDR-byte-bandwidth-bound scan (~2x rows/sec off DDR, half the host DMA, operators unchanged). Covers q6 (59-bit) and q1 (63-bit) packings. FOLLOW-UP: the scan composition must stage packed rows + place this after the burst reader before broadcast/partition, and the flywheel needs a pack-schema deriving field offsets/widths from column ranges.",
+        golden="dau_core.operators:unpack_rows",
+        bench=f"{_BENCHES}.dau_int32_row_unpack_tb",
+        resources=ResourceEnvelope(lut=1509, ff=194, bram36=0.0, dsp=0),  # OOC 8ns met (WNS +1.943); LUT-heavy = 4 configurable 64-bit barrel extractors
+        contract_kind=ContractKind.ROW_STREAM,
+    ),
+    CoreDefinition(
         name="int32-field-sum-aggregation",
         kind=CoreKind.OPERATOR,
         success_close_out=True,
