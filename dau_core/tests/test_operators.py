@@ -4,10 +4,12 @@ import pytest
 
 from dau_core.operators import (
     BarAggregate,
+    BroadcastJoinConfig,
     FieldSumAggregate,
     FilterPredicate,
     GroupAggregate,
     GroupedFieldSumAggregate,
+    JoinSource,
     MapConfig,
     MapOp,
     MembershipBuildSet,
@@ -20,6 +22,7 @@ from dau_core.operators import (
     RowPredicateConfig,
     RowPredicateTerm,
     bar_aggregate_rows,
+    broadcast_hash_join_rows,
     field_sum_rows,
     filter_rows,
     filter_rows_by_membership,
@@ -482,3 +485,78 @@ def test_membership_order_is_preserved() -> None:
     build = MembershipBuildSet.from_keys({7}, key_space=64)
     rows = [(7, i, 0, 0) for i in range(5)]
     assert filter_rows_by_membership(rows, build, mode=MembershipMode.SEMI) == rows
+
+
+_JOIN_BUILD = [
+    (7, 100, 101, 102),
+    (100, 200, 201, 202),
+    (63, 300, 301, 302),
+]
+_JOIN_PROBE = [
+    (7, 1000, 1001, 1002),  # hit
+    (999, 2000, 2001, 2002),  # miss
+    (63, 3000, 3001, 3002),  # hit
+    (100, 4000, 4001, 4002),  # hit
+]
+_CARRY_BUILD = BroadcastJoinConfig(JoinSource.B0, JoinSource.B1, JoinSource.B2)
+
+
+def test_broadcast_join_inner_join_carries_build_payload() -> None:
+    out = broadcast_hash_join_rows(_JOIN_BUILD, _JOIN_PROBE, out_sel=_CARRY_BUILD, key_space=1024)
+    # only the three hits emit, in probe order, carrying the build payload
+    assert out == [(7, 100, 101, 102), (63, 300, 301, 302), (100, 200, 201, 202)]
+
+
+def test_broadcast_join_field_select_mixes_build_and_probe() -> None:
+    # q3 shape: (key, b0, v0, b2)
+    cfg = BroadcastJoinConfig(JoinSource.B0, JoinSource.V0, JoinSource.B2)
+    out = broadcast_hash_join_rows(_JOIN_BUILD, _JOIN_PROBE, out_sel=cfg, key_space=1024)
+    assert out == [(7, 100, 1000, 102), (63, 300, 3000, 302), (100, 200, 4000, 202)]
+
+
+def test_broadcast_join_carry_probe_columns() -> None:
+    cfg = BroadcastJoinConfig(JoinSource.V0, JoinSource.V1, JoinSource.V2)
+    out = broadcast_hash_join_rows(_JOIN_BUILD, _JOIN_PROBE, out_sel=cfg, key_space=1024)
+    assert out == [(7, 1000, 1001, 1002), (63, 3000, 3001, 3002), (100, 4000, 4001, 4002)]
+
+
+def test_broadcast_join_last_writer_wins_on_duplicate_build_key() -> None:
+    build = [(7, 11, 12, 13), (7, 21, 22, 23), (9, 90, 91, 92)]
+    out = broadcast_hash_join_rows(build, [(7, 0, 0, 0), (9, 0, 0, 0)], out_sel=_CARRY_BUILD, key_space=1024)
+    assert out == [(7, 21, 22, 23), (9, 90, 91, 92)]
+
+
+def test_broadcast_join_all_misses_emit_nothing() -> None:
+    out = broadcast_hash_join_rows(_JOIN_BUILD, [(1, 0, 0, 0), (2, 0, 0, 0)], out_sel=_CARRY_BUILD, key_space=1024)
+    assert out == []
+
+
+def test_broadcast_join_int32_wraparound_in_payload() -> None:
+    build = [(5, 2**31, -1, 0)]
+    out = broadcast_hash_join_rows(build, [(5, 0, 0, 0)], out_sel=_CARRY_BUILD, key_space=1024)
+    # 2**31 wraps to -2**31 in the int32 domain
+    assert out == [(5, -(2**31), -1, 0)]
+
+
+def test_broadcast_join_key_range_is_rejected() -> None:
+    with pytest.raises(ValueError, match="build key .* outside key space"):
+        broadcast_hash_join_rows([(1024, 0, 0, 0)], [], out_sel=_CARRY_BUILD, key_space=1024)
+    with pytest.raises(ValueError, match="probe key .* outside key space"):
+        broadcast_hash_join_rows([], [(1024, 0, 0, 0)], out_sel=_CARRY_BUILD, key_space=1024)
+    with pytest.raises(ValueError, match="probe key .* outside key space"):
+        broadcast_hash_join_rows([], [(-1, 0, 0, 0)], out_sel=_CARRY_BUILD, key_space=1024)
+
+
+def test_broadcast_join_config_validation() -> None:
+    assert int(JoinSource.B0) == 0 and int(JoinSource.V2) == 5
+    with pytest.raises(ValueError, match="in \\[0, 5\\]"):
+        BroadcastJoinConfig(6, JoinSource.B1, JoinSource.B2)
+    with pytest.raises(ValueError, match="in \\[0, 5\\]"):
+        BroadcastJoinConfig(JoinSource.B0, JoinSource.B1, 7)
+
+
+def test_broadcast_join_bounded_key_space_and_order_preserved() -> None:
+    build = [(0, 1, 2, 3), (63, 4, 5, 6)]
+    probe = [(63, 0, 0, 0), (0, 0, 0, 0)]  # reversed order preserved on the probe side
+    out = broadcast_hash_join_rows(build, probe, out_sel=_CARRY_BUILD, key_space=64)
+    assert out == [(63, 4, 5, 6), (0, 1, 2, 3)]

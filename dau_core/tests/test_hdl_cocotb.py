@@ -16,6 +16,7 @@ from dau_core.hdl import (
     DAU_INT32_ARROW_LITE_STREAM_AGGREGATION_SV,
     DAU_INT32_BAR_AGGREGATION_SV,
     DAU_INT32_BITONIC_SORTER_SV,
+    DAU_INT32_BROADCAST_HASH_JOIN_SV,
     DAU_INT32_FIELD_SUM_AGGREGATION_SV,
     DAU_INT32_GROUPED_AGGREGATION_SV,
     DAU_INT32_GROUPED_FIELD_SUM_AGGREGATION_SV,
@@ -293,6 +294,31 @@ def test_key_membership_filter_single_word_bitmap_runs_real_cocotb(tmp_path: Pat
         sources=(Path(str(DAU_INT32_KEY_MEMBERSHIP_FILTER_SV)),),
         hdl_toplevel="dau_int32_key_membership_filter",
         test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_key_membership_filter_single_word_tb",
+        tmp_path=tmp_path,
+        parameters={"KEY_SPACE": 64},
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_broadcast_hash_join_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_BROADCAST_HASH_JOIN_SV)),),
+        hdl_toplevel="dau_int32_broadcast_hash_join",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_broadcast_hash_join_tb",
+        tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_broadcast_hash_join_small_key_space_runs_real_cocotb(tmp_path: Path) -> None:
+    # KEY_SPACE=64 is a small direct-mapped table (AWIDTH=6): the clear sweep,
+    # the boundary keys, and the out-of-range reject exercised in real RTL at a
+    # non-default parameter. The KEY_SPACE-agnostic bench reads the env var to
+    # size its keys to the DUT.
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_BROADCAST_HASH_JOIN_SV)),),
+        hdl_toplevel="dau_int32_broadcast_hash_join",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_broadcast_hash_join_small_tb",
         tmp_path=tmp_path,
         parameters={"KEY_SPACE": 64},
     )

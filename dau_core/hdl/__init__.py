@@ -32,6 +32,7 @@ DAU_INT32_ROW_MAP_ALU_SV = files(__package__).joinpath("dau_int32_row_map_alu.sv
 DAU_INT32_FIELD_SUM_AGGREGATION_SV = files(__package__).joinpath("dau_int32_field_sum_aggregation.sv")
 DAU_INT32_GROUPED_FIELD_SUM_AGGREGATION_SV = files(__package__).joinpath("dau_int32_grouped_field_sum_aggregation.sv")
 DAU_INT32_KEY_MEMBERSHIP_FILTER_SV = files(__package__).joinpath("dau_int32_key_membership_filter.sv")
+DAU_INT32_BROADCAST_HASH_JOIN_SV = files(__package__).joinpath("dau_int32_broadcast_hash_join.sv")
 
 __all__ = (
     "DAU_AGGREGATION_PKG_SV",
@@ -41,6 +42,7 @@ __all__ = (
     "DAU_AXI_STREAM_JOB_SV",
     "DAU_AXI_WRITE_MUX_SV",
     "DAU_INT32_BITONIC_SORTER_SV",
+    "DAU_INT32_BROADCAST_HASH_JOIN_SV",
     "DAU_INT32_FIELD_SUM_AGGREGATION_SV",
     "DAU_INT32_GROUPED_FIELD_SUM_AGGREGATION_SV",
     "DAU_INT32_KEY_MEMBERSHIP_FILTER_SV",
