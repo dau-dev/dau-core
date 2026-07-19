@@ -30,6 +30,7 @@ from dau_core.operators import (
     map_row_fields,
     map_rows,
     map_values,
+    pack_splitters,
 )
 
 _VALUES = [7, -2, 5, 11, 5, 0, -100, 2**31 - 1, -(2**31)]
@@ -295,6 +296,22 @@ def test_row_map_other_fields_pass_through() -> None:
 def test_row_map_wraps_int32() -> None:
     config = RowMapConfig(op=MapOp.MUL, dst=RowField.KEY, src_a=RowField.KEY, src_b=RowField.KEY)
     assert map_row_fields([(2**16, 0, 0, 0)], config) == [(0, 0, 0, 0)]
+
+
+def test_pack_splitters_is_msb_first_reversed_hex() -> None:
+    # cfg_splitters packs splitter i at [i*32 +: 32]; SV concatenation is
+    # MSB-first, so the highest-index splitter is emitted first. Signed int32
+    # values pack as their two's-complement hex.
+    assert pack_splitters((10, 20, 30)) == "{32'h0000001E, 32'h00000014, 32'h0000000A}"
+    assert pack_splitters((-(2**31), -1, 2**31 - 1)) == "{32'h7FFFFFFF, 32'hFFFFFFFF, 32'h80000000}"
+    assert pack_splitters((7,)) == "{32'h00000007}"
+
+
+def test_pack_splitters_rejects_out_of_signed_int32_range() -> None:
+    with pytest.raises(ValueError, match="signed int32"):
+        pack_splitters((10, 20, 2**31))
+    with pytest.raises(ValueError, match="signed int32"):
+        pack_splitters((-(2**31) - 1, 10))
 
 
 def test_row_map_shift_validation() -> None:
