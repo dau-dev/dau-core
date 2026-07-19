@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import math
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from enum import IntEnum
 
@@ -541,6 +541,21 @@ def range_partition_bar_rows(rows: Iterable[tuple[int, int, int, int]], *, split
         key = _wrap_int32(row[0])
         parts[sum(1 for bound in bounds if key >= bound)].append(tuple(row))
     return parts
+
+
+def pack_splitters(values: Sequence[int]) -> str:
+    """Pack range-partitioner splitter constants into the ``cfg_splitters`` SV
+    bus literal ``{32'h..., ...}``. ``cfg_splitters`` is a flat bus carrying
+    splitter ``i`` at ``[i*32 +: 32]``; SV concatenation packs MSB-first, so
+    the highest-index splitter is emitted first (reversed). The partitioner
+    compares keys and splitters as *signed* 32-bit values
+    (``range_partition_bar_rows``); values that would wrap under the
+    ``& 0xFFFF_FFFF`` pack are rejected."""
+    out_of_range = tuple(value for value in values if not -(1 << 31) <= value <= (1 << 31) - 1)
+    if out_of_range:
+        raise ValueError(f"splitters must fit signed int32, got {out_of_range}")
+    packed = ", ".join(f"32'h{value & 0xFFFF_FFFF:08X}" for value in reversed(values))
+    return f"{{{packed}}}"
 
 
 class SorterErrorCode(IntEnum):

@@ -9,7 +9,7 @@ from .capability_contract import (
     tile_capability,
 )
 from .design import DauDesign, OperatorUnit, UnitKind, format_units, parse_units
-from .operators import EmptyInputError, UnsupportedAggregationError, aggregate_values, synthetic_values
+from .operators import EmptyInputError, UnsupportedAggregationError, aggregate_values, pack_splitters, synthetic_values
 from .registers import (
     CURRENT_REGISTER_MAP_VERSION,
     DAU_MAGIC_WORD,
@@ -83,6 +83,7 @@ __all__ = [
     "capability_contract",
     "format_units",
     "opcode_bitmap",
+    "pack_splitters",
     "parse_units",
     "synthetic_values",
     "tile_capability",
