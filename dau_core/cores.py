@@ -11,10 +11,11 @@ synthesis pass.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from importlib import import_module
 from pathlib import Path
+from typing import Mapping
 
 from .design import UnitKind
 from .stream import LogicalType, OperationCode
@@ -81,6 +82,14 @@ class CoreDefinition:
     # compaction, torn row, bad config — the chain-stage/partition contract,
     # exactly one close-out per lane per batch).
     success_close_out: bool = False
+    # overridable SystemVerilog module parameters and their HDL defaults (the
+    # membership filter's KEY_SPACE, the broadcast hash join's KEY_SPACE, ...).
+    # A composition may override a declared parameter to build a non-default
+    # core size (the module-parameter channel); an override of an undeclared
+    # name is rejected. The values here mirror the .sv parameter defaults —
+    # the HDL is the source of truth, this is the machine-readable declaration
+    # the composition validates against.
+    parameters: Mapping[str, int] = field(default_factory=dict)
 
     def source_path(self) -> Path:
         from . import hdl
@@ -327,6 +336,7 @@ CORES: tuple[CoreDefinition, ...] = (
         count_port="selected_count",
         contract_kind=ContractKind.ROW_STREAM,
         unit_kind=UnitKind.MEMBERSHIP,
+        parameters={"KEY_SPACE": 4096},  # dictionary-id bitmap width (bits); a positive multiple of 64
     ),
     CoreDefinition(
         name="int32-broadcast-hash-join",
@@ -343,6 +353,7 @@ CORES: tuple[CoreDefinition, ...] = (
         count_port="joined_count",
         contract_kind=ContractKind.ROW_STREAM,
         unit_kind=UnitKind.JOIN,
+        parameters={"KEY_SPACE": 1024},  # direct-mapped payload-table key space [0, KEY_SPACE)
     ),
     CoreDefinition(
         name="int32-stream-aggregation",

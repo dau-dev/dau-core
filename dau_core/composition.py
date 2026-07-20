@@ -25,13 +25,33 @@ class CompositionError(ValueError):
     pass
 
 
+def _validate_tile_params(tile: TileSpec, role: str) -> None:
+    """Every module-parameter override on a tile must name a parameter the
+    core declares as overridable (``CoreDefinition.parameters``) and carry a
+    positive integer value (SV sizes are positive). An unknown name is a
+    typo or a param the core does not expose — rejected up front."""
+    if not tile.params:
+        return
+    declared = tile.definition().parameters
+    for name, value in tile.params.items():
+        if name not in declared:
+            known = ", ".join(sorted(declared)) or "none"
+            raise CompositionError(f"{role} {tile.core!r} has no overridable parameter {name!r} (declared: {known})")
+        if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+            raise CompositionError(f"{role} {tile.core!r} parameter {name!r} must be a positive int, got {value!r}")
+
+
 @dataclass(frozen=True)
 class TileSpec:
     """One registry core plus its config-port bindings (SystemVerilog
-    literals or expressions in terms of the top's signals)."""
+    literals or expressions in terms of the top's signals) and any
+    module-parameter overrides (``params``: SystemVerilog PARAMETERs, e.g.
+    the membership core's ``KEY_SPACE``, that size the built RTL). Config
+    ports are runtime bindings; params are elaboration-time sizes."""
 
     core: str
     config: Mapping[str, str] = field(default_factory=dict)
+    params: Mapping[str, int] = field(default_factory=dict)
 
     def definition(self) -> CoreDefinition:
         return core(self.core)
@@ -93,6 +113,7 @@ class ScanCompositionSpec:
                     f"lane tile {lane.tile.core!r} is silent on success; the record writer's done waits on a consumed close-out, "
                     "so the terminal tile must emit one per batch"
                 )
+            _validate_tile_params(lane.tile, "lane tile")
             if lane.partition is not None and self.partitioner is not None:
                 raise CompositionError(f"lane tile {lane.tile.core!r} carries a partition filter but the scan already has a shared partitioner")
             if lane.partition is not None:
@@ -108,6 +129,7 @@ class ScanCompositionSpec:
                         f"lane partition {lane.partition.core!r} emits a success close-out per batch; the lane status mux allows exactly one — "
                         "only the terminal tile may close out on success"
                     )
+                _validate_tile_params(lane.partition, "lane partition")
             for stage in lane.chain:
                 definition = stage.definition()
                 if definition.kind != CoreKind.OPERATOR:
@@ -121,6 +143,7 @@ class ScanCompositionSpec:
                         f"lane chain stage {stage.core!r} emits a success close-out per batch; the lane status mux allows exactly one — "
                         "chain stages must be silent on success"
                     )
+                _validate_tile_params(stage, "lane chain stage")
 
     def core_names(self) -> tuple[str, ...]:
         """Every registry core the composition instantiates, infrastructure
@@ -145,7 +168,15 @@ class ScanCompositionSpec:
 def estimated_resources(spec: ScanCompositionSpec) -> ResourceEnvelope:
     """Sum of the measured envelopes of every instance the composition
     places (per-lane cores counted per lane). ``measured`` is the AND of
-    the constituents — one unmeasured core marks the estimate."""
+    the constituents — one unmeasured core marks the estimate.
+
+    TODO: a param-override'd tile (e.g. membership KEY_SPACE=6_000_000) has a
+    variable envelope — BRAM scales with KEY_SPACE (the bitmap is KEY_SPACE
+    bits), so this sum, which uses the registry's default-size envelope,
+    under-counts BRAM for an up-sized core. The OOC measurement at the real
+    KEY_SPACE is the source of truth; this estimate stays a lower bound and,
+    critically, does not crash on a param'd tile (the envelope lookup is by
+    core name, independent of params)."""
     lut = ff = dsp = 0
     bram = 0.0
     measured = True
