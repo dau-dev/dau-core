@@ -23,13 +23,30 @@
 // offset+width>64 is invalid: config precedence (batch-latched at the first
 // row) drains the batch, then reports ERR_CONFIG.
 //
+// BYPASS mode (cfg_bypass, batch-latched at the first row like the field
+// descriptors): when set, the input is already the 16-byte int32 quad row —
+// TWO 64-bit words per row, batch-last on the row's second word — and the tile
+// forwards each word to the output byte-identically with ZERO added latency
+// (a true input->output wire, not widen-then-renarrow), so the bypass baseline
+// measures the operators-only path with the host packing removed. The field
+// descriptors are unused in bypass (not required, not checked). This lets ONE
+// bitstream benchmark packed (cfg_bypass=0) vs unpacked (cfg_bypass=1) rows on
+// the same silicon, isolating the host packing overhead. The passthrough is
+// gated so a prior unpack batch's still-draining output tail is never
+// overtaken across a mode change (the emit-drain re-arm gate holds in both
+// modes). Because a bypass row is two words, input_last is only legal on a
+// row's w1 (odd word); input_last on a w0 is a torn row that invalidates the
+// batch and reports ERR_STREAM — the quad-row-tile convention (pair-key
+// filter, row filter/map, field-sum), never emitting a w0 tagged last.
+//
 // A composed-pipeline front-end stage: silent on success (the downstream
 // tile's close-out is authoritative — success_close_out=False), raising its
-// own status only for an invalid config. There is no torn-row status here:
-// one input word is always one complete packed row, so the input framing
-// cannot tear. The 2-beat output runs through a decoupled emit engine with a
-// drain gate (S_ERR_DRAIN) so a following batch's ERR_CONFIG can never
-// overtake this batch's un-drained final output beat.
+// own status only for an invalid config (ERR_CONFIG, unpack) or a torn bypass
+// row (ERR_STREAM). Unpack framing cannot tear (one input word is always one
+// complete packed row); only bypass's two-word framing can. The 2-beat unpack
+// output runs through a decoupled emit engine with a drain gate (S_ERR_DRAIN)
+// so a following batch's ERR_CONFIG can never overtake this batch's un-drained
+// final output beat.
 //
 // FOLLOW-UP (not wired here): realizing the feed win requires (a) the scan
 // composition to stage packed rows and place this unpacker after the burst
@@ -50,6 +67,7 @@ module dau_int32_row_unpack (
     input  wire logic [5:0]  cfg_field3_offset,
     input  wire logic [5:0]  cfg_field3_width,
     input  wire logic        cfg_field3_signed,
+    input  wire logic        cfg_bypass,
     input  wire logic        input_valid,
     output logic             input_ready,
     input  wire logic [63:0] input_data,
@@ -64,6 +82,7 @@ module dau_int32_row_unpack (
     output logic [7:0]       status_error_code
 );
     localparam logic [7:0] ERR_CONFIG = 8'd1;
+    localparam logic [7:0] ERR_STREAM = 8'd2;
 
     typedef enum logic [1:0] {
         S_RUN,       // accept packed rows (batch config latches on the first)
@@ -81,9 +100,14 @@ module dau_int32_row_unpack (
     state_t state;
     emit_t  emit_state;
 
-    // batch-latched field descriptors (quasi-static cfg inputs sampled at the
-    // first row so a mid-batch change cannot re-slice the packed rows)
+    // batch-latched field descriptors + mode (quasi-static cfg inputs sampled
+    // at the first row so a mid-batch change cannot re-slice the packed rows or
+    // flip the framing)
     logic       batch_open;
+    logic       active_bypass;
+    // bypass two-word row phase: 0 = the next accepted word starts a row (w0),
+    // 1 = the next completes it (w1). input_last is only legal at phase 1.
+    logic       bypass_phase;
     logic [5:0] active_offset0, active_offset1, active_offset2, active_offset3;
     logic [5:0] active_width0, active_width1, active_width2, active_width3;
     logic       active_signed0, active_signed1, active_signed2, active_signed3;
@@ -95,8 +119,12 @@ module dau_int32_row_unpack (
     logic input_fire;
     logic output_fire;
     logic emit_free;
+    logic emit_busy;
+    logic bypass_pass;
+    logic bypass_torn;
     logic first_row;
     logic config_ok;
+    logic eff_bypass;
 
     logic [5:0] eff_offset0, eff_offset1, eff_offset2, eff_offset3;
     logic [5:0] eff_width0, eff_width1, eff_width2, eff_width3;
@@ -113,16 +141,40 @@ module dau_int32_row_unpack (
     assign output_fire = output_valid && output_ready;
     // the emit engine frees on the accepted final beat of a row pair
     assign emit_free = (emit_state == EMIT_IDLE) || ((emit_state == EMIT_W1) && output_fire);
+    assign emit_busy = emit_state != EMIT_IDLE;
 
-    // S_RUN loads the emit engine, so it must be free (or freeing) that cycle;
-    // the check never depends on the incoming data
-    assign input_ready = ((state == S_RUN) && emit_free) || (state == S_DISCARD);
+    // BYPASS passthrough is a true input->output wire (zero added latency),
+    // engaged only in a bypass batch and only while the unpack emit engine is
+    // idle so a prior unpack batch's in-flight tail is never overtaken across a
+    // mode change
+    assign bypass_pass = eff_bypass && (state == S_RUN) && !emit_busy;
 
-    assign output_valid = emit_state != EMIT_IDLE;
-    assign output_data = (emit_state == EMIT_W0) ? emit_w0 : emit_w1;
-    assign output_last = (emit_state == EMIT_W1) && emit_last;
+    // a torn bypass row is input_last on a w0 (phase 0): it is never forwarded
+    // (dropped like the other quad-row tiles) and never tagged last — the batch
+    // is invalidated with ERR_STREAM instead
+    assign bypass_torn = bypass_pass && input_last && !bypass_phase;
+
+    // UNPACK (S_RUN): loading the emit engine needs it free (or freeing) that
+    // cycle. BYPASS (S_RUN): a passthrough word waits on the downstream, but a
+    // torn w0 is accepted-and-dropped regardless of output_ready (it is not
+    // forwarded, so gating it on the sink would deadlock). Held off until any
+    // prior unpack tail has drained. S_DISCARD drains a bad-config batch
+    // (unpack only). The check depends only on input_last framing, never the
+    // payload.
+    assign input_ready = (state == S_DISCARD) ? 1'b1
+        : (state != S_RUN)                    ? 1'b0
+        : eff_bypass                          ? (!emit_busy && (output_ready || bypass_torn))
+                                              : emit_free;
+
+    // the emit engine owns the output whenever it holds a beat; otherwise a
+    // bypass batch drives the output straight from the input word (zero added
+    // latency), suppressing only a torn w0
+    assign output_valid = emit_busy || (bypass_pass && input_valid && !bypass_torn);
+    assign output_data = emit_busy ? ((emit_state == EMIT_W0) ? emit_w0 : emit_w1) : input_data;
+    assign output_last = emit_busy ? ((emit_state == EMIT_W1) && emit_last) : (bypass_pass && input_last && bypass_phase);
 
     assign first_row = !batch_open;
+    assign eff_bypass = first_row ? cfg_bypass : active_bypass;
 
     assign eff_offset0 = first_row ? cfg_field0_offset : active_offset0;
     assign eff_width0 = first_row ? cfg_field0_width : active_width0;
@@ -207,6 +259,7 @@ module dau_int32_row_unpack (
                     if (input_fire) begin
                         if (first_row) begin
                             batch_open <= 1'b1;
+                            active_bypass <= cfg_bypass;
                             active_offset0 <= cfg_field0_offset;
                             active_width0 <= cfg_field0_width;
                             active_signed0 <= cfg_field0_signed;
@@ -220,7 +273,27 @@ module dau_int32_row_unpack (
                             active_width3 <= cfg_field3_width;
                             active_signed3 <= cfg_field3_signed;
                         end
-                        if (first_row && !config_ok) begin
+                        if (eff_bypass) begin
+                            // BYPASS: the accepted 64-bit word is forwarded
+                            // byte-identically on the output THIS cycle
+                            // (input_fire == output_fire); nothing loads the
+                            // emit engine. Two words per row, batch-last on the
+                            // row's w1. Field descriptors are unused.
+                            if (input_last && bypass_phase) begin
+                                // last on a w1: well-framed batch, silent
+                                // success (the downstream tile closes out)
+                                bypass_phase <= 1'b0;
+                                batch_open <= 1'b0;
+                            end else if (input_last) begin
+                                // torn row: last on a w0. The emit engine is
+                                // idle in bypass (the accept gate requires it),
+                                // so there is no in-flight beat to drain — raise
+                                // the ERR_STREAM close-out directly.
+                                raise_error(ERR_STREAM);
+                            end else begin
+                                bypass_phase <= ~bypass_phase;
+                            end
+                        end else if (first_row && !config_ok) begin
                             // config precedence over stream shape: drain the
                             // batch, then CONFIG (never emit a mis-sliced row)
                             if (input_last) begin
@@ -286,6 +359,7 @@ module dau_int32_row_unpack (
     task automatic raise_error(input logic [7:0] code);
         begin
             batch_open <= 1'b0;
+            bypass_phase <= 1'b0;
             status_valid <= 1'b1;
             status_error <= 1'b1;
             status_error_code <= code;
@@ -298,6 +372,8 @@ module dau_int32_row_unpack (
             state <= S_RUN;
             emit_state <= EMIT_IDLE;
             batch_open <= 1'b0;
+            active_bypass <= 1'b0;
+            bypass_phase <= 1'b0;
             active_offset0 <= 6'd0;
             active_width0 <= 6'd0;
             active_signed0 <= 1'b0;

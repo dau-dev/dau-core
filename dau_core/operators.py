@@ -272,6 +272,9 @@ UNPACK_CONFIG_VERSION = "0.1"
 
 class UnpackErrorCode(IntEnum):
     CONFIG = 1
+    # bypass mode consumes 16-byte quad rows (two words each); input_last on a
+    # w0 is a torn row, invalidating the batch — the quad-row-tile convention
+    STREAM = 2
 
 
 @dataclass(frozen=True)
@@ -302,17 +305,31 @@ class UnpackFieldSpec:
         return _wrap_int32(raw)
 
 
-def unpack_rows(packed_words: Iterable[int], field_specs: Sequence[UnpackFieldSpec]) -> list[tuple[int, int, int, int]]:
-    """Golden semantics for the row-unpack front-end feed tile: widen each
-    packed input word (one <=64-bit packed row per word) into a 16-byte int32
-    quad row. Output field i is ``packed[offset_i +: width_i]`` sign/zero
-    extended to int32; the four fields map to (key, value, aux0, aux1) — the
-    exact quad-row layout downstream row tiles consume (field 0 = key =
-    w0.lo). One packed word in, one quad row out, order and count preserved."""
+def unpack_rows(
+    rows: Iterable[int] | Iterable[tuple[int, int, int, int]],
+    field_specs: Sequence[UnpackFieldSpec] = (),
+    *,
+    bypass: bool = False,
+) -> list[tuple[int, int, int, int]]:
+    """Golden semantics for the row-unpack front-end feed tile.
+
+    UNPACK (``bypass=False``, the default): widen each packed input word (one
+    <=64-bit packed row per word in ``rows``) into a 16-byte int32 quad row.
+    Output field i is ``packed[offset_i +: width_i]`` sign/zero extended to
+    int32; the four fields map to (key, value, aux0, aux1) — the exact quad-row
+    layout downstream row tiles consume (field 0 = key = w0.lo). One packed word
+    in, one quad row out, order and count preserved.
+
+    BYPASS (``bypass=True``): the input is already 16-byte int32 quad rows
+    (``rows`` is an iterable of (key, value, aux0, aux1) tuples); the tile
+    forwards them byte-identically, so the golden is the identity. Field
+    descriptors are unused in this mode (not required, not validated)."""
+    if bypass:
+        return [tuple(row) for row in rows]
     specs = tuple(field_specs)
     if len(specs) != 4:
         raise ValueError("row-unpack needs exactly four field specs (key, value, aux0, aux1)")
-    return [tuple(spec.extract(word) for spec in specs) for word in packed_words]
+    return [tuple(spec.extract(word) for spec in specs) for word in rows]
 
 
 class FieldSumErrorCode(IntEnum):

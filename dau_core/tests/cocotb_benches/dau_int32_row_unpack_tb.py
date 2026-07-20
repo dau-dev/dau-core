@@ -296,6 +296,220 @@ async def constrained_random_batches_match_golden(dut):
         assert out == unpack_rows(words, specs), f"trial {trial}: specs={specs} rows={rows}"
 
 
+@cocotb.test()
+async def bypass_passes_quad_rows_through_byte_identical(dut):
+    # cfg_bypass=1: input is already 16-byte quad rows (two words each); the
+    # tile forwards every word byte-identically, order/count preserved, last on
+    # the batch's final word
+    await _start(dut)
+    dut.cfg_bypass.value = 1
+    rows = [(0x11, 0x22, 0x33, 0x44), (568, -500, 6, 30), (-1, 2**31 - 1, 0, 255), (0, 0, 0, 0)]
+    words = _bypass_words(rows)
+    out = await _run_bypass(dut, words)
+    assert out == words, "bypass output not byte-identical to input"
+    # decoding the forwarded pairs recovers the quad rows (golden identity)
+    decoded = []
+    for offset in range(0, len(out), 2):
+        w0, w1 = out[offset], out[offset + 1]
+        decoded.append((_signed32(w0 & _MASK32), _signed32(w0 >> 32), _signed32(w1 & _MASK32), _signed32(w1 >> 32)))
+    assert decoded == unpack_rows(rows, bypass=True)
+
+
+@cocotb.test()
+async def bypass_is_zero_added_latency(dut):
+    # a true wire: the presented word appears on the output THIS cycle
+    # (input_ready == output_ready, output_valid == input_valid), so the bypass
+    # baseline is not taxed by a widen-then-renarrow register stage
+    await _start(dut)
+    dut.cfg_bypass.value = 1
+    words = _bypass_words([(7, 8, 9, 10), (11, 12, 13, 14)])
+    dut.output_ready.value = 1
+    for index, word in enumerate(words):
+        last = int(index == len(words) - 1)
+        dut.input_data.value = word
+        dut.input_last.value = last
+        dut.input_valid.value = 1
+        await ReadOnly()
+        assert int(dut.input_ready.value) == 1, "bypass stalled with the downstream ready"
+        assert int(dut.output_valid.value) == 1, "bypass added a latency cycle"
+        assert int(dut.output_data.value) == word, "bypass output != input word in the same cycle"
+        assert int(dut.output_last.value) == last, "bypass last not forwarded combinationally"
+        await RisingEdge(dut.clk)
+    dut.input_valid.value = 0
+    dut.input_last.value = 0
+    await _assert_quiescent(dut)
+
+
+@cocotb.test()
+async def bypass_mode_is_batch_latched(dut):
+    # cfg_bypass latches at the first row like the field descriptors: flipping
+    # it (and the descriptors) mid-batch must not re-slice the batch
+    await _start(dut)
+    dut.cfg_bypass.value = 1
+    rows = [(0x11, 0x22, 0x33, 0x44), (568, -500, 6, 30)]
+    words = _bypass_words(rows)
+    send = cocotb.start_soon(_send_bypass_flip(dut, words))
+    out = await _collect_output(dut, (1,), expect_words=len(words))
+    await send
+    assert out == words, "mid-batch cfg_bypass flip re-sliced a latched-bypass batch"
+
+
+@cocotb.test()
+async def bypass_backpressure_holds_stable(dut):
+    # hold-stability in bypass mode: a stalled passthrough beat stays asserted
+    # and byte-stable until it fires (the upstream holds it)
+    await _start(dut)
+    dut.cfg_bypass.value = 1
+    rows = [(0x11, 0x22, 0x33, 0x44), (568, -500, 6, 30), (7, 8, 9, 10)]
+    words = _bypass_words(rows)
+    out = await _run_bypass(dut, words, ready_pattern=(1, 0, 0, 1, 0))
+    assert out == words
+
+
+@cocotb.test()
+async def mode_switches_between_batches_on_one_dut(dut):
+    # the whole point: ONE bitstream benchmarks packed (unpack) vs unpacked
+    # (bypass) rows back to back on the same silicon
+    await _start(dut)
+    u_words = [_pack(_Q6_SPECS, row) for row in _Q6_ROWS]
+    b_rows = [(9, 8, 7, 6), (5, 4, 3, 2)]
+    b_words = _bypass_words(b_rows)
+    for _ in range(2):
+        dut.cfg_bypass.value = 0
+        assert await _run(dut, u_words, _Q6_SPECS) == unpack_rows(u_words, _Q6_SPECS)
+        dut.cfg_bypass.value = 1
+        assert await _run_bypass(dut, b_words) == b_words
+
+
+@cocotb.test()
+async def bypass_waits_for_backpressured_unpack_tail(dut):
+    # cross-mode emit-drain gate: an unpack batch A whose final beat is held
+    # under backpressure, immediately followed by a bypass batch B. B's
+    # passthrough must NOT drive the output (nor be accepted) until A's tail has
+    # handshaked -- otherwise B overtakes A's still-in-flight tail across the
+    # mode change.
+    await _start(dut)
+    a_word = _pack(_BYTE_SPECS, (0x11, 0x22, 0x33, 0x44))
+    a_out = _expand(a_word, _BYTE_SPECS)  # [w0, w1]; w1 is the last beat
+    b_words = _bypass_words([(7, 8, 9, 10), (11, 12, 13, 14)])
+
+    sender = cocotb.start_soon(_send_unpack_then_bypass(dut, a_word, b_words))
+
+    collected: list[tuple[int, int]] = []
+    fires = 0
+    a_tail_done = False
+    holding = False
+    hold = 0
+    for _ in range(400):
+        if fires < 1:
+            ready = 1  # drain A's first word
+        elif not holding and not a_tail_done:
+            holding = True
+            ready = 0
+        elif holding and hold < 15:
+            ready = 0
+        else:
+            ready = 1  # release: A's tail drains, then B may forward
+        dut.output_ready.value = ready
+
+        await ReadOnly()
+        valid = int(dut.output_valid.value) == 1
+        last = int(dut.output_last.value) == 1
+        word = int(dut.output_data.value)
+        in_ready = int(dut.input_ready.value) == 1
+        fired = ready == 1 and valid
+        # THE PROPERTY: until A's tail handshakes, the output can only carry A's
+        # stalled tail (never B's word) and B must not be accepted.
+        if fires >= 1 and not a_tail_done:
+            assert valid and word == a_out[1] and last, "output not holding A's stalled tail before it drained"
+            assert not in_ready, "bypass B accepted while A's tail still in flight (cross-mode overtake)"
+        await RisingEdge(dut.clk)
+        if holding:
+            hold += 1
+        if fired:
+            collected.append((word, last))
+            fires += 1
+            if last:
+                a_tail_done = True
+                break
+
+    assert a_tail_done, "A's tail never handshaked"
+    assert collected == [(a_out[0], False), (a_out[1], True)], f"A's beats wrong: {collected}"
+
+    # only now may B's bypass words flow, byte-identical, last on B's final word
+    b_out = await _collect_output(dut, (1,), expect_words=len(b_words))
+    assert b_out == b_words, "bypass B not forwarded byte-identically after A drained"
+    await sender
+
+
+@cocotb.test()
+async def bypass_torn_row_reports_stream_error(dut):
+    # a bypass batch ending on a w0 (odd word count) is a torn quad row: the
+    # torn w0 is never forwarded (nor tagged last) and the batch is invalidated
+    # with ERR_STREAM -- the quad-row-tile convention (input_last legal only on
+    # a w1)
+    await _start(dut)
+    dut.cfg_bypass.value = 1
+    good = _quad_words((0x11, 0x22, 0x33, 0x44))  # one complete row (w0, w1)
+    torn = good + [0x1234_5678_9ABC_DEF0]  # + a lone w0 carrying last
+    send = cocotb.start_soon(_send_words(dut, torn))
+    dut.output_ready.value = 1
+    dut.status_ready.value = 1
+    forwarded: list[tuple[int, int]] = []
+    raised = False
+    for _ in range(200):
+        await ReadOnly()
+        if int(dut.output_ready.value) == 1 and int(dut.output_valid.value) == 1:
+            forwarded.append((int(dut.output_data.value), int(dut.output_last.value)))
+        got_status = int(dut.status_valid.value) == 1
+        err = int(dut.status_error.value)
+        code = int(dut.status_error_code.value)
+        await RisingEdge(dut.clk)
+        if got_status:
+            assert err == 1 and code == UnpackErrorCode.STREAM, f"torn bypass status {err}/{code}"
+            raised = True
+            break
+    assert raised, "no ERR_STREAM close-out for a torn bypass batch"
+    await send
+    # the complete row's two words were forwarded, neither tagged last; the
+    # torn w0 was dropped, not emitted
+    assert forwarded == [(good[0], 0), (good[1], 0)], forwarded
+    dut.output_ready.value = 0
+    dut.status_ready.value = 0
+    # recovers cleanly with a well-framed bypass batch
+    rows = [(7, 8, 9, 10)]
+    assert await _run_bypass(dut, _bypass_words(rows)) == _bypass_words(rows)
+
+
+@cocotb.test()
+async def bypass_torn_row_reports_error_under_backpressure(dut):
+    # the torn w0 is dropped, not forwarded, so its acceptance cannot depend on
+    # output_ready: ERR_STREAM must still fire with the sink never ready (no
+    # deadlock, and no output beat leaks)
+    await _start(dut)
+    dut.cfg_bypass.value = 1
+    dut.output_ready.value = 0  # sink never asserts ready
+    dut.status_ready.value = 1
+    send = cocotb.start_soon(_send_words(dut, [0x0BAD_0BAD_0BAD_0BAD]))  # lone w0 with last
+    raised = False
+    for _ in range(64):
+        await ReadOnly()
+        assert int(dut.output_valid.value) == 0, "torn w0 forwarded despite backpressure"
+        got_status = int(dut.status_valid.value) == 1
+        err = int(dut.status_error.value)
+        code = int(dut.status_error_code.value)
+        await RisingEdge(dut.clk)
+        if got_status:
+            assert err == 1 and code == UnpackErrorCode.STREAM, f"torn bypass status {err}/{code}"
+            raised = True
+            break
+    assert raised, "torn bypass batch deadlocked under output backpressure"
+    await send
+    dut.status_ready.value = 0
+    rows = [(7, 8, 9, 10)]
+    assert await _run_bypass(dut, _bypass_words(rows)) == _bypass_words(rows)
+
+
 # ---- helpers ----
 
 
@@ -320,6 +534,32 @@ def _expand(word: int, specs) -> list[int]:
     """The two output words the tile emits for one packed word."""
     key, value, aux0, aux1 = unpack_rows([word], specs)[0]
     return [((value & _MASK32) << 32) | (key & _MASK32), ((aux1 & _MASK32) << 32) | (aux0 & _MASK32)]
+
+
+def _quad_words(row) -> list[int]:
+    """A 16-byte quad row as its two 64-bit stream words (w0 = {value, key},
+    w1 = {aux1, aux0}) — the bypass-mode input framing (two words per row)."""
+    key, value, aux0, aux1 = row
+    return [((value & _MASK32) << 32) | (key & _MASK32), ((aux1 & _MASK32) << 32) | (aux0 & _MASK32)]
+
+
+def _bypass_words(rows) -> list[int]:
+    """The bypass-mode input stream for a batch of quad rows: two words each."""
+    words: list[int] = []
+    for row in rows:
+        words.extend(_quad_words(row))
+    return words
+
+
+async def _run_bypass(dut, words, *, ready_pattern=(1,)) -> list[int]:
+    """Drive a bypass batch (cfg_bypass must already be 1) and collect the
+    forwarded stream. Bypass is 1:1 word-for-word (no widening), so the output
+    is exactly ``len(words)`` words; _send_words/_collect_output already assert
+    hold-stability, last placement, and silent-success quiescence."""
+    send = cocotb.start_soon(_send_words(dut, words))
+    collected = await _collect_output(dut, ready_pattern, expect_words=len(words))
+    await send
+    return collected
 
 
 def _drive_config(dut, specs) -> None:
@@ -365,6 +605,7 @@ async def _start(dut) -> None:
     cocotb.start_soon(clock.start(start_high=False))
     dut.rst.value = 1
     _drive_config(dut, _BYTE_SPECS)
+    dut.cfg_bypass.value = 0
     dut.input_valid.value = 0
     dut.input_data.value = 0
     dut.input_last.value = 0
@@ -400,6 +641,45 @@ async def _send_words(dut, words) -> None:
                 break
     dut.input_valid.value = 0
     dut.input_last.value = 0
+
+
+async def _send_bypass_flip(dut, words) -> None:
+    # send a bypass batch, flipping cfg_bypass (and the field descriptors) to an
+    # unpack config after the first word fires; the batch-latched mode must
+    # ignore the flip and stay a byte-identical passthrough for the whole batch
+    for index, word in enumerate(words):
+        dut.input_data.value = word
+        dut.input_last.value = int(index == len(words) - 1)
+        dut.input_valid.value = 1
+        while True:
+            await ReadOnly()
+            fired = int(dut.input_ready.value) == 1
+            await RisingEdge(dut.clk)
+            if fired:
+                break
+        if index == 0:
+            dut.cfg_bypass.value = 0
+            _drive_config(dut, _BYTE_SPECS)
+    dut.input_valid.value = 0
+    dut.input_last.value = 0
+
+
+async def _send_unpack_then_bypass(dut, a_word, b_words) -> None:
+    # A: a complete one-row unpack batch (last); then batch B: a bypass batch.
+    # B re-latches the mode at its first row, so it must be held off until A's
+    # in-flight tail has drained.
+    dut.cfg_bypass.value = 0
+    dut.input_data.value = a_word
+    dut.input_last.value = 1
+    dut.input_valid.value = 1
+    while True:
+        await ReadOnly()
+        fired = int(dut.input_ready.value) == 1
+        await RisingEdge(dut.clk)
+        if fired:
+            break
+    dut.cfg_bypass.value = 1  # B: bypass
+    await _send_words(dut, b_words)
 
 
 async def _send_a_then_bad_b(dut, a_word) -> None:

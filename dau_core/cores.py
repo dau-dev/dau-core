@@ -294,12 +294,12 @@ CORES: tuple[CoreDefinition, ...] = (
         # counted aggregation/join/membership/sort unit in the design inventory.
         module="dau_int32_row_unpack",
         source="dau_int32_row_unpack.sv",
-        description="Row-unpack front-end feed over <=64-bit packed rows: bit-extracts four configured fields (offset/width/signed) from one packed word and widens them into the standard 16-byte int32 quad row (field 0 = key = w0.lo) the operator tiles consume. The compact-row feed answer to the DDR-byte-bandwidth-bound scan (~2x rows/sec off DDR, half the host DMA, operators unchanged). Covers q6 (59-bit) and q1 (63-bit) packings. FOLLOW-UP: the scan composition must stage packed rows + place this after the burst reader before broadcast/partition, and the flywheel needs a pack-schema deriving field offsets/widths from column ranges.",
+        description="Row-unpack front-end feed over <=64-bit packed rows: bit-extracts four configured fields (offset/width/signed) from one packed word and widens them into the standard 16-byte int32 quad row (field 0 = key = w0.lo) the operator tiles consume. The compact-row feed answer to the DDR-byte-bandwidth-bound scan (~2x rows/sec off DDR, half the host DMA, operators unchanged). Covers q6 (59-bit) and q1 (63-bit) packings. The batch-latched cfg_bypass config port selects the mode: 0 = unpack (packed word in, quad row out); 1 = a zero-added-latency passthrough of pre-widened 16-byte quad rows (two words per row, field descriptors unused), so ONE bitstream benchmarks packed vs unpacked rows on the same silicon and isolates the host packing overhead. FOLLOW-UP: the scan composition must stage packed rows + place this after the burst reader before broadcast/partition, and the flywheel needs a pack-schema deriving field offsets/widths from column ranges.",
         golden="dau_core.operators:unpack_rows",
         bench=f"{_BENCHES}.dau_int32_row_unpack_tb",
         resources=ResourceEnvelope(
             lut=1509, ff=194, bram36=0.0, dsp=0
-        ),  # OOC 8ns met (WNS +1.943); LUT-heavy = 4 configurable 64-bit barrel extractors
+        ),  # OOC 8ns met (WNS +1.943); LUT-heavy = 4 configurable 64-bit barrel extractors. Re-measured with cfg_bypass: the passthrough mux, mode latch, and torn-row detection pack into existing slice slack (unchanged).
         contract_kind=ContractKind.ROW_STREAM,
     ),
     CoreDefinition(
