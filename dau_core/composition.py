@@ -20,6 +20,11 @@ from .cores import CoreDefinition, CoreKind, ResourceEnvelope, core
 
 SCAN_INFRASTRUCTURE_CORES = ("axi-burst-reader", "stream-broadcast", "axi-record-writer", "axi-write-mux", "identity-registers")
 
+# the only core allowed in the optional front-stage feed transform slot: the
+# row-unpack tile that widens packed rows into 16-byte quad rows after the
+# burst reader and before the broadcast/partition fan-out.
+FRONT_UNPACK_CORE = "int32-row-unpack"
+
 
 class CompositionError(ValueError):
     pass
@@ -81,13 +86,20 @@ class ScanCompositionSpec:
     Two fan-out shapes: the default broadcasts the scan to every lane
     (each lane's optional ``partition`` filter selects its rows), or a
     shared ``partitioner`` (e.g. the range partitioner) routes each row
-    to exactly one lane — lanes then carry no per-lane partition."""
+    to exactly one lane — lanes then carry no per-lane partition.
+
+    An optional ``front_unpack`` feed transform (the row-unpack core) sits
+    between the burst reader and the fan-out: it widens PACKED rows (half
+    the DDR bytes) into the standard 16-byte quad rows, so the fan-out
+    still sees the clean 32-bit key it partitions on. It coexists with
+    either fan-out shape."""
 
     name: str
     lanes: tuple[LaneSpec, ...]
     burst_beats: int = 32
     addr_width: int = 32
     partitioner: TileSpec | None = None
+    front_unpack: TileSpec | None = None
 
     def __post_init__(self) -> None:
         if not self.lanes:
@@ -104,6 +116,13 @@ class ScanCompositionSpec:
                     "only the terminal tile may close out on success"
                 )
             _validate_tile_params(self.partitioner, "partitioner")
+        if self.front_unpack is not None:
+            if self.front_unpack.core != FRONT_UNPACK_CORE:
+                raise CompositionError(
+                    f"front unpacker {self.front_unpack.core!r} is not the {FRONT_UNPACK_CORE!r} feed transform; the front stage widens "
+                    "packed rows after the burst reader and before the fan-out, a role only the row-unpack core fills"
+                )
+            _validate_tile_params(self.front_unpack, "front unpacker")
         for lane in self.lanes:
             tile = lane.tile.definition()
             if tile.kind != CoreKind.OPERATOR:
@@ -158,6 +177,8 @@ class ScanCompositionSpec:
             if self.partitioner is not None and name == "stream-broadcast":
                 continue
             names.setdefault(name)
+        if self.front_unpack is not None:
+            names.setdefault(self.front_unpack.core)
         if self.partitioner is not None:
             names.setdefault(self.partitioner.core)
         for lane in self.lanes:
@@ -199,6 +220,8 @@ def estimated_resources(spec: ScanCompositionSpec) -> ResourceEnvelope:
 
     for name in ("axi-burst-reader", "axi-write-mux", "identity-registers"):
         add(name)
+    if spec.front_unpack is not None:
+        add(spec.front_unpack.core)
     if spec.partitioner is not None:
         add(spec.partitioner.core)
     else:

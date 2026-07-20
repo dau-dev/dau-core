@@ -223,6 +223,59 @@ def test_param_less_tiles_are_unchanged_and_price_at_default_size() -> None:
     assert priced.lut == default_sized.lut
 
 
+_FRONT_UNPACK_CONFIG = {
+    "cfg_field0_offset": "6'd0",
+    "cfg_field0_width": "6'd32",
+    "cfg_field0_signed": "1'b0",
+    "cfg_field1_offset": "6'd32",
+    "cfg_field1_width": "6'd27",
+    "cfg_field1_signed": "1'b0",
+    "cfg_field2_offset": "6'd0",
+    "cfg_field2_width": "6'd1",
+    "cfg_field2_signed": "1'b0",
+    "cfg_field3_offset": "6'd0",
+    "cfg_field3_width": "6'd1",
+    "cfg_field3_signed": "1'b0",
+    "cfg_bypass": "1'b0",
+}
+
+
+def _front_unpack() -> TileSpec:
+    return TileSpec(core="int32-row-unpack", config=dict(_FRONT_UNPACK_CONFIG))
+
+
+def test_front_unpack_validates_and_reaches_core_names_and_resources() -> None:
+    # a broadcast-fan-out composition gains a front unpacker before the fan-out
+    spec = ScanCompositionSpec(name="bar-noc-packed", lanes=bar_noc_spec().lanes, front_unpack=_front_unpack())
+    assert "int32-row-unpack" in spec.core_names()
+    # the front unpacker's envelope is added on top of the fan-out shape
+    priced = estimated_resources(spec)
+    without = estimated_resources(bar_noc_spec())
+    unpack = core("int32-row-unpack").resources
+    assert unpack is not None
+    assert priced.lut - without.lut == unpack.lut
+    assert priced.measured
+    # it coexists with a shared partitioner too (still one clean-key row into the fan-out)
+    partitioned = ScanCompositionSpec(
+        name="sorted-scan-packed", lanes=sorted_scan_spec().lanes, partitioner=_range_partitioner(4), front_unpack=_front_unpack()
+    )
+    assert "int32-row-unpack" in partitioned.core_names()
+
+
+def test_front_unpack_rejects_a_non_unpack_tile() -> None:
+    with pytest.raises(CompositionError, match="is not the 'int32-row-unpack' feed transform"):
+        ScanCompositionSpec(name="bad", lanes=bar_noc_spec().lanes, front_unpack=_BAR)
+    with pytest.raises(CompositionError, match="is not the 'int32-row-unpack' feed transform"):
+        ScanCompositionSpec(name="bad", lanes=bar_noc_spec().lanes, front_unpack=TileSpec(core="int32-pair-key-filter"))
+
+
+def test_front_unpack_less_composition_is_unchanged() -> None:
+    spec = bar_noc_spec()
+    assert spec.front_unpack is None
+    assert "int32-row-unpack" not in spec.core_names()
+    assert estimated_resources(spec) == estimated_resources(bar_noc_spec())
+
+
 def test_exactly_one_success_close_out_per_lane_is_enforced() -> None:
     # a close-out-on-success tile mid-chain would leave a second pending
     # status after the writer consumed the first: rejected up front
