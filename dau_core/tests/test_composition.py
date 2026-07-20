@@ -155,6 +155,74 @@ def test_chain_resources_are_counted_per_lane() -> None:
     assert chained.measured
 
 
+def test_tile_params_validate_declared_names_and_positive_values() -> None:
+    # a declared parameter override on a chain-stage membership filter is accepted
+    membership = TileSpec(core="int32-key-membership-filter", params={"KEY_SPACE": 6_000_000})
+    spec = ScanCompositionSpec(name="q3-membership", lanes=(LaneSpec(tile=_BAR, chain=(membership,)),))
+    assert spec.lanes[0].chain[0].params == {"KEY_SPACE": 6_000_000}
+
+    # an undeclared parameter name is rejected
+    with pytest.raises(CompositionError, match="no overridable parameter 'KEYSPACE'"):
+        ScanCompositionSpec(
+            name="bad", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-key-membership-filter", params={"KEYSPACE": 6_000_000}),)),)
+        )
+    # a core that declares no parameters rejects every override
+    with pytest.raises(CompositionError, match="no overridable parameter 'KEY_SPACE' \\(declared: none\\)"):
+        ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-row-map-alu", params={"KEY_SPACE": 8}),)),))
+    # non-positive / non-int values are rejected
+    with pytest.raises(CompositionError, match="must be a positive int"):
+        ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-key-membership-filter", params={"KEY_SPACE": 0}),)),))
+    with pytest.raises(CompositionError, match="must be a positive int"):
+        ScanCompositionSpec(
+            name="bad", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-key-membership-filter", params={"KEY_SPACE": -64}),)),)
+        )
+
+
+def test_param_override_is_validated_on_the_lane_tile_and_partition_slots() -> None:
+    # the lane-tile slot validates its params
+    with pytest.raises(CompositionError, match="lane tile 'int32-bar-aggregation' has no overridable parameter 'KEY_SPACE'"):
+        ScanCompositionSpec(
+            name="bad", lanes=(LaneSpec(tile=TileSpec(core="int32-bar-aggregation", config=dict(_BAR.config), params={"KEY_SPACE": 8})),)
+        )
+    # the partition slot validates its params too
+    with pytest.raises(CompositionError, match="lane partition 'int32-pair-key-filter' has no overridable parameter 'KEY_SPACE'"):
+        ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR, partition=TileSpec(core="int32-pair-key-filter", params={"KEY_SPACE": 8})),))
+
+
+def test_key_space_override_must_match_the_declared_multiple() -> None:
+    # the membership bitmap is KEY_SPACE/64 words, so KEY_SPACE must be a positive multiple of 64
+    for ok in (64, 128, 6_000_000):
+        ScanCompositionSpec(name="ok", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-key-membership-filter", params={"KEY_SPACE": ok}),)),))
+    with pytest.raises(CompositionError, match="must be a positive multiple of 64"):
+        ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-key-membership-filter", params={"KEY_SPACE": 65}),)),))
+    # the hash join's slot table is clog2(KEY_SPACE)-addressed, so any positive KEY_SPACE is valid
+    ScanCompositionSpec(name="ok", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-broadcast-hash-join", params={"KEY_SPACE": 100}),)),))
+
+
+def test_shared_partitioner_params_are_validated() -> None:
+    # the shared-partitioner slot now validates its params (the slot previously bypassed validation)
+    with pytest.raises(CompositionError, match="partitioner 'int32-key-membership-filter' has no overridable parameter 'TYPO'"):
+        ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR),), partitioner=TileSpec(core="int32-key-membership-filter", params={"TYPO": 1}))
+    with pytest.raises(CompositionError, match="partitioner 'int32-key-membership-filter' parameter 'KEY_SPACE' must be a positive multiple of 64"):
+        ScanCompositionSpec(
+            name="bad", lanes=(LaneSpec(tile=_BAR),), partitioner=TileSpec(core="int32-key-membership-filter", params={"KEY_SPACE": 65})
+        )
+
+
+def test_param_less_tiles_are_unchanged_and_price_at_default_size() -> None:
+    # a param'd membership tile does not crash the resource estimate (the
+    # envelope is looked up by core name, independent of KEY_SPACE)
+    membership = TileSpec(core="int32-key-membership-filter", params={"KEY_SPACE": 6_000_000})
+    spec = ScanCompositionSpec(name="q3", lanes=(LaneSpec(tile=_BAR, chain=(membership,)),))
+    priced = estimated_resources(spec)
+    # equals the default-size envelope sum: the param override does not (yet) rescale the estimate
+    default_sized = estimated_resources(
+        ScanCompositionSpec(name="q3-default", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-key-membership-filter"),)),))
+    )
+    assert priced.bram36 == default_sized.bram36
+    assert priced.lut == default_sized.lut
+
+
 def test_exactly_one_success_close_out_per_lane_is_enforced() -> None:
     # a close-out-on-success tile mid-chain would leave a second pending
     # status after the writer consumed the first: rejected up front
