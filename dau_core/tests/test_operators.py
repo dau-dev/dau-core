@@ -685,3 +685,20 @@ def test_unpack_requires_four_specs() -> None:
 
 def test_unpack_empty_input() -> None:
     assert unpack_rows([], _Q6_SPECS) == []
+
+
+def test_unpack_bypass_returns_quad_rows_unchanged() -> None:
+    # BYPASS: input is already 16-byte quad rows; the tile forwards them
+    # byte-identically, so the golden is the identity (no bit-extract)
+    rows = [(0x11, 0x22, 0x33, 0x44), (568, -500, 6, 30), (-1, 2**31 - 1, 0, 255)]
+    assert unpack_rows(rows, bypass=True) == rows
+
+
+def test_unpack_bypass_ignores_field_specs() -> None:
+    # field descriptors are unused in bypass mode: identity regardless
+    rows = [(3, -(2**31), 4096, 1)]
+    assert unpack_rows(rows, _Q6_SPECS, bypass=True) == rows == unpack_rows(rows, bypass=True)
+
+
+def test_unpack_bypass_empty_input() -> None:
+    assert unpack_rows([], bypass=True) == []
