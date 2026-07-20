@@ -39,6 +39,9 @@ def _validate_tile_params(tile: TileSpec, role: str) -> None:
             raise CompositionError(f"{role} {tile.core!r} has no overridable parameter {name!r} (declared: {known})")
         if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
             raise CompositionError(f"{role} {tile.core!r} parameter {name!r} must be a positive int, got {value!r}")
+        multiple_of = declared[name].multiple_of
+        if value % multiple_of != 0:
+            raise CompositionError(f"{role} {tile.core!r} parameter {name!r} must be a positive multiple of {multiple_of}, got {value!r}")
 
 
 @dataclass(frozen=True)
@@ -100,6 +103,7 @@ class ScanCompositionSpec:
                     f"partitioner {self.partitioner.core!r} emits a success close-out per batch; the lane status mux allows exactly one — "
                     "only the terminal tile may close out on success"
                 )
+            _validate_tile_params(self.partitioner, "partitioner")
         for lane in self.lanes:
             tile = lane.tile.definition()
             if tile.kind != CoreKind.OPERATOR:

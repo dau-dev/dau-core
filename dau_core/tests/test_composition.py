@@ -183,6 +183,24 @@ def test_param_override_is_validated_on_the_lane_tile_and_partition_slots() -> N
         ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR, partition=TileSpec(core="int32-pair-key-filter", params={"KEY_SPACE": 8})),))
 
 
+def test_key_space_override_must_match_the_declared_multiple() -> None:
+    # the membership bitmap is KEY_SPACE/64 words, so KEY_SPACE must be a positive multiple of 64
+    for ok in (64, 128, 6_000_000):
+        ScanCompositionSpec(name="ok", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-key-membership-filter", params={"KEY_SPACE": ok}),)),))
+    with pytest.raises(CompositionError, match="must be a positive multiple of 64"):
+        ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-key-membership-filter", params={"KEY_SPACE": 65}),)),))
+    # the hash join's slot table is clog2(KEY_SPACE)-addressed, so any positive KEY_SPACE is valid
+    ScanCompositionSpec(name="ok", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-broadcast-hash-join", params={"KEY_SPACE": 100}),)),))
+
+
+def test_shared_partitioner_params_are_validated() -> None:
+    # the shared-partitioner slot now validates its params (the slot previously bypassed validation)
+    with pytest.raises(CompositionError, match="partitioner 'int32-key-membership-filter' has no overridable parameter 'TYPO'"):
+        ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR),), partitioner=TileSpec(core="int32-key-membership-filter", params={"TYPO": 1}))
+    with pytest.raises(CompositionError, match="partitioner 'int32-key-membership-filter' parameter 'KEY_SPACE' must be a positive multiple of 64"):
+        ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR),), partitioner=TileSpec(core="int32-key-membership-filter", params={"KEY_SPACE": 65}))
+
+
 def test_param_less_tiles_are_unchanged_and_price_at_default_size() -> None:
     # a param'd membership tile does not crash the resource estimate (the
     # envelope is looked up by core name, independent of KEY_SPACE)

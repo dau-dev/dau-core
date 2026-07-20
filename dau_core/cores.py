@@ -51,6 +51,19 @@ class ResourceEnvelope:
 
 
 @dataclass(frozen=True)
+class ParameterSpec:
+    """An overridable SystemVerilog module parameter: its HDL default and the
+    constraint a composition override must satisfy. ``multiple_of`` mirrors the
+    RTL's sizing — the membership bitmap is ``KEY_SPACE/64`` 64-bit words, so
+    its KEY_SPACE must be a positive multiple of 64; the hash join's slot table
+    is ``clog2(KEY_SPACE)``-addressed, so any positive KEY_SPACE is valid
+    (``multiple_of=1``). The HDL is the source of truth; this mirrors it."""
+
+    default: int
+    multiple_of: int = 1
+
+
+@dataclass(frozen=True)
 class CoreDefinition:
     """One HDL building block and its contract surround."""
 
@@ -89,7 +102,7 @@ class CoreDefinition:
     # name is rejected. The values here mirror the .sv parameter defaults —
     # the HDL is the source of truth, this is the machine-readable declaration
     # the composition validates against.
-    parameters: Mapping[str, int] = field(default_factory=dict)
+    parameters: Mapping[str, ParameterSpec] = field(default_factory=dict)
 
     def source_path(self) -> Path:
         from . import hdl
@@ -336,7 +349,7 @@ CORES: tuple[CoreDefinition, ...] = (
         count_port="selected_count",
         contract_kind=ContractKind.ROW_STREAM,
         unit_kind=UnitKind.MEMBERSHIP,
-        parameters={"KEY_SPACE": 4096},  # dictionary-id bitmap width (bits); a positive multiple of 64
+        parameters={"KEY_SPACE": ParameterSpec(default=4096, multiple_of=64)},  # dictionary-id bitmap; KEY_SPACE/64 words
     ),
     CoreDefinition(
         name="int32-broadcast-hash-join",
@@ -353,7 +366,7 @@ CORES: tuple[CoreDefinition, ...] = (
         count_port="joined_count",
         contract_kind=ContractKind.ROW_STREAM,
         unit_kind=UnitKind.JOIN,
-        parameters={"KEY_SPACE": 1024},  # direct-mapped payload-table key space [0, KEY_SPACE)
+        parameters={"KEY_SPACE": ParameterSpec(default=1024)},  # direct-mapped payload table, clog2(KEY_SPACE)-addressed
     ),
     CoreDefinition(
         name="int32-stream-aggregation",
