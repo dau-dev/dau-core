@@ -163,7 +163,9 @@ def test_tile_params_validate_declared_names_and_positive_values() -> None:
 
     # an undeclared parameter name is rejected
     with pytest.raises(CompositionError, match="no overridable parameter 'KEYSPACE'"):
-        ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-key-membership-filter", params={"KEYSPACE": 6_000_000}),)),))
+        ScanCompositionSpec(
+            name="bad", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-key-membership-filter", params={"KEYSPACE": 6_000_000}),)),)
+        )
     # a core that declares no parameters rejects every override
     with pytest.raises(CompositionError, match="no overridable parameter 'KEY_SPACE' \\(declared: none\\)"):
         ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-row-map-alu", params={"KEY_SPACE": 8}),)),))
@@ -171,13 +173,17 @@ def test_tile_params_validate_declared_names_and_positive_values() -> None:
     with pytest.raises(CompositionError, match="must be a positive int"):
         ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-key-membership-filter", params={"KEY_SPACE": 0}),)),))
     with pytest.raises(CompositionError, match="must be a positive int"):
-        ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-key-membership-filter", params={"KEY_SPACE": -64}),)),))
+        ScanCompositionSpec(
+            name="bad", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-key-membership-filter", params={"KEY_SPACE": -64}),)),)
+        )
 
 
 def test_param_override_is_validated_on_the_lane_tile_and_partition_slots() -> None:
     # the lane-tile slot validates its params
     with pytest.raises(CompositionError, match="lane tile 'int32-bar-aggregation' has no overridable parameter 'KEY_SPACE'"):
-        ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=TileSpec(core="int32-bar-aggregation", config=dict(_BAR.config), params={"KEY_SPACE": 8})),))
+        ScanCompositionSpec(
+            name="bad", lanes=(LaneSpec(tile=TileSpec(core="int32-bar-aggregation", config=dict(_BAR.config), params={"KEY_SPACE": 8})),)
+        )
     # the partition slot validates its params too
     with pytest.raises(CompositionError, match="lane partition 'int32-pair-key-filter' has no overridable parameter 'KEY_SPACE'"):
         ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR, partition=TileSpec(core="int32-pair-key-filter", params={"KEY_SPACE": 8})),))
@@ -198,7 +204,9 @@ def test_shared_partitioner_params_are_validated() -> None:
     with pytest.raises(CompositionError, match="partitioner 'int32-key-membership-filter' has no overridable parameter 'TYPO'"):
         ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR),), partitioner=TileSpec(core="int32-key-membership-filter", params={"TYPO": 1}))
     with pytest.raises(CompositionError, match="partitioner 'int32-key-membership-filter' parameter 'KEY_SPACE' must be a positive multiple of 64"):
-        ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR),), partitioner=TileSpec(core="int32-key-membership-filter", params={"KEY_SPACE": 65}))
+        ScanCompositionSpec(
+            name="bad", lanes=(LaneSpec(tile=_BAR),), partitioner=TileSpec(core="int32-key-membership-filter", params={"KEY_SPACE": 65})
+        )
 
 
 def test_param_less_tiles_are_unchanged_and_price_at_default_size() -> None:
