@@ -207,6 +207,89 @@ def test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards() ->
         )
 
 
+def test_load_phase_shape_rules() -> None:
+    # the two-phase load (v1): membership at chain[0] binding cfg_load to the
+    # reserved load_phase symbol is accepted; every malformed shape is
+    # rejected with a specific error
+    def membership(cfg_load="load_phase", key_space=None, extra=None):
+        config = {"cfg_load": cfg_load, "cfg_mode": "1'b0", "cfg_kind": "2'd1"}
+        if extra:
+            config.update(extra)
+        params = {"KEY_SPACE": key_space} if key_space else {}
+        return TileSpec(core="int32-key-membership-filter", config=config, params=params)
+
+    # the q3 shape: one lane, membership first, KEY_SPACE % 128 == 0
+    ok = ScanCompositionSpec(name="q3", lanes=(LaneSpec(tile=_BAR, chain=(membership(key_space=6_000_000),)),))
+    assert "int32-key-membership-filter" in ok.core_names()
+
+    # multi-lane broadcast: every lane loads its copy concurrently — legal
+    ScanCompositionSpec(name="ok", lanes=tuple(LaneSpec(tile=_BAR, chain=(membership(),)) for _ in range(2)))
+
+    # a baked cfg_load literal stays single-phase: none of the rules engage
+    ScanCompositionSpec(
+        name="ok",
+        lanes=(
+            LaneSpec(
+                tile=_BAR,
+                partition=TileSpec(core="int32-pair-key-filter", config={"cfg_key_mask": "32'd0", "cfg_key_match": "32'd0"}),
+                chain=(membership(cfg_load="1'b0"),),
+            ),
+        ),
+    )
+
+    # the reserved symbol on any port but cfg_load is rejected
+    with pytest.raises(CompositionError, match="only cfg_load may"):
+        ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR, chain=(membership(cfg_load="1'b0", extra={"cfg_mode": "load_phase"}),)),))
+    # a load tile anywhere but chain[0] is rejected
+    with pytest.raises(CompositionError, match="first chain stage"):
+        ScanCompositionSpec(
+            name="bad",
+            lanes=(
+                LaneSpec(
+                    tile=_BAR,
+                    chain=(
+                        TileSpec(
+                            core="int32-row-map-alu",
+                            config={
+                                "cfg_op": "3'd0",
+                                "cfg_dst_field": "2'd1",
+                                "cfg_src_a_field": "2'd1",
+                                "cfg_src_b_field": "2'd2",
+                                "cfg_shift": "5'd0",
+                            },
+                        ),
+                        membership(),
+                    ),
+                ),
+            ),
+        )
+    # non-uniform lanes: a loadless lane would misread the image
+    with pytest.raises(CompositionError, match="EVERY lane"):
+        ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR, chain=(membership(),)), LaneSpec(tile=_BAR)))
+    # a partition filter would filter the image
+    with pytest.raises(CompositionError, match="partition filters"):
+        ScanCompositionSpec(
+            name="bad",
+            lanes=(
+                LaneSpec(
+                    tile=_BAR,
+                    partition=TileSpec(core="int32-pair-key-filter", config={"cfg_key_mask": "32'd0", "cfg_key_match": "32'd0"}),
+                    chain=(membership(),),
+                ),
+            ),
+        )
+    # a front unpacker would re-slice the image words
+    with pytest.raises(CompositionError, match="front unpacker"):
+        ScanCompositionSpec(
+            name="bad",
+            lanes=(LaneSpec(tile=_BAR, chain=(membership(),)),),
+            front_unpack=TileSpec(core="int32-row-unpack", config=dict(_FRONT_UNPACK_CONFIG)),
+        )
+    # the image must land on the 16-byte grid: KEY_SPACE % 128 != 0 rejected
+    with pytest.raises(CompositionError, match="multiple of 128"):
+        ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR, chain=(membership(key_space=192),)),))
+
+
 def test_param_override_is_validated_on_the_lane_tile_and_partition_slots() -> None:
     # the lane-tile slot validates its params
     with pytest.raises(CompositionError, match="lane tile 'int32-bar-aggregation' has no overridable parameter 'KEY_SPACE'"):

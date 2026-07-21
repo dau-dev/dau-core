@@ -24,6 +24,11 @@ SCAN_INFRASTRUCTURE_CORES = ("axi-burst-reader", "stream-broadcast", "axi-record
 # row-unpack tile that widens packed rows into 16-byte quad rows after the
 # burst reader and before the broadcast/partition fan-out.
 FRONT_UNPACK_CORE = "int32-row-unpack"
+# the reserved config-binding symbol for the shell's LOAD_PHASE register
+# (RegisterOffset.LOAD_PHASE): a tile binding ``cfg_load`` to this symbol is
+# phase-switched by the host instead of baked, making the composition
+# two-phase (LOAD the build image, then PROBE)
+LOAD_PHASE_BINDING = "load_phase"
 
 
 class CompositionError(ValueError):
@@ -172,6 +177,69 @@ class ScanCompositionSpec:
                         "chain stages must be silent on success"
                     )
                 _validate_tile_params(stage, "lane chain stage")
+        self._validate_load_phase_shape()
+
+    def _validate_load_phase_shape(self) -> None:
+        """The two-phase load shape (v1): a tile binding ``cfg_load`` to the
+        reserved ``load_phase`` symbol is driven by the shell's LOAD_PHASE
+        register, making the composition two-phase (a LOAD job streams the
+        tile's build image; a PROBE job streams rows). The LOAD image must
+        reach every load tile unmolested, so the shape is constrained: every
+        lane's ``chain[0]`` is the load tile (uniformly — a loadless lane
+        would misread the image as rows), no partition filters, no shared
+        partitioner (the broadcast delivers the image to every lane), no
+        front unpacker (it would re-slice image words), and the load tile's
+        ``KEY_SPACE`` a multiple of 128 so the ``KEY_SPACE/64``-word image
+        lands on the 16-byte input length grid."""
+
+        def binds_load(tile: TileSpec | None) -> bool:
+            return tile is not None and tile.config.get("cfg_load") == LOAD_PHASE_BINDING
+
+        def stray(tile: TileSpec | None, role: str) -> None:
+            if tile is None:
+                return
+            for key, value in tile.config.items():
+                if value == LOAD_PHASE_BINDING and key != "cfg_load":
+                    raise CompositionError(f"{role} {tile.core!r} binds {key!r} to the reserved {LOAD_PHASE_BINDING!r} symbol; only cfg_load may")
+            if binds_load(tile) and role != "lane chain stage 0":
+                raise CompositionError(
+                    f"{role} {tile.core!r} binds cfg_load to {LOAD_PHASE_BINDING!r}; a load tile must be the first chain stage "
+                    "(the LOAD image must reach it unmolested)"
+                )
+
+        stray(self.partitioner, "partitioner")
+        stray(self.front_unpack, "front unpacker")
+        for lane in self.lanes:
+            stray(lane.tile, "lane tile")
+            stray(lane.partition, "lane partition")
+            for index, stage in enumerate(lane.chain):
+                stray(stage, "lane chain stage 0" if index == 0 else "lane chain stage")
+
+        load_lanes = [lane for lane in self.lanes if lane.chain and binds_load(lane.chain[0])]
+        if not load_lanes:
+            return
+        if len(load_lanes) != len(self.lanes):
+            raise CompositionError(
+                "a two-phase composition must carry the load tile at chain[0] of EVERY lane: a loadless lane would misread the "
+                f"LOAD image as rows ({len(load_lanes)} of {len(self.lanes)} lanes bind cfg_load to {LOAD_PHASE_BINDING!r})"
+            )
+        if self.partitioner is not None:
+            raise CompositionError("a two-phase composition cannot use a shared partitioner: the LOAD image must broadcast to every lane's load tile")
+        if self.front_unpack is not None:
+            raise CompositionError("a two-phase composition cannot use a front unpacker: it would re-slice the LOAD image words")
+        for lane in self.lanes:
+            if lane.partition is not None:
+                raise CompositionError(
+                    f"a two-phase composition cannot use per-lane partition filters: {lane.partition.core!r} would filter the LOAD image"
+                )
+            load_tile = lane.chain[0]
+            declared = load_tile.definition().parameters
+            key_space = load_tile.params.get("KEY_SPACE", declared["KEY_SPACE"].default if "KEY_SPACE" in declared else None)
+            if key_space is not None and key_space % 128 != 0:
+                raise CompositionError(
+                    f"load tile {load_tile.core!r} KEY_SPACE={key_space} must be a multiple of 128: the KEY_SPACE/64-word LOAD image "
+                    "must land on the 16-byte input length grid"
+                )
 
     def core_names(self) -> tuple[str, ...]:
         """Every registry core the composition instantiates, infrastructure
