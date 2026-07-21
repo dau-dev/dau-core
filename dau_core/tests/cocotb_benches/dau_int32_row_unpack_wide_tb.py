@@ -352,31 +352,36 @@ async def wide_error_close_out_waits_for_backpressured_tail(dut):
         assert _decode_beat(int(dut.output_data.value)) == a_row
         await RisingEdge(dut.clk)
 
-    # release: A drains (B is accepted on that handshake cycle at the
-    # earliest), then — and only then — B's ERR_CONFIG close-out appears
+    # release: A's beat and B's acceptance handshake on the SAME cycle — the
+    # unpack accept gate is emit_free, which is exactly the final beat's fire —
+    # so capture both handshakes together and deassert B immediately after.
+    # This pins exactly ONE B transaction, taken while the emit engine was
+    # busy (the S_ERR_DRAIN path), never a replay from idle.
     dut.output_ready.value = 1
-    drained = False
+    a_drained = False
+    b_accepted = False
     for _ in range(64):
         await ReadOnly()
-        fired = int(dut.output_valid.value) == 1 and int(dut.output_ready.value) == 1
-        if not drained and int(dut.status_valid.value) == 1:
+        out_fire = int(dut.output_valid.value) == 1 and int(dut.output_ready.value) == 1
+        in_fire = int(dut.input_valid.value) == 1 and int(dut.input_ready.value) == 1
+        if not a_drained and int(dut.status_valid.value) == 1:
             raise AssertionError("ERR_CONFIG appeared before A's beat drained")
         await RisingEdge(dut.clk)
-        if fired:
-            drained = True
+        if out_fire:
+            a_drained = True
+            b_accepted = in_fire
             break
-    assert drained, "A's beat never drained"
-    dut.output_ready.value = 0
-    # B may still be waiting to be accepted; keep it presented until it fires,
-    # then wait for its close-out
-    while True:
-        await ReadOnly()
-        fired = int(dut.input_ready.value) == 1 and int(dut.input_valid.value) == 1
-        await RisingEdge(dut.clk)
-        if fired:
-            break
+    assert a_drained, "A's beat never drained"
+    assert b_accepted, "B was not accepted on A's drain cycle (the emit_free accept)"
     dut.input_valid.value = 0
     dut.input_last.value = 0
+    dut.output_ready.value = 0
+    # the S_ERR_DRAIN cycle: input held closed, no status yet — the close-out
+    # is deferred through the drain state, not raised from idle
+    await ReadOnly()
+    assert int(dut.input_ready.value) == 0, "input open during S_ERR_DRAIN"
+    assert int(dut.status_valid.value) == 0, "status raised before the drain cycle elapsed"
+    await RisingEdge(dut.clk)
     await _expect_status(dut, error=True, code=UnpackErrorCode.CONFIG)
     # recovers cleanly
     good = [_pack(_BYTE_SPECS, (1, 2, 3, 4))]
