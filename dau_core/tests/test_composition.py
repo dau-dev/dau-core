@@ -178,6 +178,35 @@ def test_tile_params_validate_declared_names_and_positive_values() -> None:
         )
 
 
+def test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards() -> None:
+    # the quad-stream widths are exactly 64 or 128 (the row-unpack OUT_WIDTH and
+    # the dispatcher IN_WIDTH mirror their RTL elaboration guards), and
+    # the dispatcher's mask decode needs a power-of-two NUM_PARTITIONS — all
+    # rejected at composition time, never later as an HDL elaboration failure
+    unpack_ok = TileSpec(core="int32-row-unpack", config=dict(_FRONT_UNPACK_CONFIG), params={"OUT_WIDTH": 128})
+    ScanCompositionSpec(name="ok", lanes=(LaneSpec(tile=_BAR),), front_unpack=unpack_ok)
+    with pytest.raises(CompositionError, match="must be one of 64, 128"):
+        ScanCompositionSpec(
+            name="bad",
+            lanes=(LaneSpec(tile=_BAR),),
+            front_unpack=TileSpec(core="int32-row-unpack", config=dict(_FRONT_UNPACK_CONFIG), params={"OUT_WIDTH": 192}),
+        )
+    dispatcher_ok = TileSpec(core="int32-key-mask-dispatcher", params={"IN_WIDTH": 128})
+    ScanCompositionSpec(name="ok", lanes=tuple(LaneSpec(tile=_BAR) for _ in range(4)), partitioner=dispatcher_ok)
+    with pytest.raises(CompositionError, match="must be one of 64, 128"):
+        ScanCompositionSpec(
+            name="bad",
+            lanes=tuple(LaneSpec(tile=_BAR) for _ in range(4)),
+            partitioner=TileSpec(core="int32-key-mask-dispatcher", params={"IN_WIDTH": 192}),
+        )
+    with pytest.raises(CompositionError, match="must be a power of two"):
+        ScanCompositionSpec(
+            name="bad",
+            lanes=tuple(LaneSpec(tile=_BAR) for _ in range(4)),
+            partitioner=TileSpec(core="int32-key-mask-dispatcher", params={"NUM_PARTITIONS": 12}),
+        )
+
+
 def test_param_override_is_validated_on_the_lane_tile_and_partition_slots() -> None:
     # the lane-tile slot validates its params
     with pytest.raises(CompositionError, match="lane tile 'int32-bar-aggregation' has no overridable parameter 'KEY_SPACE'"):

@@ -53,14 +53,18 @@ class ResourceEnvelope:
 @dataclass(frozen=True)
 class ParameterSpec:
     """An overridable SystemVerilog module parameter: its HDL default and the
-    constraint a composition override must satisfy. ``multiple_of`` mirrors the
-    RTL's sizing — the membership bitmap is ``KEY_SPACE/64`` 64-bit words, so
-    its KEY_SPACE must be a positive multiple of 64; the hash join's slot table
-    is ``clog2(KEY_SPACE)``-addressed, so any positive KEY_SPACE is valid
-    (``multiple_of=1``). The HDL is the source of truth; this mirrors it."""
+    constraint a composition override must satisfy — mirroring the RTL's own
+    elaboration guards so an invalid override is rejected at composition time,
+    never later as an HDL elaboration failure. ``multiple_of`` mirrors sizing
+    (the membership bitmap is ``KEY_SPACE/64`` words); ``choices`` pins an
+    exact legal set (the quad-stream widths are 64 or 128, nothing else);
+    ``power_of_two`` mirrors mask/bit-select decodes (the key-mask dispatcher's
+    ``NUM_PARTITIONS``). The HDL is the source of truth; this mirrors it."""
 
     default: int
     multiple_of: int = 1
+    choices: tuple[int, ...] | None = None
+    power_of_two: bool = False
 
 
 @dataclass(frozen=True)
@@ -252,8 +256,8 @@ CORES: tuple[CoreDefinition, ...] = (
         golden="dau_core.operators:mask_dispatch_rows",
         bench=f"{_BENCHES}.dau_int32_key_mask_dispatcher_tb",
         parameters={
-            "NUM_PARTITIONS": ParameterSpec(default=4),  # power of two (elaboration-checked)
-            "IN_WIDTH": ParameterSpec(default=64, multiple_of=64),  # 64 or 128 (elaboration-checked)
+            "NUM_PARTITIONS": ParameterSpec(default=4, power_of_two=True),  # mask decode: dest = key & (N-1)
+            "IN_WIDTH": ParameterSpec(default=64, choices=(64, 128)),  # the quad-stream widths
         },
         resources=ResourceEnvelope(
             lut=330, ff=1124, bram36=0.0, dsp=0
@@ -314,7 +318,7 @@ CORES: tuple[CoreDefinition, ...] = (
         description="Row-unpack front-end feed over <=64-bit packed rows: bit-extracts four configured fields (offset/width/signed) from one packed word and widens them into the standard 16-byte int32 quad row (field 0 = key = w0.lo) the operator tiles consume. The compact-row feed answer to the DDR-byte-bandwidth-bound scan (~2x rows/sec off DDR, half the host DMA, operators unchanged). Covers q6 (59-bit) and q1 (63-bit) packings. The batch-latched cfg_bypass config port selects the mode: 0 = unpack (packed word in, quad row out); 1 = a zero-added-latency passthrough of pre-widened 16-byte quad rows (two words per row, field descriptors unused), so ONE bitstream benchmarks packed vs unpacked rows on the same silicon and isolates the host packing overhead. OUT_WIDTH (the rows/cycle axis) selects the quad-stream framing: 64 (default) emits two 64-bit beats per row; 128 emits one whole quad row per beat ({w1, w0}), lifting the shared-front emit cap from ~1 row per 2 cycles to 1 row/cycle (silicon showed the 2-beat emit, not the DDR, gates the packed feed) — bypass then gearboxes each two-word quad into one beat. FOLLOW-UP: the scan composition must stage packed rows + place this after the burst reader before broadcast/partition, and the flywheel needs a pack-schema deriving field offsets/widths from column ranges.",
         golden="dau_core.operators:unpack_rows",
         bench=f"{_BENCHES}.dau_int32_row_unpack_tb",
-        parameters={"OUT_WIDTH": ParameterSpec(default=64, multiple_of=64)},  # 64 or 128 (any other width fails elaboration)
+        parameters={"OUT_WIDTH": ParameterSpec(default=64, choices=(64, 128))},  # the quad-stream widths (mirrors the elaboration guard)
         resources=ResourceEnvelope(
             lut=1509, ff=194, bram36=0.0, dsp=0
         ),  # OOC 8ns met (WNS +1.943); LUT-heavy = 4 configurable 64-bit barrel extractors. Re-measured with cfg_bypass: the passthrough mux, mode latch, and torn-row detection pack into existing slice slack (unchanged).
