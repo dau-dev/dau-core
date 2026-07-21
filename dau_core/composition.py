@@ -188,9 +188,10 @@ class ScanCompositionSpec:
         lane's ``chain[0]`` is the load tile (uniformly — a loadless lane
         would misread the image as rows), no partition filters, no shared
         partitioner (the broadcast delivers the image to every lane), no
-        front unpacker (it would re-slice image words), and the load tile's
-        ``KEY_SPACE`` a multiple of 128 so the ``KEY_SPACE/64``-word image
-        lands on the 16-byte input length grid."""
+        front unpacker (it would re-slice image words), and — for a BITMAP_64
+        load tile — ``KEY_SPACE`` a multiple of 128 so the
+        ``KEY_SPACE/64``-word image lands on the 16-byte input length grid
+        (QUAD_ROWS images are 16-byte rows, always on the grid)."""
 
         def binds_load(tile: TileSpec | None) -> bool:
             return tile is not None and tile.config.get("cfg_load") == LOAD_PHASE_BINDING
