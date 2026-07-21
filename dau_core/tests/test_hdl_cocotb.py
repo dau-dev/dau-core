@@ -248,6 +248,19 @@ def test_row_unpack_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> No
 
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_row_unpack_wide_quad_stream_runs_real_cocotb(tmp_path: Path) -> None:
+    # OUT_WIDTH=128 (the rows/cycle axis): one whole quad row per output beat,
+    # sustaining 1 row/cycle where the 64-bit framing serializes 2 beats/row
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_ROW_UNPACK_SV)),),
+        hdl_toplevel="dau_int32_row_unpack",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_row_unpack_wide_tb",
+        tmp_path=tmp_path,
+        parameters={"OUT_WIDTH": 128},
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_keyed_predicate_filter_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
     _run_cocotb_verilator(
         sources=(Path(str(DAU_PREDICATE_PKG_SV)), Path(str(DAU_INT32_KEYED_PREDICATE_FILTER_SV))),

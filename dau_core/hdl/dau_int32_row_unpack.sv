@@ -48,11 +48,24 @@
 // so a following batch's ERR_CONFIG can never overtake this batch's un-drained
 // final output beat.
 //
+// OUT_WIDTH (the rows/cycle axis): 64 (default) emits each quad row as two
+// 64-bit beats — the classic quad-stream framing, byte-identical to the
+// pre-parameter tile. 128 emits ONE whole quad row per beat ({w1, w0}: bits
+// [63:0] = {value, key}, [127:64] = {aux1, aux0}), so unpack sustains one
+// packed word in / one quad row out PER CYCLE — the shared-front emit cap
+// (2 cycles/quad at 64) that silicon showed gates the packed feed is lifted
+// without touching the lane operators. In 128-bit bypass the two-word quad
+// input is gearboxed into one output beat (w0 latched, the row emitted on its
+// w1 cycle — still zero added row latency); torn-row and batch-latch semantics
+// are unchanged. Any other OUT_WIDTH fails elaboration.
+//
 // FOLLOW-UP (not wired here): realizing the feed win requires (a) the scan
 // composition to stage packed rows and place this unpacker after the burst
 // reader, before the broadcast/partition fan-out, and (b) a flywheel
 // pack-schema deriving each field's offset/width from the column ranges.
-module dau_int32_row_unpack (
+module dau_int32_row_unpack #(
+    parameter int unsigned OUT_WIDTH = 64
+) (
     input  wire logic        clk,
     input  wire logic        rst,
     input  wire logic [5:0]  cfg_field0_offset,
@@ -74,7 +87,7 @@ module dau_int32_row_unpack (
     input  wire logic        input_last,
     output logic             output_valid,
     input  wire logic        output_ready,
-    output logic [63:0]      output_data,
+    output logic [OUT_WIDTH-1:0] output_data,
     output logic             output_last,
     output logic             status_valid,
     input  wire logic        status_ready,
@@ -83,6 +96,13 @@ module dau_int32_row_unpack (
 );
     localparam logic [7:0] ERR_CONFIG = 8'd1;
     localparam logic [7:0] ERR_STREAM = 8'd2;
+
+    // rows/cycle axis: WIDE emits one whole quad row per beat (EMIT_W0 is the
+    // row's only — and final — beat; EMIT_W1 is unreachable)
+    localparam bit WIDE = (OUT_WIDTH == 128);
+    if (OUT_WIDTH != 64 && OUT_WIDTH != 128) begin : g_bad_out_width
+        $fatal(1, "dau_int32_row_unpack: OUT_WIDTH must be 64 or 128");
+    end
 
     typedef enum logic [1:0] {
         S_RUN,       // accept packed rows (batch config latches on the first)
@@ -118,10 +138,10 @@ module dau_int32_row_unpack (
 
     logic input_fire;
     logic output_fire;
+    logic emit_final;
     logic emit_free;
     logic emit_busy;
     logic bypass_pass;
-    logic bypass_torn;
     logic first_row;
     logic config_ok;
     logic eff_bypass;
@@ -139,8 +159,10 @@ module dau_int32_row_unpack (
 
     assign input_fire = input_valid && input_ready;
     assign output_fire = output_valid && output_ready;
-    // the emit engine frees on the accepted final beat of a row pair
-    assign emit_free = (emit_state == EMIT_IDLE) || ((emit_state == EMIT_W1) && output_fire);
+    // the emit engine frees on the accepted final beat of a row (its second
+    // 64-bit beat, or its single 128-bit beat when WIDE)
+    assign emit_final = WIDE ? (emit_state == EMIT_W0) : (emit_state == EMIT_W1);
+    assign emit_free = (emit_state == EMIT_IDLE) || (emit_final && output_fire);
     assign emit_busy = emit_state != EMIT_IDLE;
 
     // BYPASS passthrough is a true input->output wire (zero added latency),
@@ -149,11 +171,6 @@ module dau_int32_row_unpack (
     // mode change
     assign bypass_pass = eff_bypass && (state == S_RUN) && !emit_busy;
 
-    // a torn bypass row is input_last on a w0 (phase 0): it is never forwarded
-    // (dropped like the other quad-row tiles) and never tagged last — the batch
-    // is invalidated with ERR_STREAM instead
-    assign bypass_torn = bypass_pass && input_last && !bypass_phase;
-
     // UNPACK (S_RUN): loading the emit engine needs it free (or freeing) that
     // cycle. BYPASS (S_RUN): a passthrough word waits on the downstream, but a
     // torn w0 is accepted-and-dropped regardless of output_ready (it is not
@@ -161,17 +178,45 @@ module dau_int32_row_unpack (
     // prior unpack tail has drained. S_DISCARD drains a bad-config batch
     // (unpack only). The check depends only on input_last framing, never the
     // payload.
-    assign input_ready = (state == S_DISCARD) ? 1'b1
-        : (state != S_RUN)                    ? 1'b0
-        : eff_bypass                          ? (!emit_busy && (output_ready || bypass_torn))
-                                              : emit_free;
-
-    // the emit engine owns the output whenever it holds a beat; otherwise a
-    // bypass batch drives the output straight from the input word (zero added
-    // latency), suppressing only a torn w0
-    assign output_valid = emit_busy || (bypass_pass && input_valid && !bypass_torn);
-    assign output_data = emit_busy ? ((emit_state == EMIT_W0) ? emit_w0 : emit_w1) : input_data;
-    assign output_last = emit_busy ? ((emit_state == EMIT_W1) && emit_last) : (bypass_pass && input_last && bypass_phase);
+    if (WIDE) begin : g_out_wide
+        // 128-bit quad stream: the emit engine holds one whole row per beat.
+        // BYPASS gearboxes the two-word quad input: a w0 (phase 0) is latched
+        // without touching the sink (a torn w0 — input_last at phase 0 — is
+        // likewise accepted-and-dropped, never forwarded); the row emits
+        // combinationally on its w1 cycle as {w1, w0}, so bypass still adds
+        // zero row latency. bypass_w0 needs no reset: phase discipline
+        // guarantees a row's w0 is latched before its w1 cycle reads it, and
+        // the output is only valid at phase 1.
+        logic [63:0] bypass_w0;
+        always_ff @(posedge clk) begin
+            if (input_fire && (state == S_RUN) && eff_bypass && !bypass_phase) begin
+                bypass_w0 <= input_data;
+            end
+        end
+        assign input_ready = (state == S_DISCARD) ? 1'b1
+            : (state != S_RUN)                    ? 1'b0
+            : eff_bypass                          ? (!emit_busy && (output_ready || !bypass_phase))
+                                                  : emit_free;
+        assign output_valid = emit_busy || (bypass_pass && input_valid && bypass_phase);
+        assign output_data = emit_busy ? {emit_w1, emit_w0} : {input_data, bypass_w0};
+        assign output_last = emit_busy ? emit_last : (bypass_pass && input_last && bypass_phase);
+    end else begin : g_out_narrow
+        // the emit engine owns the output whenever it holds a beat; otherwise a
+        // bypass batch drives the output straight from the input word (zero
+        // added latency), suppressing only a torn w0. A torn bypass row is
+        // input_last on a w0 (phase 0): it is never forwarded (dropped like the
+        // other quad-row tiles) and never tagged last — the batch is
+        // invalidated with ERR_STREAM instead.
+        logic bypass_torn;
+        assign bypass_torn = bypass_pass && input_last && !bypass_phase;
+        assign input_ready = (state == S_DISCARD) ? 1'b1
+            : (state != S_RUN)                    ? 1'b0
+            : eff_bypass                          ? (!emit_busy && (output_ready || bypass_torn))
+                                                  : emit_free;
+        assign output_valid = emit_busy || (bypass_pass && input_valid && !bypass_torn);
+        assign output_data = emit_busy ? ((emit_state == EMIT_W0) ? emit_w0 : emit_w1) : input_data;
+        assign output_last = emit_busy ? ((emit_state == EMIT_W1) && emit_last) : (bypass_pass && input_last && bypass_phase);
+    end
 
     assign first_row = !batch_open;
     assign eff_bypass = first_row ? cfg_bypass : active_bypass;
@@ -243,7 +288,8 @@ module dau_int32_row_unpack (
             case (emit_state)
                 EMIT_W0: begin
                     if (output_fire) begin
-                        emit_state <= EMIT_W1;
+                        // WIDE: the single 128-bit beat was the whole row
+                        emit_state <= WIDE ? EMIT_IDLE : EMIT_W1;
                     end
                 end
                 EMIT_W1: begin
