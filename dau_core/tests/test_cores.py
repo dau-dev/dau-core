@@ -113,6 +113,7 @@ def test_silent_on_success_operator_set_is_pinned() -> None:
     assert silent == {
         "int32-pair-key-filter",
         "int32-range-partitioner",
+        "int32-key-mask-dispatcher",
         "int32-row-predicate-filter",
         "int32-row-map-alu",
         "int32-key-membership-filter",

@@ -44,9 +44,14 @@ def _validate_tile_params(tile: TileSpec, role: str) -> None:
             raise CompositionError(f"{role} {tile.core!r} has no overridable parameter {name!r} (declared: {known})")
         if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
             raise CompositionError(f"{role} {tile.core!r} parameter {name!r} must be a positive int, got {value!r}")
-        multiple_of = declared[name].multiple_of
-        if value % multiple_of != 0:
-            raise CompositionError(f"{role} {tile.core!r} parameter {name!r} must be a positive multiple of {multiple_of}, got {value!r}")
+        spec = declared[name]
+        if value % spec.multiple_of != 0:
+            raise CompositionError(f"{role} {tile.core!r} parameter {name!r} must be a positive multiple of {spec.multiple_of}, got {value!r}")
+        if spec.choices is not None and value not in spec.choices:
+            allowed = ", ".join(str(choice) for choice in spec.choices)
+            raise CompositionError(f"{role} {tile.core!r} parameter {name!r} must be one of {allowed}, got {value!r}")
+        if spec.power_of_two and value & (value - 1):
+            raise CompositionError(f"{role} {tile.core!r} parameter {name!r} must be a power of two, got {value!r}")
 
 
 @dataclass(frozen=True)

@@ -34,6 +34,7 @@ from dau_core.operators import (
     map_row_fields,
     map_rows,
     map_values,
+    mask_dispatch_rows,
     pack_splitters,
     unpack_rows,
 )
@@ -301,6 +302,19 @@ def test_row_map_other_fields_pass_through() -> None:
 def test_row_map_wraps_int32() -> None:
     config = RowMapConfig(op=MapOp.MUL, dst=RowField.KEY, src_a=RowField.KEY, src_b=RowField.KEY)
     assert map_row_fields([(2**16, 0, 0, 0)], config) == [(0, 0, 0, 0)]
+
+
+def test_mask_dispatch_routes_by_two_complement_low_bits() -> None:
+    # the pair-key partition moved into the router: key & (N-1), negative keys
+    # masking exactly like the hardware bit-select (-1 & 3 == 3)
+    rows = [(-1, 1, 1, 0), (-4, 2, 2, 0), (4, 3, 3, 0), (7, 4, 4, 0)]
+    parts = mask_dispatch_rows(rows, num_partitions=4)
+    assert parts == [[(-4, 2, 2, 0), (4, 3, 3, 0)], [], [], [(-1, 1, 1, 0), (7, 4, 4, 0)]]
+
+
+def test_mask_dispatch_rejects_non_power_of_two() -> None:
+    with pytest.raises(ValueError, match="power of two"):
+        mask_dispatch_rows([(1, 2, 3, 4)], num_partitions=3)
 
 
 def test_pack_splitters_is_msb_first_reversed_hex() -> None:
