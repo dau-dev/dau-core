@@ -76,6 +76,13 @@ class RegisterOffset(IntEnum):
     OPERATION = 0x0078
     RESULT_LENGTH_LOW = 0x007C
     RESULT_LENGTH_HIGH = 0x0080
+    # two-phase load (additive): bit 0 drives the composed load-capable
+    # tiles' cfg_load ports (membership bitmap / join payload table). 1 = the
+    # next job's input scan is a LOAD image (the tile's success close-out is
+    # the load-done); 0 (the reset default) = PROBE, i.e. today's single-phase
+    # behavior. Shells built before their generator learned this register
+    # ignore writes and read 0 — never a behavior change for old bitstreams.
+    LOAD_PHASE = 0x0084
     # static composed-pipeline configuration (the OHLCV shell): the filter
     # row count comes from INPUT_LENGTH (one row per 64-bit word), never a
     # separate register
