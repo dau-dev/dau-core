@@ -29,6 +29,9 @@ def test_register_contract_uses_dau_magic_and_aligned_offsets():
     assert RegisterOffset.JOB_STATUS == 0x0054
     assert RegisterOffset.INPUT_ADDRESS_LOW == 0x0058
     assert RegisterOffset.OUTPUT_ADDRESS_LOW == 0x0068
+    # two-phase load (additive): the free job-block slot between
+    # RESULT_LENGTH_HIGH (0x0080) and the pipeline block (0x0090)
+    assert RegisterOffset.LOAD_PHASE == 0x0084
     # register map 0.2: composed-capability words, additive, below the NoC
     # lane block at 0x0100
     assert CURRENT_REGISTER_MAP_VERSION == RegisterMapVersion(0, 2)

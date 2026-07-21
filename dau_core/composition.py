@@ -16,7 +16,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Mapping
 
-from .cores import CoreDefinition, CoreKind, ResourceEnvelope, core
+from .cores import CoreDefinition, CoreKind, LoadImageKind, ResourceEnvelope, core
 
 SCAN_INFRASTRUCTURE_CORES = ("axi-burst-reader", "stream-broadcast", "axi-record-writer", "axi-write-mux", "identity-registers")
 
@@ -233,13 +233,24 @@ class ScanCompositionSpec:
                     f"a two-phase composition cannot use per-lane partition filters: {lane.partition.core!r} would filter the LOAD image"
                 )
             load_tile = lane.chain[0]
-            declared = load_tile.definition().parameters
-            key_space = load_tile.params.get("KEY_SPACE", declared["KEY_SPACE"].default if "KEY_SPACE" in declared else None)
-            if key_space is not None and key_space % 128 != 0:
+            definition = load_tile.definition()
+            # load capability is registry truth, not config spelling: only a
+            # core declaring its LOAD-phase image kind has a cfg_load port
+            if definition.load_image is None:
                 raise CompositionError(
-                    f"load tile {load_tile.core!r} KEY_SPACE={key_space} must be a multiple of 128: the KEY_SPACE/64-word LOAD image "
-                    "must land on the 16-byte input length grid"
+                    f"chain stage {load_tile.core!r} binds cfg_load to {LOAD_PHASE_BINDING!r} but declares no load_image kind; "
+                    "only load-capable cores (membership filter, broadcast hash join) can be phase-bound"
                 )
+            if definition.load_image is LoadImageKind.BITMAP_64:
+                # the bitmap image is KEY_SPACE/64 64-bit words = KEY_SPACE/8
+                # bytes; it lands on the 16-byte input grid iff KEY_SPACE % 128
+                key_space = load_tile.params.get("KEY_SPACE", definition.parameters["KEY_SPACE"].default)
+                if key_space % 128 != 0:
+                    raise CompositionError(
+                        f"load tile {load_tile.core!r} KEY_SPACE={key_space} must be a multiple of 128: the KEY_SPACE/64-word LOAD image "
+                        "must land on the 16-byte input length grid"
+                    )
+            # QUAD_ROWS images are 16-byte build rows — always on the grid
 
     def core_names(self) -> tuple[str, ...]:
         """Every registry core the composition instantiates, infrastructure

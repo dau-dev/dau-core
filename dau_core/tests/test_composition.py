@@ -288,6 +288,50 @@ def test_load_phase_shape_rules() -> None:
     # the image must land on the 16-byte grid: KEY_SPACE % 128 != 0 rejected
     with pytest.raises(CompositionError, match="multiple of 128"):
         ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR, chain=(membership(key_space=192),)),))
+    # a shared partitioner would scatter the image across lanes
+    with pytest.raises(CompositionError, match="shared partitioner"):
+        ScanCompositionSpec(
+            name="bad",
+            lanes=tuple(LaneSpec(tile=_BAR, chain=(membership(),)) for _ in range(4)),
+            partitioner=TileSpec(core="int32-range-partitioner", config={"cfg_splitters": "{32'h1, 32'h2, 32'h3}"}),
+        )
+    # load capability is registry truth: a core without a load_image kind
+    # cannot be phase-bound even at chain[0]
+    with pytest.raises(CompositionError, match="declares no load_image"):
+        ScanCompositionSpec(
+            name="bad",
+            lanes=(
+                LaneSpec(
+                    tile=_BAR,
+                    chain=(
+                        TileSpec(
+                            core="int32-row-map-alu",
+                            config={
+                                "cfg_load": "load_phase",
+                                "cfg_op": "3'd0",
+                                "cfg_dst_field": "2'd1",
+                                "cfg_src_a_field": "2'd1",
+                                "cfg_src_b_field": "2'd2",
+                                "cfg_shift": "5'd0",
+                            },
+                        ),
+                    ),
+                ),
+            ),
+        )
+    # the hash join's QUAD_ROWS image is 16-byte build rows — always on the
+    # grid, so no KEY_SPACE % 128 rule (192 is legal here)
+    ScanCompositionSpec(
+        name="ok",
+        lanes=(
+            LaneSpec(
+                tile=_BAR,
+                chain=(
+                    TileSpec(core="int32-broadcast-hash-join", config={"cfg_load": "load_phase", "cfg_out_sel": "2'd0"}, params={"KEY_SPACE": 192}),
+                ),
+            ),
+        ),
+    )
 
 
 def test_param_override_is_validated_on_the_lane_tile_and_partition_slots() -> None:

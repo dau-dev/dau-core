@@ -29,6 +29,16 @@ class CoreKind(Enum):
     SIM_MODEL = "sim-model"
 
 
+class LoadImageKind(Enum):
+    """What a load-capable tile's LOAD-phase input stream is (the two-phase
+    load: cfg_load=1 streams the build image, cfg_load=0 probes). The
+    composition validates image/length-grid rules per kind; a core without
+    this marker has no cfg_load port and can never be phase-bound."""
+
+    BITMAP_64 = "bitmap-64"  # KEY_SPACE/64 little-endian 64-bit words (membership bitmap)
+    QUAD_ROWS = "quad-rows"  # 16-byte build rows (hash-join key + payload)
+
+
 class ContractKind(Enum):
     """Which streaming interface contract an operator tile speaks. Contract
     tests select their validator from this tag; a new core declares its
@@ -99,6 +109,9 @@ class CoreDefinition:
     # compaction, torn row, bad config — the chain-stage/partition contract,
     # exactly one close-out per lane per batch).
     success_close_out: bool = False
+    # the two-phase load capability: what this tile's LOAD-phase input stream
+    # is (None = no cfg_load port; the tile can never be phase-bound)
+    load_image: LoadImageKind | None = None
     # overridable SystemVerilog module parameters and their HDL defaults (the
     # membership filter's KEY_SPACE, the broadcast hash join's KEY_SPACE, ...).
     # A composition may override a declared parameter to build a non-default
@@ -371,6 +384,7 @@ CORES: tuple[CoreDefinition, ...] = (
         count_port="selected_count",
         contract_kind=ContractKind.ROW_STREAM,
         unit_kind=UnitKind.MEMBERSHIP,
+        load_image=LoadImageKind.BITMAP_64,
         parameters={"KEY_SPACE": ParameterSpec(default=4096, multiple_of=64)},  # dictionary-id bitmap; KEY_SPACE/64 words
     ),
     CoreDefinition(
@@ -388,6 +402,7 @@ CORES: tuple[CoreDefinition, ...] = (
         count_port="joined_count",
         contract_kind=ContractKind.ROW_STREAM,
         unit_kind=UnitKind.JOIN,
+        load_image=LoadImageKind.QUAD_ROWS,
         parameters={"KEY_SPACE": ParameterSpec(default=1024)},  # direct-mapped payload table, clog2(KEY_SPACE)-addressed
     ),
     CoreDefinition(
