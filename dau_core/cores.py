@@ -244,6 +244,23 @@ CORES: tuple[CoreDefinition, ...] = (
         contract_kind=ContractKind.ROW_STREAM,
     ),
     CoreDefinition(
+        name="int32-key-mask-dispatcher",
+        kind=CoreKind.OPERATOR,
+        module="dau_int32_key_mask_dispatcher",
+        source="dau_int32_key_mask_dispatcher.sv",
+        description="Key-mask dispatcher: fans one scan of 16-byte quad rows to NUM_PARTITIONS lanes by the key's low bits (dest = key & (NUM_PARTITIONS-1), a power of two) — the broadcast + per-lane pair-key-filter shape folded into one shared router, so each row is delivered once instead of N times. IN_WIDTH (the rows/cycle axis) selects the input framing: 64 (default) accepts two-beat quad rows; 128 accepts one whole row per beat ({w1, w0}) — paired with the wide row-unpack (OUT_WIDTH=128) the shared front sustains 1 row/cycle while the per-lane outputs stay the 64-bit two-beat framing the operator tiles consume (no operator widens). Same-lane runs throttle on the lane's two-beat drain (single-row skid, head-of-line); mask-distributed keys sustain the full front rate.",
+        golden="dau_core.operators:mask_dispatch_rows",
+        bench=f"{_BENCHES}.dau_int32_key_mask_dispatcher_tb",
+        parameters={
+            "NUM_PARTITIONS": ParameterSpec(default=4),  # power of two (elaboration-checked)
+            "IN_WIDTH": ParameterSpec(default=64, multiple_of=64),  # 64 or 128 (elaboration-checked)
+        },
+        resources=ResourceEnvelope(
+            lut=330, ff=1124, bram36=0.0, dsp=0
+        ),  # OOC N=4 IN_WIDTH=64, 8ns met (WNS +5.003); the wide front (IN_WIDTH=128) measures SMALLER (298 LUT / 1049 FF, WNS +5.397) — no w0 latch stage. FF-heavy = 4 single-row lane skids (held + emit row registers), same shape as the range partitioner.
+        contract_kind=ContractKind.ROW_STREAM,
+    ),
+    CoreDefinition(
         name="int32-bitonic-sorter",
         kind=CoreKind.OPERATOR,
         success_close_out=True,

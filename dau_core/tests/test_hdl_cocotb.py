@@ -20,6 +20,7 @@ from dau_core.hdl import (
     DAU_INT32_FIELD_SUM_AGGREGATION_SV,
     DAU_INT32_GROUPED_AGGREGATION_SV,
     DAU_INT32_GROUPED_FIELD_SUM_AGGREGATION_SV,
+    DAU_INT32_KEY_MASK_DISPATCHER_SV,
     DAU_INT32_KEY_MEMBERSHIP_FILTER_SV,
     DAU_INT32_KEYED_MAP_ALU_SV,
     DAU_INT32_KEYED_PREDICATE_FILTER_SV,
@@ -244,6 +245,29 @@ def test_row_unpack_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> No
         hdl_toplevel="dau_int32_row_unpack",
         test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_row_unpack_tb",
         tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_key_mask_dispatcher_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_KEY_MASK_DISPATCHER_SV)),),
+        hdl_toplevel="dau_int32_key_mask_dispatcher",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_key_mask_dispatcher_tb",
+        tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_key_mask_dispatcher_wide_front_runs_real_cocotb(tmp_path: Path) -> None:
+    # IN_WIDTH=128 (the rows/cycle axis): one whole quad row per input beat;
+    # the shared front sustains 1 row/cycle on mask-distributed keys
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_KEY_MASK_DISPATCHER_SV)),),
+        hdl_toplevel="dau_int32_key_mask_dispatcher",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_key_mask_dispatcher_wide_tb",
+        tmp_path=tmp_path,
+        parameters={"IN_WIDTH": 128},
     )
 
 
