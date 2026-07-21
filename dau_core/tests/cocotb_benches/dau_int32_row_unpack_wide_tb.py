@@ -242,6 +242,148 @@ async def wide_bad_config_drains_then_config_error(dut):
 
 
 @cocotb.test()
+async def wide_bypass_torn_row_reports_error_under_backpressure(dut):
+    # the torn w0 (last at phase 0) is accepted-and-dropped, never forwarded,
+    # so its acceptance cannot depend on output_ready: ERR_STREAM must still
+    # fire with the sink NEVER ready (no deadlock), and no output beat leaks
+    await _start(dut)
+    dut.cfg_bypass.value = 1
+    dut.output_ready.value = 0  # sink never asserts ready
+    dut.status_ready.value = 1
+    send = cocotb.start_soon(_send_words(dut, [0x0BAD_0BAD_0BAD_0BAD]))  # lone w0 with last
+    raised = False
+    for _ in range(64):
+        await ReadOnly()
+        assert int(dut.output_valid.value) == 0, "torn w0 forwarded despite backpressure"
+        got_status = int(dut.status_valid.value) == 1
+        err = int(dut.status_error.value)
+        code = int(dut.status_error_code.value)
+        await RisingEdge(dut.clk)
+        if got_status:
+            assert err == 1 and code == UnpackErrorCode.STREAM, f"torn bypass status {err}/{code}"
+            raised = True
+            break
+    assert raised, "torn wide-bypass batch deadlocked under output backpressure"
+    await send
+    dut.status_ready.value = 0
+    rows = [(7, 8, 9, 10)]
+    assert await _run_bypass(dut, _bypass_words(rows)) == unpack_rows(rows, bypass=True)
+
+
+async def _send_one_unpack_row(dut, word) -> None:
+    """Present one complete unpack batch (a single packed word carrying last)
+    and wait for it to be accepted."""
+    dut.input_data.value = word
+    dut.input_last.value = 1
+    dut.input_valid.value = 1
+    while True:
+        await ReadOnly()
+        fired = int(dut.input_ready.value) == 1
+        await RisingEdge(dut.clk)
+        if fired:
+            break
+    dut.input_valid.value = 0
+    dut.input_last.value = 0
+
+
+@cocotb.test()
+async def wide_bypass_waits_for_backpressured_unpack_tail(dut):
+    # cross-mode emit-drain gate in WIDE: unpack batch A's single beat is held
+    # under backpressure while bypass batch B is presented. B must NOT be
+    # accepted (nor drive the output) until A's beat has handshaked — the
+    # overtake gate must hold when the whole row is one beat.
+    await _start(dut)
+    dut.cfg_bypass.value = 0
+    a_word = _pack(_BYTE_SPECS, (0x11, 0x22, 0x33, 0x44))
+    a_row = unpack_rows([a_word], _BYTE_SPECS)[0]
+    dut.output_ready.value = 0  # stall A's beat before it can fire
+    await _send_one_unpack_row(dut, a_word)
+
+    # present B (bypass) while A's beat is in flight
+    dut.cfg_bypass.value = 1
+    b_words = _bypass_words([(7, 8, 9, 10)])
+    dut.input_data.value = b_words[0]
+    dut.input_last.value = 0
+    dut.input_valid.value = 1
+    for _ in range(12):
+        await ReadOnly()
+        assert int(dut.input_ready.value) == 0, "bypass B accepted while A's wide beat still in flight"
+        assert int(dut.output_valid.value) == 1, "A's stalled beat dropped"
+        assert _decode_beat(int(dut.output_data.value)) == a_row, "output not holding A's beat"
+        assert int(dut.output_last.value) == 1, "A's single beat must carry last"
+        await RisingEdge(dut.clk)
+
+    # withdraw the probe (B was only presented to prove the gate), release the
+    # stall so A's beat drains, then send B properly and expect its gearboxed row
+    dut.input_valid.value = 0
+    dut.output_ready.value = 1
+    await ReadOnly()
+    assert int(dut.output_valid.value) == 1 and int(dut.output_last.value) == 1
+    await RisingEdge(dut.clk)
+    dut.output_ready.value = 0
+    assert await _run_bypass(dut, b_words) == unpack_rows([(7, 8, 9, 10)], bypass=True)
+
+
+@cocotb.test()
+async def wide_error_close_out_waits_for_backpressured_tail(dut):
+    # cross-batch status-overtake gate in WIDE (exercises S_ERR_DRAIN): batch
+    # A's single wide beat is stalled; batch B (bad config, single row) is
+    # presented. B is only accepted on the cycle A's beat handshakes; its
+    # ERR_CONFIG close-out must NOT appear before A's beat has drained, and
+    # must be reported through S_ERR_DRAIN afterwards.
+    await _start(dut)
+    a_word = _pack(_BYTE_SPECS, (0x51, 0x52, 0x53, 0x54))
+    a_row = unpack_rows([a_word], _BYTE_SPECS)[0]
+    dut.output_ready.value = 0
+    dut.status_ready.value = 1
+    await _send_one_unpack_row(dut, a_word)
+
+    # present B: a single bad-config row carrying last (width 0 invalid)
+    _drive_raw_config(dut, [(0, 8, 0), (8, 0, 0), (16, 8, 0), (24, 8, 0)])
+    dut.input_data.value = 0xBADB
+    dut.input_last.value = 1
+    dut.input_valid.value = 1
+
+    # while A's beat is stalled: no status may appear (overtake gate)
+    for _ in range(12):
+        await ReadOnly()
+        assert int(dut.status_valid.value) == 0, "B's ERR_CONFIG overtook A's un-drained beat"
+        assert int(dut.output_valid.value) == 1, "A's stalled beat dropped"
+        assert _decode_beat(int(dut.output_data.value)) == a_row
+        await RisingEdge(dut.clk)
+
+    # release: A drains (B is accepted on that handshake cycle at the
+    # earliest), then — and only then — B's ERR_CONFIG close-out appears
+    dut.output_ready.value = 1
+    drained = False
+    for _ in range(64):
+        await ReadOnly()
+        fired = int(dut.output_valid.value) == 1 and int(dut.output_ready.value) == 1
+        if not drained and int(dut.status_valid.value) == 1:
+            raise AssertionError("ERR_CONFIG appeared before A's beat drained")
+        await RisingEdge(dut.clk)
+        if fired:
+            drained = True
+            break
+    assert drained, "A's beat never drained"
+    dut.output_ready.value = 0
+    # B may still be waiting to be accepted; keep it presented until it fires,
+    # then wait for its close-out
+    while True:
+        await ReadOnly()
+        fired = int(dut.input_ready.value) == 1 and int(dut.input_valid.value) == 1
+        await RisingEdge(dut.clk)
+        if fired:
+            break
+    dut.input_valid.value = 0
+    dut.input_last.value = 0
+    await _expect_status(dut, error=True, code=UnpackErrorCode.CONFIG)
+    # recovers cleanly
+    good = [_pack(_BYTE_SPECS, (1, 2, 3, 4))]
+    assert await _run(dut, good, _BYTE_SPECS) == unpack_rows(good, _BYTE_SPECS)
+
+
+@cocotb.test()
 async def wide_mode_switches_between_batches_on_one_dut(dut):
     await _start(dut)
     u_words = [_pack(_Q6_SPECS, row) for row in _Q6_ROWS]
