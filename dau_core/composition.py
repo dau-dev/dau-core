@@ -132,16 +132,15 @@ class ScanCompositionSpec:
             _validate_tile_params(self.partitioner, "partitioner")
             # the key-mask dispatcher's mask decode (dest = key & (N-1)) needs
             # a power-of-two partition count; the exact-branch mode does not —
-            # the conditional pairing the per-parameter spec cannot express
-            if (
-                self.partitioner.core == "int32-key-mask-dispatcher"
-                and self.partitioner.params.get("EXACT_BRANCH", 0) != 1
-                and (partitions := self.partitioner.params.get("NUM_PARTITIONS")) is not None
-                and partitions & (partitions - 1)
-            ):
-                raise CompositionError(
-                    f"partitioner {self.partitioner.core!r} parameter 'NUM_PARTITIONS' must be a power of two in mask mode, got {partitions!r}"
-                )
+            # the conditional pairing the per-parameter spec cannot express.
+            # The effective count is the lane count (the walker derives
+            # NUM_PARTITIONS from it) unless a params override names it.
+            if self.partitioner.core == "int32-key-mask-dispatcher" and self.partitioner.params.get("EXACT_BRANCH", 0) != 1:
+                partitions = self.partitioner.params.get("NUM_PARTITIONS", len(self.lanes))
+                if partitions & (partitions - 1):
+                    raise CompositionError(
+                        f"partitioner {self.partitioner.core!r} 'NUM_PARTITIONS' must be a power of two in mask mode, got {partitions!r}"
+                    )
         if self.front_unpack is not None:
             if self.front_unpack.core != FRONT_UNPACK_CORE:
                 raise CompositionError(

@@ -205,6 +205,15 @@ def test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards() ->
             lanes=tuple(LaneSpec(tile=_BAR) for _ in range(4)),
             partitioner=TileSpec(core="int32-key-mask-dispatcher", params={"NUM_PARTITIONS": 12}),
         )
+    # the effective mask-mode partition count is the LANE count (the walker
+    # derives NUM_PARTITIONS from it): three mask-mode lanes are rejected here,
+    # not at Vivado elaboration
+    with pytest.raises(CompositionError, match="must be a power of two in mask mode"):
+        ScanCompositionSpec(
+            name="bad-derived",
+            lanes=tuple(LaneSpec(tile=_BAR) for _ in range(3)),
+            partitioner=TileSpec(core="int32-key-mask-dispatcher"),
+        )
     # the exact-branch mode lifts the power-of-two requirement (q19's three
     # disjunct branches) — and an explicit EXACT_BRANCH: 0 flag is a legal
     # enumerated choice, not a "non-positive" parameter
