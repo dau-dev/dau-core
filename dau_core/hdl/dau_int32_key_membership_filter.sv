@@ -237,8 +237,13 @@ module dau_int32_key_membership_filter #(
         if (mem_we) begin
             membership_mem[mem_waddr] <= input_data;
         end
+        // the read port is ALWAYS-ON: gating it on probe_w0_accept put the
+        // whole input_ready comb chain onto the 192-BRAM enable fan-out (the
+        // post-retime critical path). Between accepts read_word churns with
+        // whatever input_data addresses, but stage 2 only captures when
+        // stage1_valid marks a real probe read.
+        read_word <= membership_mem[probe_raddr];
         if (probe_w0_accept) begin
-            read_word <= membership_mem[probe_raddr];
             probe_bit <= probe_key[5:0];
             probe_in_range <= probe_key_in_range;
         end
