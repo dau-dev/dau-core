@@ -168,6 +168,22 @@ def test_market_feature_runs_real_cocotb_against_systemverilog(tmp_path: Path) -
 
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_asof_feature_chain_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
+    # the fused align -> derive datapath: the as-of tile streams market rows
+    # straight into the feature tile (same 4-word record, no reformatting)
+    _run_cocotb_verilator(
+        sources=(
+            Path(str(DAU_INT32_ASOF_BACKWARD_SV)),
+            Path(str(DAU_INT32_MARKET_FEATURE_SV)),
+            _SV_TB_DIR / "dau_asof_feature_chain.sv",
+        ),
+        hdl_toplevel="dau_asof_feature_chain",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_asof_feature_chain_tb",
+        tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_rolling_moments_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
     _run_cocotb_verilator(
         sources=(Path(str(DAU_INT32_ROLLING_MOMENTS_SV)),),
