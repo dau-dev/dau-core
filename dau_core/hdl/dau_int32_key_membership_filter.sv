@@ -119,6 +119,7 @@ module dau_int32_key_membership_filter #(
     logic [63:0] read_word2;      // stage 2: behind the multi-BRAM output mux
     logic [5:0]  probe_bit2;
     logic        probe_in_range2;
+    logic        addr_issued;     // the row_w0-derived address drove the read last cycle
     logic        stage1_valid;    // a read landed in stage 1 last cycle
     logic        result_ready;    // stage 2 holds the current row's unconsumed result
 
@@ -173,11 +174,17 @@ module dau_int32_key_membership_filter #(
     assign output_data = (emit_state == EMIT_W0) ? emit_w0 : emit_w1;
     assign output_last = (emit_state == EMIT_W1) && emit_last;
 
-    // membership read address: the row key (w0.lo). A key outside
-    // [0, KEY_SPACE) fails the unsigned range compare (negatives read as
-    // >= 2**31 > KEY_SPACE_U) and is forced to a non-member; the address is
-    // clamped so an out-of-range key never indexes past the memory.
-    assign probe_key = input_data[31:0];
+    // membership read address: the row key (w0.lo) from the REGISTERED
+    // row_w0 — sourcing the 192-BRAM address fan-out from a register (which
+    // the tools replicate across the die) instead of the upstream reader's
+    // combinational data path was the composed-build critical path. The read
+    // therefore lands one cycle later (three stages total); the pending-row
+    // decision machinery absorbs it just-in-time, so the steady-state probe
+    // rate stays one row per two cycles. A key outside [0, KEY_SPACE) fails
+    // the unsigned range compare (negatives read as >= 2**31 > KEY_SPACE_U)
+    // and is forced to a non-member; the address is clamped so an
+    // out-of-range key never indexes past the memory.
+    assign probe_key = row_w0[31:0];
     assign probe_key_in_range = (probe_key < KEY_SPACE_U);
     assign probe_raddr = probe_key_in_range ? probe_key[6 +: AWIDTH] : '0;
 
@@ -238,12 +245,12 @@ module dau_int32_key_membership_filter #(
             membership_mem[mem_waddr] <= input_data;
         end
         // the read port is ALWAYS-ON: gating it on probe_w0_accept put the
-        // whole input_ready comb chain onto the 192-BRAM enable fan-out (the
-        // post-retime critical path). Between accepts read_word churns with
-        // whatever input_data addresses, but stage 2 only captures when
-        // stage1_valid marks a real probe read.
+        // whole input_ready comb chain onto the 192-BRAM enable fan-out.
+        // The address derives from row_w0, so the read for a row issues the
+        // cycle after its w0 accept; between real reads read_word churns,
+        // but stage 2 only captures when stage1_valid marks a probe read.
         read_word <= membership_mem[probe_raddr];
-        if (probe_w0_accept) begin
+        if (addr_issued) begin
             probe_bit <= probe_key[5:0];
             probe_in_range <= probe_key_in_range;
         end
@@ -267,7 +274,8 @@ module dau_int32_key_membership_filter #(
 
             // read-pipeline bookkeeping + the pending-row decision engine
             // (runs before the state case so batch-end paths can override)
-            stage1_valid <= probe_w0_accept;
+            addr_issued <= probe_w0_accept;
+            stage1_valid <= addr_issued;
             if (stage1_valid) begin
                 result_ready <= 1'b1;
             end
@@ -468,6 +476,7 @@ module dau_int32_key_membership_filter #(
             active_mode <= 1'b0;
             load_counter <= '0;
             row_w0 <= 64'd0;
+            addr_issued <= 1'b0;
             stage1_valid <= 1'b0;
             result_ready <= 1'b0;
             pend_valid <= 1'b0;
