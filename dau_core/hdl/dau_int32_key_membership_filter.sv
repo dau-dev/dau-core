@@ -39,6 +39,15 @@
 // (0 after a load or an error close-out). Row atomicity: input_last is legal
 // only on w1 of a probe row; the newest passing row is held in a skid slot so
 // input_last lands on the final forwarded word even when trailing rows drop.
+//
+// Timing (the membership-mux retime): the bitmap read is TWO register stages
+// — the per-primitive BRAM output registers, then a fabric register behind
+// the multi-BRAM output mux — so the ~170-BRAM mux of a KEY_SPACE=6M bitmap
+// gets its own cycle (the 125 MHz critical path before the retime). The
+// keep/drop decision therefore lands one cycle after a row's w1: the
+// completed row waits in a pending slot and the decision applies during the
+// next row's w0 cycle, so the steady-state probe rate stays one row per two
+// cycles.
 module dau_int32_key_membership_filter #(
     // dictionary-id space (bitmap width in bits); a positive multiple of 64.
     // Sized to the build dictionary's cardinality — the memory stays
@@ -80,7 +89,8 @@ module dau_int32_key_membership_filter #(
         S_ARM,        // batch idle: the first word decides load vs probe (cfg latches)
         S_LOAD,       // writing bitmap image words
         S_W0,         // probe: accept a row's w0, issue the membership read
-        S_W1,         // probe: w1 in, membership result ready, keep/drop the row
+        S_W1,         // probe: accept w1 into the pending slot (decision lands next cycle)
+        S_DECIDE_LAST,// probe: final row pending — wait for its decision before the tail
         S_FLUSH,      // probe: release the held final row with last=1 (silent on success)
         S_FLUSH_DRAIN,// hold input closed until the flushed final beat drains, then re-arm
         S_ERR_DRAIN,  // torn row: drain the in-flight forwarded beat, then ERR_STREAM
@@ -103,9 +113,21 @@ module dau_int32_key_membership_filter #(
     // ram_style=block keeps it BRAM-resident so it scales to large dictionaries
     // without burning LUTs (the join tier's binding constraint is BRAM).
     (* ram_style = "block" *) logic [63:0] membership_mem [0:WORDS-1];
-    logic [63:0] read_word;
+    logic [63:0] read_word;       // stage 1: the BRAM primitives' output registers
     logic [5:0]  probe_bit;
     logic        probe_in_range;
+    logic [63:0] read_word2;      // stage 2: behind the multi-BRAM output mux
+    logic [5:0]  probe_bit2;
+    logic        probe_in_range2;
+    logic        stage1_valid;    // a read landed in stage 1 last cycle
+    logic        result_ready;    // stage 2 holds the current row's unconsumed result
+
+    // the completed row awaiting its (stage-2) keep/drop decision
+    logic        pend_valid;
+    logic [63:0] pend_w0;
+    logic [63:0] pend_w1;
+    logic        pend_resolved;   // decision latched (survives stage-2 reuse)
+    logic        pend_keep_r;
 
     logic [AWIDTH-1:0] load_counter;
 
@@ -141,8 +163,8 @@ module dau_int32_key_membership_filter #(
 
     always_comb begin
         unique case (state)
-            S_W1:    input_ready = (!held_valid || emit_free);
-            S_FLUSH, S_FLUSH_DRAIN, S_ERR_DRAIN, S_STATUS: input_ready = 1'b0;
+            S_W1:    input_ready = (!pend_valid || pend_can_apply);
+            S_DECIDE_LAST, S_FLUSH, S_FLUSH_DRAIN, S_ERR_DRAIN, S_STATUS: input_ready = 1'b0;
             default: input_ready = 1'b1;  // S_ARM, S_LOAD, S_W0, S_DISCARD, S_DRAIN_LOAD
         endcase
     end
@@ -180,8 +202,24 @@ module dau_int32_key_membership_filter #(
         end
     end
 
-    assign is_member = probe_in_range && read_word[probe_bit];
+    // the keep/drop decision reads STAGE 2 (behind the retimed mux)
+    assign is_member = probe_in_range2 && read_word2[probe_bit2];
     assign row_keep = (active_mode == MODE_ANTI) ? !is_member : is_member;
+
+    // pending-row decision: ready once resolved (latched) or stage 2 holds
+    // this row's result; a drop applies unconditionally, a keep needs a slot.
+    // A torn w0 firing this cycle aborts the batch — suppress the apply so
+    // the pending row drops with the batch (old-contract parity). input_valid
+    // (not input_fire) keeps input_ready loop-free: S_W0 is unconditionally
+    // ready, so the two are identical there.
+    logic torn_w0_fire;
+    logic pend_decision_ready;
+    logic pend_keep_now;
+    logic pend_can_apply;
+    assign torn_w0_fire = (state == S_W0) && input_valid && input_last;
+    assign pend_decision_ready = pend_valid && (pend_resolved || result_ready);
+    assign pend_keep_now = pend_resolved ? pend_keep_r : row_keep;
+    assign pend_can_apply = pend_decision_ready && !torn_w0_fire && (!pend_keep_now || !held_valid || emit_free);
 
     // zero-init so a probe before any load is a well-defined empty build set
     // (Vivado carries the INIT into the BRAM)
@@ -190,6 +228,9 @@ module dau_int32_key_membership_filter #(
         read_word = 64'd0;
         probe_bit = 6'd0;
         probe_in_range = 1'b0;
+        read_word2 = 64'd0;
+        probe_bit2 = 6'd0;
+        probe_in_range2 = 1'b0;
     end
 
     always_ff @(posedge clk) begin
@@ -200,6 +241,12 @@ module dau_int32_key_membership_filter #(
             read_word <= membership_mem[probe_raddr];
             probe_bit <= probe_key[5:0];
             probe_in_range <= probe_key_in_range;
+        end
+        if (stage1_valid) begin
+            // the fabric register behind the multi-BRAM output mux (stage 2)
+            read_word2 <= read_word;
+            probe_bit2 <= probe_bit;
+            probe_in_range2 <= probe_in_range;
         end
     end
 
@@ -212,6 +259,29 @@ module dau_int32_key_membership_filter #(
                 EMIT_W1: if (output_fire) emit_state <= EMIT_IDLE;
                 default: ;
             endcase
+
+            // read-pipeline bookkeeping + the pending-row decision engine
+            // (runs before the state case so batch-end paths can override)
+            stage1_valid <= probe_w0_accept;
+            if (stage1_valid) begin
+                result_ready <= 1'b1;
+            end
+            if (pend_decision_ready && !pend_resolved) begin
+                pend_keep_r <= pend_keep_now;
+                pend_resolved <= 1'b1;
+                result_ready <= 1'b0;  // stage 2 consumed for this row
+            end
+            if (pend_can_apply) begin
+                pend_valid <= 1'b0;
+                pend_resolved <= 1'b0;
+                if (pend_keep_now) begin
+                    if (held_valid) start_emit(held_w0, held_w1, 1'b0);
+                    held_valid <= 1'b1;
+                    held_w0 <= pend_w0;
+                    held_w1 <= pend_w1;
+                    selected_count <= selected_count + 64'd1;
+                end
+            end
 
             case (state)
                 S_ARM: begin
@@ -264,9 +334,14 @@ module dau_int32_key_membership_filter #(
                 S_W0: begin
                     if (input_fire) begin
                         if (input_last) begin
-                            // torn row: the batch is invalid. If a forwarded
-                            // beat is still in flight, drain it before the
-                            // error close-out so status cannot overtake it.
+                            // torn row: the batch is invalid (the pending row
+                            // drops with it — its apply was suppressed this
+                            // cycle). If a forwarded beat is still in flight,
+                            // drain it before the error close-out so status
+                            // cannot overtake it.
+                            pend_valid <= 1'b0;
+                            pend_resolved <= 1'b0;
+                            result_ready <= 1'b0;
                             if (emit_state == EMIT_IDLE) begin
                                 raise_error(ERR_STREAM);
                             end else begin
@@ -282,21 +357,22 @@ module dau_int32_key_membership_filter #(
                 end
                 S_W1: begin
                     if (input_fire) begin
-                        if (row_keep) begin
-                            if (held_valid) start_emit(held_w0, held_w1, 1'b0);
-                            held_valid <= 1'b1;
-                            held_w0 <= row_w0;
-                            held_w1 <= input_data;
-                            selected_count <= selected_count + 64'd1;
-                        end
-                        if (input_last) begin
-                            if (row_keep || held_valid) begin
-                                state <= S_FLUSH;
-                            end else begin
-                                raise_success();             // zero forwarded rows: the compaction close-out
-                            end
+                        // the completed row parks in the pending slot; its
+                        // keep/drop lands next cycle from the retimed stage 2
+                        pend_valid <= 1'b1;
+                        pend_w0 <= row_w0;
+                        pend_w1 <= input_data;
+                        pend_resolved <= 1'b0;
+                        state <= input_last ? S_DECIDE_LAST : S_W0;
+                    end
+                end
+                S_DECIDE_LAST: begin
+                    // the engine applies the final pending row; then the tail
+                    if (!pend_valid) begin
+                        if (held_valid) begin
+                            state <= S_FLUSH;
                         end else begin
-                            state <= S_W0;
+                            raise_success();                 // zero forwarded rows: the compaction close-out
                         end
                     end
                 end
@@ -369,6 +445,9 @@ module dau_int32_key_membership_filter #(
     task automatic raise_error(input logic [7:0] code);
         begin
             held_valid <= 1'b0;
+            pend_valid <= 1'b0;
+            pend_resolved <= 1'b0;
+            result_ready <= 1'b0;
             selected_count <= 64'd0;
             status_valid <= 1'b1;
             status_error <= 1'b1;
@@ -384,6 +463,13 @@ module dau_int32_key_membership_filter #(
             active_mode <= 1'b0;
             load_counter <= '0;
             row_w0 <= 64'd0;
+            stage1_valid <= 1'b0;
+            result_ready <= 1'b0;
+            pend_valid <= 1'b0;
+            pend_w0 <= 64'd0;
+            pend_w1 <= 64'd0;
+            pend_resolved <= 1'b0;
+            pend_keep_r <= 1'b0;
             held_valid <= 1'b0;
             held_w0 <= 64'd0;
             held_w1 <= 64'd0;
