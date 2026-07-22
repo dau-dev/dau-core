@@ -14,6 +14,7 @@ from dau_core.hdl import (
     DAU_AXI_WRITE_MUX_SV,
     DAU_INT32_AGGREGATION_TILE_SV,
     DAU_INT32_ARROW_LITE_STREAM_AGGREGATION_SV,
+    DAU_INT32_ASOF_BACKWARD_SV,
     DAU_INT32_BAR_AGGREGATION_SV,
     DAU_INT32_BITONIC_SORTER_SV,
     DAU_INT32_BROADCAST_HASH_JOIN_SV,
@@ -140,6 +141,16 @@ def test_bar_aggregation_runs_real_cocotb_against_systemverilog(tmp_path: Path) 
         sources=(Path(str(DAU_INT32_BAR_AGGREGATION_SV)),),
         hdl_toplevel="dau_int32_bar_aggregation",
         test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_bar_aggregation_tb",
+        tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_asof_backward_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_ASOF_BACKWARD_SV)),),
+        hdl_toplevel="dau_int32_asof_backward",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_asof_backward_tb",
         tmp_path=tmp_path,
     )
 
