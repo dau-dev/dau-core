@@ -282,6 +282,25 @@ CORES: tuple[CoreDefinition, ...] = (
         parameters={"WINDOW": ParameterSpec(default=4, minimum=2)},  # count-based window depth (>= 2); the shift-register depth
     ),
     CoreDefinition(
+        name="int32-market-feature",
+        kind=CoreKind.OPERATOR,
+        success_close_out=True,
+        module="dau_int32_market_feature",
+        source="dau_int32_market_feature.sv",
+        description=(
+            "Market-feature map (the derive stage of the temporal workflow): a stateless per-row map from an aligned market row (as-of tile output, 4 words: time, {price, symbol}, {ask, bid}, "
+            "{_, size}) to a 7-word feature record — midpoint = (bid+ask)>>1 (33-bit sum, no int32 overflow), spread = ask-bid (INT64, the int32 range can overflow), quote-rule trade_sign "
+            "(+1 above midpoint / -1 below / 0 at), signed_volume = trade_sign*size (INT64), dollar_volume = price*size (INT64, the VWAP numerator). One output row per input row; matches "
+            "dau_core.temporal.market_features. In the fused "
+            "datapath this is a chain stage between the as-of tile and the bar tile — its signed_volume is the value the bar tile accumulates. A row torn by input_last before its fourth word is ERR_STREAM."
+        ),
+        golden="dau_core.temporal:market_features",
+        bench=f"{_BENCHES}.dau_int32_market_feature_tb",
+        resources=ResourceEnvelope(lut=480, ff=528, bram36=0.0, dsp=4),  # OOC xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +0.680)
+        count_port="feature_count",
+        contract_kind=ContractKind.ROW_STREAM,
+    ),
+    CoreDefinition(
         name="int32-pair-key-filter",
         kind=CoreKind.OPERATOR,
         module="dau_int32_pair_key_filter",

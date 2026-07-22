@@ -26,6 +26,7 @@ from dau_core.hdl import (
     DAU_INT32_KEYED_MAP_ALU_SV,
     DAU_INT32_KEYED_PREDICATE_FILTER_SV,
     DAU_INT32_MAP_ALU_SV,
+    DAU_INT32_MARKET_FEATURE_SV,
     DAU_INT32_PAIR_KEY_FILTER_SV,
     DAU_INT32_PREDICATE_FILTER_SV,
     DAU_INT32_RANGE_PARTITIONER_SV,
@@ -152,6 +153,16 @@ def test_asof_backward_runs_real_cocotb_against_systemverilog(tmp_path: Path) ->
         sources=(Path(str(DAU_INT32_ASOF_BACKWARD_SV)),),
         hdl_toplevel="dau_int32_asof_backward",
         test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_asof_backward_tb",
+        tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_market_feature_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_MARKET_FEATURE_SV)),),
+        hdl_toplevel="dau_int32_market_feature",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_market_feature_tb",
         tmp_path=tmp_path,
     )
 
