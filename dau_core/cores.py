@@ -69,12 +69,15 @@ class ParameterSpec:
     (the membership bitmap is ``KEY_SPACE/64`` words); ``choices`` pins an
     exact legal set (the quad-stream widths are 64 or 128, nothing else);
     ``power_of_two`` mirrors mask/bit-select decodes (the key-mask dispatcher's
-    ``NUM_PARTITIONS``). The HDL is the source of truth; this mirrors it."""
+    ``NUM_PARTITIONS``); ``minimum`` mirrors a lower bound (the rolling-moment
+    window is ``>= 2`` — a size-1 sample variance is undefined). The HDL is the
+    source of truth; this mirrors it."""
 
     default: int
     multiple_of: int = 1
     choices: tuple[int, ...] | None = None
     power_of_two: bool = False
+    minimum: int = 1
 
 
 @dataclass(frozen=True)
@@ -256,6 +259,27 @@ CORES: tuple[CoreDefinition, ...] = (
         resources=ResourceEnvelope(lut=606, ff=856, bram36=0.0, dsp=0),  # OOC xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +1.679)
         count_port="match_count",
         contract_kind=ContractKind.ROW_STREAM,
+    ),
+    CoreDefinition(
+        name="int32-rolling-moments",
+        kind=CoreKind.OPERATOR,
+        success_close_out=True,
+        module="dau_int32_rolling_moments",
+        source="dau_int32_rolling_moments.sv",
+        description=(
+            "Per-symbol rolling-moment tile (the roll stage of the temporal workflow, over the reduced bar/feature stream). Over a count-based window of the last WINDOW values per symbol, "
+            "emits the deferred-division moment record (count, sum, sum-of-squares) for every FULL window — one tile serving rolling sum (=sum), mean (=sum/count) and sample variance "
+            "(=(count*sum_sq - sum*sum)/(count*(count-1)), the host dividing once). One 32-bit value per row (w0 = {value, symbol}); because the host-sorted stream is symbol-grouped the tile holds ONE "
+            "window (a depth-WINDOW shift register) reset on symbol change — the bar tile's key-change shape, no per-symbol table. Warm-up rows (window not yet full) are dropped, matching the None entries "
+            "of dau_core.temporal.rolling_moments/rolling_sum. The moment update pipelines over four beats (READ->MUL->DIFF->UPDATE) keeping the 32x32 DSP products and the difference/accumulate off one path; "
+            "one record is buffered so the final emitted record carries output_last. WINDOW >= 2 (a size-1 sample variance is undefined; the compiler residues it)."
+        ),
+        golden="dau_core.temporal:rolling_moments",
+        bench=f"{_BENCHES}.dau_int32_rolling_moments_tb",
+        resources=ResourceEnvelope(lut=683, ff=1001, bram36=0.0, dsp=8),  # OOC WINDOW=4 xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +3.155)
+        count_port="moment_count",
+        contract_kind=ContractKind.ROW_STREAM,
+        parameters={"WINDOW": ParameterSpec(default=4, minimum=2)},  # count-based window depth (>= 2); the shift-register depth
     ),
     CoreDefinition(
         name="int32-pair-key-filter",
