@@ -272,6 +272,32 @@ def test_key_mask_dispatcher_wide_front_runs_real_cocotb(tmp_path: Path) -> None
 
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_key_mask_dispatcher_exact_branch_wide_runs_real_cocotb(tmp_path: Path) -> None:
+    # EXACT_BRANCH=1 at the wide front, NUM_PARTITIONS=3 (no power-of-two):
+    # dest = key - 1, out-of-range keys dropped at the router for zero lane
+    # cycles — the q19 disjunct-branch fan-out
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_KEY_MASK_DISPATCHER_SV)),),
+        hdl_toplevel="dau_int32_key_mask_dispatcher",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_key_mask_dispatcher_exact_tb",
+        tmp_path=tmp_path,
+        parameters={"IN_WIDTH": 128, "EXACT_BRANCH": 1, "NUM_PARTITIONS": 3},
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_key_mask_dispatcher_exact_branch_narrow_runs_real_cocotb(tmp_path: Path) -> None:
+    # the same exact-branch mode on the two-beat narrow front
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_KEY_MASK_DISPATCHER_SV)),),
+        hdl_toplevel="dau_int32_key_mask_dispatcher",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_key_mask_dispatcher_exact_tb",
+        tmp_path=tmp_path,
+        parameters={"EXACT_BRANCH": 1, "NUM_PARTITIONS": 3},
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_row_unpack_wide_quad_stream_runs_real_cocotb(tmp_path: Path) -> None:
     # OUT_WIDTH=128 (the rows/cycle axis): one whole quad row per output beat,
     # sustaining 1 row/cycle where the 64-bit framing serializes 2 beats/row

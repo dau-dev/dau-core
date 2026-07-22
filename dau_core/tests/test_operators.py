@@ -317,6 +317,26 @@ def test_mask_dispatch_rejects_non_power_of_two() -> None:
         mask_dispatch_rows([(1, 2, 3, 4)], num_partitions=3)
 
 
+def test_exact_branch_dispatch_routes_in_range_and_drops_the_rest() -> None:
+    # q19's disjunct branches: dest = key - 1 for keys in [1, N], branch 0 and
+    # every out-of-range key (negatives drop via their unsigned image) cost
+    # zero lane deliveries; no power-of-two requirement
+    rows = [(1, 1, 0, 0), (0, 2, 0, 0), (3, 3, 0, 0), (4, 4, 0, 0), (-1, 5, 0, 0), (2, 6, 0, 0), (0, 7, 0, 0)]
+    parts = mask_dispatch_rows(rows, num_partitions=3, exact_branch=True)
+    assert parts == [[(1, 1, 0, 0)], [(2, 6, 0, 0)], [(3, 3, 0, 0)]]
+
+
+def test_exact_branch_dispatch_preserves_order_within_a_branch() -> None:
+    rows = [(2, i, 0, 0) for i in range(5)] + [(0, 99, 0, 0)]
+    parts = mask_dispatch_rows(rows, num_partitions=2, exact_branch=True)
+    assert parts == [[], [(2, i, 0, 0) for i in range(5)]]
+
+
+def test_exact_branch_dispatch_rejects_non_positive_partitions() -> None:
+    with pytest.raises(ValueError, match="positive"):
+        mask_dispatch_rows([(1, 2, 3, 4)], num_partitions=0, exact_branch=True)
+
+
 def test_pack_splitters_is_msb_first_reversed_hex() -> None:
     # cfg_splitters packs splitter i at [i*32 +: 32]; SV concatenation is
     # MSB-first, so the highest-index splitter is emitted first. Signed int32
