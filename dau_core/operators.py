@@ -694,19 +694,35 @@ def range_partition_bar_rows(rows: Iterable[tuple[int, int, int, int]], *, split
     return parts
 
 
-def mask_dispatch_rows(rows: Iterable[tuple[int, int, int, int]], *, num_partitions: int) -> list[list[tuple[int, int, int, int]]]:
+def mask_dispatch_rows(
+    rows: Iterable[tuple[int, int, int, int]], *, num_partitions: int, exact_branch: bool = False
+) -> list[list[tuple[int, int, int, int]]]:
     """Golden semantics for the key-mask dispatcher: route each
     (key, value, aux0, aux1) row to partition ``key & (num_partitions - 1)``
     (``num_partitions`` a power of two; the signed 32-bit key's low bits —
     two's complement, so negative keys mask exactly like the hardware
     bit-select), order preserved within each partition. The pair-key
     partition (``key & mask == lane``) moved from N per-lane filters into
-    one shared router. Returns one ordered list per partition."""
-    if num_partitions < 1 or num_partitions & (num_partitions - 1):
+    one shared router. Returns one ordered list per partition.
+
+    ``exact_branch`` selects the exact-branch-id mode (q19's disjunct
+    branches): partition ``key - 1`` for keys in ``[1, num_partitions]``,
+    every other key **dropped at the router** (branch 0 — and any negative
+    key, whose unsigned 32-bit image exceeds any partition count — costs
+    zero lane cycles). ``num_partitions`` needs no power-of-two."""
+    if num_partitions < 1:
+        raise ValueError(f"num_partitions must be positive, got {num_partitions}")
+    if not exact_branch and num_partitions & (num_partitions - 1):
         raise ValueError(f"num_partitions must be a power of two, got {num_partitions}")
     parts: list[list[tuple[int, int, int, int]]] = [[] for _ in range(num_partitions)]
     for row in rows:
-        parts[_wrap_int32(row[0]) & (num_partitions - 1)].append(tuple(row))
+        if exact_branch:
+            key_u32 = _wrap_int32(row[0]) & 0xFFFF_FFFF
+            if not 1 <= key_u32 <= num_partitions:
+                continue
+            parts[key_u32 - 1].append(tuple(row))
+        else:
+            parts[_wrap_int32(row[0]) & (num_partitions - 1)].append(tuple(row))
     return parts
 
 

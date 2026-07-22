@@ -265,12 +265,16 @@ CORES: tuple[CoreDefinition, ...] = (
         kind=CoreKind.OPERATOR,
         module="dau_int32_key_mask_dispatcher",
         source="dau_int32_key_mask_dispatcher.sv",
-        description="Key-mask dispatcher: fans one scan of 16-byte quad rows to NUM_PARTITIONS lanes by the key's low bits (dest = key & (NUM_PARTITIONS-1), a power of two) — the broadcast + per-lane pair-key-filter shape folded into one shared router, so each row is delivered once instead of N times. IN_WIDTH (the rows/cycle axis) selects the input framing: 64 (default) accepts two-beat quad rows; 128 accepts one whole row per beat ({w1, w0}) — paired with the wide row-unpack (OUT_WIDTH=128) the shared front sustains 1 row/cycle while the per-lane outputs stay the 64-bit two-beat framing the operator tiles consume (no operator widens). Same-lane runs throttle on the lane's two-beat drain (single-row skid, head-of-line); mask-distributed keys sustain the full front rate.",
+        description="Key-mask dispatcher: fans one scan of 16-byte quad rows to NUM_PARTITIONS lanes by the key's low bits (dest = key & (NUM_PARTITIONS-1), a power of two) — the broadcast + per-lane pair-key-filter shape folded into one shared router, so each row is delivered once instead of N times. EXACT_BRANCH=1 selects the exact-branch-id mode (q19's disjunct branches): dest = key - 1 for keys in [1, NUM_PARTITIONS], every other key DROPPED at the front for zero lane cycles (no power-of-two requirement). IN_WIDTH (the rows/cycle axis) selects the input framing: 64 (default) accepts two-beat quad rows; 128 accepts one whole row per beat ({w1, w0}) — paired with the wide row-unpack (OUT_WIDTH=128) the shared front sustains 1 row/cycle while the per-lane outputs stay the 64-bit two-beat framing the operator tiles consume (no operator widens). Same-lane runs throttle on the lane's two-beat drain (single-row skid, head-of-line); mask-distributed keys sustain the full front rate.",
         golden="dau_core.operators:mask_dispatch_rows",
         bench=f"{_BENCHES}.dau_int32_key_mask_dispatcher_tb",
         parameters={
-            "NUM_PARTITIONS": ParameterSpec(default=4, power_of_two=True),  # mask decode: dest = key & (N-1)
+            # mask decode dest = key & (N-1) needs a power of two; the exact-branch
+            # mode does not — the elaboration guard enforces the conditional pairing
+            # the spec cannot express
+            "NUM_PARTITIONS": ParameterSpec(default=4),
             "IN_WIDTH": ParameterSpec(default=64, choices=(64, 128)),  # the quad-stream widths
+            "EXACT_BRANCH": ParameterSpec(default=0, choices=(0, 1)),  # 1 = exact-branch-id route/drop
         },
         resources=ResourceEnvelope(
             lut=330, ff=1124, bram36=0.0, dsp=0

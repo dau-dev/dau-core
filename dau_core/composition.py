@@ -47,14 +47,18 @@ def _validate_tile_params(tile: TileSpec, role: str) -> None:
         if name not in declared:
             known = ", ".join(sorted(declared)) or "none"
             raise CompositionError(f"{role} {tile.core!r} has no overridable parameter {name!r} (declared: {known})")
-        if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
-            raise CompositionError(f"{role} {tile.core!r} parameter {name!r} must be a positive int, got {value!r}")
         spec = declared[name]
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise CompositionError(f"{role} {tile.core!r} parameter {name!r} must be a positive int, got {value!r}")
+        if spec.choices is not None:
+            if value not in spec.choices:
+                allowed = ", ".join(str(choice) for choice in spec.choices)
+                raise CompositionError(f"{role} {tile.core!r} parameter {name!r} must be one of {allowed}, got {value!r}")
+            continue  # an enumerated choice set (which may include a 0 flag) is the whole constraint
+        if value <= 0:
+            raise CompositionError(f"{role} {tile.core!r} parameter {name!r} must be a positive int, got {value!r}")
         if value % spec.multiple_of != 0:
             raise CompositionError(f"{role} {tile.core!r} parameter {name!r} must be a positive multiple of {spec.multiple_of}, got {value!r}")
-        if spec.choices is not None and value not in spec.choices:
-            allowed = ", ".join(str(choice) for choice in spec.choices)
-            raise CompositionError(f"{role} {tile.core!r} parameter {name!r} must be one of {allowed}, got {value!r}")
         if spec.power_of_two and value & (value - 1):
             raise CompositionError(f"{role} {tile.core!r} parameter {name!r} must be a power of two, got {value!r}")
 
@@ -126,6 +130,18 @@ class ScanCompositionSpec:
                     "only the terminal tile may close out on success"
                 )
             _validate_tile_params(self.partitioner, "partitioner")
+            # the key-mask dispatcher's mask decode (dest = key & (N-1)) needs
+            # a power-of-two partition count; the exact-branch mode does not —
+            # the conditional pairing the per-parameter spec cannot express
+            if (
+                self.partitioner.core == "int32-key-mask-dispatcher"
+                and self.partitioner.params.get("EXACT_BRANCH", 0) != 1
+                and (partitions := self.partitioner.params.get("NUM_PARTITIONS")) is not None
+                and partitions & (partitions - 1)
+            ):
+                raise CompositionError(
+                    f"partitioner {self.partitioner.core!r} parameter 'NUM_PARTITIONS' must be a power of two in mask mode, got {partitions!r}"
+                )
         if self.front_unpack is not None:
             if self.front_unpack.core != FRONT_UNPACK_CORE:
                 raise CompositionError(

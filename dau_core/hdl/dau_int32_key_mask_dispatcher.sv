@@ -185,9 +185,15 @@ module dau_key_mask_dispatch_lane (
 endmodule
 
 
+// EXACT_BRANCH (the q19 disjunct-branch mode): dest = key - 1 for keys in
+// [1, NUM_PARTITIONS]; every other key (branch 0, or any key whose unsigned
+// 32-bit image is out of range) is DROPPED at the front for zero lane
+// cycles — the dominant no-branch class never throttles the wide front on a
+// lane's two-beat drain. NUM_PARTITIONS needs no power-of-two in this mode.
 module dau_int32_key_mask_dispatcher #(
     parameter int NUM_PARTITIONS = 4,
-    parameter int unsigned IN_WIDTH = 64
+    parameter int unsigned IN_WIDTH = 64,
+    parameter bit EXACT_BRANCH = 1'b0
 ) (
     input  wire logic        clk,
     input  wire logic        rst,
@@ -214,8 +220,11 @@ module dau_int32_key_mask_dispatcher #(
     if (IN_WIDTH != 64 && IN_WIDTH != 128) begin : g_bad_in_width
         $fatal(1, "dau_int32_key_mask_dispatcher: IN_WIDTH must be 64 or 128");
     end
-    if (NUM_PARTITIONS < 1 || (NUM_PARTITIONS & (NUM_PARTITIONS - 1)) != 0) begin : g_bad_partitions
-        $fatal(1, "dau_int32_key_mask_dispatcher: NUM_PARTITIONS must be a power of two");
+    if (NUM_PARTITIONS < 1) begin : g_bad_partition_count
+        $fatal(1, "dau_int32_key_mask_dispatcher: NUM_PARTITIONS must be positive");
+    end
+    if (!EXACT_BRANCH && (NUM_PARTITIONS & (NUM_PARTITIONS - 1)) != 0) begin : g_bad_partitions
+        $fatal(1, "dau_int32_key_mask_dispatcher: NUM_PARTITIONS must be a power of two in mask mode");
     end
 
     typedef enum logic [1:0] {
@@ -243,19 +252,32 @@ module dau_int32_key_mask_dispatcher #(
 
     // mask decode: dest = key & (NUM_PARTITIONS - 1) — the key's low
     // $clog2(NUM_PARTITIONS) bits (a power of two makes & and bit-select the
-    // same thing; a degenerate single partition routes everything to lane 0)
+    // same thing; a degenerate single partition routes everything to lane 0).
+    // Exact-branch decode: dest = key - 1, out-of-range keys drop (route_hit
+    // low accepts the row without pushing any lane).
     logic [PIDX_W-1:0] dest;
+    logic [31:0]       route_key;
+    logic              route_hit;
+
+    function automatic logic [PIDX_W-1:0] decode_dest(input logic [31:0] key);
+        if (EXACT_BRANCH) return PIDX_W'(key - 32'd1);
+        return (NUM_PARTITIONS <= 1) ? '0 : key[PIDX_W-1:0];
+    endfunction
+
+    assign route_hit = !EXACT_BRANCH || (route_key != 32'd0 && route_key <= 32'(NUM_PARTITIONS));
 
     if (WIDE) begin : g_front_wide
         // one whole row per beat: route it the cycle it is accepted — the
-        // front sustains 1 row/cycle whenever the destination lane can take it
-        assign dest = (NUM_PARTITIONS <= 1) ? '0 : input_data[PIDX_W-1:0];
+        // front sustains 1 row/cycle whenever the destination lane can take
+        // it, and a dropped row costs exactly one cycle
+        assign route_key = input_data[31:0];
+        assign dest = decode_dest(route_key);
         assign push_w0 = input_data[63:0];
         assign push_w1 = input_data[127:64];
-        assign input_ready = (fstate == F_W0) && lane_push_ready[dest];
+        assign input_ready = (fstate == F_W0) && (!route_hit || lane_push_ready[dest]);
         always_comb begin
             lane_push_valid = '0;
-            if (fstate == F_W0 && input_fire) lane_push_valid[dest] = 1'b1;
+            if (fstate == F_W0 && input_fire && route_hit) lane_push_valid[dest] = 1'b1;
         end
         always_ff @(posedge clk) begin
             if (rst) begin
@@ -272,20 +294,21 @@ module dau_int32_key_mask_dispatcher #(
         // two-beat rows: latch w0, route on w1 (the range partitioner's front,
         // with the mask decode in place of the splitter compare tree)
         logic [63:0] cur_w0;
-        assign dest = (NUM_PARTITIONS <= 1) ? '0 : cur_w0[PIDX_W-1:0];
+        assign route_key = cur_w0[31:0];
+        assign dest = decode_dest(route_key);
         assign push_w0 = cur_w0;
         assign push_w1 = input_data[63:0];
         always_comb begin
             input_ready = 1'b0;
             case (fstate)
                 F_W0: input_ready = 1'b1;
-                F_W1: input_ready = lane_push_ready[dest];
+                F_W1: input_ready = !route_hit || lane_push_ready[dest];
                 default: input_ready = 1'b0;
             endcase
         end
         always_comb begin
             lane_push_valid = '0;
-            if (fstate == F_W1 && input_fire) lane_push_valid[dest] = 1'b1;
+            if (fstate == F_W1 && input_fire && route_hit) lane_push_valid[dest] = 1'b1;
         end
         always_ff @(posedge clk) begin
             if (rst) begin

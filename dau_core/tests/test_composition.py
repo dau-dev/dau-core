@@ -205,6 +205,19 @@ def test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards() ->
             lanes=tuple(LaneSpec(tile=_BAR) for _ in range(4)),
             partitioner=TileSpec(core="int32-key-mask-dispatcher", params={"NUM_PARTITIONS": 12}),
         )
+    # the exact-branch mode lifts the power-of-two requirement (q19's three
+    # disjunct branches) — and an explicit EXACT_BRANCH: 0 flag is a legal
+    # enumerated choice, not a "non-positive" parameter
+    ScanCompositionSpec(
+        name="ok-exact",
+        lanes=tuple(LaneSpec(tile=_BAR) for _ in range(3)),
+        partitioner=TileSpec(core="int32-key-mask-dispatcher", params={"NUM_PARTITIONS": 3, "EXACT_BRANCH": 1}),
+    )
+    ScanCompositionSpec(
+        name="ok-mask-explicit-flag",
+        lanes=tuple(LaneSpec(tile=_BAR) for _ in range(4)),
+        partitioner=TileSpec(core="int32-key-mask-dispatcher", params={"NUM_PARTITIONS": 4, "EXACT_BRANCH": 0}),
+    )
 
 
 def test_load_phase_shape_rules() -> None:
