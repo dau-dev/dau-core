@@ -209,12 +209,14 @@ module dau_int32_key_membership_filter #(
     // pending-row decision: ready once resolved (latched) or stage 2 holds
     // this row's result; a drop applies unconditionally, a keep needs a slot.
     // A torn w0 firing this cycle aborts the batch — suppress the apply so
-    // the pending row drops with the batch (old-contract parity).
+    // the pending row drops with the batch (old-contract parity). input_valid
+    // (not input_fire) keeps input_ready loop-free: S_W0 is unconditionally
+    // ready, so the two are identical there.
     logic torn_w0_fire;
     logic pend_decision_ready;
     logic pend_keep_now;
     logic pend_can_apply;
-    assign torn_w0_fire = (state == S_W0) && input_fire && input_last;
+    assign torn_w0_fire = (state == S_W0) && input_valid && input_last;
     assign pend_decision_ready = pend_valid && (pend_resolved || result_ready);
     assign pend_keep_now = pend_resolved ? pend_keep_r : row_keep;
     assign pend_can_apply = pend_decision_ready && !torn_w0_fire && (!pend_keep_now || !held_valid || emit_free);
