@@ -244,13 +244,15 @@ module dau_int32_key_membership_filter #(
         if (mem_we) begin
             membership_mem[mem_waddr] <= input_data;
         end
-        // the read port is ALWAYS-ON: gating it on probe_w0_accept put the
-        // whole input_ready comb chain onto the 192-BRAM enable fan-out.
-        // The address derives from row_w0, so the read for a row issues the
-        // cycle after its w0 accept; between real reads read_word churns,
-        // but stage 2 only captures when stage1_valid marks a probe read.
-        read_word <= membership_mem[probe_raddr];
+        // the read enable is the REGISTERED addr_issued pulse: a bare flop
+        // driving the 192-BRAM enable fan-out (replicable, no comb chain —
+        // gating on the combinational probe_w0_accept dragged input_ready
+        // onto the enables, and leaving the port always-on invited Vivado's
+        // BRAM power optimization to derive an enable from the read's
+        // consumers instead). The address derives from row_w0, so the read
+        // for a row issues the cycle after its w0 accept.
         if (addr_issued) begin
+            read_word <= membership_mem[probe_raddr];
             probe_bit <= probe_key[5:0];
             probe_in_range <= probe_key_in_range;
         end
