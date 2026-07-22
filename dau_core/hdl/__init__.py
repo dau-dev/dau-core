@@ -36,6 +36,7 @@ DAU_INT32_KEY_MEMBERSHIP_FILTER_SV = files(__package__).joinpath("dau_int32_key_
 DAU_INT32_BROADCAST_HASH_JOIN_SV = files(__package__).joinpath("dau_int32_broadcast_hash_join.sv")
 DAU_INT32_ROW_UNPACK_SV = files(__package__).joinpath("dau_int32_row_unpack.sv")
 DAU_INT32_ASOF_BACKWARD_SV = files(__package__).joinpath("dau_int32_asof_backward.sv")
+DAU_INT32_ROLLING_MOMENTS_SV = files(__package__).joinpath("dau_int32_rolling_moments.sv")
 
 __all__ = (
     "DAU_AGGREGATION_PKG_SV",
@@ -65,6 +66,7 @@ __all__ = (
     "DAU_INT32_MAP_ALU_SV",
     "DAU_INT32_ARROW_LITE_STREAM_AGGREGATION_SV",
     "DAU_INT32_ASOF_BACKWARD_SV",
+    "DAU_INT32_ROLLING_MOMENTS_SV",
     "DAU_INT32_BAR_AGGREGATION_SV",
     "DAU_INT32_GROUPED_AGGREGATION_SV",
     "DAU_INT32_KEYED_MAP_ALU_SV",

@@ -57,6 +57,8 @@ def _validate_tile_params(tile: TileSpec, role: str) -> None:
             continue  # an enumerated choice set (which may include a 0 flag) is the whole constraint
         if value <= 0:
             raise CompositionError(f"{role} {tile.core!r} parameter {name!r} must be a positive int, got {value!r}")
+        if value < spec.minimum:
+            raise CompositionError(f"{role} {tile.core!r} parameter {name!r} must be >= {spec.minimum}, got {value!r}")
         if value % spec.multiple_of != 0:
             raise CompositionError(f"{role} {tile.core!r} parameter {name!r} must be a positive multiple of {spec.multiple_of}, got {value!r}")
         if spec.power_of_two and value & (value - 1):

@@ -30,6 +30,7 @@ from dau_core.hdl import (
     DAU_INT32_PREDICATE_FILTER_SV,
     DAU_INT32_RANGE_PARTITIONER_SV,
     DAU_INT32_RECORD_BATCH_AGGREGATION_SV,
+    DAU_INT32_ROLLING_MOMENTS_SV,
     DAU_INT32_ROW_MAP_ALU_SV,
     DAU_INT32_ROW_PREDICATE_FILTER_SV,
     DAU_INT32_ROW_UNPACK_SV,
@@ -152,6 +153,31 @@ def test_asof_backward_runs_real_cocotb_against_systemverilog(tmp_path: Path) ->
         hdl_toplevel="dau_int32_asof_backward",
         test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_asof_backward_tb",
         tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_rolling_moments_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_ROLLING_MOMENTS_SV)),),
+        hdl_toplevel="dau_int32_rolling_moments",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_rolling_moments_tb",
+        tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_rolling_moments_window_two(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    # WINDOW=2 is the minimum legal window (a size-1 sample variance is
+    # undefined); the WINDOW-agnostic bench reads the env var to size its
+    # expectations to the DUT.
+    monkeypatch.setenv("DAU_ROLLING_WINDOW", "2")
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_ROLLING_MOMENTS_SV)),),
+        hdl_toplevel="dau_int32_rolling_moments",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_rolling_moments_tb",
+        tmp_path=tmp_path,
+        parameters={"WINDOW": 2},
     )
 
 

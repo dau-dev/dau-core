@@ -178,6 +178,14 @@ def test_tile_params_validate_declared_names_and_positive_values() -> None:
         )
 
 
+def test_minimum_constraint_mirrors_the_rolling_window_guard() -> None:
+    # the rolling-moment window is >= 2 (a size-1 sample variance is undefined);
+    # rejected at composition time, mirroring the tile's RTL elaboration guard
+    ScanCompositionSpec(name="ok", lanes=(LaneSpec(tile=TileSpec(core="int32-rolling-moments", params={"WINDOW": 2})),))
+    with pytest.raises(CompositionError, match="must be >= 2"):
+        ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=TileSpec(core="int32-rolling-moments", params={"WINDOW": 1})),))
+
+
 def test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards() -> None:
     # the quad-stream widths are exactly 64 or 128 (the row-unpack OUT_WIDTH and
     # the dispatcher IN_WIDTH mirror their RTL elaboration guards), and
