@@ -239,6 +239,25 @@ CORES: tuple[CoreDefinition, ...] = (
         contract_kind=ContractKind.ROW_STREAM,
     ),
     CoreDefinition(
+        name="int32-asof-backward",
+        kind=CoreKind.OPERATOR,
+        success_close_out=True,
+        module="dau_int32_asof_backward",
+        source="dau_int32_asof_backward.sv",
+        description=(
+            "Backward as-of alignment (the temporal-workflow spine): attaches to each trade the most recent quote for the same symbol with quote_time <= trade_time, "
+            "optionally within cfg_tolerance on the time axis. The two source streams are host-merged into one (symbol_id, time)-sorted stream (quote-before-trade at equal key/time), "
+            "tagged per 3-word record (w0={rec_type, symbol}, w1=time[63:0], w2={fieldB, fieldA}); because the stream is symbol-grouped the tile holds ONE current quote, reset on symbol "
+            "change (the bar tile's key-change shape) — bounded state, one pass, no per-symbol table. A matched trade emits a 4-word market row (time, {price, symbol}, {ask, bid}, size); "
+            "a miss (no held quote, or older than tolerance) drops, so the tile realizes matched_rows ∘ asof_backward. A record torn by input_last before its third word is ERR_STREAM."
+        ),
+        golden="dau_core.temporal:asof_backward",
+        bench=f"{_BENCHES}.dau_int32_asof_backward_tb",
+        resources=ResourceEnvelope(lut=606, ff=856, bram36=0.0, dsp=0),  # OOC xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +1.679)
+        count_port="match_count",
+        contract_kind=ContractKind.ROW_STREAM,
+    ),
+    CoreDefinition(
         name="int32-pair-key-filter",
         kind=CoreKind.OPERATOR,
         module="dau_int32_pair_key_filter",
