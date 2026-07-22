@@ -365,27 +365,30 @@ async def status_close_out_waits_for_backpressured_tail(dut):
 
 @cocotb.test()
 async def error_close_out_waits_for_backpressured_tail(dut):
-    # Intra-batch error ordering under output backpressure. Two kept rows are
-    # driven, then a torn w0 (input_last on a w0) raises ERR_STREAM. Accepting
-    # the second kept row displaces the first into the emit engine, where it
-    # stalls under backpressure; the torn w0 is then accepted (word-0 state is
-    # unconditionally ready) and raises the error. The error close-out must not
-    # handshake until that stalled beat drains -- otherwise the error status
-    # overtakes a still-valid output beat, which the record writer would strand
-    # into the next job once it consumes the status.
+    # Intra-batch error ordering under output backpressure. THREE kept rows
+    # are driven, then a torn w0 (input_last on a w0) raises ERR_STREAM. With
+    # the retimed decision pipeline, a kept row parks in the held slot and is
+    # displaced into the emit engine only by the NEXT keep's apply — so the
+    # third keep puts the first row's beats in flight, where they stall under
+    # backpressure; the torn w0 is then accepted (word-0 state is
+    # unconditionally ready) and raises the error. The error close-out must
+    # not handshake until that stalled beat drains -- otherwise the error
+    # status overtakes a still-valid output beat, which the record writer
+    # would strand into the next job once it consumes the status.
     await _start(dut)
-    await _load(dut, _build_set({7, 63}))
+    await _load(dut, _build_set({5, 7, 63}))
     _drive_cfg(dut, load=0, mode=MembershipMode.SEMI, kind=MembershipKind.EXACT_BITMAP)
 
     dut.output_ready.value = 0
     dut.status_ready.value = 1
-    # row1 (7) kept, row2 (63) kept, then a torn w0; all accepted while output
+    # rows (5), (7), (63) all kept, then a torn w0; all accepted while output
     # is backpressured (input acceptance here does not depend on the output)
-    words = _pack_rows([(7, 111, 1, 1), (63, 222, 2, 2)]) + [(999 << 32) | 100]
+    words = _pack_rows([(5, 55, 0, 0), (7, 111, 1, 1), (63, 222, 2, 2)]) + [(999 << 32) | 100]
     await _send_words(dut, words)
 
-    # a kept beat is now stalled in the emit engine and ERR_STREAM has been
-    # raised internally; the status must stay silent while output is un-drained
+    # the first kept row's beat is now stalled in the emit engine and
+    # ERR_STREAM has been raised internally; the status must stay silent
+    # while output is un-drained
     for _ in range(15):
         await ReadOnly()
         assert int(dut.output_valid.value) == 1, "the kept tail is not in flight"
@@ -400,6 +403,29 @@ async def error_close_out_waits_for_backpressured_tail(dut):
     assert int(dut.selected_count.value) == 0
     # recovers: the next probe filters normally (the drained stalled beat did
     # not leak into it)
+    build = _build_set({5, 7, 63})
+    assert await _probe(dut, _ROWS, MembershipMode.SEMI) == filter_rows_by_membership(_ROWS, build, mode=MembershipMode.SEMI)
+
+
+@cocotb.test()
+async def torn_batch_with_undisplaced_keeps_errors_without_forwarding(dut):
+    # the two-keep variant of the case above: with the retimed pipeline the
+    # second keep still sits in the held slot (never displaced into the emit
+    # engine) when the torn w0 lands, so the whole invalid batch drops with
+    # NO forwarded beats and the error close-out is immediate
+    await _start(dut)
+    await _load(dut, _build_set({7, 63}))
+    _drive_cfg(dut, load=0, mode=MembershipMode.SEMI, kind=MembershipKind.EXACT_BITMAP)
+
+    dut.output_ready.value = 0
+    dut.status_ready.value = 1
+    words = _pack_rows([(7, 111, 1, 1), (63, 222, 2, 2)]) + [(999 << 32) | 100]
+    await _send_words(dut, words)
+
+    await _expect_status(dut, error=True, code=MembershipErrorCode.STREAM)
+    assert int(dut.output_valid.value) == 0, "an invalid batch's undisplaced rows must not be forwarded"
+    assert int(dut.selected_count.value) == 0
+    dut.output_ready.value = 1
     build = _build_set({7, 63})
     assert await _probe(dut, _ROWS, MembershipMode.SEMI) == filter_rows_by_membership(_ROWS, build, mode=MembershipMode.SEMI)
 
