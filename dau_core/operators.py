@@ -753,6 +753,28 @@ def sort_bar_rows_by_key(rows: Iterable[tuple[int, int, int, int]]) -> list[tupl
     return sorted((tuple(row) for row in rows), key=lambda row: _wrap_int32(row[0]))
 
 
+def time_bucket_key_rows(
+    rows: Iterable[tuple[int, int, int, int, int]], *, bucket_shift: int, bucket_bits: int
+) -> list[tuple[int, int, int, int]]:
+    """Golden semantics for the generic time-bucket key tile: rewrite each row's
+    partition key into a composite ``(partition, time-bucket)`` group key so a
+    downstream key-grouped aggregator produces fixed-width time-windowed groups
+    per partition. Window = ``2**bucket_shift``; key =
+    ``(partition[:PART_BITS] << bucket_bits) | (time >> bucket_shift)[:bucket_bits]``
+    with ``PART_BITS = 32 - bucket_bits``. Input rows are
+    ``(partition, payload_hi, time, payload2, payload3)``; output the aggregator's
+    quad rows ``(key, payload_hi, payload2, payload3)``. Workload-agnostic — any
+    time-windowed aggregation composes it before the generic aggregator."""
+    part_bits = 32 - bucket_bits
+    part_mask = (1 << part_bits) - 1
+    bucket_mask = (1 << bucket_bits) - 1
+    out: list[tuple[int, int, int, int]] = []
+    for partition, payload_hi, time, payload2, payload3 in rows:
+        key = ((partition & part_mask) << bucket_bits) | ((time >> bucket_shift) & bucket_mask)
+        out.append((key, payload_hi, payload2, payload3))
+    return out
+
+
 def bar_aggregate_rows(rows: Iterable[tuple[int, int, int, int]]) -> list[BarAggregate]:
     """Golden semantics for the fused bar-aggregation tile (ordered
     close-out): consecutive rows with equal keys form a bar; volume is

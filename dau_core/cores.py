@@ -78,6 +78,7 @@ class ParameterSpec:
     choices: tuple[int, ...] | None = None
     power_of_two: bool = False
     minimum: int = 1
+    maximum: int | None = None
 
 
 @dataclass(frozen=True)
@@ -299,6 +300,25 @@ CORES: tuple[CoreDefinition, ...] = (
         resources=ResourceEnvelope(lut=480, ff=528, bram36=0.0, dsp=4),  # OOC xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +0.680)
         count_port="feature_count",
         contract_kind=ContractKind.ROW_STREAM,
+    ),
+    CoreDefinition(
+        name="int32-time-bucket-key",
+        kind=CoreKind.OPERATOR,
+        module="dau_int32_time_bucket_key",
+        source="dau_int32_time_bucket_key.sv",
+        description=(
+            "Generic time-bucket key rewrite: replaces a row's partition key with a composite (partition, time-bucket) group key so a downstream key-grouped aggregator (bar / grouped-sum) produces "
+            "fixed-width TIME-WINDOWED groups per partition — workload-agnostic (finance time bars, TSBS window shapes, ...); the aggregation and any per-row derivation stay in their own tiles. "
+            "bucket = time >>> cfg_bucket_shift (window = 2**shift); key = {partition[PART_BITS-1:0], bucket[BUCKET_BITS-1:0]} (PART_BITS = 32 - BUCKET_BITS) so it changes exactly on a partition-or-bucket "
+            "boundary (the stream is pre-sorted by (partition, time)); the downstream recovers partition = key >>> BUCKET_BITS. Contract: the partition id fits PART_BITS bits and the host-rebased bucket "
+            "fits BUCKET_BITS, so they never collide — ENFORCED by the tile (a partition or bucket that overflows its width is ERR_RANGE, never a silent alias). A mid-lane transform: silent on success "
+            "(1:1 rows, output_last rides the last row), status on a torn row (ERR_STREAM) or an out-of-range key (ERR_RANGE); payload passes through."
+        ),
+        golden="dau_core.operators:time_bucket_key_rows",
+        bench=f"{_BENCHES}.dau_int32_time_bucket_key_tb",
+        resources=ResourceEnvelope(lut=291, ff=305, bram36=0.0, dsp=0),  # OOC BUCKET_BITS=16 xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +2.175)
+        contract_kind=ContractKind.ROW_STREAM,
+        parameters={"BUCKET_BITS": ParameterSpec(default=16, minimum=1, maximum=31)},  # composite key split (PART_BITS = 32 - BUCKET_BITS)
     ),
     CoreDefinition(
         name="int32-pair-key-filter",
