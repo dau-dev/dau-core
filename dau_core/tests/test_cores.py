@@ -119,6 +119,7 @@ def test_silent_on_success_operator_set_is_pinned() -> None:
         "int32-key-membership-filter",
         "int32-broadcast-hash-join",
         "int32-row-unpack",
+        "int32-time-bucket-key",
     }
     # the grouped multi-sum tile emits many group records but exactly ONE
     # success close-out per batch (after the final group) — terminal-legal

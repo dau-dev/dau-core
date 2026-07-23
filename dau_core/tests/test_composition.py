@@ -186,6 +186,15 @@ def test_minimum_constraint_mirrors_the_rolling_window_guard() -> None:
         ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=TileSpec(core="int32-rolling-moments", params={"WINDOW": 1})),))
 
 
+def test_maximum_constraint_mirrors_the_bucket_bits_guard() -> None:
+    # BUCKET_BITS must be in [1, 31] (a chain-stage transform, over a bar lane);
+    # the upper bound mirrors the tile's RTL elaboration guard
+    bucket31 = TileSpec(core="int32-time-bucket-key", params={"BUCKET_BITS": 31})
+    ScanCompositionSpec(name="ok", lanes=(LaneSpec(tile=_BAR, chain=(bucket31,)),))
+    with pytest.raises(CompositionError, match="must be <= 31"):
+        ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-time-bucket-key", params={"BUCKET_BITS": 32}),)),))
+
+
 def test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards() -> None:
     # the quad-stream widths are exactly 64 or 128 (the row-unpack OUT_WIDTH and
     # the dispatcher IN_WIDTH mirror their RTL elaboration guards), and
