@@ -145,3 +145,17 @@ def test_bucket_then_generic_aggregator_composes_to_time_bars() -> None:
         assert bar.shares == ref.volume  # Σ size
         assert bar.frac == ref.signed_volume  # Σ signed_volume
         assert bar.count == ref.count
+
+
+def test_hero_workflow_model_matches_the_function() -> None:
+    from ccflow import GenericContext, ResultBase
+
+    from dau_core.temporal import generate_market_stream
+    from dau_core.workflows import HeroWorkflow
+
+    stream = generate_market_stream(seed=7, num_symbols=3, quotes_per_symbol=40, trades_per_symbol=30)
+    model = HeroWorkflow(bar_width=64, roll_window=3)
+    result = model(GenericContext(value=stream))
+    assert isinstance(result, ResultBase)  # the typed workflow result
+    assert result == run_hero_workflow(list(stream.trades), list(stream.quotes), bar_width=64, roll_window=3)
+    assert result.funnel[0] >= result.funnel[-1]

@@ -1,0 +1,10 @@
+# @package model
+
+# The predeclared temporal hero pipeline (align -> derive -> bar -> roll)
+# over the goldens; the market stream is the runtime input
+# (GenericContext[MarketStream]).
+_target_: dau_core.workflows.HeroWorkflow
+bar_width: ???
+roll_window: ???
+tolerance: null
+roll_value: close
