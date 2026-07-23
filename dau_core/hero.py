@@ -1,4 +1,4 @@
-"""The temporal-finance hero workflow (ROADMAP Goal 2a step 4): the predeclared
+"""The temporal-finance hero workflow: the predeclared
 end-to-end pipeline composed from the :mod:`dau_core.temporal` goldens, plus the
 avoided-materialization cost model that is the paper's core evidence.
 
@@ -31,7 +31,7 @@ Zero-dependency: pure integer arithmetic over the temporal goldens.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from ccflow import BaseModel, ResultBase
 
 from .temporal import (
     MarketFeatures,
@@ -64,12 +64,13 @@ ROLL_BYTES = 3 * 8  # rolling-moment record: {count, symbol}, total, total_sq
 ROLL_FIELDS = ("open", "high", "low", "close")
 
 
-@dataclass(frozen=True)
-class WorkflowStage:
+class WorkflowStage(BaseModel):
     """One materializing stage and its cardinality: ``in_rows`` records of
     ``in_bytes`` in, ``out_rows`` records of ``out_bytes`` out (the tile's own
     input/output record widths). A staged run DMAs both; a fused run DMAs
     neither (except the pipeline endpoints)."""
+
+    model_config = {"frozen": True}
 
     name: str
     op: str
@@ -87,11 +88,12 @@ class WorkflowStage:
         return self.out_rows * self.out_bytes
 
 
-@dataclass(frozen=True)
-class HeroResult:
+class HeroResult(ResultBase):
     """The executed workflow: the materializing-stage cardinalities (the funnel),
     the per-row feature branch, and the stage outputs (for a bit-exact
     comparison against a CPU reference)."""
+
+    model_config = {"frozen": True}
 
     stages: tuple[WorkflowStage, ...]
     market_rows: list[MarketRow]
@@ -135,20 +137,23 @@ def run_hero_workflow(
     moments = [moment for moment in rolling_moments(values, window=roll_window) if moment is not None]
 
     stages = (
-        WorkflowStage("align", "backward as-of", n_input, INPUT_BYTES, len(market), MARKET_BYTES),
-        WorkflowStage("bar", "market-feature map + time bars", len(market), MARKET_BYTES, len(bars), BAR_BYTES),
-        WorkflowStage("roll", "rolling moments", len(bars), ROLL_INPUT_BYTES, len(moments), ROLL_BYTES),
+        WorkflowStage(name="align", op="backward as-of", in_rows=n_input, in_bytes=INPUT_BYTES, out_rows=len(market), out_bytes=MARKET_BYTES),
+        WorkflowStage(
+            name="bar", op="market-feature map + time bars", in_rows=len(market), in_bytes=MARKET_BYTES, out_rows=len(bars), out_bytes=BAR_BYTES
+        ),
+        WorkflowStage(name="roll", op="rolling moments", in_rows=len(bars), in_bytes=ROLL_INPUT_BYTES, out_rows=len(moments), out_bytes=ROLL_BYTES),
     )
     return HeroResult(stages=stages, market_rows=market, features=features, bars=bars, moments=moments)
 
 
-@dataclass(frozen=True)
-class MaterializationCost:
+class MaterializationCost(ResultBase):
     """The avoided-materialization accounting for one workflow run. ``staged``
     DMAs every stage's read and write; ``fused`` DMAs only the pipeline endpoints
     (the input stream in, the final rolling output out). ``avoided`` is the
     intermediate materialization the fusion removes; ``dma_ratio`` is the
     DMA-bound speedup (both paths are DMA-bound with compute overlapped)."""
+
+    model_config = {"frozen": True}
 
     staged_bytes: int
     fused_bytes: int
