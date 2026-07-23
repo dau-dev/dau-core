@@ -736,3 +736,30 @@ def test_unpack_bypass_ignores_field_specs() -> None:
 
 def test_unpack_bypass_empty_input() -> None:
     assert unpack_rows([], bypass=True) == []
+
+
+def test_bars_are_a_selection_over_the_generic_field_aggregate() -> None:
+    # the monolith decomposition: the generic multi-field grouped aggregator
+    # (first/last/min/max/sum per field + count) + an OHLCV field/stat selection
+    # reproduce the bar-aggregation golden exactly
+    import random
+
+    from dau_core.operators import bars_from_field_aggregate, grouped_field_aggregate_rows
+
+    rng = random.Random(11)
+    rows = [(rng.randint(0, 6), rng.randint(-40, 40), rng.randint(0, 90), rng.randint(-25, 25)) for _ in range(300)]
+    rows.sort(key=lambda r: r[0])  # ordered close-out precondition
+    rows += [(0, 5, 2, 1), (0, 8, 3, -2)]  # a reappearing key -> a fresh partial group
+
+    assert bars_from_field_aggregate(grouped_field_aggregate_rows(rows)) == bar_aggregate_rows(rows)
+
+
+def test_grouped_field_aggregate_per_field_stats() -> None:
+    from dau_core.operators import FieldStats, grouped_field_aggregate_rows
+
+    rows = [(7, 10, 1, -1), (7, 5, 2, -3), (7, 8, 3, 4)]  # one group
+    (group,) = grouped_field_aggregate_rows(rows)
+    assert group.key == 7 and group.count == 3
+    assert group.fields[0] == FieldStats(first=10, last=8, minimum=5, maximum=10, total=23)
+    assert group.fields[1] == FieldStats(first=1, last=3, minimum=1, maximum=3, total=6)
+    assert group.fields[2] == FieldStats(first=-1, last=4, minimum=-3, maximum=4, total=0)

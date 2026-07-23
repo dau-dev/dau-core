@@ -672,6 +672,30 @@ class BarAggregate:
     count: int
 
 
+@dataclass(frozen=True)
+class FieldStats:
+    """The single-pass statistics of one data field over a group: first/last in
+    input order, running min/max, and the exact int64 sum."""
+
+    first: int
+    last: int
+    minimum: int
+    maximum: int
+    total: int
+
+
+@dataclass(frozen=True)
+class GroupedFieldAggregate:
+    """One closed group from the GENERIC multi-field aggregator: per-field
+    first/last/min/max/sum over the three data fields of a quad row, plus the
+    row count. A workload-agnostic superset — OHLCV bars (and other grouped
+    reductions) are a field/stat SELECTION over it, not a baked-in tile."""
+
+    key: int
+    fields: tuple[FieldStats, FieldStats, FieldStats]
+    count: int
+
+
 def filter_bar_rows_by_key(rows: Iterable[tuple[int, int, int, int]], *, key_mask: int, key_match: int) -> list[tuple[int, int, int, int]]:
     """Golden semantics for the pair-row key partition filter: whole
     (key, price, shares, frac) rows pass when ``(key & mask) == match``
@@ -773,6 +797,57 @@ def time_bucket_key_rows(
         key = ((partition & part_mask) << bucket_bits) | ((time >> bucket_shift) & bucket_mask)
         out.append((key, payload_hi, payload2, payload3))
     return out
+
+
+def grouped_field_aggregate_rows(rows: Iterable[tuple[int, int, int, int]]) -> list[GroupedFieldAggregate]:
+    """Golden semantics for the generic multi-field grouped aggregator (ordered
+    close-out): consecutive rows with equal keys form a group; each of the three
+    data fields ``(v0, v1, v2)`` gets its first/last/min/max/sum in one pass, plus
+    the row count. A reappearing key opens a NEW group (partials merged host-side,
+    the partial-group contract) — workload-agnostic; OHLCV bars are a selection
+    over it (see :func:`bars_from_field_aggregate`)."""
+    results: list[GroupedFieldAggregate] = []
+    key0: int | None = None
+    stats: list[list[int]] | None = None  # per field: [first, last, min, max, total]
+    count = 0
+    for key, v0, v1, v2 in rows:
+        values = (v0, v1, v2)
+        if stats is None or key != key0:
+            if stats is not None:
+                results.append(GroupedFieldAggregate(key=key0, fields=tuple(FieldStats(*s) for s in stats), count=count))
+            stats = [[v, v, v, v, v] for v in values]
+            count = 1
+            key0 = key
+        else:
+            for field, value in zip(stats, values):
+                field[1] = value  # last
+                field[2] = min(field[2], value)
+                field[3] = max(field[3], value)
+                field[4] += value  # total
+            count += 1
+    if stats is not None:
+        results.append(GroupedFieldAggregate(key=key0, fields=tuple(FieldStats(*s) for s in stats), count=count))
+    return results
+
+
+def bars_from_field_aggregate(groups: Iterable[GroupedFieldAggregate]) -> list[BarAggregate]:
+    """OHLCV bars as a field/stat SELECTION over the generic multi-field
+    aggregate: price = field 0 (open/close/low/high = first/last/min/max),
+    shares = sum of field 1, frac = sum of field 2. The finance column
+    assignment lives here, not in the aggregator."""
+    return [
+        BarAggregate(
+            key=g.key,
+            open=g.fields[0].first,
+            close=g.fields[0].last,
+            low=g.fields[0].minimum,
+            high=g.fields[0].maximum,
+            shares=g.fields[1].total,
+            frac=g.fields[2].total,
+            count=g.count,
+        )
+        for g in groups
+    ]
 
 
 def bar_aggregate_rows(rows: Iterable[tuple[int, int, int, int]]) -> list[BarAggregate]:
