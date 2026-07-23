@@ -118,3 +118,30 @@ def test_estimate_rejects_invalid_physical_parameters() -> None:
         cost.estimate_seconds(dma_bytes_per_sec=0)
     with pytest.raises(ValueError, match="per_job_seconds"):
         cost.estimate_seconds(dma_bytes_per_sec=600e6, per_job_seconds=-1)
+
+
+def test_bucket_then_aggregator_composes_to_time_bars() -> None:
+    # the MODULAR bar stage proves the monolith decomposition: the generic
+    # time-bucket key rewrite + the generic aggregator == time_bars (OHLC +
+    # volume + signed-volume + count). signed_volume is the pre-computed feature
+    # (the derive stage), so the bar tile only sums it.
+    from dau_core.operators import bar_aggregate_rows, time_bucket_key_rows
+    from dau_core.temporal import asof_backward, matched_rows, signed_volume, time_bars
+
+    stream = generate_market_stream(seed=5, num_symbols=3)
+    market = matched_rows(asof_backward(list(stream.trades), list(stream.quotes)))
+    shift, bits, width = 3, 16, 8  # bar_width = 2**shift = 8
+
+    # (partition=symbol, payload_hi=price, time, payload2=size, payload3=signed_volume)
+    rows = [(sym, price, time, size, signed_volume(price, size, bid, ask)) for sym, time, price, size, bid, ask in market]
+    composed = bar_aggregate_rows(time_bucket_key_rows(rows, bucket_shift=shift, bucket_bits=bits))
+    golden = {(bar.symbol_id, bar.open_time >> shift): bar for bar in time_bars(market, bar_width=width)}
+
+    assert len(composed) == len(golden)
+    for bar in composed:
+        symbol, bucket = bar.key >> bits, bar.key & ((1 << bits) - 1)
+        ref = golden[(symbol, bucket)]
+        assert (bar.open, bar.high, bar.low, bar.close) == (ref.open, ref.high, ref.low, ref.close)
+        assert bar.shares == ref.volume  # Σ size
+        assert bar.frac == ref.signed_volume  # Σ signed_volume
+        assert bar.count == ref.count
