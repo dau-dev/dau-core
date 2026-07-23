@@ -763,3 +763,48 @@ def test_grouped_field_aggregate_per_field_stats() -> None:
     assert group.fields[0] == FieldStats(first=10, last=8, minimum=5, maximum=10, total=23)
     assert group.fields[1] == FieldStats(first=1, last=3, minimum=1, maximum=3, total=6)
     assert group.fields[2] == FieldStats(first=-1, last=4, minimum=-3, maximum=4, total=0)
+
+
+def test_finance_asof_is_the_generic_keyed_asof_join() -> None:
+    # the as-of decomposition: the temporal-finance backward as-of (quote=build
+    # {bid,ask}, trade=probe {price,size}) is exactly the generic keyed as-of
+    # join over opaque payloads — the finance vocabulary lives in the host merge,
+    # not the tile
+    from dau_core.operators import keyed_asof_join_rows
+    from dau_core.temporal import asof_backward, generate_market_stream, matched_rows
+
+    stream = generate_market_stream(seed=7, num_symbols=3)
+    trades, quotes = list(stream.trades), list(stream.quotes)
+    merged = [(0, s, t, bid, ask) for s, t, bid, ask in quotes] + [(1, s, t, p, sz) for s, t, p, sz in trades]
+    merged.sort(key=lambda r: (r[1], r[2], r[0]))  # (key, time), build before probe
+
+    for tol in (None, 3, 10):
+        generic = keyed_asof_join_rows(merged, tolerance=tol)
+        st = sorted(trades, key=lambda r: (r[0], r[1]))
+        sq = sorted(quotes, key=lambda r: (r[0], r[1]))
+        finance = [tuple(r) for r in matched_rows(asof_backward(st, sq, tolerance=tol))]
+        assert generic == finance
+
+
+def test_keyed_asof_join_holds_one_build_per_key() -> None:
+    from dau_core.operators import keyed_asof_join_rows
+
+    # build b, probe p; a fresh key resets the held build; tolerance drops stale
+    records = [
+        (0, 5, 100, 10, 12),   # build for key 5
+        (1, 5, 105, 1, 2),     # probe -> joins the 100 build
+        (0, 5, 110, 11, 13),   # newer build
+        (1, 5, 130, 3, 4),     # probe -> joins the 110 build
+        (1, 7, 100, 9, 9),     # probe for key 7, no build -> drop
+        (0, 7, 101, 50, 52),   # build for key 7
+        (1, 7, 101, 5, 6),     # probe at equal time -> joins (allow_eq)
+    ]
+    assert keyed_asof_join_rows(records) == [
+        (5, 105, 1, 2, 10, 12),
+        (5, 130, 3, 4, 11, 13),
+        (7, 101, 5, 6, 50, 52),
+    ]
+    assert keyed_asof_join_rows(records, tolerance=5) == [
+        (5, 105, 1, 2, 10, 12),  # age 5 <= 5
+        (7, 101, 5, 6, 50, 52),  # age 0
+    ]
