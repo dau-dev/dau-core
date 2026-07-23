@@ -21,6 +21,8 @@ from dau_core.operators import (
     RowMapConfig,
     RowPredicateConfig,
     RowPredicateTerm,
+    TOP_K_MAX,
+    TopKErrorCode,
     UnpackFieldSpec,
     bar_aggregate_rows,
     broadcast_hash_join_rows,
@@ -36,6 +38,7 @@ from dau_core.operators import (
     map_values,
     mask_dispatch_rows,
     pack_splitters,
+    streaming_top_k,
     unpack_rows,
 )
 
@@ -808,3 +811,78 @@ def test_keyed_asof_join_holds_one_build_per_key() -> None:
         (5, 105, 1, 2, 10, 12),  # age 5 <= 5
         (7, 101, 5, 6, 50, 52),  # age 0
     ]
+
+
+def _wrap32(value: int) -> int:
+    value &= (1 << 32) - 1
+    return value - (1 << 32) if value >= 1 << 31 else value
+
+
+def _heap_top_k(rows, k):
+    """Operational model of the size-k min-heap tile: fill k, then replace the
+    current worst-kept row (smallest key, latest arrival among ties) only when a
+    new key is STRICTLY greater. Emit sorted key-desc, arrival-asc. This is the
+    algorithm the hardware runs; the equivalence test proves it matches the
+    ``streaming_top_k`` spec."""
+    kept = []  # (key, arrival, row)
+    for arrival, row in enumerate(rows):
+        key = _wrap32(row[0])
+        if len(kept) < k:
+            kept.append((key, arrival, tuple(row)))
+            continue
+        worst = min(kept, key=lambda e: (e[0], -e[1]))  # contract root: min key, latest arrival
+        if key > worst[0]:
+            kept.remove(worst)
+            kept.append((key, arrival, tuple(row)))
+    kept.sort(key=lambda e: (-e[0], e[1]))
+    return [row for _, _, row in kept]
+
+
+def test_streaming_top_k_orders_by_key_desc_limit_k():
+    # q3/q10 shape: ORDER BY revenue DESC LIMIT k over (revenue, id, a, b) rows
+    rows = [(30, 1, 0, 0), (90, 2, 0, 0), (10, 3, 0, 0), (70, 4, 0, 0), (50, 5, 0, 0)]
+    assert streaming_top_k(rows, k=3) == [(90, 2, 0, 0), (70, 4, 0, 0), (50, 5, 0, 0)]
+
+
+def test_streaming_top_k_ties_keep_earliest_arrival():
+    # rows tied at the k-th key: the earlier arrivals win, output arrival-ascending
+    rows = [(5, 0, 0, 0), (5, 1, 0, 0), (5, 2, 0, 0), (5, 3, 0, 0)]
+    assert streaming_top_k(rows, k=2) == [(5, 0, 0, 0), (5, 1, 0, 0)]
+    # a strictly-larger latecomer still displaces a tied kept row
+    mixed = [(5, 0, 0, 0), (5, 1, 0, 0), (9, 2, 0, 0)]
+    assert streaming_top_k(mixed, k=2) == [(9, 2, 0, 0), (5, 0, 0, 0)]
+
+
+def test_streaming_top_k_signed_key_comparison():
+    # keys compared as signed int32: -1 (0xFFFFFFFF) is below 1, above -2**31
+    rows = [(-1, 0, 0, 0), (1, 1, 0, 0), (-(2**31), 2, 0, 0), (2**31 - 1, 3, 0, 0)]
+    assert streaming_top_k(rows, k=2) == [(2**31 - 1, 3, 0, 0), (1, 1, 0, 0)]
+    assert streaming_top_k(rows, k=4)[-1] == (-(2**31), 2, 0, 0)
+
+
+def test_streaming_top_k_k_at_or_over_row_count_returns_all_sorted():
+    rows = [(30, 1, 0, 0), (90, 2, 0, 0), (10, 3, 0, 0)]
+    full = [(90, 2, 0, 0), (30, 1, 0, 0), (10, 3, 0, 0)]
+    assert streaming_top_k(rows, k=3) == full
+    assert streaming_top_k(rows, k=100) == full
+    assert streaming_top_k([], k=5) == []
+
+
+def test_streaming_top_k_rejects_out_of_range_k():
+    rows = [(1, 0, 0, 0)]
+    for bad in (0, -1, TOP_K_MAX + 1):
+        with pytest.raises(ValueError):
+            streaming_top_k(rows, k=bad)
+    assert TopKErrorCode.BAD_K == 1
+    assert streaming_top_k(rows * TOP_K_MAX, k=TOP_K_MAX)  # boundary k is accepted
+
+
+def test_streaming_top_k_matches_bounded_heap_model():
+    import random
+
+    rng = random.Random(23)
+    for _ in range(400):
+        n = rng.randint(0, 40)
+        rows = [(rng.randint(-50, 50), i, rng.randint(0, 9), rng.randint(0, 9)) for i in range(n)]
+        for k in (1, 2, 5, 13, TOP_K_MAX):
+            assert streaming_top_k(rows, k=k) == _heap_top_k(rows, k)
