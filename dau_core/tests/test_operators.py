@@ -3,6 +3,7 @@ from __future__ import annotations
 import pytest
 
 from dau_core.operators import (
+    TOP_K_MAX,
     BarAggregate,
     BroadcastJoinConfig,
     FieldSumAggregate,
@@ -21,7 +22,6 @@ from dau_core.operators import (
     RowMapConfig,
     RowPredicateConfig,
     RowPredicateTerm,
-    TOP_K_MAX,
     TopKErrorCode,
     UnpackFieldSpec,
     bar_aggregate_rows,
