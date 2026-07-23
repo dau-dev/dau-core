@@ -267,13 +267,14 @@ CORES: tuple[CoreDefinition, ...] = (
         module="dau_int32_asof_backward",
         source="dau_int32_asof_backward.sv",
         description=(
-            "Backward as-of alignment (the temporal-workflow spine): attaches to each trade the most recent quote for the same symbol with quote_time <= trade_time, "
-            "optionally within cfg_tolerance on the time axis. The two source streams are host-merged into one (symbol_id, time)-sorted stream (quote-before-trade at equal key/time), "
-            "tagged per 3-word record (w0={rec_type, symbol}, w1=time[63:0], w2={fieldB, fieldA}); because the stream is symbol-grouped the tile holds ONE current quote, reset on symbol "
-            "change (the bar tile's key-change shape) — bounded state, one pass, no per-symbol table. A matched trade emits a 4-word market row (time, {price, symbol}, {ask, bid}, size); "
-            "a miss (no held quote, or older than tolerance) drops, so the tile realizes matched_rows ∘ asof_backward. A record torn by input_last before its third word is ERR_STREAM."
+            "Generic keyed backward as-of join: over one host-merged (key, time)-sorted stream of BUILD and PROBE records (build-before-probe at equal key/time), attaches to each probe the most "
+            "recent build for the same key with build_time <= probe_time, optionally within cfg_tolerance on the time axis. Each 3-word record is w0={rec_type, key} (rec_type bit0: 0=build/1=probe), "
+            "w1=time[63:0], w2={payload_b, payload_a} (two opaque INT32 fields); because the stream is key-grouped the tile holds ONE current build, reset on key change (the key-change shape) — bounded "
+            "state, one pass, no per-key table. A matched probe emits a 4-word joined row (time, {probe_a, key}, {build_b, build_a}, {_, probe_b}); a miss (no live build, or older than tolerance) drops, so "
+            "the tile realizes matched joins only. The temporal-finance backward as-of is this join with quote=build {bid, ask}, trade=probe {price, size}, key=symbol — the finance vocabulary lives in the "
+            "host merge, not the tile. A record torn by input_last before its third word is ERR_STREAM."
         ),
-        golden="dau_core.temporal:asof_backward",
+        golden="dau_core.operators:keyed_asof_join_rows",
         bench=f"{_BENCHES}.dau_int32_asof_backward_tb",
         resources=ResourceEnvelope(lut=606, ff=856, bram36=0.0, dsp=0),  # OOC xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +1.679)
         count_port="match_count",

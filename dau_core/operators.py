@@ -588,6 +588,38 @@ class BroadcastJoinConfig:
         return (sources[self.out0], sources[self.out1], sources[self.out2])
 
 
+def keyed_asof_join_rows(
+    records: Iterable[tuple[int, int, int, int, int]], *, tolerance: int | None = None
+) -> list[tuple[int, int, int, int, int, int]]:
+    """Golden semantics for the generic keyed backward as-of join tile: one
+    host-merged, ``(key, time)``-sorted stream of BUILD and PROBE records
+    (build-before-probe at equal key/time). Each record is
+    ``(rec_type, key, time, a, b)`` — ``rec_type`` bit0: 0 = build, 1 = probe;
+    ``a``/``b`` are two opaque INT32 payload fields. Because the stream is
+    key-grouped, exactly one build is live at a time: a build updates the held
+    ``(time, a, b)`` for its key (reset on key change), and a probe attaches the
+    most recent build with ``build_time <= probe_time`` (within ``tolerance`` on
+    the time axis, ``None`` = unbounded), emitting the joined row
+    ``(key, time, probe_a, probe_b, build_a, build_b)``. A probe with no live
+    build (or one older than tolerance) drops — the tile emits matched joins
+    only. Workload-agnostic: the temporal-finance backward as-of (quote = build
+    ``{bid, ask}``, trade = probe ``{price, size}``) is exactly this join, and
+    :func:`dau_core.temporal.asof_backward` on sorted inputs agrees with it."""
+    out: list[tuple[int, int, int, int, int, int]] = []
+    cur_key: int | None = None
+    held: tuple[int, int, int] | None = None  # (build_time, a, b)
+    for rec_type, key, time, a, b in records:
+        if key != cur_key:
+            cur_key = key
+            held = None
+        if rec_type & 1:  # probe
+            if held is not None and (tolerance is None or time - held[0] <= tolerance):
+                out.append((key, time, a, b, held[1], held[2]))
+        else:  # build
+            held = (time, a, b)
+    return out
+
+
 def broadcast_hash_join_rows(
     build_rows: Iterable[tuple[int, int, int, int]],
     probe_rows: Iterable[tuple[int, int, int, int]],

@@ -1,35 +1,35 @@
 `default_nettype none
 
-// Backward as-of alignment tile (the temporal-workflow spine). Attaches to
-// each trade the most recent quote for the same symbol with quote_time <=
-// trade_time (optionally within a tolerance on the time axis) — one current
-// quote of bounded state, one pass.
+// Generic keyed backward as-of join tile. Attaches to each PROBE record the
+// most recent BUILD record for the same key with build_time <= probe_time
+// (optionally within a tolerance on the time axis) — one held build of bounded
+// state, one pass. The payload fields are opaque; the temporal-finance backward
+// as-of is this join with quote=build {bid, ask}, trade=probe {price, size},
+// key=symbol (that vocabulary lives in the host merge, not the tile).
 //
-// The two source streams are host-merged into ONE stream sorted by
-// (symbol_id, time), quote-before-trade at equal (symbol, time). Because the
-// stream is symbol-grouped, exactly ONE symbol is live at a time: the held
-// quote resets when the symbol changes (the same key-change shape the bar tile
-// uses), so no per-symbol table is needed. This is the merge precondition the
-// sorted-scan tiles already require.
+// The two source streams are host-merged into ONE stream sorted by (key, time),
+// build-before-probe at equal (key, time). Because the stream is key-grouped,
+// exactly ONE key is live at a time: the held build resets when the key changes
+// (the same key-change shape the bar tile uses), so no per-key table is needed.
+// This is the merge precondition the sorted-scan tiles already require.
 //
 // Each input record is three 64-bit words (a record is atomic; input_last is
 // only legal on w2):
-//   w0 = {rec_type[31:0], symbol_id[31:0]}   rec_type bit0: 0=quote, 1=trade
+//   w0 = {rec_type[31:0], key[31:0]}         rec_type bit0: 0=build, 1=probe
 //   w1 = time[63:0]                          (signed INT64, the merge axis)
-//   w2 = {fieldB[31:0], fieldA[31:0]}        quote: A=bid, B=ask
-//                                            trade: A=price, B=size
+//   w2 = {payload_b[31:0], payload_a[31:0]}  build: a/b carried; probe: a/b out
 //
-// A matched trade emits a 4-word market row (misses are dropped, like a
-// filter — the tile realizes matched_rows ∘ asof_backward):
+// A matched probe emits a 4-word joined row (misses are dropped, like a filter
+// — the tile realizes matched joins only):
 //   r0 = time[63:0]
-//   r1 = {price[31:0], symbol_id[31:0]}
-//   r2 = {ask[31:0], bid[31:0]}
-//   r3 = {32'd0, size[31:0]}
+//   r1 = {probe_a[31:0], key[31:0]}
+//   r2 = {build_b[31:0], build_a[31:0]}
+//   r3 = {32'd0, probe_b[31:0]}
 //
-// cfg_has_tolerance selects the bounded mode: a trade whose held quote is
-// older than cfg_tolerance (trade_time - quote_time > tolerance) is a miss.
-// Config is read directly and must be held stable for the job. Matches
-// dau_core.temporal.matched_rows(asof_backward(...)) bit-for-bit.
+// cfg_has_tolerance selects the bounded mode: a probe whose held build is older
+// than cfg_tolerance (probe_time - build_time > tolerance) is a miss. Config is
+// read directly and must be held stable for the job. Matches
+// dau_core.operators.keyed_asof_join_rows bit-for-bit.
 module dau_int32_asof_backward (
     input  wire logic        clk,
     input  wire logic        rst,

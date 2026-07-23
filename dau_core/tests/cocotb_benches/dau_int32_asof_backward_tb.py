@@ -4,7 +4,7 @@ import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import ReadOnly, RisingEdge
 
-from dau_core.temporal import asof_backward, matched_rows
+from dau_core.operators import keyed_asof_join_rows
 
 # (symbol, time, bid, ask)
 _QUOTES = [
@@ -36,12 +36,11 @@ def _merge(quotes, trades):
 
 
 def _expected(quotes, trades, *, tolerance=None):
-    """The golden preserves trade INPUT order; the tile emits in merged
-    (symbol, time) order. Under the shared pre-sort precondition the two
-    coincide, so compare against the golden fed (symbol, time)-sorted inputs."""
-    st = sorted(trades, key=lambda r: (r[0], r[1]))
-    sq = sorted(quotes, key=lambda r: (r[0], r[1]))
-    return matched_rows(asof_backward(st, sq, tolerance=tolerance))
+    """The tile's golden is the generic keyed as-of join over the merged stream
+    (quote = build {bid, ask}, trade = probe {price, size}) — the joined row
+    (key, time, probe_a, probe_b, build_a, build_b) is the market row the bench
+    decodes."""
+    return keyed_asof_join_rows(_merge(quotes, trades), tolerance=tolerance)
 
 
 @cocotb.test()
@@ -69,10 +68,10 @@ async def asof_tile_tolerance_drops_stale_quotes(dut):
 @cocotb.test()
 async def asof_tile_all_misses_emit_nothing(dut):
     await _start(dut)
-    trades = [(9, 5, 1, 1), (9, 6, 2, 2)]  # no quotes for symbol 9
+    trades = [(9, 5, 1, 1), (9, 6, 2, 2)]  # no build (quote) for key 9
     rows = await _run(dut, _merge([], trades))
     assert rows == []
-    assert matched_rows(asof_backward(trades, [])) == []
+    assert keyed_asof_join_rows(_merge([], trades)) == []
 
 
 @cocotb.test()
