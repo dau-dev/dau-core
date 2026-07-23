@@ -11,11 +11,12 @@ synthesis pass.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 from enum import Enum
 from importlib import import_module
 from pathlib import Path
 from typing import Mapping
+
+from ccflow import BaseModel
 
 from .design import UnitKind
 from .stream import LogicalType, OperationCode
@@ -48,10 +49,11 @@ class ContractKind(Enum):
     ARROW_LITE_DESCRIPTOR = "arrow-lite-descriptor"  # descriptor-driven Arrow-lite protocol
 
 
-@dataclass(frozen=True)
-class ResourceEnvelope:
+class ResourceEnvelope(BaseModel):
     """Post-synthesis footprint on the target part (dpv1 XC7A200T unless
     noted). ``measured=False`` marks an engineering estimate."""
+
+    model_config = {"frozen": True}
 
     lut: int
     ff: int
@@ -60,8 +62,7 @@ class ResourceEnvelope:
     measured: bool = True
 
 
-@dataclass(frozen=True)
-class ParameterSpec:
+class ParameterSpec(BaseModel):
     """An overridable SystemVerilog module parameter: its HDL default and the
     constraint a composition override must satisfy — mirroring the RTL's own
     elaboration guards so an invalid override is rejected at composition time,
@@ -73,6 +74,8 @@ class ParameterSpec:
     window is ``>= 2`` — a size-1 sample variance is undefined). The HDL is the
     source of truth; this mirrors it."""
 
+    model_config = {"frozen": True}
+
     default: int
     multiple_of: int = 1
     choices: tuple[int, ...] | None = None
@@ -81,9 +84,10 @@ class ParameterSpec:
     maximum: int | None = None
 
 
-@dataclass(frozen=True)
-class CoreDefinition:
+class CoreDefinition(BaseModel):
     """One HDL building block and its contract surround."""
+
+    model_config = {"frozen": True}
 
     name: str
     kind: CoreKind
@@ -123,7 +127,7 @@ class CoreDefinition:
     # name is rejected. The values here mirror the .sv parameter defaults —
     # the HDL is the source of truth, this is the machine-readable declaration
     # the composition validates against.
-    parameters: Mapping[str, ParameterSpec] = field(default_factory=dict)
+    parameters: Mapping[str, ParameterSpec] = {}
 
     def source_path(self) -> Path:
         from . import hdl
