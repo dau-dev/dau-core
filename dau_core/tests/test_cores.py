@@ -118,6 +118,20 @@ def test_registry_is_hydra_composition_not_a_python_literal() -> None:
     assert "int32-bar-aggregation" in names
 
 
+def test_accessors_defer_to_a_composed_registry() -> None:
+    """The composed registry is the source of truth: accessors read through
+    to /dau-core (no snapshot cache), so a consumer's hydra overrides are
+    visible and never clobbered by a default reload."""
+    from dau_core.config import load_config
+
+    try:
+        load_config(["dau-core.int32-bar-aggregation.description=OVERRIDDEN"], overwrite=True)
+        assert core("int32-bar-aggregation").description == "OVERRIDDEN"
+    finally:
+        load_config(overwrite=True)  # restore packaged defaults
+    assert core("int32-bar-aggregation").description != "OVERRIDDEN"
+
+
 def test_silent_on_success_operator_set_is_pinned() -> None:
     """The status contract's two classes are registry truth: silent-on-success
     cores (chain-stage/partition legal) versus per-batch success close-out

@@ -148,22 +148,23 @@ class UnknownCoreError(KeyError):
     pass
 
 
-_LOADED: dict[str, CoreDefinition] | None = None
-
-
 def loaded_cores() -> Mapping[str, CoreDefinition]:
     """The core registry, name -> definition in registry order: dau-core's
     hydra config tree (``dau-core/cores.yaml``) composed into the ccflow
     ``ModelRegistry`` at ``/dau-core/<core-name>``. Composition IS the
     registry — there is no Python-literal core list; these accessors are
-    thin cached views for in-process consumers (tests, dau shell walking)."""
-    global _LOADED
-    if _LOADED is None:
+    thin read-through views for in-process consumers (tests, dau shell
+    walking). A ``/dau-core`` subregistry a consumer already composed
+    (possibly with overrides) is the source of truth and is never reloaded
+    or overwritten here; the packaged defaults load only when it is absent."""
+    from ccflow import ModelRegistry
+
+    subregistry = ModelRegistry.root().models.get("dau-core")
+    if subregistry is None:
         from dau_core.config import load_config
 
-        registry = load_config(overwrite=True)
-        _LOADED = {name: model for name, model in registry.models["dau-core"].models.items() if isinstance(model, CoreDefinition)}
-    return _LOADED
+        subregistry = load_config().models["dau-core"]
+    return {name: model for name, model in subregistry.models.items() if isinstance(model, CoreDefinition)}
 
 
 def core(name: str) -> CoreDefinition:
