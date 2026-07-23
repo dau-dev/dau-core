@@ -13,8 +13,10 @@ N=1 with no filter degenerates to the single-tile DDR scan.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 from typing import Mapping
+
+from ccflow import BaseModel
+from pydantic import StrictInt
 
 from .cores import CoreDefinition, CoreKind, LoadImageKind, ResourceEnvelope, core
 
@@ -31,7 +33,10 @@ FRONT_UNPACK_CORE = "int32-row-unpack"
 LOAD_PHASE_BINDING = "load_phase"
 
 
-class CompositionError(ValueError):
+class CompositionError(Exception):
+    # not a ValueError: pydantic wraps ValueError subclasses raised in
+    # model_post_init into ValidationError, and the composition contract is
+    # that spec construction raises CompositionError directly
     pass
 
 
@@ -67,37 +72,40 @@ def _validate_tile_params(tile: TileSpec, role: str) -> None:
             raise CompositionError(f"{role} {tile.core!r} parameter {name!r} must be a power of two, got {value!r}")
 
 
-@dataclass(frozen=True)
-class TileSpec:
+class TileSpec(BaseModel):
     """One registry core plus its config-port bindings (SystemVerilog
     literals or expressions in terms of the top's signals) and any
     module-parameter overrides (``params``: SystemVerilog PARAMETERs, e.g.
     the membership core's ``KEY_SPACE``, that size the built RTL). Config
     ports are runtime bindings; params are elaboration-time sizes."""
 
+    model_config = {"frozen": True}
+
     core: str
-    config: Mapping[str, str] = field(default_factory=dict)
-    params: Mapping[str, int] = field(default_factory=dict)
+    config: Mapping[str, str] = {}
+    # StrictInt: lax coercion (True -> 1, "4" -> 4) would silently satisfy the
+    # positive-int parameter contract before _validate_tile_params ever ran
+    params: Mapping[str, StrictInt] = {}
 
     def definition(self) -> CoreDefinition:
         return core(self.core)
 
 
-@dataclass(frozen=True)
-class LaneSpec:
+class LaneSpec(BaseModel):
     """One lane of the scan: an optional row-atomic partition filter, an
     optional ordered ``chain`` of mid-lane operator stages
     (filter -> map -> ...), and the terminal operator tile. Chain stages
     speak the stream+status contract but need no status counter; the
     terminal tile's count port backs the lane register block."""
 
+    model_config = {"frozen": True}
+
     tile: TileSpec
     partition: TileSpec | None = None
     chain: tuple[TileSpec, ...] = ()
 
 
-@dataclass(frozen=True)
-class ScanCompositionSpec:
+class ScanCompositionSpec(BaseModel):
     """One scan fanned to ``len(lanes)`` lanes with per-lane output
     regions and the NoC lane register block.
 
@@ -112,6 +120,8 @@ class ScanCompositionSpec:
     still sees the clean 32-bit key it partitions on. It coexists with
     either fan-out shape."""
 
+    model_config = {"frozen": True}
+
     name: str
     lanes: tuple[LaneSpec, ...]
     burst_beats: int = 32
@@ -119,7 +129,11 @@ class ScanCompositionSpec:
     partitioner: TileSpec | None = None
     front_unpack: TileSpec | None = None
 
-    def __post_init__(self) -> None:
+    def model_post_init(self, context) -> None:
+        # composition validation raises CompositionError directly (the public
+        # contract consumers catch); model_post_init propagates it unwrapped,
+        # unlike a pydantic validator
+        super().model_post_init(context)
         if not self.lanes:
             raise CompositionError("a scan composition needs at least one lane")
         if self.partitioner is not None:
