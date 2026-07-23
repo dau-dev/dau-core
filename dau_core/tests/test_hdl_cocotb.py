@@ -170,6 +170,22 @@ def test_time_bucket_key_runs_real_cocotb_against_systemverilog(tmp_path: Path) 
 
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_bucket_agg_chain_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
+    # the fused, fully-generic bar stage: time-bucket key -> generic aggregator,
+    # selected into OHLCV bars downstream (no finance-specific bar tile)
+    _run_cocotb_verilator(
+        sources=(
+            Path(str(DAU_INT32_TIME_BUCKET_KEY_SV)),
+            Path(str(DAU_INT32_GROUPED_FIELD_AGGREGATION_SV)),
+            _SV_TB_DIR / "dau_bucket_agg_chain.sv",
+        ),
+        hdl_toplevel="dau_bucket_agg_chain",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_bucket_agg_chain_tb",
+        tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_market_feature_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
     _run_cocotb_verilator(
         sources=(Path(str(DAU_INT32_MARKET_FEATURE_SV)),),
