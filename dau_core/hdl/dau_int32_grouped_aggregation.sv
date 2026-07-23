@@ -1,6 +1,6 @@
 `default_nettype none
 
-// Ordered grouped-aggregation tile (roadmap M2 T3, Q100 grouped-aggregate
+// Ordered grouped-aggregation tile (the Q100 grouped-aggregate
 // shape, close-out mode).
 //
 // Consumes one keyed row per 64-bit word ({value[31:0], key[31:0]}, both

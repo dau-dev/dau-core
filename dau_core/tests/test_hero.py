@@ -1,4 +1,4 @@
-"""The hero workflow (ROADMAP 2a step 4): the predeclared pipeline over the
+"""The hero workflow: the predeclared pipeline over the
 goldens, and the avoided-materialization cost model."""
 
 from __future__ import annotations

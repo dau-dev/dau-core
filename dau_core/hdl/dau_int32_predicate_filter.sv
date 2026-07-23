@@ -1,6 +1,6 @@
 `default_nettype none
 
-// Streaming compacting predicate filter (roadmap M2 T1, Q100 colfilter shape).
+// Streaming compacting predicate filter (the Q100 colfilter shape).
 //
 // Consumes a packed INT32 value stream (two samples per 64-bit word, low word
 // older), keeps samples matching `value <op0> constant0` optionally combined
