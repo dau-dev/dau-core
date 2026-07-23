@@ -361,11 +361,13 @@ SPEC_CANONICAL_VERSION = "1"
 
 def canonical_spec_json(spec: ScanCompositionSpec) -> str:
     """The canonical serialized form of a composition spec: deterministic
-    JSON (sorted keys, compact separators, defaults omitted) of the
-    elaborated spec. Two equal specs produce identical text regardless of
-    config-dict insertion order, and omitting default-valued fields keeps
-    the form stable when the spec model later grows optional fields."""
-    payload = spec.model_dump(mode="json", exclude_defaults=True)
+    JSON (sorted keys, compact separators) of the FULL elaborated spec —
+    every field, defaults included. The canonical text captures the
+    effective design: if a model default ever changes, old and new specs
+    produce different text rather than silently sharing a cache key. The
+    cost is that growing the spec model changes hashes (a safe cache miss);
+    that evolution is the explicit job of SPEC_CANONICAL_VERSION."""
+    payload = spec.model_dump(mode="json")
     return json.dumps(payload, sort_keys=True, separators=(",", ":"))
 
 

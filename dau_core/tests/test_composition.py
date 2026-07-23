@@ -513,16 +513,18 @@ def test_spec_hash_is_config_order_insensitive_and_content_sensitive() -> None:
         return ScanCompositionSpec(name="t", lanes=(LaneSpec(tile=TileSpec(core="int32-bar-aggregation", config=config)),))
 
     a = build({"cfg_mode": "2'd0", "cfg_row_count": "64'd0"})
-    b = build({"cfg_row_count": "64'd0", "cfg_mode": "2'd0"})   # same content, other insertion order
-    c = build({"cfg_mode": "2'd1", "cfg_row_count": "64'd0"})   # different content
+    b = build({"cfg_row_count": "64'd0", "cfg_mode": "2'd0"})  # same content, other insertion order
+    c = build({"cfg_mode": "2'd1", "cfg_row_count": "64'd0"})  # different content
     assert spec_hash(a) == spec_hash(b)
     assert spec_hash(a) != spec_hash(c)
 
 
 def test_spec_hash_pinned_fixture() -> None:
-    """The design-cache key must be stable across releases: a change to the
-    canonicalization (field ordering, default handling, hash construction)
-    fails HERE, loudly, and must bump SPEC_CANONICAL_VERSION deliberately."""
+    """The design-cache key must be stable across releases: ANY change to
+    the canonical form — field ordering, a new or changed spec field or
+    default, hash construction — fails HERE, loudly, and must bump
+    SPEC_CANONICAL_VERSION deliberately (defaults are included precisely so
+    a changed default changes the key instead of colliding)."""
     from dau_core.composition import spec_hash
 
     spec = ScanCompositionSpec(
@@ -535,7 +537,7 @@ def test_spec_hash_pinned_fixture() -> None:
         ),
         burst_beats=16,
     )
-    assert spec_hash(spec) == "1:51092cafd06649518060117631634aa69e39228ebec7566c3c6e21aa216adcb2"
+    assert spec_hash(spec) == "1:5960fa805747df4f1d13fbbf143f9b13b5fed485fc5ba26fd490beb14ffe48f2"
 
 
 def test_spec_from_canonical_revalidates() -> None:
