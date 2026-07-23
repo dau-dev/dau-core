@@ -340,6 +340,27 @@ CORES: tuple[CoreDefinition, ...] = (
         parameters={"BUCKET_BITS": ParameterSpec(default=16, minimum=1, maximum=31)},  # composite key split (PART_BITS = 32 - BUCKET_BITS)
     ),
     CoreDefinition(
+        name="int32-streaming-top-k",
+        kind=CoreKind.OPERATOR,
+        success_close_out=True,
+        module="dau_int32_streaming_top_k",
+        source="dau_int32_streaming_top_k.sv",
+        description=(
+            "Streaming top-k tile (ORDER BY <key> DESC LIMIT K): over quad rows (key, v0, v1, v2) keeps the K rows with the largest signed-INT32 sort key (field 0), ties by arrival (earliest wins), and "
+            "at close-out drains them sorted key-descending — the q3/q10 and TSBS group-by-order-by-limit shape. The retained set lives in a size-K systolic sorted register array where every cell makes a "
+            "LOCAL compare-and-shift decision (constant critical path regardless of K, one row every two cycles); physical position encodes arrival order so equal-key ties resolve for free (a later row "
+            "inserts after an earlier equal key via a strict < compare) with no arrival counter. A row inserts iff some cell is empty or its key is strictly less than the arriving key. Matches "
+            "dau_core.operators.streaming_top_k. K is compile-time (the host/compiler validates K in [1, 128] = dau_core.operators.TOP_K_MAX, BAD_K at composition time), enforced by an elaboration guard. "
+            "A row torn by input_last on w0 is ERR_STREAM."
+        ),
+        golden="dau_core.operators:streaming_top_k",
+        bench=f"{_BENCHES}.dau_int32_streaming_top_k_tb",
+        resources=ResourceEnvelope(lut=1295, ff=1196, bram36=0.0, dsp=0),  # OOC K=8 xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +4.350)
+        count_port="top_count",
+        contract_kind=ContractKind.ROW_STREAM,
+        parameters={"K": ParameterSpec(default=8, minimum=1, maximum=128)},  # retained-row count (LIMIT); the sorted-array depth
+    ),
+    CoreDefinition(
         name="int32-pair-key-filter",
         kind=CoreKind.OPERATOR,
         module="dau_int32_pair_key_filter",
