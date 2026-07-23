@@ -33,9 +33,9 @@ _ROWS = [
 async def value_lane_single_and_combined_predicates(dut):
     await _start(dut)
     for predicate in (
-        FilterPredicate(PredicateOp.GT, 1500),
-        FilterPredicate(PredicateOp.GE, 0, PredicateCombine.AND, PredicateOp.LT, 2500),
-        FilterPredicate(PredicateOp.LT, 0, PredicateCombine.OR, PredicateOp.GE, 2500),
+        FilterPredicate(op0=PredicateOp.GT, constant0=1500),
+        FilterPredicate(op0=PredicateOp.GE, constant0=0, combine=PredicateCombine.AND, op1=PredicateOp.LT, constant1=2500),
+        FilterPredicate(op0=PredicateOp.LT, constant0=0, combine=PredicateCombine.OR, op1=PredicateOp.GE, constant1=2500),
     ):
         out, count = await _run(dut, _ROWS, predicate)
         expected = filter_rows(_ROWS, predicate)
@@ -48,7 +48,7 @@ async def key_lane_predicate_keeps_rows_aligned(dut):
     # cfg_target_lane=1 evaluates the predicate on the key lane; whole rows
     # pass or drop together (compaction never misaligns the lanes)
     await _start(dut)
-    predicate = FilterPredicate(PredicateOp.EQ, 568)
+    predicate = FilterPredicate(op0=PredicateOp.EQ, constant0=568)
     out, count = await _run(dut, _ROWS, predicate, on_key=True)
     expected = filter_rows(_ROWS, predicate, on_key=True)
     assert out == expected == [(568, 1000), (568, 1500), (568, 3000)]
@@ -62,7 +62,7 @@ async def int32_extremes_compare_signed(dut):
     for on_key in (False, True):
         for op in (PredicateOp.LT, PredicateOp.GE):
             for constant in (_INT32_MIN, -1, 0, _INT32_MAX):
-                predicate = FilterPredicate(op, constant)
+                predicate = FilterPredicate(op0=op, constant0=constant)
                 out, _ = await _run(dut, rows, predicate, on_key=on_key)
                 assert out == filter_rows(rows, predicate, on_key=on_key), f"{op.name} {constant} on_key={on_key}"
 
@@ -72,7 +72,7 @@ async def all_dropped_still_closes_out_success(dut):
     # zero forwarded rows: no output words, but the tile still raises its
     # per-batch success close-out with selected_count == 0
     await _start(dut)
-    predicate = FilterPredicate(PredicateOp.LT, _INT32_MIN)  # matches nothing
+    predicate = FilterPredicate(op0=PredicateOp.LT, constant0=_INT32_MIN)  # matches nothing
     out, count = await _run(dut, _ROWS, predicate)
     assert out == []
     assert count == 0
@@ -83,7 +83,7 @@ async def last_driven_mode_trusts_upstream_last(dut):
     # cfg_row_count == 0: no stream-length check; the upstream last marker
     # decides the batch end (a stage downstream of another compaction)
     await _start(dut)
-    predicate = FilterPredicate(PredicateOp.GE, 0)
+    predicate = FilterPredicate(op0=PredicateOp.GE, constant0=0)
     out, count = await _run(dut, _ROWS, predicate, count_checked=False)
     expected = filter_rows(_ROWS, predicate)
     assert out == expected
@@ -93,7 +93,7 @@ async def last_driven_mode_trusts_upstream_last(dut):
 @cocotb.test()
 async def backpressure_holds_output_stable(dut):
     await _start(dut)
-    predicate = FilterPredicate(PredicateOp.NE, 0)
+    predicate = FilterPredicate(op0=PredicateOp.NE, constant0=0)
     out, count = await _run(dut, _ROWS, predicate, ready_pattern=(1, 0, 0, 1, 0))
     expected = filter_rows(_ROWS, predicate)
     assert out == expected
@@ -108,7 +108,7 @@ async def reset_clears_state(dut):
     # A third row would jam the sender: the emit of the first match holds
     # output_valid, and with output_ready low the tile stops accepting input.
     await _start(dut)
-    _drive_config(dut, FilterPredicate(PredicateOp.GE, 0), on_key=False, row_count=0)
+    _drive_config(dut, FilterPredicate(op0=PredicateOp.GE, constant0=0), on_key=False, row_count=0)
     dut.output_ready.value = 0
     await _send_words(dut, _pack_rows(_ROWS[:2]), last_on_final=False)
     await ReadOnly()
@@ -126,7 +126,7 @@ async def reset_clears_state(dut):
     await RisingEdge(dut.clk)
 
     # a fresh batch runs cleanly, counting from zero
-    predicate = FilterPredicate(PredicateOp.EQ, 568)
+    predicate = FilterPredicate(op0=PredicateOp.EQ, constant0=568)
     out, count = await _run(dut, _ROWS, predicate, on_key=True)
     assert out == filter_rows(_ROWS, predicate, on_key=True)
     assert count == 3
@@ -137,7 +137,7 @@ async def short_stream_reports_stream_error(dut):
     # count-checked mode: input_last before the declared count is a STREAM
     # error (the row-per-word analog of a torn row)
     await _start(dut)
-    _drive_config(dut, FilterPredicate(PredicateOp.LT, _INT32_MIN), on_key=False, row_count=len(_ROWS) + 2)
+    _drive_config(dut, FilterPredicate(op0=PredicateOp.LT, constant0=_INT32_MIN), on_key=False, row_count=len(_ROWS) + 2)
     dut.output_ready.value = 1
     await _send_words(dut, _pack_rows(_ROWS))  # last after fewer rows than declared
     await _expect_error(dut, FilterErrorCode.STREAM)
@@ -150,7 +150,7 @@ async def long_stream_reports_stream_error(dut):
     # count-checked mode: more rows than the declared count -> the count is
     # reached with no last marker, then a trailing last closes the error
     await _start(dut)
-    _drive_config(dut, FilterPredicate(PredicateOp.LT, _INT32_MIN), on_key=False, row_count=2)
+    _drive_config(dut, FilterPredicate(op0=PredicateOp.LT, constant0=_INT32_MIN), on_key=False, row_count=2)
     dut.output_ready.value = 1
     await _send_words(dut, _pack_rows(_ROWS[:4]))  # 4 rows declared as 2
     await _expect_error(dut, FilterErrorCode.STREAM)
@@ -160,7 +160,7 @@ async def long_stream_reports_stream_error(dut):
 @cocotb.test()
 async def reserved_op_reports_config_error(dut):
     await _start(dut)
-    _drive_config(dut, FilterPredicate(PredicateOp.EQ, 0), on_key=False, row_count=len(_ROWS))
+    _drive_config(dut, FilterPredicate(op0=PredicateOp.EQ, constant0=0), on_key=False, row_count=len(_ROWS))
     dut.cfg_op0.value = 0  # reserved: an unconfigured tile fails explicitly
     dut.output_ready.value = 1
     await _send_words(dut, _pack_rows(_ROWS))
@@ -172,7 +172,7 @@ async def reserved_op_reports_config_error(dut):
 async def reserved_combine_op_reports_config_error(dut):
     # combine == AND with a reserved op1 is an invalid predicate tree
     await _start(dut)
-    _drive_config(dut, FilterPredicate(PredicateOp.EQ, 568), on_key=False, row_count=len(_ROWS))
+    _drive_config(dut, FilterPredicate(op0=PredicateOp.EQ, constant0=568), on_key=False, row_count=len(_ROWS))
     dut.cfg_combine.value = int(PredicateCombine.AND)
     dut.cfg_op1.value = 0
     dut.output_ready.value = 1
@@ -185,7 +185,7 @@ async def error_status_survives_backpressure(dut):
     # while status_ready is held low the error close-out stays stable and the
     # tile refuses new input; recovery only after the handshake
     await _start(dut)
-    _drive_config(dut, FilterPredicate(PredicateOp.GE, 0), on_key=False, row_count=len(_ROWS) + 2)
+    _drive_config(dut, FilterPredicate(op0=PredicateOp.GE, constant0=0), on_key=False, row_count=len(_ROWS) + 2)
     dut.status_ready.value = 0
     dut.output_ready.value = 1
     await _send_words(dut, _pack_rows(_ROWS))
@@ -208,7 +208,7 @@ async def success_status_survives_backpressure(dut):
     # the per-batch success close-out must hold stable while status_ready is
     # low and the tile must refuse new input until the handshake completes
     await _start(dut)
-    predicate = FilterPredicate(PredicateOp.EQ, 568)
+    predicate = FilterPredicate(op0=PredicateOp.EQ, constant0=568)
     _drive_config(dut, predicate, on_key=True, row_count=len(_ROWS))
     dut.status_ready.value = 0
     dut.output_ready.value = 1
@@ -232,9 +232,9 @@ async def repeated_batches_relatch_config(dut):
     # back-to-back batches with distinct configs each latch fresh at IDLE
     await _start(dut)
     for predicate, on_key in (
-        (FilterPredicate(PredicateOp.LT, 0), False),
-        (FilterPredicate(PredicateOp.EQ, 568), True),
-        (FilterPredicate(PredicateOp.GE, 2000), False),
+        (FilterPredicate(op0=PredicateOp.LT, constant0=0), False),
+        (FilterPredicate(op0=PredicateOp.EQ, constant0=568), True),
+        (FilterPredicate(op0=PredicateOp.GE, constant0=2000), False),
     ):
         out, count = await _run(dut, _ROWS, predicate, on_key=on_key)
         expected = filter_rows(_ROWS, predicate, on_key=on_key)
@@ -299,7 +299,7 @@ async def _start(dut) -> None:
     dut.input_last.value = 0
     dut.output_ready.value = 0
     dut.status_ready.value = 0
-    _drive_config(dut, FilterPredicate(PredicateOp.EQ, 0), on_key=False, row_count=0)
+    _drive_config(dut, FilterPredicate(op0=PredicateOp.EQ, constant0=0), on_key=False, row_count=0)
     await RisingEdge(dut.clk)
     dut.rst.value = 0
     await RisingEdge(dut.clk)
@@ -414,7 +414,7 @@ async def _expect_error(dut, code: FilterErrorCode) -> None:
 
 async def _expect_recovers(dut) -> None:
     # after any close-out the tile returns to IDLE and filters the next batch
-    predicate = FilterPredicate(PredicateOp.EQ, 568)
+    predicate = FilterPredicate(op0=PredicateOp.EQ, constant0=568)
     out, count = await _run(dut, _ROWS, predicate, on_key=True)
     assert out == filter_rows(_ROWS, predicate, on_key=True)
     assert count == 3

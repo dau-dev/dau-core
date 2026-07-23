@@ -12,19 +12,27 @@ WINDOW = int(os.environ.get("DAU_ROLLING_WINDOW", "4"))
 
 # (symbol, value): symbols grouped and contiguous (the host pre-sort precondition)
 _VALUES = [
-    (7, 10), (7, 20), (7, 30), (7, 40), (7, 50), (7, 60),  # slides once full
-    (9, -5), (9, -5), (9, 100),                             # < WINDOW: all warm-up
-    (11, 3), (11, 1), (11, 4), (11, 1), (11, 5), (11, 9),
+    (7, 10),
+    (7, 20),
+    (7, 30),
+    (7, 40),
+    (7, 50),
+    (7, 60),  # slides once full
+    (9, -5),
+    (9, -5),
+    (9, 100),  # < WINDOW: all warm-up
+    (11, 3),
+    (11, 1),
+    (11, 4),
+    (11, 1),
+    (11, 5),
+    (11, 9),
 ]
 
 
 def _expected(values, *, window=WINDOW):
     moments = rolling_moments(values, window=window)
-    return [
-        (symbol, window, m.total, m.total_sq)
-        for (symbol, _value), m in zip(values, moments)
-        if m is not None
-    ]
+    return [(symbol, window, m.total, m.total_sq) for (symbol, _value), m in zip(values, moments) if m is not None]
 
 
 @cocotb.test()

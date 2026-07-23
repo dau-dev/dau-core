@@ -13,7 +13,7 @@ from dau_core.temporal import (
     signed_volume,
 )
 
-BUCKET_SHIFT = 3   # bar width 8
+BUCKET_SHIFT = 3  # bar width 8
 BUCKET_BITS = 16
 WINDOW = 3
 
@@ -35,7 +35,9 @@ def _golden(quotes, trades, *, tolerance=None):
     sq = sorted(quotes, key=lambda r: (r[0], r[1]))
     market = matched_rows(asof_backward(st, sq, tolerance=tolerance))
     bucket_rows = [(sym, price, time, size, signed_volume(price, size, bid, ask)) for sym, time, price, size, bid, ask in market]
-    bars = bars_from_field_aggregate(grouped_field_aggregate_rows(time_bucket_key_rows(bucket_rows, bucket_shift=BUCKET_SHIFT, bucket_bits=BUCKET_BITS)))
+    bars = bars_from_field_aggregate(
+        grouped_field_aggregate_rows(time_bucket_key_rows(bucket_rows, bucket_shift=BUCKET_SHIFT, bucket_bits=BUCKET_BITS))
+    )
     roll_input = [(bar.key >> BUCKET_BITS, bar.close) for bar in bars]
     moments = rolling_moments(roll_input, window=WINDOW)
     return [(sym, m.count, m.total, m.total_sq) for (sym, _v), m in zip(roll_input, moments) if m is not None]

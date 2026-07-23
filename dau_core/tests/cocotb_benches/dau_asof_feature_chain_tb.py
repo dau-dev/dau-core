@@ -16,13 +16,13 @@ _QUOTES = [
 ]
 # (symbol, time, price, size)
 _TRADES = [
-    (570, 99, 11, 5),    # pre-first-quote miss
+    (570, 99, 11, 5),  # pre-first-quote miss
     (570, 100, 12, 3),
     (570, 107, 13, 2),
     (570, 130, 8, 1),
     (571, 105, 53, 7),
     (571, 111, 55, 4),
-    (572, 100, 1, 1),    # no quotes: miss
+    (572, 100, 1, 1),  # no quotes: miss
 ]
 
 

@@ -24,7 +24,7 @@ from dau_core.tests.cocotb_benches.dau_int32_broadcast_hash_join_tb import (
 # KEY_SPACE-agnostic helpers are shared with the KEY_SPACE=1024 bench.
 _KEY_SPACE = 64
 
-_CARRY_BUILD = BroadcastJoinConfig(JoinSource.B0, JoinSource.B1, JoinSource.B2)
+_CARRY_BUILD = BroadcastJoinConfig(out0=JoinSource.B0, out1=JoinSource.B1, out2=JoinSource.B2)
 
 _BUILD = [(7, 100, 101, 102), (0, 200, 201, 202), (63, 300, 301, 302)]
 _PROBE = [

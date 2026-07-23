@@ -41,9 +41,9 @@ _PROBE = [
 ]
 
 # carry build cols (b0,b1,b2), probe cols (v0,v1,v2), and a q3-style mix
-_CARRY_BUILD = BroadcastJoinConfig(JoinSource.B0, JoinSource.B1, JoinSource.B2)
-_CARRY_PROBE = BroadcastJoinConfig(JoinSource.V0, JoinSource.V1, JoinSource.V2)
-_Q3_MIX = BroadcastJoinConfig(JoinSource.B0, JoinSource.V0, JoinSource.B2)
+_CARRY_BUILD = BroadcastJoinConfig(out0=JoinSource.B0, out1=JoinSource.B1, out2=JoinSource.B2)
+_CARRY_PROBE = BroadcastJoinConfig(out0=JoinSource.V0, out1=JoinSource.V1, out2=JoinSource.V2)
+_Q3_MIX = BroadcastJoinConfig(out0=JoinSource.B0, out1=JoinSource.V0, out2=JoinSource.B2)
 
 
 @cocotb.test()
@@ -559,7 +559,7 @@ async def constrained_random_batches_match_golden(dut):
             else:
                 key = rng.randrange(_KEY_SPACE)
             probe.append((key, rng.randint(-50, 50), rng.randint(-50, 50), rng.randint(-50, 50)))
-        cfg = BroadcastJoinConfig(rng.choice(sources), rng.choice(sources), rng.choice(sources))
+        cfg = BroadcastJoinConfig(out0=rng.choice(sources), out1=rng.choice(sources), out2=rng.choice(sources))
         pattern = tuple(rng.choice((0, 1)) for _ in range(rng.randint(1, 6)))
         if not any(pattern):
             pattern = pattern + (1,)

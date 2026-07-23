@@ -4,6 +4,8 @@ import struct
 from dataclasses import dataclass
 from enum import IntEnum, IntFlag
 
+from ccflow import BaseModel
+
 from .registers import DAU_MAGIC_WORD
 
 
@@ -94,7 +96,8 @@ class BatchHeader:
     SIZE_BYTES = 64
     _STRUCT = struct.Struct("<IBBBBQQQHHHHQQQ")
 
-    def __post_init__(self) -> None:
+    def model_post_init(self, context) -> None:
+        super().model_post_init(context)
         _validate_u8("version_major", self.version_major)
         _validate_u8("version_minor", self.version_minor)
         _validate_u8("header_length", self.header_length)
@@ -276,13 +279,14 @@ class OperationDescriptor:
         )
 
 
-@dataclass(frozen=True)
-class RecordBatchLimits:
+class RecordBatchLimits(BaseModel):
     """Caps for multi-column record batches (see dau-docs record-batch contract).
 
     Defaults are sized to the 1 MiB stream-job staging buffers: header +
     descriptor table + payload must fit one staging region.
     """
+
+    model_config = {"frozen": True}
 
     max_columns: int = 16
     max_rows: int = 1 << 20

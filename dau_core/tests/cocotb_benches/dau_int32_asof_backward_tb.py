@@ -16,13 +16,13 @@ _QUOTES = [
 ]
 # (symbol, time, price, size)
 _TRADES = [
-    (570, 99, 11, 5),    # before the first quote -> miss
-    (570, 100, 12, 3),   # equal time: takes the 100 quote (inclusive)
-    (570, 107, 13, 2),   # between 105 and 120: the 105 quote
-    (570, 130, 8, 1),    # after the last quote: the 120 quote
-    (571, 105, 53, 7),   # the 100 quote
-    (571, 111, 55, 4),   # the 110 quote
-    (572, 100, 1, 1),    # a symbol with no quotes at all -> miss
+    (570, 99, 11, 5),  # before the first quote -> miss
+    (570, 100, 12, 3),  # equal time: takes the 100 quote (inclusive)
+    (570, 107, 13, 2),  # between 105 and 120: the 105 quote
+    (570, 130, 8, 1),  # after the last quote: the 120 quote
+    (571, 105, 53, 7),  # the 100 quote
+    (571, 111, 55, 4),  # the 110 quote
+    (572, 100, 1, 1),  # a symbol with no quotes at all -> miss
 ]
 
 
@@ -77,7 +77,7 @@ async def asof_tile_all_misses_emit_nothing(dut):
 @cocotb.test()
 async def asof_tile_int64_time_axis(dut):
     await _start(dut)
-    big = (1 << 40)
+    big = 1 << 40
     quotes = [(3, big, 7, 9)]
     trades = [(3, big + 5, 8, 2)]
     rows = await _run(dut, _merge(quotes, trades))

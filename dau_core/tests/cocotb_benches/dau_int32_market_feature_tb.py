@@ -8,12 +8,12 @@ from dau_core.temporal import MarketFeatures, market_features
 
 # (symbol, time, price, size, bid, ask)
 _ROWS = [
-    (570, 100, 12, 5, 10, 12),   # price at ask -> above mid -> +1
-    (570, 101, 9, 3, 8, 12),     # below mid (10) -> -1
-    (570, 102, 11, 7, 10, 12),   # at mid (11) -> 0
-    (571, 100, 50, 4, 48, 52),   # mid 50, price 50 -> 0
-    (571, 110, 55, 9, 50, 54),   # mid 52, price 55 -> +1
-    (572, 5, -3, 2, -6, -2),     # negative prices; mid (-6-2)//2 = -4; price -3 > -4 -> +1
+    (570, 100, 12, 5, 10, 12),  # price at ask -> above mid -> +1
+    (570, 101, 9, 3, 8, 12),  # below mid (10) -> -1
+    (570, 102, 11, 7, 10, 12),  # at mid (11) -> 0
+    (571, 100, 50, 4, 48, 52),  # mid 50, price 50 -> 0
+    (571, 110, 55, 9, 50, 54),  # mid 52, price 55 -> +1
+    (572, 5, -3, 2, -6, -2),  # negative prices; mid (-6-2)//2 = -4; price -3 > -4 -> +1
 ]
 
 

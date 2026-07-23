@@ -32,11 +32,11 @@ _ROWS = [
 ]
 
 _Q6_PREDICATE = RowPredicateConfig(
-    term0=RowPredicateTerm(RowField.KEY, PredicateOp.EQ, 568),
+    term0=RowPredicateTerm(field=RowField.KEY, op=PredicateOp.EQ, constant=568),
     combine01=PredicateCombine.AND,
-    term1=RowPredicateTerm(RowField.AUX0, PredicateOp.GE, 5),
+    term1=RowPredicateTerm(field=RowField.AUX0, op=PredicateOp.GE, constant=5),
     combine2=PredicateCombine.AND,
-    term2=RowPredicateTerm(RowField.AUX1, PredicateOp.LT, 24),
+    term2=RowPredicateTerm(field=RowField.AUX1, op=PredicateOp.LT, constant=24),
 )
 
 
@@ -49,7 +49,7 @@ async def single_term_on_each_field(dut):
         (RowField.AUX0, PredicateOp.LE, 5),
         (RowField.AUX1, PredicateOp.NE, 30),
     ):
-        config = RowPredicateConfig(term0=RowPredicateTerm(field, op, constant))
+        config = RowPredicateConfig(term0=RowPredicateTerm(field=field, op=op, constant=constant))
         assert await _run(dut, _ROWS, config) == filter_rows_by_predicate(_ROWS, config), f"{field.name} {op.name}"
 
 
@@ -57,9 +57,9 @@ async def single_term_on_each_field(dut):
 async def two_term_and_is_range_filter(dut):
     await _start(dut)
     config = RowPredicateConfig(
-        term0=RowPredicateTerm(RowField.AUX0, PredicateOp.GE, 5),
+        term0=RowPredicateTerm(field=RowField.AUX0, op=PredicateOp.GE, constant=5),
         combine01=PredicateCombine.AND,
-        term1=RowPredicateTerm(RowField.AUX0, PredicateOp.LE, 6),
+        term1=RowPredicateTerm(field=RowField.AUX0, op=PredicateOp.LE, constant=6),
     )
     out = await _run(dut, _ROWS, config)
     assert out == filter_rows_by_predicate(_ROWS, config)
@@ -79,11 +79,11 @@ async def or_of_and_tree(dut):
     # (value > 2000 OR key == 570) AND aux1 < 30: exercises both combine levels
     await _start(dut)
     config = RowPredicateConfig(
-        term0=RowPredicateTerm(RowField.VALUE, PredicateOp.GT, 2000),
+        term0=RowPredicateTerm(field=RowField.VALUE, op=PredicateOp.GT, constant=2000),
         combine01=PredicateCombine.OR,
-        term1=RowPredicateTerm(RowField.KEY, PredicateOp.EQ, 570),
+        term1=RowPredicateTerm(field=RowField.KEY, op=PredicateOp.EQ, constant=570),
         combine2=PredicateCombine.AND,
-        term2=RowPredicateTerm(RowField.AUX1, PredicateOp.LT, 30),
+        term2=RowPredicateTerm(field=RowField.AUX1, op=PredicateOp.LT, constant=30),
     )
     assert await _run(dut, _ROWS, config) == filter_rows_by_predicate(_ROWS, config)
 
@@ -92,7 +92,7 @@ async def or_of_and_tree(dut):
 async def last_lands_on_final_kept_row(dut):
     # trailing rows drop: last must move onto the final forwarded word
     await _start(dut)
-    config = RowPredicateConfig(term0=RowPredicateTerm(RowField.KEY, PredicateOp.EQ, 568))
+    config = RowPredicateConfig(term0=RowPredicateTerm(field=RowField.KEY, op=PredicateOp.EQ, constant=568))
     rows = [(568, 1, 1, 1), (569, 2, 2, 2), (570, 3, 3, 3)]
     assert await _run(dut, rows, config) == [(568, 1, 1, 1)]
 
@@ -100,7 +100,7 @@ async def last_lands_on_final_kept_row(dut):
 @cocotb.test()
 async def zero_rows_closes_out_success(dut):
     await _start(dut)
-    config = RowPredicateConfig(term0=RowPredicateTerm(RowField.KEY, PredicateOp.EQ, 999))
+    config = RowPredicateConfig(term0=RowPredicateTerm(field=RowField.KEY, op=PredicateOp.EQ, constant=999))
     assert await _run(dut, _ROWS, config) == []
     assert int(dut.selected_count.value) == 0
 
@@ -108,7 +108,7 @@ async def zero_rows_closes_out_success(dut):
 @cocotb.test()
 async def selected_count_reports_forwarded_rows(dut):
     await _start(dut)
-    config = RowPredicateConfig(term0=RowPredicateTerm(RowField.KEY, PredicateOp.EQ, 568))
+    config = RowPredicateConfig(term0=RowPredicateTerm(field=RowField.KEY, op=PredicateOp.EQ, constant=568))
     out = await _run(dut, _ROWS, config)
     assert int(dut.selected_count.value) == len(out) == 4
 
@@ -120,14 +120,14 @@ async def int32_extremes_compare_signed(dut):
     for field in RowField:
         for op in (PredicateOp.LT, PredicateOp.GE):
             for constant in (_INT32_MIN, -1, 0, _INT32_MAX):
-                config = RowPredicateConfig(term0=RowPredicateTerm(field, op, constant))
+                config = RowPredicateConfig(term0=RowPredicateTerm(field=field, op=op, constant=constant))
                 assert await _run(dut, rows, config) == filter_rows_by_predicate(rows, config), f"{field.name} {op.name} {constant}"
 
 
 @cocotb.test()
 async def backpressure_on_the_output(dut):
     await _start(dut)
-    config = RowPredicateConfig(term0=RowPredicateTerm(RowField.AUX1, PredicateOp.LT, 30))
+    config = RowPredicateConfig(term0=RowPredicateTerm(field=RowField.AUX1, op=PredicateOp.LT, constant=30))
     out = await _run(dut, _ROWS, config, ready_pattern=(1, 0, 0, 1, 0))
     assert out == filter_rows_by_predicate(_ROWS, config)
 
@@ -135,14 +135,14 @@ async def backpressure_on_the_output(dut):
 @cocotb.test()
 async def torn_row_reports_stream_error(dut):
     await _start(dut)
-    _drive_config(dut, RowPredicateConfig(term0=RowPredicateTerm(RowField.KEY, PredicateOp.GE, 0)))
+    _drive_config(dut, RowPredicateConfig(term0=RowPredicateTerm(field=RowField.KEY, op=PredicateOp.GE, constant=0)))
     # input_last on a w0: a torn row
     await _send_torn_w0(dut)
     await _expect_status(dut, error=True, code=FilterErrorCode.STREAM)
     assert int(dut.selected_count.value) == 0
 
     # recovers: the next batch filters normally
-    config = RowPredicateConfig(term0=RowPredicateTerm(RowField.KEY, PredicateOp.EQ, 568))
+    config = RowPredicateConfig(term0=RowPredicateTerm(field=RowField.KEY, op=PredicateOp.EQ, constant=568))
     assert await _run(dut, _ROWS, config) == filter_rows_by_predicate(_ROWS, config)
 
 
@@ -150,7 +150,7 @@ async def torn_row_reports_stream_error(dut):
 async def torn_row_mid_batch_reports_stream_error(dut):
     # a torn final row invalidates the batch even after forwarded rows
     await _start(dut)
-    config = RowPredicateConfig(term0=RowPredicateTerm(RowField.KEY, PredicateOp.GE, 0))
+    config = RowPredicateConfig(term0=RowPredicateTerm(field=RowField.KEY, op=PredicateOp.GE, constant=0))
     _drive_config(dut, config)
     send = cocotb.start_soon(_send_rows_then_torn_w0(dut, _ROWS[:2]))
     collect = cocotb.start_soon(_drain_words(dut))
@@ -165,13 +165,13 @@ async def torn_row_mid_batch_reports_stream_error(dut):
 @cocotb.test()
 async def invalid_op_drains_batch_then_reports_config_error(dut):
     await _start(dut)
-    _drive_config(dut, RowPredicateConfig(term0=RowPredicateTerm(RowField.KEY, PredicateOp.EQ, 0)))
+    _drive_config(dut, RowPredicateConfig(term0=RowPredicateTerm(field=RowField.KEY, op=PredicateOp.EQ, constant=0)))
     dut.cfg_op0.value = 0  # reserved: an unconfigured tile fails explicitly
     send = cocotb.start_soon(_send_rows(dut, _ROWS))
     await _expect_status(dut, error=True, code=FilterErrorCode.CONFIG)
     await send
 
-    config = RowPredicateConfig(term0=RowPredicateTerm(RowField.KEY, PredicateOp.EQ, 568))
+    config = RowPredicateConfig(term0=RowPredicateTerm(field=RowField.KEY, op=PredicateOp.EQ, constant=568))
     assert await _run(dut, _ROWS, config) == filter_rows_by_predicate(_ROWS, config)
 
 
@@ -179,7 +179,7 @@ async def invalid_op_drains_batch_then_reports_config_error(dut):
 async def invalid_combine_op_reports_config_error(dut):
     # combine01 = AND with a reserved op1 is an invalid predicate tree
     await _start(dut)
-    _drive_config(dut, RowPredicateConfig(term0=RowPredicateTerm(RowField.KEY, PredicateOp.EQ, 568)))
+    _drive_config(dut, RowPredicateConfig(term0=RowPredicateTerm(field=RowField.KEY, op=PredicateOp.EQ, constant=568)))
     dut.cfg_combine01.value = int(PredicateCombine.AND)
     dut.cfg_op1.value = 0
     send = cocotb.start_soon(_send_rows(dut, _ROWS[:2]))
@@ -192,7 +192,7 @@ async def error_status_survives_backpressure(dut):
     # while status_ready is held low the error close-out must stay stable and
     # the filter must refuse new input; recovery only after the handshake
     await _start(dut)
-    _drive_config(dut, RowPredicateConfig(term0=RowPredicateTerm(RowField.KEY, PredicateOp.GE, 0)))
+    _drive_config(dut, RowPredicateConfig(term0=RowPredicateTerm(field=RowField.KEY, op=PredicateOp.GE, constant=0)))
     dut.status_ready.value = 0
     await _send_torn_w0(dut)
 
@@ -213,7 +213,7 @@ async def error_status_survives_backpressure(dut):
         await RisingEdge(dut.clk)
 
     await _expect_status(dut, error=True, code=FilterErrorCode.STREAM)
-    config = RowPredicateConfig(term0=RowPredicateTerm(RowField.KEY, PredicateOp.EQ, 568))
+    config = RowPredicateConfig(term0=RowPredicateTerm(field=RowField.KEY, op=PredicateOp.EQ, constant=568))
     assert await _run(dut, _ROWS, config) == filter_rows_by_predicate(_ROWS, config)
 
 
@@ -222,7 +222,7 @@ async def zero_rows_success_status_survives_backpressure(dut):
     # the zero-rows success close-out must hold stable while status_ready is
     # low and the filter must refuse new input until the handshake completes
     await _start(dut)
-    _drive_config(dut, RowPredicateConfig(term0=RowPredicateTerm(RowField.KEY, PredicateOp.EQ, 999)))
+    _drive_config(dut, RowPredicateConfig(term0=RowPredicateTerm(field=RowField.KEY, op=PredicateOp.EQ, constant=999)))
     dut.status_ready.value = 0
     await _send_rows(dut, _ROWS)
 
@@ -243,7 +243,7 @@ async def zero_rows_success_status_survives_backpressure(dut):
         await RisingEdge(dut.clk)
 
     await _expect_status(dut, error=False)
-    config = RowPredicateConfig(term0=RowPredicateTerm(RowField.KEY, PredicateOp.EQ, 568))
+    config = RowPredicateConfig(term0=RowPredicateTerm(field=RowField.KEY, op=PredicateOp.EQ, constant=568))
     assert await _run(dut, _ROWS, config) == filter_rows_by_predicate(_ROWS, config)
 
 
@@ -257,7 +257,7 @@ async def status_close_out_waits_for_backpressured_tail(dut):
     # overtakes A's still-in-flight tail (the lane status mux serialises one
     # close-out per batch, and the record writer's done waits on it).
     await _start(dut)
-    config = RowPredicateConfig(term0=RowPredicateTerm(RowField.KEY, PredicateOp.EQ, 568))
+    config = RowPredicateConfig(term0=RowPredicateTerm(field=RowField.KEY, op=PredicateOp.EQ, constant=568))
     _drive_config(dut, config)
 
     a_rows = [(568, 111, 1, 1), (568, 222, 2, 2)]  # both match: A forwards 2, last kept
@@ -327,7 +327,7 @@ async def error_close_out_waits_for_backpressured_tail(dut):
     # status overtakes a still-valid output beat, which the record writer would
     # strand into the next job once it consumes the status.
     await _start(dut)
-    config = RowPredicateConfig(term0=RowPredicateTerm(RowField.KEY, PredicateOp.EQ, 568))
+    config = RowPredicateConfig(term0=RowPredicateTerm(field=RowField.KEY, op=PredicateOp.EQ, constant=568))
     _drive_config(dut, config)
 
     dut.output_ready.value = 0
@@ -372,7 +372,7 @@ async def constrained_random_batches_match_golden(dut):
 
         def term():
             constant = rng.choice((_INT32_MIN, _INT32_MAX, 0)) if rng.random() < 0.15 else rng.randint(-40, 40)
-            return RowPredicateTerm(rng.choice(fields), rng.choice(ops), constant)
+            return RowPredicateTerm(field=rng.choice(fields), op=rng.choice(ops), constant=constant)
 
         combine01 = rng.choice(combines)
         combine2 = rng.choice(combines)
@@ -401,8 +401,8 @@ def _signed32(value: int) -> int:
 
 
 def _drive_config(dut, config: RowPredicateConfig) -> None:
-    term1 = config.term1 or RowPredicateTerm(RowField.KEY, PredicateOp.EQ, 0)
-    term2 = config.term2 or RowPredicateTerm(RowField.KEY, PredicateOp.EQ, 0)
+    term1 = config.term1 or RowPredicateTerm(field=RowField.KEY, op=PredicateOp.EQ, constant=0)
+    term2 = config.term2 or RowPredicateTerm(field=RowField.KEY, op=PredicateOp.EQ, constant=0)
     dut.cfg_field0.value = int(config.term0.field)
     dut.cfg_op0.value = int(config.term0.op)
     dut.cfg_constant0.value = config.term0.constant & _MASK32
@@ -420,7 +420,7 @@ async def _start(dut) -> None:
     clock = Clock(dut.clk, 10, unit="ns")
     cocotb.start_soon(clock.start(start_high=False))
     dut.rst.value = 1
-    _drive_config(dut, RowPredicateConfig(term0=RowPredicateTerm(RowField.KEY, PredicateOp.EQ, 0)))
+    _drive_config(dut, RowPredicateConfig(term0=RowPredicateTerm(field=RowField.KEY, op=PredicateOp.EQ, constant=0)))
     dut.input_valid.value = 0
     dut.input_data.value = 0
     dut.input_last.value = 0
