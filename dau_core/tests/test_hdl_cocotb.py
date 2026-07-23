@@ -37,6 +37,7 @@ from dau_core.hdl import (
     DAU_INT32_ROW_PREDICATE_FILTER_SV,
     DAU_INT32_ROW_UNPACK_SV,
     DAU_INT32_STREAM_AGGREGATION_SV,
+    DAU_INT32_STREAMING_TOP_K_SV,
     DAU_INT32_TIME_BUCKET_KEY_SV,
     DAU_MAP_ALU_PKG_SV,
     DAU_PREDICATE_PKG_SV,
@@ -252,6 +253,30 @@ def test_rolling_moments_window_two(tmp_path: Path, monkeypatch: pytest.MonkeyPa
         test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_rolling_moments_tb",
         tmp_path=tmp_path,
         parameters={"WINDOW": 2},
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_streaming_top_k_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_STREAMING_TOP_K_SV)),),
+        hdl_toplevel="dau_int32_streaming_top_k",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_streaming_top_k_tb",
+        tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_streaming_top_k_k_one(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    # K=1 is the degenerate single-max case; the K-agnostic bench reads the env
+    # var to size its expectations to the DUT.
+    monkeypatch.setenv("DAU_TOP_K", "1")
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_STREAMING_TOP_K_SV)),),
+        hdl_toplevel="dau_int32_streaming_top_k",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_streaming_top_k_tb",
+        tmp_path=tmp_path,
+        parameters={"K": 1},
     )
 
 

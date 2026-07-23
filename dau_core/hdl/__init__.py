@@ -40,6 +40,7 @@ DAU_INT32_ASOF_BACKWARD_SV = files(__package__).joinpath("dau_int32_asof_backwar
 DAU_INT32_ROLLING_MOMENTS_SV = files(__package__).joinpath("dau_int32_rolling_moments.sv")
 DAU_INT32_MARKET_FEATURE_SV = files(__package__).joinpath("dau_int32_market_feature.sv")
 DAU_INT32_TIME_BUCKET_KEY_SV = files(__package__).joinpath("dau_int32_time_bucket_key.sv")
+DAU_INT32_STREAMING_TOP_K_SV = files(__package__).joinpath("dau_int32_streaming_top_k.sv")
 
 __all__ = (
     "DAU_AGGREGATION_PKG_SV",
@@ -73,6 +74,7 @@ __all__ = (
     "DAU_INT32_ROLLING_MOMENTS_SV",
     "DAU_INT32_MARKET_FEATURE_SV",
     "DAU_INT32_TIME_BUCKET_KEY_SV",
+    "DAU_INT32_STREAMING_TOP_K_SV",
     "DAU_INT32_BAR_AGGREGATION_SV",
     "DAU_INT32_GROUPED_AGGREGATION_SV",
     "DAU_INT32_KEYED_MAP_ALU_SV",
