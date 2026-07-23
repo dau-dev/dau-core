@@ -809,6 +809,41 @@ def sort_bar_rows_by_key(rows: Iterable[tuple[int, int, int, int]]) -> list[tupl
     return sorted((tuple(row) for row in rows), key=lambda row: _wrap_int32(row[0]))
 
 
+TOP_K_MAX = 128
+
+
+class TopKErrorCode(IntEnum):
+    """Status codes for the streaming top-k heap tile."""
+
+    OK = 0
+    BAD_K = 1  # requested k outside [1, TOP_K_MAX]
+
+
+def streaming_top_k(rows: Iterable[tuple[int, int, int, int]], *, k: int) -> list[tuple[int, int, int, int]]:
+    """Golden semantics for the streaming top-k heap tile: in one pass keep the
+    ``k`` rows with the largest signed-32-bit sort key (field 0), breaking ties
+    by arrival order (earlier rows win), and emit them sorted by sort key
+    DESCENDING (ties arrival ascending) — the ``ORDER BY <key> DESC LIMIT k``
+    shape (q3/q10, TSBS group-by-order-by-limit).
+
+    Bounded state: the tile holds at most ``k`` rows in a size-``k`` min-heap
+    whose root — the eviction target — is the entry with the smallest key and,
+    among equal-key entries, the LATEST arrival (the heap orders on
+    ``(key, -arrival)``, not key alone). An arriving row replaces the root only
+    when its key is STRICTLY greater, so at the k-th-largest key the earliest
+    arrivals are retained — matched by the ``(-key, arrival)`` sort below. This
+    root tie-order is part of the tile contract: a key-only min-heap could evict
+    an earlier tied row and diverge from this golden. ``k`` is bounded to
+    ``[1, TOP_K_MAX]``; the tile reports ``BAD_K`` outside that range."""
+    if not 1 <= k <= TOP_K_MAX:
+        raise ValueError(f"k must be in [1, {TOP_K_MAX}], got {k}")
+    indexed = sorted(
+        enumerate(tuple(row) for row in rows),
+        key=lambda item: (-_wrap_int32(item[1][0]), item[0]),
+    )
+    return [row for _, row in indexed[:k]]
+
+
 def time_bucket_key_rows(
     rows: Iterable[tuple[int, int, int, int, int]], *, bucket_shift: int, bucket_bits: int
 ) -> list[tuple[int, int, int, int]]:
