@@ -28,7 +28,9 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
 ]
 
-dependencies = []
+dependencies = [
+    "ccflow>=0.9",
+]
 
 [project.optional-dependencies]
 develop = [
@@ -52,6 +54,13 @@ develop = [
 ]
 
 [project.scripts]
+
+# Register dau-core's config tree on the Hydra search path (via the lerna
+# bridge): the core registry (`dau-core/cores.yaml` -> /dau-core/<name>)
+# becomes discoverable to dau-build, dau-sim, and any other package that
+# composes with the search path.
+[project.entry-points."hydra.lernaplugins"]
+dau-core = "pkg:dau_core.config"
 
 [project.urls]
 Repository = "https://github.com/dau-dev/dau-core"
@@ -102,6 +111,11 @@ src = "/"
 packages = [
     "dau_core",
 ]
+
+# Force the config tree into the sdist verbatim (the dau-build pattern) so
+# the registry yaml ships with the package.
+[tool.hatch.build.targets.sdist.force-include]
+"dau_core/config" = "dau_core/config"
 
 [tool.hatch.build.targets.wheel]
 packages = [
