@@ -57,34 +57,34 @@ _VALUES = [7, -2, 5, 11, 5, 0, -100, 2**31 - 1, -(2**31)]
     ],
 )
 def test_single_predicate_ops(op: PredicateOp, constant: int, expected: list[int]) -> None:
-    assert filter_values(_VALUES, FilterPredicate(op, constant)) == expected
+    assert filter_values(_VALUES, FilterPredicate(op0=op, constant0=constant)) == expected
 
 
 def test_and_combine_is_range_filter() -> None:
-    predicate = FilterPredicate(PredicateOp.GE, 0, PredicateCombine.AND, PredicateOp.LT, 10)
+    predicate = FilterPredicate(op0=PredicateOp.GE, constant0=0, combine=PredicateCombine.AND, op1=PredicateOp.LT, constant1=10)
     assert filter_values(_VALUES, predicate) == [7, 5, 5, 0]
 
 
 def test_or_combine_is_union() -> None:
-    predicate = FilterPredicate(PredicateOp.LT, -50, PredicateCombine.OR, PredicateOp.GT, 50)
+    predicate = FilterPredicate(op0=PredicateOp.LT, constant0=-50, combine=PredicateCombine.OR, op1=PredicateOp.GT, constant1=50)
     assert filter_values(_VALUES, predicate) == [-100, 2**31 - 1, -(2**31)]
 
 
 def test_empty_selection_and_empty_input() -> None:
-    predicate = FilterPredicate(PredicateOp.GT, 2**31 - 1)
+    predicate = FilterPredicate(op0=PredicateOp.GT, constant0=2**31 - 1)
     assert filter_values(_VALUES, predicate) == []
-    assert filter_values([], FilterPredicate(PredicateOp.EQ, 0)) == []
+    assert filter_values([], FilterPredicate(op0=PredicateOp.EQ, constant0=0)) == []
 
 
 def test_order_is_preserved() -> None:
-    predicate = FilterPredicate(PredicateOp.NE, 0)
+    predicate = FilterPredicate(op0=PredicateOp.NE, constant0=0)
     result = filter_values(_VALUES, predicate)
     assert result == [value for value in _VALUES if value != 0]
 
 
 def test_constants_must_fit_int32() -> None:
     with pytest.raises(ValueError, match="int32"):
-        FilterPredicate(PredicateOp.EQ, 2**31)
+        FilterPredicate(op0=PredicateOp.EQ, constant0=2**31)
 
 
 def test_map_add_sub_mul() -> None:
@@ -164,13 +164,13 @@ def test_grouped_aggregate_int64_sum_of_int32_extremes() -> None:
 
 def test_filter_rows_on_value_lane_keeps_pairs_aligned() -> None:
     rows = [(570, 100), (570, 0), (571, -5), (571, 99)]
-    predicate = FilterPredicate(PredicateOp.GT, 0)
+    predicate = FilterPredicate(op0=PredicateOp.GT, constant0=0)
     assert filter_rows(rows, predicate) == [(570, 100), (571, 99)]
 
 
 def test_filter_rows_on_key_lane() -> None:
     rows = [(570, 100), (571, 99), (572, 5)]
-    predicate = FilterPredicate(PredicateOp.LE, 571)
+    predicate = FilterPredicate(op0=PredicateOp.LE, constant0=571)
     assert filter_rows(rows, predicate, on_key=True) == [(570, 100), (571, 99)]
 
 
@@ -189,7 +189,7 @@ def test_map_rows_value_lane_key_passthrough() -> None:
 def test_ohlcv_graph_golden_composition() -> None:
     # filter eligibility -> derive minute buckets -> bars
     trades = [(34200, 100), (34210, 0), (34259, 105), (34260, 95), (34261, 102)]
-    eligible = filter_rows(trades, FilterPredicate(PredicateOp.GT, 0))
+    eligible = filter_rows(trades, FilterPredicate(op0=PredicateOp.GT, constant0=0))
     keyed = map_rows(eligible, MapConfig(op=MapOp.MULSHR, constant=139811, shift=23), on_key=True)
     bars = grouped_aggregate_rows(keyed)
     assert [bar.key for bar in bars] == [570, 571]
@@ -243,14 +243,18 @@ _QUAD_ROWS = [
 
 
 def test_row_predicate_single_term_on_each_field() -> None:
-    assert filter_rows_by_predicate(_QUAD_ROWS, RowPredicateConfig(term0=RowPredicateTerm(RowField.KEY, PredicateOp.EQ, 568))) == [
+    assert filter_rows_by_predicate(_QUAD_ROWS, RowPredicateConfig(term0=RowPredicateTerm(field=RowField.KEY, op=PredicateOp.EQ, constant=568))) == [
         (568, 1000, 5, 10),
         (568, 1500, 7, 23),
         (568, 3000, 4, 1),
     ]
-    assert filter_rows_by_predicate(_QUAD_ROWS, RowPredicateConfig(term0=RowPredicateTerm(RowField.VALUE, PredicateOp.LT, 0))) == [(570, -500, 6, 24)]
-    assert filter_rows_by_predicate(_QUAD_ROWS, RowPredicateConfig(term0=RowPredicateTerm(RowField.AUX0, PredicateOp.GE, 7))) == [(568, 1500, 7, 23)]
-    assert filter_rows_by_predicate(_QUAD_ROWS, RowPredicateConfig(term0=RowPredicateTerm(RowField.AUX1, PredicateOp.NE, 30))) == [
+    assert filter_rows_by_predicate(_QUAD_ROWS, RowPredicateConfig(term0=RowPredicateTerm(field=RowField.VALUE, op=PredicateOp.LT, constant=0))) == [
+        (570, -500, 6, 24)
+    ]
+    assert filter_rows_by_predicate(_QUAD_ROWS, RowPredicateConfig(term0=RowPredicateTerm(field=RowField.AUX0, op=PredicateOp.GE, constant=7))) == [
+        (568, 1500, 7, 23)
+    ]
+    assert filter_rows_by_predicate(_QUAD_ROWS, RowPredicateConfig(term0=RowPredicateTerm(field=RowField.AUX1, op=PredicateOp.NE, constant=30))) == [
         row for row in _QUAD_ROWS if row[3] != 30
     ]
 
@@ -258,11 +262,11 @@ def test_row_predicate_single_term_on_each_field() -> None:
 def test_row_predicate_three_term_tree_is_the_q6_where() -> None:
     # shipdate bucket EQ AND discount GE lo AND quantity LT 24
     config = RowPredicateConfig(
-        term0=RowPredicateTerm(RowField.KEY, PredicateOp.EQ, 568),
+        term0=RowPredicateTerm(field=RowField.KEY, op=PredicateOp.EQ, constant=568),
         combine01=PredicateCombine.AND,
-        term1=RowPredicateTerm(RowField.AUX0, PredicateOp.GE, 5),
+        term1=RowPredicateTerm(field=RowField.AUX0, op=PredicateOp.GE, constant=5),
         combine2=PredicateCombine.AND,
-        term2=RowPredicateTerm(RowField.AUX1, PredicateOp.LT, 24),
+        term2=RowPredicateTerm(field=RowField.AUX1, op=PredicateOp.LT, constant=24),
     )
     assert filter_rows_by_predicate(_QUAD_ROWS, config) == [(568, 1000, 5, 10), (568, 1500, 7, 23)]
 
@@ -270,22 +274,22 @@ def test_row_predicate_three_term_tree_is_the_q6_where() -> None:
 def test_row_predicate_or_of_and_levels() -> None:
     # (value > 2000 OR key == 570) AND aux1 < 30
     config = RowPredicateConfig(
-        term0=RowPredicateTerm(RowField.VALUE, PredicateOp.GT, 2000),
+        term0=RowPredicateTerm(field=RowField.VALUE, op=PredicateOp.GT, constant=2000),
         combine01=PredicateCombine.OR,
-        term1=RowPredicateTerm(RowField.KEY, PredicateOp.EQ, 570),
+        term1=RowPredicateTerm(field=RowField.KEY, op=PredicateOp.EQ, constant=570),
         combine2=PredicateCombine.AND,
-        term2=RowPredicateTerm(RowField.AUX1, PredicateOp.LT, 30),
+        term2=RowPredicateTerm(field=RowField.AUX1, op=PredicateOp.LT, constant=30),
     )
     assert filter_rows_by_predicate(_QUAD_ROWS, config) == [(570, -500, 6, 24), (568, 3000, 4, 1)]
 
 
 def test_row_predicate_validation() -> None:
     with pytest.raises(ValueError, match="int32"):
-        RowPredicateTerm(RowField.KEY, PredicateOp.EQ, 2**31)
+        RowPredicateTerm(field=RowField.KEY, op=PredicateOp.EQ, constant=2**31)
     with pytest.raises(ValueError, match="term1"):
-        RowPredicateConfig(term0=RowPredicateTerm(RowField.KEY, PredicateOp.EQ, 0), combine01=PredicateCombine.AND)
+        RowPredicateConfig(term0=RowPredicateTerm(field=RowField.KEY, op=PredicateOp.EQ, constant=0), combine01=PredicateCombine.AND)
     with pytest.raises(ValueError, match="term2"):
-        RowPredicateConfig(term0=RowPredicateTerm(RowField.KEY, PredicateOp.EQ, 0), combine2=PredicateCombine.OR)
+        RowPredicateConfig(term0=RowPredicateTerm(field=RowField.KEY, op=PredicateOp.EQ, constant=0), combine2=PredicateCombine.OR)
 
 
 def test_row_map_q6_revenue_is_fixed_point_mulshr() -> None:
@@ -537,7 +541,7 @@ _JOIN_PROBE = [
     (63, 3000, 3001, 3002),  # hit
     (100, 4000, 4001, 4002),  # hit
 ]
-_CARRY_BUILD = BroadcastJoinConfig(JoinSource.B0, JoinSource.B1, JoinSource.B2)
+_CARRY_BUILD = BroadcastJoinConfig(out0=JoinSource.B0, out1=JoinSource.B1, out2=JoinSource.B2)
 
 
 def test_broadcast_join_inner_join_carries_build_payload() -> None:
@@ -548,13 +552,13 @@ def test_broadcast_join_inner_join_carries_build_payload() -> None:
 
 def test_broadcast_join_field_select_mixes_build_and_probe() -> None:
     # q3 shape: (key, b0, v0, b2)
-    cfg = BroadcastJoinConfig(JoinSource.B0, JoinSource.V0, JoinSource.B2)
+    cfg = BroadcastJoinConfig(out0=JoinSource.B0, out1=JoinSource.V0, out2=JoinSource.B2)
     out = broadcast_hash_join_rows(_JOIN_BUILD, _JOIN_PROBE, out_sel=cfg, key_space=1024)
     assert out == [(7, 100, 1000, 102), (63, 300, 3000, 302), (100, 200, 4000, 202)]
 
 
 def test_broadcast_join_carry_probe_columns() -> None:
-    cfg = BroadcastJoinConfig(JoinSource.V0, JoinSource.V1, JoinSource.V2)
+    cfg = BroadcastJoinConfig(out0=JoinSource.V0, out1=JoinSource.V1, out2=JoinSource.V2)
     out = broadcast_hash_join_rows(_JOIN_BUILD, _JOIN_PROBE, out_sel=cfg, key_space=1024)
     assert out == [(7, 1000, 1001, 1002), (63, 3000, 3001, 3002), (100, 4000, 4001, 4002)]
 
@@ -588,10 +592,12 @@ def test_broadcast_join_key_range_is_rejected() -> None:
 
 def test_broadcast_join_config_validation() -> None:
     assert int(JoinSource.B0) == 0 and int(JoinSource.V2) == 5
-    with pytest.raises(ValueError, match="in \\[0, 5\\]"):
-        BroadcastJoinConfig(6, JoinSource.B1, JoinSource.B2)
-    with pytest.raises(ValueError, match="in \\[0, 5\\]"):
-        BroadcastJoinConfig(JoinSource.B0, JoinSource.B1, 7)
+    # pydantic enum validation rejects non-members at the field boundary
+    # (ValidationError is-a ValueError)
+    with pytest.raises(ValueError, match="0, 1, 2, 3, 4 or 5"):
+        BroadcastJoinConfig(out0=6, out1=JoinSource.B1, out2=JoinSource.B2)
+    with pytest.raises(ValueError, match="0, 1, 2, 3, 4 or 5"):
+        BroadcastJoinConfig(out0=JoinSource.B0, out1=JoinSource.B1, out2=7)
 
 
 def test_broadcast_join_bounded_key_space_and_order_preserved() -> None:
@@ -794,13 +800,13 @@ def test_keyed_asof_join_holds_one_build_per_key() -> None:
 
     # build b, probe p; a fresh key resets the held build; tolerance drops stale
     records = [
-        (0, 5, 100, 10, 12),   # build for key 5
-        (1, 5, 105, 1, 2),     # probe -> joins the 100 build
-        (0, 5, 110, 11, 13),   # newer build
-        (1, 5, 130, 3, 4),     # probe -> joins the 110 build
-        (1, 7, 100, 9, 9),     # probe for key 7, no build -> drop
-        (0, 7, 101, 50, 52),   # build for key 7
-        (1, 7, 101, 5, 6),     # probe at equal time -> joins (allow_eq)
+        (0, 5, 100, 10, 12),  # build for key 5
+        (1, 5, 105, 1, 2),  # probe -> joins the 100 build
+        (0, 5, 110, 11, 13),  # newer build
+        (1, 5, 130, 3, 4),  # probe -> joins the 110 build
+        (1, 7, 100, 9, 9),  # probe for key 7, no build -> drop
+        (0, 7, 101, 50, 52),  # build for key 7
+        (1, 7, 101, 5, 6),  # probe at equal time -> joins (allow_eq)
     ]
     assert keyed_asof_join_rows(records) == [
         (5, 105, 1, 2, 10, 12),

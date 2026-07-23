@@ -13,12 +13,12 @@ BUCKET_SHIFT = 3  # window width 8
 
 # (partition, payload_hi, time, payload2, payload3)
 _ROWS = [
-    (570, 11, 100, 5, 0),    # bucket 100>>3 = 12
-    (570, 12, 103, 3, 0),    # bucket 12 (same bar)
-    (570, 13, 112, 2, 0),    # bucket 14 (new bar)
-    (571, 50, 100, 7, 0),    # partition change
-    (571, 55, 130, 4, 0),    # bucket 16
-    (572, -3, 5, 1, 0),      # bucket 0
+    (570, 11, 100, 5, 0),  # bucket 100>>3 = 12
+    (570, 12, 103, 3, 0),  # bucket 12 (same bar)
+    (570, 13, 112, 2, 0),  # bucket 14 (new bar)
+    (571, 50, 100, 7, 0),  # partition change
+    (571, 55, 130, 4, 0),  # bucket 16
+    (572, -3, 5, 1, 0),  # bucket 0
 ]
 
 
@@ -49,9 +49,7 @@ async def bucket_key_partition_and_bucket_pack_disjointly(dut):
 @cocotb.test()
 async def bucket_key_single_row(dut):
     await _start(dut)
-    assert await _run(dut, [(9, 42, 64, 3, 7)]) == time_bucket_key_rows(
-        [(9, 42, 64, 3, 7)], bucket_shift=BUCKET_SHIFT, bucket_bits=BUCKET_BITS
-    )
+    assert await _run(dut, [(9, 42, 64, 3, 7)]) == time_bucket_key_rows([(9, 42, 64, 3, 7)], bucket_shift=BUCKET_SHIFT, bucket_bits=BUCKET_BITS)
 
 
 @cocotb.test()

@@ -12,7 +12,7 @@ _VALUES = [7, -2, 5, 11, 5, 0, -100, 2**31 - 1, -(2**31)]
 @cocotb.test()
 async def filter_gt_matches_golden_with_backpressure(dut):
     await _start(dut)
-    predicate = FilterPredicate(PredicateOp.GT, 4)
+    predicate = FilterPredicate(op0=PredicateOp.GT, constant0=4)
     kept, count = await _run_filter(dut, _VALUES, predicate, ready_pattern=(1, 0, 0, 1, 1, 0))
     golden = filter_values(_VALUES, predicate)
     assert kept == golden
@@ -22,7 +22,7 @@ async def filter_gt_matches_golden_with_backpressure(dut):
 @cocotb.test()
 async def filter_and_is_range(dut):
     await _start(dut)
-    predicate = FilterPredicate(PredicateOp.GE, 0, PredicateCombine.AND, PredicateOp.LT, 10)
+    predicate = FilterPredicate(op0=PredicateOp.GE, constant0=0, combine=PredicateCombine.AND, op1=PredicateOp.LT, constant1=10)
     kept, count = await _run_filter(dut, _VALUES, predicate)
     golden = filter_values(_VALUES, predicate)
     assert kept == golden
@@ -32,7 +32,7 @@ async def filter_and_is_range(dut):
 @cocotb.test()
 async def filter_or_is_union(dut):
     await _start(dut)
-    predicate = FilterPredicate(PredicateOp.LT, -50, PredicateCombine.OR, PredicateOp.GT, 50)
+    predicate = FilterPredicate(op0=PredicateOp.LT, constant0=-50, combine=PredicateCombine.OR, op1=PredicateOp.GT, constant1=50)
     kept, count = await _run_filter(dut, _VALUES, predicate)
     golden = filter_values(_VALUES, predicate)
     assert kept == golden
@@ -42,7 +42,7 @@ async def filter_or_is_union(dut):
 @cocotb.test()
 async def filter_empty_selection_emits_no_output(dut):
     await _start(dut)
-    predicate = FilterPredicate(PredicateOp.GT, 2**31 - 1)
+    predicate = FilterPredicate(op0=PredicateOp.GT, constant0=2**31 - 1)
     kept, count = await _run_filter(dut, _VALUES, predicate, expect_output=False)
     assert kept == []
     assert count == 0
@@ -52,7 +52,7 @@ async def filter_empty_selection_emits_no_output(dut):
 async def filter_all_match_passes_through(dut):
     await _start(dut)
     values = [1, 2, 3, 4, 5, 6]
-    predicate = FilterPredicate(PredicateOp.NE, 99)
+    predicate = FilterPredicate(op0=PredicateOp.NE, constant0=99)
     kept, count = await _run_filter(dut, values, predicate)
     assert kept == values
     assert count == len(values)
@@ -61,11 +61,11 @@ async def filter_all_match_passes_through(dut):
 @cocotb.test()
 async def filter_repeated_batches_relatch_config(dut):
     await _start(dut)
-    first = FilterPredicate(PredicateOp.LT, 0)
+    first = FilterPredicate(op0=PredicateOp.LT, constant0=0)
     kept, _ = await _run_filter(dut, _VALUES, first)
     assert kept == filter_values(_VALUES, first)
 
-    second = FilterPredicate(PredicateOp.EQ, 5)
+    second = FilterPredicate(op0=PredicateOp.EQ, constant0=5)
     kept, count = await _run_filter(dut, _VALUES, second)
     assert kept == filter_values(_VALUES, second)
     assert count == 2
@@ -74,7 +74,7 @@ async def filter_repeated_batches_relatch_config(dut):
 @cocotb.test()
 async def filter_invalid_op_reports_config_error(dut):
     await _start(dut)
-    _apply_config(dut, FilterPredicate(PredicateOp.EQ, 0), row_count=4)
+    _apply_config(dut, FilterPredicate(op0=PredicateOp.EQ, constant0=0), row_count=4)
     dut.cfg_op0.value = 0  # reserved opcode
     await _send_values(dut, [1, 2, 3, 4])
     await _expect_error(dut, FilterErrorCode.CONFIG)
@@ -83,7 +83,7 @@ async def filter_invalid_op_reports_config_error(dut):
 @cocotb.test()
 async def filter_truncated_stream_reports_stream_error(dut):
     await _start(dut)
-    _apply_config(dut, FilterPredicate(PredicateOp.NE, 0), row_count=8)
+    _apply_config(dut, FilterPredicate(op0=PredicateOp.NE, constant0=0), row_count=8)
     await _send_values(dut, [1, 2, 3, 4])  # input_last after 4 of 8 rows
     await _expect_error(dut, FilterErrorCode.STREAM)
 

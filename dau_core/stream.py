@@ -4,6 +4,8 @@ import struct
 from dataclasses import dataclass
 from enum import IntEnum, IntFlag
 
+from ccflow import BaseModel
+
 from .registers import DAU_MAGIC_WORD
 
 
@@ -276,20 +278,22 @@ class OperationDescriptor:
         )
 
 
-@dataclass(frozen=True)
-class RecordBatchLimits:
+class RecordBatchLimits(BaseModel):
     """Caps for multi-column record batches (see dau-docs record-batch contract).
 
     Defaults are sized to the 1 MiB stream-job staging buffers: header +
     descriptor table + payload must fit one staging region.
     """
 
+    model_config = {"frozen": True}
+
     max_columns: int = 16
     max_rows: int = 1 << 20
     max_batch_bytes: int = 0x0010_0000
     alignment_bytes: int = 64
 
-    def __post_init__(self) -> None:
+    def model_post_init(self, context) -> None:
+        super().model_post_init(context)
         if self.max_columns < 1:
             raise ValueError("max_columns must be positive")
         if self.max_rows < 1:

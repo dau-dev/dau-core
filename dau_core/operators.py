@@ -5,6 +5,8 @@ from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from enum import IntEnum
 
+from ccflow import BaseModel
+
 from .stream import LogicalType, OperationCode
 
 FILTER_CONFIG_VERSION = "0.1"
@@ -33,10 +35,11 @@ class FilterErrorCode(IntEnum):
     STREAM = 2
 
 
-@dataclass(frozen=True)
-class FilterPredicate:
+class FilterPredicate(BaseModel):
     """Predicate configuration: ``value <op0> constant0`` optionally combined
     with ``value <op1> constant1`` by AND/OR. Matches the tile's config ports."""
+
+    model_config = {"frozen": True}
 
     op0: PredicateOp
     constant0: int
@@ -44,7 +47,8 @@ class FilterPredicate:
     op1: PredicateOp = PredicateOp.EQ
     constant1: int = 0
 
-    def __post_init__(self) -> None:
+    def model_post_init(self, context) -> None:
+        super().model_post_init(context)
         for name in ("constant0", "constant1"):
             value = getattr(self, name)
             if not -(1 << 31) <= value <= (1 << 31) - 1:
@@ -103,39 +107,47 @@ class MapErrorCode(IntEnum):
     STREAM = 2
 
 
-@dataclass(frozen=True)
-class MapConfig:
+def _apply_map_op(op: MapOp, value: int, constant: int, shift: int) -> int:
+    """The tile ALU: shared by the scalar and row map configs (a plain
+    function so per-row golden loops never construct a model)."""
+    if op == MapOp.ADD:
+        return _wrap_int32(value + constant)
+    if op == MapOp.SUB:
+        return _wrap_int32(value - constant)
+    if op == MapOp.MUL:
+        return _wrap_int32(value * constant)
+    if op == MapOp.MULSHR:
+        # 64-bit signed product, arithmetic shift right
+        return _wrap_int32((value * constant) >> shift)
+    if op == MapOp.SHL:
+        return _wrap_int32(value << shift)
+    if op == MapOp.AND:
+        return _wrap_int32((value & _INT32_MASK) & (constant & _INT32_MASK))
+    if op == MapOp.OR:
+        return _wrap_int32((value & _INT32_MASK) | (constant & _INT32_MASK))
+    raise ValueError(f"unsupported map op {op!r}")
+
+
+class MapConfig(BaseModel):
     """Per-row ALU configuration: ``value <op> constant`` (MULSHR/SHL also use
     ``shift``). All arithmetic is INT32 two's-complement wraparound — the
     golden and the tile agree bit-for-bit. Matches the tile's config ports."""
+
+    model_config = {"frozen": True}
 
     op: MapOp
     constant: int = 0
     shift: int = 0
 
-    def __post_init__(self) -> None:
+    def model_post_init(self, context) -> None:
+        super().model_post_init(context)
         if not -(1 << 31) <= self.constant <= (1 << 31) - 1:
             raise ValueError("constant must fit in int32")
         if not 0 <= self.shift <= 31:
             raise ValueError("shift must be in [0, 31]")
 
     def apply(self, value: int) -> int:
-        if self.op == MapOp.ADD:
-            return _wrap_int32(value + self.constant)
-        if self.op == MapOp.SUB:
-            return _wrap_int32(value - self.constant)
-        if self.op == MapOp.MUL:
-            return _wrap_int32(value * self.constant)
-        if self.op == MapOp.MULSHR:
-            # 64-bit signed product, arithmetic shift right
-            return _wrap_int32((value * self.constant) >> self.shift)
-        if self.op == MapOp.SHL:
-            return _wrap_int32(value << self.shift)
-        if self.op == MapOp.AND:
-            return _wrap_int32((value & _INT32_MASK) & (self.constant & _INT32_MASK))
-        if self.op == MapOp.OR:
-            return _wrap_int32((value & _INT32_MASK) | (self.constant & _INT32_MASK))
-        raise ValueError(f"unsupported map op {self.op!r}")
+        return _apply_map_op(self.op, value, self.constant, self.shift)
 
 
 def map_values(values: Iterable[int], config: MapConfig) -> list[int]:
@@ -178,16 +190,18 @@ class RowField(IntEnum):
     AUX1 = 3
 
 
-@dataclass(frozen=True)
-class RowPredicateTerm:
+class RowPredicateTerm(BaseModel):
     """One comparison term of a row predicate: ``field <op> constant``
     (signed 32-bit). Matches one term's config-port triple on the tile."""
+
+    model_config = {"frozen": True}
 
     field: RowField
     op: PredicateOp
     constant: int
 
-    def __post_init__(self) -> None:
+    def model_post_init(self, context) -> None:
+        super().model_post_init(context)
         if not -(1 << 31) <= self.constant <= (1 << 31) - 1:
             raise ValueError("constant must fit in int32")
 
@@ -195,12 +209,13 @@ class RowPredicateTerm:
         return _compare(self.op, _wrap_int32(row[self.field]), self.constant)
 
 
-@dataclass(frozen=True)
-class RowPredicateConfig:
+class RowPredicateConfig(BaseModel):
     """Compound row predicate: up to three terms combined by the two-level
     tree ``(term0 <combine01> term1) <combine2> term2``. ``SINGLE`` at a
     level ignores the right-hand term (the 2-term filter's combine,
     extended to three terms). Matches the tile's config ports."""
+
+    model_config = {"frozen": True}
 
     term0: RowPredicateTerm
     combine01: PredicateCombine = PredicateCombine.SINGLE
@@ -208,7 +223,8 @@ class RowPredicateConfig:
     combine2: PredicateCombine = PredicateCombine.SINGLE
     term2: RowPredicateTerm | None = None
 
-    def __post_init__(self) -> None:
+    def model_post_init(self, context) -> None:
+        super().model_post_init(context)
         if self.combine01 != PredicateCombine.SINGLE and self.term1 is None:
             raise ValueError("combine01 requires term1")
         if self.combine2 != PredicateCombine.SINGLE and self.term2 is None:
@@ -232,12 +248,13 @@ def filter_rows_by_predicate(rows: Iterable[tuple[int, int, int, int]], config: 
     return [tuple(row) for row in rows if config.matches(tuple(row))]
 
 
-@dataclass(frozen=True)
-class RowMapConfig:
+class RowMapConfig(BaseModel):
     """Per-row field ALU configuration: ``dst = src_a <op> src_b`` over the
     four row fields (MULSHR/SHL also use ``shift``; SHL ignores ``src_b``).
     All arithmetic is INT32 two's-complement wraparound — the golden and the
     tile agree bit-for-bit. Matches the tile's config ports."""
+
+    model_config = {"frozen": True}
 
     op: MapOp
     dst: RowField
@@ -245,14 +262,15 @@ class RowMapConfig:
     src_b: RowField
     shift: int = 0
 
-    def __post_init__(self) -> None:
+    def model_post_init(self, context) -> None:
+        super().model_post_init(context)
         if not 0 <= self.shift <= 31:
             raise ValueError("shift must be in [0, 31]")
 
     def apply(self, row: tuple[int, int, int, int]) -> int:
         a = _wrap_int32(row[self.src_a])
         b = _wrap_int32(row[self.src_b])
-        return MapConfig(op=self.op, constant=b, shift=self.shift).apply(a)
+        return _apply_map_op(self.op, a, b, self.shift)
 
 
 def map_row_fields(rows: Iterable[tuple[int, int, int, int]], config: RowMapConfig) -> list[tuple[int, int, int, int]]:
@@ -277,18 +295,20 @@ class UnpackErrorCode(IntEnum):
     STREAM = 2
 
 
-@dataclass(frozen=True)
-class UnpackFieldSpec:
+class UnpackFieldSpec(BaseModel):
     """One output field's slice of a packed row: the ``width``-bit field at bit
     ``offset`` of the (<=64-bit) packed word, sign-extended (``signed``) or
     zero-extended to int32. Matches the tile's
     ``cfg_field{i}_{offset,width,signed}`` config ports."""
 
+    model_config = {"frozen": True}
+
     offset: int
     width: int
     signed: bool = False
 
-    def __post_init__(self) -> None:
+    def model_post_init(self, context) -> None:
+        super().model_post_init(context)
         if not 0 <= self.offset <= 63:
             raise ValueError("offset must be in [0, 63]")
         if not 1 <= self.width <= 32:
@@ -568,18 +588,20 @@ class JoinErrorCode(IntEnum):
     RANGE = 3  # a build or probe key is outside [0, key_space)
 
 
-@dataclass(frozen=True)
-class BroadcastJoinConfig:
+class BroadcastJoinConfig(BaseModel):
     """Output field-select for the broadcast hash join: each of the emitted
     row's three data fields (``out0``, ``out1``, ``out2``) is chosen from the
     six join sources. The emitted key is always the matched probe key. Matches
     the tile's ``cfg_out{0,1,2}_sel`` config ports."""
 
+    model_config = {"frozen": True}
+
     out0: JoinSource
     out1: JoinSource
     out2: JoinSource
 
-    def __post_init__(self) -> None:
+    def model_post_init(self, context) -> None:
+        super().model_post_init(context)
         for sel in (self.out0, self.out1, self.out2):
             if not 0 <= int(sel) <= 5:
                 raise ValueError("output field-select must be a JoinSource in [0, 5]")
@@ -844,9 +866,7 @@ def streaming_top_k(rows: Iterable[tuple[int, int, int, int]], *, k: int) -> lis
     return [row for _, row in indexed[:k]]
 
 
-def time_bucket_key_rows(
-    rows: Iterable[tuple[int, int, int, int, int]], *, bucket_shift: int, bucket_bits: int
-) -> list[tuple[int, int, int, int]]:
+def time_bucket_key_rows(rows: Iterable[tuple[int, int, int, int, int]], *, bucket_shift: int, bucket_bits: int) -> list[tuple[int, int, int, int]]:
     """Golden semantics for the generic time-bucket key tile: rewrite each row's
     partition key into a composite ``(partition, time-bucket)`` group key so a
     downstream key-grouped aggregator produces fixed-width time-windowed groups

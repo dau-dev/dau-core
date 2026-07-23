@@ -55,8 +55,16 @@ MarketRow = tuple[int, int, int, int, int, int]
 WORKFLOW_PLAN: tuple[dict[str, str], ...] = (
     {"stage": "align", "op": "join_asof(strategy=backward, by=symbol, tolerance=T)", "golden": "asof_backward"},
     {"stage": "derive", "op": "midpoint, spread, trade_sign, signed_volume, dollar_volume, vwap_numerator", "golden": "market_features"},
-    {"stage": "bar", "op": "time | volume | dollar | imbalance bars (OHLCV + $ + signed + vwap-num)", "golden": "time_bars / volume_bars / dollar_bars / imbalance_bars"},
-    {"stage": "roll", "op": "rolling sum/mean/min/max/var + EWMA over the reduced bar stream", "golden": "rolling_sum / rolling_min / rolling_max / rolling_moments / ewma"},
+    {
+        "stage": "bar",
+        "op": "time | volume | dollar | imbalance bars (OHLCV + $ + signed + vwap-num)",
+        "golden": "time_bars / volume_bars / dollar_bars / imbalance_bars",
+    },
+    {
+        "stage": "roll",
+        "op": "rolling sum/mean/min/max/var + EWMA over the reduced bar stream",
+        "golden": "rolling_sum / rolling_min / rolling_max / rolling_moments / ewma",
+    },
 )
 
 
