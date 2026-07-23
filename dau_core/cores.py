@@ -230,6 +230,24 @@ CORES: tuple[CoreDefinition, ...] = (
         contract_kind=ContractKind.ROW_STREAM,
     ),
     CoreDefinition(
+        name="int32-grouped-field-aggregation",
+        kind=CoreKind.OPERATOR,
+        success_close_out=True,
+        module="dau_int32_grouped_field_aggregation",
+        source="dau_int32_grouped_field_aggregation.sv",
+        description=(
+            "Generic multi-field ordered close-out grouped aggregation: over quad rows (key, v0, v1, v2) grouped by consecutive-equal key, computes first/last/min/max/sum (INT64) for EACH of the three "
+            "data fields in one pass, plus the row count — the N-field generalization of int32-grouped-aggregation. Workload-agnostic: OHLCV bars are a field/stat SELECTION over the 11-word record "
+            "(open/high/low/close = field0 first/max/min/last, volume = sum field1, ...) via dau_core.operators.bars_from_field_aggregate, so the finance column assignment lives in the host/select, not the tile. "
+            "A reappearing key opens a new partial group (host-merged, the partial-group contract); a row torn by input_last on w0 is ERR_STREAM."
+        ),
+        golden="dau_core.operators:grouped_field_aggregate_rows",
+        bench=f"{_BENCHES}.dau_int32_grouped_field_aggregation_tb",
+        resources=ResourceEnvelope(lut=910, ff=886, bram36=0.0, dsp=0),  # OOC xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +3.846)
+        count_port="group_count",
+        contract_kind=ContractKind.ROW_STREAM,
+    ),
+    CoreDefinition(
         name="int32-bar-aggregation",
         kind=CoreKind.OPERATOR,
         success_close_out=True,
