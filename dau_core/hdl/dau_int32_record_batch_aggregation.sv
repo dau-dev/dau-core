@@ -1,6 +1,6 @@
 `default_nettype none
 
-// Multi-column record-batch INT32 scalar aggregation (roadmap M1).
+// Multi-column record-batch INT32 scalar aggregation.
 //
 // Consumes a packed 64-bit DAU record-batch stream carrying up to
 // MAX_COLUMNS fixed-width, null-free columns plus exactly one operation

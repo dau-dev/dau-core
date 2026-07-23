@@ -1,6 +1,6 @@
 `default_nettype none
 
-// Streaming per-row map/ALU tile (roadmap M2 T2, Q100/map-asbd14 shape).
+// Streaming per-row map/ALU tile (the Q100/map-asbd14 shape).
 //
 // Consumes a packed INT32 value stream (two samples per 64-bit word, low word
 // older) and emits one output word per input word with the configured ALU

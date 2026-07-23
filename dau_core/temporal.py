@@ -1,4 +1,4 @@
-"""Golden models for the temporal-finance hero workflow (ROADMAP Goal 2a).
+"""Golden models for the temporal-finance hero workflow.
 
 The fused workflow this file is the CPU reference for:
 
@@ -25,7 +25,7 @@ is the same one the sorted-scan tiles already require — the host sorts, or the
 range-partitioner + sorter path does.
 
 These are semantic references, ahead of the HDL. The ``int64`` timestamp / sum
-rung and the as-of / windowed-stat tiles (ROADMAP 2a steps 2-3) byte-compare
+rung and the as-of / windowed-stat tiles byte-compare
 against them.
 """
 
@@ -50,8 +50,8 @@ MarketRow = tuple[int, int, int, int, int, int]
 
 # The workflow logical plan, written down (publishable even when the raw market
 # data stays private): an ordered list of (stage, semantic op, golden). A
-# capture/planner pass (2a step 2) matches a user's Polars plan against these
-# stage semantics; the tile compositions (step 3) realize them.
+# capture/planner pass matches a user's Polars plan against these
+# stage semantics; the tile compositions realize them.
 WORKFLOW_PLAN: tuple[dict[str, str], ...] = (
     {"stage": "align", "op": "join_asof(strategy=backward, by=symbol, tolerance=T)", "golden": "asof_backward"},
     {"stage": "derive", "op": "midpoint, spread, trade_sign, signed_volume, dollar_volume, vwap_numerator", "golden": "market_features"},
@@ -202,7 +202,7 @@ def market_features(rows: Iterable[MarketRow]) -> list[MarketFeatures]:
 
 INT64_MIN, INT64_MAX = -(1 << 63), (1 << 63) - 1
 """The on-wire accumulator width. The bar/rolling sums are ``int64`` on the
-stream contract, so the host's encoding audit (ROADMAP risk R4) must choose
+stream contract, so the host's encoding audit must choose
 price/size scales such that a bar's ``volume``/``dollar``/``signed_volume``
 accumulators stay in ``[INT64_MIN, INT64_MAX]`` — the same fixed-point-fit rule
 the TPC-H columns already obey. These goldens compute in exact Python integers
@@ -417,7 +417,7 @@ def ewma(values: Iterable[tuple[int, int]], *, alpha: float) -> list[float]:
     (``e[0] = x[0]``; ``e[i] = alpha*x[i] + (1-alpha)*e[i-1]``) — matches
     ``pl.col(x).ewm_mean(alpha=alpha, adjust=False).over("symbol")``. Float: the
     reference real-valued semantics the fixed-point tile approximates under its
-    declared error budget (2a step 3)."""
+    declared error budget."""
     if not 0.0 < alpha <= 1.0:
         raise ValueError(f"alpha must be in (0, 1], got {alpha}")
     out: list[float] = []
