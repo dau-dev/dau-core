@@ -5,24 +5,24 @@ from pathlib import Path
 import pytest
 
 from dau_core import hdl
-from dau_core.cores import CORES, ContractKind, CoreKind, UnknownCoreError, core, core_for_module, cores_of_kind, sources_for
+from dau_core.cores import ContractKind, CoreKind, UnknownCoreError, core, core_for_module, cores_of_kind, loaded_cores, sources_for
 
 
 def test_every_hdl_file_belongs_to_exactly_one_core() -> None:
     hdl_dir = Path(str(hdl.__path__[0]))
     hdl_files = {path.name for path in hdl_dir.iterdir() if path.suffix in (".sv", ".v")}
-    registry_files = [definition.source for definition in CORES]
+    registry_files = [definition.source for definition in loaded_cores().values()]
     assert sorted(registry_files) == sorted(set(registry_files)), "duplicate source in registry"
     assert set(registry_files) == hdl_files, f"registry/hdl drift: missing {hdl_files - set(registry_files)}, stale {set(registry_files) - hdl_files}"
 
 
 def test_all_source_paths_exist() -> None:
-    for definition in CORES:
+    for definition in loaded_cores().values():
         assert definition.source_path().is_file(), definition.name
 
 
 def test_goldens_resolve_to_callables() -> None:
-    for definition in CORES:
+    for definition in loaded_cores().values():
         if definition.golden is not None:
             assert callable(definition.golden_callable()), definition.name
 
@@ -30,7 +30,7 @@ def test_goldens_resolve_to_callables() -> None:
 def test_benches_are_importable_modules() -> None:
     from importlib import import_module
 
-    for definition in CORES:
+    for definition in loaded_cores().values():
         if definition.bench is not None:
             import_module(definition.bench)
 
@@ -70,7 +70,7 @@ def test_every_selectable_operator_declares_its_contract_kind() -> None:
     descriptor = {d.name for d in cores_of_kind(CoreKind.OPERATOR) if d.contract_kind is ContractKind.ARROW_LITE_DESCRIPTOR}
     assert descriptor == {"int32-stream-aggregation"}, "descriptor-tagged operator set changed — confirm intent"
     # only operators declare a stream contract
-    for definition in CORES:
+    for definition in loaded_cores().values():
         if definition.kind is not CoreKind.OPERATOR:
             assert definition.contract_kind is None, definition.name
 
@@ -97,11 +97,25 @@ def test_lookup_errors_are_typed() -> None:
 def test_synthesizable_cores_carry_measured_envelopes() -> None:
     """Every operator/stream-infra core carries a measured OOC envelope
     (xc7a200tfbg484-2, Vivado 2025.2 out-of-context synthesis)."""
-    for definition in CORES:
+    for definition in loaded_cores().values():
         if definition.kind in (CoreKind.OPERATOR, CoreKind.STREAM_INFRA):
             assert definition.resources is not None, definition.name
             assert definition.resources.measured, definition.name
             assert definition.resources.lut > 0, definition.name
+
+
+def test_registry_is_hydra_composition_not_a_python_literal() -> None:
+    """Composition IS the registry: cores load from dau-core's hydra config
+    tree into the ccflow ModelRegistry at /dau-core/<name>. A parallel
+    Python-literal core list is the anti-pattern this guards against."""
+    import dau_core.cores as cores_module
+    from dau_core.config import load_config
+
+    assert not hasattr(cores_module, "CORES"), "parallel Python-literal registry reappeared"
+    registry = load_config(overwrite=True)
+    names = set(registry.models["dau-core"].models)
+    assert names == set(loaded_cores()), "registry path view and accessor view drifted"
+    assert "int32-bar-aggregation" in names
 
 
 def test_silent_on_success_operator_set_is_pinned() -> None:

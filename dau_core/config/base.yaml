@@ -1,0 +1,3 @@
+defaults:
+  - dau-core: cores
+  - _self_
