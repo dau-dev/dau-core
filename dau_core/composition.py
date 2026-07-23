@@ -16,6 +16,7 @@ from __future__ import annotations
 from typing import Mapping
 
 from ccflow import BaseModel
+from pydantic import StrictInt
 
 from .cores import CoreDefinition, CoreKind, LoadImageKind, ResourceEnvelope, core
 
@@ -82,7 +83,9 @@ class TileSpec(BaseModel):
 
     core: str
     config: Mapping[str, str] = {}
-    params: Mapping[str, int] = {}
+    # StrictInt: lax coercion (True -> 1, "4" -> 4) would silently satisfy the
+    # positive-int parameter contract before _validate_tile_params ever ran
+    params: Mapping[str, StrictInt] = {}
 
     def definition(self) -> CoreDefinition:
         return core(self.core)
