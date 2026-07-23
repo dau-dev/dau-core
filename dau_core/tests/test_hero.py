@@ -120,12 +120,11 @@ def test_estimate_rejects_invalid_physical_parameters() -> None:
         cost.estimate_seconds(dma_bytes_per_sec=600e6, per_job_seconds=-1)
 
 
-def test_bucket_then_aggregator_composes_to_time_bars() -> None:
-    # the MODULAR bar stage proves the monolith decomposition: the generic
-    # time-bucket key rewrite + the generic aggregator == time_bars (OHLC +
-    # volume + signed-volume + count). signed_volume is the pre-computed feature
-    # (the derive stage), so the bar tile only sums it.
-    from dau_core.operators import bar_aggregate_rows, time_bucket_key_rows
+def test_bucket_then_generic_aggregator_composes_to_time_bars() -> None:
+    # the MODULAR bar stage, fully generic: time-bucket key rewrite + the GENERIC
+    # multi-field aggregator + the OHLCV field/stat select == time_bars. No
+    # finance-specific bar tile — the whole bar stage is generic primitives.
+    from dau_core.operators import bars_from_field_aggregate, grouped_field_aggregate_rows, time_bucket_key_rows
     from dau_core.temporal import asof_backward, matched_rows, signed_volume, time_bars
 
     stream = generate_market_stream(seed=5, num_symbols=3)
@@ -134,7 +133,8 @@ def test_bucket_then_aggregator_composes_to_time_bars() -> None:
 
     # (partition=symbol, payload_hi=price, time, payload2=size, payload3=signed_volume)
     rows = [(sym, price, time, size, signed_volume(price, size, bid, ask)) for sym, time, price, size, bid, ask in market]
-    composed = bar_aggregate_rows(time_bucket_key_rows(rows, bucket_shift=shift, bucket_bits=bits))
+    bucketed = time_bucket_key_rows(rows, bucket_shift=shift, bucket_bits=bits)  # (key, price, size, signed_volume)
+    composed = bars_from_field_aggregate(grouped_field_aggregate_rows(bucketed))
     golden = {(bar.symbol_id, bar.open_time >> shift): bar for bar in time_bars(market, bar_width=width)}
 
     assert len(composed) == len(golden)
