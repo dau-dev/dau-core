@@ -493,3 +493,73 @@ def test_exactly_one_success_close_out_per_lane_is_enforced() -> None:
     # and the partition slot rejects legacy tiles like every other slot
     with pytest.raises(CompositionError, match="partition 'int32-aggregation-tile' is legacy"):
         ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR, partition=TileSpec(core="int32-aggregation-tile")),))
+
+
+def test_spec_canonical_round_trip_and_hash_stability() -> None:
+    from dau_core.composition import canonical_spec_json, spec_from_canonical, spec_hash
+
+    spec = bar_noc_spec()
+    text = canonical_spec_json(spec)
+    rebuilt = spec_from_canonical(text)
+    assert rebuilt == spec
+    assert spec_hash(rebuilt) == spec_hash(spec)
+    assert canonical_spec_json(rebuilt) == text
+
+
+def test_spec_hash_is_config_order_insensitive_and_content_sensitive() -> None:
+    from dau_core.composition import spec_hash
+
+    def build(config):
+        return ScanCompositionSpec(name="t", lanes=(LaneSpec(tile=TileSpec(core="int32-bar-aggregation", config=config)),))
+
+    a = build({"cfg_mode": "2'd0", "cfg_row_count": "64'd0"})
+    b = build({"cfg_row_count": "64'd0", "cfg_mode": "2'd0"})  # same content, other insertion order
+    c = build({"cfg_mode": "2'd1", "cfg_row_count": "64'd0"})  # different content
+    assert spec_hash(a) == spec_hash(b)
+    assert spec_hash(a) != spec_hash(c)
+
+
+def test_spec_hash_pinned_fixture() -> None:
+    """The design-cache key must be stable across releases: ANY change to
+    the canonical form — field ordering, a new or changed spec field or
+    default, hash construction — fails HERE, loudly, and must bump
+    SPEC_CANONICAL_VERSION deliberately (defaults are included precisely so
+    a changed default changes the key instead of colliding)."""
+    from dau_core.composition import spec_hash
+
+    spec = ScanCompositionSpec(
+        name="pinned",
+        lanes=(
+            LaneSpec(
+                tile=TileSpec(core="int32-bar-aggregation", config={"cfg_mode": "2'd0", "cfg_row_count": "64'd0"}),
+                partition=TileSpec(core="int32-pair-key-filter", config={"cfg_key_mask": "32'd3", "cfg_key_match": "32'd1"}),
+            ),
+        ),
+        burst_beats=16,
+    )
+    assert spec_hash(spec) == "1:5960fa805747df4f1d13fbbf143f9b13b5fed485fc5ba26fd490beb14ffe48f2"
+
+
+def test_spec_from_canonical_revalidates() -> None:
+    """A tampered canonical form fails registry validation, never builds."""
+    from dau_core.composition import canonical_spec_json, spec_from_canonical
+
+    text = canonical_spec_json(bar_noc_spec())
+    tampered = text.replace("int32-bar-aggregation", "int32-row-map-alu")  # silent-on-success: illegal terminal
+    with pytest.raises(CompositionError):
+        spec_from_canonical(tampered)
+
+
+def test_spec_hash_stable_when_defaults_are_explicit() -> None:
+    from dau_core.composition import spec_hash
+
+    implicit = ScanCompositionSpec(name="t", lanes=(LaneSpec(tile=TileSpec(core="int32-bar-aggregation")),))
+    explicit = ScanCompositionSpec(
+        name="t",
+        lanes=(LaneSpec(tile=TileSpec(core="int32-bar-aggregation", config={}, params={}), partition=None, chain=()),),
+        burst_beats=32,
+        addr_width=32,
+        partitioner=None,
+        front_unpack=None,
+    )
+    assert spec_hash(implicit) == spec_hash(explicit)

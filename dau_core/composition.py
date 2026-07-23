@@ -13,6 +13,8 @@ N=1 with no filter degenerates to the single-tile DDR scan.
 
 from __future__ import annotations
 
+import hashlib
+import json
 from typing import Mapping
 
 from ccflow import BaseModel
@@ -352,3 +354,35 @@ def estimated_resources(spec: ScanCompositionSpec) -> ResourceEnvelope:
             add(stage.core)
         add(lane.tile.core)
     return ResourceEnvelope(lut=lut, ff=ff, bram36=bram, dsp=dsp, measured=measured)
+
+
+SPEC_CANONICAL_VERSION = "1"
+
+
+def canonical_spec_json(spec: ScanCompositionSpec) -> str:
+    """The canonical serialized form of a composition spec: deterministic
+    JSON (sorted keys, compact separators) of the FULL elaborated spec —
+    every field, defaults included. The canonical text captures the
+    effective design: if a model default ever changes, old and new specs
+    produce different text rather than silently sharing a cache key. The
+    cost is that growing the spec model changes hashes (a safe cache miss);
+    that evolution is the explicit job of SPEC_CANONICAL_VERSION."""
+    payload = spec.model_dump(mode="json")
+    return json.dumps(payload, sort_keys=True, separators=(",", ":"))
+
+
+def spec_hash(spec: ScanCompositionSpec) -> str:
+    """The content hash of a composition spec: sha256 over the canonical
+    form, prefixed with the canonical-form version so a deliberate change
+    to the canonicalization is distinguishable from a different design.
+    This is the design-cache key: a planner-emitted design and a resident
+    built design that elaborate to the same spec share one hash."""
+    digest = hashlib.sha256(canonical_spec_json(spec).encode()).hexdigest()
+    return f"{SPEC_CANONICAL_VERSION}:{digest}"
+
+
+def spec_from_canonical(text: str) -> ScanCompositionSpec:
+    """Rebuild a spec from its canonical form. Construction re-validates
+    against the registry (kinds, status roles, parameter bounds), so a
+    tampered or stale canonical form fails loudly, never builds."""
+    return ScanCompositionSpec.model_validate_json(text)
