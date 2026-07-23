@@ -107,6 +107,27 @@ class MapErrorCode(IntEnum):
     STREAM = 2
 
 
+def _apply_map_op(op: MapOp, value: int, constant: int, shift: int) -> int:
+    """The tile ALU: shared by the scalar and row map configs (a plain
+    function so per-row golden loops never construct a model)."""
+    if op == MapOp.ADD:
+        return _wrap_int32(value + constant)
+    if op == MapOp.SUB:
+        return _wrap_int32(value - constant)
+    if op == MapOp.MUL:
+        return _wrap_int32(value * constant)
+    if op == MapOp.MULSHR:
+        # 64-bit signed product, arithmetic shift right
+        return _wrap_int32((value * constant) >> shift)
+    if op == MapOp.SHL:
+        return _wrap_int32(value << shift)
+    if op == MapOp.AND:
+        return _wrap_int32((value & _INT32_MASK) & (constant & _INT32_MASK))
+    if op == MapOp.OR:
+        return _wrap_int32((value & _INT32_MASK) | (constant & _INT32_MASK))
+    raise ValueError(f"unsupported map op {op!r}")
+
+
 class MapConfig(BaseModel):
     """Per-row ALU configuration: ``value <op> constant`` (MULSHR/SHL also use
     ``shift``). All arithmetic is INT32 two's-complement wraparound — the
@@ -126,22 +147,7 @@ class MapConfig(BaseModel):
             raise ValueError("shift must be in [0, 31]")
 
     def apply(self, value: int) -> int:
-        if self.op == MapOp.ADD:
-            return _wrap_int32(value + self.constant)
-        if self.op == MapOp.SUB:
-            return _wrap_int32(value - self.constant)
-        if self.op == MapOp.MUL:
-            return _wrap_int32(value * self.constant)
-        if self.op == MapOp.MULSHR:
-            # 64-bit signed product, arithmetic shift right
-            return _wrap_int32((value * self.constant) >> self.shift)
-        if self.op == MapOp.SHL:
-            return _wrap_int32(value << self.shift)
-        if self.op == MapOp.AND:
-            return _wrap_int32((value & _INT32_MASK) & (self.constant & _INT32_MASK))
-        if self.op == MapOp.OR:
-            return _wrap_int32((value & _INT32_MASK) | (self.constant & _INT32_MASK))
-        raise ValueError(f"unsupported map op {self.op!r}")
+        return _apply_map_op(self.op, value, self.constant, self.shift)
 
 
 def map_values(values: Iterable[int], config: MapConfig) -> list[int]:
@@ -264,7 +270,7 @@ class RowMapConfig(BaseModel):
     def apply(self, row: tuple[int, int, int, int]) -> int:
         a = _wrap_int32(row[self.src_a])
         b = _wrap_int32(row[self.src_b])
-        return MapConfig(op=self.op, constant=b, shift=self.shift).apply(a)
+        return _apply_map_op(self.op, a, b, self.shift)
 
 
 def map_row_fields(rows: Iterable[tuple[int, int, int, int]], config: RowMapConfig) -> list[tuple[int, int, int, int]]:

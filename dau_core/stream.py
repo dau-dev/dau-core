@@ -96,8 +96,7 @@ class BatchHeader:
     SIZE_BYTES = 64
     _STRUCT = struct.Struct("<IBBBBQQQHHHHQQQ")
 
-    def model_post_init(self, context) -> None:
-        super().model_post_init(context)
+    def __post_init__(self) -> None:
         _validate_u8("version_major", self.version_major)
         _validate_u8("version_minor", self.version_minor)
         _validate_u8("header_length", self.header_length)
@@ -293,7 +292,8 @@ class RecordBatchLimits(BaseModel):
     max_batch_bytes: int = 0x0010_0000
     alignment_bytes: int = 64
 
-    def __post_init__(self) -> None:
+    def model_post_init(self, context) -> None:
+        super().model_post_init(context)
         if self.max_columns < 1:
             raise ValueError("max_columns must be positive")
         if self.max_rows < 1:
