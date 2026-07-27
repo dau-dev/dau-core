@@ -698,11 +698,9 @@ async def _collect_probe_output(dut, ready_pattern) -> list[int]:
     # silent (rows emitted -> the downstream terminal owns the status); when
     # zero rows emit, the success close-out arrives with no output beats.
     words: list[int] = []
-    pattern_index = 0
     held = None
-    for _ in range(200000):
+    for pattern_index in range(200000):
         ready = ready_pattern[pattern_index % len(ready_pattern)]
-        pattern_index += 1
         dut.output_ready.value = ready
         dut.status_ready.value = 1  # let a zero-row success close-out through
         await ReadOnly()

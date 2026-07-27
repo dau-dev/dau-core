@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from enum import IntEnum, IntFlag
 
 from ccflow import BaseModel
+from pydantic import ConfigDict
 
 from .registers import DAU_MAGIC_WORD
 
@@ -131,7 +132,7 @@ class BatchHeader:
         )
 
     @classmethod
-    def unpack(cls, data: bytes) -> "BatchHeader":
+    def unpack(cls, data: bytes) -> BatchHeader:
         if len(data) != cls.SIZE_BYTES:
             raise InvalidStreamError(f"batch header must be {cls.SIZE_BYTES} bytes")
         unpacked = cls._STRUCT.unpack(data)
@@ -201,7 +202,7 @@ class ColumnDescriptor:
         )
 
     @classmethod
-    def unpack(cls, data: bytes) -> "ColumnDescriptor":
+    def unpack(cls, data: bytes) -> ColumnDescriptor:
         if len(data) != cls.SIZE_BYTES:
             raise InvalidStreamError(f"column descriptor must be {cls.SIZE_BYTES} bytes")
         unpacked = cls._STRUCT.unpack(data)
@@ -262,7 +263,7 @@ class OperationDescriptor:
         )
 
     @classmethod
-    def unpack(cls, data: bytes) -> "OperationDescriptor":
+    def unpack(cls, data: bytes) -> OperationDescriptor:
         if len(data) != cls.SIZE_BYTES:
             raise InvalidStreamError(f"operation descriptor must be {cls.SIZE_BYTES} bytes")
         unpacked = cls._STRUCT.unpack(data)
@@ -285,7 +286,7 @@ class RecordBatchLimits(BaseModel):
     descriptor table + payload must fit one staging region.
     """
 
-    model_config = {"frozen": True}
+    model_config = ConfigDict(frozen=True)
 
     max_columns: int = 16
     max_rows: int = 1 << 20

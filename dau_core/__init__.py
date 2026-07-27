@@ -43,14 +43,14 @@ from .stream import (
 __version__ = "0.1.0"
 
 __all__ = [
-    "BatchHeader",
     "CAPABILITY_CONTRACT_SCHEMA",
     "CURRENT_REGISTER_MAP_VERSION",
-    "CapabilityContract",
-    "ColumnDescriptor",
     "DAU_MAGIC_WORD",
     "DEFAULT_RECORD_BATCH_LIMITS",
     "DEFAULT_STREAM_JOB_REGISTER_CONTRACT",
+    "BatchHeader",
+    "CapabilityContract",
+    "ColumnDescriptor",
     "DauDesign",
     "DeviceCapabilities",
     "DmaConstraints",
@@ -67,8 +67,8 @@ __all__ = [
     "OperatorUnit",
     "PolicyFlag",
     "RecordBatchLimits",
-    "RegisterMapVersion",
     "RegisterBlockSnapshot",
+    "RegisterMapVersion",
     "RegisterOffset",
     "RegisterWriteError",
     "ResetScope",

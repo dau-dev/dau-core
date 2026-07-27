@@ -9,8 +9,8 @@ so dau-build / dau-sim compose it without importing dau-core code.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
 
 from ccflow import ModelRegistry
 from ccflow.utils.hydra import ConfigLoadResult, load_config as base_load_config

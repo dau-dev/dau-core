@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from enum import IntEnum
 
 from ccflow import BaseModel
+from pydantic import ConfigDict
 
 from .stream import LogicalType, OperationCode
 
@@ -39,7 +40,7 @@ class FilterPredicate(BaseModel):
     """Predicate configuration: ``value <op0> constant0`` optionally combined
     with ``value <op1> constant1`` by AND/OR. Matches the tile's config ports."""
 
-    model_config = {"frozen": True}
+    model_config = ConfigDict(frozen=True)
 
     op0: PredicateOp
     constant0: int
@@ -133,7 +134,7 @@ class MapConfig(BaseModel):
     ``shift``). All arithmetic is INT32 two's-complement wraparound — the
     golden and the tile agree bit-for-bit. Matches the tile's config ports."""
 
-    model_config = {"frozen": True}
+    model_config = ConfigDict(frozen=True)
 
     op: MapOp
     constant: int = 0
@@ -194,7 +195,7 @@ class RowPredicateTerm(BaseModel):
     """One comparison term of a row predicate: ``field <op> constant``
     (signed 32-bit). Matches one term's config-port triple on the tile."""
 
-    model_config = {"frozen": True}
+    model_config = ConfigDict(frozen=True)
 
     field: RowField
     op: PredicateOp
@@ -215,7 +216,7 @@ class RowPredicateConfig(BaseModel):
     level ignores the right-hand term (the 2-term filter's combine,
     extended to three terms). Matches the tile's config ports."""
 
-    model_config = {"frozen": True}
+    model_config = ConfigDict(frozen=True)
 
     term0: RowPredicateTerm
     combine01: PredicateCombine = PredicateCombine.SINGLE
@@ -254,7 +255,7 @@ class RowMapConfig(BaseModel):
     All arithmetic is INT32 two's-complement wraparound — the golden and the
     tile agree bit-for-bit. Matches the tile's config ports."""
 
-    model_config = {"frozen": True}
+    model_config = ConfigDict(frozen=True)
 
     op: MapOp
     dst: RowField
@@ -301,7 +302,7 @@ class UnpackFieldSpec(BaseModel):
     zero-extended to int32. Matches the tile's
     ``cfg_field{i}_{offset,width,signed}`` config ports."""
 
-    model_config = {"frozen": True}
+    model_config = ConfigDict(frozen=True)
 
     offset: int
     width: int
@@ -594,7 +595,7 @@ class BroadcastJoinConfig(BaseModel):
     six join sources. The emitted key is always the matched probe key. Matches
     the tile's ``cfg_out{0,1,2}_sel`` config ports."""
 
-    model_config = {"frozen": True}
+    model_config = ConfigDict(frozen=True)
 
     out0: JoinSource
     out1: JoinSource
@@ -1082,5 +1083,5 @@ def _bounds_fixture(logical_type: LogicalType) -> list[int | float | bool]:
     raise ValueError(f"no bounds fixture for {logical_type.name.lower()}")
 
 
-def _is_nan(value: int | float | bool) -> bool:
+def _is_nan(value: float | bool) -> bool:
     return isinstance(value, float) and math.isnan(value)

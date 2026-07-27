@@ -337,12 +337,10 @@ async def _send_words(dut, words, *, last_on_final: bool = True) -> None:
 async def _collect_forwarded(dut, ready_pattern, *, expect_rows: int) -> tuple[list[int], int]:
     words: list[int] = []
     if expect_rows > 0:
-        pattern_index = 0
         held = None
         collected = False
-        for _ in range(200000):
+        for pattern_index in range(200000):
             ready = ready_pattern[pattern_index % len(ready_pattern)]
-            pattern_index += 1
             dut.output_ready.value = ready
             await ReadOnly()
             valid = int(dut.output_valid.value) == 1

@@ -60,11 +60,9 @@ async def _collect_beats(dut, ready_pattern, *, expect_beats: int) -> list[int]:
     """Collect whole-row beats with the valid/ready hold rule asserted and the
     silent-success quiescence check after the batch's last beat."""
     beats: list[int] = []
-    pattern_index = 0
     held = None
-    for _ in range(200000):
+    for pattern_index in range(200000):
         ready = ready_pattern[pattern_index % len(ready_pattern)]
-        pattern_index += 1
         dut.output_ready.value = ready
         await ReadOnly()
         valid = int(dut.output_valid.value) == 1

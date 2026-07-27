@@ -32,6 +32,7 @@ Zero-dependency: pure integer arithmetic over the temporal goldens.
 from __future__ import annotations
 
 from ccflow import BaseModel, ResultBase
+from pydantic import ConfigDict
 
 from .temporal import (
     MarketFeatures,
@@ -70,7 +71,7 @@ class WorkflowStage(BaseModel):
     input/output record widths). A staged run DMAs both; a fused run DMAs
     neither (except the pipeline endpoints)."""
 
-    model_config = {"frozen": True}
+    model_config = ConfigDict(frozen=True)
 
     name: str
     op: str
@@ -93,7 +94,7 @@ class HeroResult(ResultBase):
     the per-row feature branch, and the stage outputs (for a bit-exact
     comparison against a CPU reference)."""
 
-    model_config = {"frozen": True}
+    model_config = ConfigDict(frozen=True)
 
     stages: tuple[WorkflowStage, ...]
     market_rows: list[MarketRow]
@@ -153,7 +154,7 @@ class MaterializationCost(ResultBase):
     intermediate materialization the fusion removes; ``dma_ratio`` is the
     DMA-bound speedup (both paths are DMA-bound with compute overlapped)."""
 
-    model_config = {"frozen": True}
+    model_config = ConfigDict(frozen=True)
 
     staged_bytes: int
     fused_bytes: int

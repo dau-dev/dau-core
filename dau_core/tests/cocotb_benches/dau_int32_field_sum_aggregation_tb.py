@@ -260,7 +260,7 @@ async def _start(dut) -> None:
 
 async def _run(dut, rows, *, field_mask: int, ready_pattern=(1,)):
     dut.cfg_field_mask.value = field_mask
-    expect_words = bin(field_mask).count("1") + 1
+    expect_words = field_mask.bit_count() + 1
     send = cocotb.start_soon(_send_rows(dut, rows))
     words = await _collect_output(dut, ready_pattern, expect_words=expect_words)
     await send
@@ -296,11 +296,9 @@ async def _send_rows(dut, rows) -> None:
 
 async def _collect_output(dut, ready_pattern, *, expect_words: int) -> list[int]:
     words: list[int] = []
-    pattern_index = 0
     held = None
-    for _ in range(200000):
+    for pattern_index in range(200000):
         ready = ready_pattern[pattern_index % len(ready_pattern)]
-        pattern_index += 1
         dut.output_ready.value = ready
         await ReadOnly()
         valid = int(dut.output_valid.value) == 1

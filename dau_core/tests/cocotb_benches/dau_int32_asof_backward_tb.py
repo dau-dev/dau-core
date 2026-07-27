@@ -210,10 +210,8 @@ async def _collect_output(dut, ready_pattern):
     # stream ending in a miss drains its rows and then raises status_valid with
     # no last-flagged word, so terminate on either signal.
     words = []
-    pattern_index = 0
-    for _ in range(8192):
+    for pattern_index in range(8192):
         ready = ready_pattern[pattern_index % len(ready_pattern)]
-        pattern_index += 1
         dut.output_ready.value = ready
         await ReadOnly()
         fired = ready == 1 and int(dut.output_valid.value) == 1

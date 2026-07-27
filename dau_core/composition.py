@@ -15,10 +15,10 @@ from __future__ import annotations
 
 import hashlib
 import json
-from typing import Mapping
+from collections.abc import Mapping
 
 from ccflow import BaseModel
-from pydantic import StrictInt
+from pydantic import ConfigDict, StrictInt
 
 from .cores import CoreDefinition, CoreKind, LoadImageKind, ResourceEnvelope, core
 
@@ -81,7 +81,7 @@ class TileSpec(BaseModel):
     the membership core's ``KEY_SPACE``, that size the built RTL). Config
     ports are runtime bindings; params are elaboration-time sizes."""
 
-    model_config = {"frozen": True}
+    model_config = ConfigDict(frozen=True)
 
     core: str
     config: Mapping[str, str] = {}
@@ -100,7 +100,7 @@ class LaneSpec(BaseModel):
     speak the stream+status contract but need no status counter; the
     terminal tile's count port backs the lane register block."""
 
-    model_config = {"frozen": True}
+    model_config = ConfigDict(frozen=True)
 
     tile: TileSpec
     partition: TileSpec | None = None
@@ -122,7 +122,7 @@ class ScanCompositionSpec(BaseModel):
     still sees the clean 32-bit key it partitions on. It coexists with
     either fan-out shape."""
 
-    model_config = {"frozen": True}
+    model_config = ConfigDict(frozen=True)
 
     name: str
     lanes: tuple[LaneSpec, ...]

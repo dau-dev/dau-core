@@ -178,15 +178,13 @@ async def _drive_and_collect(dut, golden, ready_pattern):
     words: list[list[int]] = [[] for _ in range(num_parts)]
     expect_output = [len(golden[p]) != 0 for p in range(num_parts)]
     done = [False] * num_parts
-    pattern_index = 0
 
-    for _ in range(20000):
+    for pattern_index in range(20000):
         oready = 0
         for p in range(num_parts):
             if expect_output[p] and not done[p]:
                 bit = ready_pattern[(pattern_index + p) % len(ready_pattern)]
                 oready |= bit << p
-        pattern_index += 1
         dut.output_ready.value = oready
         dut.status_ready.value = (1 << num_parts) - 1
 
