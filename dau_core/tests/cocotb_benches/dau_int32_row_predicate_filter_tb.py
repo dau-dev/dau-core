@@ -512,11 +512,9 @@ async def _collect_output(dut, ready_pattern, *, expect_words: int) -> list[int]
         await _expect_status(dut, error=False)
         await _assert_quiescent(dut)
         return words
-    pattern_index = 0
     held = None
-    for _ in range(200000):
+    for pattern_index in range(200000):
         ready = ready_pattern[pattern_index % len(ready_pattern)]
-        pattern_index += 1
         dut.output_ready.value = ready
         await ReadOnly()
         valid = int(dut.output_valid.value) == 1

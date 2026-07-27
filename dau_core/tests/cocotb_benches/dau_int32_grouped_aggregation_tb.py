@@ -155,10 +155,8 @@ async def _send_rows(dut, rows) -> None:
 
 async def _collect_output(dut, ready_pattern) -> list[int]:
     words: list[int] = []
-    pattern_index = 0
-    for _ in range(4096):
+    for pattern_index in range(4096):
         ready = ready_pattern[pattern_index % len(ready_pattern)]
-        pattern_index += 1
         dut.output_ready.value = ready
         await ReadOnly()
         fired = ready == 1 and int(dut.output_valid.value) == 1

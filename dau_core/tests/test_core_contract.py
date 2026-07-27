@@ -16,7 +16,7 @@ def test_every_operator_conforms_to_the_stream_tile_contract() -> None:
     # not a reason to silently pass the registry unchecked
     if os.environ.get("CI", "").strip().lower() in ("1", "true", "yes"):
         try:
-            import dau_build.sv_contract as sv_contract
+            from dau_build import sv_contract
         except ImportError:
             pytest.fail(
                 "dau_build.sv_contract is missing in CI: the develop install (dau-build extra) is broken, so the registry conformance check cannot run"

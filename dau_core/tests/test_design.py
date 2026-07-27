@@ -49,16 +49,7 @@ def test_parse_units_rejects_malformed_entry() -> None:
 
 def test_from_manifest_reads_units_line(tmp_path: Path) -> None:
     manifest = tmp_path / "design.manifest"
-    manifest.write_text(
-        "\n".join(
-            (
-                "builder=dau_build.build_spec",
-                "design_name=arrow-lite",
-                "units=aggregation:1:sum|min|max|count:int32",
-                "",
-            )
-        )
-    )
+    manifest.write_text("builder=dau_build.build_spec\ndesign_name=arrow-lite\nunits=aggregation:1:sum|min|max|count:int32\n")
 
     design = DauDesign.from_manifest(manifest)
 

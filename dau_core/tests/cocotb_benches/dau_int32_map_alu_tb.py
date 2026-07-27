@@ -159,10 +159,8 @@ async def _send_values(dut, values) -> None:
 
 async def _collect_output(dut, ready_pattern) -> list[int]:
     samples: list[int] = []
-    pattern_index = 0
-    for _ in range(1024):
+    for pattern_index in range(1024):
         ready = ready_pattern[pattern_index % len(ready_pattern)]
-        pattern_index += 1
         dut.output_ready.value = ready
         await ReadOnly()
         fired = ready == 1 and int(dut.output_valid.value) == 1

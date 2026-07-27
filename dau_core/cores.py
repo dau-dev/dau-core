@@ -14,12 +14,13 @@ estimates awaiting a synthesis pass.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from enum import Enum
 from importlib import import_module
 from pathlib import Path
-from typing import Mapping
 
 from ccflow import BaseModel
+from pydantic import ConfigDict
 
 from .design import UnitKind
 from .stream import LogicalType, OperationCode
@@ -56,7 +57,7 @@ class ResourceEnvelope(BaseModel):
     """Post-synthesis footprint on the target part (dpv1 XC7A200T unless
     noted). ``measured=False`` marks an engineering estimate."""
 
-    model_config = {"frozen": True}
+    model_config = ConfigDict(frozen=True)
 
     lut: int
     ff: int
@@ -77,7 +78,7 @@ class ParameterSpec(BaseModel):
     window is ``>= 2`` — a size-1 sample variance is undefined). The HDL is the
     source of truth; this mirrors it."""
 
-    model_config = {"frozen": True}
+    model_config = ConfigDict(frozen=True)
 
     default: int
     multiple_of: int = 1
@@ -90,7 +91,7 @@ class ParameterSpec(BaseModel):
 class CoreDefinition(BaseModel):
     """One HDL building block and its contract surround."""
 
-    model_config = {"frozen": True}
+    model_config = ConfigDict(frozen=True)
 
     name: str
     kind: CoreKind
@@ -135,7 +136,7 @@ class CoreDefinition(BaseModel):
     def source_path(self) -> Path:
         from . import hdl
 
-        return Path(str(getattr(hdl, "__path__")[0])) / self.source
+        return Path(str(hdl.__path__[0])) / self.source
 
     def golden_callable(self):
         if self.golden is None:

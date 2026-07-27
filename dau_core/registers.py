@@ -19,7 +19,7 @@ class RegisterMapVersion:
         return (self.major << 16) | self.minor
 
     @classmethod
-    def from_u32(cls, value: int) -> "RegisterMapVersion":
+    def from_u32(cls, value: int) -> RegisterMapVersion:
         _validate_u32("value", value)
         return cls(major=(value >> 16) & 0xFFFF, minor=value & 0xFFFF)
 
@@ -37,7 +37,7 @@ class StreamProtocolVersion:
         return (self.major << 16) | self.minor
 
     @classmethod
-    def from_u32(cls, value: int) -> "StreamProtocolVersion":
+    def from_u32(cls, value: int) -> StreamProtocolVersion:
         _validate_u32("value", value)
         return cls(major=(value >> 16) & 0xFFFF, minor=value & 0xFFFF)
 

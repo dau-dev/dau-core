@@ -93,11 +93,9 @@ async def wide_front_sustains_one_row_per_cycle_on_rotating_keys(dut):
     dut.output_ready.value = (1 << num_parts) - 1
     dut.status_ready.value = (1 << num_parts) - 1
     accepts = 0
-    tick = 0
     first_accept = None
     last_accept = None
-    for _ in range(20000):
-        tick += 1
+    for tick in range(1, 20001):
         await ReadOnly()
         if int(dut.input_valid.value) == 1 and int(dut.input_ready.value) == 1:
             accepts += 1
