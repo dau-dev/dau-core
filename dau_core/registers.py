@@ -198,7 +198,7 @@ class StreamJobRegisterContract:
 class RegisterBlockSnapshot:
     register_map_version: RegisterMapVersion = field(default_factory=lambda: CURRENT_REGISTER_MAP_VERSION)
     stream_protocol_version: StreamProtocolVersion = field(default_factory=lambda: StreamProtocolVersion(0, 1))
-    platform_id: str = "NITE"
+    platform_id: str = "DPV1"
     shell_version: int = 0
     build_id: int = 0
     status: int = 0
@@ -223,7 +223,7 @@ class RegisterBlockSnapshot:
     sort_capacity: int = 0
 
     def __post_init__(self) -> None:
-        _platform_id_to_u32(self.platform_id)
+        platform_id_to_u32(self.platform_id)
         for name in (
             "shell_version",
             "status",
@@ -257,7 +257,7 @@ class RegisterBlockSnapshot:
             RegisterOffset.MAGIC: DAU_MAGIC_WORD,
             RegisterOffset.REGISTER_MAP_VERSION: self.register_map_version.to_u32(),
             RegisterOffset.STREAM_PROTOCOL_VERSION: self.stream_protocol_version.to_u32(),
-            RegisterOffset.PLATFORM_ID: _platform_id_to_u32(self.platform_id),
+            RegisterOffset.PLATFORM_ID: platform_id_to_u32(self.platform_id),
             RegisterOffset.SHELL_VERSION: self.shell_version,
             RegisterOffset.BUILD_ID_LOW: _low_u32(self.build_id),
             RegisterOffset.BUILD_ID_HIGH: _high_u32(self.build_id),
@@ -311,7 +311,7 @@ class RegisterBlockSnapshot:
         raise RegisterWriteError(f"{register_offset.name} is read-only")
 
 
-def _platform_id_to_u32(platform_id: str) -> int:
+def platform_id_to_u32(platform_id: str) -> int:
     encoded = platform_id.encode("ascii")
     if not 1 <= len(encoded) <= 4:
         raise ValueError("platform_id must be 1 to 4 ASCII bytes")

@@ -6,7 +6,7 @@ module dau_identity_registers #(
     // advertise the composition (0 = not advertised).
     parameter logic [31:0] REGISTER_MAP_VERSION = 32'h0000_0002,
     parameter logic [31:0] STREAM_PROTOCOL_VERSION = 32'h0000_0001,
-    parameter logic [31:0] PLATFORM_ID = 32'h4554_494e,
+    parameter logic [31:0] PLATFORM_ID = 32'h3156_5044,
     parameter logic [31:0] SHELL_VERSION = 32'h0000_0000,
     parameter logic [63:0] BUILD_ID = 64'h0000_0000_0000_0000,
     parameter logic [31:0] STATUS = 32'h0000_0000,
