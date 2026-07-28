@@ -7,9 +7,10 @@ from .stream import LogicalType, OperationCode
 
 # DAU platform variant 1 (dpv1) identity — the single home for these
 # values; drivers, orchestration, and tooling import them rather than
-# repeating literals. The wire identity word stays "NITE" (deployed
-# bitstreams report it in the PLATFORM_ID register).
-DPV1_PLATFORM_ID = "NITE"
+# repeating literals. The wire identity word is the platform-variant name
+# "DPV1" (the board's own product name is an implementation detail); shells
+# report it in the PLATFORM_ID register.
+DPV1_PLATFORM_ID = "DPV1"
 XILINX_VENDOR_ID = 0x10EE
 DPV1_DEVICE_ID = 0x7011
 DPV1_PCI_ID = f"{XILINX_VENDOR_ID:04x}:{DPV1_DEVICE_ID:04x}"

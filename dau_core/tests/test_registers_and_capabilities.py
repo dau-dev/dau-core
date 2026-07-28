@@ -46,7 +46,7 @@ def test_register_contract_uses_dau_magic_and_aligned_offsets():
 
 def test_register_block_snapshot_reads_identity_status_and_counters_as_u32_words():
     snapshot = RegisterBlockSnapshot(
-        platform_id="NITE",
+        platform_id="DPV1",
         shell_version=0x0102_0304,
         build_id=0x1122_3344_5566_7788,
         status=0x0000_0003,
@@ -70,7 +70,7 @@ def test_register_block_snapshot_reads_identity_status_and_counters_as_u32_words
     )
 
     assert snapshot.read_u32(RegisterOffset.MAGIC) == DAU_MAGIC_WORD
-    assert snapshot.read_u32(RegisterOffset.PLATFORM_ID) == int.from_bytes(b"NITE", "little")
+    assert snapshot.read_u32(RegisterOffset.PLATFORM_ID) == int.from_bytes(b"DPV1", "little")
     assert snapshot.read_u32(RegisterOffset.SHELL_VERSION) == 0x0102_0304
     assert snapshot.read_u32(RegisterOffset.BUILD_ID_LOW) == 0x5566_7788
     assert snapshot.read_u32(RegisterOffset.BUILD_ID_HIGH) == 0x1122_3344
