@@ -11,17 +11,25 @@
 // lane carries the DAU stream+status contract independently, so a dispatched
 // scan drops straight into the existing NoC lane model.
 //
-// IN_WIDTH (the rows/cycle axis): 64 (default) accepts the classic two-beat
-// quad rows (w0 = {value, key}, then w1 = {aux1, aux0}) — at most one row per
-// 2 cycles, matching the two-beat stream. 128 accepts ONE whole row per beat
-// ({w1, w0}: [63:0] = {value, key}, [127:64] = {aux1, aux0}) — paired with
-// the wide row-unpack (OUT_WIDTH=128) the shared front sustains 1 row/cycle,
-// while the per-lane outputs stay the 64-bit two-beat framing the operator
-// tiles consume: each lane sees only ~1/N of the rows, so NO operator widens.
-// A run of same-lane rows throttles on that lane's two-beat drain (single-row
-// skid, head-of-line like the range partitioner); mask-distributed keys
-// sustain the full front rate. Any other IN_WIDTH, or a non-power-of-two
-// NUM_PARTITIONS, fails elaboration.
+// IN_WIDTH (the width-tier catalog knob): 64 (default) accepts the classic
+// two-beat quad rows (w0 = {value, key}, then w1 = {aux1, aux0}) — at most
+// one row per 2 cycles. 128/256/512 accept 1/2/4 whole quad rows per beat
+// (row i at input_data[i*128 +: 128]; [63:0] = {value, key},
+// [127:64] = {aux1, aux0}). 256/512 DESERIALIZE the R-row beat onto an
+// internal single-row feed (one row per cycle, lowest index first) that
+// drives the SAME proven routing datapath as 128 — so a wide reader's beats
+// deliver DDR bandwidth (fewer, wider bursts on the AXI side) while the
+// dispatch front stays at the proven 1 row/cycle. TRUE multi-row/cycle
+// dispatch (parallel routing of a beat's rows to distinct lanes, > 1
+// row/cycle) is a named follow-up; today the serializer matches 128's rate.
+// The all-ones 128-bit row is the reserved HOST PAD ROW (wide beats force
+// beat-aligned lengths; ragged tails pad with 0xFF) and is dropped by the
+// serializer, never routed. Per-lane outputs stay the 64-bit two-beat
+// framing the operator tiles consume: each lane sees only ~1/N of the rows,
+// so NO operator widens. A run of same-lane rows throttles on that lane's
+// two-beat drain (single-row skid, head-of-line like the range partitioner);
+// mask-distributed keys sustain the full front rate. Any other IN_WIDTH, or a
+// non-power-of-two NUM_PARTITIONS, fails elaboration.
 //
 // Row atomicity (IN_WIDTH=64): input_last is only legal on w1 of a row; last
 // on a w0 is a torn row — the whole batch is invalid and every lane reports
@@ -214,11 +222,13 @@ module dau_int32_key_mask_dispatcher #(
     output logic [NUM_PARTITIONS-1:0]        status_error,
     output logic [NUM_PARTITIONS*8-1:0]      status_error_code
 );
-    localparam bit WIDE = (IN_WIDTH == 128);
+    localparam bit WIDE = (IN_WIDTH >= 128);
+    localparam bit MULTI = (IN_WIDTH > 128);          // 256/512: R>1 rows per beat
+    localparam int R = MULTI ? (IN_WIDTH / 128) : 1;  // whole quad rows per input beat
     localparam int PIDX_W = (NUM_PARTITIONS <= 1) ? 1 : $clog2(NUM_PARTITIONS);
 
-    if (IN_WIDTH != 64 && IN_WIDTH != 128) begin : g_bad_in_width
-        $fatal(1, "dau_int32_key_mask_dispatcher: IN_WIDTH must be 64 or 128");
+    if (!(IN_WIDTH inside {64, 128, 256, 512})) begin : g_bad_in_width
+        $fatal(1, "dau_int32_key_mask_dispatcher: IN_WIDTH must be 64/128/256/512");
     end
     if (NUM_PARTITIONS < 1) begin : g_bad_partition_count
         $fatal(1, "dau_int32_key_mask_dispatcher: NUM_PARTITIONS must be positive");
@@ -266,25 +276,107 @@ module dau_int32_key_mask_dispatcher #(
 
     assign route_hit = !EXACT_BRANCH || (route_key != 32'd0 && route_key <= 32'(NUM_PARTITIONS));
 
+    // The wide path routes ONE 128-bit quad row at a time. At IN_WIDTH=128 the
+    // input beat IS that row; at 256/512 a serializer deserializes the R-row
+    // beat onto this internal single-row feed (one row per cycle, pad rows
+    // dropped), so the proven 1-row-per-cycle routing/lane datapath is reused
+    // unchanged — width is a front-end concern, not a routing one.
+    logic         wrow_valid;
+    logic         wrow_ready;
+    logic [127:0] wrow_data;
+    logic         wrow_last;
+    logic         wrow_fire;
+    logic         flush_batch;   // end the batch when a last beat carries no real row
+    assign wrow_fire = wrow_valid && wrow_ready;
+
+    if (MULTI) begin : g_serializer
+        // hold one accepted beat, present its non-pad sub-rows lowest-index
+        // first; input_last rides the LAST non-pad row of the last beat. The
+        // all-ones pad row (ragged-tail padding) is skipped, never forwarded.
+        logic [127:0] sbeat [R];
+        logic [R-1:0] svalid;   // sub-rows not yet forwarded (pad excluded)
+        logic         sbeat_last;
+        logic         loaded;
+
+        // lowest set index of svalid, and the remaining set after it clears
+        logic [31:0]  sidx;
+        logic [R-1:0] svalid_next;
+        always_comb begin
+            sidx = '0;
+            for (int i = R - 1; i >= 0; i--)
+                if (svalid[i]) sidx = i;
+        end
+        assign svalid_next = svalid & ~(loaded ? (({{(R-1){1'b0}}, 1'b1}) << sidx) : '0);
+
+        // an accepted beat with no non-pad rows (all-pad — a defensive case;
+        // valid host framing only pads the LAST beat's tail and never a whole
+        // beat) is consumed in one cycle instead of wedging the feed
+        logic empty_loaded;
+        assign empty_loaded = loaded && (svalid == '0);
+
+        assign wrow_valid = loaded && (svalid != '0);
+        assign wrow_data = sbeat[sidx];
+        // last only on the final non-pad row of a last-flagged beat
+        assign wrow_last = sbeat_last && (svalid_next == '0);
+        // batch end when an all-pad beat was the last beat: no row carries
+        // wrow_last, so the front is flushed directly
+        assign flush_batch = empty_loaded && sbeat_last;
+        // accept a new beat when idle, the cycle the last row leaves, or the
+        // cycle an all-pad beat is consumed
+        assign input_ready = !loaded || (wrow_fire && (svalid_next == '0)) || empty_loaded;
+
+        always_ff @(posedge clk) begin
+            if (rst) begin
+                loaded <= 1'b0;
+                svalid <= '0;
+                sbeat_last <= 1'b0;
+            end else begin
+                if (loaded && wrow_fire) begin
+                    svalid <= svalid_next;
+                    if (svalid_next == '0) loaded <= 1'b0;
+                end else if (empty_loaded) begin
+                    loaded <= 1'b0;  // drop the all-pad beat
+                end
+                if (input_valid && input_ready) begin
+                    for (int i = 0; i < R; i++) begin
+                        sbeat[i] <= input_data[i*128 +: 128];
+                        svalid[i] <= (input_data[i*128 +: 128] != {128{1'b1}});
+                    end
+                    sbeat_last <= input_last;
+                    loaded <= 1'b1;
+                end
+            end
+        end
+    end else begin : g_serializer_passthrough
+        // IN_WIDTH=128: the input beat is exactly one row; forward directly
+        assign wrow_valid = input_valid;
+        assign input_ready = wrow_ready;
+        assign wrow_data = input_data[127:0];
+        assign wrow_last = input_last;
+        assign flush_batch = 1'b0;  // 128 carries end on the (single) row
+    end
+
     if (WIDE) begin : g_front_wide
-        // one whole row per beat: route it the cycle it is accepted — the
-        // front sustains 1 row/cycle whenever the destination lane can take
-        // it, and a dropped row costs exactly one cycle
-        assign route_key = input_data[31:0];
+        // one whole row per cycle off the single-row feed: route it the cycle
+        // it is accepted — the front sustains 1 row/cycle whenever the
+        // destination lane can take it, and a dropped row costs one cycle.
+        // This is the proven R=1 datapath; MULTI just feeds it from the
+        // serializer instead of directly from the input beat.
+        assign route_key = wrow_data[31:0];
         assign dest = decode_dest(route_key);
-        assign push_w0 = input_data[63:0];
-        assign push_w1 = input_data[127:64];
-        assign input_ready = (fstate == F_W0) && (!route_hit || lane_push_ready[dest]);
+        assign push_w0 = wrow_data[63:0];
+        assign push_w1 = wrow_data[127:64];
+        assign wrow_ready = (fstate == F_W0) && (!route_hit || lane_push_ready[dest]);
         always_comb begin
             lane_push_valid = '0;
-            if (fstate == F_W0 && input_fire && route_hit) lane_push_valid[dest] = 1'b1;
+            if (fstate == F_W0 && wrow_fire && route_hit) lane_push_valid[dest] = 1'b1;
         end
         always_ff @(posedge clk) begin
             if (rst) begin
                 fstate <= F_W0;
             end else begin
                 case (fstate)
-                    F_W0: if (input_fire && input_last) fstate <= F_END;
+                    F_W0: if ((wrow_fire && wrow_last) || flush_batch) fstate <= F_END;
                     F_END: if (all_idle) fstate <= F_W0;
                     default: fstate <= F_W0;
                 endcase

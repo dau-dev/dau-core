@@ -421,6 +421,21 @@ def test_key_mask_dispatcher_wide_front_runs_real_cocotb(tmp_path: Path) -> None
 
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+@pytest.mark.parametrize(("in_width", "num_partitions"), [(256, 4), (512, 4), (512, 8)])
+def test_key_mask_dispatcher_multi_row_runs_real_cocotb(tmp_path: Path, in_width: int, num_partitions: int) -> None:
+    # IN_WIDTH=256/512 (2/4 quad rows per beat, the width-tier catalog):
+    # parallel per-lane routing, first-pending conflict arbitration, the
+    # all-ones PAD ROW dropped at the front
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_KEY_MASK_DISPATCHER_SV)),),
+        hdl_toplevel="dau_int32_key_mask_dispatcher",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_key_mask_dispatcher_multi_tb",
+        tmp_path=tmp_path,
+        parameters={"IN_WIDTH": in_width, "NUM_PARTITIONS": num_partitions},
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_key_mask_dispatcher_exact_branch_wide_runs_real_cocotb(tmp_path: Path) -> None:
     # EXACT_BRANCH=1 at the wide front, NUM_PARTITIONS=3 (no power-of-two):
     # dest = key - 1, out-of-range keys dropped at the router for zero lane
