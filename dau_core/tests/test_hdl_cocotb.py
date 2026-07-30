@@ -316,6 +316,19 @@ def test_range_partitioner_runs_real_cocotb_against_systemverilog(tmp_path: Path
 
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+@pytest.mark.parametrize("data_width", [64, 128, 256, 512])
+def test_burst_reader_streams_exactly_at_every_width_tier(tmp_path: Path, data_width: int) -> None:
+    """The width-tier contract: the reader reproduces the memory window
+    bit-exactly at every catalog DATA_WIDTH (64/128/256/512)."""
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_AXI_BURST_READER_SV)),),
+        hdl_toplevel="dau_axi_burst_reader",
+        test_module="dau_core.tests.cocotb_benches.dau_axi_burst_reader_tb",
+        tmp_path=tmp_path,
+        parameters={"DATA_WIDTH": data_width},
+    )
+
+
 def test_bitonic_sorter_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
     _run_cocotb_verilator(
         sources=(Path(str(DAU_INT32_BITONIC_SORTER_SV)),),
