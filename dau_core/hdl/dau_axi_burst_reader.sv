@@ -1,15 +1,20 @@
 `default_nettype none
 
-// AXI4 burst read master streaming a memory window as a 64-bit stream:
-// the read half of dau_axi_stream_job as a standalone unit so NoC tops
-// can fan one scan out to many consumers. Pipelined INCR bursts with
+// AXI4 burst read master streaming a memory window as a DATA_WIDTH-bit
+// stream: the read half of dau_axi_stream_job as a standalone unit so NoC
+// tops can fan one scan out to many consumers. Pipelined INCR bursts with
 // multiple in flight, credit-reserved against an internal FIFO (rready
 // never mid-burst-stalls); input_last asserts on the final word. The host
 // keeps addresses 4 KiB-aligned so bursts never cross a 4 KiB boundary.
+//
+// DATA_WIDTH is the platform width-tier knob (64/128/256/512): one beat
+// carries DATA_WIDTH/128 quad rows (half a row at 64). The read length
+// must be beat-aligned (LENGTH_ALIGN_BITS follows the beat size).
 module dau_axi_burst_reader #(
     parameter int unsigned ADDR_WIDTH = 32,
     parameter int unsigned BURST_BEATS = 16,
-    parameter int unsigned LENGTH_ALIGN_BITS = 3
+    parameter int unsigned DATA_WIDTH = 64,
+    parameter int unsigned LENGTH_ALIGN_BITS = $clog2(DATA_WIDTH / 8)
 ) (
     input  wire logic        clk,
     input  wire logic        rst,
@@ -28,7 +33,7 @@ module dau_axi_burst_reader #(
     output logic [1:0]       m_axi_arburst,
     output logic             m_axi_arvalid,
     input  wire logic        m_axi_arready,
-    input  wire logic [63:0] m_axi_rdata,
+    input  wire logic [DATA_WIDTH-1:0] m_axi_rdata,
     input  wire logic [1:0]  m_axi_rresp,
     input  wire logic        m_axi_rlast,
     input  wire logic        m_axi_rvalid,
@@ -36,7 +41,7 @@ module dau_axi_burst_reader #(
 
     output logic             stream_valid,
     input  wire logic        stream_ready,
-    output logic [63:0]      stream_data,
+    output logic [DATA_WIDTH-1:0] stream_data,
     output logic             stream_last,
 
     // debug taps: state of the last completed run and boundary anomalies
@@ -48,6 +53,10 @@ module dau_axi_burst_reader #(
     localparam logic [7:0] ERR_JOB_LENGTH = 8'hFE;
     localparam logic [7:0] ERR_AXI_READ = 8'hFC;
 
+    localparam int unsigned BYTE_SHIFT = $clog2(DATA_WIDTH / 8);
+    if (!(DATA_WIDTH inside {64, 128, 256, 512}))
+        $fatal(1, "dau_axi_burst_reader: DATA_WIDTH must be 64/128/256/512, got %0d", DATA_WIDTH);
+
     localparam int unsigned FIFO_DEPTH = 8 * BURST_BEATS;
     localparam int unsigned FIFO_BITS = $clog2(FIFO_DEPTH);
 
@@ -57,7 +66,7 @@ module dau_axi_burst_reader #(
     logic [31:0] stream_words_remaining;  // words not yet delivered downstream
     logic [31:0] beats_unarrived;         // issued words whose data has not landed
     logic        read_error;
-    logic [63:0] read_fifo [FIFO_DEPTH];
+    logic [DATA_WIDTH-1:0] read_fifo [FIFO_DEPTH];
     logic [FIFO_BITS-1:0] fifo_wr_ptr;
     logic [FIFO_BITS-1:0] fifo_rd_ptr;
     logic [FIFO_BITS:0] fifo_count;
@@ -70,7 +79,7 @@ module dau_axi_burst_reader #(
     logic dbg_first_word_seen;
     logic dbg_first_araddr_seen;
 
-    assign m_axi_arsize = 3'b011;   // 8 bytes
+    assign m_axi_arsize = 3'(BYTE_SHIFT);   // DATA_WIDTH/8 bytes per beat
     assign m_axi_arburst = 2'b01;   // INCR
     // credit reservation should make a full FIFO unreachable while beats
     // are in flight; the rready gate makes overwriting unconsumed slots
@@ -95,7 +104,7 @@ module dau_axi_burst_reader #(
                 m_axi_araddr <= next_address;
                 m_axi_arlen <= next_burst_beats - 8'd1;
                 m_axi_arvalid <= 1'b1;
-                next_address <= next_address + ({24'd0, next_burst_beats} << 3);
+                next_address <= next_address + ({24'd0, next_burst_beats} << BYTE_SHIFT);
                 ar_words_remaining <= ar_words_remaining - {24'd0, next_burst_beats};
             end else if (m_axi_arvalid && m_axi_arready) begin
                 m_axi_arvalid <= 1'b0;
@@ -130,7 +139,9 @@ module dau_axi_burst_reader #(
             end
             if (consume_fire && !dbg_first_word_seen) begin
                 dbg_first_word_seen <= 1'b1;
-                dbg_first_stream_word <= stream_data;
+                // the debug tap keeps its register-map width: the low
+                // 64 bits of the (possibly wider) first beat
+                dbg_first_stream_word <= stream_data[63:0];
             end
             if (issue_fire && !dbg_first_araddr_seen) begin
                 dbg_first_araddr_seen <= 1'b1;
@@ -154,8 +165,8 @@ module dau_axi_burst_reader #(
                         busy <= 1'b1;
                         running <= 1'b1;
                         next_address <= read_address;
-                        ar_words_remaining <= {3'd0, read_length_bytes[31:3]};
-                        stream_words_remaining <= {3'd0, read_length_bytes[31:3]};
+                        ar_words_remaining <= 32'(read_length_bytes >> BYTE_SHIFT);
+                        stream_words_remaining <= 32'(read_length_bytes >> BYTE_SHIFT);
                         beats_unarrived <= 32'd0;
                         fifo_wr_ptr <= '0;
                         fifo_rd_ptr <= '0;

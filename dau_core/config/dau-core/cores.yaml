@@ -705,6 +705,12 @@ axi-burst-reader:
   module: dau_axi_burst_reader
   source: dau_axi_burst_reader.sv
   description: Pipelined AXI4 burst read master streaming a memory window.
+  # DATA_WIDTH is the platform width-tier knob (the precompiled-catalog
+  # dimension): one beat carries DATA_WIDTH/128 quad rows
+  parameters:
+    DATA_WIDTH:
+      default: 64
+      choices: [64, 128, 256, 512]
   resources:
     lut: 529
     ff: 340
