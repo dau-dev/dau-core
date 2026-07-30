@@ -372,6 +372,8 @@ int32-key-mask-dispatcher:
       choices:
       - 64
       - 128
+      - 256
+      - 512
     EXACT_BRANCH:
       default: 0
       choices:
