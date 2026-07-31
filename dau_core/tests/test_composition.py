@@ -587,3 +587,38 @@ def test_wide_data_width_composition_rules() -> None:
     from dau_core.composition import canonical_spec_json, spec_from_canonical
 
     assert spec_from_canonical(canonical_spec_json(wide)).data_width == 512
+
+
+def test_throughput_reproduces_the_measured_rate_ladder():
+    """The rate model recomputes silicon: 64-bit two-beat = 1/2 row/cycle
+    (~99 ms q6), the 512-bit dispatch feed = 1 (the serializer, 60.3 ms
+    measured 2026-07-30), and MORE LANES DO NOT HELP past the dispatcher's
+    declared ingest — the motivation for the wide-sum lane / distributor."""
+    from fractions import Fraction
+
+    from dau_core.composition import LaneSpec, ScanCompositionSpec, TileSpec, throughput_rows_per_cycle
+
+    lane = LaneSpec(tile=TileSpec(core="int32-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}))
+    dispatcher = TileSpec(core="int32-key-mask-dispatcher", params={"NUM_PARTITIONS": 4})
+
+    assert throughput_rows_per_cycle(ScanCompositionSpec(name="t", lanes=(lane,) * 4)) == Fraction(1, 2)
+    assert throughput_rows_per_cycle(ScanCompositionSpec(name="t", lanes=(lane,) * 4, partitioner=dispatcher, data_width=64)) == Fraction(1, 2)
+    assert throughput_rows_per_cycle(ScanCompositionSpec(name="t", lanes=(lane,) * 4, partitioner=dispatcher, data_width=512)) == Fraction(1)
+    # dispatcher-capped: 8 lanes buy nothing at width until multi-row lands
+    assert throughput_rows_per_cycle(ScanCompositionSpec(name="t", lanes=(lane,) * 8, partitioner=dispatcher, data_width=512)) == Fraction(1)
+    # two lanes under-consume the dispatcher: lane sum governs
+    assert throughput_rows_per_cycle(ScanCompositionSpec(name="t", lanes=(lane,) * 2, partitioner=dispatcher, data_width=512)) == Fraction(1)
+
+
+def test_throughput_packed_front_re_times_delivery():
+    from fractions import Fraction
+
+    from dau_core.composition import LaneSpec, ScanCompositionSpec, TileSpec, throughput_rows_per_cycle
+
+    lane = LaneSpec(tile=TileSpec(core="int32-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}))
+    dispatcher = TileSpec(core="int32-key-mask-dispatcher", params={"NUM_PARTITIONS": 4})
+    narrow = TileSpec(core="int32-row-unpack")
+    wide = TileSpec(core="int32-row-unpack", params={"OUT_WIDTH": 128})
+
+    assert throughput_rows_per_cycle(ScanCompositionSpec(name="t", lanes=(lane,) * 4, partitioner=dispatcher, front_unpack=narrow)) == Fraction(1, 2)
+    assert throughput_rows_per_cycle(ScanCompositionSpec(name="t", lanes=(lane,) * 4, partitioner=dispatcher, front_unpack=wide)) == Fraction(1)

@@ -46,6 +46,9 @@ int32-predicate-filter:
     dsp: 0
   count_port: selected_count
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   success_close_out: true
 
 int32-keyed-predicate-filter:
@@ -65,6 +68,9 @@ int32-keyed-predicate-filter:
     bram36: 0.0
     dsp: 0
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   success_close_out: true
 
 int32-map-alu:
@@ -84,6 +90,9 @@ int32-map-alu:
     bram36: 0.0
     dsp: 8
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   success_close_out: true
 
 int32-keyed-map-alu:
@@ -103,6 +112,9 @@ int32-keyed-map-alu:
     bram36: 0.0
     dsp: 4
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   success_close_out: true
 
 int32-grouped-aggregation:
@@ -121,6 +133,9 @@ int32-grouped-aggregation:
     dsp: 0
   count_port: group_count
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   success_close_out: true
 
 int32-grouped-field-aggregation:
@@ -145,6 +160,9 @@ int32-grouped-field-aggregation:
     dsp: 0
   count_port: group_count
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   success_close_out: true
 
 int32-bar-aggregation:
@@ -163,6 +181,9 @@ int32-bar-aggregation:
     dsp: 0
   count_port: bar_count
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   success_close_out: true
 
 int32-asof-backward:
@@ -190,6 +211,9 @@ int32-asof-backward:
     dsp: 0
   count_port: match_count
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   success_close_out: true
 
 int32-rolling-moments:
@@ -217,6 +241,9 @@ int32-rolling-moments:
     dsp: 8
   count_port: moment_count
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   success_close_out: true
   parameters:
     WINDOW:
@@ -246,6 +273,9 @@ int32-market-feature:
     dsp: 4
   count_port: feature_count
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   success_close_out: true
 
 int32-time-bucket-key:
@@ -272,6 +302,9 @@ int32-time-bucket-key:
     bram36: 0.0
     dsp: 0
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   parameters:
     BUCKET_BITS:
       default: 16
@@ -302,6 +335,9 @@ int32-streaming-top-k:
     dsp: 0
   count_port: top_count
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   success_close_out: true
   parameters:
     K:
@@ -323,6 +359,9 @@ int32-pair-key-filter:
     bram36: 0.0
     dsp: 0
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
 
 int32-range-partitioner:
   _target_: dau_core.cores.CoreDefinition
@@ -340,6 +379,9 @@ int32-range-partitioner:
     bram36: 0.0
     dsp: 0
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
 
 int32-key-mask-dispatcher:
   _target_: dau_core.cores.CoreDefinition
@@ -364,6 +406,9 @@ int32-key-mask-dispatcher:
     bram36: 0.0
     dsp: 0
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 1
   parameters:
     NUM_PARTITIONS:
       default: 4
@@ -397,6 +442,9 @@ int32-bitonic-sorter:
     dsp: 0
   count_port: sorted_count
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   row_capacity: 16
   unit_kind: sort
   success_close_out: true
@@ -420,6 +468,9 @@ int32-row-predicate-filter:
     dsp: 0
   count_port: selected_count
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
 
 int32-row-map-alu:
   _target_: dau_core.cores.CoreDefinition
@@ -439,6 +490,9 @@ int32-row-map-alu:
     bram36: 0.0
     dsp: 4
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
 
 int32-row-unpack:
   _target_: dau_core.cores.CoreDefinition
@@ -466,6 +520,9 @@ int32-row-unpack:
     bram36: 0.0
     dsp: 0
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 1
   parameters:
     OUT_WIDTH:
       default: 64
@@ -490,6 +547,9 @@ int32-field-sum-aggregation:
     dsp: 0
   count_port: aggregated_count
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   opcodes:
   - 3
   - 4
@@ -516,6 +576,9 @@ int32-grouped-field-sum-aggregation:
     dsp: 0
   count_port: group_count
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   opcodes:
   - 3
   - 4
@@ -544,6 +607,9 @@ int32-key-membership-filter:
     dsp: 0
   count_port: selected_count
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   unit_kind: membership
   load_image: bitmap-64
   parameters:
@@ -572,6 +638,9 @@ int32-broadcast-hash-join:
     dsp: 0
   count_port: joined_count
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   unit_kind: join
   load_image: quad-rows
   parameters:
@@ -596,6 +665,9 @@ int32-stream-aggregation:
     bram36: 0.0
     dsp: 0
   contract_kind: arrow-lite-descriptor
+  ingest:
+    rows: 1
+    per_cycles: 2
   opcodes:
   - 1
   - 2
@@ -623,6 +695,9 @@ int32-arrow-lite-stream-aggregation:
     bram36: 0.0
     dsp: 0
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   opcodes:
   - 1
   - 2
@@ -650,6 +725,9 @@ int32-record-batch-aggregation:
     bram36: 0.0
     dsp: 0
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   opcodes:
   - 1
   - 2

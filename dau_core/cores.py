@@ -16,11 +16,12 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from enum import Enum
+from fractions import Fraction
 from importlib import import_module
 from pathlib import Path
 
 from ccflow import BaseModel
-from pydantic import ConfigDict
+from pydantic import ConfigDict, field_validator
 
 from .design import UnitKind
 from .stream import LogicalType, OperationCode
@@ -66,6 +67,35 @@ class ResourceEnvelope(BaseModel):
     measured: bool = True
 
 
+class IngestRate(BaseModel):
+    """A stream core's guaranteed sustained ingest rate: ``rows`` rows per
+    ``per_cycles`` clock cycles, an exact rational (1 row per 2 cycles is
+    the composed lane rate the silicon proved; the key-mask dispatcher
+    ingests 1 per 1). This is PUBLIC INTERFACE, not a heuristic: the
+    scheduler/pricing software rate-matches a core it cannot inspect — a
+    user-provided custom core tied to a custom operator is opaque except
+    for its registry declaration, so the declaration carries the rate.
+    Declare the FLOOR a core sustains under continuous valid input; a core
+    may burst faster, and a measured improvement (a retime, a wider port)
+    lands here the same release the RTL proves it."""
+
+    model_config = ConfigDict(frozen=True)
+
+    rows: int
+    per_cycles: int
+
+    @field_validator("rows", "per_cycles")
+    @classmethod
+    def _positive(cls, value: int) -> int:
+        if value < 1:
+            raise ValueError("ingest rate components must be >= 1")
+        return value
+
+    @property
+    def rows_per_cycle(self) -> Fraction:
+        return Fraction(self.rows, self.per_cycles)
+
+
 class ParameterSpec(BaseModel):
     """An overridable SystemVerilog module parameter: its HDL default and the
     constraint a composition override must satisfy — mirroring the RTL's own
@@ -105,6 +135,10 @@ class CoreDefinition(BaseModel):
     count_port: str | None = None  # the tile's trailing status counter, if any
     legacy: bool = False  # predates the stream+status contract; kept verified, not for new compositions
     contract_kind: ContractKind | None = None  # required for non-legacy operators; None elsewhere (no declared stream contract)
+    # the core's guaranteed sustained ingest rate — like contract_kind,
+    # required for non-legacy stream operators (registry-enforced): the
+    # public fact the scheduler feeds an opaque core by
+    ingest: IngestRate | None = None
     # capability facts (HDL truth, consumed by the composition-derived
     # capability contract): the descriptor-selectable OperationCodes a tile
     # executes in hardware and the logical types those opcodes accept.

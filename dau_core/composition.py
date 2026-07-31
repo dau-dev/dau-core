@@ -16,6 +16,7 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Mapping
+from fractions import Fraction
 
 from ccflow import BaseModel
 from pydantic import ConfigDict, StrictInt
@@ -324,6 +325,55 @@ class ScanCompositionSpec(BaseModel):
                 names.setdefault(stage.core)
             names.setdefault(lane.tile.core)
         return tuple(names)
+
+
+def throughput_rows_per_cycle(spec: ScanCompositionSpec) -> Fraction:
+    """The composed design's sustained ingest ceiling, in rows per job-clock
+    cycle — an exact rational computed ONLY from public interface facts
+    (each core's declared ``ingest`` rate plus the spec's feed shape), so
+    the scheduler can rate-match a composition of cores it cannot inspect.
+
+    Three factors, minimum wins:
+
+    - **front delivery**: the reader hands off ``data_width/128`` quad rows
+      per cycle (64-bit staging frames one row per two beats = 1/2). A
+      ``front_unpack`` feed re-times packed rows at its ``OUT_WIDTH``:
+      64 emits one row per two cycles, 128 one per cycle.
+    - **shared fan-out**: a partitioner/dispatcher's own declared ingest.
+    - **lane consumption**: with a shared partitioner rows split across
+      lanes, so lane rates SUM; a broadcast shows every row to every lane,
+      so the SLOWEST lane is the system rate (no summing). A lane's rate
+      is the minimum declared ingest over its partition, chain, and
+      terminal tile.
+    """
+
+    def _tile_rate(tile: TileSpec, role: str) -> Fraction:
+        ingest = tile.definition().ingest
+        if ingest is None:
+            raise CompositionError(f"{role} core {tile.core!r} declares no ingest rate (required public interface for stream operators)")
+        return ingest.rows_per_cycle
+
+    if spec.front_unpack is not None:
+        out_width = spec.front_unpack.params.get("OUT_WIDTH", 64)
+        delivery = Fraction(out_width, 128)
+    elif spec.data_width == 64:
+        delivery = Fraction(1, 2)
+    else:
+        delivery = Fraction(spec.data_width, 128)
+
+    lane_rates = []
+    for index, lane in enumerate(spec.lanes):
+        tiles = [(lane.tile, f"lane {index} terminal")]
+        tiles += [(stage, f"lane {index} chain stage") for stage in lane.chain]
+        if lane.partition is not None:
+            tiles.append((lane.partition, f"lane {index} partition"))
+        lane_rates.append(min(_tile_rate(tile, role) for tile, role in tiles))
+
+    if spec.partitioner is not None:
+        consumption = min(_tile_rate(spec.partitioner, "partitioner"), sum(lane_rates, Fraction(0)))
+    else:
+        consumption = min(lane_rates)
+    return min(delivery, consumption)
 
 
 def estimated_resources(spec: ScanCompositionSpec) -> ResourceEnvelope:

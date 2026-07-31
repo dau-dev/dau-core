@@ -54,6 +54,27 @@ def test_legacy_operators_stay_verified_but_are_not_selectable() -> None:
         assert definition.count_port is None, definition.name
 
 
+def test_every_selectable_operator_declares_its_ingest_rate() -> None:
+    """Ingest rate is core PUBLIC INTERFACE (the scheduler rate-matches
+    opaque cores from the registry declaration alone): every non-legacy
+    stream operator declares it. The floor is the composed 1-row/2-cycle
+    lane rate; only silicon-proven faster cores declare 1/1."""
+    from fractions import Fraction
+
+    full_rate = set()
+    for definition in cores_of_kind(CoreKind.OPERATOR):
+        if definition.legacy:
+            assert definition.ingest is None, definition.name
+            continue
+        assert definition.ingest is not None, f"operator {definition.name} declares no ingest rate"
+        assert definition.ingest.rows_per_cycle <= Fraction(1, 1), f"{definition.name}: >1 row/cycle needs multi-row silicon proof"
+        if definition.ingest.rows_per_cycle == Fraction(1, 1):
+            full_rate.add(definition.name)
+    # the proven-faster set is pinned: a new full-rate claim is a deliberate,
+    # measured upgrade, not a copy-paste default
+    assert full_rate == {"int32-key-mask-dispatcher", "int32-row-unpack"}
+
+
 def test_every_selectable_operator_declares_its_contract_kind() -> None:
     """A new core declares its stream contract in the registry — contract
     tests select validators from this tag, never from test-local exemption
