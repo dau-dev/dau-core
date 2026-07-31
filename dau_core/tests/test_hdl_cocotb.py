@@ -39,6 +39,7 @@ from dau_core.hdl import (
     DAU_INT32_ROW_UNPACK_SV,
     DAU_INT32_STREAM_AGGREGATION_SV,
     DAU_INT32_STREAMING_TOP_K_SV,
+    DAU_INT32_STRIDE_DISTRIBUTOR_SV,
     DAU_INT32_TIME_BUCKET_KEY_SV,
     DAU_INT32_WIDE_FIELD_SUM_AGGREGATION_SV,
     DAU_INT32_WIDE_ROW_MAP_ALU_SV,
@@ -448,6 +449,18 @@ def test_key_mask_dispatcher_multi_row_runs_real_cocotb(tmp_path: Path, in_width
         sources=(Path(str(DAU_INT32_KEY_MASK_DISPATCHER_SV)),),
         hdl_toplevel="dau_int32_key_mask_dispatcher",
         test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_key_mask_dispatcher_multi_tb",
+        tmp_path=tmp_path,
+        parameters={"IN_WIDTH": in_width, "NUM_PARTITIONS": num_partitions},
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+@pytest.mark.parametrize(("in_width", "num_partitions"), [(256, 2), (256, 4), (512, 4), (512, 8)])
+def test_stride_distributor_runs_real_cocotb(tmp_path: Path, in_width: int, num_partitions: int) -> None:
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_STRIDE_DISTRIBUTOR_SV)),),
+        hdl_toplevel="dau_int32_stride_distributor",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_stride_distributor_tb",
         tmp_path=tmp_path,
         parameters={"IN_WIDTH": in_width, "NUM_PARTITIONS": num_partitions},
     )

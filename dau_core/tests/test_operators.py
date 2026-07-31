@@ -40,6 +40,7 @@ from dau_core.operators import (
     mask_dispatch_rows,
     pack_splitters,
     streaming_top_k,
+    stride_distribute_rows,
     unpack_rows,
 )
 
@@ -405,6 +406,29 @@ def test_exact_branch_dispatch_preserves_order_within_a_branch() -> None:
 def test_exact_branch_dispatch_rejects_non_positive_partitions() -> None:
     with pytest.raises(ValueError, match="positive"):
         mask_dispatch_rows([(1, 2, 3, 4)], num_partitions=0, exact_branch=True)
+
+
+def test_stride_distribute_routes_by_static_slot_group() -> None:
+    rows = [(i, i + 10, i + 20, i + 30) for i in range(10)]
+    parts = stride_distribute_rows(rows, rows_per_beat=2, num_partitions=4)
+    assert parts == (
+        [rows[0], rows[4], rows[8]],
+        [rows[2], rows[6]],
+        [rows[1], rows[5], rows[9]],
+        [rows[3], rows[7]],
+    )
+
+
+def test_stride_distribute_supports_one_lane_per_slot() -> None:
+    rows = [(i, 0, 0, 0) for i in range(7)]
+    parts = stride_distribute_rows(rows, rows_per_beat=4, num_partitions=4)
+    assert parts == ([rows[0], rows[4]], [rows[1], rows[5]], [rows[2], rows[6]], [rows[3]])
+
+
+@pytest.mark.parametrize(("rows_per_beat", "num_partitions"), [(0, 4), (2, 0), (4, 6)])
+def test_stride_distribute_rejects_invalid_lane_shape(rows_per_beat: int, num_partitions: int) -> None:
+    with pytest.raises(ValueError):
+        stride_distribute_rows([], rows_per_beat=rows_per_beat, num_partitions=num_partitions)
 
 
 def test_pack_splitters_is_msb_first_reversed_hex() -> None:
