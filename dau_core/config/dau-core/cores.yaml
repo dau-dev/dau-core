@@ -884,6 +884,12 @@ int32-wide-row-predicate-filter:
   - predicate-pkg
   golden: dau_core.operators:filter_rows_by_predicate
   bench: dau_core.tests.cocotb_benches.dau_int32_wide_row_predicate_filter_tb
+  # OOC SLOTS=4 xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +3.129)
+  resources:
+    lut: 2276
+    ff: 2124
+    bram36: 0.0
+    dsp: 0
   count_port: selected_count
   contract_kind: wide-row-stream
   ingest:
@@ -907,6 +913,12 @@ int32-wide-row-map-alu:
   - map-alu-pkg
   golden: dau_core.operators:map_row_fields
   bench: dau_core.tests.cocotb_benches.dau_int32_wide_row_map_alu_tb
+  # OOC SLOTS=4 xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +0.688)
+  resources:
+    lut: 2746
+    ff: 2226
+    bram36: 0.0
+    dsp: 16
   contract_kind: wide-row-stream
   ingest:
     rows: 1

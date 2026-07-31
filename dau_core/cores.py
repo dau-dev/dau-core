@@ -111,7 +111,7 @@ class IngestRate(BaseModel):
         return value
 
     @model_validator(mode="after")
-    def _one_scaling_shape(self) -> "IngestRate":
+    def _one_scaling_shape(self) -> IngestRate:
         if self.scales_with_param is not None and self.frames_on_param is not None:
             raise ValueError("an ingest rate scales with at most one parameter shape")
         return self
@@ -120,7 +120,7 @@ class IngestRate(BaseModel):
     def rows_per_cycle(self) -> Fraction:
         return Fraction(self.rows, self.per_cycles)
 
-    def effective(self, params: Mapping[str, int], declared: Mapping[str, "ParameterSpec"]) -> Fraction:
+    def effective(self, params: Mapping[str, int], declared: Mapping[str, ParameterSpec]) -> Fraction:
         """The rate at concrete parameter values — what the scheduler uses.
         ``params`` are the composition's overrides; ``declared`` the core's
         parameter specs (defaults fill unset overrides)."""
