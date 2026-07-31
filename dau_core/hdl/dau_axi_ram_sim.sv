@@ -1,6 +1,6 @@
 `default_nettype none
 
-// Simulation-only AXI4 RAM slave (64-bit data, single outstanding
+// Simulation-only AXI4 RAM slave (DATA_WIDTH-bit data, single outstanding
 // transaction per direction) used to bench AXI master job runners before
 // they meet the real memory controller. Deterministic stall injection
 // (periodic arready/rvalid/wready gaps) plus a parameterized read latency
@@ -9,7 +9,8 @@
 module dau_axi_ram_sim #(
     parameter int unsigned ADDR_WIDTH = 32,
     parameter int unsigned MEM_WORDS = 65536,
-    parameter int unsigned READ_LATENCY = 4
+    parameter int unsigned READ_LATENCY = 4,
+    parameter int unsigned DATA_WIDTH = 64  // 64 (the classic bench bus) or a wide read tier
 ) (
     input  wire logic        clk,
     input  wire logic        rst,
@@ -20,7 +21,7 @@ module dau_axi_ram_sim #(
     input  wire logic [1:0]  s_axi_arburst,
     input  wire logic        s_axi_arvalid,
     output logic             s_axi_arready,
-    output logic [63:0]      s_axi_rdata,
+    output logic [DATA_WIDTH-1:0] s_axi_rdata,
     output logic [1:0]       s_axi_rresp,
     output logic             s_axi_rlast,
     output logic             s_axi_rvalid,
@@ -31,8 +32,8 @@ module dau_axi_ram_sim #(
     input  wire logic [1:0]  s_axi_awburst,
     input  wire logic        s_axi_awvalid,
     output logic             s_axi_awready,
-    input  wire logic [63:0] s_axi_wdata,
-    input  wire logic [7:0]  s_axi_wstrb,
+    input  wire logic [DATA_WIDTH-1:0] s_axi_wdata,
+    input  wire logic [DATA_WIDTH/8-1:0] s_axi_wstrb,
     input  wire logic        s_axi_wlast,
     input  wire logic        s_axi_wvalid,
     output logic             s_axi_wready,
@@ -42,10 +43,11 @@ module dau_axi_ram_sim #(
 
     input  wire logic        bd_write,
     input  wire logic [31:0] bd_index,
-    input  wire logic [63:0] bd_wdata,
-    output logic [63:0]      bd_rdata
+    input  wire logic [DATA_WIDTH-1:0] bd_wdata,
+    output logic [DATA_WIDTH-1:0] bd_rdata
 );
     localparam int unsigned INDEX_BITS = $clog2(MEM_WORDS);
+    localparam int unsigned BYTE_SHIFT = $clog2(DATA_WIDTH / 8);
 
     typedef enum logic [1:0] {
         READ_IDLE,
@@ -59,7 +61,7 @@ module dau_axi_ram_sim #(
         WRITE_RESP
     } write_state_t;
 
-    logic [63:0] mem [MEM_WORDS];
+    logic [DATA_WIDTH-1:0] mem [MEM_WORDS];
 
     read_state_t read_state;
     logic [INDEX_BITS-1:0] read_index;
@@ -128,7 +130,7 @@ module dau_axi_ram_sim #(
             case (read_state)
                 READ_IDLE: begin
                     if (ar_queue_count != '0) begin
-                        read_index <= ar_queue_addr[ar_queue_rd][INDEX_BITS+2:3];
+                        read_index <= ar_queue_addr[ar_queue_rd][INDEX_BITS+BYTE_SHIFT-1:BYTE_SHIFT];
                         read_beats_left <= ar_queue_len[ar_queue_rd];
                         ar_queue_rd <= ar_queue_rd + 1'b1;
                         read_wait <= 8'(READ_LATENCY);
@@ -151,7 +153,7 @@ module dau_axi_ram_sim #(
                             // burst boundaries, the fill regime where
                             // credit FIFOs must prove themselves
                             if (ar_queue_count != '0) begin
-                                read_index <= ar_queue_addr[ar_queue_rd][INDEX_BITS+2:3];
+                                read_index <= ar_queue_addr[ar_queue_rd][INDEX_BITS+BYTE_SHIFT-1:BYTE_SHIFT];
                                 read_beats_left <= ar_queue_len[ar_queue_rd];
                                 ar_queue_rd <= ar_queue_rd + 1'b1;
                             end else begin
@@ -170,13 +172,13 @@ module dau_axi_ram_sim #(
             case (write_state)
                 WRITE_IDLE: begin
                     if (s_axi_awvalid && s_axi_awready) begin
-                        write_index <= s_axi_awaddr[INDEX_BITS+2:3];
+                        write_index <= s_axi_awaddr[INDEX_BITS+BYTE_SHIFT-1:BYTE_SHIFT];
                         write_state <= WRITE_DATA;
                     end
                 end
                 WRITE_DATA: begin
                     if (s_axi_wvalid && s_axi_wready) begin
-                        for (int b = 0; b < 8; b++) begin
+                        for (int b = 0; b < DATA_WIDTH / 8; b++) begin
                             if (s_axi_wstrb[b]) begin
                                 mem[write_index][8 * b+:8] <= s_axi_wdata[8*b+:8];
                             end
