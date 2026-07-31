@@ -748,3 +748,59 @@ def test_the_fused_chain_shape_is_declared_not_inferred() -> None:
     a = ScanCompositionSpec(name="p", lanes=(plain_lane,))
     b = ScanCompositionSpec(name="p", lanes=(plain_lane,), fused_chain=True)
     assert spec_hash(a) != spec_hash(b)
+
+
+def test_selectivity_reconciles_the_model_with_q6_silicon() -> None:
+    """The rate benches measured the q6 map stage at one row per SEVEN
+    cycles standalone, which made the no-selectivity model predict 1/7
+    for q6 — 3.4x below the 0.483 rows/cycle silicon actually ran. Both
+    numbers are right: two predicates upstream pass ~2% of rows, so the
+    map never binds the feed. Charging each stage against the rows that
+    reach it restores agreement, and the worst case stays the default
+    because selectivity is data-dependent."""
+    from fractions import Fraction
+
+    from dau_core.composition import throughput_rows_per_cycle
+
+    predicate = {
+        "cfg_field0": "2'd0",
+        "cfg_op0": "3'd6",
+        "cfg_constant0": "32'd0",
+        "cfg_combine01": "2'd0",
+        "cfg_field1": "2'd0",
+        "cfg_op1": "3'd0",
+        "cfg_constant1": "32'd0",
+        "cfg_combine2": "2'd0",
+        "cfg_field2": "2'd0",
+        "cfg_op2": "3'd0",
+        "cfg_constant2": "32'd0",
+    }
+    row_map = {
+        "cfg_op": "3'd4",
+        "cfg_dst_field": "2'd1",
+        "cfg_src_a_field": "2'd1",
+        "cfg_src_b_field": "2'd2",
+        "cfg_shift": "5'd15",
+    }
+    lane = LaneSpec(
+        tile=TileSpec(core="int32-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}),
+        chain=(
+            TileSpec(core="int32-row-predicate-filter", config=predicate),
+            TileSpec(core="int32-row-predicate-filter", config=predicate),
+            TileSpec(core="int32-row-map-alu", config=row_map),
+        ),
+    )
+    q6 = ScanCompositionSpec(name="q6-scan", lanes=(lane,) * 4)
+
+    # default: every stage charged as if every row reached it
+    assert throughput_rows_per_cycle(q6) == Fraction(1, 7)
+
+    # q6's measured funnel: 6,001,215 rows in, 114,160 out
+    passes = (Fraction(1), Fraction(1, 5), Fraction(114160, 6001215))
+    with_selectivity = throughput_rows_per_cycle(q6, stage_pass_fractions=dict.fromkeys(range(4), passes))
+    assert with_selectivity == Fraction(1, 2)
+    silicon = Fraction(6001215, 99) / Fraction(125_000)  # 6.0M rows / 99.3 ms at 125 MHz
+    assert abs(float(with_selectivity) - float(silicon)) / float(silicon) < 0.05
+
+    with pytest.raises(CompositionError, match="pass fractions"):
+        throughput_rows_per_cycle(q6, stage_pass_fractions={0: (Fraction(1),)})

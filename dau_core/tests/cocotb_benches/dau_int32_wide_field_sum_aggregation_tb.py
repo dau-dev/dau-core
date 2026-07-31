@@ -18,6 +18,7 @@ from dau_core.tests.cocotb_benches.dau_int32_field_sum_aggregation_tb import (
     _expect_status,
     _start,
 )
+from dau_core.tests.cocotb_benches.rate_probe import assert_sustained_ingest
 
 _PAD_ROW = (1 << 128) - 1
 
@@ -70,6 +71,23 @@ async def _run(dut, rows, *, field_mask: int, ready_pattern=(1,), beats=None):
 
 def _random_rows(rng: random.Random, count: int):
     return [tuple(rng.randint(-(1 << 31), (1 << 31) - 1) for _ in range(4)) for _ in range(count)]
+
+
+@cocotb.test()
+async def sustained_ingest_meets_registry_floor(dut):
+    await _start(dut)
+    slots = _slots(dut)
+    dut.cfg_field_mask.value = 0b0010
+    rows = [(index, index + 1, index + 2, index + 3) for index in range(256 * slots)]
+    beats = _beats(rows, slots)
+    await assert_sustained_ingest(
+        dut,
+        "int32-wide-field-sum-aggregation",
+        send=lambda: _send_beats(dut, beats),
+        input_beats=len(beats),
+        rows_per_beat=slots,
+        params={"SLOTS": slots},
+    )
 
 
 @cocotb.test()

@@ -7,6 +7,7 @@ from cocotb.clock import Clock
 from cocotb.triggers import ReadOnly, RisingEdge
 
 from dau_core.operators import FieldSumErrorCode, field_sum_rows
+from dau_core.tests.cocotb_benches.rate_probe import assert_sustained_ingest
 
 _MASK32 = 0xFFFF_FFFF
 _MASK64 = 0xFFFF_FFFF_FFFF_FFFF
@@ -24,6 +25,21 @@ _ROWS = [
 ]
 
 _VALUE_MASK = 0b0010  # q6: SUM(revenue) over the value field
+
+
+@cocotb.test()
+async def sustained_ingest_meets_registry_floor(dut):
+    await _start(dut)
+    dut.cfg_field_mask.value = _VALUE_MASK
+    rows = [(index, index + 1, index + 2, index + 3) for index in range(256)]
+    words = _pack_rows(rows)
+    await assert_sustained_ingest(
+        dut,
+        "int32-field-sum-aggregation",
+        send=lambda: _send_words(dut, words),
+        input_beats=len(words),
+        beats_per_row=2,
+    )
 
 
 @cocotb.test()

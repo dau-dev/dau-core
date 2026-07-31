@@ -315,9 +315,10 @@ int32-time-bucket-key:
     bram36: 0.0
     dsp: 0
   contract_kind: row-stream
+  # bench measured 256 rows / 1788 cycles = 6.98 cycles/row (2026-07-31)
   ingest:
     rows: 1
-    per_cycles: 2
+    per_cycles: 7
   parameters:
     BUCKET_BITS:
       default: 16
@@ -568,9 +569,10 @@ int32-row-map-alu:
     bram36: 0.0
     dsp: 4
   contract_kind: row-stream
+  # bench measured 256 rows / 1787 cycles = 6.98 cycles/row (2026-07-31)
   ingest:
     rows: 1
-    per_cycles: 2
+    per_cycles: 7
 
 int32-row-unpack:
   _target_: dau_core.cores.CoreDefinition

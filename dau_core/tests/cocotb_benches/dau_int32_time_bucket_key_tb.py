@@ -7,6 +7,7 @@ from cocotb.clock import Clock
 from cocotb.triggers import ReadOnly, RisingEdge
 
 from dau_core.operators import time_bucket_key_rows
+from dau_core.tests.cocotb_benches.rate_probe import assert_sustained_ingest
 
 BUCKET_BITS = int(os.environ.get("DAU_BUCKET_BITS", "16"))
 BUCKET_SHIFT = 3  # window width 8
@@ -20,6 +21,19 @@ _ROWS = [
     (571, 55, 130, 4, 0),  # bucket 16
     (572, -3, 5, 1, 0),  # bucket 0
 ]
+
+
+@cocotb.test()
+async def sustained_ingest_meets_registry_floor(dut):
+    await _start(dut)
+    rows = [(index % 4, index, index << BUCKET_SHIFT, index + 1, index + 2) for index in range(256)]
+    await assert_sustained_ingest(
+        dut,
+        "int32-time-bucket-key",
+        send=lambda: _send_rows(dut, rows),
+        input_beats=3 * len(rows),
+        beats_per_row=3,
+    )
 
 
 @cocotb.test()

@@ -21,6 +21,7 @@ from dau_core.tests.cocotb_benches.dau_int32_key_mask_dispatcher_tb import (
     _random_rows,
     _unpack_rows,
 )
+from dau_core.tests.cocotb_benches.rate_probe import assert_sustained_ingest
 
 
 async def _start(dut) -> None:
@@ -65,6 +66,20 @@ async def _run(dut, rows, *, ready_pattern=(1,)):
     parts = await _drive_and_collect(dut, golden, ready_pattern)
     await send
     return parts
+
+
+@cocotb.test()
+async def sustained_ingest_meets_registry_floor(dut):
+    await _start(dut)
+    num_parts = _num_parts(dut)
+    rows = [(index % num_parts, index, index + 1, index + 2) for index in range(256)]
+    await assert_sustained_ingest(
+        dut,
+        "int32-key-mask-dispatcher",
+        send=lambda: _send_row_beats(dut, rows),
+        input_beats=len(rows),
+        params={"IN_WIDTH": 128},
+    )
 
 
 @cocotb.test()

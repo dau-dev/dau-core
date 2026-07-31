@@ -16,8 +16,27 @@ from dau_core.tests.cocotb_benches.dau_int32_wide_field_sum_aggregation_tb impor
     _send_beats,
     _slots,
 )
+from dau_core.tests.cocotb_benches.rate_probe import assert_sustained_ingest
 
 _MASK32 = 0xFFFF_FFFF
+
+
+@cocotb.test()
+async def sustained_ingest_meets_registry_floor(dut):
+    await _start(dut)
+    slots = _slots(dut)
+    config = RowMapConfig(op=MapOp.ADD, dst=RowField.VALUE, src_a=RowField.VALUE, src_b=RowField.AUX0)
+    _drive_config(dut, config)
+    rows = [(index, index + 1, index + 2, index + 3) for index in range(256 * slots)]
+    beats = _beats(rows, slots)
+    await assert_sustained_ingest(
+        dut,
+        "int32-wide-row-map-alu",
+        send=lambda: _send_beats(dut, beats),
+        input_beats=len(beats),
+        rows_per_beat=slots,
+        params={"SLOTS": slots},
+    )
 
 
 @cocotb.test()
