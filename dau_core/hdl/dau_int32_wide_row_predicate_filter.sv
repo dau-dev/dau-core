@@ -6,8 +6,8 @@
 // ALL-ONES 128-bit row is the PAD: pads pass unchanged and are neither
 // evaluated nor counted. A non-pad row that fails the three-term predicate
 // is dropped by replacing its slot with PAD — positions are preserved and
-// no compaction occurs. One held-beat output register provides elastic
-// valid/ready flow; input_last passes through as output_last.
+// no compaction occurs. A globally stalled three-stage pipeline preserves
+// elastic valid/ready flow; input_last travels with its beat.
 //
 // Predicate config and selected_count semantics match the 64-bit row tile.
 // Config latches on the first beat of each batch; invalid config drains the
@@ -63,6 +63,7 @@ module dau_int32_wide_row_predicate_filter
     state_t state;
 
     logic        batch_open;
+    logic        batch_input_closed;
     logic [1:0]  active_field0;
     logic [2:0]  active_op0;
     logic [31:0] active_constant0;
@@ -75,43 +76,39 @@ module dau_int32_wide_row_predicate_filter
     logic [2:0]  active_op2;
     logic [31:0] active_constant2;
 
+    logic advance;
     logic input_fire;
     logic output_fire;
     logic first_beat;
     logic config_ok;
+    logic accepted_filter_beat;
 
-    logic [1:0]  eff_field0;
-    logic [2:0]  eff_op0;
-    logic [31:0] eff_constant0;
-    logic [1:0]  eff_combine01;
-    logic [1:0]  eff_field1;
-    logic [2:0]  eff_op1;
-    logic [31:0] eff_constant1;
-    logic [1:0]  eff_combine2;
-    logic [1:0]  eff_field2;
-    logic [2:0]  eff_op2;
-    logic [31:0] eff_constant2;
+    logic                         stage1_valid;
+    logic [SLOTS*128-1:0]         stage1_data;
+    logic                         stage1_last;
+    logic [SLOTS-1:0]             stage1_live;
+    logic [SLOTS*32-1:0]          stage1_field0;
+    logic [SLOTS*32-1:0]          stage1_field1;
+    logic [SLOTS*32-1:0]          stage1_field2;
 
-    logic [SLOTS*128-1:0] filtered_data;
-    logic [63:0] beat_selected;
+    logic                         stage2_valid;
+    logic [SLOTS*128-1:0]         stage2_data;
+    logic                         stage2_last;
+    logic [SLOTS-1:0]             stage2_live;
+    logic [SLOTS-1:0]             stage2_match;
+    logic [SLOTS-1:0]             stage1_match;
+    logic [SLOTS*128-1:0]         stage2_filtered_data;
+    logic [2:0]                   stage2_selected_count;
 
+    assign advance = !output_valid || output_ready;
     assign input_fire = input_valid && input_ready;
     assign output_fire = output_valid && output_ready;
-    assign input_ready = ((state == STATE_FILTER) && (!output_valid || output_ready))
-        || (state == STATE_DISCARD);
+    assign input_ready = advance && (((state == STATE_FILTER) && !batch_input_closed)
+        || (state == STATE_DISCARD));
 
     assign first_beat = !batch_open;
-    assign eff_field0 = first_beat ? cfg_field0 : active_field0;
-    assign eff_op0 = first_beat ? cfg_op0 : active_op0;
-    assign eff_constant0 = first_beat ? cfg_constant0 : active_constant0;
-    assign eff_combine01 = first_beat ? cfg_combine01 : active_combine01;
-    assign eff_field1 = first_beat ? cfg_field1 : active_field1;
-    assign eff_op1 = first_beat ? cfg_op1 : active_op1;
-    assign eff_constant1 = first_beat ? cfg_constant1 : active_constant1;
-    assign eff_combine2 = first_beat ? cfg_combine2 : active_combine2;
-    assign eff_field2 = first_beat ? cfg_field2 : active_field2;
-    assign eff_op2 = first_beat ? cfg_op2 : active_op2;
-    assign eff_constant2 = first_beat ? cfg_constant2 : active_constant2;
+    assign accepted_filter_beat = input_fire && (state == STATE_FILTER)
+        && (!first_beat || config_ok);
 
     assign config_ok = predicate_op_valid(cfg_op0)
         && (cfg_combine01 <= COMBINE_OR)
@@ -130,33 +127,48 @@ module dau_int32_wide_row_predicate_filter
         end
     endfunction
 
-    function automatic logic row_matches(input logic [127:0] row);
+    function automatic logic selected_fields_match(
+        input logic [31:0] value0,
+        input logic [31:0] value1,
+        input logic [31:0] value2
+    );
         logic term0;
         logic term1;
         logic term2;
         logic level01;
         begin
-            term0 = predicate_compare(eff_op0, field_select(eff_field0, row), eff_constant0);
-            term1 = predicate_compare(eff_op1, field_select(eff_field1, row), eff_constant1);
-            term2 = predicate_compare(eff_op2, field_select(eff_field2, row), eff_constant2);
-            level01 = (eff_combine01 == COMBINE_AND) ? (term0 && term1)
-                : (eff_combine01 == COMBINE_OR) ? (term0 || term1)
+            term0 = predicate_compare(active_op0, value0, active_constant0);
+            term1 = predicate_compare(active_op1, value1, active_constant1);
+            term2 = predicate_compare(active_op2, value2, active_constant2);
+            level01 = (active_combine01 == COMBINE_AND) ? (term0 && term1)
+                : (active_combine01 == COMBINE_OR) ? (term0 || term1)
                 : term0;
-            row_matches = (eff_combine2 == COMBINE_AND) ? (level01 && term2)
-                : (eff_combine2 == COMBINE_OR) ? (level01 || term2)
+            selected_fields_match = (active_combine2 == COMBINE_AND) ? (level01 && term2)
+                : (active_combine2 == COMBINE_OR) ? (level01 || term2)
                 : level01;
         end
     endfunction
 
     always_comb begin
-        filtered_data = input_data;
-        beat_selected = 64'd0;
+        stage1_match = '0;
         for (int s = 0; s < SLOTS; s++) begin
-            if (input_data[128*s +: 128] != PAD_ROW) begin
-                if (row_matches(input_data[128*s +: 128])) begin
-                    beat_selected = beat_selected + 64'd1;
+            stage1_match[s] = selected_fields_match(
+                stage1_field0[32*s +: 32],
+                stage1_field1[32*s +: 32],
+                stage1_field2[32*s +: 32]
+            );
+        end
+    end
+
+    always_comb begin
+        stage2_filtered_data = stage2_data;
+        stage2_selected_count = 3'd0;
+        for (int s = 0; s < SLOTS; s++) begin
+            if (stage2_live[s]) begin
+                if (stage2_match[s]) begin
+                    stage2_selected_count = stage2_selected_count + 3'd1;
                 end else begin
-                    filtered_data[128*s +: 128] = PAD_ROW;
+                    stage2_filtered_data[128*s +: 128] = PAD_ROW;
                 end
             end
         end
@@ -166,8 +178,41 @@ module dau_int32_wide_row_predicate_filter
         if (rst) begin
             reset_state();
         end else begin
-            if (output_fire) begin
-                output_valid <= 1'b0;
+            if (advance) begin
+                output_valid <= stage2_valid;
+                output_data <= stage2_filtered_data;
+                output_last <= stage2_last;
+
+                stage2_valid <= stage1_valid;
+                stage2_data <= stage1_data;
+                stage2_last <= stage1_last;
+                stage2_live <= stage1_live;
+                stage2_match <= stage1_match;
+
+                stage1_valid <= accepted_filter_beat;
+                stage1_data <= input_data;
+                stage1_last <= input_last;
+                for (int s = 0; s < SLOTS; s++) begin
+                    stage1_live[s] <= input_data[128*s +: 128] != PAD_ROW;
+                    if (first_beat) begin
+                        stage1_field0[32*s +: 32] <= field_select(cfg_field0, input_data[128*s +: 128]);
+                        stage1_field1[32*s +: 32] <= field_select(cfg_field1, input_data[128*s +: 128]);
+                        stage1_field2[32*s +: 32] <= field_select(cfg_field2, input_data[128*s +: 128]);
+                    end else begin
+                        stage1_field0[32*s +: 32] <= field_select(active_field0, input_data[128*s +: 128]);
+                        stage1_field1[32*s +: 32] <= field_select(active_field1, input_data[128*s +: 128]);
+                        stage1_field2[32*s +: 32] <= field_select(active_field2, input_data[128*s +: 128]);
+                    end
+                end
+
+                if (stage2_valid) begin
+                    selected_count <= selected_count + {{61{1'b0}}, stage2_selected_count};
+                end
+            end
+
+            if (output_fire && output_last) begin
+                batch_open <= 1'b0;
+                batch_input_closed <= 1'b0;
             end
             case (state)
                 STATE_FILTER: begin
@@ -196,17 +241,8 @@ module dau_int32_wide_row_predicate_filter
                                 state <= STATE_DISCARD;
                             end
                         end else begin
-                            output_valid <= 1'b1;
-                            output_data <= filtered_data;
-                            output_last <= input_last;
-                            if (first_beat) begin
-                                selected_count <= beat_selected;
-                            end else begin
-                                selected_count <= selected_count + beat_selected;
-                            end
                             if (input_last) begin
-                                // silent success: the downstream tile closes out
-                                batch_open <= 1'b0;
+                                batch_input_closed <= 1'b1;
                             end
                         end
                     end
@@ -237,6 +273,9 @@ module dau_int32_wide_row_predicate_filter
             output_last <= 1'b0;
             selected_count <= 64'd0;
             batch_open <= 1'b0;
+            batch_input_closed <= 1'b0;
+            stage1_valid <= 1'b0;
+            stage2_valid <= 1'b0;
             status_valid <= 1'b1;
             status_error <= 1'b1;
             status_error_code <= code;
@@ -248,6 +287,7 @@ module dau_int32_wide_row_predicate_filter
         begin
             state <= STATE_FILTER;
             batch_open <= 1'b0;
+            batch_input_closed <= 1'b0;
             active_field0 <= 2'd0;
             active_op0 <= 3'd0;
             active_constant0 <= 32'd0;
@@ -259,6 +299,18 @@ module dau_int32_wide_row_predicate_filter
             active_field2 <= 2'd0;
             active_op2 <= 3'd0;
             active_constant2 <= 32'd0;
+            stage1_valid <= 1'b0;
+            stage1_data <= '0;
+            stage1_last <= 1'b0;
+            stage1_live <= '0;
+            stage1_field0 <= '0;
+            stage1_field1 <= '0;
+            stage1_field2 <= '0;
+            stage2_valid <= 1'b0;
+            stage2_data <= '0;
+            stage2_last <= 1'b0;
+            stage2_live <= '0;
+            stage2_match <= '0;
             output_valid <= 1'b0;
             output_data <= '0;
             output_last <= 1'b0;

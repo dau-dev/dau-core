@@ -928,6 +928,12 @@ int32-wide-field-sum-aggregation:
     int32-field-sum-aggregation.'
   golden: dau_core.operators:field_sum_rows
   bench: dau_core.tests.cocotb_benches.dau_int32_wide_field_sum_aggregation_tb
+  # OOC SLOTS=4 xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +3.125)
+  resources:
+    lut: 1478
+    ff: 467
+    bram36: 0.0
+    dsp: 0
   count_port: aggregated_count
   contract_kind: wide-row-stream
   ingest:
