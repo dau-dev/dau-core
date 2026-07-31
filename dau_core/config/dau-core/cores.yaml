@@ -221,10 +221,10 @@ int32-asof-backward:
     dsp: 0
   count_port: match_count
   contract_kind: row-stream
-  # static bound: 3-word record ingest + 4-word joined-row emit per match; a bench-measured tighter floor may raise it
+  # static bound: 3-word record ingest + 4-word joined-row emit + drain beat per match; a bench-measured tighter floor may raise it
   ingest:
     rows: 1
-    per_cycles: 7
+    per_cycles: 8
   success_close_out: true
 
 int32-rolling-moments:
@@ -252,10 +252,10 @@ int32-rolling-moments:
     dsp: 8
   count_port: moment_count
   contract_kind: row-stream
-  # static FSM bound: 4-beat moment update + 3-word record drain per full-window row; a bench-measured tighter floor may raise it
+  # static FSM bound: 4-beat moment update + 3-word record emit + drain beat per full-window row; a bench-measured tighter floor may raise it
   ingest:
     rows: 1
-    per_cycles: 7
+    per_cycles: 8
   success_close_out: true
   parameters:
     WINDOW:
