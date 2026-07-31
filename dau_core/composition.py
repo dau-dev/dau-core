@@ -147,7 +147,43 @@ class ScanCompositionSpec(BaseModel):
             raise CompositionError("a scan composition needs at least one lane")
         if self.data_width not in (64, 128, 256, 512):
             raise CompositionError(f"data_width must be 64/128/256/512, got {self.data_width}")
-        if self.data_width != 64:
+        wide_lane = self.lanes[0].tile.definition().contract_kind is ContractKind.WIDE_ROW_STREAM
+        if wide_lane:
+            # THE WIDE LANE: reader beats wire straight into a chain of
+            # wide-row-stream stages — the lane IS the fan-out (SLOTS rows
+            # per cycle), so no partitioner/broadcast is involved at all
+            if len(self.lanes) != 1:
+                raise CompositionError("a wide lane is the whole datapath: exactly one lane (no wide fan-out exists)")
+            if self.partitioner is not None:
+                raise CompositionError("a wide lane consumes the reader stream directly; a shared partitioner cannot feed it")
+            if self.front_unpack is not None:
+                raise CompositionError("a wide lane reads whole quad rows; the packed front unpacker (64-bit packed rows) cannot feed it")
+            lane = self.lanes[0]
+            if lane.partition is not None:
+                raise CompositionError("a wide lane takes no per-lane partition filter (it sees every row by construction)")
+
+            def _slots_of(tile: TileSpec, role: str) -> int:
+                if tile.definition().contract_kind is not ContractKind.WIDE_ROW_STREAM:
+                    raise CompositionError(
+                        f"{role} {tile.core!r} speaks the 64-bit row-stream contract inside a wide lane; every stage of a "
+                        "wide lane must be a wide-row-stream core (mixed framings cannot wire)"
+                    )
+                declared = tile.definition().parameters.get("SLOTS")
+                if declared is None:
+                    raise CompositionError(f"{role} {tile.core!r} declares no SLOTS parameter")
+                return int(tile.params.get("SLOTS", declared.default))
+
+            slots = _slots_of(lane.tile, "wide lane terminal")
+            for stage in lane.chain:
+                stage_slots = _slots_of(stage, "wide lane chain stage")
+                if stage_slots != slots:
+                    raise CompositionError(f"wide lane SLOTS disagree: chain stage {stage.core!r} has {stage_slots}, the terminal has {slots}")
+            if self.data_width != slots * 128:
+                raise CompositionError(
+                    f"a wide lane at SLOTS={slots} consumes {slots * 128}-bit beats; data_width={self.data_width} does not match "
+                    "(set data_width = SLOTS x 128)"
+                )
+        if self.data_width != 64 and not wide_lane:
             if self.front_unpack is not None:
                 raise CompositionError(
                     "a packed front unpacker reads 64-bit packed rows; wide packed reads (data_width > 64) are a follow-up — "
@@ -220,18 +256,19 @@ class ScanCompositionSpec(BaseModel):
                         "wide unpacked framing needs a shared partitioner/dispatcher (IN_WIDTH to match)"
                     )
         for lane in self.lanes:
-            for slot_tile, slot_role in (
-                (lane.tile, "lane tile"),
-                (lane.partition, "lane partition"),
-                *((stage, "lane chain stage") for stage in lane.chain),
-            ):
-                if slot_tile is None:
-                    continue
-                if slot_tile.definition().contract_kind is ContractKind.WIDE_ROW_STREAM:
-                    raise CompositionError(
-                        f"{slot_role} {slot_tile.core!r} speaks the wide-row-stream contract; today's lane fan-out delivers 64-bit "
-                        "two-beat rows — composable once the wide-lane walker (reader beats straight into a wide chain) lands"
-                    )
+            if not wide_lane:
+                for slot_tile, slot_role in (
+                    (lane.tile, "lane tile"),
+                    (lane.partition, "lane partition"),
+                    *((stage, "lane chain stage") for stage in lane.chain),
+                ):
+                    if slot_tile is None:
+                        continue
+                    if slot_tile.definition().contract_kind is ContractKind.WIDE_ROW_STREAM:
+                        raise CompositionError(
+                            f"{slot_role} {slot_tile.core!r} speaks the wide-row-stream contract; this lane's fan-out delivers 64-bit "
+                            "two-beat rows — a wide core rides only the wide-lane shape (a lane whose TERMINAL is wide)"
+                        )
             tile = lane.tile.definition()
             if tile.kind != CoreKind.OPERATOR:
                 raise CompositionError(f"lane tile {lane.tile.core!r} is {tile.kind.value}, not an operator")

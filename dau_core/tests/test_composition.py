@@ -645,24 +645,65 @@ def test_throughput_packed_front_re_times_delivery():
     assert throughput_rows_per_cycle(ScanCompositionSpec(name="t", lanes=(lane,) * 4, partitioner=wide_dispatcher, front_unpack=wide)) == Fraction(1)
 
 
-def test_wide_row_stream_cores_await_the_wide_lane_walker() -> None:
-    # the wide trio has no composable lane shape yet: today's fan-out
-    # delivers 64-bit two-beat rows, so a wide-row-stream tile in any lane
-    # slot is refused until the wide-lane walker lands
-    with pytest.raises(CompositionError, match="wide-row-stream"):
+def test_the_wide_lane_shape_composes_and_rate_matches():
+    """The wide lane: one lane of wide-row-stream stages consuming reader
+    beats directly — SLOTS rows per cycle, no partitioner. The q6 shape at
+    512 rates 4 rows/cycle (the parallel-row target)."""
+    from fractions import Fraction
+
+    from dau_core.composition import throughput_rows_per_cycle
+
+    wide_sum = TileSpec(core="int32-wide-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"})
+    wide_pred = TileSpec(core="int32-wide-row-predicate-filter", config={})
+    wide_map = TileSpec(core="int32-wide-row-map-alu", config={})
+
+    spec = ScanCompositionSpec(name="w", lanes=(LaneSpec(tile=wide_sum, chain=(wide_pred, wide_map)),), data_width=512)
+    assert throughput_rows_per_cycle(spec) == Fraction(4)
+    # SLOTS=1 gives the 128-bit tier a full-rate lane with no dispatcher
+    narrow = ScanCompositionSpec(
+        name="w1",
+        lanes=(LaneSpec(tile=TileSpec(core="int32-wide-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}, params={"SLOTS": 1})),),
+        data_width=128,
+    )
+    assert throughput_rows_per_cycle(narrow) == Fraction(1)
+
+
+def test_the_wide_lane_shape_rules_are_enforced():
+    wide_sum = TileSpec(core="int32-wide-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"})
+    wide_lane = LaneSpec(tile=wide_sum)
+    # data_width must equal SLOTS x 128
+    with pytest.raises(CompositionError, match="SLOTS x 128"):
+        ScanCompositionSpec(name="bad", lanes=(wide_lane,))
+    # exactly one lane
+    with pytest.raises(CompositionError, match="exactly one lane"):
+        ScanCompositionSpec(name="bad", lanes=(wide_lane, wide_lane), data_width=512)
+    # no partitioner
+    with pytest.raises(CompositionError, match="cannot feed it"):
         ScanCompositionSpec(
             name="bad",
-            lanes=(LaneSpec(tile=TileSpec(core="int32-wide-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"})),),
+            lanes=(wide_lane,),
+            partitioner=TileSpec(core="int32-key-mask-dispatcher", params={"IN_WIDTH": 512}),
+            data_width=512,
         )
+    # every stage wide: a 64-bit chain stage cannot wire into the wide beat
+    with pytest.raises(CompositionError, match="mixed framings cannot wire"):
+        ScanCompositionSpec(
+            name="bad",
+            lanes=(LaneSpec(tile=wide_sum, chain=(TileSpec(core="int32-row-map-alu", config={}),)),),
+            data_width=512,
+        )
+    # SLOTS must agree across the lane
+    with pytest.raises(CompositionError, match="SLOTS disagree"):
+        ScanCompositionSpec(
+            name="bad",
+            lanes=(LaneSpec(tile=wide_sum, chain=(TileSpec(core="int32-wide-row-map-alu", config={}, params={"SLOTS": 2}),)),),
+            data_width=512,
+        )
+    # a wide stage inside a NARROW lane is still a mixed framing
     with pytest.raises(CompositionError, match="wide-row-stream"):
         ScanCompositionSpec(
             name="bad",
-            lanes=(
-                LaneSpec(
-                    tile=_BAR,
-                    chain=(TileSpec(core="int32-wide-row-map-alu", config={}),),
-                ),
-            ),
+            lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-wide-row-map-alu", config={}),)),),
         )
 
 
