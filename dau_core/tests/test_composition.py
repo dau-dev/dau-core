@@ -549,7 +549,7 @@ def test_spec_hash_pinned_fixture() -> None:
     )
     # canonical version 2: data_width joined the canonical form (the
     # width-tier knob) — every v1 cache key misses cold, by design
-    assert spec_hash(spec) == "2:4b004e696dcc5278c65968c1560de4ff64d20b9426b08c35fd774177d79b8a75"
+    assert spec_hash(spec) == "3:b6beda75fab4a2274a776a95d2cd582d24fe10b46da14de3a6aeeb71608287c9"
 
 
 def test_spec_from_canonical_revalidates() -> None:
@@ -719,3 +719,32 @@ def test_wide_row_stream_cores_are_refused_in_the_partitioner_slot() -> None:
             lanes=tuple(LaneSpec(tile=_BAR) for _ in range(4)),
             partitioner=TileSpec(core="int32-wide-row-predicate-filter", config={}),
         )
+
+
+def test_the_fused_chain_shape_is_declared_not_inferred() -> None:
+    """A terminal-shaped tile mid-lane (the temporal hero's as-of join and
+    grouped aggregator) composes only when the spec DECLARES the fused
+    chain: the refusal still catches an aggregator dropped into a chain by
+    accident, while the declaration says the caller accepts that mid-stage
+    close-outs are drained and only their errors reach the lane status."""
+    lane = LaneSpec(
+        tile=TileSpec(core="int32-rolling-moments", params={"WINDOW": 3}),
+        chain=(
+            TileSpec(core="int32-asof-backward"),
+            TileSpec(core="int32-time-bucket-key"),
+            TileSpec(core="int32-grouped-field-aggregation"),
+        ),
+    )
+    with pytest.raises(CompositionError, match="fused_chain=True"):
+        ScanCompositionSpec(name="hero", lanes=(lane,))
+
+    spec = ScanCompositionSpec(name="hero", lanes=(lane,), fused_chain=True)
+    assert spec.fused_chain is True
+    # the flag is part of the design's identity: it changes the emitted
+    # status glue, so two otherwise-identical specs must not share a key
+    from dau_core.composition import spec_hash
+
+    plain_lane = LaneSpec(tile=TileSpec(core="int32-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}))
+    a = ScanCompositionSpec(name="p", lanes=(plain_lane,))
+    b = ScanCompositionSpec(name="p", lanes=(plain_lane,), fused_chain=True)
+    assert spec_hash(a) != spec_hash(b)

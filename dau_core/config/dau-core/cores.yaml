@@ -323,6 +323,37 @@ int32-time-bucket-key:
       default: 16
       maximum: 31
 
+int32-record-gather:
+  _target_: dau_core.cores.CoreDefinition
+  name: int32-record-gather
+  kind: operator
+  module: dau_int32_record_gather
+  source: dau_int32_record_gather.sv
+  description: 'Generic fixed-record gather: consumes one IN_WORDS-word record and emits one OUT_WORDS-word record assembled
+    from independently selected 32-bit halves. Each cfg_sel packs source word [5:0], source half [6], logical right shift
+    [11:7], and zero-only reserved bits [31:12]. Config latches on the first word of a batch; invalid config drains the batch
+    then reports ERR_CONFIG, and input_last before a record final word reports ERR_STREAM. A mid-lane transform: 1:1 records,
+    output_last rides the emitted record final word, and success is silent.'
+  golden: dau_core.operators:gather_records
+  bench: dau_core.tests.cocotb_benches.dau_int32_record_gather_tb
+  resources:
+    lut: 291
+    ff: 305
+    bram36: 0.0
+    dsp: 0
+  contract_kind: row-stream
+  # one record per IN_WORDS read beats + OUT_WORDS emit beats; default cadence is 4 + 1 = 5 cycles
+  ingest:
+    rows: 1
+    per_cycles: 5
+  parameters:
+    IN_WORDS:
+      default: 4
+      maximum: 64
+    OUT_WORDS:
+      default: 1
+      maximum: 8
+
 int32-streaming-top-k:
   _target_: dau_core.cores.CoreDefinition
   name: int32-streaming-top-k

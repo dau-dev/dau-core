@@ -32,6 +32,7 @@ from dau_core.hdl import (
     DAU_INT32_PREDICATE_FILTER_SV,
     DAU_INT32_RANGE_PARTITIONER_SV,
     DAU_INT32_RECORD_BATCH_AGGREGATION_SV,
+    DAU_INT32_RECORD_GATHER_SV,
     DAU_INT32_ROLLING_MOMENTS_SV,
     DAU_INT32_ROW_MAP_ALU_SV,
     DAU_INT32_ROW_PREDICATE_FILTER_SV,
@@ -170,6 +171,20 @@ def test_time_bucket_key_runs_real_cocotb_against_systemverilog(tmp_path: Path) 
         hdl_toplevel="dau_int32_time_bucket_key",
         test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_time_bucket_key_tb",
         tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.parametrize(("in_words", "out_words"), [(7, 3), (11, 1), (1, 1)])
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_record_gather_runs_real_cocotb_against_systemverilog(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, in_words: int, out_words: int) -> None:
+    monkeypatch.setenv("DAU_GATHER_IN_WORDS", str(in_words))
+    monkeypatch.setenv("DAU_GATHER_OUT_WORDS", str(out_words))
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_RECORD_GATHER_SV)),),
+        hdl_toplevel="dau_int32_record_gather",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_record_gather_tb",
+        tmp_path=tmp_path,
+        parameters={"IN_WORDS": in_words, "OUT_WORDS": out_words},
     )
 
 

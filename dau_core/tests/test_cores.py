@@ -180,6 +180,7 @@ def test_silent_on_success_operator_set_is_pinned() -> None:
         "int32-key-membership-filter",
         "int32-broadcast-hash-join",
         "int32-row-unpack",
+        "int32-record-gather",
         "int32-time-bucket-key",
         "int32-wide-row-predicate-filter",
         "int32-wide-row-map-alu",
