@@ -361,13 +361,24 @@ module dau_int32_key_mask_dispatcher #(
                 end
             end
         end
-    end else begin : g_serializer_passthrough
+    end else if (WIDE) begin : g_serializer_passthrough
         // IN_WIDTH=128: the input beat is exactly one row; forward directly
         assign wrow_valid = input_valid;
         assign input_ready = wrow_ready;
         assign wrow_data = input_data[127:0];
         assign wrow_last = input_last;
         assign flush_batch = 1'b0;  // 128 carries end on the (single) row
+    end else begin : g_no_serializer
+        // IN_WIDTH=64: the NARROW front owns the input handshake and builds
+        // records word by word, so no row feed exists here. This branch must
+        // exist and must NOT drive input_ready: elaborating the 128-bit
+        // passthrough at 64 both slices input_data out of range (a hard
+        // Vivado synthesis error, only a warning under verilator) and adds a
+        // second driver on input_ready.
+        assign wrow_valid = 1'b0;
+        assign wrow_data = 128'd0;
+        assign wrow_last = 1'b0;
+        assign flush_batch = 1'b0;
     end
 
     if (WIDE) begin : g_front_wide
