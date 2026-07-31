@@ -16,11 +16,12 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Mapping
+from fractions import Fraction
 
 from ccflow import BaseModel
 from pydantic import ConfigDict, StrictInt
 
-from .cores import CoreDefinition, CoreKind, LoadImageKind, ResourceEnvelope, core
+from .cores import ContractKind, CoreDefinition, CoreKind, LoadImageKind, ResourceEnvelope, core
 
 SCAN_INFRASTRUCTURE_CORES = ("axi-burst-reader", "stream-broadcast", "axi-record-writer", "axi-write-mux", "identity-registers")
 
@@ -165,12 +166,38 @@ class ScanCompositionSpec(BaseModel):
                     f"partitioner {self.partitioner.core!r} emits a success close-out per batch; the lane status mux allows exactly one — "
                     "only the terminal tile may close out on success"
                 )
+            if definition.contract_kind is ContractKind.WIDE_ROW_STREAM:
+                raise CompositionError(
+                    f"partitioner {self.partitioner.core!r} speaks the wide-row-stream contract; the shared router slot is not a wide chain stage"
+                )
             _validate_tile_params(self.partitioner, "partitioner")
             # the key-mask dispatcher's mask decode (dest = key & (N-1)) needs
             # a power-of-two partition count; the exact-branch mode does not —
             # the conditional pairing the per-parameter spec cannot express.
             # The effective count is the lane count (the walker derives
             # NUM_PARTITIONS from it) unless a params override names it.
+            # the framing widths must AGREE end to end: the feed (data_width,
+            # or the unpacker's OUT_WIDTH when packed) frames the rows the
+            # partitioner ingests, so a partitioner declaring IN_WIDTH must
+            # match it — and one that declares no IN_WIDTH speaks 64-bit
+            # two-beat framing only (a wide feed would misframe rows)
+            feed_width = self.data_width
+            if self.front_unpack is not None:
+                out_spec = self.front_unpack.definition().parameters.get("OUT_WIDTH")
+                feed_width = self.front_unpack.params.get("OUT_WIDTH", out_spec.default if out_spec else 64)
+            in_spec = definition.parameters.get("IN_WIDTH")
+            if in_spec is None:
+                if feed_width != 64:
+                    raise CompositionError(
+                        f"partitioner {self.partitioner.core!r} declares no IN_WIDTH (64-bit framing only) but the feed frames {feed_width}-bit rows"
+                    )
+            else:
+                in_width = self.partitioner.params.get("IN_WIDTH", in_spec.default)
+                if in_width != feed_width:
+                    raise CompositionError(
+                        f"partitioner {self.partitioner.core!r} IN_WIDTH={in_width} does not match the {feed_width}-bit feed framing "
+                        "(data_width, or the front unpacker's OUT_WIDTH)"
+                    )
             if self.partitioner.core == "int32-key-mask-dispatcher" and self.partitioner.params.get("EXACT_BRANCH", 0) != 1:
                 partitions = self.partitioner.params.get("NUM_PARTITIONS", len(self.lanes))
                 if partitions & (partitions - 1):
@@ -184,7 +211,27 @@ class ScanCompositionSpec(BaseModel):
                     "packed rows after the burst reader and before the fan-out, a role only the row-unpack core fills"
                 )
             _validate_tile_params(self.front_unpack, "front unpacker")
+            if self.partitioner is None:
+                out_spec = self.front_unpack.definition().parameters.get("OUT_WIDTH")
+                unpack_width = self.front_unpack.params.get("OUT_WIDTH", out_spec.default if out_spec else 64)
+                if unpack_width != 64:
+                    raise CompositionError(
+                        f"front unpacker OUT_WIDTH={unpack_width} feeds the stream broadcast, which is 64-bit only — "
+                        "wide unpacked framing needs a shared partitioner/dispatcher (IN_WIDTH to match)"
+                    )
         for lane in self.lanes:
+            for slot_tile, slot_role in (
+                (lane.tile, "lane tile"),
+                (lane.partition, "lane partition"),
+                *((stage, "lane chain stage") for stage in lane.chain),
+            ):
+                if slot_tile is None:
+                    continue
+                if slot_tile.definition().contract_kind is ContractKind.WIDE_ROW_STREAM:
+                    raise CompositionError(
+                        f"{slot_role} {slot_tile.core!r} speaks the wide-row-stream contract; today's lane fan-out delivers 64-bit "
+                        "two-beat rows — composable once the wide-lane walker (reader beats straight into a wide chain) lands"
+                    )
             tile = lane.tile.definition()
             if tile.kind != CoreKind.OPERATOR:
                 raise CompositionError(f"lane tile {lane.tile.core!r} is {tile.kind.value}, not an operator")
@@ -324,6 +371,70 @@ class ScanCompositionSpec(BaseModel):
                 names.setdefault(stage.core)
             names.setdefault(lane.tile.core)
         return tuple(names)
+
+
+def throughput_rows_per_cycle(spec: ScanCompositionSpec) -> Fraction:
+    """The composed design's GUARANTEED sustained ingest rate, in rows per
+    job-clock cycle — the number the scheduler plans on (declared rates are
+    floors, so silicon may burst higher; it will not sustain lower). An
+    exact rational computed ONLY from public interface facts
+    (each core's declared ``ingest`` rate plus the spec's feed shape), so
+    the scheduler can rate-match a composition of cores it cannot inspect.
+
+    Three factors, minimum wins:
+
+    - **front delivery**: the reader hands off ``data_width/128`` quad rows
+      per cycle (64-bit staging frames one row per two beats = 1/2). A
+      ``front_unpack`` feed re-times packed rows at its ``OUT_WIDTH``:
+      64 emits one row per two cycles, 128 one per cycle.
+    - **shared fan-out**: a partitioner/dispatcher's own declared ingest.
+    - **lane consumption**: with a shared partitioner rows split across
+      lanes, so lane rates SUM; a broadcast shows every row to every lane,
+      so the SLOWEST lane is the system rate (no summing). A lane's rate
+      is the minimum declared ingest over its partition, chain, and
+      terminal tile.
+
+    DISTRIBUTION ASSUMPTION (explicit, not fine print): the partitioned
+    sum assumes rows spread across lanes per the partitioner's routing —
+    the key-mask dispatcher's declaration already says "mask-distributed
+    keys". Adversarial inputs (every key to one lane) degrade to a single
+    lane's rate; a scheduler planning for that regime should use
+    ``min(lane rates)`` instead. The broadcast path has no such
+    assumption (every lane sees every row regardless of keys).
+    """
+
+    def _tile_rate(tile: TileSpec, role: str) -> Fraction:
+        definition = tile.definition()
+        ingest = definition.ingest
+        if ingest is None:
+            raise CompositionError(f"{role} core {tile.core!r} declares no ingest rate (required public interface for stream operators)")
+        try:
+            return ingest.effective(tile.params, definition.parameters)
+        except ValueError as exc:
+            raise CompositionError(f"{role} core {tile.core!r}: {exc}") from exc
+
+    if spec.front_unpack is not None:
+        # the packed feed: one 8-byte packed row per 64-bit beat from the
+        # reader, then the unpacker's own framing-shaped rate
+        delivery = min(Fraction(1), _tile_rate(spec.front_unpack, "front unpacker"))
+    elif spec.data_width == 64:
+        delivery = Fraction(1, 2)
+    else:
+        delivery = Fraction(spec.data_width, 128)
+
+    lane_rates = []
+    for index, lane in enumerate(spec.lanes):
+        tiles = [(lane.tile, f"lane {index} terminal")]
+        tiles += [(stage, f"lane {index} chain stage") for stage in lane.chain]
+        if lane.partition is not None:
+            tiles.append((lane.partition, f"lane {index} partition"))
+        lane_rates.append(min(_tile_rate(tile, role) for tile, role in tiles))
+
+    if spec.partitioner is not None:
+        consumption = min(_tile_rate(spec.partitioner, "partitioner"), sum(lane_rates, Fraction(0)))
+    else:
+        consumption = min(lane_rates)
+    return min(delivery, consumption)
 
 
 def estimated_resources(spec: ScanCompositionSpec) -> ResourceEnvelope:

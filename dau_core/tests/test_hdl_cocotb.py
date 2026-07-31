@@ -39,6 +39,9 @@ from dau_core.hdl import (
     DAU_INT32_STREAM_AGGREGATION_SV,
     DAU_INT32_STREAMING_TOP_K_SV,
     DAU_INT32_TIME_BUCKET_KEY_SV,
+    DAU_INT32_WIDE_FIELD_SUM_AGGREGATION_SV,
+    DAU_INT32_WIDE_ROW_MAP_ALU_SV,
+    DAU_INT32_WIDE_ROW_PREDICATE_FILTER_SV,
     DAU_MAP_ALU_PKG_SV,
     DAU_PREDICATE_PKG_SV,
     DAU_STREAM_BROADCAST_SV,
@@ -501,6 +504,42 @@ def test_field_sum_aggregation_runs_real_cocotb_against_systemverilog(tmp_path: 
         hdl_toplevel="dau_int32_field_sum_aggregation",
         test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_field_sum_aggregation_tb",
         tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+@pytest.mark.parametrize("slots", [1, 2, 4])
+def test_wide_row_predicate_filter_runs_real_cocotb_against_systemverilog(tmp_path: Path, slots: int) -> None:
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_PREDICATE_PKG_SV)), Path(str(DAU_INT32_WIDE_ROW_PREDICATE_FILTER_SV))),
+        hdl_toplevel="dau_int32_wide_row_predicate_filter",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_wide_row_predicate_filter_tb",
+        tmp_path=tmp_path,
+        parameters={"SLOTS": slots},
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+@pytest.mark.parametrize("slots", [1, 2, 4])
+def test_wide_row_map_alu_runs_real_cocotb_against_systemverilog(tmp_path: Path, slots: int) -> None:
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_MAP_ALU_PKG_SV)), Path(str(DAU_INT32_WIDE_ROW_MAP_ALU_SV))),
+        hdl_toplevel="dau_int32_wide_row_map_alu",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_wide_row_map_alu_tb",
+        tmp_path=tmp_path,
+        parameters={"SLOTS": slots},
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+@pytest.mark.parametrize("slots", [1, 2, 4])
+def test_wide_field_sum_aggregation_runs_real_cocotb_against_systemverilog(tmp_path: Path, slots: int) -> None:
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_WIDE_FIELD_SUM_AGGREGATION_SV)),),
+        hdl_toplevel="dau_int32_wide_field_sum_aggregation",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_wide_field_sum_aggregation_tb",
+        tmp_path=tmp_path,
+        parameters={"SLOTS": slots},
     )
 
 

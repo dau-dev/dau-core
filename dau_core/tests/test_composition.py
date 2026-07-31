@@ -208,7 +208,16 @@ def test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards() ->
     # the dispatcher's mask decode needs a power-of-two NUM_PARTITIONS — all
     # rejected at composition time, never later as an HDL elaboration failure
     unpack_ok = TileSpec(core="int32-row-unpack", config=dict(_FRONT_UNPACK_CONFIG), params={"OUT_WIDTH": 128})
-    ScanCompositionSpec(name="ok", lanes=(LaneSpec(tile=_BAR),), front_unpack=unpack_ok)
+    # the wide unpack rides the matching-width dispatcher (broadcast is
+    # 64-bit only, checked below)
+    ScanCompositionSpec(
+        name="ok",
+        lanes=tuple(LaneSpec(tile=_BAR) for _ in range(4)),
+        front_unpack=unpack_ok,
+        partitioner=TileSpec(core="int32-key-mask-dispatcher", params={"IN_WIDTH": 128}),
+    )
+    with pytest.raises(CompositionError, match="broadcast, which is 64-bit only"):
+        ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR),), front_unpack=unpack_ok)
     with pytest.raises(CompositionError, match="must be one of 64, 128"):
         ScanCompositionSpec(
             name="bad",
@@ -216,7 +225,8 @@ def test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards() ->
             front_unpack=TileSpec(core="int32-row-unpack", config=dict(_FRONT_UNPACK_CONFIG), params={"OUT_WIDTH": 192}),
         )
     dispatcher_ok = TileSpec(core="int32-key-mask-dispatcher", params={"IN_WIDTH": 128})
-    ScanCompositionSpec(name="ok", lanes=tuple(LaneSpec(tile=_BAR) for _ in range(4)), partitioner=dispatcher_ok)
+    # the widths must agree end to end: IN_WIDTH=128 pairs with the wide unpack
+    ScanCompositionSpec(name="ok", lanes=tuple(LaneSpec(tile=_BAR) for _ in range(4)), partitioner=dispatcher_ok, front_unpack=unpack_ok)
     with pytest.raises(CompositionError, match="must be one of 64, 128"):
         ScanCompositionSpec(
             name="bad",
@@ -587,3 +597,79 @@ def test_wide_data_width_composition_rules() -> None:
     from dau_core.composition import canonical_spec_json, spec_from_canonical
 
     assert spec_from_canonical(canonical_spec_json(wide)).data_width == 512
+
+
+def test_throughput_reproduces_the_measured_rate_ladder():
+    """The rate model recomputes silicon: 64-bit two-beat = 1/2 row/cycle
+    (~99 ms q6), the 512-bit dispatch feed = 1 (the serializer, 60.3 ms
+    measured 2026-07-30), and MORE LANES DO NOT HELP past the dispatcher's
+    declared ingest — the motivation for the wide-sum lane / distributor."""
+    from fractions import Fraction
+
+    from dau_core.composition import LaneSpec, ScanCompositionSpec, TileSpec, throughput_rows_per_cycle
+
+    lane = LaneSpec(tile=TileSpec(core="int32-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}))
+    dispatcher = TileSpec(core="int32-key-mask-dispatcher", params={"NUM_PARTITIONS": 4})
+    wide_dispatcher = TileSpec(core="int32-key-mask-dispatcher", params={"NUM_PARTITIONS": 4, "IN_WIDTH": 512})
+
+    assert throughput_rows_per_cycle(ScanCompositionSpec(name="t", lanes=(lane,) * 4)) == Fraction(1, 2)
+    # the dispatcher's own 64-bit two-beat framing halves it before the lanes
+    assert throughput_rows_per_cycle(ScanCompositionSpec(name="t", lanes=(lane,) * 4, partitioner=dispatcher, data_width=64)) == Fraction(1, 2)
+    assert throughput_rows_per_cycle(ScanCompositionSpec(name="t", lanes=(lane,) * 4, partitioner=wide_dispatcher, data_width=512)) == Fraction(1)
+    # dispatcher-capped (the serializer): 8 lanes buy nothing until multi-row lands
+    assert throughput_rows_per_cycle(ScanCompositionSpec(name="t", lanes=(lane,) * 8, partitioner=wide_dispatcher, data_width=512)) == Fraction(1)
+    # two lanes still meet the serializer's one row per cycle
+    assert throughput_rows_per_cycle(ScanCompositionSpec(name="t", lanes=(lane,) * 2, partitioner=wide_dispatcher, data_width=512)) == Fraction(1)
+    # the width-coupling gate: a wide feed into a 64-bit-framed dispatcher
+    # is a miswiring, refused at construction
+    import pytest as _pytest
+
+    from dau_core.composition import CompositionError
+
+    with _pytest.raises(CompositionError, match="does not match the 512-bit feed framing"):
+        ScanCompositionSpec(name="t", lanes=(lane,) * 4, partitioner=dispatcher, data_width=512)
+
+
+def test_throughput_packed_front_re_times_delivery():
+    from fractions import Fraction
+
+    from dau_core.composition import LaneSpec, ScanCompositionSpec, TileSpec, throughput_rows_per_cycle
+
+    lane = LaneSpec(tile=TileSpec(core="int32-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}))
+    dispatcher = TileSpec(core="int32-key-mask-dispatcher", params={"NUM_PARTITIONS": 4})
+    wide_dispatcher = TileSpec(core="int32-key-mask-dispatcher", params={"NUM_PARTITIONS": 4, "IN_WIDTH": 128})
+    narrow = TileSpec(core="int32-row-unpack")
+    wide = TileSpec(core="int32-row-unpack", params={"OUT_WIDTH": 128})
+
+    assert throughput_rows_per_cycle(ScanCompositionSpec(name="t", lanes=(lane,) * 4, partitioner=dispatcher, front_unpack=narrow)) == Fraction(1, 2)
+    assert throughput_rows_per_cycle(ScanCompositionSpec(name="t", lanes=(lane,) * 4, partitioner=wide_dispatcher, front_unpack=wide)) == Fraction(1)
+
+
+def test_wide_row_stream_cores_await_the_wide_lane_walker() -> None:
+    # the wide trio has no composable lane shape yet: today's fan-out
+    # delivers 64-bit two-beat rows, so a wide-row-stream tile in any lane
+    # slot is refused until the wide-lane walker lands
+    with pytest.raises(CompositionError, match="wide-row-stream"):
+        ScanCompositionSpec(
+            name="bad",
+            lanes=(LaneSpec(tile=TileSpec(core="int32-wide-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"})),),
+        )
+    with pytest.raises(CompositionError, match="wide-row-stream"):
+        ScanCompositionSpec(
+            name="bad",
+            lanes=(
+                LaneSpec(
+                    tile=_BAR,
+                    chain=(TileSpec(core="int32-wide-row-map-alu", config={}),),
+                ),
+            ),
+        )
+
+
+def test_wide_row_stream_cores_are_refused_in_the_partitioner_slot() -> None:
+    with pytest.raises(CompositionError, match="not a wide chain stage"):
+        ScanCompositionSpec(
+            name="bad",
+            lanes=tuple(LaneSpec(tile=_BAR) for _ in range(4)),
+            partitioner=TileSpec(core="int32-wide-row-predicate-filter", config={}),
+        )

@@ -16,11 +16,12 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from enum import Enum
+from fractions import Fraction
 from importlib import import_module
 from pathlib import Path
 
 from ccflow import BaseModel
-from pydantic import ConfigDict
+from pydantic import ConfigDict, StrictInt, field_validator, model_validator
 
 from .design import UnitKind
 from .stream import LogicalType, OperationCode
@@ -51,6 +52,11 @@ class ContractKind(Enum):
 
     ROW_STREAM = "row-stream"  # the standard 64-bit stream + status tile contract
     ARROW_LITE_DESCRIPTOR = "arrow-lite-descriptor"  # descriptor-driven Arrow-lite protocol
+    # the wide-lane contract: SLOTS whole 128-bit quad rows per beat, one
+    # beat per cycle, the all-ones row as the pad (drop-by-pad, no
+    # compaction). No slang validator yet — like arrow-lite, conformance
+    # rides the cocotb benches until one lands.
+    WIDE_ROW_STREAM = "wide-row-stream"
 
 
 class ResourceEnvelope(BaseModel):
@@ -64,6 +70,79 @@ class ResourceEnvelope(BaseModel):
     bram36: float
     dsp: int
     measured: bool = True
+
+
+class IngestRate(BaseModel):
+    """A stream core's guaranteed sustained ingest rate: ``rows`` rows per
+    ``per_cycles`` clock cycles, an exact rational (1 row per 2 cycles is
+    the composed lane rate the silicon proved; the key-mask dispatcher
+    ingests 1 per 1). This is PUBLIC INTERFACE, not a heuristic: the
+    scheduler/pricing software rate-matches a core it cannot inspect — a
+    user-provided custom core tied to a custom operator is opaque except
+    for its registry declaration, so the declaration carries the rate.
+    Declare the FLOOR a core sustains under continuous valid input,
+    with RECORD/DRAIN EMISSION AMORTIZED over the batch: close-out
+    records, top-k drains, and per-group records are batch-tail or
+    per-group costs, not per-row costs, so the declaration describes the
+    streaming regime (groups much smaller than rows, drains at close).
+    Data-dependent worst cases — every group key distinct, adversarial
+    key runs into one dispatcher lane — are planner-regime concerns the
+    planner sees in the plan (group keys, sortedness), not floor
+    violations. A core may burst faster, and a measured improvement (a
+    retime, a wider port) lands here the same release the RTL proves it.
+    Compositions over these floors yield the sustained rate the scheduler
+    plans on UNDER those stated assumptions."""
+
+    model_config = ConfigDict(frozen=True)
+
+    rows: StrictInt
+    per_cycles: StrictInt
+    # when set, the declared rate is PER SLOT and the effective rate is
+    # rows/per_cycles x the named module parameter (the wide-lane cores:
+    # ingest 1/1 per slot, SLOTS slots per beat). The name must be a
+    # declared parameter of the core — registry-test enforced.
+    scales_with_param: str | None = None
+    # when set, the core's row framing rides the named WIDTH parameter and
+    # the effective rate is min(rows/per_cycles, param/128): a 64-bit
+    # framing carries half a 128-bit quad row per beat, wider framings one
+    # or more, capped by the declared beat rate (the dispatcher's
+    # serializer ingests wide beats but forwards one row per cycle). At
+    # most one of scales_with_param / frames_on_param may be set.
+    frames_on_param: str | None = None
+
+    @field_validator("rows", "per_cycles")
+    @classmethod
+    def _positive(cls, value: int) -> int:
+        if value < 1:
+            raise ValueError("ingest rate components must be >= 1")
+        return value
+
+    @model_validator(mode="after")
+    def _one_scaling_shape(self) -> IngestRate:
+        if self.scales_with_param is not None and self.frames_on_param is not None:
+            raise ValueError("an ingest rate scales with at most one parameter shape")
+        return self
+
+    @property
+    def rows_per_cycle(self) -> Fraction:
+        return Fraction(self.rows, self.per_cycles)
+
+    def effective(self, params: Mapping[str, int], declared: Mapping[str, ParameterSpec]) -> Fraction:
+        """The rate at concrete parameter values — what the scheduler uses.
+        ``params`` are the composition's overrides; ``declared`` the core's
+        parameter specs (defaults fill unset overrides)."""
+
+        def value_of(name: str) -> int:
+            spec = declared.get(name)
+            if spec is None:
+                raise ValueError(f"ingest rate scales with undeclared parameter {name!r}")
+            return int(params.get(name, spec.default))
+
+        if self.scales_with_param is not None:
+            return self.rows_per_cycle * value_of(self.scales_with_param)
+        if self.frames_on_param is not None:
+            return min(self.rows_per_cycle, Fraction(value_of(self.frames_on_param), 128))
+        return self.rows_per_cycle
 
 
 class ParameterSpec(BaseModel):
@@ -105,6 +184,10 @@ class CoreDefinition(BaseModel):
     count_port: str | None = None  # the tile's trailing status counter, if any
     legacy: bool = False  # predates the stream+status contract; kept verified, not for new compositions
     contract_kind: ContractKind | None = None  # required for non-legacy operators; None elsewhere (no declared stream contract)
+    # the core's guaranteed sustained ingest rate — like contract_kind,
+    # required for non-legacy stream operators (registry-enforced): the
+    # public fact the scheduler feeds an opaque core by
+    ingest: IngestRate | None = None
     # capability facts (HDL truth, consumed by the composition-derived
     # capability contract): the descriptor-selectable OperationCodes a tile
     # executes in hardware and the logical types those opcodes accept.
@@ -132,6 +215,14 @@ class CoreDefinition(BaseModel):
     # the HDL is the source of truth, this is the machine-readable declaration
     # the composition validates against.
     parameters: Mapping[str, ParameterSpec] = {}
+
+    def model_post_init(self, context) -> None:
+        super().model_post_init(context)
+        # the public interface is self-enforcing, not just registry-tested:
+        # a user-provided operator core is invalid without its ingest rate
+        # (the scheduler cannot feed a core whose rate it does not know)
+        if self.kind == CoreKind.OPERATOR and not self.legacy and self.ingest is None:
+            raise ValueError(f"operator core {self.name!r} declares no ingest rate (required public interface)")
 
     def source_path(self) -> Path:
         from . import hdl

@@ -54,6 +54,39 @@ def test_legacy_operators_stay_verified_but_are_not_selectable() -> None:
         assert definition.count_port is None, definition.name
 
 
+def test_every_selectable_operator_declares_its_ingest_rate() -> None:
+    """Ingest rate is core PUBLIC INTERFACE (the scheduler rate-matches
+    opaque cores from the registry declaration alone): every non-legacy
+    stream operator declares it. The floor is the composed 1-row/2-cycle
+    lane rate; only silicon-proven faster cores declare 1/1."""
+    from fractions import Fraction
+
+    full_rate = set()
+    for definition in cores_of_kind(CoreKind.OPERATOR):
+        if definition.legacy:
+            assert definition.ingest is None, definition.name
+            continue
+        assert definition.ingest is not None, f"operator {definition.name} declares no ingest rate"
+        assert definition.ingest.rows_per_cycle <= Fraction(1, 1), f"{definition.name}: >1 row/cycle needs multi-row silicon proof"
+        if definition.ingest.rows_per_cycle == Fraction(1, 1):
+            full_rate.add(definition.name)
+    # the proven-faster set is pinned: a new full-rate claim is a deliberate,
+    # measured upgrade, not a copy-paste default. The wide-lane cores are
+    # 1/1 PER SLOT by construction (scales_with_param carries the multi-row
+    # claim; their cocotb benches prove one beat per cycle).
+    assert full_rate == {
+        "int32-key-mask-dispatcher",
+        "int32-row-unpack",
+        "int32-wide-row-predicate-filter",
+        "int32-wide-row-map-alu",
+        "int32-wide-field-sum-aggregation",
+    }
+    # a rate that scales with a module parameter must name a declared one
+    for definition in cores_of_kind(CoreKind.OPERATOR):
+        if definition.ingest is not None and definition.ingest.scales_with_param is not None:
+            assert definition.ingest.scales_with_param in definition.parameters, definition.name
+
+
 def test_every_selectable_operator_declares_its_contract_kind() -> None:
     """A new core declares its stream contract in the registry — contract
     tests select validators from this tag, never from test-local exemption
@@ -148,6 +181,8 @@ def test_silent_on_success_operator_set_is_pinned() -> None:
         "int32-broadcast-hash-join",
         "int32-row-unpack",
         "int32-time-bucket-key",
+        "int32-wide-row-predicate-filter",
+        "int32-wide-row-map-alu",
     }
     # the grouped multi-sum tile emits many group records but exactly ONE
     # success close-out per batch (after the final group) — terminal-legal

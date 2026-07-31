@@ -4,6 +4,16 @@
 # composition IS the registry -- there is no Python-literal core list.
 # Resource envelopes are produced by the dau-build synthesize-cores task;
 # never hand-run synthesis.
+# Ingest floors: the 1-row/2-cycle declarations rest on the composed
+# broadcast measurement (q6-scan 64-bit, 4 lanes each consuming the full
+# stream: 99.3 ms / 6.0 M rows @ 125 MHz = 2.07 cycles/row/lane including
+# job setup/drain overhead, 2026-07-30) — consistent with a 2-cycle
+# steady state; static FSM reading understates the ingest/output overlap.
+# The per-core cocotb bench is the per-core authority: a core whose bench
+# shows it cannot sustain 1/2 must lower its declaration. Floors describe
+# the STREAMING regime (record/drain emission amortized per batch/group —
+# see IngestRate); data-dependent worst cases are planner concerns.
+# Sustained-rate assertions in every bench are the tracked follow-up.
 aggregation-pkg:
   _target_: dau_core.cores.CoreDefinition
   name: aggregation-pkg
@@ -46,6 +56,9 @@ int32-predicate-filter:
     dsp: 0
   count_port: selected_count
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   success_close_out: true
 
 int32-keyed-predicate-filter:
@@ -65,6 +78,9 @@ int32-keyed-predicate-filter:
     bram36: 0.0
     dsp: 0
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   success_close_out: true
 
 int32-map-alu:
@@ -84,6 +100,9 @@ int32-map-alu:
     bram36: 0.0
     dsp: 8
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   success_close_out: true
 
 int32-keyed-map-alu:
@@ -103,6 +122,9 @@ int32-keyed-map-alu:
     bram36: 0.0
     dsp: 4
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   success_close_out: true
 
 int32-grouped-aggregation:
@@ -121,6 +143,9 @@ int32-grouped-aggregation:
     dsp: 0
   count_port: group_count
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   success_close_out: true
 
 int32-grouped-field-aggregation:
@@ -145,6 +170,9 @@ int32-grouped-field-aggregation:
     dsp: 0
   count_port: group_count
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   success_close_out: true
 
 int32-bar-aggregation:
@@ -163,6 +191,9 @@ int32-bar-aggregation:
     dsp: 0
   count_port: bar_count
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   success_close_out: true
 
 int32-asof-backward:
@@ -190,6 +221,10 @@ int32-asof-backward:
     dsp: 0
   count_port: match_count
   contract_kind: row-stream
+  # static bound: 3-word record ingest + 4-word joined-row emit + drain beat per match; a bench-measured tighter floor may raise it
+  ingest:
+    rows: 1
+    per_cycles: 8
   success_close_out: true
 
 int32-rolling-moments:
@@ -217,6 +252,10 @@ int32-rolling-moments:
     dsp: 8
   count_port: moment_count
   contract_kind: row-stream
+  # static FSM bound: 4-beat moment update + 3-word record emit + drain beat per full-window row; a bench-measured tighter floor may raise it
+  ingest:
+    rows: 1
+    per_cycles: 8
   success_close_out: true
   parameters:
     WINDOW:
@@ -246,6 +285,10 @@ int32-market-feature:
     dsp: 4
   count_port: feature_count
   contract_kind: row-stream
+  # static bound: 7 output words per input row gate the 64-bit stream; a bench-measured tighter floor may raise it
+  ingest:
+    rows: 1
+    per_cycles: 7
   success_close_out: true
 
 int32-time-bucket-key:
@@ -272,6 +315,9 @@ int32-time-bucket-key:
     bram36: 0.0
     dsp: 0
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   parameters:
     BUCKET_BITS:
       default: 16
@@ -302,6 +348,9 @@ int32-streaming-top-k:
     dsp: 0
   count_port: top_count
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   success_close_out: true
   parameters:
     K:
@@ -323,6 +372,9 @@ int32-pair-key-filter:
     bram36: 0.0
     dsp: 0
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
 
 int32-range-partitioner:
   _target_: dau_core.cores.CoreDefinition
@@ -340,6 +392,9 @@ int32-range-partitioner:
     bram36: 0.0
     dsp: 0
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
 
 int32-key-mask-dispatcher:
   _target_: dau_core.cores.CoreDefinition
@@ -364,6 +419,14 @@ int32-key-mask-dispatcher:
     bram36: 0.0
     dsp: 0
   contract_kind: row-stream
+  # framing-shaped: min(1, IN_WIDTH/128) — 64-bit two-beat framing is 1/2,
+  # 128 is 1, wider stays 1 (the serializer forwards one row per cycle;
+  # silicon 2026-07-30). Assumes mask-distributed keys (same-lane runs
+  # throttle on the lane drain — documented above).
+  ingest:
+    rows: 1
+    per_cycles: 1
+    frames_on_param: IN_WIDTH
   parameters:
     NUM_PARTITIONS:
       default: 4
@@ -397,6 +460,12 @@ int32-bitonic-sorter:
     dsp: 0
   count_port: sorted_count
   contract_kind: row-stream
+  # static batch cadence at CAPACITY=16: 16 rows in + PAD/SORT + 16 rows out
+  # per batch (~76 cycles) — batch-buffered, not streaming; a bench-measured
+  # tighter floor may raise it
+  ingest:
+    rows: 16
+    per_cycles: 76
   row_capacity: 16
   unit_kind: sort
   success_close_out: true
@@ -420,6 +489,9 @@ int32-row-predicate-filter:
     dsp: 0
   count_port: selected_count
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
 
 int32-row-map-alu:
   _target_: dau_core.cores.CoreDefinition
@@ -439,6 +511,9 @@ int32-row-map-alu:
     bram36: 0.0
     dsp: 4
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
 
 int32-row-unpack:
   _target_: dau_core.cores.CoreDefinition
@@ -466,6 +541,12 @@ int32-row-unpack:
     bram36: 0.0
     dsp: 0
   contract_kind: row-stream
+  # framing-shaped: min(1, OUT_WIDTH/128) — the 64-bit quad-stream emit is
+  # 1/2 (two beats per row), OUT_WIDTH=128 sustains 1 (silicon-proven)
+  ingest:
+    rows: 1
+    per_cycles: 1
+    frames_on_param: OUT_WIDTH
   parameters:
     OUT_WIDTH:
       default: 64
@@ -490,6 +571,9 @@ int32-field-sum-aggregation:
     dsp: 0
   count_port: aggregated_count
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   opcodes:
   - 3
   - 4
@@ -516,6 +600,9 @@ int32-grouped-field-sum-aggregation:
     dsp: 0
   count_port: group_count
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   opcodes:
   - 3
   - 4
@@ -544,6 +631,9 @@ int32-key-membership-filter:
     dsp: 0
   count_port: selected_count
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   unit_kind: membership
   load_image: bitmap-64
   parameters:
@@ -572,6 +662,9 @@ int32-broadcast-hash-join:
     dsp: 0
   count_port: joined_count
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   unit_kind: join
   load_image: quad-rows
   parameters:
@@ -596,6 +689,9 @@ int32-stream-aggregation:
     bram36: 0.0
     dsp: 0
   contract_kind: arrow-lite-descriptor
+  ingest:
+    rows: 1
+    per_cycles: 2
   opcodes:
   - 1
   - 2
@@ -623,6 +719,9 @@ int32-arrow-lite-stream-aggregation:
     bram36: 0.0
     dsp: 0
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   opcodes:
   - 1
   - 2
@@ -650,6 +749,9 @@ int32-record-batch-aggregation:
     bram36: 0.0
     dsp: 0
   contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 2
   opcodes:
   - 1
   - 2
@@ -784,6 +886,99 @@ identity-registers:
     ff: 0
     bram36: 0.0
     dsp: 0
+
+int32-wide-row-predicate-filter:
+  _target_: dau_core.cores.CoreDefinition
+  name: int32-wide-row-predicate-filter
+  kind: operator
+  module: dau_int32_wide_row_predicate_filter
+  source: dau_int32_wide_row_predicate_filter.sv
+  description: 'Wide-lane compound predicate filter: SLOTS whole quad rows per beat, one beat per cycle; a failing slot is
+    replaced with the reserved all-ones PAD row (drop-by-pad, positions preserved, no compaction) and pads pass through
+    untouched. Same three-term config and semantics as int32-row-predicate-filter, evaluated per slot.'
+  depends:
+  - predicate-pkg
+  golden: dau_core.operators:filter_rows_by_predicate
+  bench: dau_core.tests.cocotb_benches.dau_int32_wide_row_predicate_filter_tb
+  # OOC SLOTS=4 xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +3.129)
+  resources:
+    lut: 2276
+    ff: 2124
+    bram36: 0.0
+    dsp: 0
+  count_port: selected_count
+  contract_kind: wide-row-stream
+  ingest:
+    rows: 1
+    per_cycles: 1
+    scales_with_param: SLOTS
+  parameters:
+    SLOTS:
+      default: 4
+      choices: [1, 2, 4]
+
+int32-wide-row-map-alu:
+  _target_: dau_core.cores.CoreDefinition
+  name: int32-wide-row-map-alu
+  kind: operator
+  module: dau_int32_wide_row_map_alu
+  source: dau_int32_wide_row_map_alu.sv
+  description: 'Wide-lane row map ALU: SLOTS whole quad rows per beat, one beat per cycle; the transform of
+    int32-row-map-alu applied independently to each non-pad slot, pads pass through untouched.'
+  depends:
+  - map-alu-pkg
+  golden: dau_core.operators:map_row_fields
+  bench: dau_core.tests.cocotb_benches.dau_int32_wide_row_map_alu_tb
+  # OOC SLOTS=4 xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +0.688)
+  resources:
+    lut: 2746
+    ff: 2226
+    bram36: 0.0
+    dsp: 16
+  contract_kind: wide-row-stream
+  ingest:
+    rows: 1
+    per_cycles: 1
+    scales_with_param: SLOTS
+  parameters:
+    SLOTS:
+      default: 4
+      choices: [1, 2, 4]
+
+int32-wide-field-sum-aggregation:
+  _target_: dau_core.cores.CoreDefinition
+  name: int32-wide-field-sum-aggregation
+  kind: operator
+  module: dau_int32_wide_field_sum_aggregation
+  source: dau_int32_wide_field_sum_aggregation.sv
+  description: 'Wide-lane batch field-sum aggregation: SLOTS whole quad rows per beat, one beat per cycle (the multi-row
+    terminal of the wide lane); pads are neither summed nor counted; record and close-out protocol identical to
+    int32-field-sum-aggregation.'
+  golden: dau_core.operators:field_sum_rows
+  bench: dau_core.tests.cocotb_benches.dau_int32_wide_field_sum_aggregation_tb
+  # OOC SLOTS=4 xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +3.125)
+  resources:
+    lut: 1478
+    ff: 467
+    bram36: 0.0
+    dsp: 0
+  count_port: aggregated_count
+  contract_kind: wide-row-stream
+  ingest:
+    rows: 1
+    per_cycles: 1
+    scales_with_param: SLOTS
+  parameters:
+    SLOTS:
+      default: 4
+      choices: [1, 2, 4]
+  opcodes:
+  - 3
+  - 4
+  opcode_input_types:
+  - 12
+  unit_kind: aggregation
+  success_close_out: true
 
 identity-axil:
   _target_: dau_core.cores.CoreDefinition
