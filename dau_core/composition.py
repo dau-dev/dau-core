@@ -21,7 +21,7 @@ from fractions import Fraction
 from ccflow import BaseModel
 from pydantic import ConfigDict, StrictInt
 
-from .cores import CoreDefinition, CoreKind, LoadImageKind, ResourceEnvelope, core
+from .cores import ContractKind, CoreDefinition, CoreKind, LoadImageKind, ResourceEnvelope, core
 
 SCAN_INFRASTRUCTURE_CORES = ("axi-burst-reader", "stream-broadcast", "axi-record-writer", "axi-write-mux", "identity-registers")
 
@@ -207,7 +207,28 @@ class ScanCompositionSpec(BaseModel):
                     "packed rows after the burst reader and before the fan-out, a role only the row-unpack core fills"
                 )
             _validate_tile_params(self.front_unpack, "front unpacker")
+            if self.partitioner is None:
+                out_spec = self.front_unpack.definition().parameters.get("OUT_WIDTH")
+                unpack_width = self.front_unpack.params.get("OUT_WIDTH", out_spec.default if out_spec else 64)
+                if unpack_width != 64:
+                    raise CompositionError(
+                        f"front unpacker OUT_WIDTH={unpack_width} feeds the stream broadcast, which is 64-bit only — "
+                        "wide unpacked framing needs a shared partitioner/dispatcher (IN_WIDTH to match)"
+                    )
         for lane in self.lanes:
+            for slot_tile, slot_role in (
+                (lane.tile, "lane tile"),
+                (lane.partition, "lane partition"),
+                *((stage, "lane chain stage") for stage in lane.chain),
+            ):
+                if slot_tile is None:
+                    continue
+                if slot_tile.definition().contract_kind is ContractKind.WIDE_ROW_STREAM:
+                    raise CompositionError(
+                        f"{slot_role} {slot_tile.core!r} speaks the wide-row-stream contract; today's lane fan-out delivers 64-bit "
+                        "two-beat rows — the wide-lane composition shape (reader beats straight into a wide chain) lands with the "
+                        "wide walker (ROADMAP 4g.iii)"
+                    )
             tile = lane.tile.definition()
             if tile.kind != CoreKind.OPERATOR:
                 raise CompositionError(f"lane tile {lane.tile.core!r} is {tile.kind.value}, not an operator")
@@ -369,6 +390,14 @@ def throughput_rows_per_cycle(spec: ScanCompositionSpec) -> Fraction:
       so the SLOWEST lane is the system rate (no summing). A lane's rate
       is the minimum declared ingest over its partition, chain, and
       terminal tile.
+
+    DISTRIBUTION ASSUMPTION (explicit, not fine print): the partitioned
+    sum assumes rows spread across lanes per the partitioner's routing —
+    the key-mask dispatcher's declaration already says "mask-distributed
+    keys". Adversarial inputs (every key to one lane) degrade to a single
+    lane's rate; a scheduler planning for that regime should use
+    ``min(lane rates)`` instead. The broadcast path has no such
+    assumption (every lane sees every row regardless of keys).
     """
 
     def _tile_rate(tile: TileSpec, role: str) -> Fraction:

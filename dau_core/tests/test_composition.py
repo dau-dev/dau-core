@@ -208,7 +208,16 @@ def test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards() ->
     # the dispatcher's mask decode needs a power-of-two NUM_PARTITIONS — all
     # rejected at composition time, never later as an HDL elaboration failure
     unpack_ok = TileSpec(core="int32-row-unpack", config=dict(_FRONT_UNPACK_CONFIG), params={"OUT_WIDTH": 128})
-    ScanCompositionSpec(name="ok", lanes=(LaneSpec(tile=_BAR),), front_unpack=unpack_ok)
+    # the wide unpack rides the matching-width dispatcher (broadcast is
+    # 64-bit only, checked below)
+    ScanCompositionSpec(
+        name="ok",
+        lanes=tuple(LaneSpec(tile=_BAR) for _ in range(4)),
+        front_unpack=unpack_ok,
+        partitioner=TileSpec(core="int32-key-mask-dispatcher", params={"IN_WIDTH": 128}),
+    )
+    with pytest.raises(CompositionError, match="broadcast, which is 64-bit only"):
+        ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR),), front_unpack=unpack_ok)
     with pytest.raises(CompositionError, match="must be one of 64, 128"):
         ScanCompositionSpec(
             name="bad",
@@ -634,3 +643,24 @@ def test_throughput_packed_front_re_times_delivery():
 
     assert throughput_rows_per_cycle(ScanCompositionSpec(name="t", lanes=(lane,) * 4, partitioner=dispatcher, front_unpack=narrow)) == Fraction(1, 2)
     assert throughput_rows_per_cycle(ScanCompositionSpec(name="t", lanes=(lane,) * 4, partitioner=wide_dispatcher, front_unpack=wide)) == Fraction(1)
+
+
+def test_wide_row_stream_cores_await_the_wide_lane_walker() -> None:
+    # the wide trio has no composable lane shape yet: today's fan-out
+    # delivers 64-bit two-beat rows, so a wide-row-stream tile in any lane
+    # slot is refused until the wide-lane walker (ROADMAP 4g.iii) lands
+    with pytest.raises(CompositionError, match="wide-row-stream"):
+        ScanCompositionSpec(
+            name="bad",
+            lanes=(LaneSpec(tile=TileSpec(core="int32-wide-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"})),),
+        )
+    with pytest.raises(CompositionError, match="wide-row-stream"):
+        ScanCompositionSpec(
+            name="bad",
+            lanes=(
+                LaneSpec(
+                    tile=_BAR,
+                    chain=(TileSpec(core="int32-wide-row-map-alu", config={}),),
+                ),
+            ),
+        )
