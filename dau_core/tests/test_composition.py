@@ -659,6 +659,11 @@ def test_the_wide_lane_shape_composes_and_rate_matches():
 
     spec = ScanCompositionSpec(name="w", lanes=(LaneSpec(tile=wide_sum, chain=(wide_pred, wide_map)),), data_width=512)
     assert throughput_rows_per_cycle(spec) == Fraction(4)
+    # no broadcast is placed: source closure and pricing must not count one
+    assert "stream-broadcast" not in spec.core_names()
+    from dau_core.composition import estimated_resources
+
+    assert estimated_resources(spec).measured
     # SLOTS=1 gives the 128-bit tier a full-rate lane with no dispatcher
     narrow = ScanCompositionSpec(
         name="w1",

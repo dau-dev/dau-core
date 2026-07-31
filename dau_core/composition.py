@@ -388,13 +388,21 @@ class ScanCompositionSpec(BaseModel):
                     )
             # QUAD_ROWS images are 16-byte build rows — always on the grid
 
+    def is_wide_lane(self) -> bool:
+        """Whether this is the wide-lane shape: the single lane's terminal
+        speaks the wide-row-stream contract, so the reader feeds the lane
+        directly — no broadcast, no partitioner (validated at
+        construction)."""
+        return self.lanes[0].tile.definition().contract_kind is ContractKind.WIDE_ROW_STREAM
+
     def core_names(self) -> tuple[str, ...]:
         """Every registry core the composition instantiates, infrastructure
         included, deduplicated in first-use order. A shared partitioner
         replaces the broadcast."""
         names: dict[str, None] = {}
+        no_broadcast = self.partitioner is not None or self.is_wide_lane()
         for name in SCAN_INFRASTRUCTURE_CORES:
-            if self.partitioner is not None and name == "stream-broadcast":
+            if no_broadcast and name == "stream-broadcast":
                 continue
             names.setdefault(name)
         if self.front_unpack is not None:
@@ -508,7 +516,8 @@ def estimated_resources(spec: ScanCompositionSpec) -> ResourceEnvelope:
         add(spec.front_unpack.core)
     if spec.partitioner is not None:
         add(spec.partitioner.core)
-    else:
+    elif not spec.is_wide_lane():
+        # the wide lane feeds the single lane directly: no broadcast placed
         add("stream-broadcast")
     for lane in spec.lanes:
         add("axi-record-writer")
