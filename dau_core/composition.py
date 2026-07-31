@@ -128,6 +128,12 @@ class ScanCompositionSpec(BaseModel):
     lanes: tuple[LaneSpec, ...]
     burst_beats: int = 32
     addr_width: int = 32
+    # the memory read datapath width (the width-tier catalog knob, the
+    # build-level ``width=`` selection): the burst reader's DATA_WIDTH and,
+    # in a dispatch-shaped scan, the row framing into the fan-out. 64 keeps
+    # the classic single shared M_AXI; wider tiers split a wide read-only
+    # master off from the 64-bit record-write master in the walker.
+    data_width: int = 64
     partitioner: TileSpec | None = None
     front_unpack: TileSpec | None = None
 
@@ -138,6 +144,16 @@ class ScanCompositionSpec(BaseModel):
         super().model_post_init(context)
         if not self.lanes:
             raise CompositionError("a scan composition needs at least one lane")
+        if self.data_width not in (64, 128, 256, 512):
+            raise CompositionError(f"data_width must be 64/128/256/512, got {self.data_width}")
+        if self.data_width != 64:
+            if self.front_unpack is not None:
+                raise CompositionError(
+                    "a packed front unpacker reads 64-bit packed rows; wide packed reads (data_width > 64) are a follow-up — "
+                    "drop the front_unpack to feed quad rows at data_width, or keep data_width=64"
+                )
+            if self.partitioner is None:
+                raise CompositionError(f"a {self.data_width}-bit feed needs a shared partitioner/dispatcher; the stream broadcast is 64-bit only")
         if self.partitioner is not None:
             definition = self.partitioner.definition()
             if definition.kind != CoreKind.OPERATOR:
@@ -356,7 +372,7 @@ def estimated_resources(spec: ScanCompositionSpec) -> ResourceEnvelope:
     return ResourceEnvelope(lut=lut, ff=ff, bram36=bram, dsp=dsp, measured=measured)
 
 
-SPEC_CANONICAL_VERSION = "1"
+SPEC_CANONICAL_VERSION = "2"  # 2: data_width joined the canonical form (the width-tier knob, 2026-07-30)
 
 
 def canonical_spec_json(spec: ScanCompositionSpec) -> str:
