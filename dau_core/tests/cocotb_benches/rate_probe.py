@@ -8,7 +8,7 @@ from cocotb.triggers import ReadOnly, RisingEdge
 
 from dau_core.cores import core
 
-RATE_TOLERANCE = Fraction(1, 20)
+RATE_TOLERANCE = Fraction(1, 100)
 
 
 async def assert_sustained_ingest(
@@ -22,7 +22,13 @@ async def assert_sustained_ingest(
     params: Mapping[str, int] | None = None,
     ready_signal_names: Sequence[str] = ("output_ready", "status_ready"),
 ) -> Fraction:
-    """Measure continuous-valid input handshakes against the registry floor."""
+    """Measure continuous-valid input handshakes against the registry floor.
+
+    SCOPE: this measures INPUT ACCEPTANCE for a STREAMING tile, ending at
+    the last accepted beat. A tile that buffers a whole batch and works
+    afterward could accept quickly and still be slow overall; such a tile
+    needs a measurement spanning its drain and re-arm instead. Every core
+    probed here consumes and emits continuously."""
     if input_beats < 1 or rows_per_beat < 1 or beats_per_row < 1:
         raise ValueError("rate probe dimensions must be positive")
 
@@ -66,8 +72,10 @@ async def assert_sustained_ingest(
     assert first_tick is not None and last_tick is not None
     cycles = last_tick - first_tick + 1
     measured = accepted_rows / cycles
-    # Five percent covers bounded pipeline/end-point effects in a 256+ row
-    # sample without hiding a real cadence mismatch such as 1/3 versus 1/2.
+    # Simulation is deterministic — there is no measurement noise, and over
+    # 256+ rows the pipeline's fill/drain endpoints distort a seven-cycle
+    # cadence by well under half a percent. One percent therefore covers the
+    # endpoints without letting a genuinely slower tile certify its floor.
     minimum = declared * (1 - RATE_TOLERANCE)
     dut._log.info(
         "RATE %s params=%s measured=%.6f declared=%.6f rows=%s cycles=%d",

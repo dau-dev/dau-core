@@ -795,8 +795,9 @@ def test_selectivity_reconciles_the_model_with_q6_silicon() -> None:
     # default: every stage charged as if every row reached it
     assert throughput_rows_per_cycle(q6) == Fraction(1, 7)
 
-    # q6's measured funnel: 6,001,215 rows in, 114,160 out
-    passes = (Fraction(1), Fraction(1, 5), Fraction(114160, 6001215))
+    # q6's measured funnel: 6,001,215 rows in, 114,160 out. One entry per
+    # chain stage plus the terminal (what LEAVES the last stage).
+    passes = (Fraction(1), Fraction(1, 5), Fraction(114160, 6001215), Fraction(114160, 6001215))
     with_selectivity = throughput_rows_per_cycle(q6, stage_pass_fractions=dict.fromkeys(range(4), passes))
     assert with_selectivity == Fraction(1, 2)
     silicon = Fraction(6001215, 99) / Fraction(125_000)  # 6.0M rows / 99.3 ms at 125 MHz
@@ -804,3 +805,20 @@ def test_selectivity_reconciles_the_model_with_q6_silicon() -> None:
 
     with pytest.raises(CompositionError, match="pass fractions"):
         throughput_rows_per_cycle(q6, stage_pass_fractions={0: (Fraction(1),)})
+    with pytest.raises(CompositionError, match=r"\[0, 1\]"):
+        throughput_rows_per_cycle(q6, stage_pass_fractions=dict.fromkeys(range(4), (Fraction(2),) * 4))
+
+    # a stage nothing reaches cannot bind the feed (and must not divide by zero)
+    starved = dict.fromkeys(range(4), (Fraction(1), Fraction(0), Fraction(0), Fraction(0)))
+    assert throughput_rows_per_cycle(q6, stage_pass_fractions=starved) == Fraction(1, 2)
+
+    # under a shared partitioner the lane rates are SUMMED, which key routing
+    # cannot honour when lanes differ: refuse rather than overpredict
+    dispatched = ScanCompositionSpec(
+        name="q6-dispatch",
+        lanes=(lane,) * 4,
+        partitioner=TileSpec(core="int32-key-mask-dispatcher", params={"NUM_PARTITIONS": 4}),
+    )
+    uneven = {0: passes, 1: (Fraction(1), Fraction(1), Fraction(1), Fraction(1)), 2: passes, 3: passes}
+    with pytest.raises(CompositionError, match="identical across partitioned lanes"):
+        throughput_rows_per_cycle(dispatched, stage_pass_fractions=uneven)

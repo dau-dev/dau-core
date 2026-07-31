@@ -489,23 +489,45 @@ def throughput_rows_per_cycle(spec: ScanCompositionSpec, *, stage_pass_fractions
     else:
         delivery = Fraction(spec.data_width, 128)
 
+    supplied = stage_pass_fractions or {}
+    if supplied and spec.partitioner is not None and len({tuple(v) for v in supplied.values()}) > 1:
+        # under a shared partitioner the lane rates are SUMMED, which only
+        # holds if routing can shift load toward the faster lanes. Key-based
+        # routing cannot: an evenly-fed slow lane binds the whole feed well
+        # below the sum. Rather than model routing, refuse the ambiguous case.
+        raise CompositionError(
+            "stage_pass_fractions must be identical across partitioned lanes: key routing splits rows evenly, so a lane "
+            "with worse selectivity binds the feed and the summed-lane model would overpredict"
+        )
+
     lane_rates = []
     for index, lane in enumerate(spec.lanes):
-        passes = list((stage_pass_fractions or {}).get(index, ()))
-        if passes and len(passes) != len(lane.chain):
-            raise CompositionError(f"lane {index} has {len(lane.chain)} chain stages but {len(passes)} pass fractions")
+        # one reach fraction per chain stage PLUS one for the terminal (what
+        # LEAVES the final stage), so a chain ending in a filter is not
+        # charged the terminal at the wrong point
+        passes = [Fraction(f) for f in supplied.get(index, ())]
+        if passes and len(passes) != len(lane.chain) + 1:
+            raise CompositionError(
+                f"lane {index} needs {len(lane.chain) + 1} pass fractions (one per chain stage plus the terminal), got {len(passes)}"
+            )
+        if any(f < 0 or f > 1 for f in passes):
+            raise CompositionError(f"lane {index} pass fractions must lie in [0, 1], got {passes}")
+        if not passes:
+            passes = [Fraction(1)] * (len(lane.chain) + 1)
+
         # a stage's rate limits the INPUT stream only in proportion to the
         # rows that reach it: a stage seeing a tenth of the rows can be ten
-        # times slower before it binds
-        limits = [_tile_rate(lane.tile, f"lane {index} terminal") / (passes[-1] if passes else Fraction(1))]
-        for position, stage in enumerate(lane.chain):
-            reaching = passes[position] if passes else Fraction(1)
-            if reaching <= 0:
-                continue  # nothing reaches it; it cannot limit the feed
-            limits.append(_tile_rate(stage, f"lane {index} chain stage") / reaching)
+        # times slower before it binds. A stage nothing reaches cannot bind.
+        limits = []
+        for position, tile in enumerate([*lane.chain, lane.tile]):
+            reaching = passes[position]
+            if reaching == 0:
+                continue
+            role = f"lane {index} terminal" if position == len(lane.chain) else f"lane {index} chain stage"
+            limits.append(_tile_rate(tile, role) / reaching)
         if lane.partition is not None:
             limits.append(_tile_rate(lane.partition, f"lane {index} partition"))
-        lane_rates.append(min(limits))
+        lane_rates.append(min(limits) if limits else _tile_rate(lane.tile, f"lane {index} terminal"))
 
     if spec.partitioner is not None:
         consumption = min(_tile_rate(spec.partitioner, "partitioner"), sum(lane_rates, Fraction(0)))
