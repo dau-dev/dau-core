@@ -773,6 +773,41 @@ def range_partition_bar_rows(rows: Iterable[tuple[int, int, int, int]], *, split
     return parts
 
 
+def mask_dispatch_records(
+    records: Iterable[Sequence[int]], *, num_partitions: int, exact_branch: bool = False
+) -> list[list[tuple[int, ...]]]:
+    """Golden semantics for the key-mask dispatcher over N-WORD records.
+
+    The quad-row form (:func:`mask_dispatch_rows`) routes two 64-bit words
+    keyed on the first word's low half. A fused chain whose head reads
+    wider records — the as-of join's three-word ``{tag/key, time,
+    payload}`` — routes those records WHOLE on the same key, so a
+    per-symbol workflow can be replicated across lanes without reshaping
+    the stream. Each record is a sequence of 64-bit words; the routing key
+    is ``word0 & 0xFFFFFFFF`` read as a signed 32-bit value, exactly the
+    hardware bit-select. Order is preserved within each partition."""
+    if num_partitions < 1:
+        raise ValueError(f"num_partitions must be positive, got {num_partitions}")
+    if not exact_branch and num_partitions & (num_partitions - 1):
+        raise ValueError(f"num_partitions must be a power of two, got {num_partitions}")
+    parts: list[list[tuple[int, ...]]] = [[] for _ in range(num_partitions)]
+    width = None
+    for record in records:
+        words = tuple(record)
+        if width is None:
+            width = len(words)
+        elif len(words) != width:
+            raise ValueError(f"records must all carry the same word count, got {len(words)} after {width}")
+        key = words[0] & 0xFFFF_FFFF
+        if exact_branch:
+            if key == 0 or key > num_partitions:
+                continue  # dropped at the router, zero lane cycles
+            parts[key - 1].append(words)
+        else:
+            parts[key & (num_partitions - 1)].append(words)
+    return parts
+
+
 def mask_dispatch_rows(
     rows: Iterable[tuple[int, int, int, int]], *, num_partitions: int, exact_branch: bool = False
 ) -> list[list[tuple[int, int, int, int]]]:

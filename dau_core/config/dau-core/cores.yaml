@@ -462,6 +462,15 @@ int32-key-mask-dispatcher:
   parameters:
     NUM_PARTITIONS:
       default: 4
+    RECORD_WORDS:
+      # 64-bit words per routed record: 2 is the 16-byte quad row (every
+      # existing composition, byte-identical). Wider records route WHOLE on
+      # word 0's low half, so a per-key sequential chain (the as-of join's
+      # 3-word record) can be replicated across lanes with no reshaping.
+      # Only the 64-bit framing supports != 2 — wide beats are quad rows.
+      default: 2
+      minimum: 1
+      maximum: 16
     IN_WIDTH:
       default: 64
       choices:
