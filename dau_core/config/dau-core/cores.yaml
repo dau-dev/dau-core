@@ -455,6 +455,15 @@ int32-key-mask-dispatcher:
   # 128 is 1, wider stays 1 (the serializer forwards one row per cycle;
   # silicon 2026-07-30). Assumes mask-distributed keys (same-lane runs
   # throttle on the lane drain — documented above).
+  # LIMITATION: this declaration is valid at RECORD_WORDS=2 only. The
+  # 64-bit front ingests one WORD per cycle, so an N-word record costs N
+  # cycles (1/3 for the as-of record, not 1/2) — while a wide framing
+  # delivers a whole record per beat-slot. Those are two different rules
+  # and the current rate shapes (fixed / frames_on_param /
+  # scales_with_param) cannot express the pair. Expressing it properly is
+  # the tile-ABI work: a core declares its record shape alongside its rate.
+  # Until then a composition using RECORD_WORDS != 2 is OVER-predicted by
+  # throughput_rows_per_cycle and must be hand-checked.
   ingest:
     rows: 1
     per_cycles: 1
