@@ -80,11 +80,18 @@ class IngestRate(BaseModel):
     scheduler/pricing software rate-matches a core it cannot inspect — a
     user-provided custom core tied to a custom operator is opaque except
     for its registry declaration, so the declaration carries the rate.
-    Declare the FLOOR a core sustains under continuous valid input; a core
-    may burst faster, and a measured improvement (a retime, a wider port)
-    lands here the same release the RTL proves it. Compositions over these
-    floors yield the GUARANTEED sustained rate (what the scheduler plans
-    on), not an upper bound on what silicon may do."""
+    Declare the FLOOR a core sustains under continuous valid input,
+    with RECORD/DRAIN EMISSION AMORTIZED over the batch: close-out
+    records, top-k drains, and per-group records are batch-tail or
+    per-group costs, not per-row costs, so the declaration describes the
+    streaming regime (groups much smaller than rows, drains at close).
+    Data-dependent worst cases — every group key distinct, adversarial
+    key runs into one dispatcher lane — are planner-regime concerns the
+    planner sees in the plan (group keys, sortedness), not floor
+    violations. A core may burst faster, and a measured improvement (a
+    retime, a wider port) lands here the same release the RTL proves it.
+    Compositions over these floors yield the sustained rate the scheduler
+    plans on UNDER those stated assumptions."""
 
     model_config = ConfigDict(frozen=True)
 

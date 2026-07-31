@@ -10,7 +10,10 @@
 # job setup/drain overhead, 2026-07-30) — consistent with a 2-cycle
 # steady state; static FSM reading understates the ingest/output overlap.
 # The per-core cocotb bench is the per-core authority: a core whose bench
-# shows it cannot sustain 1/2 must lower its declaration.
+# shows it cannot sustain 1/2 must lower its declaration. Floors describe
+# the STREAMING regime (record/drain emission amortized per batch/group —
+# see IngestRate); data-dependent worst cases are planner concerns.
+# Sustained-rate assertions in every bench are the tracked follow-up.
 aggregation-pkg:
   _target_: dau_core.cores.CoreDefinition
   name: aggregation-pkg
@@ -457,9 +460,12 @@ int32-bitonic-sorter:
     dsp: 0
   count_port: sorted_count
   contract_kind: row-stream
+  # static batch cadence at CAPACITY=16: 16 rows in + PAD/SORT + 16 rows out
+  # per batch (~76 cycles) — batch-buffered, not streaming; a bench-measured
+  # tighter floor may raise it
   ingest:
-    rows: 1
-    per_cycles: 2
+    rows: 16
+    per_cycles: 76
   row_capacity: 16
   unit_kind: sort
   success_close_out: true
