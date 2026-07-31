@@ -406,9 +406,14 @@ int32-key-mask-dispatcher:
     bram36: 0.0
     dsp: 0
   contract_kind: row-stream
+  # framing-shaped: min(1, IN_WIDTH/128) — 64-bit two-beat framing is 1/2,
+  # 128 is 1, wider stays 1 (the serializer forwards one row per cycle;
+  # silicon 2026-07-30). Assumes mask-distributed keys (same-lane runs
+  # throttle on the lane drain — documented above).
   ingest:
     rows: 1
     per_cycles: 1
+    frames_on_param: IN_WIDTH
   parameters:
     NUM_PARTITIONS:
       default: 4
@@ -520,9 +525,12 @@ int32-row-unpack:
     bram36: 0.0
     dsp: 0
   contract_kind: row-stream
+  # framing-shaped: min(1, OUT_WIDTH/128) — the 64-bit quad-stream emit is
+  # 1/2 (two beats per row), OUT_WIDTH=128 sustains 1 (silicon-proven)
   ingest:
     rows: 1
     per_cycles: 1
+    frames_on_param: OUT_WIDTH
   parameters:
     OUT_WIDTH:
       default: 64
@@ -862,6 +870,81 @@ identity-registers:
     ff: 0
     bram36: 0.0
     dsp: 0
+
+int32-wide-row-predicate-filter:
+  _target_: dau_core.cores.CoreDefinition
+  name: int32-wide-row-predicate-filter
+  kind: operator
+  module: dau_int32_wide_row_predicate_filter
+  source: dau_int32_wide_row_predicate_filter.sv
+  description: 'Wide-lane compound predicate filter: SLOTS whole quad rows per beat, one beat per cycle; a failing slot is
+    replaced with the reserved all-ones PAD row (drop-by-pad, positions preserved, no compaction) and pads pass through
+    untouched. Same three-term config and semantics as int32-row-predicate-filter, evaluated per slot.'
+  depends:
+  - predicate-pkg
+  golden: dau_core.operators:filter_rows_by_predicate
+  bench: dau_core.tests.cocotb_benches.dau_int32_wide_row_predicate_filter_tb
+  count_port: selected_count
+  contract_kind: wide-row-stream
+  ingest:
+    rows: 1
+    per_cycles: 1
+    scales_with_param: SLOTS
+  parameters:
+    SLOTS:
+      default: 4
+      choices: [1, 2, 4]
+
+int32-wide-row-map-alu:
+  _target_: dau_core.cores.CoreDefinition
+  name: int32-wide-row-map-alu
+  kind: operator
+  module: dau_int32_wide_row_map_alu
+  source: dau_int32_wide_row_map_alu.sv
+  description: 'Wide-lane row map ALU: SLOTS whole quad rows per beat, one beat per cycle; the transform of
+    int32-row-map-alu applied independently to each non-pad slot, pads pass through untouched.'
+  depends:
+  - map-alu-pkg
+  golden: dau_core.operators:map_row_fields
+  bench: dau_core.tests.cocotb_benches.dau_int32_wide_row_map_alu_tb
+  contract_kind: wide-row-stream
+  ingest:
+    rows: 1
+    per_cycles: 1
+    scales_with_param: SLOTS
+  parameters:
+    SLOTS:
+      default: 4
+      choices: [1, 2, 4]
+
+int32-wide-field-sum-aggregation:
+  _target_: dau_core.cores.CoreDefinition
+  name: int32-wide-field-sum-aggregation
+  kind: operator
+  module: dau_int32_wide_field_sum_aggregation
+  source: dau_int32_wide_field_sum_aggregation.sv
+  description: 'Wide-lane batch field-sum aggregation: SLOTS whole quad rows per beat, one beat per cycle (the multi-row
+    terminal of the wide lane); pads are neither summed nor counted; record and close-out protocol identical to
+    int32-field-sum-aggregation.'
+  golden: dau_core.operators:field_sum_rows
+  bench: dau_core.tests.cocotb_benches.dau_int32_wide_field_sum_aggregation_tb
+  count_port: aggregated_count
+  contract_kind: wide-row-stream
+  ingest:
+    rows: 1
+    per_cycles: 1
+    scales_with_param: SLOTS
+  parameters:
+    SLOTS:
+      default: 4
+      choices: [1, 2, 4]
+  opcodes:
+  - 3
+  - 4
+  opcode_input_types:
+  - 12
+  unit_kind: aggregation
+  success_close_out: true
 
 identity-axil:
   _target_: dau_core.cores.CoreDefinition

@@ -216,7 +216,8 @@ def test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards() ->
             front_unpack=TileSpec(core="int32-row-unpack", config=dict(_FRONT_UNPACK_CONFIG), params={"OUT_WIDTH": 192}),
         )
     dispatcher_ok = TileSpec(core="int32-key-mask-dispatcher", params={"IN_WIDTH": 128})
-    ScanCompositionSpec(name="ok", lanes=tuple(LaneSpec(tile=_BAR) for _ in range(4)), partitioner=dispatcher_ok)
+    # the widths must agree end to end: IN_WIDTH=128 pairs with the wide unpack
+    ScanCompositionSpec(name="ok", lanes=tuple(LaneSpec(tile=_BAR) for _ in range(4)), partitioner=dispatcher_ok, front_unpack=unpack_ok)
     with pytest.raises(CompositionError, match="must be one of 64, 128"):
         ScanCompositionSpec(
             name="bad",
@@ -600,14 +601,24 @@ def test_throughput_reproduces_the_measured_rate_ladder():
 
     lane = LaneSpec(tile=TileSpec(core="int32-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}))
     dispatcher = TileSpec(core="int32-key-mask-dispatcher", params={"NUM_PARTITIONS": 4})
+    wide_dispatcher = TileSpec(core="int32-key-mask-dispatcher", params={"NUM_PARTITIONS": 4, "IN_WIDTH": 512})
 
     assert throughput_rows_per_cycle(ScanCompositionSpec(name="t", lanes=(lane,) * 4)) == Fraction(1, 2)
+    # the dispatcher's own 64-bit two-beat framing halves it before the lanes
     assert throughput_rows_per_cycle(ScanCompositionSpec(name="t", lanes=(lane,) * 4, partitioner=dispatcher, data_width=64)) == Fraction(1, 2)
-    assert throughput_rows_per_cycle(ScanCompositionSpec(name="t", lanes=(lane,) * 4, partitioner=dispatcher, data_width=512)) == Fraction(1)
-    # dispatcher-capped: 8 lanes buy nothing at width until multi-row lands
-    assert throughput_rows_per_cycle(ScanCompositionSpec(name="t", lanes=(lane,) * 8, partitioner=dispatcher, data_width=512)) == Fraction(1)
-    # two lanes under-consume the dispatcher: lane sum governs
-    assert throughput_rows_per_cycle(ScanCompositionSpec(name="t", lanes=(lane,) * 2, partitioner=dispatcher, data_width=512)) == Fraction(1)
+    assert throughput_rows_per_cycle(ScanCompositionSpec(name="t", lanes=(lane,) * 4, partitioner=wide_dispatcher, data_width=512)) == Fraction(1)
+    # dispatcher-capped (the serializer): 8 lanes buy nothing until multi-row lands
+    assert throughput_rows_per_cycle(ScanCompositionSpec(name="t", lanes=(lane,) * 8, partitioner=wide_dispatcher, data_width=512)) == Fraction(1)
+    # two lanes still meet the serializer's one row per cycle
+    assert throughput_rows_per_cycle(ScanCompositionSpec(name="t", lanes=(lane,) * 2, partitioner=wide_dispatcher, data_width=512)) == Fraction(1)
+    # the width-coupling gate: a wide feed into a 64-bit-framed dispatcher
+    # is a miswiring, refused at construction
+    import pytest as _pytest
+
+    from dau_core.composition import CompositionError
+
+    with _pytest.raises(CompositionError, match="does not match the 512-bit feed framing"):
+        ScanCompositionSpec(name="t", lanes=(lane,) * 4, partitioner=dispatcher, data_width=512)
 
 
 def test_throughput_packed_front_re_times_delivery():
@@ -617,8 +628,9 @@ def test_throughput_packed_front_re_times_delivery():
 
     lane = LaneSpec(tile=TileSpec(core="int32-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}))
     dispatcher = TileSpec(core="int32-key-mask-dispatcher", params={"NUM_PARTITIONS": 4})
+    wide_dispatcher = TileSpec(core="int32-key-mask-dispatcher", params={"NUM_PARTITIONS": 4, "IN_WIDTH": 128})
     narrow = TileSpec(core="int32-row-unpack")
     wide = TileSpec(core="int32-row-unpack", params={"OUT_WIDTH": 128})
 
     assert throughput_rows_per_cycle(ScanCompositionSpec(name="t", lanes=(lane,) * 4, partitioner=dispatcher, front_unpack=narrow)) == Fraction(1, 2)
-    assert throughput_rows_per_cycle(ScanCompositionSpec(name="t", lanes=(lane,) * 4, partitioner=dispatcher, front_unpack=wide)) == Fraction(1)
+    assert throughput_rows_per_cycle(ScanCompositionSpec(name="t", lanes=(lane,) * 4, partitioner=wide_dispatcher, front_unpack=wide)) == Fraction(1)

@@ -71,8 +71,20 @@ def test_every_selectable_operator_declares_its_ingest_rate() -> None:
         if definition.ingest.rows_per_cycle == Fraction(1, 1):
             full_rate.add(definition.name)
     # the proven-faster set is pinned: a new full-rate claim is a deliberate,
-    # measured upgrade, not a copy-paste default
-    assert full_rate == {"int32-key-mask-dispatcher", "int32-row-unpack"}
+    # measured upgrade, not a copy-paste default. The wide-lane cores are
+    # 1/1 PER SLOT by construction (scales_with_param carries the multi-row
+    # claim; their cocotb benches prove one beat per cycle).
+    assert full_rate == {
+        "int32-key-mask-dispatcher",
+        "int32-row-unpack",
+        "int32-wide-row-predicate-filter",
+        "int32-wide-row-map-alu",
+        "int32-wide-field-sum-aggregation",
+    }
+    # a rate that scales with a module parameter must name a declared one
+    for definition in cores_of_kind(CoreKind.OPERATOR):
+        if definition.ingest is not None and definition.ingest.scales_with_param is not None:
+            assert definition.ingest.scales_with_param in definition.parameters, definition.name
 
 
 def test_every_selectable_operator_declares_its_contract_kind() -> None:
@@ -169,6 +181,8 @@ def test_silent_on_success_operator_set_is_pinned() -> None:
         "int32-broadcast-hash-join",
         "int32-row-unpack",
         "int32-time-bucket-key",
+        "int32-wide-row-predicate-filter",
+        "int32-wide-row-map-alu",
     }
     # the grouped multi-sum tile emits many group records but exactly ONE
     # success close-out per batch (after the final group) — terminal-legal

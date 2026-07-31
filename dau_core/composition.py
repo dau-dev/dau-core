@@ -172,6 +172,28 @@ class ScanCompositionSpec(BaseModel):
             # the conditional pairing the per-parameter spec cannot express.
             # The effective count is the lane count (the walker derives
             # NUM_PARTITIONS from it) unless a params override names it.
+            # the framing widths must AGREE end to end: the feed (data_width,
+            # or the unpacker's OUT_WIDTH when packed) frames the rows the
+            # partitioner ingests, so a partitioner declaring IN_WIDTH must
+            # match it — and one that declares no IN_WIDTH speaks 64-bit
+            # two-beat framing only (a wide feed would misframe rows)
+            feed_width = self.data_width
+            if self.front_unpack is not None:
+                out_spec = self.front_unpack.definition().parameters.get("OUT_WIDTH")
+                feed_width = self.front_unpack.params.get("OUT_WIDTH", out_spec.default if out_spec else 64)
+            in_spec = definition.parameters.get("IN_WIDTH")
+            if in_spec is None:
+                if feed_width != 64:
+                    raise CompositionError(
+                        f"partitioner {self.partitioner.core!r} declares no IN_WIDTH (64-bit framing only) but the feed frames {feed_width}-bit rows"
+                    )
+            else:
+                in_width = self.partitioner.params.get("IN_WIDTH", in_spec.default)
+                if in_width != feed_width:
+                    raise CompositionError(
+                        f"partitioner {self.partitioner.core!r} IN_WIDTH={in_width} does not match the {feed_width}-bit feed framing "
+                        "(data_width, or the front unpacker's OUT_WIDTH)"
+                    )
             if self.partitioner.core == "int32-key-mask-dispatcher" and self.partitioner.params.get("EXACT_BRANCH", 0) != 1:
                 partitions = self.partitioner.params.get("NUM_PARTITIONS", len(self.lanes))
                 if partitions & (partitions - 1):
@@ -328,8 +350,10 @@ class ScanCompositionSpec(BaseModel):
 
 
 def throughput_rows_per_cycle(spec: ScanCompositionSpec) -> Fraction:
-    """The composed design's sustained ingest ceiling, in rows per job-clock
-    cycle — an exact rational computed ONLY from public interface facts
+    """The composed design's GUARANTEED sustained ingest rate, in rows per
+    job-clock cycle — the number the scheduler plans on (declared rates are
+    floors, so silicon may burst higher; it will not sustain lower). An
+    exact rational computed ONLY from public interface facts
     (each core's declared ``ingest`` rate plus the spec's feed shape), so
     the scheduler can rate-match a composition of cores it cannot inspect.
 
@@ -348,14 +372,19 @@ def throughput_rows_per_cycle(spec: ScanCompositionSpec) -> Fraction:
     """
 
     def _tile_rate(tile: TileSpec, role: str) -> Fraction:
-        ingest = tile.definition().ingest
+        definition = tile.definition()
+        ingest = definition.ingest
         if ingest is None:
             raise CompositionError(f"{role} core {tile.core!r} declares no ingest rate (required public interface for stream operators)")
-        return ingest.rows_per_cycle
+        try:
+            return ingest.effective(tile.params, definition.parameters)
+        except ValueError as exc:
+            raise CompositionError(f"{role} core {tile.core!r}: {exc}") from exc
 
     if spec.front_unpack is not None:
-        out_width = spec.front_unpack.params.get("OUT_WIDTH", 64)
-        delivery = Fraction(out_width, 128)
+        # the packed feed: one 8-byte packed row per 64-bit beat from the
+        # reader, then the unpacker's own framing-shaped rate
+        delivery = min(Fraction(1), _tile_rate(spec.front_unpack, "front unpacker"))
     elif spec.data_width == 64:
         delivery = Fraction(1, 2)
     else:
