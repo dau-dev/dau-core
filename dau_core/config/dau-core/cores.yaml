@@ -474,6 +474,32 @@ int32-key-mask-dispatcher:
       - 0
       - 1
 
+int32-stride-distributor:
+  _target_: dau_core.cores.CoreDefinition
+  name: int32-stride-distributor
+  kind: operator
+  module: dau_int32_stride_distributor
+  source: dau_int32_stride_distributor.sv
+  description: 'Static stride distributor: routes each slot of an IN_WIDTH-wide quad-row beat round-robin within its own
+    contiguous lane group, drops all-ones PAD rows, and emits independent 64-bit two-beat streams for existing stateful
+    terminals. Routing is positional and never key-dependent; per-lane keyed partials are merged by key on the host.'
+  golden: dau_core.operators:stride_distribute_rows
+  bench: dau_core.tests.cocotb_benches.dau_int32_stride_distributor_tb
+  contract_kind: row-stream
+  ingest:
+    rows: 1
+    per_cycles: 1
+    frames_on_param: IN_WIDTH
+  parameters:
+    IN_WIDTH:
+      default: 512
+      choices:
+      - 128
+      - 256
+      - 512
+    NUM_PARTITIONS:
+      default: 8
+
 int32-bitonic-sorter:
   _target_: dau_core.cores.CoreDefinition
   name: int32-bitonic-sorter

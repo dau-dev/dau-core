@@ -805,6 +805,34 @@ def mask_dispatch_rows(
     return parts
 
 
+def stride_distribute_rows(
+    rows: Iterable[tuple[int, int, int, int]], *, rows_per_beat: int, num_partitions: int
+) -> tuple[list[tuple[int, int, int, int]], ...]:
+    """Route packed rows by static slot position and per-slot round robin.
+
+    Row ``i`` occupies slot ``i % rows_per_beat``. Each slot owns one
+    contiguous group of ``num_partitions / rows_per_beat`` lanes and advances
+    only its own round-robin counter. This is correct for keyed aggregation
+    even though a key may reach several lanes: the host merges per-lane
+    partials by key, the same partial-group contract used by q1's two-pass
+    aggregation.
+    """
+    if rows_per_beat < 1:
+        raise ValueError(f"rows_per_beat must be positive, got {rows_per_beat}")
+    if num_partitions < 1 or num_partitions % rows_per_beat:
+        raise ValueError(f"num_partitions must be a positive multiple of rows_per_beat, got {num_partitions}")
+
+    lanes_per_slot = num_partitions // rows_per_beat
+    counters = [0] * rows_per_beat
+    parts: tuple[list[tuple[int, int, int, int]], ...] = tuple([] for _ in range(num_partitions))
+    for index, row in enumerate(rows):
+        slot = index % rows_per_beat
+        lane = slot * lanes_per_slot + counters[slot]
+        parts[lane].append(tuple(row))
+        counters[slot] = (counters[slot] + 1) % lanes_per_slot
+    return parts
+
+
 def pack_splitters(values: Sequence[int]) -> str:
     """Pack range-partitioner splitter constants into the ``cfg_splitters`` SV
     bus literal ``{32'h..., ...}``. ``cfg_splitters`` is a flat bus carrying
