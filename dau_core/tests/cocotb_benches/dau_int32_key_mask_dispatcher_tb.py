@@ -7,8 +7,26 @@ from cocotb.clock import Clock
 from cocotb.triggers import ReadOnly, RisingEdge
 
 from dau_core.operators import mask_dispatch_rows
+from dau_core.tests.cocotb_benches.rate_probe import assert_sustained_ingest
 
 ERR_STREAM = 2
+
+
+@cocotb.test()
+async def sustained_ingest_meets_registry_floor(dut):
+    await _start(dut)
+    num_parts = _num_parts(dut)
+    rows = [(index % num_parts, index, index + 1, index + 2) for index in range(256)]
+    await assert_sustained_ingest(
+        dut,
+        "int32-key-mask-dispatcher",
+        send=lambda: _send_rows(dut, rows),
+        input_beats=2 * len(rows),
+        beats_per_row=2,
+        params={"IN_WIDTH": 64},
+    )
+
+
 _MASK32 = 0xFFFF_FFFF
 _MASK64 = 0xFFFF_FFFF_FFFF_FFFF
 

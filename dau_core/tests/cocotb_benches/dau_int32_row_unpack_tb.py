@@ -7,6 +7,7 @@ from cocotb.clock import Clock
 from cocotb.triggers import ReadOnly, RisingEdge
 
 from dau_core.operators import UnpackErrorCode, UnpackFieldSpec, unpack_rows
+from dau_core.tests.cocotb_benches.rate_probe import assert_sustained_ingest
 
 _MASK32 = 0xFFFF_FFFF
 _INT32_MIN = -(1 << 31)
@@ -40,6 +41,20 @@ async def byte_lane_unpack_matches_golden(dut):
     rows = [(0x11, 0x22, 0x33, 0x44), (0x00, 0xFF, 0x80, 0x7F)]
     words = [_pack(_BYTE_SPECS, row) for row in rows]
     assert await _run(dut, words, _BYTE_SPECS) == unpack_rows(words, _BYTE_SPECS)
+
+
+@cocotb.test()
+async def sustained_ingest_meets_registry_floor(dut):
+    await _start(dut)
+    _drive_config(dut, _BYTE_SPECS)
+    words = list(range(256))
+    await assert_sustained_ingest(
+        dut,
+        "int32-row-unpack",
+        send=lambda: _send_words(dut, words),
+        input_beats=len(words),
+        params={"OUT_WIDTH": 64},
+    )
 
 
 @cocotb.test()

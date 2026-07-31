@@ -7,6 +7,7 @@ from cocotb.clock import Clock
 from cocotb.triggers import ReadOnly, RisingEdge
 
 from dau_core.operators import GroupedFieldSumErrorCode, grouped_field_sum_rows
+from dau_core.tests.cocotb_benches.rate_probe import assert_sustained_ingest
 
 _MASK32 = 0xFFFF_FFFF
 _MASK64 = 0xFFFF_FFFF_FFFF_FFFF
@@ -25,6 +26,23 @@ _ROWS = [
 ]
 
 _Q1_MASK = 0b1010  # SUM(disc_price) + SUM(charge) per group
+
+
+@cocotb.test()
+async def sustained_ingest_meets_registry_floor(dut):
+    await _start(dut)
+    dut.cfg_field_mask.value = _Q1_MASK
+    # One long group measures the declared amortized streaming regime; group
+    # record emission is explicitly outside the per-row floor.
+    rows = [(7, index, index + 1, index + 2) for index in range(256)]
+    words = _pack_rows(rows)
+    await assert_sustained_ingest(
+        dut,
+        "int32-grouped-field-sum-aggregation",
+        send=lambda: _send_words(dut, words),
+        input_beats=len(words),
+        beats_per_row=2,
+    )
 
 
 def _record_words(rows, field_mask: int) -> list[int]:

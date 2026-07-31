@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from fractions import Fraction
 
 from ccflow import BaseModel
@@ -428,7 +428,7 @@ class ScanCompositionSpec(BaseModel):
         return tuple(names)
 
 
-def throughput_rows_per_cycle(spec: ScanCompositionSpec) -> Fraction:
+def throughput_rows_per_cycle(spec: ScanCompositionSpec, *, stage_pass_fractions: Mapping[int, Sequence[Fraction]] | None = None) -> Fraction:
     """The composed design's GUARANTEED sustained ingest rate, in rows per
     job-clock cycle — the number the scheduler plans on (declared rates are
     floors, so silicon may burst higher; it will not sustain lower). An
@@ -456,6 +456,18 @@ def throughput_rows_per_cycle(spec: ScanCompositionSpec) -> Fraction:
     lane's rate; a scheduler planning for that regime should use
     ``min(lane rates)`` instead. The broadcast path has no such
     assumption (every lane sees every row regardless of keys).
+
+    SELECTIVITY: by default every stage is charged as if EVERY input row
+    reached it, which is the worst case and can be badly pessimistic for
+    a chain whose slow stage sits behind a filter. q6 is the worked
+    example: its map stage sustains one row per seven cycles standalone
+    (bench-measured), but two predicates upstream pass ~2% of rows, so
+    the map never binds and silicon ran at 0.483 rows/cycle — 3.4x the
+    no-selectivity figure. Pass ``stage_pass_fractions`` (lane index ->
+    the fraction of INPUT rows reaching each chain stage, in chain order)
+    when the caller knows the plan; each stage's rate is then charged
+    against the rows it actually sees. Selectivity is data-dependent, so
+    the composition never guesses it — that is the planner's to supply.
     """
 
     def _tile_rate(tile: TileSpec, role: str) -> Fraction:
@@ -477,13 +489,45 @@ def throughput_rows_per_cycle(spec: ScanCompositionSpec) -> Fraction:
     else:
         delivery = Fraction(spec.data_width, 128)
 
+    supplied = stage_pass_fractions or {}
+    if supplied and spec.partitioner is not None and len({tuple(v) for v in supplied.values()}) > 1:
+        # under a shared partitioner the lane rates are SUMMED, which only
+        # holds if routing can shift load toward the faster lanes. Key-based
+        # routing cannot: an evenly-fed slow lane binds the whole feed well
+        # below the sum. Rather than model routing, refuse the ambiguous case.
+        raise CompositionError(
+            "stage_pass_fractions must be identical across partitioned lanes: key routing splits rows evenly, so a lane "
+            "with worse selectivity binds the feed and the summed-lane model would overpredict"
+        )
+
     lane_rates = []
     for index, lane in enumerate(spec.lanes):
-        tiles = [(lane.tile, f"lane {index} terminal")]
-        tiles += [(stage, f"lane {index} chain stage") for stage in lane.chain]
+        # one reach fraction per chain stage PLUS one for the terminal (what
+        # LEAVES the final stage), so a chain ending in a filter is not
+        # charged the terminal at the wrong point
+        passes = [Fraction(f) for f in supplied.get(index, ())]
+        if passes and len(passes) != len(lane.chain) + 1:
+            raise CompositionError(
+                f"lane {index} needs {len(lane.chain) + 1} pass fractions (one per chain stage plus the terminal), got {len(passes)}"
+            )
+        if any(f < 0 or f > 1 for f in passes):
+            raise CompositionError(f"lane {index} pass fractions must lie in [0, 1], got {passes}")
+        if not passes:
+            passes = [Fraction(1)] * (len(lane.chain) + 1)
+
+        # a stage's rate limits the INPUT stream only in proportion to the
+        # rows that reach it: a stage seeing a tenth of the rows can be ten
+        # times slower before it binds. A stage nothing reaches cannot bind.
+        limits = []
+        for position, tile in enumerate([*lane.chain, lane.tile]):
+            reaching = passes[position]
+            if reaching == 0:
+                continue
+            role = f"lane {index} terminal" if position == len(lane.chain) else f"lane {index} chain stage"
+            limits.append(_tile_rate(tile, role) / reaching)
         if lane.partition is not None:
-            tiles.append((lane.partition, f"lane {index} partition"))
-        lane_rates.append(min(_tile_rate(tile, role) for tile, role in tiles))
+            limits.append(_tile_rate(lane.partition, f"lane {index} partition"))
+        lane_rates.append(min(limits) if limits else _tile_rate(lane.tile, f"lane {index} terminal"))
 
     if spec.partitioner is not None:
         consumption = min(_tile_rate(spec.partitioner, "partitioner"), sum(lane_rates, Fraction(0)))

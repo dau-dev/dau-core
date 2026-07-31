@@ -27,6 +27,7 @@ from dau_core.tests.cocotb_benches.dau_int32_row_unpack_tb import (
     _send_words,
     _signed32,
 )
+from dau_core.tests.cocotb_benches.rate_probe import assert_sustained_ingest
 
 
 def _decode_beat(beat: int) -> tuple[int, int, int, int]:
@@ -111,6 +112,20 @@ async def _run_bypass(dut, words, *, ready_pattern=(1,)):
     beats = await _collect_beats(dut, ready_pattern, expect_beats=len(words) // 2)
     await send
     return [_decode_beat(beat) for beat in beats]
+
+
+@cocotb.test()
+async def sustained_ingest_meets_registry_floor(dut):
+    await _start(dut)
+    _drive_config(dut, _BYTE_SPECS)
+    words = list(range(256))
+    await assert_sustained_ingest(
+        dut,
+        "int32-row-unpack",
+        send=lambda: _send_words(dut, words),
+        input_beats=len(words),
+        params={"OUT_WIDTH": 128},
+    )
 
 
 @cocotb.test()

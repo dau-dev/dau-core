@@ -7,6 +7,7 @@ from cocotb.clock import Clock
 from cocotb.triggers import ReadOnly, RisingEdge
 
 from dau_core.operators import MapErrorCode, MapOp, RowField, RowMapConfig, map_row_fields
+from dau_core.tests.cocotb_benches.rate_probe import assert_sustained_ingest
 
 _MASK32 = 0xFFFF_FFFF
 _INT32_MIN = -(1 << 31)
@@ -23,6 +24,22 @@ _ROWS = [
 
 # fixed-point revenue: value = value * aux0 >>> 15
 _Q6_REVENUE = RowMapConfig(op=MapOp.MULSHR, dst=RowField.VALUE, src_a=RowField.VALUE, src_b=RowField.AUX0, shift=15)
+
+
+@cocotb.test()
+async def sustained_ingest_meets_registry_floor(dut):
+    await _start(dut)
+    rows = [(index, index + 1, index + 2, index + 3) for index in range(256)]
+    config = RowMapConfig(op=MapOp.ADD, dst=RowField.VALUE, src_a=RowField.VALUE, src_b=RowField.AUX0)
+    _drive_config(dut, config)
+    words = _pack_rows(rows)
+    await assert_sustained_ingest(
+        dut,
+        "int32-row-map-alu",
+        send=lambda: _send_words(dut, words),
+        input_beats=len(words),
+        beats_per_row=2,
+    )
 
 
 @cocotb.test()
