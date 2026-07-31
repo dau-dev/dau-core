@@ -4,11 +4,13 @@
 # composition IS the registry -- there is no Python-literal core list.
 # Resource envelopes are produced by the dau-build synthesize-cores task;
 # never hand-run synthesis.
-# Ingest floors: the 1-row/2-cycle declarations are SILICON-proven via the
-# broadcast path (q6-scan 64-bit, 4 lanes each consuming the full stream:
-# 99.3 ms / 6.0 M rows @ 125 MHz = 2.07 cycles/row/lane, 2026-07-30) —
-# static FSM reading understates the ingest/output overlap. A core whose
-# bench shows it cannot sustain 1/2 must lower its declaration.
+# Ingest floors: the 1-row/2-cycle declarations rest on the composed
+# broadcast measurement (q6-scan 64-bit, 4 lanes each consuming the full
+# stream: 99.3 ms / 6.0 M rows @ 125 MHz = 2.07 cycles/row/lane including
+# job setup/drain overhead, 2026-07-30) — consistent with a 2-cycle
+# steady state; static FSM reading understates the ingest/output overlap.
+# The per-core cocotb bench is the per-core authority: a core whose bench
+# shows it cannot sustain 1/2 must lower its declaration.
 aggregation-pkg:
   _target_: dau_core.cores.CoreDefinition
   name: aggregation-pkg

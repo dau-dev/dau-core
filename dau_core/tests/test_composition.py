@@ -648,7 +648,7 @@ def test_throughput_packed_front_re_times_delivery():
 def test_wide_row_stream_cores_await_the_wide_lane_walker() -> None:
     # the wide trio has no composable lane shape yet: today's fan-out
     # delivers 64-bit two-beat rows, so a wide-row-stream tile in any lane
-    # slot is refused until the wide-lane walker (ROADMAP 4g.iii) lands
+    # slot is refused until the wide-lane walker lands
     with pytest.raises(CompositionError, match="wide-row-stream"):
         ScanCompositionSpec(
             name="bad",
@@ -663,4 +663,13 @@ def test_wide_row_stream_cores_await_the_wide_lane_walker() -> None:
                     chain=(TileSpec(core="int32-wide-row-map-alu", config={}),),
                 ),
             ),
+        )
+
+
+def test_wide_row_stream_cores_are_refused_in_the_partitioner_slot() -> None:
+    with pytest.raises(CompositionError, match="not a wide chain stage"):
+        ScanCompositionSpec(
+            name="bad",
+            lanes=tuple(LaneSpec(tile=_BAR) for _ in range(4)),
+            partitioner=TileSpec(core="int32-wide-row-predicate-filter", config={}),
         )

@@ -166,6 +166,10 @@ class ScanCompositionSpec(BaseModel):
                     f"partitioner {self.partitioner.core!r} emits a success close-out per batch; the lane status mux allows exactly one — "
                     "only the terminal tile may close out on success"
                 )
+            if definition.contract_kind is ContractKind.WIDE_ROW_STREAM:
+                raise CompositionError(
+                    f"partitioner {self.partitioner.core!r} speaks the wide-row-stream contract; the shared router slot is not a wide chain stage"
+                )
             _validate_tile_params(self.partitioner, "partitioner")
             # the key-mask dispatcher's mask decode (dest = key & (N-1)) needs
             # a power-of-two partition count; the exact-branch mode does not —
@@ -226,8 +230,7 @@ class ScanCompositionSpec(BaseModel):
                 if slot_tile.definition().contract_kind is ContractKind.WIDE_ROW_STREAM:
                     raise CompositionError(
                         f"{slot_role} {slot_tile.core!r} speaks the wide-row-stream contract; today's lane fan-out delivers 64-bit "
-                        "two-beat rows — the wide-lane composition shape (reader beats straight into a wide chain) lands with the "
-                        "wide walker (ROADMAP 4g.iii)"
+                        "two-beat rows — composable once the wide-lane walker (reader beats straight into a wide chain) lands"
                     )
             tile = lane.tile.definition()
             if tile.kind != CoreKind.OPERATOR:
