@@ -977,7 +977,7 @@ int32-wide-row-predicate-filter:
   - predicate-pkg
   golden: dau_core.operators:filter_rows_by_predicate
   bench: dau_core.tests.cocotb_benches.dau_int32_wide_row_predicate_filter_tb
-  # OOC SLOTS=4 xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +3.129)
+  # Reference hand-split 3-stage OOC: SLOTS=4 xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +3.129)
   resources:
     lut: 2276
     ff: 2124
@@ -985,6 +985,7 @@ int32-wide-row-predicate-filter:
     dsp: 0
   count_port: selected_count
   contract_kind: wide-row-stream
+  # Pipeline depth changes latency, not throughput.
   ingest:
     rows: 1
     per_cycles: 1
@@ -993,6 +994,10 @@ int32-wide-row-predicate-filter:
     SLOTS:
       default: 4
       choices: [1, 2, 4]
+    PIPELINE_DEPTH:
+      default: 3
+      minimum: 1
+      maximum: 8
 
 int32-wide-row-map-alu:
   _target_: dau_core.cores.CoreDefinition
@@ -1006,13 +1011,14 @@ int32-wide-row-map-alu:
   - map-alu-pkg
   golden: dau_core.operators:map_row_fields
   bench: dau_core.tests.cocotb_benches.dau_int32_wide_row_map_alu_tb
-  # OOC SLOTS=4 xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +0.688)
+  # Reference hand-split 3-stage OOC: SLOTS=4 xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +0.688)
   resources:
     lut: 2746
     ff: 2226
     bram36: 0.0
     dsp: 16
   contract_kind: wide-row-stream
+  # Pipeline depth changes latency, not throughput.
   ingest:
     rows: 1
     per_cycles: 1
@@ -1021,6 +1027,10 @@ int32-wide-row-map-alu:
     SLOTS:
       default: 4
       choices: [1, 2, 4]
+    PIPELINE_DEPTH:
+      default: 3
+      minimum: 1
+      maximum: 8
 
 int32-wide-field-sum-aggregation:
   _target_: dau_core.cores.CoreDefinition

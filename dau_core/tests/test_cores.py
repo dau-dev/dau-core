@@ -88,6 +88,16 @@ def test_every_selectable_operator_declares_its_ingest_rate() -> None:
             assert definition.ingest.scales_with_param in definition.parameters, definition.name
 
 
+def test_wide_combinational_tiles_declare_pipeline_depth_without_changing_ingest() -> None:
+    for name in ("int32-wide-row-predicate-filter", "int32-wide-row-map-alu"):
+        definition = core(name)
+        depth = definition.parameters["PIPELINE_DEPTH"]
+        assert (depth.default, depth.minimum, depth.maximum) == (3, 1, 8)
+        assert definition.ingest is not None
+        assert (definition.ingest.rows, definition.ingest.per_cycles) == (1, 1)
+        assert definition.ingest.scales_with_param == "SLOTS"
+
+
 def test_every_selectable_operator_declares_its_contract_kind() -> None:
     """A new core declares its stream contract in the registry — contract
     tests select validators from this tag, never from test-local exemption
