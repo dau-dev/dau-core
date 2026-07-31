@@ -537,7 +537,9 @@ def test_spec_hash_pinned_fixture() -> None:
         ),
         burst_beats=16,
     )
-    assert spec_hash(spec) == "1:5960fa805747df4f1d13fbbf143f9b13b5fed485fc5ba26fd490beb14ffe48f2"
+    # canonical version 2: data_width joined the canonical form (the
+    # width-tier knob) — every v1 cache key misses cold, by design
+    assert spec_hash(spec) == "2:4b004e696dcc5278c65968c1560de4ff64d20b9426b08c35fd774177d79b8a75"
 
 
 def test_spec_from_canonical_revalidates() -> None:
@@ -563,3 +565,25 @@ def test_spec_hash_stable_when_defaults_are_explicit() -> None:
         front_unpack=None,
     )
     assert spec_hash(implicit) == spec_hash(explicit)
+
+
+def test_wide_data_width_composition_rules() -> None:
+    """The canonical spec mirrors the walker's width rules: a wide feed
+    needs a dispatcher (broadcast is 64-bit only), wide packed reads are a
+    typed follow-up, and the tier set is closed."""
+    lane = LaneSpec(tile=TileSpec(core="int32-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}))
+    with pytest.raises(CompositionError, match="broadcast is 64-bit only"):
+        ScanCompositionSpec(name="bad", lanes=(lane,), data_width=256)
+    with pytest.raises(CompositionError, match="must be 64/128/256/512"):
+        ScanCompositionSpec(name="bad", lanes=(lane,), data_width=96)
+    wide = ScanCompositionSpec(
+        name="wide",
+        lanes=(lane,) * 4,
+        partitioner=TileSpec(core="int32-key-mask-dispatcher", params={"IN_WIDTH": 512}),
+        data_width=512,
+    )
+    assert wide.data_width == 512
+    # and it round-trips the canonical form
+    from dau_core.composition import canonical_spec_json, spec_from_canonical
+
+    assert spec_from_canonical(canonical_spec_json(wide)).data_width == 512
