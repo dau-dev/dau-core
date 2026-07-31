@@ -194,3 +194,18 @@ def test_silent_on_success_operator_set_is_pinned() -> None:
     # the grouped multi-sum tile emits many group records but exactly ONE
     # success close-out per batch (after the final group) — terminal-legal
     assert core("int32-grouped-field-sum-aggregation").success_close_out
+
+
+def test_the_dispatcher_rate_is_only_claimed_for_quad_row_records() -> None:
+    """The dispatcher's framing-shaped rate describes a 2-word record. Its
+    64-bit front ingests one WORD per cycle, so an N-word record costs N
+    cycles, while a wide framing delivers a whole record per beat-slot —
+    two rules the current rate shapes cannot express together. This pins
+    the gap so a composition at RECORD_WORDS != 2 is not silently
+    over-predicted; closing it is the tile-ABI work."""
+    definition = core("int32-key-mask-dispatcher")
+    assert definition.parameters["RECORD_WORDS"].default == 2
+    assert definition.ingest is not None and definition.ingest.frames_on_param == "IN_WIDTH"
+    # the declaration ignores RECORD_WORDS entirely — that is the gap
+    narrow = definition.ingest.effective({"IN_WIDTH": 64}, definition.parameters)
+    assert narrow == definition.ingest.effective({"IN_WIDTH": 64, "RECORD_WORDS": 3}, definition.parameters)

@@ -44,14 +44,15 @@
 // downstream tile cannot see. A self-contained copy of
 // dau_range_partition_lane (renamed so a composition carrying both cores does
 // not collide), keeping the dispatcher a one-file core.
-module dau_key_mask_dispatch_lane (
+module dau_key_mask_dispatch_lane #(
+    parameter int unsigned RECORD_WORDS = 2  // 64-bit words per record (2 = the quad row)
+) (
     input  wire logic        clk,
     input  wire logic        rst,
-    // a completed row destined for this lane (asserted by the shared front)
+    // a completed record destined for this lane (asserted by the shared front)
     input  wire logic        push_valid,
     output logic             push_ready,
-    input  wire logic [63:0] push_w0,
-    input  wire logic [63:0] push_w1,
+    input  wire logic [RECORD_WORDS*64-1:0] push_words,
     // batch control (levels, driven while the front drains): flush ends the
     // batch (emit the held row with last=1, or close out zero-row), err marks
     // a torn batch (raise ERR_STREAM, drop everything)
@@ -71,21 +72,21 @@ module dau_key_mask_dispatch_lane (
 );
     localparam logic [7:0] ERR_STREAM = 8'd2;
 
+    localparam int unsigned WIDX_W = (RECORD_WORDS <= 1) ? 1 : $clog2(RECORD_WORDS);
+
     typedef enum logic [1:0] {
         EMIT_IDLE,
-        EMIT_W0,
-        EMIT_W1
+        EMIT_WORDS
     } emit_t;
 
-    emit_t       emit_state;
-    logic [63:0] emit_w0;
-    logic [63:0] emit_w1;
-    logic        emit_last;
+    emit_t              emit_state;
+    logic [WIDX_W-1:0]  emit_index;  // which word of the record is next out
+    logic [RECORD_WORDS*64-1:0] emit_words;
+    logic                       emit_last;
 
-    logic        held_valid;
-    logic [63:0] held_w0;
-    logic [63:0] held_w1;
-    logic        drain_started;  // flush/err action taken once per batch end
+    logic                       held_valid;
+    logic [RECORD_WORDS*64-1:0] held_words;
+    logic                       drain_started;  // flush/err action taken once per batch end
 
     logic output_fire;
     logic emit_free;
@@ -93,14 +94,14 @@ module dau_key_mask_dispatch_lane (
     assign output_fire = output_valid && output_ready;
     // the emit engine can take a displaced row when idle, or on the cycle its
     // final word is accepted
-    assign emit_free = (emit_state == EMIT_IDLE) || ((emit_state == EMIT_W1) && output_fire);
+    assign emit_free = (emit_state == EMIT_IDLE) || ((emit_state == EMIT_WORDS) && output_fire && (emit_index == WIDX_W'(RECORD_WORDS - 1)));
 
     // never accept a new push while ending the batch
     assign push_ready = !flush && !err && (!held_valid || emit_free);
 
     assign output_valid = emit_state != EMIT_IDLE;
-    assign output_data = (emit_state == EMIT_W0) ? emit_w0 : emit_w1;
-    assign output_last = (emit_state == EMIT_W1) && emit_last;
+    assign output_data = emit_words[64 * emit_index +: 64];
+    assign output_last = (emit_index == WIDX_W'(RECORD_WORDS - 1)) && emit_last;
 
     // a lane is done only once its held row, emit engine, and status have all
     // drained — the front waits on this before starting the next batch. The
@@ -116,8 +117,11 @@ module dau_key_mask_dispatch_lane (
             // emit engine advance (runs regardless of batch state so the final
             // row drains during flush)
             case (emit_state)
-                EMIT_W0: if (output_fire) emit_state <= EMIT_W1;
-                EMIT_W1: if (output_fire) emit_state <= EMIT_IDLE;
+                EMIT_WORDS:
+                    if (output_fire) begin
+                        if (emit_index == WIDX_W'(RECORD_WORDS - 1)) emit_state <= EMIT_IDLE;
+                        else emit_index <= emit_index + WIDX_W'(1);
+                    end
                 default: ;
             endcase
 
@@ -144,7 +148,7 @@ module dau_key_mask_dispatch_lane (
                 // arrived (the newest row is always held until flush).
                 if (!drain_started && emit_free) begin
                     if (held_valid) begin
-                        start_emit(held_w0, held_w1, 1'b1);
+                        start_emit(held_words, 1'b1);
                         held_valid <= 1'b0;
                     end else begin
                         status_valid <= 1'b1;
@@ -157,33 +161,31 @@ module dau_key_mask_dispatch_lane (
                 // running: batch boundary passed, re-arm for the next batch
                 drain_started <= 1'b0;
                 if (push_valid && push_ready) begin
-                    if (held_valid) start_emit(held_w0, held_w1, 1'b0);
+                    if (held_valid) start_emit(held_words, 1'b0);
                     held_valid <= 1'b1;
-                    held_w0 <= push_w0;
-                    held_w1 <= push_w1;
+                    held_words <= push_words;
                 end
             end
         end
     end
 
-    task automatic start_emit(input logic [63:0] w0, input logic [63:0] w1, input logic last_row);
+    task automatic start_emit(input logic [RECORD_WORDS*64-1:0] words, input logic last_row);
         begin
-            emit_w0 <= w0;
-            emit_w1 <= w1;
+            emit_words <= words;
             emit_last <= last_row;
-            emit_state <= EMIT_W0;
+            emit_index <= '0;
+            emit_state <= EMIT_WORDS;
         end
     endtask
 
     task automatic reset_lane;
         begin
             emit_state <= EMIT_IDLE;
-            emit_w0 <= 64'd0;
-            emit_w1 <= 64'd0;
+            emit_index <= '0;
+            emit_words <= '0;
             emit_last <= 1'b0;
             held_valid <= 1'b0;
-            held_w0 <= 64'd0;
-            held_w1 <= 64'd0;
+            held_words <= '0;
             drain_started <= 1'b0;
             status_valid <= 1'b0;
             status_error <= 1'b0;
@@ -201,7 +203,14 @@ endmodule
 module dau_int32_key_mask_dispatcher #(
     parameter int NUM_PARTITIONS = 4,
     parameter int unsigned IN_WIDTH = 64,
-    parameter bit EXACT_BRANCH = 1'b0
+    parameter bit EXACT_BRANCH = 1'b0,
+    // 64-bit words per RECORD. 2 is the 16-byte quad row (every existing
+    // composition). A fused chain whose head reads wider records — the as-of
+    // join's 3-word {tag/key, time, payload} — routes those records whole,
+    // keyed on word 0's low half, without any reshaping. Only the 64-bit
+    // framing path supports RECORD_WORDS != 2: the wide beat framings are
+    // defined in whole 128-bit quad rows.
+    parameter int unsigned RECORD_WORDS = 2
 ) (
     input  wire logic        clk,
     input  wire logic        rst,
@@ -233,6 +242,12 @@ module dau_int32_key_mask_dispatcher #(
     if (NUM_PARTITIONS < 1) begin : g_bad_partition_count
         $fatal(1, "dau_int32_key_mask_dispatcher: NUM_PARTITIONS must be positive");
     end
+    if (RECORD_WORDS < 1 || RECORD_WORDS > 16) begin : g_bad_record_words
+        $fatal(1, "dau_int32_key_mask_dispatcher: RECORD_WORDS must be in [1, 16]");
+    end
+    if (IN_WIDTH != 64 && RECORD_WORDS != 2) begin : g_wide_needs_quad
+        $fatal(1, "dau_int32_key_mask_dispatcher: wide framings carry whole 128-bit quad rows (RECORD_WORDS must be 2)");
+    end
     if (!EXACT_BRANCH && (NUM_PARTITIONS & (NUM_PARTITIONS - 1)) != 0) begin : g_bad_partitions
         $fatal(1, "dau_int32_key_mask_dispatcher: NUM_PARTITIONS must be a power of two in mask mode");
     end
@@ -254,8 +269,7 @@ module dau_int32_key_mask_dispatcher #(
     logic [NUM_PARTITIONS-1:0] lane_push_valid;
     logic [NUM_PARTITIONS-1:0] lane_push_ready;
     logic [NUM_PARTITIONS-1:0] lane_busy;
-    logic [63:0]               push_w0;
-    logic [63:0]               push_w1;
+    logic [RECORD_WORDS*64-1:0] push_words;
 
     logic all_idle;
     assign all_idle = (lane_busy == '0);
@@ -364,8 +378,7 @@ module dau_int32_key_mask_dispatcher #(
         // serializer instead of directly from the input beat.
         assign route_key = wrow_data[31:0];
         assign dest = decode_dest(route_key);
-        assign push_w0 = wrow_data[63:0];
-        assign push_w1 = wrow_data[127:64];
+        assign push_words = wrow_data[RECORD_WORDS*64-1:0];
         assign wrow_ready = (fstate == F_W0) && (!route_hit || lane_push_ready[dest]);
         always_comb begin
             lane_push_valid = '0;
@@ -383,48 +396,57 @@ module dau_int32_key_mask_dispatcher #(
             end
         end
     end else begin : g_front_narrow
-        // two-beat rows: latch w0, route on w1 (the range partitioner's front,
-        // with the mask decode in place of the splitter compare tree)
-        logic [63:0] cur_w0;
-        assign route_key = cur_w0[31:0];
+        // multi-beat records: collect RECORD_WORDS words, keyed on word 0's
+        // low half, and route as the FINAL word arrives (the range
+        // partitioner's front, with the mask decode in place of the splitter
+        // compare tree). RECORD_WORDS=2 keeps the original two-beat cadence.
+        localparam int unsigned NIDX_W = (RECORD_WORDS <= 1) ? 1 : $clog2(RECORD_WORDS);
+        logic [RECORD_WORDS*64-1:0] cur_words;
+        logic [NIDX_W-1:0]          cur_index;   // which word of the record is next in
+        logic                       last_word;
+
+        assign last_word = (cur_index == NIDX_W'(RECORD_WORDS - 1));
+        assign route_key = cur_words[31:0];
         assign dest = decode_dest(route_key);
-        assign push_w0 = cur_w0;
-        assign push_w1 = input_data[63:0];
+        // the final word is not yet registered when it is routed, so present
+        // it directly beside the words already collected
+        always_comb begin
+            push_words = cur_words;
+            push_words[64 * cur_index +: 64] = input_data[63:0];
+        end
         always_comb begin
             input_ready = 1'b0;
             case (fstate)
-                F_W0: input_ready = 1'b1;
-                F_W1: input_ready = !route_hit || lane_push_ready[dest];
+                F_W0: input_ready = !last_word || !route_hit || lane_push_ready[dest];
                 default: input_ready = 1'b0;
             endcase
         end
         always_comb begin
             lane_push_valid = '0;
-            if (fstate == F_W1 && input_fire && route_hit) lane_push_valid[dest] = 1'b1;
+            if (fstate == F_W0 && input_fire && last_word && route_hit) lane_push_valid[dest] = 1'b1;
         end
         always_ff @(posedge clk) begin
             if (rst) begin
                 fstate <= F_W0;
-                cur_w0 <= 64'd0;
+                cur_words <= '0;
+                cur_index <= '0;
             end else begin
                 case (fstate)
                     F_W0: begin
                         if (input_fire) begin
-                            if (input_last) begin
-                                fstate <= F_ERR;  // torn row (last on w0)
+                            cur_words[64 * cur_index +: 64] <= input_data[63:0];
+                            if (last_word) begin
+                                cur_index <= '0;
+                                fstate <= input_last ? F_END : F_W0;
+                            end else if (input_last) begin
+                                fstate <= F_ERR;  // torn record (last before its final word)
                             end else begin
-                                cur_w0 <= input_data[63:0];
-                                fstate <= F_W1;
+                                cur_index <= cur_index + NIDX_W'(1);
                             end
                         end
                     end
-                    F_W1: begin
-                        if (input_fire) begin
-                            fstate <= input_last ? F_END : F_W0;
-                        end
-                    end
-                    F_END:  if (all_idle) fstate <= F_W0;
-                    F_ERR:  if (all_idle) fstate <= F_W0;
+                    F_END:  if (all_idle) begin cur_index <= '0; fstate <= F_W0; end
+                    F_ERR:  if (all_idle) begin cur_index <= '0; fstate <= F_W0; end
                     default: fstate <= F_W0;
                 endcase
             end
@@ -434,13 +456,14 @@ module dau_int32_key_mask_dispatcher #(
     genvar p;
     generate
         for (p = 0; p < NUM_PARTITIONS; p++) begin : g_lane
-            dau_key_mask_dispatch_lane u_lane (
+            dau_key_mask_dispatch_lane #(
+                .RECORD_WORDS(RECORD_WORDS)
+            ) u_lane (
                 .clk(clk),
                 .rst(rst),
                 .push_valid(lane_push_valid[p]),
                 .push_ready(lane_push_ready[p]),
-                .push_w0(push_w0),
-                .push_w1(push_w1),
+                .push_words(push_words),
                 .flush(fstate == F_END),
                 .err(fstate == F_ERR),
                 .busy(lane_busy[p]),

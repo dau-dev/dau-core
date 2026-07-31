@@ -417,6 +417,18 @@ def test_row_unpack_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> No
 
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+@pytest.mark.parametrize("num_partitions", [4, 8])
+def test_key_mask_dispatcher_routes_n_word_records(tmp_path: Path, num_partitions: int) -> None:
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_KEY_MASK_DISPATCHER_SV)),),
+        hdl_toplevel="dau_int32_key_mask_dispatcher",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_key_mask_dispatcher_records_tb",
+        tmp_path=tmp_path,
+        parameters={"NUM_PARTITIONS": num_partitions, "RECORD_WORDS": 3},
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_key_mask_dispatcher_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
     _run_cocotb_verilator(
         sources=(Path(str(DAU_INT32_KEY_MASK_DISPATCHER_SV)),),
