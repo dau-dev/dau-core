@@ -673,6 +673,21 @@ def test_the_wide_lane_shape_composes_and_rate_matches():
     assert throughput_rows_per_cycle(narrow) == Fraction(1)
 
 
+def test_wide_combinational_tile_pipeline_depth_bounds_are_enforced():
+    wide_sum = TileSpec(core="int32-wide-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"})
+
+    for core_name in ("int32-wide-row-predicate-filter", "int32-wide-row-map-alu"):
+        for depth in (1, 8):
+            stage = TileSpec(core=core_name, config={}, params={"PIPELINE_DEPTH": depth})
+            ScanCompositionSpec(name="ok", lanes=(LaneSpec(tile=wide_sum, chain=(stage,)),), data_width=512)
+        with pytest.raises(CompositionError, match="must be a positive int"):
+            stage = TileSpec(core=core_name, config={}, params={"PIPELINE_DEPTH": 0})
+            ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=wide_sum, chain=(stage,)),), data_width=512)
+        with pytest.raises(CompositionError, match="must be <= 8"):
+            stage = TileSpec(core=core_name, config={}, params={"PIPELINE_DEPTH": 9})
+            ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=wide_sum, chain=(stage,)),), data_width=512)
+
+
 def test_the_wide_lane_shape_rules_are_enforced():
     wide_sum = TileSpec(core="int32-wide-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"})
     wide_lane = LaneSpec(tile=wide_sum)
