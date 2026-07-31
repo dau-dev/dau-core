@@ -137,6 +137,15 @@ class ScanCompositionSpec(BaseModel):
     data_width: int = 64
     partitioner: TileSpec | None = None
     front_unpack: TileSpec | None = None
+    # THE FUSED CHAIN: allow terminal-shaped tiles (a join, an aggregator) to
+    # sit MID-LANE so their intermediate records never touch DDR — the
+    # avoided-materialization shape. The lane still presents exactly one
+    # close-out: each fused stage's success status is drained the cycle it
+    # appears and only its ERRORS latch into the lane status (the walker emits
+    # the protocol; the latch clears per job). Declared, never inferred: a
+    # chain that fuses close-outs reads differently at the register level, so
+    # the composition says so out loud.
+    fused_chain: bool = False
 
     def model_post_init(self, context) -> None:
         # composition validation raises CompositionError directly (the public
@@ -306,10 +315,11 @@ class ScanCompositionSpec(BaseModel):
                     raise CompositionError(
                         f"lane chain stage {stage.core!r} is legacy (predates the stream+status contract); not for new compositions"
                     )
-                if definition.success_close_out:
+                if definition.success_close_out and not self.fused_chain:
                     raise CompositionError(
                         f"lane chain stage {stage.core!r} emits a success close-out per batch; the lane status mux allows exactly one — "
-                        "chain stages must be silent on success"
+                        "chain stages must be silent on success, or the composition must declare fused_chain=True (the fused-chain "
+                        "protocol: mid-stage close-outs are drained and only their errors reach the lane status)"
                     )
                 _validate_tile_params(stage, "lane chain stage")
         self._validate_load_phase_shape()
@@ -529,7 +539,7 @@ def estimated_resources(spec: ScanCompositionSpec) -> ResourceEnvelope:
     return ResourceEnvelope(lut=lut, ff=ff, bram36=bram, dsp=dsp, measured=measured)
 
 
-SPEC_CANONICAL_VERSION = "2"  # 2: data_width joined the canonical form (the width-tier knob, 2026-07-30)
+SPEC_CANONICAL_VERSION = "3"  # 3: fused_chain joined the canonical form (the fused-chain protocol, 2026-07-31)
 
 
 def canonical_spec_json(spec: ScanCompositionSpec) -> str:

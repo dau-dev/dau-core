@@ -31,6 +31,7 @@ from dau_core.operators import (
     filter_rows_by_membership,
     filter_rows_by_predicate,
     filter_values,
+    gather_records,
     grouped_aggregate_rows,
     grouped_field_sum_rows,
     map_row_fields,
@@ -43,6 +44,68 @@ from dau_core.operators import (
 )
 
 _VALUES = [7, -2, 5, 11, 5, 0, -100, 2**31 - 1, -(2**31)]
+
+
+def _gather_selector(word: int, *, high: bool = False, shift: int = 0) -> int:
+    return word | (int(high) << 6) | (shift << 7)
+
+
+def test_record_gather_reproduces_feature_to_bucket_projection() -> None:
+    time = 0x1122_3344_5566_7788
+    price_symbol = 0x89AB_CDEF_0123_4567
+    size = 0x8000_0002
+    signed_volume = 0xFFFF_FFFA
+    feature = [time, price_symbol, 0, size, 0, signed_volume, 0]
+    selectors = (
+        _gather_selector(1),
+        _gather_selector(1, high=True),
+        _gather_selector(0),
+        _gather_selector(0, high=True),
+        _gather_selector(3),
+        _gather_selector(5),
+    )
+
+    assert gather_records(feature, in_words=7, out_words=3, selectors=selectors) == [
+        price_symbol,
+        time,
+        (signed_volume << 32) | size,
+    ]
+
+
+def test_record_gather_reproduces_bar_to_roll_logical_key_extract() -> None:
+    bucket_bits = 16
+    key = 0xF234_5678
+    close = 0x89AB_CDEF
+    bar = [key, (close << 32) | 0x1234_5678, *([0] * 9)]
+    selectors = (
+        _gather_selector(0, shift=bucket_bits),
+        _gather_selector(1, high=True),
+    )
+
+    assert gather_records(bar, in_words=11, out_words=1, selectors=selectors) == [(close << 32) | 0x0000_F234]
+
+
+def test_record_gather_preserves_record_order() -> None:
+    selectors = (_gather_selector(1), _gather_selector(0, high=True))
+    words = [0xAAAA_AAAA_0000_0001, 0xBBBB_BBBB_0000_0002, 0xCCCC_CCCC_0000_0003, 0xDDDD_DDDD_0000_0004]
+    assert gather_records(words, in_words=2, out_words=1, selectors=selectors) == [
+        0xAAAA_AAAA_0000_0002,
+        0xCCCC_CCCC_0000_0004,
+    ]
+
+
+@pytest.mark.parametrize(
+    ("words", "in_words", "out_words", "selectors"),
+    [
+        ([1], 2, 1, (0, 0)),
+        ([1], 1, 1, (0,)),
+        ([1], 1, 1, (1, 0)),
+        ([1], 1, 1, (1 << 12, 0)),
+    ],
+)
+def test_record_gather_rejects_invalid_shapes(words, in_words, out_words, selectors) -> None:
+    with pytest.raises(ValueError):
+        gather_records(words, in_words=in_words, out_words=out_words, selectors=selectors)
 
 
 @pytest.mark.parametrize(

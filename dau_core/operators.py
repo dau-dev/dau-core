@@ -887,6 +887,41 @@ def time_bucket_key_rows(rows: Iterable[tuple[int, int, int, int, int]], *, buck
     return out
 
 
+def gather_records(words: list[int], *, in_words: int, out_words: int, selectors: tuple[int, ...]) -> list[int]:
+    """Gather 32-bit halves from fixed-width records into new records.
+
+    Each packed selector uses bits ``[5:0]`` for source-word index, bit 6 for
+    source half (0 low, 1 high), and bits ``[11:7]`` for a logical right shift;
+    bits ``[31:12]`` are reserved and must be zero. Selectors are ordered by
+    output half: low half, then high half, for each output word. Shifts always
+    zero-fill, including when the selected half has its sign bit set.
+    """
+    if not 1 <= in_words <= 64:
+        raise ValueError(f"in_words must be in [1, 64], got {in_words}")
+    if not 1 <= out_words <= 8:
+        raise ValueError(f"out_words must be in [1, 8], got {out_words}")
+    if len(words) % in_words:
+        raise ValueError("input word count must be a multiple of in_words")
+    if len(selectors) != 2 * out_words:
+        raise ValueError(f"selectors must contain {2 * out_words} entries")
+    for selector in selectors:
+        if selector < 0 or selector >> 32 or selector >> 12:
+            raise ValueError("selector reserved bits [31:12] must be zero")
+        if (selector & 0x3F) >= in_words:
+            raise ValueError("selector source word is outside the input record")
+
+    output: list[int] = []
+    for record_offset in range(0, len(words), in_words):
+        record = words[record_offset : record_offset + in_words]
+        halves = []
+        for selector in selectors:
+            source = record[selector & 0x3F]
+            half = (source >> (32 if selector & 0x40 else 0)) & 0xFFFF_FFFF
+            halves.append(half >> ((selector >> 7) & 0x1F))
+        output.extend((halves[index] | (halves[index + 1] << 32)) & 0xFFFF_FFFF_FFFF_FFFF for index in range(0, len(halves), 2))
+    return output
+
+
 def grouped_field_aggregate_rows(rows: Iterable[tuple[int, int, int, int]]) -> list[GroupedFieldAggregate]:
     """Golden semantics for the generic multi-field grouped aggregator (ordered
     close-out): consecutive rows with equal keys form a group; each of the three
