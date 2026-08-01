@@ -26,6 +26,20 @@ from .cores import ContractKind, CoreDefinition, CoreKind, LoadImageKind, Resour
 
 SCAN_INFRASTRUCTURE_CORES = ("axi-burst-reader", "stream-broadcast", "axi-record-writer", "axi-write-mux", "identity-registers")
 
+# THE SHELL INFRASTRUCTURE a composition sits in. The DDR scan shell reads
+# bursts and fans out to lanes; the stream-job shells hand a single tile
+# chain its rows from staging BRAM (or straight off AXI) and take the
+# records back the same way. They are different infrastructure, not
+# different tile graphs, so the shape is one field rather than a second
+# composition hierarchy — and it is what lets a stream job be
+# composition-declared at all, which is what makes its cores reach
+# ``core_names`` (and therefore the staged HDL), the resource estimate,
+# and the canonical hash.
+STREAM_JOB_INFRASTRUCTURE_CORES = {
+    "bram-stream-job": ("bram-stream-job", "identity-registers"),
+    "axi-stream-job": ("axi-stream-job", "identity-registers"),
+}
+
 # the only core allowed in the optional front-stage feed transform slot: the
 # row-unpack tile that widens packed rows into 16-byte quad rows after the
 # burst reader and before the broadcast/partition fan-out.
@@ -152,6 +166,9 @@ class ScanCompositionSpec(BaseModel):
     # canonical spec (which keys the design cache). A geared and an
     # ungeared design are different bitstreams and must not share a hash.
     front_gearbox: TileSpec | None = None
+    # the shell this composition is staged in: None = the DDR scan shell,
+    # otherwise the stream-job core that feeds the single lane
+    stream_job: str | None = None
     # THE FUSED CHAIN: allow terminal-shaped tiles (a join, an aggregator) to
     # sit MID-LANE so their intermediate records never touch DDR — the
     # avoided-materialization shape. The lane still presents exactly one
@@ -270,6 +287,17 @@ class ScanCompositionSpec(BaseModel):
                     raise CompositionError(
                         f"partitioner {self.partitioner.core!r} 'NUM_PARTITIONS' must be a power of two in mask mode, got {partitions!r}"
                     )
+        if self.stream_job is not None:
+            if self.stream_job not in STREAM_JOB_INFRASTRUCTURE_CORES:
+                raise CompositionError(f"stream_job must be one of {tuple(STREAM_JOB_INFRASTRUCTURE_CORES)}, got {self.stream_job!r}")
+            # a stream job stages one tile chain: there is no fan-out to
+            # partition and no burst feed to re-time
+            if len(self.lanes) != 1:
+                raise CompositionError(f"a {self.stream_job} composition stages exactly one lane, got {len(self.lanes)}")
+            if self.partitioner is not None or self.front_unpack is not None or self.front_gearbox is not None:
+                raise CompositionError(f"a {self.stream_job} composition has no fan-out or front stage to configure")
+            if self.lanes[0].partition is not None:
+                raise CompositionError(f"a {self.stream_job} composition has no fan-out, so its lane takes no partition filter")
         if self.front_gearbox is not None:
             if self.front_gearbox.core != FRONT_GEARBOX_CORE:
                 raise CompositionError(f"front gearbox {self.front_gearbox.core!r} is not the {FRONT_GEARBOX_CORE!r} reframing core")
@@ -310,7 +338,10 @@ class ScanCompositionSpec(BaseModel):
                 raise CompositionError(f"lane tile {lane.tile.core!r} is {tile.kind.value}, not an operator")
             if tile.legacy:
                 raise CompositionError(f"lane tile {lane.tile.core!r} is legacy (predates the stream+status contract); not for new compositions")
-            if tile.count_port is None:
+            # the SCAN shell's record writer reads the lane's count to size its
+            # write-out; a stream job stages records through its own job core
+            # and needs no such port, so the requirement is the scan shell's
+            if tile.count_port is None and self.stream_job is None:
                 raise CompositionError(f"lane tile {lane.tile.core!r} does not expose a status counter")
             if not tile.success_close_out:
                 raise CompositionError(
@@ -438,11 +469,15 @@ class ScanCompositionSpec(BaseModel):
         included, deduplicated in first-use order. A shared partitioner
         replaces the broadcast."""
         names: dict[str, None] = {}
-        no_broadcast = self.partitioner is not None or self.is_wide_lane()
-        for name in SCAN_INFRASTRUCTURE_CORES:
-            if no_broadcast and name == "stream-broadcast":
-                continue
-            names.setdefault(name)
+        if self.stream_job is not None:
+            for name in STREAM_JOB_INFRASTRUCTURE_CORES[self.stream_job]:
+                names.setdefault(name)
+        else:
+            no_broadcast = self.partitioner is not None or self.is_wide_lane()
+            for name in SCAN_INFRASTRUCTURE_CORES:
+                if no_broadcast and name == "stream-broadcast":
+                    continue
+                names.setdefault(name)
         if self.front_gearbox is not None:
             names.setdefault(self.front_gearbox.core)
         if self.front_unpack is not None:
@@ -626,8 +661,12 @@ def estimated_resources(spec: ScanCompositionSpec) -> ResourceEnvelope:
         dsp += envelope.dsp
         measured = measured and envelope.measured
 
-    for name in ("axi-burst-reader", "axi-write-mux", "identity-registers"):
-        add(name)
+    if spec.stream_job is not None:
+        for name in STREAM_JOB_INFRASTRUCTURE_CORES[spec.stream_job]:
+            add(name)
+    else:
+        for name in ("axi-burst-reader", "axi-write-mux", "identity-registers"):
+            add(name)
     if spec.front_gearbox is not None:
         add(spec.front_gearbox.core)
     if spec.front_unpack is not None:
@@ -647,7 +686,7 @@ def estimated_resources(spec: ScanCompositionSpec) -> ResourceEnvelope:
     return ResourceEnvelope(lut=lut, ff=ff, bram36=bram, dsp=dsp, measured=measured)
 
 
-SPEC_CANONICAL_VERSION = "4"  # 4: front_gearbox joined the canonical form (the record gearbox, 2026-08-01)
+SPEC_CANONICAL_VERSION = "5"  # 5: stream_job joined the canonical form (stream-job shells are composition-declared, 2026-08-01)
 
 
 def canonical_spec_json(spec: ScanCompositionSpec) -> str:

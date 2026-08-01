@@ -551,7 +551,7 @@ def test_spec_hash_pinned_fixture() -> None:
     )
     # canonical version 2: data_width joined the canonical form (the
     # width-tier knob) — every v1 cache key misses cold, by design
-    assert spec_hash(spec) == "4:8775d72a81b01e13c91868bd2d8c248086e0ad06934f419d870bc8984b568ee5"
+    assert spec_hash(spec) == "5:7f17ae3456d67c1ed91760ee4c5435e405b87986c7d542ad2fb38f091cf762a7"
 
 
 def test_spec_from_canonical_revalidates() -> None:
@@ -944,3 +944,48 @@ def test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front() -> None:
             partitioner=_record_dispatcher(),
             front_gearbox=TileSpec(core="int32-row-unpack", config=dict(_FRONT_UNPACK_CONFIG)),
         )
+
+
+def _stream_job_spec(job: str = "bram-stream-job", tile: str = "int32-bar-aggregation") -> ScanCompositionSpec:
+    return ScanCompositionSpec(name="stream", stream_job=job, lanes=(LaneSpec(tile=TileSpec(core=tile)),))
+
+
+def test_a_stream_job_composition_declares_its_own_infrastructure() -> None:
+    """A stream job stages one tile chain through its job core instead of
+    reading bursts and fanning out. Until it could be declared, its cores
+    reached the build as a hand-copied list — so nothing checked that the
+    list still matched what the top instantiates."""
+    spec = _stream_job_spec()
+    assert spec.core_names() == ("bram-stream-job", "identity-registers", "int32-bar-aggregation")
+    assert _stream_job_spec("axi-stream-job").core_names()[0] == "axi-stream-job"
+    # the scan shell's own infrastructure must not leak in
+    assert "axi-burst-reader" not in spec.core_names()
+    assert "stream-broadcast" not in spec.core_names()
+
+    # and it is priced: a design that is not priced is a design whose LUT
+    # budget is a guess
+    priced = estimated_resources(spec)
+    assert priced.lut > 0
+
+
+def test_a_stream_job_composition_refuses_scan_shaped_fields() -> None:
+    """The stream job has no fan-out and no burst feed, so accepting a
+    partitioner or a front stage would let a spec describe hardware the
+    shell cannot build."""
+    lanes = (LaneSpec(tile=TileSpec(core="int32-bar-aggregation")),)
+    with pytest.raises(CompositionError, match="no fan-out or front stage"):
+        ScanCompositionSpec(name="s", stream_job="bram-stream-job", lanes=lanes, partitioner=_record_dispatcher())
+    with pytest.raises(CompositionError, match="exactly one lane"):
+        ScanCompositionSpec(name="s", stream_job="bram-stream-job", lanes=lanes * 2)
+    with pytest.raises(CompositionError, match="stream_job must be one of"):
+        ScanCompositionSpec(name="s", stream_job="not-a-job", lanes=lanes)
+
+
+def test_the_scan_shell_still_requires_a_lane_counter() -> None:
+    """The count_port waiver is the STREAM job's, not a general relaxation:
+    the scan shell's record writer sizes its write-out from that port."""
+    countless = (LaneSpec(tile=TileSpec(core="int32-record-batch-aggregation")),)
+    # fine in a stream job, which stages records through its job core
+    assert ScanCompositionSpec(name="s", stream_job="bram-stream-job", lanes=countless).core_names()
+    with pytest.raises(CompositionError, match="does not expose a status counter"):
+        ScanCompositionSpec(name="s", lanes=countless)
