@@ -430,14 +430,22 @@ def test_row_unpack_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> No
 
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
-@pytest.mark.parametrize("num_partitions", [4, 8])
-def test_key_mask_dispatcher_routes_n_word_records(tmp_path: Path, num_partitions: int) -> None:
+@pytest.mark.parametrize(("num_partitions", "record_input"), [(4, 0), (8, 0), (4, 1), (8, 1)])
+def test_key_mask_dispatcher_routes_n_word_records(tmp_path: Path, num_partitions: int, record_input: int) -> None:
+    # record_input=1 is the whole-record framing the gearbox feeds: the bus is
+    # one record wide, so the router takes a record per cycle instead of one
+    # word per cycle
     _run_cocotb_verilator(
         sources=(Path(str(DAU_INT32_KEY_MASK_DISPATCHER_SV)),),
         hdl_toplevel="dau_int32_key_mask_dispatcher",
         test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_key_mask_dispatcher_records_tb",
         tmp_path=tmp_path,
-        parameters={"NUM_PARTITIONS": num_partitions, "RECORD_WORDS": 3},
+        parameters={
+            "NUM_PARTITIONS": num_partitions,
+            "RECORD_WORDS": 3,
+            "RECORD_INPUT": record_input,
+            **({"IN_WIDTH": 192} if record_input else {}),
+        },
     )
 
 

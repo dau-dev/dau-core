@@ -210,7 +210,14 @@ module dau_int32_key_mask_dispatcher #(
     // keyed on word 0's low half, without any reshaping. Only the 64-bit
     // framing path supports RECORD_WORDS != 2: the wide beat framings are
     // defined in whole 128-bit quad rows.
-    parameter int unsigned RECORD_WORDS = 2
+    parameter int unsigned RECORD_WORDS = 2,
+    // WHOLE-RECORD INPUT (the gearbox pairing). 0 = the historical framings:
+    // 64-bit words one per cycle, so an N-word record costs N cycles; or
+    // 128-bit quad rows. 1 = input_data carries ONE WHOLE RECORD per beat on
+    // a RECORD_WORDS*64-bit bus, so the router ingests a record per cycle.
+    // That is the point of the pairing: replicated lanes can absorb a record
+    // per cycle collectively, and a word-at-a-time front starves them.
+    parameter bit RECORD_INPUT = 1'b0
 ) (
     input  wire logic        clk,
     input  wire logic        rst,
@@ -231,8 +238,10 @@ module dau_int32_key_mask_dispatcher #(
     output logic [NUM_PARTITIONS-1:0]        status_error,
     output logic [NUM_PARTITIONS*8-1:0]      status_error_code
 );
-    localparam bit WIDE = (IN_WIDTH >= 128);
-    localparam bit MULTI = (IN_WIDTH > 128);          // 256/512: R>1 rows per beat
+    // in whole-record mode the input bus IS the record, not a beat of quad
+    // rows, so the row-oriented wide/serializer paths do not apply
+    localparam bit WIDE = (IN_WIDTH >= 128) && !RECORD_INPUT;
+    localparam bit MULTI = (IN_WIDTH > 128) && !RECORD_INPUT;          // 256/512: R>1 rows per beat
     localparam int R = MULTI ? (IN_WIDTH / 128) : 1;  // whole quad rows per input beat
     localparam int PIDX_W = (NUM_PARTITIONS <= 1) ? 1 : $clog2(NUM_PARTITIONS);
 
@@ -242,10 +251,13 @@ module dau_int32_key_mask_dispatcher #(
     if (NUM_PARTITIONS < 1) begin : g_bad_partition_count
         $fatal(1, "dau_int32_key_mask_dispatcher: NUM_PARTITIONS must be positive");
     end
+    if (RECORD_INPUT && IN_WIDTH != RECORD_WORDS * 64) begin : g_bad_record_input
+        $fatal(1, "dau_int32_key_mask_dispatcher: RECORD_INPUT needs IN_WIDTH == RECORD_WORDS*64 (one whole record per beat)");
+    end
     if (RECORD_WORDS < 1 || RECORD_WORDS > 16) begin : g_bad_record_words
         $fatal(1, "dau_int32_key_mask_dispatcher: RECORD_WORDS must be in [1, 16]");
     end
-    if (IN_WIDTH != 64 && RECORD_WORDS != 2) begin : g_wide_needs_quad
+    if (!RECORD_INPUT && IN_WIDTH != 64 && RECORD_WORDS != 2) begin : g_wide_needs_quad
         $fatal(1, "dau_int32_key_mask_dispatcher: wide framings carry whole 128-bit quad rows (RECORD_WORDS must be 2)");
     end
     if (!EXACT_BRANCH && (NUM_PARTITIONS & (NUM_PARTITIONS - 1)) != 0) begin : g_bad_partitions
@@ -402,6 +414,36 @@ module dau_int32_key_mask_dispatcher #(
                 case (fstate)
                     F_W0: if ((wrow_fire && wrow_last) || flush_batch) fstate <= F_END;
                     F_END: if (all_idle) fstate <= F_W0;
+                    default: fstate <= F_W0;
+                endcase
+            end
+        end
+    end else if (RECORD_INPUT) begin : g_front_record
+        // WHOLE-RECORD FRONT: the input beat IS one record, so route it the
+        // cycle it is accepted — one record per cycle whenever the
+        // destination lane can take it. Structurally the proven wide front,
+        // with the record bus in place of the 128-bit quad row.
+        assign route_key = input_data[31:0];
+        assign dest = decode_dest(route_key);
+        assign push_words = input_data[RECORD_WORDS*64-1:0];
+        always_comb begin
+            input_ready = 1'b0;
+            case (fstate)
+                F_W0: input_ready = !route_hit || lane_push_ready[dest];
+                default: input_ready = 1'b0;
+            endcase
+        end
+        always_comb begin
+            lane_push_valid = '0;
+            if (fstate == F_W0 && input_fire && route_hit) lane_push_valid[dest] = 1'b1;
+        end
+        always_ff @(posedge clk) begin
+            if (rst) begin
+                fstate <= F_W0;
+            end else begin
+                case (fstate)
+                    F_W0:   if (input_fire && input_last) fstate <= F_END;
+                    F_END:  if (all_idle) fstate <= F_W0;
                     default: fstate <= F_W0;
                 endcase
             end

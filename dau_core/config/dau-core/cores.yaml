@@ -456,6 +456,38 @@ int32-range-partitioner:
     rows: 1
     per_cycles: 2
 
+record-gearbox:
+  _target_: dau_core.cores.CoreDefinition
+  name: record-gearbox
+  kind: operator
+  module: dau_record_gearbox
+  source: dau_record_gearbox.sv
+  description: 'NoC framing adapter: reads IN_WIDTH-bit beats and emits ONE WHOLE RECORD per cycle on a RECORD_WORDS*64-bit
+    bus, records packed back-to-back and straddling beat boundaries. A pure reframing (no field inspected, reordered or
+    dropped), so the golden is the identity on the record sequence and the property that matters is the RATE. Exists because
+    a consumer reading N-word records through a 64-bit port costs N cycles per record, which starves replicated lanes behind
+    it; pairs with the key-mask dispatcher''s RECORD_INPUT framing.'
+  golden: dau_core.operators:gearbox_records
+  bench: dau_core.tests.cocotb_benches.dau_record_gearbox_tb
+  contract_kind: row-stream
+  # one record per cycle when the bus can supply one: the input delivers
+  # IN_WIDTH/64 words per cycle against RECORD_WORDS per record, so the
+  # achievable rate is min(1, beat_words/record_words). Declared as the
+  # 512-bit/3-word case the hero uses.
+  ingest:
+    rows: 1
+    per_cycles: 1
+  record_words_param: RECORD_WORDS
+  output_record_words_param: RECORD_WORDS
+  parameters:
+    IN_WIDTH:
+      default: 512
+      choices: [128, 256, 512]
+    RECORD_WORDS:
+      default: 3
+      minimum: 1
+      maximum: 16
+
 int32-key-mask-dispatcher:
   _target_: dau_core.cores.CoreDefinition
   name: int32-key-mask-dispatcher
@@ -515,8 +547,15 @@ int32-key-mask-dispatcher:
       choices:
       - 64
       - 128
+      - 192
       - 256
       - 512
+    RECORD_INPUT:
+      # whole-record framing (paired with the record gearbox): input_data is
+      # ONE RECORD wide, so the router ingests a record per cycle instead of
+      # one word. Requires IN_WIDTH == RECORD_WORDS*64.
+      default: 0
+      choices: [0, 1]
     EXACT_BRANCH:
       default: 0
       choices:
