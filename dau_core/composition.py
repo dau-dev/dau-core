@@ -352,10 +352,15 @@ class ScanCompositionSpec(BaseModel):
             if tile.legacy:
                 raise CompositionError(f"lane tile {lane.tile.core!r} is legacy (predates the stream+status contract); not for new compositions")
             # the SCAN walker wires this port into the lane's register readback
-            # latch, so a scan lane without one cannot be lowered. A stream-job
-            # top wires its tile's ports directly and only needs a counter when
-            # its own top consumes one, which the top/spec correspondence test
-            # in dau is what actually pins.
+            # latch, so a scan lane without one cannot be lowered.
+            #
+            # A stream-job top is hand-written and may or may not consume a
+            # counter -- `bram-stream-job` covers both the countless
+            # record-batch top and the count-consuming bar top -- so the
+            # composition genuinely cannot decide it here. The check that DOES
+            # hold is that each top and its declared tile agree, and that is
+            # pinned where the tops live (dau: the stream-job correspondence
+            # tests). Do not read this waiver as "stream jobs need no counter".
             if tile.count_port is None and self.stream_job is None:
                 raise CompositionError(f"lane tile {lane.tile.core!r} does not expose a status counter")
             if not tile.success_close_out:
