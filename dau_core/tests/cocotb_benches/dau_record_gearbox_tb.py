@@ -84,7 +84,7 @@ async def _send(dut, beats, *, gap_pattern=(1,)) -> None:
 
 
 async def _collect(dut, count, *, ready_pattern=(1,)):
-    got, ticks, first, last_tick = [], 0, None, None
+    got, first, last_tick = [], None, None
     saw_last_flag = [False]
     for tick in range(4_000):
         dut.output_ready.value = ready_pattern[tick % len(ready_pattern)]
@@ -93,7 +93,6 @@ async def _collect(dut, count, *, ready_pattern=(1,)):
         data = int(dut.output_data.value)
         is_last = int(dut.output_last.value)
         await RisingEdge(dut.clk)
-        ticks += 1
         if fired:
             words = tuple((data >> (64 * w)) & _MASK64 for w in range(_record_words(dut)))
             got.append(words)
