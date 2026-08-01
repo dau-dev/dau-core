@@ -17,6 +17,7 @@ import hashlib
 import json
 from collections.abc import Mapping, Sequence
 from fractions import Fraction
+from itertools import pairwise
 
 from ccflow import BaseModel
 from pydantic import ConfigDict, StrictInt
@@ -426,6 +427,38 @@ class ScanCompositionSpec(BaseModel):
                 names.setdefault(stage.core)
             names.setdefault(lane.tile.core)
         return tuple(names)
+
+
+def stream_shape_mismatches(spec: ScanCompositionSpec) -> tuple[str, ...]:
+    """Describe every known record-width mismatch without rejecting ``spec``.
+
+    This is detection only: it neither changes composition validity nor inserts
+    adapters. Runtime-variable producer widths cannot be compared and are
+    intentionally omitted until a concrete output shape exists.
+    """
+    mismatches: list[str] = []
+
+    def compare(producer: TileSpec, consumer: TileSpec, location: str) -> None:
+        emitted = producer.definition().effective_output_record_words(producer.params)
+        expected = consumer.definition().effective_record_words(consumer.params)
+        if emitted is not None and emitted != expected:
+            mismatches.append(
+                f"{location}: producer {producer.core!r} emits {emitted}-word records, but consumer {consumer.core!r} expects {expected}-word records"
+            )
+
+    front = spec.front_unpack
+    if front is not None and spec.partitioner is not None:
+        compare(front, spec.partitioner, "front feed")
+
+    lane_feed = spec.partitioner if spec.partitioner is not None else front
+    for index, lane in enumerate(spec.lanes):
+        stages = [*([] if lane.partition is None else [lane.partition]), *lane.chain, lane.tile]
+        if lane_feed is not None:
+            compare(lane_feed, stages[0], f"lane {index} feed")
+        for producer, consumer in pairwise(stages):
+            compare(producer, consumer, f"lane {index}")
+
+    return tuple(mismatches)
 
 
 def throughput_rows_per_cycle(spec: ScanCompositionSpec, *, stage_pass_fractions: Mapping[int, Sequence[Fraction]] | None = None) -> Fraction:
