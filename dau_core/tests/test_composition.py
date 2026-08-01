@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from dau_core.composition import CompositionError, LaneSpec, ScanCompositionSpec, TileSpec, estimated_resources
+from dau_core.composition import CompositionError, LaneSpec, ScanCompositionSpec, TileSpec, estimated_resources, stream_shape_mismatches
 from dau_core.cores import core
 
 _BAR = TileSpec(core="int32-bar-aggregation", config={"cfg_mode": "2'd0", "cfg_row_count": "64'd0"})
@@ -763,6 +763,49 @@ def test_the_fused_chain_shape_is_declared_not_inferred() -> None:
     a = ScanCompositionSpec(name="p", lanes=(plain_lane,))
     b = ScanCompositionSpec(name="p", lanes=(plain_lane,), fused_chain=True)
     assert spec_hash(a) != spec_hash(b)
+
+
+def _temporal_hero_spec(*, include_feature_gather: bool = True) -> ScanCompositionSpec:
+    stages = [
+        TileSpec(core="int32-asof-backward"),
+        TileSpec(core="int32-market-feature"),
+    ]
+    if include_feature_gather:
+        stages.append(TileSpec(core="int32-record-gather", params={"IN_WORDS": 7, "OUT_WORDS": 3}))
+    stages.extend(
+        (
+            TileSpec(core="int32-time-bucket-key"),
+            TileSpec(core="int32-grouped-field-aggregation"),
+            TileSpec(core="int32-record-gather", params={"IN_WORDS": 11, "OUT_WORDS": 1}),
+        )
+    )
+    return ScanCompositionSpec(
+        name="temporal-hero",
+        lanes=(LaneSpec(tile=TileSpec(core="int32-rolling-moments"), chain=tuple(stages)),),
+        fused_chain=True,
+    )
+
+
+def test_temporal_hero_gathers_reconcile_every_stream_shape() -> None:
+    assert stream_shape_mismatches(_temporal_hero_spec()) == ()
+
+
+def test_stream_shape_mismatch_names_both_cores_and_shapes() -> None:
+    assert stream_shape_mismatches(_temporal_hero_spec(include_feature_gather=False)) == (
+        ("lane 0: producer 'int32-market-feature' emits 7-word records, but consumer 'int32-time-bucket-key' expects 3-word records"),
+    )
+
+
+def test_stream_shape_mismatches_include_front_feed_and_partitioner() -> None:
+    spec = ScanCompositionSpec(
+        name="front-mismatch",
+        lanes=(LaneSpec(tile=TileSpec(core="int32-asof-backward")),),
+        front_unpack=TileSpec(core="int32-row-unpack"),
+        partitioner=TileSpec(core="int32-key-mask-dispatcher", params={"RECORD_WORDS": 3}),
+    )
+    assert stream_shape_mismatches(spec) == (
+        ("front feed: producer 'int32-row-unpack' emits 2-word records, but consumer 'int32-key-mask-dispatcher' expects 3-word records"),
+    )
 
 
 def test_selectivity_reconciles_the_model_with_q6_silicon() -> None:

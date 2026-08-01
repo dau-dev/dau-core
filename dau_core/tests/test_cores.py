@@ -119,6 +119,33 @@ def test_every_selectable_operator_declares_its_contract_kind() -> None:
             assert definition.contract_kind is None, definition.name
 
 
+def test_every_selectable_operator_declares_its_record_words() -> None:
+    for definition in cores_of_kind(CoreKind.OPERATOR):
+        if definition.legacy:
+            assert definition.record_words is None
+            assert definition.record_words_param is None
+            continue
+        assert (definition.record_words is None) != (definition.record_words_param is None), definition.name
+        assert definition.effective_record_words({}) >= 1
+
+
+def test_parameterized_record_words_resolve_from_defaults_and_overrides() -> None:
+    gather = core("int32-record-gather")
+    assert gather.effective_record_words({}) == 4
+    assert gather.effective_output_record_words({}) == 1
+    assert gather.effective_record_words({"IN_WORDS": 7, "OUT_WORDS": 3}) == 7
+    assert gather.effective_output_record_words({"IN_WORDS": 7, "OUT_WORDS": 3}) == 3
+
+    dispatcher = core("int32-key-mask-dispatcher")
+    assert dispatcher.effective_record_words({}) == 2
+    assert dispatcher.effective_output_record_words({"RECORD_WORDS": 3}) == 3
+
+
+def test_only_combinational_per_beat_cores_support_pipeline_depth() -> None:
+    supported = {definition.name for definition in cores_of_kind(CoreKind.OPERATOR) if definition.supports_pipeline_depth}
+    assert supported == {"int32-wide-row-map-alu", "int32-wide-row-predicate-filter"}
+
+
 def test_sources_for_closes_dependencies_in_order() -> None:
     sources = sources_for("int32-stream-aggregation")
     names = [path.name for path in sources]
@@ -206,16 +233,17 @@ def test_silent_on_success_operator_set_is_pinned() -> None:
     assert core("int32-grouped-field-sum-aggregation").success_close_out
 
 
-def test_the_dispatcher_rate_is_only_claimed_for_quad_row_records() -> None:
+def test_dispatcher_rate_still_needs_record_aware_modeling() -> None:
     """The dispatcher's framing-shaped rate describes a 2-word record. Its
     64-bit front ingests one WORD per cycle, so an N-word record costs N
     cycles, while a wide framing delivers a whole record per beat-slot —
-    two rules the current rate shapes cannot express together. This pins
-    the gap so a composition at RECORD_WORDS != 2 is not silently
-    over-predicted; closing it is the tile-ABI work."""
+    two rules the current rate shapes cannot express together. Record shape
+    is now declared for detection, but this pins the remaining rate-model gap
+    so RECORD_WORDS != 2 is not silently treated as resolved."""
     definition = core("int32-key-mask-dispatcher")
     assert definition.parameters["RECORD_WORDS"].default == 2
+    assert definition.effective_record_words({"RECORD_WORDS": 3}) == 3
     assert definition.ingest is not None and definition.ingest.frames_on_param == "IN_WIDTH"
-    # the declaration ignores RECORD_WORDS entirely — that is the gap
+    # the rate declaration still ignores RECORD_WORDS — that is the gap
     narrow = definition.ingest.effective({"IN_WIDTH": 64}, definition.parameters)
     assert narrow == definition.ingest.effective({"IN_WIDTH": 64, "RECORD_WORDS": 3}, definition.parameters)
