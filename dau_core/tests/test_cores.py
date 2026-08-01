@@ -81,6 +81,7 @@ def test_every_selectable_operator_declares_its_ingest_rate() -> None:
         "int32-wide-row-predicate-filter",
         "int32-wide-row-map-alu",
         "int32-wide-field-sum-aggregation",
+        "record-gearbox",
     }
     # a rate that scales with a module parameter must name a declared one
     for definition in cores_of_kind(CoreKind.OPERATOR):
@@ -227,6 +228,7 @@ def test_silent_on_success_operator_set_is_pinned() -> None:
         "int32-time-bucket-key",
         "int32-wide-row-predicate-filter",
         "int32-wide-row-map-alu",
+        "record-gearbox",
     }
     # the grouped multi-sum tile emits many group records but exactly ONE
     # success close-out per batch (after the final group) — terminal-legal

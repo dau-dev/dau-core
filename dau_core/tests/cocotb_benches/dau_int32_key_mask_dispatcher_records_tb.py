@@ -24,11 +24,19 @@ _MASK64 = (1 << 64) - 1
 _RECORD_WORDS = [3]
 
 
+def _record_input(dut) -> bool:
+    """Whole-record framing: the input bus is one record wide."""
+    return len(dut.input_data) == 64 * _RECORD_WORDS[0]
+
+
 async def _send(dut, records) -> None:
-    flat = [w for record in records for w in record]
-    for index, word in enumerate(flat):
-        dut.input_data.value = word & _MASK64
-        dut.input_last.value = int(index == len(flat) - 1)
+    if _record_input(dut):
+        beats = [sum((w & _MASK64) << (64 * i) for i, w in enumerate(rec)) for rec in records]
+    else:
+        beats = [w & _MASK64 for record in records for w in record]
+    for index, word in enumerate(beats):
+        dut.input_data.value = word
+        dut.input_last.value = int(index == len(beats) - 1)
         dut.input_valid.value = 1
         while True:
             await ReadOnly()
@@ -126,3 +134,38 @@ async def backpressured_lanes_stay_golden_equal(dut):
     lanes = _num_parts(dut)
     records = [_record(rng.randrange(3 * lanes), rng) for _ in range(10 * lanes)]
     await _run(dut, records, ready_pattern=(1, 0, 0))
+
+
+@cocotb.test()
+async def whole_record_input_routes_one_record_per_cycle(dut):
+    """The rate the gearbox pairing exists for. With the record arriving
+    whole, the router must accept one per cycle — a word-at-a-time front
+    costs RECORD_WORDS cycles each and starves the replicated lanes it
+    feeds. Skipped when the bench is elaborated in word framing."""
+    if not _record_input(dut):
+        return
+    await _start(dut)
+    rng = random.Random(20260803)
+    lanes = _num_parts(dut)
+    # keys spread across lanes so no single lane's drain is the limit
+    records = [_record(index % (4 * lanes), rng) for index in range(24 * lanes)]
+
+    accepted, first, last_tick = 0, None, None
+    send = cocotb.start_soon(_send(dut, records))
+    collect = cocotb.start_soon(_collect(dut, mask_dispatch_records(records, num_partitions=lanes)))
+    for tick in range(40_000):
+        await ReadOnly()
+        if int(dut.input_valid.value) == 1 and int(dut.input_ready.value) == 1:
+            accepted += 1
+            first = tick if first is None else first
+            last_tick = tick
+        await RisingEdge(dut.clk)
+        if accepted == len(records):
+            break
+    await send
+    await collect
+    cycles = last_tick - first + 1
+    assert accepted == len(records)
+    # a small allowance for lane-drain collisions; the word-framed front
+    # would need RECORD_WORDS x this
+    assert cycles <= len(records) * 1.35, f"accepted {accepted} records in {cycles} cycles — not ~1 per cycle"

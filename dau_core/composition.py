@@ -231,9 +231,15 @@ class ScanCompositionSpec(BaseModel):
             if self.front_unpack is not None:
                 out_spec = self.front_unpack.definition().parameters.get("OUT_WIDTH")
                 feed_width = self.front_unpack.params.get("OUT_WIDTH", out_spec.default if out_spec else 64)
-            in_spec = definition.parameters.get("IN_WIDTH")
+            # whole-record framing: the partitioner's IN_WIDTH is the RECORD
+            # bus, not the feed. A record gearbox in front owns the
+            # reconciliation between the reader's beats and that bus (and the
+            # RTL elaboration-guards IN_WIDTH == RECORD_WORDS*64), so the
+            # feed-framing rule below does not apply.
+            record_input = self.partitioner.params.get("RECORD_INPUT", 0) == 1
+            in_spec = None if record_input else definition.parameters.get("IN_WIDTH")
             if in_spec is None:
-                if feed_width != 64:
+                if feed_width != 64 and not record_input:
                     raise CompositionError(
                         f"partitioner {self.partitioner.core!r} declares no IN_WIDTH (64-bit framing only) but the feed frames {feed_width}-bit rows"
                     )

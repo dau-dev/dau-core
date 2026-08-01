@@ -773,9 +773,32 @@ def range_partition_bar_rows(rows: Iterable[tuple[int, int, int, int]], *, split
     return parts
 
 
-def mask_dispatch_records(
-    records: Iterable[Sequence[int]], *, num_partitions: int, exact_branch: bool = False
-) -> list[list[tuple[int, ...]]]:
+def gearbox_records(words: Iterable[int], *, record_words: int, record_count: int) -> list[tuple[int, ...]]:
+    """Golden semantics for the record gearbox: a pure REFRAMING.
+
+    The input is a flat stream of 64-bit words carrying ``record_count``
+    back-to-back records of ``record_words`` words each, delivered in
+    beats that need not divide the record size — so records straddle beat
+    boundaries and the tail beat may be padded. The output is the record
+    sequence, unchanged: no field is inspected, reordered or dropped, so
+    the golden is the identity and the interesting property is the RATE
+    (one whole record per cycle) rather than the values.
+
+    Words beyond ``record_count * record_words`` are beat padding and are
+    ignored; too few words is a framing error the hardware reports as
+    ERR_STREAM."""
+    if record_words < 1:
+        raise ValueError(f"record_words must be positive, got {record_words}")
+    if record_count < 0:
+        raise ValueError(f"record_count must be non-negative, got {record_count}")
+    flat = list(words)
+    needed = record_count * record_words
+    if len(flat) < needed:
+        raise ValueError(f"stream carries {len(flat)} words, {needed} needed for {record_count} records")
+    return [tuple(flat[i * record_words : (i + 1) * record_words]) for i in range(record_count)]
+
+
+def mask_dispatch_records(records: Iterable[Sequence[int]], *, num_partitions: int, exact_branch: bool = False) -> list[list[tuple[int, ...]]]:
     """Golden semantics for the key-mask dispatcher over N-WORD records.
 
     The quad-row form (:func:`mask_dispatch_rows`) routes two 64-bit words

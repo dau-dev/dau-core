@@ -227,11 +227,13 @@ def test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards() ->
     dispatcher_ok = TileSpec(core="int32-key-mask-dispatcher", params={"IN_WIDTH": 128})
     # the widths must agree end to end: IN_WIDTH=128 pairs with the wide unpack
     ScanCompositionSpec(name="ok", lanes=tuple(LaneSpec(tile=_BAR) for _ in range(4)), partitioner=dispatcher_ok, front_unpack=unpack_ok)
-    with pytest.raises(CompositionError, match="must be one of 64, 128"):
+    # 192 is now legal (the 3-word record bus in whole-record framing), so
+    # the invalid case has to be a width no framing produces
+    with pytest.raises(CompositionError, match="must be one of 64, 128, 192, 256, 512"):
         ScanCompositionSpec(
             name="bad",
             lanes=tuple(LaneSpec(tile=_BAR) for _ in range(4)),
-            partitioner=TileSpec(core="int32-key-mask-dispatcher", params={"IN_WIDTH": 192}),
+            partitioner=TileSpec(core="int32-key-mask-dispatcher", params={"IN_WIDTH": 96}),
         )
     with pytest.raises(CompositionError, match="must be a power of two"):
         ScanCompositionSpec(
