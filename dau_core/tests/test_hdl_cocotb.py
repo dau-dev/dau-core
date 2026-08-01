@@ -771,7 +771,7 @@ def test_record_batch_aggregation_runs_real_cocotb_against_systemverilog(tmp_pat
 
 # non-fatal, but these two classes mean "this will not synthesize" and are
 # promoted to hard errors. Verified to break nothing in the current RTL.
-VERILATOR_BUILD_ARGS = ("--timing", "-Wno-fatal", "-Werror-USERFATAL", "-Werror-SELRANGE")
+VERILATOR_BUILD_ARGS = ("--timing", "-Wno-fatal", "-Werror-USERFATAL", "-Werror-SELRANGE", "-Werror-MULTIDRIVEN")
 
 
 def _run_cocotb_verilator(*, sources: tuple[Path, ...], hdl_toplevel: str, test_module: str, tmp_path: Path, parameters=None) -> None:
