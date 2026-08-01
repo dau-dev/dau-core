@@ -298,6 +298,19 @@ class ScanCompositionSpec(BaseModel):
                 raise CompositionError(f"a {self.stream_job} composition has no fan-out or front stage to configure")
             if self.lanes[0].partition is not None:
                 raise CompositionError(f"a {self.stream_job} composition has no fan-out, so its lane takes no partition filter")
+            # the stream-job tops wire their tile ports at a fixed 64 bits, so
+            # a wide terminal or a wide feed describes hardware they cannot
+            # lower — the tile's rows would simply not fit the job core's port
+            if self.data_width != 64:
+                raise CompositionError(f"a {self.stream_job} composition feeds 64-bit rows; data_width={self.data_width} has no lowering")
+            for stage in (*self.lanes[0].chain, self.lanes[0].tile):
+                if stage.definition().contract_kind is ContractKind.WIDE_ROW_STREAM:
+                    raise CompositionError(f"{stage.core!r} speaks the wide-row-stream contract; the {self.stream_job} tile ports are 64-bit")
+            # the stream-job tops expose no LOAD_PHASE register, so a chain
+            # that expects a two-phase load has nothing to drive it
+            for stage in (*self.lanes[0].chain, self.lanes[0].tile):
+                if LOAD_PHASE_BINDING in stage.config.values():
+                    raise CompositionError(f"{stage.core!r} binds {LOAD_PHASE_BINDING}; the {self.stream_job} top has no load-phase register")
         if self.front_gearbox is not None:
             if self.front_gearbox.core != FRONT_GEARBOX_CORE:
                 raise CompositionError(f"front gearbox {self.front_gearbox.core!r} is not the {FRONT_GEARBOX_CORE!r} reframing core")
@@ -338,9 +351,11 @@ class ScanCompositionSpec(BaseModel):
                 raise CompositionError(f"lane tile {lane.tile.core!r} is {tile.kind.value}, not an operator")
             if tile.legacy:
                 raise CompositionError(f"lane tile {lane.tile.core!r} is legacy (predates the stream+status contract); not for new compositions")
-            # the SCAN shell's record writer reads the lane's count to size its
-            # write-out; a stream job stages records through its own job core
-            # and needs no such port, so the requirement is the scan shell's
+            # the SCAN walker wires this port into the lane's register readback
+            # latch, so a scan lane without one cannot be lowered. A stream-job
+            # top wires its tile's ports directly and only needs a counter when
+            # its own top consumes one, which the top/spec correspondence test
+            # in dau is what actually pins.
             if tile.count_port is None and self.stream_job is None:
                 raise CompositionError(f"lane tile {lane.tile.core!r} does not expose a status counter")
             if not tile.success_close_out:
@@ -673,11 +688,16 @@ def estimated_resources(spec: ScanCompositionSpec) -> ResourceEnvelope:
         add(spec.front_unpack.core)
     if spec.partitioner is not None:
         add(spec.partitioner.core)
-    elif not spec.is_wide_lane():
+    elif spec.stream_job is None and not spec.is_wide_lane():
         # the wide lane feeds the single lane directly: no broadcast placed
         add("stream-broadcast")
     for lane in spec.lanes:
-        add("axi-record-writer")
+        # a stream job's records leave through its job core, so there is no
+        # per-lane record writer to price. Pricing one anyway inflated every
+        # stream job by a writer plus a broadcast and could fail the fit gate
+        # on a design that fits.
+        if spec.stream_job is None:
+            add("axi-record-writer")
         if lane.partition is not None:
             add(lane.partition.core)
         for stage in lane.chain:
