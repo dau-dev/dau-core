@@ -53,10 +53,10 @@ async def burst_reader_streams_the_window_exactly(dut):
     r_active = False
     collected: list[int] = []
     saw_last = False
-    cycle = 0
 
-    for _ in range(20000):
-        cycle += 1
+    # 1-based: the counter used to increment at the top of the body, and the
+    # gap patterns below are phased off that
+    for cycle in range(1, 20_001):
         await ReadOnly()
         ar_fire = bool(dut.m_axi_arvalid.value) and bool(dut.m_axi_arready.value)
         if ar_fire:
