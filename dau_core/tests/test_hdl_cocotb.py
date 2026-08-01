@@ -42,6 +42,7 @@ from dau_core.hdl import (
     DAU_INT32_STRIDE_DISTRIBUTOR_SV,
     DAU_INT32_TIME_BUCKET_KEY_SV,
     DAU_INT32_WIDE_FIELD_SUM_AGGREGATION_SV,
+    DAU_RECORD_GEARBOX_SV,
     DAU_INT32_WIDE_ROW_MAP_ALU_SV,
     DAU_INT32_WIDE_ROW_PREDICATE_FILTER_SV,
     DAU_MAP_ALU_PKG_SV,
@@ -129,6 +130,18 @@ def test_int32_stream_aggregation_runs_real_cocotb_against_systemverilog(tmp_pat
         hdl_toplevel="dau_int32_stream_aggregation",
         test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_stream_aggregation_tb",
         tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+@pytest.mark.parametrize(("in_width", "record_words"), [(128, 3), (256, 3), (512, 3), (512, 2)])
+def test_record_gearbox_runs_real_cocotb_against_systemverilog(tmp_path: Path, in_width: int, record_words: int) -> None:
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_RECORD_GEARBOX_SV)),),
+        hdl_toplevel="dau_record_gearbox",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_record_gearbox_tb",
+        tmp_path=tmp_path,
+        parameters={"IN_WIDTH": in_width, "RECORD_WORDS": record_words},
     )
 
 
