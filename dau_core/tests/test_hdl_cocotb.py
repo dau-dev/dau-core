@@ -375,6 +375,7 @@ def test_burst_reader_streams_exactly_at_every_width_tier(tmp_path: Path, data_w
     )
 
 
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_bitonic_sorter_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
     _run_cocotb_verilator(
         sources=(Path(str(DAU_INT32_BITONIC_SORTER_SV)),),
