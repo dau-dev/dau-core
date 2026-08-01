@@ -36,7 +36,13 @@ _MAX_COMBINATIONS = 24  # keep the gate seconds-fast; sample beyond this
 _COUPLED: dict[str, object] = {
     # row framings carry whole 128-bit quad rows, so a wider input pins the
     # record at 2 words; only the 64-bit and whole-record framings are free
-    "int32-key-mask-dispatcher": lambda p: p.get("RECORD_WORDS", 2) == 2 or p.get("IN_WIDTH", 64) == 64 or p.get("RECORD_INPUT", 0) == 1,
+    # two couplings: whole-record framing pins IN_WIDTH to the record bus,
+    # and a row framing wider than 64 bits pins the record at one quad row
+    "int32-key-mask-dispatcher": lambda p: (
+        (p.get("IN_WIDTH", 64) == p.get("RECORD_WORDS", 2) * 64)
+        if p.get("RECORD_INPUT", 0) == 1
+        else (p.get("RECORD_WORDS", 2) == 2 or p.get("IN_WIDTH", 64) == 64)
+    ),
 }
 
 
