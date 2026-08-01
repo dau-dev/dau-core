@@ -188,6 +188,22 @@ class CoreDefinition(BaseModel):
     # required for non-legacy stream operators (registry-enforced): the
     # public fact the scheduler feeds an opaque core by
     ingest: IngestRate | None = None
+    # Logical stream record shape, in 64-bit words. Exactly one input shape
+    # is required for every non-legacy operator. A parameterized shape names
+    # the module parameter whose concrete/default value supplies the width.
+    record_words: StrictInt | None = None
+    record_words_param: str | None = None
+    # Omit both when output preserves the input record shape. Fixed and
+    # parameterized reshapers declare their emitted shape here. A few
+    # field-mask aggregators have a genuinely runtime-variable output length;
+    # consumers cannot safely infer a fixed adjacency for those streams.
+    output_record_words: StrictInt | None = None
+    output_record_words_param: str | None = None
+    output_record_words_variable: bool = False
+    # A generic elastic register-depth axis is valid only when computation is
+    # combinational per beat. Multi-word framing/state machines must leave it
+    # false even if a bespoke internal pipeline exists.
+    supports_pipeline_depth: bool = False
     # capability facts (HDL truth, consumed by the composition-derived
     # capability contract): the descriptor-selectable OperationCodes a tile
     # executes in hardware and the logical types those opcodes accept.
@@ -223,6 +239,47 @@ class CoreDefinition(BaseModel):
         # (the scheduler cannot feed a core whose rate it does not know)
         if self.kind == CoreKind.OPERATOR and not self.legacy and self.ingest is None:
             raise ValueError(f"operator core {self.name!r} declares no ingest rate (required public interface)")
+        if self.record_words is not None and self.record_words < 1:
+            raise ValueError(f"core {self.name!r} record_words must be >= 1")
+        if self.output_record_words is not None and self.output_record_words < 1:
+            raise ValueError(f"core {self.name!r} output_record_words must be >= 1")
+        if self.record_words is not None and self.record_words_param is not None:
+            raise ValueError(f"core {self.name!r} declares both fixed and parameterized input record words")
+        if self.output_record_words is not None and self.output_record_words_param is not None:
+            raise ValueError(f"core {self.name!r} declares both fixed and parameterized output record words")
+        if self.output_record_words_variable and (self.output_record_words is not None or self.output_record_words_param is not None):
+            raise ValueError(f"core {self.name!r} declares both fixed/parameterized and runtime-variable output record words")
+        if self.kind == CoreKind.OPERATOR and not self.legacy and self.record_words is None and self.record_words_param is None:
+            raise ValueError(f"operator core {self.name!r} declares no record_words (required public interface)")
+        for role, name in (("input record words", self.record_words_param), ("output record words", self.output_record_words_param)):
+            if name is not None and name not in self.parameters:
+                raise ValueError(f"core {self.name!r} {role} follows undeclared parameter {name!r}")
+        if self.supports_pipeline_depth and "PIPELINE_DEPTH" not in self.parameters:
+            raise ValueError(f"core {self.name!r} supports pipeline depth but declares no PIPELINE_DEPTH parameter")
+
+    def _parameter_value(self, name: str, params: Mapping[str, int]) -> int:
+        spec = self.parameters.get(name)
+        if spec is None:
+            raise ValueError(f"core {self.name!r} record shape follows undeclared parameter {name!r}")
+        return int(params.get(name, spec.default))
+
+    def effective_record_words(self, params: Mapping[str, int]) -> int:
+        """Concrete input-record width after applying parameter overrides."""
+        if self.record_words_param is not None:
+            return self._parameter_value(self.record_words_param, params)
+        if self.record_words is None:
+            raise ValueError(f"core {self.name!r} declares no input record shape")
+        return int(self.record_words)
+
+    def effective_output_record_words(self, params: Mapping[str, int]) -> int | None:
+        """Concrete emitted width, or ``None`` for runtime-variable output."""
+        if self.output_record_words_variable:
+            return None
+        if self.output_record_words_param is not None:
+            return self._parameter_value(self.output_record_words_param, params)
+        if self.output_record_words is not None:
+            return int(self.output_record_words)
+        return self.effective_record_words(params)
 
     def source_path(self) -> Path:
         from . import hdl

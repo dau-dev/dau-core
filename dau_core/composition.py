@@ -17,6 +17,7 @@ import hashlib
 import json
 from collections.abc import Mapping, Sequence
 from fractions import Fraction
+from itertools import pairwise
 
 from ccflow import BaseModel
 from pydantic import ConfigDict, StrictInt
@@ -29,6 +30,7 @@ SCAN_INFRASTRUCTURE_CORES = ("axi-burst-reader", "stream-broadcast", "axi-record
 # row-unpack tile that widens packed rows into 16-byte quad rows after the
 # burst reader and before the broadcast/partition fan-out.
 FRONT_UNPACK_CORE = "int32-row-unpack"
+FRONT_GEARBOX_CORE = "record-gearbox"
 # the reserved config-binding symbol for the shell's LOAD_PHASE register
 # (RegisterOffset.LOAD_PHASE): a tile binding ``cfg_load`` to this symbol is
 # phase-switched by the host instead of baked, making the composition
@@ -121,7 +123,12 @@ class ScanCompositionSpec(BaseModel):
     between the burst reader and the fan-out: it widens PACKED rows (half
     the DDR bytes) into the standard 16-byte quad rows, so the fan-out
     still sees the clean 32-bit key it partitions on. It coexists with
-    either fan-out shape."""
+    either fan-out shape.
+
+    An optional ``front_gearbox`` sits in the same feed position but
+    reframes rather than widens: it turns wide beats into ONE WHOLE
+    RECORD per cycle, so the fan-out behind it routes records instead
+    of rows. Its bus is therefore a record size, not a row width."""
 
     model_config = ConfigDict(frozen=True)
 
@@ -137,6 +144,14 @@ class ScanCompositionSpec(BaseModel):
     data_width: int = 64
     partitioner: TileSpec | None = None
     front_unpack: TileSpec | None = None
+    # THE RECORD GEARBOX: reframes wide beats into whole records so the
+    # fan-out behind it consumes one record per cycle instead of one word.
+    # It is declared HERE, in the composition, rather than as a build-time
+    # flag because it is a core the design INSTANTIATES: it has to reach
+    # ``core_names`` (which stages the HDL Vivado compiles) and the
+    # canonical spec (which keys the design cache). A geared and an
+    # ungeared design are different bitstreams and must not share a hash.
+    front_gearbox: TileSpec | None = None
     # THE FUSED CHAIN: allow terminal-shaped tiles (a join, an aggregator) to
     # sit MID-LANE so their intermediate records never touch DDR — the
     # avoided-materialization shape. The lane still presents exactly one
@@ -230,9 +245,15 @@ class ScanCompositionSpec(BaseModel):
             if self.front_unpack is not None:
                 out_spec = self.front_unpack.definition().parameters.get("OUT_WIDTH")
                 feed_width = self.front_unpack.params.get("OUT_WIDTH", out_spec.default if out_spec else 64)
-            in_spec = definition.parameters.get("IN_WIDTH")
+            # whole-record framing: the partitioner's IN_WIDTH is the RECORD
+            # bus, not the feed. A record gearbox in front owns the
+            # reconciliation between the reader's beats and that bus (and the
+            # RTL elaboration-guards IN_WIDTH == RECORD_WORDS*64), so the
+            # feed-framing rule below does not apply.
+            record_input = self.partitioner.params.get("RECORD_INPUT", 0) == 1
+            in_spec = None if record_input else definition.parameters.get("IN_WIDTH")
             if in_spec is None:
-                if feed_width != 64:
+                if feed_width != 64 and not record_input:
                     raise CompositionError(
                         f"partitioner {self.partitioner.core!r} declares no IN_WIDTH (64-bit framing only) but the feed frames {feed_width}-bit rows"
                     )
@@ -249,6 +270,12 @@ class ScanCompositionSpec(BaseModel):
                     raise CompositionError(
                         f"partitioner {self.partitioner.core!r} 'NUM_PARTITIONS' must be a power of two in mask mode, got {partitions!r}"
                     )
+        if self.front_gearbox is not None:
+            if self.front_gearbox.core != FRONT_GEARBOX_CORE:
+                raise CompositionError(f"front gearbox {self.front_gearbox.core!r} is not the {FRONT_GEARBOX_CORE!r} reframing core")
+            _validate_tile_params(self.front_gearbox, "front gearbox")
+            if self.data_width <= 64:
+                raise CompositionError("front_gearbox requires data_width > 64: a 64-bit feed already delivers one word per cycle")
         if self.front_unpack is not None:
             if self.front_unpack.core != FRONT_UNPACK_CORE:
                 raise CompositionError(
@@ -355,6 +382,7 @@ class ScanCompositionSpec(BaseModel):
 
         stray(self.partitioner, "partitioner")
         stray(self.front_unpack, "front unpacker")
+        stray(self.front_gearbox, "front gearbox")
         for lane in self.lanes:
             stray(lane.tile, "lane tile")
             stray(lane.partition, "lane partition")
@@ -415,6 +443,8 @@ class ScanCompositionSpec(BaseModel):
             if no_broadcast and name == "stream-broadcast":
                 continue
             names.setdefault(name)
+        if self.front_gearbox is not None:
+            names.setdefault(self.front_gearbox.core)
         if self.front_unpack is not None:
             names.setdefault(self.front_unpack.core)
         if self.partitioner is not None:
@@ -426,6 +456,38 @@ class ScanCompositionSpec(BaseModel):
                 names.setdefault(stage.core)
             names.setdefault(lane.tile.core)
         return tuple(names)
+
+
+def stream_shape_mismatches(spec: ScanCompositionSpec) -> tuple[str, ...]:
+    """Describe every known record-width mismatch without rejecting ``spec``.
+
+    This is detection only: it neither changes composition validity nor inserts
+    adapters. Runtime-variable producer widths cannot be compared and are
+    intentionally omitted until a concrete output shape exists.
+    """
+    mismatches: list[str] = []
+
+    def compare(producer: TileSpec, consumer: TileSpec, location: str) -> None:
+        emitted = producer.definition().effective_output_record_words(producer.params)
+        expected = consumer.definition().effective_record_words(consumer.params)
+        if emitted is not None and emitted != expected:
+            mismatches.append(
+                f"{location}: producer {producer.core!r} emits {emitted}-word records, but consumer {consumer.core!r} expects {expected}-word records"
+            )
+
+    front = spec.front_unpack
+    if front is not None and spec.partitioner is not None:
+        compare(front, spec.partitioner, "front feed")
+
+    lane_feed = spec.partitioner if spec.partitioner is not None else front
+    for index, lane in enumerate(spec.lanes):
+        stages = [*([] if lane.partition is None else [lane.partition]), *lane.chain, lane.tile]
+        if lane_feed is not None:
+            compare(lane_feed, stages[0], f"lane {index} feed")
+        for producer, consumer in pairwise(stages):
+            compare(producer, consumer, f"lane {index}")
+
+    return tuple(mismatches)
 
 
 def throughput_rows_per_cycle(spec: ScanCompositionSpec, *, stage_pass_fractions: Mapping[int, Sequence[Fraction]] | None = None) -> Fraction:
@@ -566,6 +628,8 @@ def estimated_resources(spec: ScanCompositionSpec) -> ResourceEnvelope:
 
     for name in ("axi-burst-reader", "axi-write-mux", "identity-registers"):
         add(name)
+    if spec.front_gearbox is not None:
+        add(spec.front_gearbox.core)
     if spec.front_unpack is not None:
         add(spec.front_unpack.core)
     if spec.partitioner is not None:
@@ -583,7 +647,7 @@ def estimated_resources(spec: ScanCompositionSpec) -> ResourceEnvelope:
     return ResourceEnvelope(lut=lut, ff=ff, bram36=bram, dsp=dsp, measured=measured)
 
 
-SPEC_CANONICAL_VERSION = "3"  # 3: fused_chain joined the canonical form (the fused-chain protocol, 2026-07-31)
+SPEC_CANONICAL_VERSION = "4"  # 4: front_gearbox joined the canonical form (the record gearbox, 2026-08-01)
 
 
 def canonical_spec_json(spec: ScanCompositionSpec) -> str:

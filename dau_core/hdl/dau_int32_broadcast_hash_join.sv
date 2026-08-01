@@ -116,7 +116,14 @@ module dau_int32_broadcast_hash_join #(
     // cycle. ram_style=block keeps it BRAM-resident so it scales without
     // burning LUTs (the join tier's binding constraint is BRAM).
     (* ram_style = "block" *) logic [SLOTW-1:0] table_mem [0:KEY_SPACE-1];
+    // MULTIDRIVEN is waived on this BRAM-output register ONLY. An `initial`
+    // seeding state that `always_ff` then drives is how power-on values reach
+    // the hardware (Vivado carries the INIT), and Verilator counts the two as
+    // rival processes. Scoped to this declaration so a genuine second driver
+    // anywhere else in the module is still an error.
+    /* verilator lint_off MULTIDRIVEN */
     logic [SLOTW-1:0] read_slot;
+    /* verilator lint_on MULTIDRIVEN */
 
     logic [AWIDTH-1:0] clear_addr;
 

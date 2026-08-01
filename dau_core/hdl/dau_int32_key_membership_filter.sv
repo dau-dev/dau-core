@@ -113,12 +113,19 @@ module dau_int32_key_membership_filter #(
     // ram_style=block keeps it BRAM-resident so it scales to large dictionaries
     // without burning LUTs (the join tier's binding constraint is BRAM).
     (* ram_style = "block" *) logic [63:0] membership_mem [0:WORDS-1];
+    // MULTIDRIVEN is waived on these BRAM-output registers ONLY. An `initial`
+    // seeding state that `always_ff` then drives is how power-on values reach
+    // the hardware (Vivado carries the INIT), and Verilator counts the two as
+    // rival processes. Scoped to these declarations so a genuine second driver
+    // anywhere else in the module is still an error.
+    /* verilator lint_off MULTIDRIVEN */
     logic [63:0] read_word;       // stage 1: the BRAM primitives' output registers
     logic [5:0]  probe_bit;
     logic        probe_in_range;
     logic [63:0] read_word2;      // stage 2: behind the multi-BRAM output mux
     logic [5:0]  probe_bit2;
     logic        probe_in_range2;
+    /* verilator lint_on MULTIDRIVEN */
     logic        stage1_valid;    // a read landed in stage 1 last cycle
     logic        result_ready;    // stage 2 holds the current row's unconsumed result
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from dau_core.composition import CompositionError, LaneSpec, ScanCompositionSpec, TileSpec, estimated_resources
+from dau_core.composition import CompositionError, LaneSpec, ScanCompositionSpec, TileSpec, estimated_resources, stream_shape_mismatches
 from dau_core.cores import core
 
 _BAR = TileSpec(core="int32-bar-aggregation", config={"cfg_mode": "2'd0", "cfg_row_count": "64'd0"})
@@ -227,11 +227,13 @@ def test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards() ->
     dispatcher_ok = TileSpec(core="int32-key-mask-dispatcher", params={"IN_WIDTH": 128})
     # the widths must agree end to end: IN_WIDTH=128 pairs with the wide unpack
     ScanCompositionSpec(name="ok", lanes=tuple(LaneSpec(tile=_BAR) for _ in range(4)), partitioner=dispatcher_ok, front_unpack=unpack_ok)
-    with pytest.raises(CompositionError, match="must be one of 64, 128"):
+    # 192 is now legal (the 3-word record bus in whole-record framing), so
+    # the invalid case has to be a width no framing produces
+    with pytest.raises(CompositionError, match="must be one of 64, 128, 192, 256, 512"):
         ScanCompositionSpec(
             name="bad",
             lanes=tuple(LaneSpec(tile=_BAR) for _ in range(4)),
-            partitioner=TileSpec(core="int32-key-mask-dispatcher", params={"IN_WIDTH": 192}),
+            partitioner=TileSpec(core="int32-key-mask-dispatcher", params={"IN_WIDTH": 96}),
         )
     with pytest.raises(CompositionError, match="must be a power of two"):
         ScanCompositionSpec(
@@ -549,7 +551,7 @@ def test_spec_hash_pinned_fixture() -> None:
     )
     # canonical version 2: data_width joined the canonical form (the
     # width-tier knob) — every v1 cache key misses cold, by design
-    assert spec_hash(spec) == "3:b6beda75fab4a2274a776a95d2cd582d24fe10b46da14de3a6aeeb71608287c9"
+    assert spec_hash(spec) == "4:8775d72a81b01e13c91868bd2d8c248086e0ad06934f419d870bc8984b568ee5"
 
 
 def test_spec_from_canonical_revalidates() -> None:
@@ -765,6 +767,49 @@ def test_the_fused_chain_shape_is_declared_not_inferred() -> None:
     assert spec_hash(a) != spec_hash(b)
 
 
+def _temporal_hero_spec(*, include_feature_gather: bool = True) -> ScanCompositionSpec:
+    stages = [
+        TileSpec(core="int32-asof-backward"),
+        TileSpec(core="int32-market-feature"),
+    ]
+    if include_feature_gather:
+        stages.append(TileSpec(core="int32-record-gather", params={"IN_WORDS": 7, "OUT_WORDS": 3}))
+    stages.extend(
+        (
+            TileSpec(core="int32-time-bucket-key"),
+            TileSpec(core="int32-grouped-field-aggregation"),
+            TileSpec(core="int32-record-gather", params={"IN_WORDS": 11, "OUT_WORDS": 1}),
+        )
+    )
+    return ScanCompositionSpec(
+        name="temporal-hero",
+        lanes=(LaneSpec(tile=TileSpec(core="int32-rolling-moments"), chain=tuple(stages)),),
+        fused_chain=True,
+    )
+
+
+def test_temporal_hero_gathers_reconcile_every_stream_shape() -> None:
+    assert stream_shape_mismatches(_temporal_hero_spec()) == ()
+
+
+def test_stream_shape_mismatch_names_both_cores_and_shapes() -> None:
+    assert stream_shape_mismatches(_temporal_hero_spec(include_feature_gather=False)) == (
+        ("lane 0: producer 'int32-market-feature' emits 7-word records, but consumer 'int32-time-bucket-key' expects 3-word records"),
+    )
+
+
+def test_stream_shape_mismatches_include_front_feed_and_partitioner() -> None:
+    spec = ScanCompositionSpec(
+        name="front-mismatch",
+        lanes=(LaneSpec(tile=TileSpec(core="int32-asof-backward")),),
+        front_unpack=TileSpec(core="int32-row-unpack"),
+        partitioner=TileSpec(core="int32-key-mask-dispatcher", params={"RECORD_WORDS": 3}),
+    )
+    assert stream_shape_mismatches(spec) == (
+        ("front feed: producer 'int32-row-unpack' emits 2-word records, but consumer 'int32-key-mask-dispatcher' expects 3-word records"),
+    )
+
+
 def test_selectivity_reconciles_the_model_with_q6_silicon() -> None:
     """The rate benches measured the q6 map stage at one row per SEVEN
     cycles standalone, which made the no-selectivity model predict 1/7
@@ -837,3 +882,65 @@ def test_selectivity_reconciles_the_model_with_q6_silicon() -> None:
     uneven = {0: passes, 1: (Fraction(1), Fraction(1), Fraction(1), Fraction(1)), 2: passes, 3: passes}
     with pytest.raises(CompositionError, match="identical across partitioned lanes"):
         throughput_rows_per_cycle(dispatched, stage_pass_fractions=uneven)
+
+
+def _record_dispatcher(record_words: int = 3) -> TileSpec:
+    """The dispatcher as it sits BEHIND a gearbox: its bus is one whole
+    record wide, so it takes RECORD_INPUT rather than a row framing."""
+    return TileSpec(
+        core="int32-key-mask-dispatcher",
+        params={"RECORD_INPUT": 1, "RECORD_WORDS": record_words, "IN_WIDTH": record_words * 64, "NUM_PARTITIONS": 4},
+    )
+
+
+def _front_gearbox(record_words: int = 3) -> TileSpec:
+    return TileSpec(core="record-gearbox", params={"IN_WIDTH": 512, "RECORD_WORDS": record_words})
+
+
+def test_front_gearbox_reaches_core_names_and_resources() -> None:
+    """The gearbox must appear in core_names: that tuple is what stages the
+    HDL a build compiles, so a gearbox missing from it is instantiated by
+    the generated top and never handed to the toolchain — the design
+    black-boxes at synthesis."""
+    spec = ScanCompositionSpec(
+        name="geared-scan", lanes=sorted_scan_spec().lanes, data_width=512, partitioner=_record_dispatcher(), front_gearbox=_front_gearbox()
+    )
+    assert "record-gearbox" in spec.core_names()
+    priced = estimated_resources(spec)
+    without = estimated_resources(
+        ScanCompositionSpec(name="geared-scan", lanes=sorted_scan_spec().lanes, data_width=512, partitioner=_record_dispatcher())
+    )
+    gearbox = core("record-gearbox").resources
+    assert gearbox is not None
+    assert priced.lut - without.lut == gearbox.lut
+
+
+def test_a_geared_design_does_not_share_a_hash_with_an_ungeared_one() -> None:
+    """The spec hash keys the design cache. If the gearbox were invisible to
+    the canonical form, a cached ungeared bitstream would be handed back for
+    a geared design and silently run the wrong front."""
+    from dau_core.composition import spec_hash
+
+    lanes = sorted_scan_spec().lanes
+    geared = ScanCompositionSpec(name="scan", lanes=lanes, data_width=512, partitioner=_record_dispatcher(), front_gearbox=_front_gearbox())
+    plain = ScanCompositionSpec(name="scan", lanes=lanes, data_width=512, partitioner=_record_dispatcher())
+    assert spec_hash(geared) != spec_hash(plain)
+    # and the record size is part of that identity: a 3-word and a 4-word
+    # gearbox are different hardware
+    assert spec_hash(geared) != spec_hash(
+        ScanCompositionSpec(name="scan", lanes=lanes, data_width=512, partitioner=_record_dispatcher(4), front_gearbox=_front_gearbox(4))
+    )
+
+
+def test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front() -> None:
+    lanes = bar_noc_spec().lanes
+    with pytest.raises(CompositionError, match="requires data_width > 64"):
+        ScanCompositionSpec(name="scan", lanes=lanes, front_gearbox=_front_gearbox())
+    with pytest.raises(CompositionError, match="is not the 'record-gearbox' reframing core"):
+        ScanCompositionSpec(
+            name="scan",
+            lanes=lanes,
+            data_width=512,
+            partitioner=_record_dispatcher(),
+            front_gearbox=TileSpec(core="int32-row-unpack", config=dict(_FRONT_UNPACK_CONFIG)),
+        )
