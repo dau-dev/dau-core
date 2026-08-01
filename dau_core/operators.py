@@ -798,9 +798,7 @@ def gearbox_records(words: Iterable[int], *, record_words: int, record_count: in
     return [tuple(flat[i * record_words : (i + 1) * record_words]) for i in range(record_count)]
 
 
-def mask_dispatch_records(
-    records: Iterable[Sequence[int]], *, num_partitions: int, exact_branch: bool = False
-) -> list[list[tuple[int, ...]]]:
+def mask_dispatch_records(records: Iterable[Sequence[int]], *, num_partitions: int, exact_branch: bool = False) -> list[list[tuple[int, ...]]]:
     """Golden semantics for the key-mask dispatcher over N-WORD records.
 
     The quad-row form (:func:`mask_dispatch_rows`) routes two 64-bit words

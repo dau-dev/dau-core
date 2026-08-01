@@ -469,6 +469,12 @@ record-gearbox:
     it; pairs with the key-mask dispatcher''s RECORD_INPUT framing.'
   golden: dau_core.operators:gearbox_records
   bench: dau_core.tests.cocotb_benches.dau_record_gearbox_tb
+  # OOC IN_WIDTH=512 RECORD_WORDS=3 xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +2.533)
+  resources:
+    lut: 3844
+    ff: 1451
+    bram36: 0.0
+    dsp: 0
   contract_kind: row-stream
   # one record per cycle when the bus can supply one: the input delivers
   # IN_WIDTH/64 words per cycle against RECORD_WORDS per record, so the

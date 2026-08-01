@@ -85,7 +85,8 @@ module dau_record_gearbox #(
     assign output_fire = output_valid && output_ready;
     // a beat is accepted whenever the window has room for a whole one
     assign accept_beat = input_valid && input_ready;
-    assign input_ready = !saw_last && (filled <= CNT_W'(WINDOW_WORDS - BEAT_WORDS)) && (status_valid == 1'b0);
+    assign input_ready = !saw_last && (filled <= CNT_W'(WINDOW_WORDS - BEAT_WORDS)) && (status_valid == 1'b0)
+                         && !(emit_record && records_left == 32'd1);
     // a record can leave as soon as the window holds one and the batch still owes records
     assign emit_record = (filled >= CNT_W'(RECORD_WORDS)) && (records_left != 32'd0) && (!output_valid || output_ready);
 
@@ -129,8 +130,15 @@ module dau_record_gearbox #(
                 end
             end
 
-            // one beat in per cycle, landing above whatever the emit left
-            if (accept_beat) begin
+            // one beat in per cycle, landing above whatever the emit left.
+            // GUARDED against the closing cycle: when the final record leaves,
+            // the emit branch resets filled/saw_last/batch_open, and an accept
+            // in that same cycle would win the write and resurrect the state
+            // (filled non-zero, saw_last set, records_left zero) — after which
+            // input, output and the error branch are all disabled forever.
+            // input_ready already drops once saw_last is set, so refusing the
+            // coincident beat costs nothing a real feed can observe.
+            if (accept_beat && !(emit_record && records_left == 32'd1)) begin
                 if (!batch_open) begin
                     batch_open <= 1'b1;
                     records_left <= cfg_input_records;

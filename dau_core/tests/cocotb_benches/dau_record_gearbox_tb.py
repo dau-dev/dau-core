@@ -67,7 +67,13 @@ async def _send(dut, beats, *, gap_pattern=(1,)) -> None:
         for spin in range(5000):
             await ReadOnly()
             fired = int(dut.input_ready.value) == 1
-            state = (int(dut.filled.value), int(dut.records_left.value), int(dut.saw_last.value), int(dut.status_valid.value), int(dut.output_valid.value))
+            state = (
+                int(dut.filled.value),
+                int(dut.records_left.value),
+                int(dut.saw_last.value),
+                int(dut.status_valid.value),
+                int(dut.output_valid.value),
+            )
             await RisingEdge(dut.clk)
             if fired:
                 break
@@ -79,6 +85,7 @@ async def _send(dut, beats, *, gap_pattern=(1,)) -> None:
 
 async def _collect(dut, count, *, ready_pattern=(1,)):
     got, ticks, first, last_tick = [], 0, None, None
+    saw_last_flag = [False]
     for tick in range(4_000):
         dut.output_ready.value = ready_pattern[tick % len(ready_pattern)]
         await ReadOnly()
@@ -93,10 +100,15 @@ async def _collect(dut, count, *, ready_pattern=(1,)):
             first = tick if first is None else first
             last_tick = tick
             if is_last:
+                saw_last_flag[0] = True
                 break
         if len(got) == count:
             break
     dut.output_ready.value = 0
+    # output_last must actually have ridden the final record: breaking on the
+    # count alone would pass a gearbox with output_last hardwired low
+    if len(got) == count and not saw_last_flag[0]:
+        raise AssertionError(f"collected {count} records but output_last never asserted")
     if len(got) != count:
         raise AssertionError(
             f"collected {len(got)}/{count} records; DUT filled={int(dut.filled.value)} "
@@ -182,3 +194,37 @@ async def back_to_back_batches_rearm(dut):
     rng = random.Random(3)
     for _ in range(3):
         await _run(dut, _records(rng, 20, _record_words(dut)))
+
+
+@cocotb.test()
+async def a_short_stream_reports_a_framing_error(dut):
+    """The record COUNT and the byte length must agree. Nothing else in this
+    bench exercises the error branch — without this, deleting it entirely
+    would still pass."""
+    await _start(dut)
+    rng = random.Random(31)
+    record_words = _record_words(dut)
+    beat_words = _beat_words(dut)
+    records = _records(rng, 4, record_words)
+    flat = [w for record in records for w in record]
+    # send the whole stream but CLAIM far more records than its words can
+    # supply. Overclaiming by a full beat's worth guarantees the shortfall
+    # cannot hide inside tail padding, and keeps input_last on a real beat
+    # (stripping beats instead can leave nothing to frame the batch).
+    beats = _beats(flat, beat_words)
+    dut.cfg_input_records.value = len(records) + 2 * beat_words
+    await RisingEdge(dut.clk)
+    dut.status_ready.value = 1
+    send = cocotb.start_soon(_send(dut, beats))
+    dut.output_ready.value = 1
+    for _ in range(4_000):
+        await ReadOnly()
+        if int(dut.status_valid.value) == 1:
+            assert int(dut.status_error.value) == 1
+            assert int(dut.status_error_code.value) == 2  # ERR_STREAM
+            await RisingEdge(dut.clk)
+            break
+        await RisingEdge(dut.clk)
+    else:
+        raise AssertionError("a stream shorter than its record count never reported ERR_STREAM")
+    await send

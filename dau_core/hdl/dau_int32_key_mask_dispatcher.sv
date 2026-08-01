@@ -245,8 +245,10 @@ module dau_int32_key_mask_dispatcher #(
     localparam int R = MULTI ? (IN_WIDTH / 128) : 1;  // whole quad rows per input beat
     localparam int PIDX_W = (NUM_PARTITIONS <= 1) ? 1 : $clog2(NUM_PARTITIONS);
 
-    if (!(IN_WIDTH inside {64, 128, 256, 512})) begin : g_bad_in_width
-        $fatal(1, "dau_int32_key_mask_dispatcher: IN_WIDTH must be 64/128/256/512");
+    // in whole-record framing the input bus IS one record (RECORD_WORDS*64),
+    // which is not one of the row framings — 3-word records give 192
+    if (!RECORD_INPUT && !(IN_WIDTH inside {64, 128, 256, 512})) begin : g_bad_in_width
+        $fatal(1, "dau_int32_key_mask_dispatcher: IN_WIDTH must be 64/128/256/512 in row framing");
     end
     if (NUM_PARTITIONS < 1) begin : g_bad_partition_count
         $fatal(1, "dau_int32_key_mask_dispatcher: NUM_PARTITIONS must be positive");
