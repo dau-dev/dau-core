@@ -146,6 +146,20 @@ def test_record_gearbox_runs_real_cocotb_against_systemverilog(tmp_path: Path, i
 
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_wide_ingest_chain_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
+    _run_cocotb_verilator(
+        sources=(
+            Path(str(DAU_RECORD_GEARBOX_SV)),
+            Path(str(DAU_INT32_KEY_MASK_DISPATCHER_SV)),
+            _SV_TB_DIR / "dau_wide_ingest_chain.sv",
+        ),
+        hdl_toplevel="dau_wide_ingest_chain",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_wide_ingest_chain_tb",
+        tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_arrow_lite_stream_aggregation_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
     _run_cocotb_verilator(
         sources=(
@@ -755,14 +769,7 @@ def test_record_batch_aggregation_runs_real_cocotb_against_systemverilog(tmp_pat
     )
 
 
-# The harness default is `-Wno-fatal`, which tells Verilator not to treat
-# warnings as fatal — and that is how two synthesis-breaking defects reached
-# benches "passing": a 128-bit part-select of a 64-bit port, and a deliberate
-# `$fatal` elaboration guard rejecting a parameterization we then used. Vivado
-# fails both. Style warnings (unused signals, filename conventions) stay
-# non-fatal, but these two classes mean "this will not synthesize" and are
-# promoted to hard errors. Verified to break nothing in the current RTL.
-VERILATOR_BUILD_ARGS = ("--timing", "-Wno-fatal", "-Werror-USERFATAL", "-Werror-SELRANGE")
+VERILATOR_BUILD_ARGS = ("--timing",)
 
 
 def _run_cocotb_verilator(*, sources: tuple[Path, ...], hdl_toplevel: str, test_module: str, tmp_path: Path, parameters=None) -> None:

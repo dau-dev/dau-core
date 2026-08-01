@@ -551,7 +551,7 @@ def test_spec_hash_pinned_fixture() -> None:
     )
     # canonical version 2: data_width joined the canonical form (the
     # width-tier knob) — every v1 cache key misses cold, by design
-    assert spec_hash(spec) == "3:b6beda75fab4a2274a776a95d2cd582d24fe10b46da14de3a6aeeb71608287c9"
+    assert spec_hash(spec) == "4:8775d72a81b01e13c91868bd2d8c248086e0ad06934f419d870bc8984b568ee5"
 
 
 def test_spec_from_canonical_revalidates() -> None:
@@ -882,3 +882,65 @@ def test_selectivity_reconciles_the_model_with_q6_silicon() -> None:
     uneven = {0: passes, 1: (Fraction(1), Fraction(1), Fraction(1), Fraction(1)), 2: passes, 3: passes}
     with pytest.raises(CompositionError, match="identical across partitioned lanes"):
         throughput_rows_per_cycle(dispatched, stage_pass_fractions=uneven)
+
+
+def _record_dispatcher(record_words: int = 3) -> TileSpec:
+    """The dispatcher as it sits BEHIND a gearbox: its bus is one whole
+    record wide, so it takes RECORD_INPUT rather than a row framing."""
+    return TileSpec(
+        core="int32-key-mask-dispatcher",
+        params={"RECORD_INPUT": 1, "RECORD_WORDS": record_words, "IN_WIDTH": record_words * 64, "NUM_PARTITIONS": 4},
+    )
+
+
+def _front_gearbox(record_words: int = 3) -> TileSpec:
+    return TileSpec(core="record-gearbox", params={"IN_WIDTH": 512, "RECORD_WORDS": record_words})
+
+
+def test_front_gearbox_reaches_core_names_and_resources() -> None:
+    """The gearbox must appear in core_names: that tuple is what stages the
+    HDL a build compiles, so a gearbox missing from it is instantiated by
+    the generated top and never handed to the toolchain — the design
+    black-boxes at synthesis."""
+    spec = ScanCompositionSpec(
+        name="geared-scan", lanes=sorted_scan_spec().lanes, data_width=512, partitioner=_record_dispatcher(), front_gearbox=_front_gearbox()
+    )
+    assert "record-gearbox" in spec.core_names()
+    priced = estimated_resources(spec)
+    without = estimated_resources(
+        ScanCompositionSpec(name="geared-scan", lanes=sorted_scan_spec().lanes, data_width=512, partitioner=_record_dispatcher())
+    )
+    gearbox = core("record-gearbox").resources
+    assert gearbox is not None
+    assert priced.lut - without.lut == gearbox.lut
+
+
+def test_a_geared_design_does_not_share_a_hash_with_an_ungeared_one() -> None:
+    """The spec hash keys the design cache. If the gearbox were invisible to
+    the canonical form, a cached ungeared bitstream would be handed back for
+    a geared design and silently run the wrong front."""
+    from dau_core.composition import spec_hash
+
+    lanes = sorted_scan_spec().lanes
+    geared = ScanCompositionSpec(name="scan", lanes=lanes, data_width=512, partitioner=_record_dispatcher(), front_gearbox=_front_gearbox())
+    plain = ScanCompositionSpec(name="scan", lanes=lanes, data_width=512, partitioner=_record_dispatcher())
+    assert spec_hash(geared) != spec_hash(plain)
+    # and the record size is part of that identity: a 3-word and a 4-word
+    # gearbox are different hardware
+    assert spec_hash(geared) != spec_hash(
+        ScanCompositionSpec(name="scan", lanes=lanes, data_width=512, partitioner=_record_dispatcher(4), front_gearbox=_front_gearbox(4))
+    )
+
+
+def test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front() -> None:
+    lanes = bar_noc_spec().lanes
+    with pytest.raises(CompositionError, match="requires data_width > 64"):
+        ScanCompositionSpec(name="scan", lanes=lanes, front_gearbox=_front_gearbox())
+    with pytest.raises(CompositionError, match="is not the 'record-gearbox' reframing core"):
+        ScanCompositionSpec(
+            name="scan",
+            lanes=lanes,
+            data_width=512,
+            partitioner=_record_dispatcher(),
+            front_gearbox=TileSpec(core="int32-row-unpack", config=dict(_FRONT_UNPACK_CONFIG)),
+        )

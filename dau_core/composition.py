@@ -30,6 +30,7 @@ SCAN_INFRASTRUCTURE_CORES = ("axi-burst-reader", "stream-broadcast", "axi-record
 # row-unpack tile that widens packed rows into 16-byte quad rows after the
 # burst reader and before the broadcast/partition fan-out.
 FRONT_UNPACK_CORE = "int32-row-unpack"
+FRONT_GEARBOX_CORE = "record-gearbox"
 # the reserved config-binding symbol for the shell's LOAD_PHASE register
 # (RegisterOffset.LOAD_PHASE): a tile binding ``cfg_load`` to this symbol is
 # phase-switched by the host instead of baked, making the composition
@@ -122,7 +123,12 @@ class ScanCompositionSpec(BaseModel):
     between the burst reader and the fan-out: it widens PACKED rows (half
     the DDR bytes) into the standard 16-byte quad rows, so the fan-out
     still sees the clean 32-bit key it partitions on. It coexists with
-    either fan-out shape."""
+    either fan-out shape.
+
+    An optional ``front_gearbox`` sits in the same feed position but
+    reframes rather than widens: it turns wide beats into ONE WHOLE
+    RECORD per cycle, so the fan-out behind it routes records instead
+    of rows. Its bus is therefore a record size, not a row width."""
 
     model_config = ConfigDict(frozen=True)
 
@@ -138,6 +144,14 @@ class ScanCompositionSpec(BaseModel):
     data_width: int = 64
     partitioner: TileSpec | None = None
     front_unpack: TileSpec | None = None
+    # THE RECORD GEARBOX: reframes wide beats into whole records so the
+    # fan-out behind it consumes one record per cycle instead of one word.
+    # It is declared HERE, in the composition, rather than as a build-time
+    # flag because it is a core the design INSTANTIATES: it has to reach
+    # ``core_names`` (which stages the HDL Vivado compiles) and the
+    # canonical spec (which keys the design cache). A geared and an
+    # ungeared design are different bitstreams and must not share a hash.
+    front_gearbox: TileSpec | None = None
     # THE FUSED CHAIN: allow terminal-shaped tiles (a join, an aggregator) to
     # sit MID-LANE so their intermediate records never touch DDR — the
     # avoided-materialization shape. The lane still presents exactly one
@@ -256,6 +270,12 @@ class ScanCompositionSpec(BaseModel):
                     raise CompositionError(
                         f"partitioner {self.partitioner.core!r} 'NUM_PARTITIONS' must be a power of two in mask mode, got {partitions!r}"
                     )
+        if self.front_gearbox is not None:
+            if self.front_gearbox.core != FRONT_GEARBOX_CORE:
+                raise CompositionError(f"front gearbox {self.front_gearbox.core!r} is not the {FRONT_GEARBOX_CORE!r} reframing core")
+            _validate_tile_params(self.front_gearbox, "front gearbox")
+            if self.data_width <= 64:
+                raise CompositionError("front_gearbox requires data_width > 64: a 64-bit feed already delivers one word per cycle")
         if self.front_unpack is not None:
             if self.front_unpack.core != FRONT_UNPACK_CORE:
                 raise CompositionError(
@@ -362,6 +382,7 @@ class ScanCompositionSpec(BaseModel):
 
         stray(self.partitioner, "partitioner")
         stray(self.front_unpack, "front unpacker")
+        stray(self.front_gearbox, "front gearbox")
         for lane in self.lanes:
             stray(lane.tile, "lane tile")
             stray(lane.partition, "lane partition")
@@ -422,6 +443,8 @@ class ScanCompositionSpec(BaseModel):
             if no_broadcast and name == "stream-broadcast":
                 continue
             names.setdefault(name)
+        if self.front_gearbox is not None:
+            names.setdefault(self.front_gearbox.core)
         if self.front_unpack is not None:
             names.setdefault(self.front_unpack.core)
         if self.partitioner is not None:
@@ -605,6 +628,8 @@ def estimated_resources(spec: ScanCompositionSpec) -> ResourceEnvelope:
 
     for name in ("axi-burst-reader", "axi-write-mux", "identity-registers"):
         add(name)
+    if spec.front_gearbox is not None:
+        add(spec.front_gearbox.core)
     if spec.front_unpack is not None:
         add(spec.front_unpack.core)
     if spec.partitioner is not None:
@@ -622,7 +647,7 @@ def estimated_resources(spec: ScanCompositionSpec) -> ResourceEnvelope:
     return ResourceEnvelope(lut=lut, ff=ff, bram36=bram, dsp=dsp, measured=measured)
 
 
-SPEC_CANONICAL_VERSION = "3"  # 3: fused_chain joined the canonical form (the fused-chain protocol, 2026-07-31)
+SPEC_CANONICAL_VERSION = "4"  # 4: front_gearbox joined the canonical form (the record gearbox, 2026-08-01)
 
 
 def canonical_spec_json(spec: ScanCompositionSpec) -> str:
