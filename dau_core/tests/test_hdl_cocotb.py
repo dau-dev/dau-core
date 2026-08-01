@@ -755,6 +755,16 @@ def test_record_batch_aggregation_runs_real_cocotb_against_systemverilog(tmp_pat
     )
 
 
+# The harness default is `-Wno-fatal`, which tells Verilator not to treat
+# warnings as fatal — and that is how two synthesis-breaking defects reached
+# benches "passing": a 128-bit part-select of a 64-bit port, and a deliberate
+# `$fatal` elaboration guard rejecting a parameterization we then used. Vivado
+# fails both. Style warnings (unused signals, filename conventions) stay
+# non-fatal, but these two classes mean "this will not synthesize" and are
+# promoted to hard errors. Verified to break nothing in the current RTL.
+VERILATOR_BUILD_ARGS = ("--timing", "-Wno-fatal", "-Werror-USERFATAL", "-Werror-SELRANGE")
+
+
 def _run_cocotb_verilator(*, sources: tuple[Path, ...], hdl_toplevel: str, test_module: str, tmp_path: Path, parameters=None) -> None:
     # one canonical cocotb-on-Verilator flag set for every functional bench
     cocotb_integration = pytest.importorskip("dau_sim.integrations.cocotb", reason="dau-sim cocotb integration not installed")
@@ -764,5 +774,6 @@ def _run_cocotb_verilator(*, sources: tuple[Path, ...], hdl_toplevel: str, test_
         test_module=test_module,
         build_dir=tmp_path / hdl_toplevel,
         results_xml=tmp_path / f"{hdl_toplevel}-cocotb-results.xml",
+        build_args=VERILATOR_BUILD_ARGS,
         parameters=parameters,
     )
