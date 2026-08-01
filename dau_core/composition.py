@@ -647,7 +647,7 @@ def estimated_resources(spec: ScanCompositionSpec) -> ResourceEnvelope:
     return ResourceEnvelope(lut=lut, ff=ff, bram36=bram, dsp=dsp, measured=measured)
 
 
-SPEC_CANONICAL_VERSION = "3"  # 3: fused_chain joined the canonical form (the fused-chain protocol, 2026-07-31)
+SPEC_CANONICAL_VERSION = "4"  # 4: front_gearbox joined the canonical form (the record gearbox, 2026-08-01)
 
 
 def canonical_spec_json(spec: ScanCompositionSpec) -> str:

@@ -551,7 +551,7 @@ def test_spec_hash_pinned_fixture() -> None:
     )
     # canonical version 2: data_width joined the canonical form (the
     # width-tier knob) — every v1 cache key misses cold, by design
-    assert spec_hash(spec) == "3:8775d72a81b01e13c91868bd2d8c248086e0ad06934f419d870bc8984b568ee5"
+    assert spec_hash(spec) == "4:8775d72a81b01e13c91868bd2d8c248086e0ad06934f419d870bc8984b568ee5"
 
 
 def test_spec_from_canonical_revalidates() -> None:
