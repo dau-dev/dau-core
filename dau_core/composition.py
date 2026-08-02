@@ -188,6 +188,13 @@ class ScanCompositionSpec(BaseModel):
             raise CompositionError("a scan composition needs at least one lane")
         if self.data_width not in (64, 128, 256, 512):
             raise CompositionError(f"data_width must be 64/128/256/512, got {self.data_width}")
+        # 32 or 64 only. A master of some intermediate width is not a thing
+        # anyone builds, and allowing it would mean carrying padding logic
+        # through every register slice for a shape with no hardware behind
+        # it — the AXI-Lite read path zero-extends cleanly at exactly these
+        # two widths and needs an explicit pad at any other.
+        if self.addr_width not in (32, 64):
+            raise CompositionError(f"addr_width must be 32 or 64, got {self.addr_width}")
         wide_lane = self.lanes[0].tile.definition().contract_kind is ContractKind.WIDE_ROW_STREAM
         if wide_lane:
             # THE WIDE LANE: reader beats wire straight into a chain of
