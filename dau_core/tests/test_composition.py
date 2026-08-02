@@ -989,3 +989,17 @@ def test_the_scan_shell_still_requires_a_lane_counter() -> None:
     assert ScanCompositionSpec(name="s", stream_job="bram-stream-job", lanes=countless).core_names()
     with pytest.raises(CompositionError, match="does not expose a status counter"):
         ScanCompositionSpec(name="s", lanes=countless)
+
+
+def test_addr_width_is_32_or_64_only() -> None:
+    """A job master of some intermediate width is not hardware anyone builds,
+    and permitting it would mean carrying padding logic through every
+    register slice for a shape with nothing behind it: the AXI-Lite read
+    path zero-extends cleanly at exactly 32 and 64 and needs an explicit
+    pad at anything else."""
+    lanes = bar_noc_spec().lanes
+    for width in (32, 64):
+        assert ScanCompositionSpec(name="scan", lanes=lanes, addr_width=width).addr_width == width
+    for width in (16, 40, 48, 63, 128):
+        with pytest.raises(CompositionError, match="addr_width must be 32 or 64"):
+            ScanCompositionSpec(name="scan", lanes=lanes, addr_width=width)
