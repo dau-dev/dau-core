@@ -117,6 +117,13 @@ class NocLaneRegisterOffset(IntEnum):
     RECORD_COUNT_LOW = 0x08
     RECORD_COUNT_HIGH = 0x0C
     LANE_ERROR = 0x10
+    # the high half of a lane's write address, for designs whose job master
+    # addresses past 4 GiB. Placed in free space inside the existing 0x20
+    # lane stride so every established offset keeps its address: a design
+    # built before this register simply never decodes it, and a host that
+    # does not write it leaves the high half zero, which is the old
+    # behaviour exactly.
+    OUTPUT_ADDRESS_HIGH = 0x14
 
 
 def noc_lane_register(lane: int, offset: NocLaneRegisterOffset | int) -> int:
