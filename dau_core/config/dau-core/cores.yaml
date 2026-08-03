@@ -1105,10 +1105,13 @@ int32-wide-row-map-alu:
   - map-alu-pkg
   golden: dau_core.operators:map_row_fields
   bench: dau_core.tests.cocotb_benches.dau_int32_wide_row_map_alu_tb
-  # Reference hand-split 3-stage OOC: SLOTS=4 xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +0.688)
+  # Reference 3-stage OOC: SLOTS=4 xc7k325tffg900-2, Vivado 2025.2, 8 ns met (WNS +1.983).
+  # Characterized on the dpv2 part because the dpv1 part hid the problem: with the
+  # multiply unregistered this core measured WNS -1.383 here while reporting +0.688 on
+  # xc7a200tfbg484-2, and composed dpv2 builds closed or missed on placement luck alone.
   resources:
-    lut: 2746
-    ff: 2226
+    lut: 2763
+    ff: 2351
     bram36: 0.0
     dsp: 16
   contract_kind: wide-row-stream
