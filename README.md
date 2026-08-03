@@ -110,6 +110,51 @@ spec = ScanCompositionSpec(
 print(estimated_resources(spec))
 ```
 
+### Wide lanes
+
+Most operator cores take one quad row per cycle. A `wide-row-stream` core
+takes the reader's WHOLE beat — `SLOTS = data_width / 128` quad rows every
+cycle, no dispatcher and no fan-out — and the three row operators have wide
+counterparts (`int32-wide-row-predicate-filter`, `int32-wide-row-map-alu`,
+`int32-wide-field-sum-aggregation`). The substitution is 1:1: same configs,
+same order, only the core names change.
+
+`data_width` must equal `SLOTS * 128` or construction raises
+`CompositionError`. A wide lane cannot take the packed front unpacker —
+packing trades DMA bytes for job time, and a wide lane wants whole rows.
+
+```python
+spec = ScanCompositionSpec(
+    name="q6-wide",
+    data_width=512,   # SLOTS=4: four quad rows per cycle
+    lanes=(
+        LaneSpec(
+            tile=TileSpec(core="int32-wide-field-sum-aggregation",
+                          config={"cfg_field_mask": "4'b0010"}),
+            chain=(
+                # shipdate >= 8766 AND shipdate < 9131
+                TileSpec(core="int32-wide-row-predicate-filter", config={
+                    "cfg_field0": "2'd0", "cfg_op0": "3'd6", "cfg_constant0": "32'd8766",
+                    "cfg_combine01": "2'd1",
+                    "cfg_field1": "2'd0", "cfg_op1": "3'd3", "cfg_constant1": "32'd9131",
+                    "cfg_combine2": "2'd0",
+                    "cfg_field2": "2'd0", "cfg_op2": "3'd0", "cfg_constant2": "32'd0"}),
+                # value = value * aux0 >> 15
+                TileSpec(core="int32-wide-row-map-alu", config={
+                    "cfg_op": "3'd4", "cfg_dst_field": "2'd1",
+                    "cfg_src_a_field": "2'd1", "cfg_src_b_field": "2'd2",
+                    "cfg_shift": "5'd15"}),
+            ),
+        ),
+    ),
+)
+print(estimated_resources(spec))
+```
+
+The throughput this buys is a rate-model consequence, not a measurement
+artifact: rows / SLOTS / clock. At SF1 that is 6,001,215 / 4 / 125 MHz =
+12.0 ms, and silicon measures 12.4 ms.
+
 ## Workflows and typed results
 
 Multi-stage reference workflows are ccflow `CallableModel`s with typed
