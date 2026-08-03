@@ -1142,10 +1142,14 @@ int32-wide-field-sum-aggregation:
     int32-field-sum-aggregation.'
   golden: dau_core.operators:field_sum_rows
   bench: dau_core.tests.cocotb_benches.dau_int32_wide_field_sum_aggregation_tb
-  # OOC SLOTS=4 xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +3.125)
+  # OOC SLOTS=4 xc7k325tffg900-2, Vivado 2025.2, 8 ns met (WNS +5.369).
+  # Characterized on the dpv2 part. Note that OOC understates this tile: with
+  # registers at the boundary it never models the composed path that actually
+  # binds, which runs from the upstream tile's output register THROUGH this
+  # reduction into the accumulator.
   resources:
-    lut: 1478
-    ff: 467
+    lut: 1375
+    ff: 469
     bram36: 0.0
     dsp: 0
   count_port: aggregated_count
