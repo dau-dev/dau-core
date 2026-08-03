@@ -72,27 +72,42 @@ module dau_int32_wide_field_sum_aggregation #(
     assign first_beat = !batch_open;
     assign eff_mask = first_beat ? cfg_field_mask : active_mask;
 
-    // per-beat combinational reduction: for each field, the SLOTS-way adder
-    // tree over non-pad slots; plus the non-pad slot count
-    logic [SLOTS-1:0] slot_live;
-    logic signed [63:0] beat_sum [4];
-    logic [63:0] beat_rows;
+    // Per-beat combinational reduction: for each field, a BALANCED adder tree
+    // over non-pad slots, plus the non-pad slot count.
+    //
+    // Two things here are deliberate and were not always true. The tree is
+    // balanced -- (a+b)+(c+d), depth ceil(log2(SLOTS)) -- rather than a
+    // left-fold accumulation, whose depth is SLOTS. And it is BEAT_SUM_W wide,
+    // not 64: summing SLOTS signed 32-bit values needs 32+clog2(SLOTS) bits,
+    // and only the running accumulator below needs the full 64. A left-fold at
+    // 64 bits put four chained 64-bit carry chains ahead of the accumulator and
+    // made this tile the path that bound the whole job clock.
+    localparam int BEAT_SUM_W = 32 + $clog2(SLOTS);
+    localparam int ROWS_W = $clog2(SLOTS + 1);
+
+    logic [3:0] slot_live;                              // padded to 4; unused slots stay 0
+    logic signed [BEAT_SUM_W-1:0] slot_term [0:3][0:3]; // [field][slot], 0 for pads and unused slots
+    logic signed [BEAT_SUM_W-1:0] beat_sum [4];
+    logic [ROWS_W-1:0] beat_rows;
 
     always_comb begin
-        beat_rows = 64'd0;
-        for (int s = 0; s < SLOTS; s++) begin
-            slot_live[s] = (input_data[128*s +: 128] != PAD_ROW);
-            if (slot_live[s]) begin
-                beat_rows = beat_rows + 64'd1;
+        slot_live = 4'd0;
+        for (int f = 0; f < 4; f++) begin
+            for (int s = 0; s < 4; s++) begin
+                slot_term[f][s] = '0;
             end
         end
-        for (int f = 0; f < 4; f++) begin
-            beat_sum[f] = 64'sd0;
-            for (int s = 0; s < SLOTS; s++) begin
+        for (int s = 0; s < SLOTS; s++) begin
+            slot_live[s] = (input_data[128*s +: 128] != PAD_ROW);
+            for (int f = 0; f < 4; f++) begin
                 if (slot_live[s]) begin
-                    beat_sum[f] = beat_sum[f] + 64'(signed'(input_data[128*s + 32*f +: 32]));
+                    slot_term[f][s] = BEAT_SUM_W'(signed'(input_data[128*s + 32*f +: 32]));
                 end
             end
+        end
+        beat_rows = ROWS_W'($countones(slot_live));
+        for (int f = 0; f < 4; f++) begin
+            beat_sum[f] = (slot_term[f][0] + slot_term[f][1]) + (slot_term[f][2] + slot_term[f][3]);
         end
     end
 
