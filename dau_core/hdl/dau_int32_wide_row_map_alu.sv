@@ -257,6 +257,11 @@ module dau_int32_wide_row_map_alu
             batch_open <= 1'b0;
             batch_input_closed <= 1'b0;
             pipeline_valid <= '0;
+            // the multiply stage is part of the pipeline this invalidates.
+            // Every current call site also fires input_fire and so assigns
+            // mul_valid on the same edge, but that is a property of the call
+            // sites, not of the error path; clear it here so it stays true.
+            mul_valid <= 1'b0;
             status_valid <= 1'b1;
             status_error <= 1'b1;
             status_error_code <= code;
