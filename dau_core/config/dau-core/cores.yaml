@@ -397,12 +397,28 @@ int32-streaming-top-k:
     by input_last on w0 is ERR_STREAM.'
   golden: dau_core.operators:streaming_top_k
   bench: dau_core.tests.cocotb_benches.dau_int32_streaming_top_k_tb
-  # OOC K=8 xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +4.350)
+  # Two measured points on one unchanged source (this HDL has a single commit),
+  # so both are valid. Resources match across parts; timing does not, which is
+  # the whole reason a point carries its part.
   resources:
-    lut: 1295
-    ff: 1196
-    bram36: 0.0
-    dsp: 0
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {K: 8}
+      lut: 1295
+      ff: 1196
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.350
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {K: 8}
+      lut: 1295
+      ff: 1196
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.410
   count_port: top_count
   contract_kind: row-stream
   record_words: 2
@@ -1077,15 +1093,65 @@ int32-wide-row-map-alu:
   - map-alu-pkg
   golden: dau_core.operators:map_row_fields
   bench: dau_core.tests.cocotb_benches.dau_int32_wide_row_map_alu_tb
-  # Reference 3-stage OOC: SLOTS=4 xc7k325tffg900-2, Vivado 2025.2, 8 ns met (WNS +1.983).
-  # Characterized on the dpv2 part because the dpv1 part hid the problem: with the
-  # multiply unregistered this core measured WNS -1.383 here while reporting +0.688 on
-  # xc7a200tfbg484-2, and composed dpv2 builds closed or missed on placement luck alone.
+  # Measured points only; a point is valid for the source it measured. The
+  # xc7a200t point was taken BEFORE the multiply was registered and describes
+  # HDL that no longer exists, so it is deliberately absent rather than
+  # carried forward -- that stale point is what hid a -1.383 ns violation.
   resources:
-    lut: 2763
-    ff: 2351
-    bram36: 0.0
-    dsp: 16
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {SLOTS: 1, PIPELINE_DEPTH: 3}
+      lut: 752
+      ff: 617
+      bram36: 0.0
+      dsp: 4
+      timing: met
+      wns_ns: 0.898
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {SLOTS: 1, PIPELINE_DEPTH: 3}
+      lut: 747
+      ff: 617
+      bram36: 0.0
+      dsp: 4
+      timing: met
+      wns_ns: 2.046
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {SLOTS: 2, PIPELINE_DEPTH: 3}
+      lut: 1549
+      ff: 1195
+      bram36: 0.0
+      dsp: 8
+      timing: met
+      wns_ns: 0.865
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {SLOTS: 2, PIPELINE_DEPTH: 3}
+      lut: 1518
+      ff: 1195
+      bram36: 0.0
+      dsp: 8
+      timing: met
+      wns_ns: 2.005
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {SLOTS: 4, PIPELINE_DEPTH: 3}
+      lut: 2761
+      ff: 2351
+      bram36: 0.0
+      dsp: 16
+      timing: met
+      wns_ns: 0.348
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {SLOTS: 4, PIPELINE_DEPTH: 3}
+      lut: 2763
+      ff: 2351
+      bram36: 0.0
+      dsp: 16
+      timing: met
+      wns_ns: 1.983
   contract_kind: wide-row-stream
   record_words: 2
   supports_pipeline_depth: true
@@ -1114,16 +1180,63 @@ int32-wide-field-sum-aggregation:
     int32-field-sum-aggregation.'
   golden: dau_core.operators:field_sum_rows
   bench: dau_core.tests.cocotb_benches.dau_int32_wide_field_sum_aggregation_tb
-  # OOC SLOTS=4 xc7k325tffg900-2, Vivado 2025.2, 8 ns met (WNS +5.369).
-  # Characterized on the dpv2 part. Note that OOC understates this tile: with
-  # registers at the boundary it never models the composed path that actually
-  # binds, which runs from the upstream tile's output register THROUGH this
-  # reduction into the accumulator.
+  # Measured points only. The pre-balanced-tree xc7a200t point is deliberately
+  # absent: it measured different HDL.
   resources:
-    lut: 1375
-    ff: 469
-    bram36: 0.0
-    dsp: 0
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {SLOTS: 1}
+      lut: 827
+      ff: 470
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.828
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {SLOTS: 1}
+      lut: 827
+      ff: 470
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.404
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {SLOTS: 2}
+      lut: 1002
+      ff: 470
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.065
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {SLOTS: 2}
+      lut: 1002
+      ff: 470
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.43
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {SLOTS: 4}
+      lut: 1375
+      ff: 469
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.819
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {SLOTS: 4}
+      lut: 1375
+      ff: 469
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.369
   count_port: aggregated_count
   contract_kind: wide-row-stream
   record_words: 2
