@@ -1039,3 +1039,22 @@ def test_keyed_state_rejects_a_capacity_the_hardware_cannot_hold() -> None:
     for bad in (0, -1, KEYED_STATE_MAX_KEYS + 1):
         emitted, code = keyed_state_scan([(1, 1)], op=KeyedStateOp.ADD, capacity=bad)
         assert (emitted, code) == ([], KeyedStateErrorCode.BAD_CAPACITY)
+
+
+def test_keyed_state_keys_and_values_live_in_the_int32_domain() -> None:
+    # keys and values are int32 WIRES, not Python integers. Getting this wrong
+    # made the golden unimplementable rather than merely imprecise.
+    same_key, code = keyed_state_scan([(-1, 1), (0xFFFFFFFF, 1)], op=KeyedStateOp.ADD, capacity=1)
+    assert code is KeyedStateErrorCode.OK  # ONE key on a 32-bit bus, not two
+    assert same_key == [(-1, 1), (-1, 2)]
+
+    # a state a 32-bit port cannot carry is not a state the tile can be in
+    assert keyed_state_scan([(1, 2**31)], op=KeyedStateOp.SET, capacity=1)[0] == [(1, -(2**31))]
+    assert keyed_state_scan([(1, 2**31)], op=KeyedStateOp.MAX, capacity=1)[0] == [(1, 0)]
+    assert keyed_state_scan([(1, 1)], op=KeyedStateOp.ADD, capacity=1, initial=2**31)[0] == [(1, -(2**31) + 1)]
+
+
+def test_keyed_state_rejects_an_unsupported_op() -> None:
+    # every non-SET/ADD/MAX value previously fell through to MIN
+    with pytest.raises(ValueError, match="unsupported keyed state op"):
+        keyed_state_scan([(1, 1)], op=99, capacity=4)  # type: ignore[arg-type]
