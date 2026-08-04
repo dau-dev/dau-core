@@ -1355,3 +1355,77 @@ def scratchpad_scan(
             arena[addr] = value
         emitted.append((addr, arena.get(addr, 0)))
     return emitted, ScratchpadErrorCode.OK
+
+
+class SessionErrorCode(IntEnum):
+    """Status codes for the session-gap tile."""
+
+    OK = 0
+    BAD_CAPACITY = 1  # capacity outside [1, KEYED_STATE_MAX_KEYS]
+    SESSION_CAPACITY_EXCEEDED = 2  # a new key past the table's capacity
+    BAD_GAP = 3  # gap must be positive
+    TIME_ORDER = 4  # a row's time ran backwards within the batch
+
+
+def sessionize_scan(
+    rows: Iterable[tuple[int, int]],
+    *,
+    gap: int,
+    capacity: int,
+) -> tuple[list[tuple[int, int, int, int]], SessionErrorCode]:
+    """Golden semantics for the session-gap tile: the Nexmark-Q11 shape, and
+    step 2 of the stateful programme (STORAGE_AND_NOC.md). Rows are
+    ``(key, time)`` in arrival order; a session is a maximal per-key run of
+    rows with no inter-row gap exceeding ``gap``. Each closed session emits
+    ``(key, start_time, end_time, row_count)``.
+
+    Sessions close two ways. A row whose time exceeds its key's last time by
+    more than ``gap`` closes the old session (emitted immediately, in arrival
+    order) and opens a new one. Batch end closes everything still open,
+    emitted **sorted by signed key** — a deterministic order no
+    implementation detail (hash placement, slot index) can leak into.
+
+    **Phase scope is PROCESSING-order sessionization**: times must be
+    non-decreasing across the batch (the generator's contract), and a
+    violation is ``TIME_ORDER`` — refused, never silently reordered. Event
+    time, watermarks and late arrivals are the next programme step and are
+    deliberately absent here.
+
+    ``capacity`` bounds DISTINCT KEYS per batch, exactly like keyed state: a
+    gap-close immediately reopens, so it never frees a slot mid-batch. The
+    (capacity+1)-th distinct key is ``SESSION_CAPACITY_EXCEEDED``, a defined
+    close-out preserving emitted sessions — never an eviction. Keys and
+    times are int32 wires (wrapped).
+
+    Returns ``(closed_sessions, error_code)``.
+    """
+    if not 1 <= capacity <= KEYED_STATE_MAX_KEYS:
+        return [], SessionErrorCode.BAD_CAPACITY
+    if gap <= 0:
+        return [], SessionErrorCode.BAD_GAP
+
+    open_sessions: dict[int, tuple[int, int, int]] = {}  # key -> (start, last, count)
+    emitted: list[tuple[int, int, int, int]] = []
+    previous_time: int | None = None
+    for raw_key, raw_time in rows:
+        key = _wrap_int32(raw_key)
+        time = _wrap_int32(raw_time)
+        if previous_time is not None and time < previous_time:
+            return emitted, SessionErrorCode.TIME_ORDER
+        previous_time = time
+        held = open_sessions.get(key)
+        if held is None:
+            if len(open_sessions) >= capacity:
+                return emitted, SessionErrorCode.SESSION_CAPACITY_EXCEEDED
+            open_sessions[key] = (time, time, 1)
+        else:
+            start, last, count = held
+            if time - last > gap:
+                emitted.append((key, start, last, count))
+                open_sessions[key] = (time, time, 1)
+            else:
+                open_sessions[key] = (start, time, count + 1)
+    for key in sorted(open_sessions):
+        start, last, count = open_sessions[key]
+        emitted.append((key, start, last, count))
+    return emitted, SessionErrorCode.OK
