@@ -7,9 +7,11 @@ The registry itself lives in dau-core's hydra config tree
 core, composed into the ccflow ``ModelRegistry`` at ``/dau-core/<name>``
 and discoverable on the shared search path via the ``hydra.lernaplugins``
 entry point. Composition IS the registry — this module defines the models
-and thin cached accessors, never a core list. Resource envelopes are
-produced by the dau-build synthesize-cores task; ``measured=False`` marks
-estimates awaiting a synthesis pass.
+and thin cached accessors, never a core list. Resource envelopes are produced
+by the dau-build synthesize-cores task; ``measured=False`` marks estimates
+awaiting a synthesis pass. New entries record resource measurement points by
+part, clock, and module parameters; legacy unkeyed envelopes remain readable
+during migration.
 """
 
 from __future__ import annotations
@@ -60,8 +62,8 @@ class ContractKind(Enum):
 
 
 class ResourceEnvelope(BaseModel):
-    """Post-synthesis footprint on the target part (dpv1 XC7A200T unless
-    noted). ``measured=False`` marks an engineering estimate."""
+    """Legacy unkeyed post-synthesis footprint. ``measured=False`` marks an
+    engineering estimate. New measurements use ``ResourceMeasurement``."""
 
     model_config = ConfigDict(frozen=True)
 
@@ -70,6 +72,44 @@ class ResourceEnvelope(BaseModel):
     bram36: float
     dsp: int
     measured: bool = True
+
+
+class TimingStatus(Enum):
+    MET = "met"
+    VIOLATED = "violated"
+
+
+class ResourceMeasurement(BaseModel):
+    """One exact OOC result. Coordinates are deliberately discrete: a
+    measurement says nothing about another part, clock, or parameter tuple."""
+
+    model_config = ConfigDict(frozen=True)
+
+    part: str
+    clock_ns: float
+    params: Mapping[str, StrictInt] = {}
+    lut: int
+    ff: int
+    bram36: float
+    dsp: int
+    timing: TimingStatus
+    wns_ns: float
+
+    @model_validator(mode="after")
+    def _timing_matches_wns(self) -> ResourceMeasurement:
+        met = self.wns_ns >= 0
+        if met != (self.timing is TimingStatus.MET):
+            raise ValueError(f"timing {self.timing.value!r} disagrees with WNS {self.wns_ns:+g} ns")
+        return self
+
+    def usable_envelope(self) -> ResourceEnvelope:
+        """Return resource counts only when timing met its target."""
+        if self.timing is TimingStatus.VIOLATED:
+            raise TimingViolationError(
+                f"resource measurement for part={self.part!r}, clock_ns={self.clock_ns:g}, "
+                f"params={dict(self.params)!r} violated timing (WNS {self.wns_ns:+g} ns)"
+            )
+        return ResourceEnvelope(lut=self.lut, ff=self.ff, bram36=self.bram36, dsp=self.dsp)
 
 
 class IngestRate(BaseModel):
@@ -180,7 +220,7 @@ class CoreDefinition(BaseModel):
     depends: tuple[str, ...] = ()
     golden: str | None = None  # "module:callable" defining the semantics
     bench: str | None = None  # cocotb bench module
-    resources: ResourceEnvelope | None = None
+    resources: ResourceEnvelope | tuple[ResourceMeasurement, ...] | None = None
     count_port: str | None = None  # the tile's trailing status counter, if any
     legacy: bool = False  # predates the stream+status contract; kept verified, not for new compositions
     contract_kind: ContractKind | None = None  # required for non-legacy operators; None elsewhere (no declared stream contract)
@@ -256,6 +296,19 @@ class CoreDefinition(BaseModel):
                 raise ValueError(f"core {self.name!r} {role} follows undeclared parameter {name!r}")
         if self.supports_pipeline_depth and "PIPELINE_DEPTH" not in self.parameters:
             raise ValueError(f"core {self.name!r} supports pipeline depth but declares no PIPELINE_DEPTH parameter")
+        if isinstance(self.resources, tuple):
+            expected_params = set(self.parameters)
+            coordinates: set[tuple[str, float, tuple[tuple[str, int], ...]]] = set()
+            for point in self.resources:
+                if set(point.params) != expected_params:
+                    raise ValueError(
+                        f"core {self.name!r} resource measurement parameters {sorted(point.params)!r} "
+                        f"do not match declared parameters {sorted(expected_params)!r}"
+                    )
+                coordinate = (point.part, point.clock_ns, tuple(sorted(point.params.items())))
+                if coordinate in coordinates:
+                    raise ValueError(f"core {self.name!r} has duplicate resource measurement coordinate {coordinate!r}")
+                coordinates.add(coordinate)
 
     def _parameter_value(self, name: str, params: Mapping[str, int]) -> int:
         spec = self.parameters.get(name)
@@ -281,6 +334,34 @@ class CoreDefinition(BaseModel):
             return int(self.output_record_words)
         return self.effective_record_words(params)
 
+    def resource_measurement(self, *, part: str, clock_ns: float, params: Mapping[str, int]) -> ResourceMeasurement:
+        """Resolve one exact measurement, never a neighboring point.
+
+        Composition overrides are expanded with declared defaults before
+        comparison. Legacy scalar envelopes have no coordinates and therefore
+        cannot answer this lookup safely.
+        """
+        requested = {name: int(params.get(name, spec.default)) for name, spec in self.parameters.items()}
+        requested.update({name: int(value) for name, value in params.items() if name not in requested})
+        if not isinstance(self.resources, tuple):
+            raise UnmeasuredResourceError(
+                f"core {self.name!r} is unmeasured for part={part!r}, clock_ns={clock_ns:g}, params={requested!r}; "
+                "its legacy resource envelope has no measurement coordinates"
+            )
+
+        for point in self.resources:
+            if point.part == part and point.clock_ns == clock_ns and dict(point.params) == requested:
+                return point
+
+        part_points = [point for point in self.resources if point.part == part]
+        if not part_points:
+            gap = f"part {part!r}"
+        else:
+            clock_points = [point for point in part_points if point.clock_ns == clock_ns]
+            gap = f"clock_ns {clock_ns:g} on part {part!r}" if not clock_points else f"params {requested!r} at part={part!r}, clock_ns={clock_ns:g}"
+        available = ", ".join(f"(part={point.part!r}, clock_ns={point.clock_ns:g}, params={dict(point.params)!r})" for point in self.resources)
+        raise UnmeasuredResourceError(f"core {self.name!r} has unmeasured {gap}; measured points: {available or 'none'}")
+
     def source_path(self) -> Path:
         from . import hdl
 
@@ -294,6 +375,14 @@ class CoreDefinition(BaseModel):
 
 
 class UnknownCoreError(KeyError):
+    pass
+
+
+class UnmeasuredResourceError(LookupError):
+    pass
+
+
+class TimingViolationError(ValueError):
     pass
 
 

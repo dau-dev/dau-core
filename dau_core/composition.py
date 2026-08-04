@@ -22,7 +22,7 @@ from itertools import pairwise
 from ccflow import BaseModel
 from pydantic import ConfigDict, StrictInt
 
-from .cores import ContractKind, CoreDefinition, CoreKind, LoadImageKind, ResourceEnvelope, core
+from .cores import ContractKind, CoreDefinition, CoreKind, LoadImageKind, ResourceEnvelope, UnmeasuredResourceError, core
 
 SCAN_INFRASTRUCTURE_CORES = ("axi-burst-reader", "stream-broadcast", "axi-record-writer", "axi-write-mux", "identity-registers")
 
@@ -660,28 +660,37 @@ def throughput_rows_per_cycle(spec: ScanCompositionSpec, *, stage_pass_fractions
     return min(delivery, consumption)
 
 
-def estimated_resources(spec: ScanCompositionSpec) -> ResourceEnvelope:
-    """Sum of the measured envelopes of every instance the composition
-    places (per-lane cores counted per lane). ``measured`` is the AND of
-    the constituents — one unmeasured core marks the estimate.
+def estimated_resources(spec: ScanCompositionSpec, *, part: str | None = None, clock_ns: float | None = None) -> ResourceEnvelope:
+    """Sum resource envelopes for every instance the composition places.
 
-    TODO: a param-override'd tile (e.g. membership KEY_SPACE=6_000_000) has a
-    variable envelope — BRAM scales with KEY_SPACE (the bitmap is KEY_SPACE
-    bits), so this sum, which uses the registry's default-size envelope,
-    under-counts BRAM for an up-sized core. The OOC measurement at the real
-    KEY_SPACE is the source of truth; this estimate stays a lower bound and,
-    critically, does not crash on a param'd tile (the envelope lookup is by
-    core name, independent of params)."""
+    Legacy scalar envelopes remain priceable for compatibility. A core with
+    measurement points requires an exact ``part``, ``clock_ns``, and effective
+    module-parameter match; an absent coordinate, an unmeasured tuple, or a
+    timing violation raises instead of returning a plausible-looking number.
+    Refusal is intentional: a marker could be dropped by a numeric consumer,
+    recreating the silent cross-part fallback this API must prevent.
+
+    Until their registry entries are migrated, legacy parameterized envelopes
+    retain their existing lower-bound behavior for non-default overrides.
+    """
     lut = ff = dsp = 0
     bram = 0.0
     measured = True
 
-    def add(name: str) -> None:
+    def add(name: str, params: Mapping[str, int] = {}) -> None:
         nonlocal lut, ff, bram, dsp, measured
-        envelope = core(name).resources
-        if envelope is None:
+        definition = core(name)
+        resources = definition.resources
+        if resources is None:
             measured = False
             return
+        if isinstance(resources, ResourceEnvelope):
+            envelope = resources
+        else:
+            if part is None or clock_ns is None:
+                missing = ", ".join(name for name, value in (("part", part), ("clock_ns", clock_ns)) if value is None)
+                raise UnmeasuredResourceError(f"pricing core {name!r} requires {missing} for exact resource measurement lookup")
+            envelope = definition.resource_measurement(part=part, clock_ns=clock_ns, params=params).usable_envelope()
         lut += envelope.lut
         ff += envelope.ff
         bram += envelope.bram36
@@ -695,11 +704,11 @@ def estimated_resources(spec: ScanCompositionSpec) -> ResourceEnvelope:
         for name in ("axi-burst-reader", "axi-write-mux", "identity-registers"):
             add(name)
     if spec.front_gearbox is not None:
-        add(spec.front_gearbox.core)
+        add(spec.front_gearbox.core, spec.front_gearbox.params)
     if spec.front_unpack is not None:
-        add(spec.front_unpack.core)
+        add(spec.front_unpack.core, spec.front_unpack.params)
     if spec.partitioner is not None:
-        add(spec.partitioner.core)
+        add(spec.partitioner.core, spec.partitioner.params)
     elif spec.stream_job is None and not spec.is_wide_lane():
         # the wide lane feeds the single lane directly: no broadcast placed
         add("stream-broadcast")
@@ -711,10 +720,10 @@ def estimated_resources(spec: ScanCompositionSpec) -> ResourceEnvelope:
         if spec.stream_job is None:
             add("axi-record-writer")
         if lane.partition is not None:
-            add(lane.partition.core)
+            add(lane.partition.core, lane.partition.params)
         for stage in lane.chain:
-            add(stage.core)
-        add(lane.tile.core)
+            add(stage.core, stage.params)
+        add(lane.tile.core, lane.tile.params)
     return ResourceEnvelope(lut=lut, ff=ff, bram36=bram, dsp=dsp, measured=measured)
 
 
