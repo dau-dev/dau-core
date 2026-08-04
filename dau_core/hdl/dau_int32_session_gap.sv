@@ -216,13 +216,16 @@ module dau_int32_session_gap #(
                             batch_open <= 1'b1;
                             gap_q <= cfg_gap;
                             granted <= cfg_granted_keys;
-                            if (cfg_gap == 32'd0 || cfg_gap[31]) begin
-                                err_pending <= 1'b1;
-                                err_code <= ERR_BAD_GAP;
-                                state <= input_last ? STATE_STATUS : STATE_DISCARD;
-                            end else if (cfg_granted_keys == 32'd0 || cfg_granted_keys > CAPACITY[31:0]) begin
+                            // grant before gap: the golden checks capacity
+                            // first, and when BOTH are invalid the codes must
+                            // agree bit-for-bit
+                            if (cfg_granted_keys == 32'd0 || cfg_granted_keys > CAPACITY[31:0]) begin
                                 err_pending <= 1'b1;
                                 err_code <= ERR_BAD_GRANT;
+                                state <= input_last ? STATE_STATUS : STATE_DISCARD;
+                            end else if (cfg_gap == 32'd0 || cfg_gap[31]) begin
+                                err_pending <= 1'b1;
+                                err_code <= ERR_BAD_GAP;
                                 state <= input_last ? STATE_STATUS : STATE_DISCARD;
                             end else begin
                                 prev_time <= input_data[63:32];

@@ -74,6 +74,10 @@ async def session_gap_bad_parameters_are_refused(dut):
     assert code is SessionErrorCode.BAD_GAP and got == []
     got, code = await _run(dut, [(1, 0), (1, 1)], gap=3, granted_keys=CAPACITY + 1)
     assert code is SessionErrorCode.BAD_CAPACITY and got == []
+    # BOTH invalid: the golden checks capacity first and the codes must agree
+    got, code = await _run(dut, [(1, 0), (1, 1)], gap=0, granted_keys=0)
+    expected_code = sessionize_scan([(1, 0), (1, 1)], gap=0, capacity=0)[1]
+    assert code is expected_code is SessionErrorCode.BAD_CAPACITY and got == []
 
 
 @cocotb.test()
