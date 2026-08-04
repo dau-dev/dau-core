@@ -1272,3 +1272,36 @@ axi-ram-sim:
   module: dau_axi_ram_sim
   source: dau_axi_ram_sim.sv
   description: Behavioral AXI4 RAM with pipelined ARs, back-to-back bursts, stall injection, backdoor.
+
+int32-scratchpad:
+  _target_: dau_core.cores.CoreDefinition
+  name: int32-scratchpad
+  kind: operator
+  module: dau_int32_scratchpad
+  source: dau_int32_scratchpad.sv
+  description: 'Owned-arena scratchpad: the deliberately trivial consumer of the
+    owned storage class (STORAGE_AND_NOC.md phase 1). A granted word arena
+    behind a host-written config port an allocator tile drives later; overflow
+    at the grant boundary is a defined STORAGE_OVERFLOW close-out preserving
+    emitted rows. Two words in per row {value,addr}/{we}, one word out
+    {post_op_value,addr}. The interface keyed state consumes next.'
+  golden: dau_core.operators:scratchpad_scan
+  bench: dau_core.tests.cocotb_benches.dau_int32_scratchpad_tb
+  contract_kind: row-stream
+  record_words: 2
+  output_record_words: 1
+  ingest:
+    rows: 1
+    per_cycles: 5
+  success_close_out: true
+  parameters:
+    CAPACITY:
+      default: 1024
+      minimum: 1
+      maximum: 16384
+  storage_intent:
+    - role: arena
+      access: owned
+      bytes_per_unit: 4
+      scale_parameter: CAPACITY
+      tier_hint: bram

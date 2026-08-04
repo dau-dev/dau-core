@@ -36,6 +36,7 @@ from dau_core.hdl import (
     DAU_INT32_ROW_MAP_ALU_SV,
     DAU_INT32_ROW_PREDICATE_FILTER_SV,
     DAU_INT32_ROW_UNPACK_SV,
+    DAU_INT32_SCRATCHPAD_SV,
     DAU_INT32_STREAM_AGGREGATION_SV,
     DAU_INT32_STREAMING_TOP_K_SV,
     DAU_INT32_STRIDE_DISTRIBUTOR_SV,
@@ -771,4 +772,27 @@ def _run_cocotb_verilator(*, sources: tuple[Path, ...], hdl_toplevel: str, test_
         results_xml=tmp_path / f"{hdl_toplevel}-cocotb-results.xml",
         build_args=VERILATOR_BUILD_ARGS,
         parameters=parameters,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_scratchpad_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_SCRATCHPAD_SV)),),
+        hdl_toplevel="dau_int32_scratchpad",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_scratchpad_tb",
+        tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_scratchpad_capacity_sixteen(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    # a tiny arena: the grant boundary sits within easy random reach
+    monkeypatch.setenv("DAU_SCRATCHPAD_CAPACITY", "16")
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_SCRATCHPAD_SV)),),
+        hdl_toplevel="dau_int32_scratchpad",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_scratchpad_tb",
+        tmp_path=tmp_path,
+        parameters={"CAPACITY": 16},
     )
