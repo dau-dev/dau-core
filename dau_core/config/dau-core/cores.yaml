@@ -1272,3 +1272,60 @@ axi-ram-sim:
   module: dau_axi_ram_sim
   source: dau_axi_ram_sim.sv
   description: Behavioral AXI4 RAM with pipelined ARs, back-to-back bursts, stall injection, backdoor.
+
+int32-scratchpad:
+  _target_: dau_core.cores.CoreDefinition
+  name: int32-scratchpad
+  kind: operator
+  module: dau_int32_scratchpad
+  source: dau_int32_scratchpad.sv
+  description: 'Owned-arena scratchpad: the deliberately trivial consumer of the
+    owned storage class (STORAGE_AND_NOC.md phase 1). A granted word arena
+    behind a host-written config port an allocator tile drives later; overflow
+    at the grant boundary is a defined STORAGE_OVERFLOW close-out preserving
+    emitted rows. Two words in per row {value,addr}/{we}, one word out
+    {post_op_value,addr}. The interface keyed state consumes next.'
+  golden: dau_core.operators:scratchpad_scan
+  bench: dau_core.tests.cocotb_benches.dau_int32_scratchpad_tb
+  count_port: row_count
+  contract_kind: row-stream
+  record_words: 2
+  output_record_words: 1
+  ingest:
+    rows: 1
+    per_cycles: 5
+  success_close_out: true
+  parameters:
+    CAPACITY:
+      default: 1024
+      minimum: 1
+      maximum: 16384
+  # OOC on both parts, 8 ns, CAPACITY=1024. The first run of this tile
+  # landed in 512 LUTs of distributed RAM because the arena access lived in
+  # the reset-carrying FSM process; the dedicated reset-free process infers
+  # the intended RAMB36.
+  resources:
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {CAPACITY: 1024}
+      lut: 84
+      ff: 210
+      bram36: 1.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.857
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {CAPACITY: 1024}
+      lut: 84
+      ff: 210
+      bram36: 1.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.296
+  storage_intent:
+    - role: arena
+      access: owned
+      bytes_per_unit: 4
+      scale_parameter: CAPACITY
+      tier_hint: bram

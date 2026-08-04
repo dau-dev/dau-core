@@ -1311,3 +1311,47 @@ def keyed_state_scan(
         state[key] = updated
         emitted.append((key, updated))
     return emitted, KeyedStateErrorCode.OK
+
+
+SCRATCHPAD_MAX_WORDS = 16384
+
+
+class ScratchpadErrorCode(IntEnum):
+    """Status codes for the scratchpad owned-arena tile."""
+
+    OK = 0
+    BAD_GRANT = 1  # granted_words outside [1, SCRATCHPAD_MAX_WORDS]
+    STORAGE_OVERFLOW = 2  # an address at or past the grant boundary
+
+
+def scratchpad_scan(
+    rows: Iterable[tuple[int, int, int]],
+    *,
+    granted_words: int,
+) -> tuple[list[tuple[int, int]], ScratchpadErrorCode]:
+    """Golden semantics for the scratchpad tile: the deliberately trivial
+    consumer of the OWNED storage class (STORAGE_AND_NOC.md phase 1). A
+    private word-addressed arena; each row is ``(write_enable, addr, value)``
+    and emits ``(addr, post_op_value)`` — a write emits what it wrote, a read
+    emits what is stored, an unwritten word reads 0 (BRAM init).
+
+    The contract under test is the GRANT, not the arithmetic: an address at
+    or past ``granted_words`` is STORAGE_OVERFLOW — a defined close-out that
+    preserves already-emitted rows, exactly the shape a grow-request replaces
+    when the allocator hardens. Addresses and values are int32 wires
+    (wrapped); a negative address is never inside any grant.
+    """
+    if not 1 <= granted_words <= SCRATCHPAD_MAX_WORDS:
+        return [], ScratchpadErrorCode.BAD_GRANT
+
+    arena: dict[int, int] = {}
+    emitted: list[tuple[int, int]] = []
+    for write_enable, raw_addr, raw_value in rows:
+        addr = _wrap_int32(raw_addr)
+        value = _wrap_int32(raw_value)
+        if not 0 <= addr < granted_words:
+            return emitted, ScratchpadErrorCode.STORAGE_OVERFLOW
+        if write_enable:
+            arena[addr] = value
+        emitted.append((addr, arena.get(addr, 0)))
+    return emitted, ScratchpadErrorCode.OK

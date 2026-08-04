@@ -345,3 +345,54 @@ def test_parameter_spec_violation_is_the_single_constraint_source() -> None:
     choice = ParameterSpec(default=64, choices=(64, 128))
     assert choice.violation(64) is None
     assert "one of 64, 128" in choice.violation(96)
+
+
+def test_storage_intent_prices_against_declared_parameters() -> None:
+    definition = CoreDefinition.model_validate(
+        {
+            **core("int32-row-predicate-filter").model_dump(),
+            "parameters": {"CAPACITY": {"default": 1024, "minimum": 1, "maximum": 16384}},
+            "storage_intent": [
+                {"role": "arena", "access": "owned", "bytes_per_unit": 4, "scale_parameter": "CAPACITY", "tier_hint": "bram"},
+            ],
+        }
+    )
+    [(intent, cost)] = definition.storage_bytes({})
+    assert (intent.role, cost) == ("arena", 4 * 1024)  # default CAPACITY
+    [(_, cost)] = definition.storage_bytes({"CAPACITY": 4096})
+    assert cost == 4 * 4096  # override prices
+
+
+def test_storage_intent_refuses_an_undeclared_scale_parameter() -> None:
+    with pytest.raises(ValidationError, match="scale_parameter 'MISSING'"):
+        CoreDefinition.model_validate(
+            {
+                **core("int32-row-predicate-filter").model_dump(),
+                "storage_intent": [
+                    {"role": "arena", "access": "owned", "bytes_per_unit": 4, "scale_parameter": "MISSING"},
+                ],
+            }
+        )
+
+
+def test_storage_intent_without_scale_is_a_fixed_cost() -> None:
+    definition = CoreDefinition.model_validate(
+        {
+            **core("int32-row-predicate-filter").model_dump(),
+            "storage_intent": [{"role": "table", "access": "shared", "bytes_per_unit": 8192}],
+        }
+    )
+    [(_, cost)] = definition.storage_bytes({})
+    assert cost == 8192
+
+
+def test_storage_bytes_refuses_illegal_scale_overrides() -> None:
+    definition = core("int32-scratchpad")
+    with pytest.raises(ValueError, match="not an int"):
+        definition.storage_bytes({"CAPACITY": "4096"})
+    with pytest.raises(ValueError, match="not an int"):
+        definition.storage_bytes({"CAPACITY": True})
+    with pytest.raises(ValueError, match="CAPACITY"):
+        definition.storage_bytes({"CAPACITY": -2})
+    with pytest.raises(ValueError, match="<= 16384"):
+        definition.storage_bytes({"CAPACITY": 32768})

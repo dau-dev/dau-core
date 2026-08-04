@@ -21,6 +21,7 @@ from enum import Enum
 from fractions import Fraction
 from importlib import import_module
 from pathlib import Path
+from typing import Literal
 
 from ccflow import BaseModel
 from pydantic import ConfigDict, Field, NonNegativeFloat, NonNegativeInt, StrictInt, field_validator, model_validator
@@ -243,6 +244,21 @@ class ParameterSpec(BaseModel):
         return self
 
 
+class StorageIntent(BaseModel):
+    """A core's declared storage need (STORAGE_AND_NOC.md). ``owned`` = a
+    private single-cycle arena; ``shared`` = handle-based tier transactions.
+    Capacity prices against a declared module parameter so the planner can
+    refuse what no tier serves — never discovered at synthesis."""
+
+    model_config = ConfigDict(frozen=True)
+
+    role: str = Field(min_length=1)
+    access: Literal["owned", "shared"]
+    bytes_per_unit: int = Field(gt=0)
+    scale_parameter: str | None = None
+    tier_hint: str | None = None
+
+
 class CoreDefinition(BaseModel):
     """One HDL building block and its contract surround."""
 
@@ -306,6 +322,30 @@ class CoreDefinition(BaseModel):
     # the HDL is the source of truth, this is the machine-readable declaration
     # the composition validates against.
     parameters: Mapping[str, ParameterSpec] = {}
+    # declared storage needs; the walker wires them, contracts advertise them
+    storage_intent: tuple[StorageIntent, ...] = ()
+
+    def storage_bytes(self, params: Mapping[str, int]) -> tuple[tuple[StorageIntent, int], ...]:
+        """Each intent with its byte cost at the effective parameters
+        (overrides win, declared defaults otherwise)."""
+        priced = []
+        for intent in self.storage_intent:
+            units = 1
+            if intent.scale_parameter is not None:
+                spec = self.parameters[intent.scale_parameter]
+                override = params.get(intent.scale_parameter, spec.default)
+                if isinstance(override, bool) or not isinstance(override, int):
+                    raise ValueError(
+                        f"core {self.name!r} storage intent {intent.role!r}: parameter {intent.scale_parameter!r} override {override!r} is not an int"
+                    )
+                # the spec owns the constraint; pricing an illegal override
+                # would produce a byte cost no buildable design can have
+                reason = spec.violation(override)
+                if reason is not None:
+                    raise ValueError(f"core {self.name!r} storage intent {intent.role!r}: parameter {intent.scale_parameter!r} {reason}")
+                units = override
+            priced.append((intent, intent.bytes_per_unit * units))
+        return tuple(priced)
 
     def model_post_init(self, context) -> None:
         super().model_post_init(context)
@@ -331,6 +371,12 @@ class CoreDefinition(BaseModel):
                 raise ValueError(f"core {self.name!r} {role} follows undeclared parameter {name!r}")
         if self.supports_pipeline_depth and "PIPELINE_DEPTH" not in self.parameters:
             raise ValueError(f"core {self.name!r} supports pipeline depth but declares no PIPELINE_DEPTH parameter")
+        for intent in self.storage_intent:
+            if intent.scale_parameter is not None and intent.scale_parameter not in self.parameters:
+                raise ValueError(
+                    f"core {self.name!r} storage intent {intent.role!r} scales by "
+                    f"scale_parameter {intent.scale_parameter!r}, which is not a declared parameter"
+                )
         if isinstance(self.resources, tuple):
             expected_params = set(self.parameters)
             coordinates: set[tuple[str, float, tuple[tuple[str, int], ...]]] = set()
