@@ -23,7 +23,7 @@ from importlib import import_module
 from pathlib import Path
 
 from ccflow import BaseModel
-from pydantic import ConfigDict, StrictInt, field_validator, model_validator
+from pydantic import ConfigDict, Field, NonNegativeFloat, NonNegativeInt, StrictInt, field_validator, model_validator
 
 from .design import UnitKind
 from .stream import LogicalType, OperationCode
@@ -67,10 +67,10 @@ class ResourceEnvelope(BaseModel):
 
     model_config = ConfigDict(frozen=True)
 
-    lut: int
-    ff: int
-    bram36: float
-    dsp: int
+    lut: NonNegativeInt
+    ff: NonNegativeInt
+    bram36: NonNegativeFloat
+    dsp: NonNegativeInt
     measured: bool = True
 
 
@@ -85,13 +85,13 @@ class ResourceMeasurement(BaseModel):
 
     model_config = ConfigDict(frozen=True)
 
-    part: str
-    clock_ns: float
+    part: str = Field(min_length=1)
+    clock_ns: float = Field(gt=0)
     params: Mapping[str, StrictInt] = {}
-    lut: int
-    ff: int
-    bram36: float
-    dsp: int
+    lut: NonNegativeInt
+    ff: NonNegativeInt
+    bram36: NonNegativeFloat
+    dsp: NonNegativeInt
     timing: TimingStatus
     wns_ns: float
 
@@ -200,11 +200,47 @@ class ParameterSpec(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     default: int
-    multiple_of: int = 1
+    multiple_of: int = Field(default=1, gt=0)
     choices: tuple[int, ...] | None = None
     power_of_two: bool = False
     minimum: int = 1
     maximum: int | None = None
+
+    def violation(self, value: int) -> str | None:
+        """Why ``value`` is not a legal override, or ``None`` when it is.
+        This is the ONE statement of the constraint -- composition wraps it
+        with tile context, and the model's own coherence check runs the
+        default through it, so the rule cannot drift between the two."""
+        if self.choices is not None:
+            if value not in self.choices:
+                allowed = ", ".join(str(choice) for choice in self.choices)
+                return f"must be one of {allowed}, got {value!r}"
+            return None  # an enumerated choice set (which may include a 0 flag) is the whole constraint
+        if value <= 0:
+            return f"must be a positive int, got {value!r}"
+        if value < self.minimum:
+            return f"must be >= {self.minimum}, got {value!r}"
+        if self.maximum is not None and value > self.maximum:
+            return f"must be <= {self.maximum}, got {value!r}"
+        if value % self.multiple_of != 0:
+            return f"must be a positive multiple of {self.multiple_of}, got {value!r}"
+        if self.power_of_two and value & (value - 1):
+            return f"must be a power of two, got {value!r}"
+        return None
+
+    @model_validator(mode="after")
+    def _constraints_cohere(self) -> ParameterSpec:
+        """The spec mirrors RTL elaboration guards, so an incoherent spec is a
+        registry bug that would reject every override -- catch it at
+        registration, not at the first composition."""
+        if self.maximum is not None and self.minimum > self.maximum:
+            raise ValueError(f"minimum {self.minimum} exceeds maximum {self.maximum}")
+        if self.choices is not None and not self.choices:
+            raise ValueError("choices, when given, must be non-empty")
+        reason = self.violation(self.default)
+        if reason is not None:
+            raise ValueError(f"default {self.default} violates the spec's own constraints: {reason}")
+        return self
 
 
 class CoreDefinition(BaseModel):
