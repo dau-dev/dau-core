@@ -3,12 +3,14 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+from pydantic import ValidationError
 
 from dau_core import hdl
 from dau_core.cores import (
     ContractKind,
     CoreDefinition,
     CoreKind,
+    ParameterSpec,
     ResourceEnvelope,
     ResourceMeasurement,
     TimingStatus,
@@ -308,3 +310,38 @@ def test_dispatcher_rate_still_needs_record_aware_modeling() -> None:
     # the rate declaration still ignores RECORD_WORDS — that is the gap
     narrow = definition.ingest.effective({"IN_WIDTH": 64}, definition.parameters)
     assert narrow == definition.ingest.effective({"IN_WIDTH": 64, "RECORD_WORDS": 3}, definition.parameters)
+
+
+def test_authoritative_models_reject_impossible_values() -> None:
+    # these models back the registry yaml and pricing; a negative LUT count or
+    # a zero-length part string is a data-entry bug that must fail at load
+    with pytest.raises(ValidationError):
+        ResourceEnvelope(lut=-1, ff=0, bram36=0.0, dsp=0)
+    with pytest.raises(ValidationError):
+        ResourceMeasurement(part="", clock_ns=8.0, lut=1, ff=1, bram36=0.0, dsp=0, timing="met", wns_ns=0.1)
+    with pytest.raises(ValidationError):
+        ResourceMeasurement(part="xc7k325tffg900-2", clock_ns=0, lut=1, ff=1, bram36=0.0, dsp=0, timing="met", wns_ns=0.1)
+
+
+def test_parameter_spec_rejects_incoherent_constraints() -> None:
+    # the spec mirrors RTL elaboration guards; an incoherent spec would
+    # reject every override, so it fails at registration instead
+    with pytest.raises(ValidationError, match="minimum 8 exceeds maximum 4"):
+        ParameterSpec(default=8, minimum=8, maximum=4)
+    with pytest.raises(ValidationError, match="non-empty"):
+        ParameterSpec(default=1, choices=())
+    with pytest.raises(ValidationError, match="default 3 violates"):
+        ParameterSpec(default=3, power_of_two=True)
+    with pytest.raises(ValidationError, match="default 5 violates"):
+        ParameterSpec(default=5, multiple_of=2)
+
+
+def test_parameter_spec_violation_is_the_single_constraint_source() -> None:
+    # composition wraps this with tile context; the model owns the rule
+    spec = ParameterSpec(default=64, multiple_of=64, maximum=4096)
+    assert spec.violation(128) is None
+    assert "multiple of 64" in spec.violation(65)
+    assert ">= 2" in ParameterSpec(default=2, minimum=2).violation(1)
+    choice = ParameterSpec(default=64, choices=(64, 128))
+    assert choice.violation(64) is None
+    assert "one of 64, 128" in choice.violation(96)

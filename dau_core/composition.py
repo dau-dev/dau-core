@@ -74,21 +74,11 @@ def _validate_tile_params(tile: TileSpec, role: str) -> None:
         spec = declared[name]
         if isinstance(value, bool) or not isinstance(value, int):
             raise CompositionError(f"{role} {tile.core!r} parameter {name!r} must be a positive int, got {value!r}")
-        if spec.choices is not None:
-            if value not in spec.choices:
-                allowed = ", ".join(str(choice) for choice in spec.choices)
-                raise CompositionError(f"{role} {tile.core!r} parameter {name!r} must be one of {allowed}, got {value!r}")
-            continue  # an enumerated choice set (which may include a 0 flag) is the whole constraint
-        if value <= 0:
-            raise CompositionError(f"{role} {tile.core!r} parameter {name!r} must be a positive int, got {value!r}")
-        if value < spec.minimum:
-            raise CompositionError(f"{role} {tile.core!r} parameter {name!r} must be >= {spec.minimum}, got {value!r}")
-        if spec.maximum is not None and value > spec.maximum:
-            raise CompositionError(f"{role} {tile.core!r} parameter {name!r} must be <= {spec.maximum}, got {value!r}")
-        if value % spec.multiple_of != 0:
-            raise CompositionError(f"{role} {tile.core!r} parameter {name!r} must be a positive multiple of {spec.multiple_of}, got {value!r}")
-        if spec.power_of_two and value & (value - 1):
-            raise CompositionError(f"{role} {tile.core!r} parameter {name!r} must be a power of two, got {value!r}")
+        # the constraint itself lives on ParameterSpec.violation -- one
+        # statement of the rule, shared with the spec's own coherence check
+        reason = spec.violation(value)
+        if reason is not None:
+            raise CompositionError(f"{role} {tile.core!r} parameter {name!r} {reason}")
 
 
 class TileSpec(BaseModel):
