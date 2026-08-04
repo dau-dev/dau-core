@@ -1287,6 +1287,7 @@ int32-scratchpad:
     {post_op_value,addr}. The interface keyed state consumes next.'
   golden: dau_core.operators:scratchpad_scan
   bench: dau_core.tests.cocotb_benches.dau_int32_scratchpad_tb
+  count_port: row_count
   contract_kind: row-stream
   record_words: 2
   output_record_words: 1

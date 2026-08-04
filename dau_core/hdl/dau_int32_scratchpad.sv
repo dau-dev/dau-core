@@ -37,7 +37,8 @@ module dau_int32_scratchpad #(
     output logic             status_valid,
     input  wire logic        status_ready,
     output logic             status_error,
-    output logic [7:0]       status_error_code
+    output logic [7:0]       status_error_code,
+    output logic [63:0]      row_count
 );
     localparam logic [7:0] ERR_BAD_GRANT = 8'd1;
     localparam logic [7:0] ERR_STORAGE_OVERFLOW = 8'd2;
@@ -78,6 +79,22 @@ module dau_int32_scratchpad #(
     logic addr_in_grant;
     assign addr_in_grant = ({1'b0, row_addr} < {1'b0, granted});
 
+    // The arena lives in its own reset-free process: Vivado only infers
+    // block RAM when the array access is not under a reset condition (the
+    // first OOC run of this tile landed in 512 LUTs of distributed RAM for
+    // exactly this reason). Write-first: a write's post-op value is the
+    // written value.
+    logic arena_access;
+    assign arena_access = (state == STATE_RD);
+    always_ff @(posedge clk) begin
+        if (arena_access) begin
+            if (row_we) begin
+                arena[row_addr[AW-1:0]] <= row_value;
+            end
+            read_data <= row_we ? row_value : arena[row_addr[AW-1:0]];
+        end
+    end
+
     always_ff @(posedge clk) begin
         if (rst) begin
             state <= STATE_W0;
@@ -90,11 +107,11 @@ module dau_int32_scratchpad #(
             status_error_code <= 8'd0;
             err_pending <= 1'b0;
             err_code <= 8'd0;
+            row_count <= 64'd0;
             row_addr <= 32'd0;
             row_value <= 32'd0;
             row_we <= 1'b0;
             row_last <= 1'b0;
-            read_data <= 32'd0;
         end else begin
             case (state)
                 STATE_W0: begin
@@ -139,13 +156,7 @@ module dau_int32_scratchpad #(
                     end
                 end
                 STATE_RD: begin
-                    // write-first: a write's post-op value is what it wrote
-                    if (row_we) begin
-                        arena[row_addr[AW-1:0]] <= row_value;
-                        read_data <= row_value;
-                    end else begin
-                        read_data <= arena[row_addr[AW-1:0]];
-                    end
+                    // the arena process performs the access this cycle
                     state <= STATE_EMIT;
                 end
                 STATE_EMIT: begin
@@ -155,6 +166,7 @@ module dau_int32_scratchpad #(
                     if (output_valid && output_ready) begin
                         output_valid <= 1'b0;
                         output_last <= 1'b0;
+                        row_count <= row_count + 64'd1;
                         if (row_last) begin
                             status_valid <= 1'b1;
                             status_error <= 1'b0;
@@ -182,6 +194,7 @@ module dau_int32_scratchpad #(
                         status_error_code <= 8'd0;
                         err_pending <= 1'b0;
                         batch_open <= 1'b0;
+                        row_count <= 64'd0;
                         state <= STATE_W0;
                     end
                 end
