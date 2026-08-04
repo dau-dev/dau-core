@@ -4,6 +4,7 @@ import pytest
 
 from dau_core.operators import (
     KEYED_STATE_MAX_KEYS,
+    SCRATCHPAD_MAX_WORDS,
     TOP_K_MAX,
     BarAggregate,
     BroadcastJoinConfig,
@@ -25,6 +26,7 @@ from dau_core.operators import (
     RowMapConfig,
     RowPredicateConfig,
     RowPredicateTerm,
+    ScratchpadErrorCode,
     TopKErrorCode,
     UnpackFieldSpec,
     bar_aggregate_rows,
@@ -43,6 +45,7 @@ from dau_core.operators import (
     map_values,
     mask_dispatch_rows,
     pack_splitters,
+    scratchpad_scan,
     streaming_top_k,
     stride_distribute_rows,
     unpack_rows,
@@ -1058,3 +1061,32 @@ def test_keyed_state_rejects_an_unsupported_op() -> None:
     # every non-SET/ADD/MAX value previously fell through to MIN
     with pytest.raises(ValueError, match="unsupported keyed state op"):
         keyed_state_scan([(1, 1)], op=99, capacity=4)  # type: ignore[arg-type]
+
+
+def test_scratchpad_emits_post_op_state_per_row() -> None:
+    rows = [(1, 0, 7), (0, 0, 999), (1, 1, -2), (0, 1, 0), (0, 2, 0)]
+    emitted, code = scratchpad_scan(rows, granted_words=4)
+    assert code is ScratchpadErrorCode.OK
+    # write emits the written value; read emits stored; unwritten reads 0
+    assert emitted == [(0, 7), (0, 7), (1, -2), (1, -2), (2, 0)]
+
+
+def test_scratchpad_overflow_is_an_error_that_preserves_emitted_rows() -> None:
+    emitted, code = scratchpad_scan([(1, 0, 5), (1, 4, 1)], granted_words=4)
+    assert code is ScratchpadErrorCode.STORAGE_OVERFLOW  # addr 4 >= grant 4
+    assert emitted == [(0, 5)]  # prefix preserved
+    # negative addresses are int32 wires and never inside any grant
+    _, code = scratchpad_scan([(1, -1, 5)], granted_words=4)
+    assert code is ScratchpadErrorCode.STORAGE_OVERFLOW
+
+
+def test_scratchpad_values_live_in_the_int32_domain() -> None:
+    emitted, code = scratchpad_scan([(1, 0, 2**31)], granted_words=4)
+    assert code is ScratchpadErrorCode.OK
+    assert emitted == [(0, -(2**31))]  # wraps, per the wire
+
+
+def test_scratchpad_rejects_a_grant_the_arena_cannot_hold() -> None:
+    for bad in (0, -1, SCRATCHPAD_MAX_WORDS + 1):
+        emitted, code = scratchpad_scan([(1, 0, 1)], granted_words=bad)
+        assert (emitted, code) == ([], ScratchpadErrorCode.BAD_GRANT)
