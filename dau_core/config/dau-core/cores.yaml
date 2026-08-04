@@ -1353,9 +1353,13 @@ int32-keyed-state:
   record_words: 1
   ingest:
     rows: 1
-    # amortized floor: ROW+PROBE+JUDGE+EMITx2 with short probe chains at sane
-    # load factors; collisions add probe cycles, hence the conservative floor
-    per_cycles: 8
+    # the zero-collision cadence: ROW+PROBE+JUDGE+EMITx2 = 5 cycles/row.
+    # Acceptance for probe depth p is 2p+3, so the STATED ASSUMPTION is
+    # hash-distributed keys at low load factor (p ~= 1). Adversarial
+    # congruent-key fills degrade to 1/(2*CAPACITY+3) -- a planner-regime
+    # concern per the IngestRate doctrine (like the dispatcher's same-lane
+    # runs), visible here rather than hidden behind a padded number.
+    per_cycles: 5
   success_close_out: true
   parameters:
     CAPACITY:
