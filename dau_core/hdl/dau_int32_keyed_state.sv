@@ -265,6 +265,7 @@ module dau_int32_keyed_state #(
                         err_pending <= 1'b0;
                         batch_open <= 1'b0;
                         row_count <= 64'd0;
+                        clear_idx <= '0;  // explicit: no reliance on the completed sweep leaving it 0
                         state <= STATE_CLEAR;  // fresh state per batch, matching the golden
                     end
                 end
