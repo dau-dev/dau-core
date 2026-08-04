@@ -1362,6 +1362,27 @@ int32-keyed-state:
       default: 1024
       minimum: 1
       maximum: 1024
+  # OOC on both parts, 8 ns, CAPACITY=1024. 1024 x 64-bit slots = exactly
+  # two RAMB36; the valid bitmap rides in LUTRAM.
+  resources:
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {CAPACITY: 1024}
+      lut: 408
+      ff: 389
+      bram36: 2.0
+      dsp: 0
+      timing: met
+      wns_ns: 1.289
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {CAPACITY: 1024}
+      lut: 408
+      ff: 389
+      bram36: 2.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.996
   storage_intent:
     - role: state_table
       access: owned
