@@ -1206,3 +1206,86 @@ def _bounds_fixture(logical_type: LogicalType) -> list[int | float | bool]:
 
 def _is_nan(value: float | bool) -> bool:
     return isinstance(value, float) and math.isnan(value)
+
+
+KEYED_STATE_MAX_KEYS = 1024
+
+
+class KeyedStateErrorCode(IntEnum):
+    """Status codes for the keyed state tile."""
+
+    OK = 0
+    BAD_CAPACITY = 1  # declared capacity outside [1, KEYED_STATE_MAX_KEYS]
+    KEY_CAPACITY_EXCEEDED = 2  # a new key arrived with the table full
+
+
+class KeyedStateOp(IntEnum):
+    """What a row does to its key's accumulator."""
+
+    SET = 0  # overwrite with the row's value
+    ADD = 1  # accumulate
+    MAX = 2  # running maximum
+    MIN = 3  # running minimum
+
+
+def keyed_state_scan(
+    rows: Iterable[tuple[int, int]],
+    *,
+    op: KeyedStateOp,
+    capacity: int,
+    initial: int = 0,
+) -> tuple[list[tuple[int, int]], KeyedStateErrorCode]:
+    """Golden semantics for the keyed state tile: a per-key accumulator updated
+    once per row, emitting the POST-UPDATE state for every row.
+
+    This is the primitive the stateful family is built on. Unlike every tile
+    that precedes it, the output for a row depends on rows that came before it
+    with the SAME key — a loop-carried dependency per key, which is exactly the
+    shape a SIMD CPU cannot vectorize and a spatial datapath can hold on-chip.
+
+    ``rows`` are ``(key, value)`` pairs in arrival order. Each row reads its
+    key's current state, applies ``op``, writes it back, and emits
+    ``(key, new_state)``. A key seen for the first time starts from ``initial``,
+    so the first row of a key emits ``op(initial, value)`` — NOT ``value``,
+    unless ``op`` is SET. That distinction is the whole reason ``initial`` is
+    explicit rather than implied.
+
+    **Emitting post-update state, not pre-update, is a deliberate contract.**
+    Post-update is what a running aggregate means, it is what the hardware can
+    produce without an extra pipeline stage holding the old value, and it makes
+    back-to-back same-key rows well defined: the second row observes the first
+    row's write. In hardware that is a read-modify-write hazard the tile must
+    FORWARD rather than stall, and this golden pins the answer it must forward
+    to.
+
+    ``capacity`` is the declared number of distinct keys the table holds. It is
+    a hardware fact (a BRAM depth), so exceeding it is an ERROR rather than an
+    eviction: silently dropping a key would make the result wrong in a way no
+    downstream consumer could detect. Rows already emitted stay emitted, and
+    the error is returned alongside them so a caller can see exactly where the
+    table filled.
+
+    Returns ``(emitted_rows, error_code)``.
+    """
+    if not 1 <= capacity <= KEYED_STATE_MAX_KEYS:
+        return [], KeyedStateErrorCode.BAD_CAPACITY
+
+    state: dict[int, int] = {}
+    emitted: list[tuple[int, int]] = []
+    for key, value in rows:
+        if key not in state:
+            if len(state) >= capacity:
+                return emitted, KeyedStateErrorCode.KEY_CAPACITY_EXCEEDED
+            state[key] = initial
+        current = state[key]
+        if op is KeyedStateOp.SET:
+            updated = value
+        elif op is KeyedStateOp.ADD:
+            updated = _wrap_int32(current + value)
+        elif op is KeyedStateOp.MAX:
+            updated = max(current, value)
+        else:
+            updated = min(current, value)
+        state[key] = updated
+        emitted.append((key, updated))
+    return emitted, KeyedStateErrorCode.OK
