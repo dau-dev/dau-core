@@ -27,6 +27,7 @@ from dau_core.operators import (
     RowPredicateConfig,
     RowPredicateTerm,
     ScratchpadErrorCode,
+    SessionErrorCode,
     TopKErrorCode,
     UnpackFieldSpec,
     bar_aggregate_rows,
@@ -46,6 +47,7 @@ from dau_core.operators import (
     mask_dispatch_rows,
     pack_splitters,
     scratchpad_scan,
+    sessionize_scan,
     streaming_top_k,
     stride_distribute_rows,
     unpack_rows,
@@ -1090,3 +1092,60 @@ def test_scratchpad_rejects_a_grant_the_arena_cannot_hold() -> None:
     for bad in (0, -1, SCRATCHPAD_MAX_WORDS + 1):
         emitted, code = scratchpad_scan([(1, 0, 1)], granted_words=bad)
         assert (emitted, code) == ([], ScratchpadErrorCode.BAD_GRANT)
+
+
+def test_sessionize_closes_on_gap_and_at_batch_end() -> None:
+    # interleaved keys in time order: key 1 splits twice on gap > 3; key 2
+    # extends across its two rows. Batch end drains the rest sorted by key.
+    rows = [(1, 0), (2, 1), (2, 2), (1, 5), (1, 20)]
+    sessions, code = sessionize_scan(rows, gap=3, capacity=8)
+    assert code is SessionErrorCode.OK
+    assert sessions == [(1, 0, 0, 1), (1, 5, 5, 1), (1, 20, 20, 1), (2, 1, 2, 2)]
+
+
+def test_sessionize_gap_boundary_is_exclusive() -> None:
+    # a row exactly gap after the last EXTENDS the session; gap+1 closes it
+    extended, _ = sessionize_scan([(1, 0), (1, 3)], gap=3, capacity=4)
+    assert extended == [(1, 0, 3, 2)]
+    split, _ = sessionize_scan([(1, 0), (1, 4)], gap=3, capacity=4)
+    assert split == [(1, 0, 0, 1), (1, 4, 4, 1)]
+
+
+def test_sessionize_requires_per_batch_time_order() -> None:
+    # phase scope: PROCESSING-order sessionization. Times must be
+    # non-decreasing across the batch; out-of-order policy is the
+    # watermark step's problem and is refused, never silently reordered
+    sessions, code = sessionize_scan([(1, 5), (2, 3)], gap=3, capacity=4)
+    assert code is SessionErrorCode.TIME_ORDER
+    assert sessions == []  # nothing emitted from a refused batch prefix? no --
+    # rows before the violation still produced state; closed sessions stand
+    ok_prefix, code2 = sessionize_scan([(1, 0), (1, 10), (1, 5)], gap=3, capacity=4)
+    assert code2 is SessionErrorCode.TIME_ORDER
+    assert ok_prefix == [(1, 0, 0, 1)]  # the gap-closed session survives
+
+
+def test_sessionize_capacity_bounds_distinct_keys() -> None:
+    rows = [(1, 0), (2, 0), (3, 0)]
+    sessions, code = sessionize_scan(rows, gap=3, capacity=2)
+    assert code is SessionErrorCode.SESSION_CAPACITY_EXCEEDED
+    assert sessions == []  # nothing closed yet when the third key arrived
+    # a gap-close immediately reopens, so it never frees a slot mid-batch:
+    # capacity bounds DISTINCT KEYS per batch, exactly like keyed state
+    rows2 = [(1, 0), (2, 0), (1, 10), (2, 11)]
+    sessions2, code2 = sessionize_scan(rows2, gap=3, capacity=2)
+    assert code2 is SessionErrorCode.OK
+    # gap-closes in arrival order, then the drain sorted by signed key
+    assert sessions2 == [(1, 0, 0, 1), (2, 0, 0, 1), (1, 10, 10, 1), (2, 11, 11, 1)]
+
+
+def test_sessionize_rejects_bad_parameters() -> None:
+    for bad_gap in (0, -1):
+        assert sessionize_scan([(1, 0)], gap=bad_gap, capacity=4)[1] is SessionErrorCode.BAD_GAP
+    for bad_cap in (0, KEYED_STATE_MAX_KEYS + 1):
+        assert sessionize_scan([(1, 0)], gap=3, capacity=bad_cap)[1] is SessionErrorCode.BAD_CAPACITY
+
+
+def test_sessionize_times_and_keys_live_in_the_int32_domain() -> None:
+    sessions, code = sessionize_scan([(0xFFFFFFFF, 0), (-1, 1)], gap=3, capacity=4)
+    assert code is SessionErrorCode.OK
+    assert sessions == [(-1, 0, 1, 2)]  # one key on a 32-bit wire
