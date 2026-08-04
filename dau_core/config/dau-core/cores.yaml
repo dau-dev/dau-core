@@ -1434,6 +1434,28 @@ int32-session-gap:
       default: 1024
       minimum: 1
       maximum: 1024
+  # OOC on both parts, 8 ns, CAPACITY=1024. 1024 x 128-bit slots = exactly
+  # four RAMB36. The dpv1 margin is the tightest of the stateful tiles (the
+  # 33-bit gap compare plus the 128-bit slot path) but met.
+  resources:
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {CAPACITY: 1024}
+      lut: 567
+      ff: 575
+      bram36: 4.0
+      dsp: 0
+      timing: met
+      wns_ns: 0.249
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {CAPACITY: 1024}
+      lut: 566
+      ff: 575
+      bram36: 4.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.427
   storage_intent:
     - role: session_table
       access: owned
