@@ -1300,6 +1300,29 @@ int32-scratchpad:
       default: 1024
       minimum: 1
       maximum: 16384
+  # OOC on both parts, 8 ns, CAPACITY=1024. The first run of this tile
+  # landed in 512 LUTs of distributed RAM because the arena access lived in
+  # the reset-carrying FSM process; the dedicated reset-free process infers
+  # the intended RAMB36.
+  resources:
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {CAPACITY: 1024}
+      lut: 84
+      ff: 210
+      bram36: 1.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.857
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {CAPACITY: 1024}
+      lut: 84
+      ff: 210
+      bram36: 1.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.296
   storage_intent:
     - role: arena
       access: owned
