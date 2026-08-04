@@ -333,7 +333,17 @@ class CoreDefinition(BaseModel):
             units = 1
             if intent.scale_parameter is not None:
                 spec = self.parameters[intent.scale_parameter]
-                units = int(params.get(intent.scale_parameter, spec.default))
+                override = params.get(intent.scale_parameter, spec.default)
+                if isinstance(override, bool) or not isinstance(override, int):
+                    raise ValueError(
+                        f"core {self.name!r} storage intent {intent.role!r}: parameter {intent.scale_parameter!r} override {override!r} is not an int"
+                    )
+                # the spec owns the constraint; pricing an illegal override
+                # would produce a byte cost no buildable design can have
+                reason = spec.violation(override)
+                if reason is not None:
+                    raise ValueError(f"core {self.name!r} storage intent {intent.role!r}: parameter {intent.scale_parameter!r} {reason}")
+                units = override
             priced.append((intent, intent.bytes_per_unit * units))
         return tuple(priced)
 

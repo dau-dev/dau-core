@@ -384,3 +384,15 @@ def test_storage_intent_without_scale_is_a_fixed_cost() -> None:
     )
     [(_, cost)] = definition.storage_bytes({})
     assert cost == 8192
+
+
+def test_storage_bytes_refuses_illegal_scale_overrides() -> None:
+    definition = core("int32-scratchpad")
+    with pytest.raises(ValueError, match="not an int"):
+        definition.storage_bytes({"CAPACITY": "4096"})
+    with pytest.raises(ValueError, match="not an int"):
+        definition.storage_bytes({"CAPACITY": True})
+    with pytest.raises(ValueError, match="CAPACITY"):
+        definition.storage_bytes({"CAPACITY": -2})
+    with pytest.raises(ValueError, match="<= 16384"):
+        definition.storage_bytes({"CAPACITY": 32768})
