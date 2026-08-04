@@ -665,7 +665,7 @@ def test_the_wide_lane_shape_composes_and_rate_matches():
     assert "stream-broadcast" not in spec.core_names()
     from dau_core.composition import estimated_resources
 
-    assert estimated_resources(spec).measured
+    assert estimated_resources(spec, part="xc7k325tffg900-2", clock_ns=8.0).measured
     # SLOTS=1 gives the 128-bit tier a full-rate lane with no dispatcher
     narrow = ScanCompositionSpec(
         name="w1",

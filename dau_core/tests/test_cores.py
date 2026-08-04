@@ -235,7 +235,9 @@ def test_a_legacy_envelope_is_refused_rather_than_read_as_a_measurement() -> Non
     # a scalar envelope carries no part or clock, so it cannot answer "is this
     # measured for MY board" -- the question that matters. Refuse, do not guess.
     with pytest.raises(UnmeasuredResourceError, match="no measurement coordinates"):
-        core("int32-wide-row-map-alu").resource_measurement(part="xc7k325tffg900-2", clock_ns=8.0, params={})
+        # a core still carrying a scalar envelope; migrating this one later is
+        # expected to move this assertion, not delete it
+        core("int32-row-predicate-filter").resource_measurement(part="xc7k325tffg900-2", clock_ns=8.0, params={})
 
 
 def test_violated_measurement_is_retrievable_but_not_a_usable_envelope() -> None:
