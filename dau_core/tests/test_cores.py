@@ -5,7 +5,22 @@ from pathlib import Path
 import pytest
 
 from dau_core import hdl
-from dau_core.cores import ContractKind, CoreKind, UnknownCoreError, core, core_for_module, cores_of_kind, loaded_cores, sources_for
+from dau_core.cores import (
+    ContractKind,
+    CoreDefinition,
+    CoreKind,
+    ResourceEnvelope,
+    ResourceMeasurement,
+    TimingStatus,
+    TimingViolationError,
+    UnknownCoreError,
+    UnmeasuredResourceError,
+    core,
+    core_for_module,
+    cores_of_kind,
+    loaded_cores,
+    sources_for,
+)
 
 
 def test_every_hdl_file_belongs_to_exactly_one_core() -> None:
@@ -176,8 +191,76 @@ def test_synthesizable_cores_carry_measured_envelopes() -> None:
     assert resource_free == {"int32-stride-distributor"}
     for definition in loaded_cores().values():
         if definition.kind in (CoreKind.OPERATOR, CoreKind.STREAM_INFRA) and definition.resources is not None:
-            assert definition.resources.measured, definition.name
-            assert definition.resources.lut > 0, definition.name
+            if isinstance(definition.resources, ResourceEnvelope):
+                assert definition.resources.measured, definition.name
+                assert definition.resources.lut > 0, definition.name
+            else:
+                assert definition.resources, definition.name
+                assert all(point.lut > 0 for point in definition.resources), definition.name
+
+
+def _measured(**overrides):
+    """A core carrying one measurement point, built here rather than read from
+    the registry: which cores are migrated is a migration detail, and a test
+    of the lookup should not move when that changes."""
+    point = {
+        "part": "xc7k325tffg900-2",
+        "clock_ns": 8.0,
+        "params": {"SLOTS": 4, "PIPELINE_DEPTH": 3},
+        "lut": 2763,
+        "ff": 2351,
+        "bram36": 0.0,
+        "dsp": 16,
+        "timing": "met",
+        "wns_ns": 1.983,
+    }
+    point.update(overrides)
+    return CoreDefinition.model_validate({**core("int32-wide-row-map-alu").model_dump(), "resources": [point]})
+
+
+def test_exact_resource_measurement_resolves_with_parameter_defaults() -> None:
+    measurement = _measured().resource_measurement(part="xc7k325tffg900-2", clock_ns=8.0, params={})
+    assert (measurement.lut, measurement.ff, measurement.dsp) == (2763, 2351, 16)
+    assert measurement.params == {"SLOTS": 4, "PIPELINE_DEPTH": 3}
+    assert measurement.timing is TimingStatus.MET
+    assert measurement.wns_ns == 1.983
+
+
+def test_resource_measurement_refuses_an_unmeasured_part() -> None:
+    with pytest.raises(UnmeasuredResourceError, match="unmeasured part 'xcvu9p-flga2104-2L'"):
+        _measured().resource_measurement(part="xcvu9p-flga2104-2L", clock_ns=8.0, params={})
+
+
+def test_a_legacy_envelope_is_refused_rather_than_read_as_a_measurement() -> None:
+    # a scalar envelope carries no part or clock, so it cannot answer "is this
+    # measured for MY board" -- the question that matters. Refuse, do not guess.
+    with pytest.raises(UnmeasuredResourceError, match="no measurement coordinates"):
+        core("int32-wide-row-map-alu").resource_measurement(part="xc7k325tffg900-2", clock_ns=8.0, params={})
+
+
+def test_violated_measurement_is_retrievable_but_not_a_usable_envelope() -> None:
+    violated = ResourceMeasurement(
+        part="xc7k325tffg900-2",
+        clock_ns=8.0,
+        params={"SLOTS": 4, "PIPELINE_DEPTH": 3},
+        lut=3226,
+        ff=1563,
+        bram36=0.0,
+        dsp=16,
+        timing=TimingStatus.VIOLATED,
+        wns_ns=-1.383,
+    )
+    definition = CoreDefinition.model_validate(
+        {
+            **core("int32-wide-row-map-alu").model_dump(),
+            "resources": [violated],
+        }
+    )
+    resolved = definition.resource_measurement(part="xc7k325tffg900-2", clock_ns=8.0, params={})
+    assert resolved.timing is TimingStatus.VIOLATED
+    assert resolved.wns_ns == -1.383
+    with pytest.raises(TimingViolationError, match=r"violated timing \(WNS -1.383 ns\)"):
+        resolved.usable_envelope()
 
 
 def test_registry_is_hydra_composition_not_a_python_literal() -> None:
