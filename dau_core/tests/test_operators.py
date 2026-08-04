@@ -3,6 +3,7 @@ from __future__ import annotations
 import pytest
 
 from dau_core.operators import (
+    KEYED_STATE_MAX_KEYS,
     TOP_K_MAX,
     BarAggregate,
     BroadcastJoinConfig,
@@ -11,6 +12,8 @@ from dau_core.operators import (
     GroupAggregate,
     GroupedFieldSumAggregate,
     JoinSource,
+    KeyedStateErrorCode,
+    KeyedStateOp,
     MapConfig,
     MapOp,
     MembershipBuildSet,
@@ -34,6 +37,7 @@ from dau_core.operators import (
     gather_records,
     grouped_aggregate_rows,
     grouped_field_sum_rows,
+    keyed_state_scan,
     map_row_fields,
     map_rows,
     map_values,
@@ -979,3 +983,59 @@ def test_streaming_top_k_matches_bounded_heap_model():
         rows = [(rng.randint(-50, 50), i, rng.randint(0, 9), rng.randint(0, 9)) for i in range(n)]
         for k in (1, 2, 5, 13, TOP_K_MAX):
             assert streaming_top_k(rows, k=k) == _heap_top_k(rows, k)
+
+
+def test_keyed_state_carries_a_dependency_per_key() -> None:
+    # the property no preceding tile has: a row's output depends on earlier
+    # rows with the SAME key, and is independent of rows with other keys
+    rows = [(1, 5), (2, 3), (1, 4), (1, -2), (2, 10)]
+
+    emitted, code = keyed_state_scan(rows, op=KeyedStateOp.ADD, capacity=8)
+
+    assert code is KeyedStateErrorCode.OK
+    assert emitted == [(1, 5), (2, 3), (1, 9), (1, 7), (2, 13)]
+    # interleaving other keys between two rows of key 1 changes nothing
+    interleaved = [(1, 5), (9, 100), (9, 100), (1, 4)]
+    assert keyed_state_scan(interleaved, op=KeyedStateOp.ADD, capacity=8)[0][-1] == (1, 9)
+
+
+def test_keyed_state_emits_post_update_so_back_to_back_rows_see_the_write() -> None:
+    # the read-modify-write hazard the hardware must FORWARD rather than stall:
+    # the second row of a key observes the first row's write, not the old value
+    emitted, _ = keyed_state_scan([(7, 1), (7, 1), (7, 1)], op=KeyedStateOp.ADD, capacity=4)
+    assert emitted == [(7, 1), (7, 2), (7, 3)]
+
+
+def test_keyed_state_first_row_of_a_key_starts_from_initial() -> None:
+    # a fresh key applies the op to `initial`, it does not adopt the value --
+    # which only coincides for SET, hence `initial` being explicit
+    assert keyed_state_scan([(1, 5)], op=KeyedStateOp.ADD, capacity=4, initial=100)[0] == [(1, 105)]
+    assert keyed_state_scan([(1, 5)], op=KeyedStateOp.SET, capacity=4, initial=100)[0] == [(1, 5)]
+    assert keyed_state_scan([(1, 5)], op=KeyedStateOp.MAX, capacity=4, initial=100)[0] == [(1, 100)]
+    assert keyed_state_scan([(1, 5)], op=KeyedStateOp.MIN, capacity=4, initial=100)[0] == [(1, 5)]
+
+
+def test_keyed_state_add_wraps_in_the_int32_domain() -> None:
+    emitted, code = keyed_state_scan([(1, 2**31 - 1), (1, 1)], op=KeyedStateOp.ADD, capacity=4)
+    assert code is KeyedStateErrorCode.OK
+    assert emitted[-1] == (1, -(2**31))  # the encoded-domain convention, not a Python bigint
+
+
+def test_keyed_state_refuses_to_evict_and_reports_where_it_filled() -> None:
+    # capacity is a BRAM depth, so overflow is an error, not an eviction:
+    # silently dropping a key makes the answer wrong undetectably. Rows already
+    # emitted stay emitted so a caller can see exactly where the table filled.
+    emitted, code = keyed_state_scan([(1, 5), (2, 3), (3, 1)], op=KeyedStateOp.ADD, capacity=2)
+
+    assert code is KeyedStateErrorCode.KEY_CAPACITY_EXCEEDED
+    assert emitted == [(1, 5), (2, 3)]
+    # a re-used key does NOT consume capacity
+    reused, ok = keyed_state_scan([(1, 5), (2, 3), (1, 4), (2, 1)], op=KeyedStateOp.ADD, capacity=2)
+    assert ok is KeyedStateErrorCode.OK
+    assert reused == [(1, 5), (2, 3), (1, 9), (2, 4)]
+
+
+def test_keyed_state_rejects_a_capacity_the_hardware_cannot_hold() -> None:
+    for bad in (0, -1, KEYED_STATE_MAX_KEYS + 1):
+        emitted, code = keyed_state_scan([(1, 1)], op=KeyedStateOp.ADD, capacity=bad)
+        assert (emitted, code) == ([], KeyedStateErrorCode.BAD_CAPACITY)
