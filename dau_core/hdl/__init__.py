@@ -47,6 +47,7 @@ DAU_INT32_RECORD_GATHER_SV = files(__package__).joinpath("dau_int32_record_gathe
 DAU_INT32_TIME_BUCKET_KEY_SV = files(__package__).joinpath("dau_int32_time_bucket_key.sv")
 DAU_INT32_KEYED_STATE_SV = files(__package__).joinpath("dau_int32_keyed_state.sv")
 DAU_INT32_SCRATCHPAD_SV = files(__package__).joinpath("dau_int32_scratchpad.sv")
+DAU_INT32_SESSION_GAP_SV = files(__package__).joinpath("dau_int32_session_gap.sv")
 DAU_INT32_STREAMING_TOP_K_SV = files(__package__).joinpath("dau_int32_streaming_top_k.sv")
 
 __all__ = (
@@ -85,6 +86,7 @@ __all__ = (
     "DAU_INT32_ROW_PREDICATE_FILTER_SV",
     "DAU_INT32_ROW_UNPACK_SV",
     "DAU_INT32_SCRATCHPAD_SV",
+    "DAU_INT32_SESSION_GAP_SV",
     "DAU_INT32_STREAMING_TOP_K_SV",
     "DAU_INT32_STREAM_AGGREGATION_SV",
     "DAU_INT32_STRIDE_DISTRIBUTOR_SV",

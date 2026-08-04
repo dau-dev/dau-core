@@ -1394,3 +1394,72 @@ int32-keyed-state:
       bytes_per_unit: 8
       scale_parameter: CAPACITY
       tier_hint: bram
+
+int32-session-gap:
+  _target_: dau_core.cores.CoreDefinition
+  name: int32-session-gap
+  kind: operator
+  module: dau_int32_session_gap
+  source: dau_int32_session_gap.sv
+  description: 'Session-gap tile: step 2 of the stateful programme, the
+    Nexmark-Q11 shape. Per-key sessions over time-ordered {time,key} rows: a
+    row past its key''s last time by more than cfg_gap closes the old session
+    (emitted immediately, arrival order, two words {start,key}/{count,last})
+    and opens a new one; batch end drains open sessions SORTED BY SIGNED KEY
+    via repeated minimum extraction, so no hash placement leaks into the
+    contract. Processing-order scope: a time running backwards is TIME_ORDER,
+    refused, never reordered -- watermarks are the next programme step.
+    Composes the keyed-state table pattern (hash + linear probe, sequential,
+    grant bounds distinct keys). Error close-outs preserve emitted sessions
+    and skip the drain.'
+  golden: dau_core.operators:sessionize_scan
+  bench: dau_core.tests.cocotb_benches.dau_int32_session_gap_tb
+  count_port: session_count
+  contract_kind: row-stream
+  record_words: 1
+  output_record_words: 2
+  ingest:
+    rows: 1
+    # non-splitting rows cost ROW+PROBE+JUDGE = 3 cycles at probe depth 1;
+    # a gap split adds two emission beats; acceptance at probe depth p is
+    # 2p+3. STATED ASSUMPTION: hash-distributed keys at low load factor.
+    # The batch-end drain is O(CAPACITY x live) close-out cost, batch-tail
+    # amortized per the IngestRate doctrine; adversarial congruent-key
+    # fills degrade the row path to 1/(2*CAPACITY+3) -- a planner-regime
+    # concern, stated here rather than hidden.
+    per_cycles: 5
+  success_close_out: true
+  parameters:
+    CAPACITY:
+      default: 1024
+      minimum: 1
+      maximum: 1024
+  # OOC on both parts, 8 ns, CAPACITY=1024. 1024 x 128-bit slots = exactly
+  # four RAMB36. The dpv1 margin is the tightest of the stateful tiles (the
+  # 33-bit gap compare plus the 128-bit slot path) but met.
+  resources:
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {CAPACITY: 1024}
+      lut: 567
+      ff: 575
+      bram36: 4.0
+      dsp: 0
+      timing: met
+      wns_ns: 0.249
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {CAPACITY: 1024}
+      lut: 566
+      ff: 575
+      bram36: 4.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.427
+  storage_intent:
+    - role: session_table
+      access: owned
+      # 16 bytes {key, start, last, count} per slot; valid bits ride LUTRAM
+      bytes_per_unit: 16
+      scale_parameter: CAPACITY
+      tier_hint: bram

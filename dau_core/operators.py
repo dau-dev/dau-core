@@ -1395,7 +1395,9 @@ def sessionize_scan(
     gap-close immediately reopens, so it never frees a slot mid-batch. The
     (capacity+1)-th distinct key is ``SESSION_CAPACITY_EXCEEDED``, a defined
     close-out preserving emitted sessions — never an eviction. Keys and
-    times are int32 wires (wrapped).
+    times are int32 wires (wrapped); ``row_count`` is a CARDINALITY carried
+    as an unsigned 32-bit wire in hardware — identical to this unbounded int
+    for every batch below 2^32 rows, which no staging region can hold.
 
     Returns ``(closed_sessions, error_code)``.
     """
