@@ -1329,3 +1329,68 @@ int32-scratchpad:
       bytes_per_unit: 4
       scale_parameter: CAPACITY
       tier_hint: bram
+
+int32-keyed-state:
+  _target_: dau_core.cores.CoreDefinition
+  name: int32-keyed-state
+  kind: operator
+  module: dau_int32_keyed_state
+  source: dau_int32_keyed_state.sv
+  description: 'Keyed state tile: the first stateful operator and the owned
+    storage class''s first real consumer. A per-key accumulator (SET/ADD/MAX/MIN
+    from cfg_op, first row of a key seeded from cfg_initial) emitting the
+    post-update state per row -- the loop-carried-per-key shape a SIMD CPU
+    cannot vectorize. Hash + linear probe over a CAPACITY-slot BRAM behind a
+    key GRANT; a new key past the grant is KEY_CAPACITY_EXCEEDED preserving
+    emitted rows, never an eviction. State is fresh per batch (a CLEAR sweep
+    runs from both reset and close-out). Deliberately sequential -- no RMW
+    hazard exists; the 1-row/cycle CAM/pipelined variant is the named
+    follow-up and the declared ingest rate carries the honesty.'
+  golden: dau_core.operators:keyed_state_scan
+  bench: dau_core.tests.cocotb_benches.dau_int32_keyed_state_tb
+  count_port: row_count
+  contract_kind: row-stream
+  record_words: 1
+  ingest:
+    rows: 1
+    # the zero-collision cadence: ROW+PROBE+JUDGE+EMITx2 = 5 cycles/row.
+    # Acceptance for probe depth p is 2p+3, so the STATED ASSUMPTION is
+    # hash-distributed keys at low load factor (p ~= 1). Adversarial
+    # congruent-key fills degrade to 1/(2*CAPACITY+3) -- a planner-regime
+    # concern per the IngestRate doctrine (like the dispatcher's same-lane
+    # runs), visible here rather than hidden behind a padded number.
+    per_cycles: 5
+  success_close_out: true
+  parameters:
+    CAPACITY:
+      default: 1024
+      minimum: 1
+      maximum: 1024
+  # OOC on both parts, 8 ns, CAPACITY=1024. 1024 x 64-bit slots = exactly
+  # two RAMB36; the valid bitmap rides in LUTRAM.
+  resources:
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {CAPACITY: 1024}
+      lut: 408
+      ff: 389
+      bram36: 2.0
+      dsp: 0
+      timing: met
+      wns_ns: 1.289
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {CAPACITY: 1024}
+      lut: 408
+      ff: 389
+      bram36: 2.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.996
+  storage_intent:
+    - role: state_table
+      access: owned
+      # 8 bytes {key, value} per slot; the valid bitmap rides in LUTRAM
+      bytes_per_unit: 8
+      scale_parameter: CAPACITY
+      tier_hint: bram
