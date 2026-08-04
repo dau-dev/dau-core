@@ -1,39 +1,9 @@
 from __future__ import annotations
 
-from dau_core.hdl import DAU_INT32_AGGREGATION_TILE_SV, DAU_INT32_ARROW_LITE_STREAM_AGGREGATION_SV, DAU_INT32_STREAM_AGGREGATION_SV
+from dau_core.hdl import DAU_INT32_ARROW_LITE_STREAM_AGGREGATION_SV, DAU_INT32_STREAM_AGGREGATION_SV
 
 
-def test_packaged_int32_aggregation_tile_exposes_valid_ready_stream_ports() -> None:
-    source = DAU_INT32_AGGREGATION_TILE_SV.read_text()
-
-    assert DAU_INT32_AGGREGATION_TILE_SV.is_file()
-    assert "module dau_int32_aggregation_tile" in source
-    for port in (
-        "input  wire logic              clk",
-        "input  wire logic              rst",
-        "input  wire logic              input_valid",
-        "output logic                   input_ready",
-        "input  wire logic              input_last",
-        "input  wire logic signed [31:0] input_value",
-        "input  wire logic [2:0]        input_opcode",
-        "output logic                   result_valid",
-        "input  wire logic              result_ready",
-        "output logic signed [63:0]     result_value",
-        "output logic                   error",
-    ):
-        assert port in source
-
-
-def test_packaged_int32_aggregation_tile_names_core_operation_codes() -> None:
-    source = DAU_INT32_AGGREGATION_TILE_SV.read_text()
-
-    assert "localparam logic [2:0] OP_MIN   = 3'd1;" in source
-    assert "localparam logic [2:0] OP_MAX   = 3'd2;" in source
-    assert "localparam logic [2:0] OP_SUM   = 3'd3;" in source
-    assert "localparam logic [2:0] OP_COUNT = 3'd4;" in source
-
-
-def test_packaged_int32_stream_aggregation_wraps_tile_with_descriptor_ports() -> None:
+def test_packaged_int32_stream_aggregation_exposes_descriptor_ports() -> None:
     source = DAU_INT32_STREAM_AGGREGATION_SV.read_text()
 
     assert DAU_INT32_STREAM_AGGREGATION_SV.is_file()
@@ -52,7 +22,7 @@ def test_packaged_int32_stream_aggregation_wraps_tile_with_descriptor_ports() ->
         "output logic [7:0]             error_code",
     ):
         assert port in source
-    assert "dau_int32_aggregation_tile tile" in source
+    assert "dau_aggregation_pkg::aggregate_next" in source
 
 
 def test_packaged_int32_stream_aggregation_names_stream_protocol_constants() -> None:

@@ -844,7 +844,6 @@ int32-stream-aggregation:
   description: Arrow-lite scalar stream aggregation.
   depends:
   - aggregation-pkg
-  - int32-aggregation-tile
   golden: dau_core.operators:aggregate_values
   bench: dau_core.tests.cocotb_benches.dau_int32_stream_aggregation_tb
   resources:
@@ -930,33 +929,6 @@ int32-record-batch-aggregation:
   - 12
   unit_kind: aggregation
   success_close_out: true
-
-int32-aggregation-tile:
-  _target_: dau_core.cores.CoreDefinition
-  name: int32-aggregation-tile
-  kind: operator
-  module: dau_int32_aggregation_tile
-  source: dau_int32_aggregation_tile.sv
-  description: Legacy value/opcode aggregation core (predates the stream+status contract; not runner-attachable). Replaced
-    by int32-record-batch-aggregation / int32-bar-aggregation for new work.
-  depends:
-  - aggregation-pkg
-  golden: dau_core.operators:aggregate_values
-  bench: dau_core.tests.cocotb_benches.dau_int32_aggregation_tile_tb
-  resources:
-    lut: 283
-    ff: 194
-    bram36: 0.0
-    dsp: 0
-  legacy: true
-  opcodes:
-  - 1
-  - 2
-  - 3
-  - 4
-  opcode_input_types:
-  - 12
-  unit_kind: aggregation
 
 stream-broadcast:
   _target_: dau_core.cores.CoreDefinition

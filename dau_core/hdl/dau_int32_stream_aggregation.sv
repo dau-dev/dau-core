@@ -33,7 +33,6 @@ module dau_int32_stream_aggregation (
 
     localparam logic [7:0] ERR_DESCRIPTOR = 8'd1;
     localparam logic [7:0] ERR_OPCODE     = 8'd2;
-    localparam logic [7:0] ERR_TILE       = 8'd3;
 
     typedef enum logic [0:0] {
         STATE_IDLE,
@@ -52,10 +51,8 @@ module dau_int32_stream_aggregation (
     logic              descriptor_is_valid;
     logic              input_fire;
     logic              input_last;
-    logic              tile_input_ready;
-    logic              tile_result_valid;
-    logic signed [63:0] tile_result_value;
-    logic              tile_error;
+    logic signed [63:0] accumulator;
+    logic signed [63:0] next_accumulator;
 
     assign expected_payload_length = descriptor_row_count << 2;
     assign descriptor_fields_valid = (descriptor_logical_type == LT_INT32)
@@ -69,23 +66,12 @@ module dau_int32_stream_aggregation (
     assign descriptor_is_valid = descriptor_fields_valid && descriptor_opcode_supported;
 
     assign descriptor_ready = (state == STATE_IDLE) && !result_valid;
-    assign input_ready = (state == STATE_RUNNING) && tile_input_ready && !result_valid;
+    assign input_ready = (state == STATE_RUNNING) && !result_valid;
     assign input_fire = input_valid && input_ready;
     assign next_accepted_count = accepted_count + 64'd1;
     assign input_last = (next_accepted_count == active_row_count);
-
-    dau_int32_aggregation_tile tile (
-        .clk(clk),
-        .rst(rst),
-        .input_valid(input_fire),
-        .input_ready(tile_input_ready),
-        .input_last(input_last),
-        .input_value(input_value),
-        .input_opcode(active_opcode),
-        .result_valid(tile_result_valid),
-        .result_ready(result_valid && result_ready),
-        .result_value(tile_result_value),
-        .error(tile_error)
+    assign next_accumulator = dau_aggregation_pkg::aggregate_next(
+        active_opcode, accumulator, accepted_count, input_value, next_accepted_count
     );
 
     always_ff @(posedge clk) begin
@@ -94,6 +80,7 @@ module dau_int32_stream_aggregation (
             active_opcode <= OP_SUM;
             active_row_count <= 64'd0;
             accepted_count <= 64'd0;
+            accumulator <= 64'sd0;
             result_valid <= 1'b0;
             result_value <= 64'sd0;
             result_logical_type <= 16'd0;
@@ -114,6 +101,7 @@ module dau_int32_stream_aggregation (
                     active_opcode <= descriptor_opcode;
                     active_row_count <= descriptor_row_count;
                     accepted_count <= 64'd0;
+                    accumulator <= 64'sd0;
                     error <= 1'b0;
                     error_code <= 8'd0;
                 end else begin
@@ -121,6 +109,7 @@ module dau_int32_stream_aggregation (
                     active_opcode <= OP_SUM;
                     active_row_count <= 64'd0;
                     accepted_count <= 64'd0;
+                    accumulator <= 64'sd0;
                     result_valid <= 1'b1;
                     result_value <= 64'sd0;
                     result_logical_type <= 16'd0;
@@ -134,19 +123,18 @@ module dau_int32_stream_aggregation (
             if (input_last) begin
                 state <= STATE_IDLE;
                 accepted_count <= 64'd0;
+                accumulator <= 64'sd0;
+                result_valid <= 1'b1;
+                result_value <= next_accumulator;
+                result_logical_type <= (active_opcode == OP_COUNT) ? LT_UINT64 : LT_INT64;
+                result_payload_length <= 64'd8;
+                result_row_count <= 64'd1;
+                error <= 1'b0;
+                error_code <= 8'd0;
             end else begin
                 accepted_count <= next_accepted_count;
+                accumulator <= next_accumulator;
             end
-        end
-
-        if (!rst && !result_valid && tile_result_valid) begin
-            result_valid <= 1'b1;
-            result_value <= tile_result_value;
-            result_logical_type <= (active_opcode == OP_COUNT) ? LT_UINT64 : LT_INT64;
-            result_payload_length <= 64'd8;
-            result_row_count <= 64'd1;
-            error <= tile_error;
-            error_code <= tile_error ? ERR_TILE : 8'd0;
         end
     end
 endmodule

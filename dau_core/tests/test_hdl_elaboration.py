@@ -90,7 +90,7 @@ def _sources_for(definition) -> list[str]:
 
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
-@pytest.mark.parametrize("core_name", sorted(d.name for d in cores_of_kind(CoreKind.OPERATOR) if not d.legacy))
+@pytest.mark.parametrize("core_name", sorted(d.name for d in cores_of_kind(CoreKind.OPERATOR)))
 def test_every_declared_parameterization_elaborates(core_name: str) -> None:
     from dau_core.cores import core as core_definition
 

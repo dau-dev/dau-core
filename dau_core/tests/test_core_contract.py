@@ -29,7 +29,7 @@ def test_every_operator_conforms_to_the_stream_tile_contract() -> None:
         # validator selection is registry data: only row-stream tiles run this
         # check (int32-stream-aggregation declares the descriptor-driven
         # Arrow-lite contract, which has no slang validator yet)
-        if definition.legacy or definition.contract_kind is not ContractKind.ROW_STREAM:
+        if definition.contract_kind is not ContractKind.ROW_STREAM:
             continue
         violations = sv_contract.validate_stream_tile([definition.source_path()], definition.module, count_port=definition.count_port)
         if violations:

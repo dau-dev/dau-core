@@ -243,8 +243,6 @@ class ScanCompositionSpec(BaseModel):
             definition = self.partitioner.definition()
             if definition.kind != CoreKind.OPERATOR:
                 raise CompositionError(f"partitioner {self.partitioner.core!r} is not an operator")
-            if definition.legacy:
-                raise CompositionError(f"partitioner {self.partitioner.core!r} is legacy; not for new compositions")
             if definition.success_close_out:
                 raise CompositionError(
                     f"partitioner {self.partitioner.core!r} emits a success close-out per batch; the lane status mux allows exactly one — "
@@ -356,8 +354,6 @@ class ScanCompositionSpec(BaseModel):
             tile = lane.tile.definition()
             if tile.kind != CoreKind.OPERATOR:
                 raise CompositionError(f"lane tile {lane.tile.core!r} is {tile.kind.value}, not an operator")
-            if tile.legacy:
-                raise CompositionError(f"lane tile {lane.tile.core!r} is legacy (predates the stream+status contract); not for new compositions")
             # the SCAN walker wires this port into the lane's register readback
             # latch, so a scan lane without one cannot be lowered.
             #
@@ -382,10 +378,6 @@ class ScanCompositionSpec(BaseModel):
                 partition = lane.partition.definition()
                 if partition.kind != CoreKind.OPERATOR:
                     raise CompositionError(f"lane partition {lane.partition.core!r} is not an operator")
-                if partition.legacy:
-                    raise CompositionError(
-                        f"lane partition {lane.partition.core!r} is legacy (predates the stream+status contract); not for new compositions"
-                    )
                 if partition.success_close_out:
                     raise CompositionError(
                         f"lane partition {lane.partition.core!r} emits a success close-out per batch; the lane status mux allows exactly one — "
@@ -396,10 +388,6 @@ class ScanCompositionSpec(BaseModel):
                 definition = stage.definition()
                 if definition.kind != CoreKind.OPERATOR:
                     raise CompositionError(f"lane chain stage {stage.core!r} is {definition.kind.value}, not an operator")
-                if definition.legacy:
-                    raise CompositionError(
-                        f"lane chain stage {stage.core!r} is legacy (predates the stream+status contract); not for new compositions"
-                    )
                 if definition.success_close_out and not self.fused_chain:
                     raise CompositionError(
                         f"lane chain stage {stage.core!r} emits a success close-out per batch; the lane status mux allows exactly one — "
