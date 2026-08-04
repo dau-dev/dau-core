@@ -1098,6 +1098,15 @@ int32-wide-row-map-alu:
   # HDL that no longer exists, so it is deliberately absent rather than
   # carried forward -- that stale point is what hid a -1.383 ns violation.
   resources:
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {SLOTS: 4, PIPELINE_DEPTH: 3}
+      lut: 2761
+      ff: 2351
+      bram36: 0.0
+      dsp: 16
+      timing: met
+      wns_ns: 0.348
     - part: xc7k325tffg900-2
       clock_ns: 8.0
       params: {SLOTS: 4, PIPELINE_DEPTH: 3}
@@ -1138,6 +1147,15 @@ int32-wide-field-sum-aggregation:
   # Measured points only. The pre-balanced-tree xc7a200t point is deliberately
   # absent: it measured different HDL.
   resources:
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {SLOTS: 4}
+      lut: 1375
+      ff: 469
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.819
     - part: xc7k325tffg900-2
       clock_ns: 8.0
       params: {SLOTS: 4}
