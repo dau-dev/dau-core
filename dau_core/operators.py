@@ -1265,14 +1265,36 @@ def keyed_state_scan(
     the error is returned alongside them so a caller can see exactly where the
     table filled.
 
+    **Hardware note the HDL must honour**: exact arbitrary-key lookup at one
+    row per cycle needs a CAM or a pipelined associative/hash design with
+    collision handling and pending-allocation tracking. A plain single-BRAM
+    dictionary cannot do it, and the forwarding above must bypass both the
+    newest in-flight update and a pending key allocation.
+
+    ``initial=0`` is unambiguous but worth stating: MAX over only negative
+    values emits 0, and MIN over only positive values emits 0. Callers wanting
+    the first value to win should pass the domain's extreme.
+
     Returns ``(emitted_rows, error_code)``.
     """
     if not 1 <= capacity <= KEYED_STATE_MAX_KEYS:
         return [], KeyedStateErrorCode.BAD_CAPACITY
 
+    if op not in (KeyedStateOp.SET, KeyedStateOp.ADD, KeyedStateOp.MAX, KeyedStateOp.MIN):
+        raise ValueError(f"unsupported keyed state op: {op!r}")
+
     state: dict[int, int] = {}
     emitted: list[tuple[int, int]] = []
-    for key, value in rows:
+    initial = _wrap_int32(initial)
+    for raw_key, raw_value in rows:
+        # Keys and values are int32 WIRES, not Python integers. -1 and
+        # 0xFFFFFFFF are the same key on a 32-bit bus, and a state a 32-bit
+        # port cannot carry is not a state the tile can be in, so both are
+        # wrapped into the domain before anything else happens. Skipping this
+        # made the golden unimplementable: it split one hardware key into two
+        # and emitted 2**31 as a signed result.
+        key = _wrap_int32(raw_key)
+        value = _wrap_int32(raw_value)
         if key not in state:
             if len(state) >= capacity:
                 return emitted, KeyedStateErrorCode.KEY_CAPACITY_EXCEEDED
