@@ -222,14 +222,13 @@ class CoreDefinition(BaseModel):
     bench: str | None = None  # cocotb bench module
     resources: ResourceEnvelope | tuple[ResourceMeasurement, ...] | None = None
     count_port: str | None = None  # the tile's trailing status counter, if any
-    legacy: bool = False  # predates the stream+status contract; kept verified, not for new compositions
-    contract_kind: ContractKind | None = None  # required for non-legacy operators; None elsewhere (no declared stream contract)
+    contract_kind: ContractKind | None = None  # required for operators; None elsewhere (no declared stream contract)
     # the core's guaranteed sustained ingest rate — like contract_kind,
-    # required for non-legacy stream operators (registry-enforced): the
+    # required for stream operators (registry-enforced): the
     # public fact the scheduler feeds an opaque core by
     ingest: IngestRate | None = None
     # Logical stream record shape, in 64-bit words. Exactly one input shape
-    # is required for every non-legacy operator. A parameterized shape names
+    # is required for every operator. A parameterized shape names
     # the module parameter whose concrete/default value supplies the width.
     record_words: StrictInt | None = None
     record_words_param: str | None = None
@@ -277,7 +276,7 @@ class CoreDefinition(BaseModel):
         # the public interface is self-enforcing, not just registry-tested:
         # a user-provided operator core is invalid without its ingest rate
         # (the scheduler cannot feed a core whose rate it does not know)
-        if self.kind == CoreKind.OPERATOR and not self.legacy and self.ingest is None:
+        if self.kind == CoreKind.OPERATOR and self.ingest is None:
             raise ValueError(f"operator core {self.name!r} declares no ingest rate (required public interface)")
         if self.record_words is not None and self.record_words < 1:
             raise ValueError(f"core {self.name!r} record_words must be >= 1")
@@ -289,7 +288,7 @@ class CoreDefinition(BaseModel):
             raise ValueError(f"core {self.name!r} declares both fixed and parameterized output record words")
         if self.output_record_words_variable and (self.output_record_words is not None or self.output_record_words_param is not None):
             raise ValueError(f"core {self.name!r} declares both fixed/parameterized and runtime-variable output record words")
-        if self.kind == CoreKind.OPERATOR and not self.legacy and self.record_words is None and self.record_words_param is None:
+        if self.kind == CoreKind.OPERATOR and self.record_words is None and self.record_words_param is None:
             raise ValueError(f"operator core {self.name!r} declares no record_words (required public interface)")
         for role, name in (("input record words", self.record_words_param), ("output record words", self.output_record_words_param)):
             if name is not None and name not in self.parameters:
@@ -421,14 +420,6 @@ def core_for_module(module: str) -> CoreDefinition:
 
 def cores_of_kind(kind: CoreKind) -> tuple[CoreDefinition, ...]:
     return tuple(definition for definition in loaded_cores().values() if definition.kind == kind)
-
-
-def selectable_operators() -> tuple[CoreDefinition, ...]:
-    """Operator tiles a planner or new composition may pick — legacy cores
-    (predating the stream+status contract) are excluded. Legacy tiles stay
-    in the registry, verified against their goldens, but are not offered
-    for new work."""
-    return tuple(definition for definition in cores_of_kind(CoreKind.OPERATOR) if not definition.legacy)
 
 
 def sources_for(*names: str) -> tuple[Path, ...]:

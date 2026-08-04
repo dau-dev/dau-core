@@ -12,7 +12,6 @@ from dau_core.hdl import (
     DAU_AXI_RECORD_WRITER_SV,
     DAU_AXI_STREAM_JOB_SV,
     DAU_AXI_WRITE_MUX_SV,
-    DAU_INT32_AGGREGATION_TILE_SV,
     DAU_INT32_ARROW_LITE_STREAM_AGGREGATION_SV,
     DAU_INT32_ASOF_BACKWARD_SV,
     DAU_INT32_BAR_AGGREGATION_SV,
@@ -107,24 +106,10 @@ def _sort_noc_sim_sv(tmp_path: Path) -> Path:
 
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
-def test_int32_aggregation_tile_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
-    _run_cocotb_verilator(
-        sources=(
-            Path(str(DAU_AGGREGATION_PKG_SV)),
-            Path(str(DAU_INT32_AGGREGATION_TILE_SV)),
-        ),
-        hdl_toplevel="dau_int32_aggregation_tile",
-        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_aggregation_tile_tb",
-        tmp_path=tmp_path,
-    )
-
-
-@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_int32_stream_aggregation_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
     _run_cocotb_verilator(
         sources=(
             Path(str(DAU_AGGREGATION_PKG_SV)),
-            Path(str(DAU_INT32_AGGREGATION_TILE_SV)),
             Path(str(DAU_INT32_STREAM_AGGREGATION_SV)),
         ),
         hdl_toplevel="dau_int32_stream_aggregation",

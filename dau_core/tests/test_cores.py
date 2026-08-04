@@ -55,32 +55,15 @@ def test_every_operator_has_a_golden() -> None:
         assert definition.golden is not None, f"operator {definition.name} has no golden"
 
 
-def test_legacy_operators_stay_verified_but_are_not_selectable() -> None:
-    from dau_core.cores import selectable_operators
-
-    legacy = [d for d in cores_of_kind(CoreKind.OPERATOR) if d.legacy]
-    assert {d.name for d in legacy} == {"int32-aggregation-tile"}, "legacy operator set changed — confirm intent"
-    for definition in legacy:
-        # legacy tiles stay in the registry and stay tested against their golden
-        assert definition.golden is not None and definition.bench is not None, definition.name
-        # ...but a planner/new composition is never offered them
-        assert definition not in selectable_operators(), definition.name
-        # and the composition validator refuses them regardless (no status counter)
-        assert definition.count_port is None, definition.name
-
-
 def test_every_selectable_operator_declares_its_ingest_rate() -> None:
     """Ingest rate is core PUBLIC INTERFACE (the scheduler rate-matches
-    opaque cores from the registry declaration alone): every non-legacy
-    stream operator declares it. The floor is the composed 1-row/2-cycle
+    opaque cores from the registry declaration alone): every stream operator
+    declares it. The floor is the composed 1-row/2-cycle
     lane rate; only silicon-proven faster cores declare 1/1."""
     from fractions import Fraction
 
     full_rate = set()
     for definition in cores_of_kind(CoreKind.OPERATOR):
-        if definition.legacy:
-            assert definition.ingest is None, definition.name
-            continue
         assert definition.ingest is not None, f"operator {definition.name} declares no ingest rate"
         assert definition.ingest.rows_per_cycle <= Fraction(1, 1), f"{definition.name}: >1 row/cycle needs multi-row silicon proof"
         if definition.ingest.rows_per_cycle == Fraction(1, 1):
@@ -119,11 +102,7 @@ def test_every_selectable_operator_declares_its_contract_kind() -> None:
     tests select validators from this tag, never from test-local exemption
     sets."""
     for definition in cores_of_kind(CoreKind.OPERATOR):
-        if definition.legacy:
-            # predates the stream+status contract; declares none
-            assert definition.contract_kind is None, definition.name
-        else:
-            assert definition.contract_kind is not None, f"operator {definition.name} declares no contract_kind"
+        assert definition.contract_kind is not None, f"operator {definition.name} declares no contract_kind"
     # the one descriptor-driven tile is registry data, not a test special case;
     # pinned as a set: no Arrow-lite validator exists yet, so a newly
     # descriptor-tagged operator would skip conformance — confirm intent here
@@ -137,10 +116,6 @@ def test_every_selectable_operator_declares_its_contract_kind() -> None:
 
 def test_every_selectable_operator_declares_its_record_words() -> None:
     for definition in cores_of_kind(CoreKind.OPERATOR):
-        if definition.legacy:
-            assert definition.record_words is None
-            assert definition.record_words_param is None
-            continue
         assert (definition.record_words is None) != (definition.record_words_param is None), definition.name
         assert definition.effective_record_words({}) >= 1
 
@@ -165,8 +140,7 @@ def test_only_combinational_per_beat_cores_support_pipeline_depth() -> None:
 def test_sources_for_closes_dependencies_in_order() -> None:
     sources = sources_for("int32-stream-aggregation")
     names = [path.name for path in sources]
-    assert names.index("dau_aggregation_pkg.sv") < names.index("dau_int32_stream_aggregation.sv")
-    assert "dau_int32_aggregation_tile.sv" in names  # transitive dep
+    assert names == ["dau_aggregation_pkg.sv", "dau_int32_stream_aggregation.sv"]
 
     # composing the NoC lane set resolves every block once
     lane = sources_for("axi-burst-reader", "stream-broadcast", "int32-pair-key-filter", "int32-bar-aggregation", "axi-record-writer", "axi-write-mux")
@@ -296,7 +270,7 @@ def test_silent_on_success_operator_set_is_pinned() -> None:
     cores (chain-stage/partition legal) versus per-batch success close-out
     cores (terminal-tile legal). Changing a core's class changes lane status
     semantics — confirm intent here."""
-    silent = {d.name for d in cores_of_kind(CoreKind.OPERATOR) if not d.legacy and not d.success_close_out}
+    silent = {d.name for d in cores_of_kind(CoreKind.OPERATOR) if not d.success_close_out}
     assert silent == {
         "int32-pair-key-filter",
         "int32-range-partitioner",

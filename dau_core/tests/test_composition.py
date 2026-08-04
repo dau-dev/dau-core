@@ -26,8 +26,6 @@ def test_spec_validates_lane_tiles() -> None:
         ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=TileSpec(core="stream-broadcast")),))
     with pytest.raises(CompositionError, match="status counter"):
         ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=TileSpec(core="int32-map-alu")),))
-    with pytest.raises(CompositionError, match="legacy"):
-        ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=TileSpec(core="int32-aggregation-tile")),))
 
 
 def test_core_names_cover_infrastructure_and_lanes() -> None:
@@ -125,11 +123,9 @@ def test_chain_lanes_validate_and_close_core_names() -> None:
     assert len(names) == len(set(names))
 
 
-def test_chain_stages_must_be_non_legacy_operators() -> None:
+def test_chain_stages_must_be_operators() -> None:
     with pytest.raises(CompositionError, match="chain stage 'stream-broadcast' is stream-infra"):
         ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="stream-broadcast"),)),))
-    with pytest.raises(CompositionError, match="chain stage 'int32-aggregation-tile' is legacy"):
-        ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-aggregation-tile"),)),))
 
 
 def test_chain_stages_need_no_status_counter() -> None:
@@ -502,9 +498,6 @@ def test_exactly_one_success_close_out_per_lane_is_enforced() -> None:
     # the same one-close-out rule holds for the partition slot
     with pytest.raises(CompositionError, match="partition 'int32-keyed-predicate-filter' emits a success close-out"):
         ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR, partition=TileSpec(core="int32-keyed-predicate-filter")),))
-    # and the partition slot rejects legacy tiles like every other slot
-    with pytest.raises(CompositionError, match="partition 'int32-aggregation-tile' is legacy"):
-        ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR, partition=TileSpec(core="int32-aggregation-tile")),))
 
 
 def test_spec_canonical_round_trip_and_hash_stability() -> None:

@@ -36,7 +36,6 @@ def test_registry_declares_hardware_opcodes_only_for_opcode_driven_tiles() -> No
         "int32-stream-aggregation",
         "int32-arrow-lite-stream-aggregation",
         "int32-record-batch-aggregation",
-        "int32-aggregation-tile",
         "int32-field-sum-aggregation",
         "int32-grouped-field-sum-aggregation",
         "int32-wide-field-sum-aggregation",
