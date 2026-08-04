@@ -135,7 +135,10 @@ async def _run(dut, rows, *, gap, granted_keys, delay_seed=None):
     sessions = []
     for offset in range(0, len(words), 2):
         w0, w1 = words[offset], words[offset + 1]
-        sessions.append((_signed32(w0 & 0xFFFFFFFF), _signed32(w0 >> 32), _signed32(w1 & 0xFFFFFFFF), _signed32(w1 >> 32)))
+        # key/start/last are int32 WIRES (signed); count is a CARDINALITY —
+        # unsigned on the wire, matching the golden's unbounded int for every
+        # batch below 2^32 rows (16+ GiB of rows, beyond any staging region)
+        sessions.append((_signed32(w0 & 0xFFFFFFFF), _signed32(w0 >> 32), _signed32(w1 & 0xFFFFFFFF), w1 >> 32))
     return sessions, SessionErrorCode(code) if error else SessionErrorCode.OK
 
 
