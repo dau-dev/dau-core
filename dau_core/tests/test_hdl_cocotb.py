@@ -25,6 +25,7 @@ from dau_core.hdl import (
     DAU_INT32_KEY_MEMBERSHIP_FILTER_SV,
     DAU_INT32_KEYED_MAP_ALU_SV,
     DAU_INT32_KEYED_PREDICATE_FILTER_SV,
+    DAU_INT32_KEYED_STATE_SV,
     DAU_INT32_MAP_ALU_SV,
     DAU_INT32_MARKET_FEATURE_SV,
     DAU_INT32_PAIR_KEY_FILTER_SV,
@@ -795,4 +796,27 @@ def test_scratchpad_capacity_sixteen(tmp_path: Path, monkeypatch: pytest.MonkeyP
         test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_scratchpad_tb",
         tmp_path=tmp_path,
         parameters={"CAPACITY": 16},
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_keyed_state_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_KEYED_STATE_SV)),),
+        hdl_toplevel="dau_int32_keyed_state",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_keyed_state_tb",
+        tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_keyed_state_capacity_eight(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    # a tiny table: collisions and the grant boundary within easy reach
+    monkeypatch.setenv("DAU_KEYED_STATE_CAPACITY", "8")
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_KEYED_STATE_SV)),),
+        hdl_toplevel="dau_int32_keyed_state",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_keyed_state_tb",
+        tmp_path=tmp_path,
+        parameters={"CAPACITY": 8},
     )

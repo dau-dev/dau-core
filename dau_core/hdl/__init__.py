@@ -45,6 +45,7 @@ DAU_INT32_ROLLING_MOMENTS_SV = files(__package__).joinpath("dau_int32_rolling_mo
 DAU_INT32_MARKET_FEATURE_SV = files(__package__).joinpath("dau_int32_market_feature.sv")
 DAU_INT32_RECORD_GATHER_SV = files(__package__).joinpath("dau_int32_record_gather.sv")
 DAU_INT32_TIME_BUCKET_KEY_SV = files(__package__).joinpath("dau_int32_time_bucket_key.sv")
+DAU_INT32_KEYED_STATE_SV = files(__package__).joinpath("dau_int32_keyed_state.sv")
 DAU_INT32_SCRATCHPAD_SV = files(__package__).joinpath("dau_int32_scratchpad.sv")
 DAU_INT32_STREAMING_TOP_K_SV = files(__package__).joinpath("dau_int32_streaming_top_k.sv")
 
@@ -69,6 +70,7 @@ __all__ = (
     "DAU_INT32_GROUPED_FIELD_SUM_AGGREGATION_SV",
     "DAU_INT32_KEYED_MAP_ALU_SV",
     "DAU_INT32_KEYED_PREDICATE_FILTER_SV",
+    "DAU_INT32_KEYED_STATE_SV",
     "DAU_INT32_KEY_MASK_DISPATCHER_SV",
     "DAU_INT32_KEY_MEMBERSHIP_FILTER_SV",
     "DAU_INT32_MAP_ALU_SV",
