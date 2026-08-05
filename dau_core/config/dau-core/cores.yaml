@@ -397,10 +397,32 @@ int32-streaming-top-k:
     by input_last on w0 is ERR_STREAM.'
   golden: dau_core.operators:streaming_top_k
   bench: dau_core.tests.cocotb_benches.dau_int32_streaming_top_k_tb
-  # Two measured points on one unchanged source (this HDL has a single commit),
-  # so both are valid. Resources match across parts; timing does not, which is
-  # the whole reason a point carries its part.
+  # Full K surface on one unchanged source, measured via synthesize-cores
+  # (2026-08-04 sweep): K in {1, 5, 8, 16, 32, 64, 128} x both parts. LUT
+  # scales linearly (~152/cell) and WNS is flat across K on both parts —
+  # the systolic constant-critical-path claim, validated by measurement.
+  # Resources match across parts (K=128 differs by 10 LUT); timing does
+  # not, which is the whole reason a point carries its part. K=5 is the
+  # TSBS group-by-order-by-limit LIMIT.
   resources:
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {K: 1}
+      lut: 109
+      ff: 268
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.362
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {K: 5}
+      lut: 843
+      ff: 800
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.350
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
       params: {K: 8}
@@ -410,6 +432,60 @@ int32-streaming-top-k:
       dsp: 0
       timing: met
       wns_ns: 4.350
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {K: 16}
+      lut: 2447
+      ff: 2235
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.329
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {K: 32}
+      lut: 4846
+      ff: 4316
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.329
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {K: 64}
+      lut: 9701
+      ff: 8466
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.821
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {K: 128}
+      lut: 19584
+      ff: 16699
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.313
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {K: 1}
+      lut: 109
+      ff: 268
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.422
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {K: 5}
+      lut: 843
+      ff: 800
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.410
     - part: xc7k325tffg900-2
       clock_ns: 8.0
       params: {K: 8}
@@ -419,6 +495,42 @@ int32-streaming-top-k:
       dsp: 0
       timing: met
       wns_ns: 5.410
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {K: 16}
+      lut: 2447
+      ff: 2235
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.667
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {K: 32}
+      lut: 4846
+      ff: 4316
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.656
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {K: 64}
+      lut: 9701
+      ff: 8466
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.293
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {K: 128}
+      lut: 19594
+      ff: 16699
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.633
   count_port: top_count
   contract_kind: row-stream
   record_words: 2
