@@ -1431,3 +1431,143 @@ def sessionize_scan(
         start, last, count = open_sessions[key]
         emitted.append((key, start, last, count))
     return emitted, SessionErrorCode.OK
+
+
+HASH_GROUPED_MAX_GROUPS = 1024
+
+
+class HashGroupedErrorCode(IntEnum):
+    """Status codes for the hash-mode grouped field-sum aggregation tile."""
+
+    OK = 0
+    BAD_CAPACITY = 1  # declared capacity outside [1, HASH_GROUPED_MAX_GROUPS]
+    BAD_FIELD_MASK = 2  # a zero mask (an unconfigured tile) or one past the four fields
+    GROUP_CAPACITY_EXCEEDED = 3  # a new group key arrived with the table full
+
+
+@dataclass(frozen=True)
+class HashGroupedAggregate:
+    """One group from the hash-mode grouped field-sum aggregation tile:
+    INT64 sums of the mask-selected fields (ascending field order) plus the
+    group's row count — the same record shape the ORDERED grouped
+    field-sum tile emits, so the host decode path is shared."""
+
+    key: int
+    field_mask: int
+    sums: tuple[int, ...]
+    count: int
+
+    def record_words(self) -> list[int]:
+        """The group record as unsigned 64-bit stream words: sign-extended
+        key, sums re-encoded to two's complement, count last."""
+        mask64 = 0xFFFF_FFFF_FFFF_FFFF
+        return [self.key & mask64] + [sum_value & mask64 for sum_value in self.sums] + [self.count]
+
+
+def hash_grouped_field_sum_rows(
+    rows: Iterable[tuple[int, int, int, int]],
+    *,
+    field_mask: int,
+    capacity: int,
+) -> tuple[list[HashGroupedAggregate], HashGroupedErrorCode]:
+    """Golden semantics for the HASH-mode grouped field-sum aggregation tile:
+    one INT64 accumulator set per DISTINCT key in a bounded on-chip table,
+    drained key-ascending at close-out.
+
+    The difference from :func:`grouped_field_sum_rows` is the whole point of
+    the tile: the ordered tile groups CONSECUTIVE equal keys, so a key that
+    reappears after another key opens a second partial group the host must
+    merge, and the staged table must be pre-sorted on the group key. This
+    tile holds a per-key accumulator, so **input order does not matter** and
+    a key may reappear anywhere in the batch — one record per distinct key,
+    always. That removes the ``sorted_by_key`` staging precondition from
+    every grouped scan.
+
+    Two contracts are deliberate and must be honoured bit-for-bit by the HDL:
+
+    **Emission is key-ASCENDING (signed).** A hash table has no intrinsic
+    order, so leaking the probe/slot order into the record stream would make
+    the result depend on the hash function — an implementation detail no
+    golden could pin and no host could rely on. Sorting the drain by signed
+    key makes the order implementation-independent and physically true (the
+    session-gap tile's min-extraction drain is the same decision).
+
+    **Overflow is an ERROR, never an eviction.** ``capacity`` is a hardware
+    fact (the table depth). When a row presents a key not in the table and
+    the table is full, the batch reports ``GROUP_CAPACITY_EXCEEDED`` and the
+    accumulated groups are returned alongside it: evicting or silently
+    dropping the key would make the answer wrong in a way no downstream
+    consumer could detect. The host's response is to split the batch by key
+    range and merge the partials — the same partial-merge algebra the
+    ordered tile's host merge already uses, which is exact because INT64
+    sums and counts are additive per key.
+
+    ``field_mask`` bit i selects field i of the quad row ``(key, value,
+    aux0, aux1)``; selecting field 0 sums the key itself, which is legal and
+    equals ``key * count`` (the ordered tile's convention).
+
+    Returns ``(groups_key_ascending, error_code)``.
+    """
+    if not 1 <= capacity <= HASH_GROUPED_MAX_GROUPS:
+        return [], HashGroupedErrorCode.BAD_CAPACITY
+    if not 1 <= field_mask <= 15:
+        return [], HashGroupedErrorCode.BAD_FIELD_MASK
+
+    selected = [index for index in range(4) if field_mask & (1 << index)]
+    table: dict[int, list[int]] = {}
+    counts: dict[int, int] = {}
+    error = HashGroupedErrorCode.OK
+    for row in rows:
+        # keys and field values are int32 WIRES: -1 and 0xFFFFFFFF are the
+        # same key on a 32-bit bus (the keyed-state lesson)
+        key = _wrap_int32(row[0])
+        if key not in table:
+            if len(table) >= capacity:
+                error = HashGroupedErrorCode.GROUP_CAPACITY_EXCEEDED
+                break
+            table[key] = [0] * len(selected)
+            counts[key] = 0
+        sums = table[key]
+        for slot, field in enumerate(selected):
+            sums[slot] += _wrap_int32(row[field])
+        counts[key] += 1
+    groups = [
+        HashGroupedAggregate(key=key, field_mask=field_mask, sums=tuple(table[key]), count=counts[key])
+        for key in sorted(table)  # signed-key ascending: the pinned drain order
+    ]
+    return groups, error
+
+
+def merge_hash_grouped(partials: Iterable[Iterable[HashGroupedAggregate]]) -> list[HashGroupedAggregate]:
+    """Merge per-batch hash-grouped partials into one key-ascending result —
+    the host half of the overflow contract.
+
+    Splitting a batch (by key range, or simply into smaller batches) and
+    merging the partials is EXACT: INT64 sums and row counts are additive
+    per key, and no other state crosses a batch boundary. This is what makes
+    ``GROUP_CAPACITY_EXCEEDED`` a recoverable condition rather than a failed
+    query, and the property ``merge(split(rows)) == one_shot(rows)`` is the
+    test that keeps it honest. Every partial must carry the same
+    ``field_mask``; mixing masks is a caller error, not a merge case."""
+    sums_by_key: dict[int, list[int]] = {}
+    counts_by_key: dict[int, int] = {}
+    field_mask: int | None = None
+    for partial in partials:
+        for group in partial:
+            if field_mask is None:
+                field_mask = group.field_mask
+            elif group.field_mask != field_mask:
+                raise ValueError(f"cannot merge partials with different field masks: {field_mask} vs {group.field_mask}")
+            if group.key not in sums_by_key:
+                sums_by_key[group.key] = list(group.sums)
+                counts_by_key[group.key] = 0
+            else:
+                totals = sums_by_key[group.key]
+                for slot, value in enumerate(group.sums):
+                    totals[slot] += value
+            counts_by_key[group.key] += group.count
+    if field_mask is None:
+        return []
+    return [
+        HashGroupedAggregate(key=key, field_mask=field_mask, sums=tuple(sums_by_key[key]), count=counts_by_key[key]) for key in sorted(sums_by_key)
+    ]
