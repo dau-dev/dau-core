@@ -380,6 +380,132 @@ int32-record-gather:
       default: 1
       maximum: 8
 
+int32-hash-grouped-aggregation:
+  _target_: dau_core.cores.CoreDefinition
+  name: int32-hash-grouped-aggregation
+  kind: operator
+  module: dau_int32_hash_grouped_aggregation
+  source: dau_int32_hash_grouped_aggregation.sv
+  description: 'Hash-mode grouped field-sum aggregation over quad rows: one INT64 accumulator set per DISTINCT key
+    in a CAPACITY-slot table, drained signed-key ASCENDING at close-out. Where int32-grouped-field-sum-aggregation
+    groups CONSECUTIVE equal keys — needing the staged table pre-sorted on the group key, and opening a second
+    partial whenever a key reappears — this tile holds per-key state, so input order does not matter and a key may
+    reappear anywhere in the batch: one record per distinct key, always. That removes the sorted_by_key staging
+    precondition from every grouped scan. Hash (low key bits) + linear probe over a {sums[3:0], count, key} BRAM
+    with a separate valid array; deliberately SEQUENTIAL (one row in flight), so no read-modify-write hazard
+    exists. All four field sums accumulate unconditionally — the accumulate path is config-free and cfg_field_mask
+    selects only which sums the drain emits, so the record shape matches the ordered tile word-for-word (shared
+    host decode). The ascending drain is a CONTRACT, not an implementation detail: a hash table has no intrinsic
+    order, so leaking probe order would make results depend on the hash function. Overflow (a new key with the
+    table full) is GROUP_CAPACITY_EXCEEDED and invalidates the batch — never an eviction; the host recovers by
+    key-range split and merge (dau_core.operators.merge_hash_grouped is exact because INT64 sums and counts are
+    additive per key). State is fresh per batch: the CLEAR sweep runs from both reset and close-out. A zero mask
+    is BAD_FIELD_MASK; input_last on a quad row w0 is BAD_STREAM. Matches
+    dau_core.operators.hash_grouped_field_sum_rows.'
+  golden: dau_core.operators:hash_grouped_field_sum_rows
+  bench: dau_core.tests.cocotb_benches.dau_int32_hash_grouped_aggregation_tb
+  # Measured 2026-08-06 via synthesize-cores at {256, 512, 1024} on both
+  # parts, all met. LUT/FF are nearly flat in CAPACITY (the datapath is one
+  # row and four 64-bit accumulators; only the address/probe counters widen),
+  # while BRAM steps 4.5 -> 9.0 at 1024: the 320-bit slot spans multiple
+  # RAMB36 and the depth crosses their 512-deep boundary. The Artix margin is
+  # the tightest in the palette at +0.410 -- the 320-bit registered read plus
+  # the signed-minimum fold is the critical path, so a wider slot or a deeper
+  # table wants a retime before it closes.
+  resources:
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {CAPACITY: 256}
+      lut: 733
+      ff: 864
+      bram36: 4.5
+      dsp: 0
+      timing: met
+      wns_ns: 0.41
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {CAPACITY: 512}
+      lut: 758
+      ff: 868
+      bram36: 4.5
+      dsp: 0
+      timing: met
+      wns_ns: 0.41
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {CAPACITY: 1024}
+      lut: 846
+      ff: 871
+      bram36: 9.0
+      dsp: 0
+      timing: met
+      wns_ns: 0.413
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {CAPACITY: 256}
+      lut: 733
+      ff: 864
+      bram36: 4.5
+      dsp: 0
+      timing: met
+      wns_ns: 2.736
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {CAPACITY: 512}
+      lut: 757
+      ff: 868
+      bram36: 4.5
+      dsp: 0
+      timing: met
+      wns_ns: 2.736
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {CAPACITY: 1024}
+      lut: 843
+      ff: 868
+      bram36: 9.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.391
+  count_port: group_count
+  contract_kind: row-stream
+  record_words: 2
+  # SUM + COUNT over INT32 inputs, per group — the same advertisement the
+  # ordered sibling makes, so a composition built only from this tile is
+  # discoverable by the planner rather than reporting an empty bitmap
+  opcodes:
+  - 3
+  - 4
+  opcode_input_types:
+  - 12
+  unit_kind: aggregation
+  # the mask selects how many sum words ride each record (key + 1..4 sums +
+  # count), exactly like the ordered tile
+  output_record_words_variable: true
+  ingest:
+    rows: 1
+    # the zero-collision cadence: W0+W1+PROBE+JUDGE = 4 cycles/row.
+    # Acceptance for probe depth p is 2p+2, so the STATED ASSUMPTION is
+    # hash-distributed keys at low load factor (p ~= 1); two resident keys
+    # congruent modulo CAPACITY already cost 6, and adversarial congruent
+    # fills degrade to 1/(2*CAPACITY+2) — a planner-regime concern per the
+    # IngestRate doctrine, visible here rather than hidden behind a padded
+    # number (the keyed-state precedent). The key-ascending DRAIN is a
+    # further O(CAPACITY x live groups) paid once per batch at close-out,
+    # outside the per-row cadence like every terminal's record emission.
+    per_cycles: 4
+  success_close_out: true
+  parameters:
+    CAPACITY:
+      default: 512
+      maximum: 1024
+  storage_intent:
+    - role: group_table
+      access: owned
+      bytes_per_unit: 40
+      scale_parameter: CAPACITY
+      tier_hint: bram
+
 int32-streaming-top-k:
   _target_: dau_core.cores.CoreDefinition
   name: int32-streaming-top-k

@@ -1437,12 +1437,15 @@ HASH_GROUPED_MAX_GROUPS = 1024
 
 
 class HashGroupedErrorCode(IntEnum):
-    """Status codes for the hash-mode grouped field-sum aggregation tile."""
+    """Status codes for the hash-mode grouped field-sum aggregation tile.
+    The values ARE the tile's ``status_error_code`` wire encoding, so the
+    golden and the HDL cannot drift apart silently."""
 
     OK = 0
     BAD_CAPACITY = 1  # declared capacity outside [1, HASH_GROUPED_MAX_GROUPS]
     BAD_FIELD_MASK = 2  # a zero mask (an unconfigured tile) or one past the four fields
     GROUP_CAPACITY_EXCEEDED = 3  # a new group key arrived with the table full
+    BAD_STREAM = 4  # hardware only: a torn row (input_last on a quad row's w0)
 
 
 @dataclass(frozen=True)
@@ -1492,15 +1495,21 @@ def hash_grouped_field_sum_rows(
     key makes the order implementation-independent and physically true (the
     session-gap tile's min-extraction drain is the same decision).
 
-    **Overflow is an ERROR, never an eviction.** ``capacity`` is a hardware
-    fact (the table depth). When a row presents a key not in the table and
-    the table is full, the batch reports ``GROUP_CAPACITY_EXCEEDED`` and the
-    accumulated groups are returned alongside it: evicting or silently
+    **Overflow is an ERROR that invalidates the batch**, never an eviction.
+    ``capacity`` is a hardware fact (the table depth). When a row presents a
+    key not in the table and the table is full, the batch reports
+    ``GROUP_CAPACITY_EXCEEDED`` and returns NO groups: evicting or silently
     dropping the key would make the answer wrong in a way no downstream
-    consumer could detect. The host's response is to split the batch by key
-    range and merge the partials — the same partial-merge algebra the
-    ordered tile's host merge already uses, which is exact because INT64
-    sums and counts are additive per key.
+    consumer could detect, and returning the partial accumulation would be
+    worse than useless — the host's recovery is to re-run the batch split by
+    key range, so a caller that merged the partial with the re-run results
+    would DOUBLE-COUNT every key that had accumulated before the overflow.
+    Discarding the batch is also the platform's uniform error convention (an
+    error close-out invalidates the whole batch; the tile's group_count
+    reads 0 and no success close-out is raised), which is what lets the
+    golden and the HDL agree by construction rather than by inspection.
+    Recovery is exact because INT64 sums and counts are additive per key —
+    see :func:`merge_hash_grouped`.
 
     ``field_mask`` bit i selects field i of the quad row ``(key, value,
     aux0, aux1)``; selecting field 0 sums the key itself, which is legal and
@@ -1516,15 +1525,15 @@ def hash_grouped_field_sum_rows(
     selected = [index for index in range(4) if field_mask & (1 << index)]
     table: dict[int, list[int]] = {}
     counts: dict[int, int] = {}
-    error = HashGroupedErrorCode.OK
     for row in rows:
         # keys and field values are int32 WIRES: -1 and 0xFFFFFFFF are the
         # same key on a 32-bit bus (the keyed-state lesson)
         key = _wrap_int32(row[0])
         if key not in table:
             if len(table) >= capacity:
-                error = HashGroupedErrorCode.GROUP_CAPACITY_EXCEEDED
-                break
+                # the batch is invalid: return nothing, so a caller cannot
+                # merge a partial that its own re-run will recompute
+                return [], HashGroupedErrorCode.GROUP_CAPACITY_EXCEEDED
             table[key] = [0] * len(selected)
             counts[key] = 0
         sums = table[key]
@@ -1535,7 +1544,7 @@ def hash_grouped_field_sum_rows(
         HashGroupedAggregate(key=key, field_mask=field_mask, sums=tuple(table[key]), count=counts[key])
         for key in sorted(table)  # signed-key ascending: the pinned drain order
     ]
-    return groups, error
+    return groups, HashGroupedErrorCode.OK
 
 
 def merge_hash_grouped(partials: Iterable[Iterable[HashGroupedAggregate]]) -> list[HashGroupedAggregate]:

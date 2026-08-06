@@ -76,13 +76,15 @@ def test_keys_are_int32_wires() -> None:
     assert _as_pairs(groups) == [(-1, (12,), 2)]
 
 
-def test_overflow_reports_and_keeps_the_accumulated_groups() -> None:
+def test_overflow_invalidates_the_batch() -> None:
+    """The platform's uniform error convention: an error close-out
+    invalidates the whole batch. Returning the partial accumulation would
+    be a DOUBLE-COUNT hazard, since the host's recovery re-runs the same
+    rows split by key range."""
     rows = [(1, 10, 0, 0), (2, 20, 0, 0), (1, 5, 0, 0), (3, 30, 0, 0), (2, 1, 0, 0)]
     groups, error = hash_grouped_field_sum_rows(rows, field_mask=_MASK, capacity=2)
     assert error is HashGroupedErrorCode.GROUP_CAPACITY_EXCEEDED
-    # keys 1 and 2 accumulated everything BEFORE the overflowing row; the
-    # tile never evicts, and rows after the overflow are not counted
-    assert _as_pairs(groups) == [(1, (15,), 2), (2, (20,), 1)]
+    assert groups == []
 
 
 def test_full_table_without_a_new_key_is_not_an_overflow() -> None:
