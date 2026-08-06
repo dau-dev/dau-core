@@ -766,6 +766,16 @@ def build_id_from_spec_hash(value: str) -> int:
     in the manifest for anything stronger. Zero is reserved: an unstamped
     shell reads back as zero, so the caller must treat it as "not stamped"
     rather than as a design identity.
+
+    KNOW WHAT THIS DOES NOT IDENTIFY. It is the hash of a composition SPEC,
+    so it names the design's inputs, not the image built from them. Two
+    bitstreams built from the same spec at different times — different RTL,
+    generator, constraints or toolchain — carry the SAME id. That is the
+    right granularity for "did my flash take" (the alternative resident
+    image is a different design) and the wrong one for "is this the exact
+    artifact I validated", which only the bitstream digest answers. It also
+    drops the canonical-version prefix, so ``5:<digest>`` and ``6:<digest>``
+    are indistinguishable here while being different cache keys.
     """
     digest = value.split(":", 1)[-1]
     if len(digest) < 16:
