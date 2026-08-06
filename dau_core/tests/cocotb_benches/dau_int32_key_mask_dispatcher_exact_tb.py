@@ -5,11 +5,11 @@ import random
 import cocotb
 from cocotb.triggers import ReadOnly, RisingEdge
 
-from dau_core.operators import mask_dispatch_rows
+from dau_core.operators import DispatchMode, mask_dispatch_rows
 
-# EXACT_BRANCH == 1 (the q19 disjunct-branch mode): dest = key - 1 for keys
+# MODE == DispatchMode.EXACT_BRANCH (the q19 disjunct-branch mode): dest = key - 1 for keys
 # in [1, NUM_PARTITIONS], every other key dropped at the front for zero lane
-# cycles. Runner passes parameters={"EXACT_BRANCH": 1, "NUM_PARTITIONS": 3}
+# cycles. Runner passes parameters={"MODE": 1, "NUM_PARTITIONS": 3}
 # (no power-of-two) at either IN_WIDTH; the width is detected from the dut so
 # the same module covers the wide and narrow fronts.
 from dau_core.tests.cocotb_benches.dau_int32_key_mask_dispatcher_tb import (
@@ -49,7 +49,7 @@ async def _send(dut, rows) -> None:
 
 
 async def _run(dut, rows, *, ready_pattern=(1,)):
-    golden = mask_dispatch_rows(rows, num_partitions=_num_parts(dut), exact_branch=True)
+    golden = mask_dispatch_rows(rows, num_partitions=_num_parts(dut), mode=DispatchMode.EXACT_BRANCH)
     send = cocotb.start_soon(_send(dut, rows))
     parts = await _drive_and_collect(dut, golden, ready_pattern)
     await send
@@ -60,7 +60,7 @@ async def _run(dut, rows, *, ready_pattern=(1,)):
 async def exact_branch_routes_and_drops(dut):
     await _start(dut)
     parts = await _run(dut, _EXACT_ROWS)
-    golden = mask_dispatch_rows(_EXACT_ROWS, num_partitions=_num_parts(dut), exact_branch=True)
+    golden = mask_dispatch_rows(_EXACT_ROWS, num_partitions=_num_parts(dut), mode=DispatchMode.EXACT_BRANCH)
     assert parts == golden
     assert parts[0] == [(1, 100, 10, 500_000)]  # branch 1 -> lane 0
     assert parts[1] == [(2, 95, 2, 250_000), (2, 77, 5, 42)]
@@ -79,7 +79,7 @@ async def exact_branch_all_dropped_closes_out_every_lane(dut):
 async def exact_branch_backpressure_holds_rows_stable(dut):
     await _start(dut)
     parts = await _run(dut, _EXACT_ROWS, ready_pattern=(1, 0, 0, 1, 0))
-    assert parts == mask_dispatch_rows(_EXACT_ROWS, num_partitions=_num_parts(dut), exact_branch=True)
+    assert parts == mask_dispatch_rows(_EXACT_ROWS, num_partitions=_num_parts(dut), mode=DispatchMode.EXACT_BRANCH)
 
 
 @cocotb.test()
@@ -90,7 +90,7 @@ async def exact_branch_repeated_batches_back_to_back(dut):
         count = rng.randint(1, 30)
         rows = [(rng.randint(-2, 6), rng.randint(-1000, 1000), rng.randint(0, 1000), rng.randint(0, 1_000_000)) for _ in range(count)]
         parts = await _run(dut, rows)
-        assert parts == mask_dispatch_rows(rows, num_partitions=_num_parts(dut), exact_branch=True)
+        assert parts == mask_dispatch_rows(rows, num_partitions=_num_parts(dut), mode=DispatchMode.EXACT_BRANCH)
 
 
 @cocotb.test()

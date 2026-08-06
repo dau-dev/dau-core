@@ -203,7 +203,10 @@ endmodule
 module dau_int32_key_mask_dispatcher #(
     parameter int NUM_PARTITIONS = 4,
     parameter int unsigned IN_WIDTH = 64,
-    parameter bit EXACT_BRANCH = 1'b0,
+    // dau_core.operators.DispatchMode: 0 MASK, 1 EXACT_BRANCH, 2 HASH.
+    // One selector rather than a bool per mode, so no illegal combination
+    // is representable.
+    parameter int unsigned MODE = 0,
     // 64-bit words per RECORD. 2 is the 16-byte quad row (every existing
     // composition). A fused chain whose head reads wider records — the as-of
     // join's 3-word {tag/key, time, payload} — routes those records whole,
@@ -244,6 +247,11 @@ module dau_int32_key_mask_dispatcher #(
     localparam bit MULTI = (IN_WIDTH > 128) && !RECORD_INPUT;          // 256/512: R>1 rows per beat
     localparam int R = MULTI ? (IN_WIDTH / 128) : 1;  // whole quad rows per input beat
     localparam int PIDX_W = (NUM_PARTITIONS <= 1) ? 1 : $clog2(NUM_PARTITIONS);
+    // dau_core.operators.DispatchMode values (0 MASK is the case default)
+    // and DISPATCH_HASH_MULTIPLIER
+    localparam int unsigned MODE_EXACT_BRANCH = 1;
+    localparam int unsigned MODE_HASH = 2;
+    localparam logic [31:0] HASH_MULTIPLIER = 32'h9E37_79B9;
 
     // in whole-record framing the input bus IS one record (RECORD_WORDS*64),
     // which is not one of the row framings — 3-word records give 192
@@ -262,7 +270,11 @@ module dau_int32_key_mask_dispatcher #(
     if (!RECORD_INPUT && IN_WIDTH != 64 && RECORD_WORDS != 2) begin : g_wide_needs_quad
         $fatal(1, "dau_int32_key_mask_dispatcher: wide framings carry whole 128-bit quad rows (RECORD_WORDS must be 2)");
     end
-    if (!EXACT_BRANCH && (NUM_PARTITIONS & (NUM_PARTITIONS - 1)) != 0) begin : g_bad_partitions
+    if (MODE > 2) begin : g_bad_mode
+        $error("MODE must be 0 (MASK), 1 (EXACT_BRANCH) or 2 (HASH)");
+    end
+
+    if ((MODE != MODE_EXACT_BRANCH) && (NUM_PARTITIONS & (NUM_PARTITIONS - 1)) != 0) begin : g_bad_partitions
         $fatal(1, "dau_int32_key_mask_dispatcher: NUM_PARTITIONS must be a power of two in mask mode");
     end
 
@@ -288,21 +300,32 @@ module dau_int32_key_mask_dispatcher #(
     logic all_idle;
     assign all_idle = (lane_busy == '0);
 
-    // mask decode: dest = key & (NUM_PARTITIONS - 1) — the key's low
+    // MASK decode: dest = key & (NUM_PARTITIONS - 1) — the key's low
     // $clog2(NUM_PARTITIONS) bits (a power of two makes & and bit-select the
     // same thing; a degenerate single partition routes everything to lane 0).
-    // Exact-branch decode: dest = key - 1, out-of-range keys drop (route_hit
+    // EXACT_BRANCH decode: dest = key - 1, out-of-range keys drop (route_hit
     // low accepts the row without pushing any lane).
+    // HASH decode: the TOP PIDX_W bits of the low 32 bits of
+    // key * HASH_MULTIPLIER. MASK reads the key's LOW bits and so collapses
+    // keys sharing a stride onto one lane; the multiplicative hash mixes the
+    // whole key into the high bits before the select. The constant and the
+    // bit-extraction are CONTRACT — a row's partition is part of the answer,
+    // and dau_core.operators pins these exact values.
     logic [PIDX_W-1:0] dest;
     logic [31:0]       route_key;
     logic              route_hit;
 
     function automatic logic [PIDX_W-1:0] decode_dest(input logic [31:0] key);
-        if (EXACT_BRANCH) return PIDX_W'(key - 32'd1);
-        return (NUM_PARTITIONS <= 1) ? '0 : key[PIDX_W-1:0];
+        case (MODE)
+            MODE_EXACT_BRANCH: return PIDX_W'(key - 32'd1);
+            // the low 32 bits of the product, shifted down to its top
+            // PIDX_W bits — the well-mixed end of a multiplicative hash
+            MODE_HASH: return (NUM_PARTITIONS <= 1) ? '0 : PIDX_W'(32'(key * HASH_MULTIPLIER) >> (32 - PIDX_W));
+            default: return (NUM_PARTITIONS <= 1) ? '0 : key[PIDX_W-1:0];  // MODE_MASK
+        endcase
     endfunction
 
-    assign route_hit = !EXACT_BRANCH || (route_key != 32'd0 && route_key <= 32'(NUM_PARTITIONS));
+    assign route_hit = (MODE != MODE_EXACT_BRANCH) || (route_key != 32'd0 && route_key <= 32'(NUM_PARTITIONS));
 
     // The wide path routes ONE 128-bit quad row at a time. At IN_WIDTH=128 the
     // input beat IS that row; at 256/512 a serializer deserializes the R-row

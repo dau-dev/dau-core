@@ -756,9 +756,12 @@ int32-key-mask-dispatcher:
   source: dau_int32_key_mask_dispatcher.sv
   description: 'Key-mask dispatcher: fans one scan of 16-byte quad rows to NUM_PARTITIONS lanes by the key''s low bits (dest
     = key & (NUM_PARTITIONS-1), a power of two) — the broadcast + per-lane pair-key-filter shape folded into one shared
-    router, so each row is delivered once instead of N times. EXACT_BRANCH=1 selects the exact-branch-id mode (q19''s disjunct
-    branches): dest = key - 1 for keys in [1, NUM_PARTITIONS], every other key DROPPED at the front for zero lane cycles
-    (no power-of-two requirement). IN_WIDTH (the rows/cycle axis) selects the input framing: 64 (default) accepts two-beat
+    router, so each row is delivered once instead of N times. MODE selects the decode (dau_core.operators.DispatchMode):
+    0 MASK (the low-bits default), 1 EXACT_BRANCH — the q19 disjunct-branch mode, dest = key - 1 for keys in
+    [1, NUM_PARTITIONS] with every other key DROPPED at the front for zero lane cycles (no power-of-two requirement) —
+    and 2 HASH, dest = the top log2(N) bits of key * 0x9E3779B9. MASK reads the key''s LOW bits, so keys sharing a stride
+    collapse onto one lane; HASH mixes the whole key into the high bits before the select, which is the fan-out for keys
+    the host did not choose. The multiplier and bit-extraction are CONTRACT: a row''s partition is part of the answer. IN_WIDTH (the rows/cycle axis) selects the input framing: 64 (default) accepts two-beat
     quad rows; 128 accepts one whole row per beat ({w1, w0}) — paired with the wide row-unpack (OUT_WIDTH=128) the shared
     front sustains 1 row/cycle while the per-lane outputs stay the 64-bit two-beat framing the operator tiles consume (no
     operator widens). Same-lane runs throttle on the lane''s two-beat drain (single-row skid, head-of-line); mask-distributed
@@ -816,11 +819,13 @@ int32-key-mask-dispatcher:
       # one word. Requires IN_WIDTH == RECORD_WORDS*64.
       default: 0
       choices: [0, 1]
-    EXACT_BRANCH:
+    MODE:
+      # dau_core.operators.DispatchMode: 0 MASK, 1 EXACT_BRANCH, 2 HASH
       default: 0
       choices:
       - 0
       - 1
+      - 2
 
 int32-stride-distributor:
   _target_: dau_core.cores.CoreDefinition

@@ -23,6 +23,7 @@ from ccflow import BaseModel
 from pydantic import ConfigDict, StrictInt
 
 from .cores import ContractKind, CoreDefinition, CoreKind, LoadImageKind, ResourceEnvelope, UnmeasuredResourceError, core
+from .operators import DispatchMode
 
 SCAN_INFRASTRUCTURE_CORES = ("axi-burst-reader", "stream-broadcast", "axi-record-writer", "axi-write-mux", "identity-registers")
 
@@ -276,12 +277,17 @@ class ScanCompositionSpec(BaseModel):
                         f"partitioner {self.partitioner.core!r} IN_WIDTH={in_width} does not match the {feed_width}-bit feed framing "
                         "(data_width, or the front unpacker's OUT_WIDTH)"
                     )
-            if self.partitioner.core == "int32-key-mask-dispatcher" and self.partitioner.params.get("EXACT_BRANCH", 0) != 1:
-                partitions = self.partitioner.params.get("NUM_PARTITIONS", len(self.lanes))
-                if partitions & (partitions - 1):
-                    raise CompositionError(
-                        f"partitioner {self.partitioner.core!r} 'NUM_PARTITIONS' must be a power of two in mask mode, got {partitions!r}"
-                    )
+            if self.partitioner.core == "int32-key-mask-dispatcher":
+                # only the exact-branch decode indexes by key directly; MASK
+                # bit-selects and HASH shifts, so both need a power of two
+                mode = int(self.partitioner.params.get("MODE", 0))
+                if mode != int(DispatchMode.EXACT_BRANCH):
+                    partitions = self.partitioner.params.get("NUM_PARTITIONS", len(self.lanes))
+                    if partitions & (partitions - 1):
+                        raise CompositionError(
+                            f"partitioner {self.partitioner.core!r} 'NUM_PARTITIONS' must be a power of two in "
+                            f"{DispatchMode(mode).name} mode, got {partitions!r}"
+                        )
         if self.stream_job is not None:
             if self.stream_job not in STREAM_JOB_INFRASTRUCTURE_CORES:
                 raise CompositionError(f"stream_job must be one of {tuple(STREAM_JOB_INFRASTRUCTURE_CORES)}, got {self.stream_job!r}")
