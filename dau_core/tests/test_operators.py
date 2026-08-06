@@ -19,6 +19,7 @@ from dau_core.operators import (
     MapConfig,
     MapOp,
     MembershipBuildSet,
+    MembershipBuildSetError,
     MembershipKind,
     MembershipMode,
     PredicateCombine,
@@ -602,13 +603,15 @@ def test_membership_image_words_round_trip_is_exact() -> None:
 
 
 def test_membership_build_set_validation() -> None:
-    with pytest.raises(ValueError, match="multiple of 64"):
+    # not a ValueError: pydantic wraps those raised in model_post_init into
+    # a ValidationError, which buries the message the caller needs
+    with pytest.raises(MembershipBuildSetError, match="multiple of 64"):
         MembershipBuildSet.from_keys((), key_space=100)
-    with pytest.raises(ValueError, match="multiple of 64"):
+    with pytest.raises(MembershipBuildSetError, match="multiple of 64"):
         MembershipBuildSet.from_keys((), key_space=0)
-    with pytest.raises(ValueError, match="outside key space"):
+    with pytest.raises(MembershipBuildSetError, match="outside key space"):
         MembershipBuildSet.from_keys({64}, key_space=64)
-    with pytest.raises(ValueError, match="outside key space"):
+    with pytest.raises(MembershipBuildSetError, match="outside key space"):
         MembershipBuildSet.from_keys({-1}, key_space=64)
     with pytest.raises(ValueError, match="expected"):
         MembershipBuildSet.from_image_words([0, 0], key_space=64)

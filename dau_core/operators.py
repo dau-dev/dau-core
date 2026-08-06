@@ -481,14 +481,19 @@ class MembershipMode(IntEnum):
     ANTI = 1  # keep rows whose key is NOT a member — anti-join / NOT IN
 
 
+class MembershipBuildSetError(Exception):
+    """An invalid membership build set. Deliberately not a ``ValueError``:
+    pydantic wraps those raised inside ``model_post_init`` into a
+    ``ValidationError``, which buries the message the caller needs."""
+
+
 class MembershipErrorCode(IntEnum):
     CONFIG = 1  # unconfigured / unsupported membership kind (bloom is not built in v0)
     STREAM = 2  # torn probe row (input_last on a w0)
     LOAD = 3  # build-set image length != key_space // 64
 
 
-@dataclass(frozen=True)
-class MembershipBuildSet:
+class MembershipBuildSet(BaseModel):
     """The membership memory: a direct-mapped EXACT bitmap over the configured
     dictionary-id key space ``[0, key_space)``. Key ``k`` is a member iff
     ``0 <= k < key_space`` and bit ``k`` is set.
@@ -509,15 +514,18 @@ class MembershipBuildSet:
     The bitmap loads as ``key_space // 64`` little-endian 64-bit image words:
     word ``w`` bit ``b`` is id ``64*w + b``."""
 
+    model_config = ConfigDict(frozen=True)
+
     key_space: int
     members: frozenset[int]
 
-    def __post_init__(self) -> None:
+    def model_post_init(self, context) -> None:
+        super().model_post_init(context)
         if self.key_space <= 0 or self.key_space % 64 != 0:
-            raise ValueError("key_space must be a positive multiple of 64")
+            raise MembershipBuildSetError("key_space must be a positive multiple of 64")
         for member in self.members:
             if not 0 <= member < self.key_space:
-                raise ValueError(f"member {member} outside key space [0, {self.key_space})")
+                raise MembershipBuildSetError(f"member {member} outside key space [0, {self.key_space})")
 
     @property
     def word_count(self) -> int:
@@ -1371,9 +1379,9 @@ def scratchpad_scan(
     granted_words: int,
 ) -> tuple[list[tuple[int, int]], ScratchpadErrorCode]:
     """Golden semantics for the scratchpad tile: the deliberately trivial
-    consumer of the OWNED storage class (STORAGE_AND_NOC.md phase 1). A
-    private word-addressed arena; each row is ``(write_enable, addr, value)``
-    and emits ``(addr, post_op_value)`` — a write emits what it wrote, a read
+    consumer of the OWNED storage class (STORAGE_AND_NOC.md). A private
+    word-addressed arena; each row is ``(write_enable, addr, value)`` and
+    emits ``(addr, post_op_value)`` — a write emits what it wrote, a read
     emits what is stored, an unwritten word reads 0 (BRAM init).
 
     The contract under test is the GRANT, not the arithmetic: an address at
@@ -1414,10 +1422,10 @@ def sessionize_scan(
     gap: int,
     capacity: int,
 ) -> tuple[list[tuple[int, int, int, int]], SessionErrorCode]:
-    """Golden semantics for the session-gap tile: the Nexmark-Q11 shape, and
-    step 2 of the stateful programme (STORAGE_AND_NOC.md). Rows are
-    ``(key, time)`` in arrival order; a session is a maximal per-key run of
-    rows with no inter-row gap exceeding ``gap``. Each closed session emits
+    """Golden semantics for the session-gap tile: the Nexmark-Q11 shape over
+    bounded keyed state (STORAGE_AND_NOC.md). Rows are ``(key, time)`` in
+    arrival order; a session is a maximal per-key run of rows with no
+    inter-row gap exceeding ``gap``. Each closed session emits
     ``(key, start_time, end_time, row_count)``.
 
     Sessions close two ways. A row whose time exceeds its key's last time by
@@ -1426,11 +1434,10 @@ def sessionize_scan(
     emitted **sorted by signed key** — a deterministic order no
     implementation detail (hash placement, slot index) can leak into.
 
-    **Phase scope is PROCESSING-order sessionization**: times must be
+    **Scope is PROCESSING-order sessionization**: times must be
     non-decreasing across the batch (the generator's contract), and a
     violation is ``TIME_ORDER`` — refused, never silently reordered. Event
-    time, watermarks and late arrivals are the next programme step and are
-    deliberately absent here.
+    time, watermarks and late arrivals are deliberately absent here.
 
     ``capacity`` bounds DISTINCT KEYS per batch, exactly like keyed state: a
     gap-close immediately reopens, so it never frees a slot mid-batch. The
