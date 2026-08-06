@@ -55,10 +55,42 @@ int32-predicate-filter:
   golden: dau_core.operators:filter_values
   bench: dau_core.tests.cocotb_benches.dau_int32_predicate_filter_tb
   resources:
-    lut: 985
-    ff: 376
-    bram36: 0.0
-    dsp: 0
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 1027
+      ff: 376
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 0.487
+    - part: xc7a200tfbg484-2
+      clock_ns: 10.0
+      params: {}
+      lut: 1027
+      ff: 376
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.487
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {}
+      lut: 1027
+      ff: 376
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.699
+    - part: xc7k325tffg900-2
+      clock_ns: 10.0
+      params: {}
+      lut: 1027
+      ff: 376
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.699
   count_port: selected_count
   contract_kind: row-stream
   record_words: 1
@@ -79,10 +111,42 @@ int32-keyed-predicate-filter:
   golden: dau_core.operators:filter_rows
   bench: dau_core.tests.cocotb_benches.dau_int32_keyed_predicate_filter_tb
   resources:
-    lut: 644
-    ff: 342
-    bram36: 0.0
-    dsp: 0
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 644
+      ff: 342
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 0.802
+    - part: xc7a200tfbg484-2
+      clock_ns: 10.0
+      params: {}
+      lut: 644
+      ff: 342
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.802
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {}
+      lut: 644
+      ff: 342
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.821
+    - part: xc7k325tffg900-2
+      clock_ns: 10.0
+      params: {}
+      lut: 644
+      ff: 342
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.821
   contract_kind: row-stream
   record_words: 1
   ingest:
@@ -102,10 +166,42 @@ int32-map-alu:
   golden: dau_core.operators:map_values
   bench: dau_core.tests.cocotb_benches.dau_int32_map_alu_tb
   resources:
-    lut: 1338
-    ff: 383
-    bram36: 0.0
-    dsp: 8
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 1384
+      ff: 383
+      bram36: 0.0
+      dsp: 8
+      timing: violated
+      wns_ns: -0.061
+    - part: xc7a200tfbg484-2
+      clock_ns: 10.0
+      params: {}
+      lut: 1380
+      ff: 383
+      bram36: 0.0
+      dsp: 8
+      timing: met
+      wns_ns: 1.939
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {}
+      lut: 1384
+      ff: 383
+      bram36: 0.0
+      dsp: 8
+      timing: met
+      wns_ns: 1.817
+    - part: xc7k325tffg900-2
+      clock_ns: 10.0
+      params: {}
+      lut: 1338
+      ff: 383
+      bram36: 0.0
+      dsp: 8
+      timing: met
+      wns_ns: 3.813
   contract_kind: row-stream
   record_words: 1
   ingest:
@@ -125,10 +221,42 @@ int32-keyed-map-alu:
   golden: dau_core.operators:map_rows
   bench: dau_core.tests.cocotb_benches.dau_int32_keyed_map_alu_tb
   resources:
-    lut: 904
-    ff: 316
-    bram36: 0.0
-    dsp: 4
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 921
+      ff: 314
+      bram36: 0.0
+      dsp: 4
+      timing: violated
+      wns_ns: -0.061
+    - part: xc7a200tfbg484-2
+      clock_ns: 10.0
+      params: {}
+      lut: 919
+      ff: 314
+      bram36: 0.0
+      dsp: 4
+      timing: met
+      wns_ns: 1.939
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {}
+      lut: 921
+      ff: 314
+      bram36: 0.0
+      dsp: 4
+      timing: met
+      wns_ns: 1.817
+    - part: xc7k325tffg900-2
+      clock_ns: 10.0
+      params: {}
+      lut: 898
+      ff: 314
+      bram36: 0.0
+      dsp: 4
+      timing: met
+      wns_ns: 3.817
   contract_kind: row-stream
   record_words: 1
   ingest:
@@ -146,10 +274,42 @@ int32-grouped-aggregation:
   golden: dau_core.operators:grouped_aggregate_rows
   bench: dau_core.tests.cocotb_benches.dau_int32_grouped_aggregation_tb
   resources:
-    lut: 672
-    ff: 563
-    bram36: 0.0
-    dsp: 0
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 679
+      ff: 565
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.847
+    - part: xc7a200tfbg484-2
+      clock_ns: 10.0
+      params: {}
+      lut: 679
+      ff: 565
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.847
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {}
+      lut: 679
+      ff: 565
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.28
+    - part: xc7k325tffg900-2
+      clock_ns: 10.0
+      params: {}
+      lut: 679
+      ff: 565
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 6.28
   count_port: group_count
   contract_kind: row-stream
   record_words: 1
@@ -175,10 +335,42 @@ int32-grouped-field-aggregation:
   bench: dau_core.tests.cocotb_benches.dau_int32_grouped_field_aggregation_tb
   # OOC xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +3.846)
   resources:
-    lut: 910
-    ff: 886
-    bram36: 0.0
-    dsp: 0
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 807
+      ff: 878
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.846
+    - part: xc7a200tfbg484-2
+      clock_ns: 10.0
+      params: {}
+      lut: 807
+      ff: 878
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.846
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {}
+      lut: 807
+      ff: 878
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.242
+    - part: xc7k325tffg900-2
+      clock_ns: 10.0
+      params: {}
+      lut: 807
+      ff: 878
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 7.242
   count_port: group_count
   contract_kind: row-stream
   record_words: 2
@@ -198,10 +390,42 @@ int32-bar-aggregation:
   golden: dau_core.operators:bar_aggregate_rows
   bench: dau_core.tests.cocotb_benches.dau_int32_bar_aggregation_tb
   resources:
-    lut: 829
-    ff: 631
-    bram36: 0.0
-    dsp: 0
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 828
+      ff: 631
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.66
+    - part: xc7a200tfbg484-2
+      clock_ns: 10.0
+      params: {}
+      lut: 828
+      ff: 631
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.66
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {}
+      lut: 828
+      ff: 631
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.113
+    - part: xc7k325tffg900-2
+      clock_ns: 10.0
+      params: {}
+      lut: 828
+      ff: 631
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 6.113
   count_port: bar_count
   contract_kind: row-stream
   record_words: 2
@@ -230,10 +454,42 @@ int32-asof-backward:
   bench: dau_core.tests.cocotb_benches.dau_int32_asof_backward_tb
   # OOC xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +1.679)
   resources:
-    lut: 606
-    ff: 856
-    bram36: 0.0
-    dsp: 0
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 606
+      ff: 856
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 1.679
+    - part: xc7a200tfbg484-2
+      clock_ns: 10.0
+      params: {}
+      lut: 606
+      ff: 856
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.679
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {}
+      lut: 606
+      ff: 856
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.757
+    - part: xc7k325tffg900-2
+      clock_ns: 10.0
+      params: {}
+      lut: 606
+      ff: 856
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.757
   count_port: match_count
   contract_kind: row-stream
   record_words: 3
@@ -298,10 +554,42 @@ int32-market-feature:
   bench: dau_core.tests.cocotb_benches.dau_int32_market_feature_tb
   # OOC xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +0.680)
   resources:
-    lut: 480
-    ff: 528
-    bram36: 0.0
-    dsp: 4
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 480
+      ff: 528
+      bram36: 0.0
+      dsp: 4
+      timing: met
+      wns_ns: 0.68
+    - part: xc7a200tfbg484-2
+      clock_ns: 10.0
+      params: {}
+      lut: 480
+      ff: 528
+      bram36: 0.0
+      dsp: 4
+      timing: met
+      wns_ns: 2.68
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {}
+      lut: 480
+      ff: 528
+      bram36: 0.0
+      dsp: 4
+      timing: met
+      wns_ns: 2.401
+    - part: xc7k325tffg900-2
+      clock_ns: 10.0
+      params: {}
+      lut: 480
+      ff: 528
+      bram36: 0.0
+      dsp: 4
+      timing: met
+      wns_ns: 4.401
   count_port: feature_count
   contract_kind: row-stream
   record_words: 4
@@ -689,10 +977,42 @@ int32-pair-key-filter:
   golden: dau_core.operators:filter_bar_rows_by_key
   bench: dau_core.tests.cocotb_benches.dau_int32_pair_key_filter_tb
   resources:
-    lut: 182
-    ff: 331
-    bram36: 0.0
-    dsp: 0
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 178
+      ff: 331
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.338
+    - part: xc7a200tfbg484-2
+      clock_ns: 10.0
+      params: {}
+      lut: 178
+      ff: 331
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 7.338
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {}
+      lut: 178
+      ff: 331
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 6.123
+    - part: xc7k325tffg900-2
+      clock_ns: 10.0
+      params: {}
+      lut: 178
+      ff: 331
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 8.123
   contract_kind: row-stream
   record_words: 2
   ingest:
@@ -710,10 +1030,42 @@ int32-range-partitioner:
   bench: dau_core.tests.cocotb_benches.dau_int32_range_partitioner_tb
   # OOC N=4
   resources:
-    lut: 374
-    ff: 1124
-    bram36: 0.0
-    dsp: 0
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 375
+      ff: 1124
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.935
+    - part: xc7a200tfbg484-2
+      clock_ns: 10.0
+      params: {}
+      lut: 375
+      ff: 1124
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.935
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {}
+      lut: 375
+      ff: 1124
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.115
+    - part: xc7k325tffg900-2
+      clock_ns: 10.0
+      params: {}
+      lut: 375
+      ff: 1124
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 7.115
   contract_kind: row-stream
   record_words: 2
   ingest:
@@ -885,10 +1237,42 @@ int32-bitonic-sorter:
   bench: dau_core.tests.cocotb_benches.dau_int32_bitonic_sorter_tb
   # OOC CAPACITY=16
   resources:
-    lut: 5970
-    ff: 2285
-    bram36: 0.0
-    dsp: 0
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 5975
+      ff: 2290
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.857
+    - part: xc7a200tfbg484-2
+      clock_ns: 10.0
+      params: {}
+      lut: 5975
+      ff: 2290
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.857
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {}
+      lut: 5975
+      ff: 2290
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.439
+    - part: xc7k325tffg900-2
+      clock_ns: 10.0
+      params: {}
+      lut: 5975
+      ff: 2290
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 6.439
   count_port: sorted_count
   contract_kind: row-stream
   record_words: 2
@@ -915,10 +1299,42 @@ int32-row-predicate-filter:
   golden: dau_core.operators:filter_rows_by_predicate
   bench: dau_core.tests.cocotb_benches.dau_int32_row_predicate_filter_tb
   resources:
-    lut: 703
-    ff: 514
-    bram36: 0.0
-    dsp: 0
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 704
+      ff: 514
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 0.873
+    - part: xc7a200tfbg484-2
+      clock_ns: 10.0
+      params: {}
+      lut: 704
+      ff: 514
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.873
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {}
+      lut: 704
+      ff: 514
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.882
+    - part: xc7k325tffg900-2
+      clock_ns: 10.0
+      params: {}
+      lut: 704
+      ff: 514
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.882
   count_port: selected_count
   contract_kind: row-stream
   record_words: 2
@@ -939,10 +1355,42 @@ int32-row-map-alu:
   golden: dau_core.operators:map_row_fields
   bench: dau_core.tests.cocotb_benches.dau_int32_row_map_alu_tb
   resources:
-    lut: 706
-    ff: 315
-    bram36: 0.0
-    dsp: 4
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 705
+      ff: 315
+      bram36: 0.0
+      dsp: 4
+      timing: met
+      wns_ns: 0.688
+    - part: xc7a200tfbg484-2
+      clock_ns: 10.0
+      params: {}
+      lut: 705
+      ff: 315
+      bram36: 0.0
+      dsp: 4
+      timing: met
+      wns_ns: 2.688
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {}
+      lut: 705
+      ff: 315
+      bram36: 0.0
+      dsp: 4
+      timing: met
+      wns_ns: 2.401
+    - part: xc7k325tffg900-2
+      clock_ns: 10.0
+      params: {}
+      lut: 705
+      ff: 315
+      bram36: 0.0
+      dsp: 4
+      timing: met
+      wns_ns: 4.401
   contract_kind: row-stream
   record_words: 2
   # bench measured 256 rows / 1787 cycles = 6.98 cycles/row (2026-07-31)
@@ -1002,10 +1450,42 @@ int32-field-sum-aggregation:
   golden: dau_core.operators:field_sum_rows
   bench: dau_core.tests.cocotb_benches.dau_int32_field_sum_aggregation_tb
   resources:
-    lut: 621
-    ff: 529
-    bram36: 0.0
-    dsp: 0
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 620
+      ff: 529
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.839
+    - part: xc7a200tfbg484-2
+      clock_ns: 10.0
+      params: {}
+      lut: 620
+      ff: 529
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.839
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {}
+      lut: 620
+      ff: 529
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.278
+    - part: xc7k325tffg900-2
+      clock_ns: 10.0
+      params: {}
+      lut: 620
+      ff: 529
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 7.278
   count_port: aggregated_count
   contract_kind: row-stream
   record_words: 2
@@ -1033,10 +1513,42 @@ int32-grouped-field-sum-aggregation:
   golden: dau_core.operators:grouped_field_sum_rows
   bench: dau_core.tests.cocotb_benches.dau_int32_grouped_field_sum_aggregation_tb
   resources:
-    lut: 804
-    ff: 636
-    bram36: 0.0
-    dsp: 0
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 868
+      ff: 637
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.846
+    - part: xc7a200tfbg484-2
+      clock_ns: 10.0
+      params: {}
+      lut: 868
+      ff: 637
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.846
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {}
+      lut: 868
+      ff: 637
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.285
+    - part: xc7k325tffg900-2
+      clock_ns: 10.0
+      params: {}
+      lut: 868
+      ff: 637
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 7.285
   count_port: group_count
   contract_kind: row-stream
   record_words: 2
@@ -1126,10 +1638,42 @@ int32-stream-aggregation:
   golden: dau_core.operators:aggregate_values
   bench: dau_core.tests.cocotb_benches.dau_int32_stream_aggregation_tb
   resources:
-    lut: 446
-    ff: 400
-    bram36: 0.0
-    dsp: 0
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 414
+      ff: 269
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 1.276
+    - part: xc7a200tfbg484-2
+      clock_ns: 10.0
+      params: {}
+      lut: 414
+      ff: 269
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.276
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {}
+      lut: 414
+      ff: 269
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.545
+    - part: xc7k325tffg900-2
+      clock_ns: 10.0
+      params: {}
+      lut: 414
+      ff: 269
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.545
   contract_kind: arrow-lite-descriptor
   record_words: 1
   ingest:
@@ -1157,10 +1701,42 @@ int32-arrow-lite-stream-aggregation:
   golden: dau_core.operators:aggregate_values
   bench: dau_core.tests.cocotb_benches.dau_int32_arrow_lite_stream_aggregation_tb
   resources:
-    lut: 1874
-    ff: 636
-    bram36: 0.0
-    dsp: 0
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 1359
+      ff: 630
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 1.199
+    - part: xc7a200tfbg484-2
+      clock_ns: 10.0
+      params: {}
+      lut: 1359
+      ff: 630
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.199
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {}
+      lut: 1359
+      ff: 630
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.564
+    - part: xc7k325tffg900-2
+      clock_ns: 10.0
+      params: {}
+      lut: 1359
+      ff: 630
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.564
   contract_kind: row-stream
   record_words: 1
   output_record_words: 17
@@ -1189,10 +1765,42 @@ int32-record-batch-aggregation:
   golden: dau_core.operators:aggregate_values
   bench: dau_core.tests.cocotb_benches.dau_int32_record_batch_aggregation_tb
   resources:
-    lut: 2266
-    ff: 2741
-    bram36: 0.0
-    dsp: 0
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 2015
+      ff: 2740
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 0.766
+    - part: xc7a200tfbg484-2
+      clock_ns: 10.0
+      params: {}
+      lut: 2015
+      ff: 2740
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.766
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {}
+      lut: 2015
+      ff: 2740
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.19
+    - part: xc7k325tffg900-2
+      clock_ns: 10.0
+      params: {}
+      lut: 2015
+      ff: 2740
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.19
   contract_kind: row-stream
   record_words: 1
   output_record_words: 17

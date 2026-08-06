@@ -213,7 +213,7 @@ def test_a_legacy_envelope_is_refused_rather_than_read_as_a_measurement() -> Non
     with pytest.raises(UnmeasuredResourceError, match="no measurement coordinates"):
         # a core still carrying a scalar envelope; migrating this one later is
         # expected to move this assertion, not delete it
-        core("int32-row-predicate-filter").resource_measurement(part="xc7k325tffg900-2", clock_ns=8.0, params={})
+        core("int32-key-membership-filter").resource_measurement(part="xc7k325tffg900-2", clock_ns=8.0, params={})
 
 
 def test_violated_measurement_is_retrievable_but_not_a_usable_envelope() -> None:
@@ -352,6 +352,10 @@ def test_storage_intent_prices_against_declared_parameters() -> None:
         {
             **core("int32-row-predicate-filter").model_dump(),
             "parameters": {"CAPACITY": {"default": 1024, "minimum": 1, "maximum": 16384}},
+            # the borrowed tile's points are keyed by ITS parameters (none);
+            # declaring one here would leave them describing a shape that no
+            # longer exists, which the model rightly refuses
+            "resources": [],
             "storage_intent": [
                 {"role": "arena", "access": "owned", "bytes_per_unit": 4, "scale_parameter": "CAPACITY", "tier_hint": "bram"},
             ],

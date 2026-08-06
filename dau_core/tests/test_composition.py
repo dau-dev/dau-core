@@ -7,6 +7,26 @@ from dau_core.cores import core
 
 _BAR = TileSpec(core="int32-bar-aggregation", config={"cfg_mode": "2'd0", "cfg_row_count": "64'd0"})
 
+# Pricing a measured tile names a board and a clock. These tests price at one
+# coordinate every migrated tile carries a met point for; the Artix at 8 ns is
+# deliberately NOT it, because two map-ALU tiles violate there and refusing to
+# price them is the behaviour under test elsewhere.
+_PART = "xc7k325tffg900-2"
+_CLOCK_NS = 8.0
+
+
+def _priced(spec: ScanCompositionSpec):
+    return estimated_resources(spec, part=_PART, clock_ns=_CLOCK_NS)
+
+
+def _tile_lut(name: str) -> int:
+    """A tile's LUTs at the coordinate above, whichever envelope shape it
+    still carries — the palette is mid-migration, so both exist."""
+    definition = core(name)
+    if isinstance(definition.resources, (list, tuple)):
+        return definition.resource_measurement(part=_PART, clock_ns=_CLOCK_NS, params={}).usable_envelope().lut
+    return definition.resources.lut
+
 
 def _partition(lane: int, lanes: int) -> TileSpec:
     return TileSpec(core="int32-pair-key-filter", config={"cfg_key_mask": f"32'd{lanes - 1}", "cfg_key_match": f"32'd{lane}"})
@@ -36,17 +56,19 @@ def test_core_names_cover_infrastructure_and_lanes() -> None:
 
 
 def test_estimated_resources_scale_with_lanes() -> None:
-    one = estimated_resources(bar_noc_spec(lanes=1))
-    four = estimated_resources(bar_noc_spec(lanes=4))
-    per_lane = core("axi-record-writer").resources.lut + core("int32-pair-key-filter").resources.lut + core("int32-bar-aggregation").resources.lut
+    one = _priced(bar_noc_spec(lanes=1))
+    four = _priced(bar_noc_spec(lanes=4))
+    per_lane = _tile_lut("axi-record-writer") + _tile_lut("int32-pair-key-filter") + _tile_lut("int32-bar-aggregation")
     assert four.lut - one.lut == 3 * per_lane
-    assert four.measured
+    # not fully measured while the axi infra tiles still carry scalar
+    # envelopes -- this flips to True when they migrate, which is the point
+    assert not four.measured
 
 
 def test_single_lane_filterless_scan_is_valid() -> None:
     spec = ScanCompositionSpec(name="bar-scan", lanes=(LaneSpec(tile=_BAR),))
     assert "int32-pair-key-filter" not in spec.core_names()
-    assert estimated_resources(spec).lut > 0
+    assert _priced(spec).lut > 0
 
 
 def _range_partitioner(lanes: int) -> TileSpec:
@@ -90,13 +112,13 @@ def test_shared_partitioner_must_be_operator() -> None:
 
 def test_sorted_scan_resources_use_partitioner_envelope() -> None:
     spec = sorted_scan_spec()
-    envelope = estimated_resources(spec)
-    assert envelope.measured
+    envelope = _priced(spec)
+    assert not envelope.measured  # the axi infra tiles are still scalar
     partitioner = core("int32-range-partitioner").resources
     broadcast = core("stream-broadcast").resources
     assert partitioner is not None and broadcast is not None
     # the partitioner, not the broadcast, is in the sum
-    without = estimated_resources(bar_noc_spec())
+    without = _priced(bar_noc_spec())
     assert envelope.lut != without.lut
 
 
@@ -137,18 +159,17 @@ def test_chain_stages_need_no_status_counter() -> None:
 
 
 def test_chain_resources_are_counted_per_lane() -> None:
-    plain = estimated_resources(bar_noc_spec(lanes=2))
-    chained = estimated_resources(
+    plain = _priced(bar_noc_spec(lanes=2))
+    chained = _priced(
         ScanCompositionSpec(
             name="chained",
             lanes=tuple(LaneSpec(tile=_BAR, partition=_partition(lane, 2), chain=(TileSpec(core="int32-row-map-alu"),)) for lane in range(2)),
         )
     )
-    stage = core("int32-row-map-alu").resources
-    assert stage is not None
+    stage = core("int32-row-map-alu").resource_measurement(part=_PART, clock_ns=_CLOCK_NS, params={}).usable_envelope()
     assert chained.lut - plain.lut == 2 * stage.lut
     assert chained.dsp - plain.dsp == 2 * stage.dsp
-    assert chained.measured
+    assert not chained.measured  # the axi infra tiles are still scalar
 
 
 def test_tile_params_validate_declared_names_and_positive_values() -> None:
@@ -437,9 +458,9 @@ def test_param_less_tiles_are_unchanged_and_price_at_default_size() -> None:
     # envelope is looked up by core name, independent of KEY_SPACE)
     membership = TileSpec(core="int32-key-membership-filter", params={"KEY_SPACE": 6_000_000})
     spec = ScanCompositionSpec(name="q3", lanes=(LaneSpec(tile=_BAR, chain=(membership,)),))
-    priced = estimated_resources(spec)
+    priced = _priced(spec)
     # equals the default-size envelope sum: the param override does not (yet) rescale the estimate
-    default_sized = estimated_resources(
+    default_sized = _priced(
         ScanCompositionSpec(name="q3-default", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-key-membership-filter"),)),))
     )
     assert priced.bram36 == default_sized.bram36
@@ -472,12 +493,12 @@ def test_front_unpack_validates_and_reaches_core_names_and_resources() -> None:
     spec = ScanCompositionSpec(name="bar-noc-packed", lanes=bar_noc_spec().lanes, front_unpack=_front_unpack())
     assert "int32-row-unpack" in spec.core_names()
     # the front unpacker's envelope is added on top of the fan-out shape
-    priced = estimated_resources(spec)
-    without = estimated_resources(bar_noc_spec())
+    priced = _priced(spec)
+    without = _priced(bar_noc_spec())
     unpack = core("int32-row-unpack").resources
     assert unpack is not None
     assert priced.lut - without.lut == unpack.lut
-    assert priced.measured
+    assert not priced.measured  # the axi infra tiles are still scalar
     # it coexists with a shared partitioner too (still one clean-key row into the fan-out)
     partitioned = ScanCompositionSpec(
         name="sorted-scan-packed", lanes=sorted_scan_spec().lanes, partitioner=_range_partitioner(4), front_unpack=_front_unpack()
@@ -496,7 +517,7 @@ def test_front_unpack_less_composition_is_unchanged() -> None:
     spec = bar_noc_spec()
     assert spec.front_unpack is None
     assert "int32-row-unpack" not in spec.core_names()
-    assert estimated_resources(spec) == estimated_resources(bar_noc_spec())
+    assert _priced(spec) == _priced(bar_noc_spec())
 
 
 def test_exactly_one_success_close_out_per_lane_is_enforced() -> None:
@@ -676,7 +697,7 @@ def test_the_wide_lane_shape_composes_and_rate_matches():
     # because the scan infrastructure cores are still on scalar envelopes,
     # which cannot answer for a specific part -- that is the flag doing its
     # job, not a failure to price.
-    priced = estimated_resources(spec, part="xc7k325tffg900-2", clock_ns=8.0)
+    priced = _priced(spec)
     assert priced.lut > 0
     # SLOTS=1 gives the 128-bit tier a full-rate lane with no dispatcher
     narrow = ScanCompositionSpec(
@@ -918,8 +939,8 @@ def test_front_gearbox_reaches_core_names_and_resources() -> None:
         name="geared-scan", lanes=sorted_scan_spec().lanes, data_width=512, partitioner=_record_dispatcher(), front_gearbox=_front_gearbox()
     )
     assert "record-gearbox" in spec.core_names()
-    priced = estimated_resources(spec)
-    without = estimated_resources(
+    priced = _priced(spec)
+    without = _priced(
         ScanCompositionSpec(name="geared-scan", lanes=sorted_scan_spec().lanes, data_width=512, partitioner=_record_dispatcher())
     )
     gearbox = core("record-gearbox").resources
@@ -976,7 +997,7 @@ def test_a_stream_job_composition_declares_its_own_infrastructure() -> None:
 
     # and it is priced: a design that is not priced is a design whose LUT
     # budget is a guess
-    priced = estimated_resources(spec)
+    priced = _priced(spec)
     assert priced.lut > 0
 
 
