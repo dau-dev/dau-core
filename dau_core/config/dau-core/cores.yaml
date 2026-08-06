@@ -404,6 +404,69 @@ int32-hash-grouped-aggregation:
     dau_core.operators.hash_grouped_field_sum_rows.'
   golden: dau_core.operators:hash_grouped_field_sum_rows
   bench: dau_core.tests.cocotb_benches.dau_int32_hash_grouped_aggregation_tb
+  # Measured 2026-08-06 via synthesize-cores at {256, 512, 1024} on both
+  # parts, all met. LUT/FF are nearly flat in CAPACITY (the datapath is one
+  # row and four 64-bit accumulators; only the address/probe counters widen),
+  # while BRAM steps 4.5 -> 9.0 at 1024: the 320-bit slot spans multiple
+  # RAMB36 and the depth crosses their 512-deep boundary. The Artix margin is
+  # the tightest in the palette at +0.410 -- the 320-bit registered read plus
+  # the signed-minimum fold is the critical path, so a wider slot or a deeper
+  # table wants a retime before it closes.
+  resources:
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {CAPACITY: 256}
+      lut: 733
+      ff: 864
+      bram36: 4.5
+      dsp: 0
+      timing: met
+      wns_ns: 0.41
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {CAPACITY: 512}
+      lut: 758
+      ff: 868
+      bram36: 4.5
+      dsp: 0
+      timing: met
+      wns_ns: 0.41
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {CAPACITY: 1024}
+      lut: 846
+      ff: 871
+      bram36: 9.0
+      dsp: 0
+      timing: met
+      wns_ns: 0.413
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {CAPACITY: 256}
+      lut: 733
+      ff: 864
+      bram36: 4.5
+      dsp: 0
+      timing: met
+      wns_ns: 2.736
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {CAPACITY: 512}
+      lut: 757
+      ff: 868
+      bram36: 4.5
+      dsp: 0
+      timing: met
+      wns_ns: 2.736
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {CAPACITY: 1024}
+      lut: 843
+      ff: 868
+      bram36: 9.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.391
   count_port: group_count
   contract_kind: row-stream
   record_words: 2
