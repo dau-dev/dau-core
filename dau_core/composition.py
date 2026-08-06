@@ -748,6 +748,31 @@ def spec_hash(spec: ScanCompositionSpec) -> str:
     return f"{SPEC_CANONICAL_VERSION}:{digest}"
 
 
+def build_id_from_spec_hash(value: str) -> int:
+    """The 64-bit identity a shell advertises for a spec, from that spec's
+    hash: the leading 64 bits of the digest.
+
+    A shell's capability words cannot identify a design. Distinct designs
+    routinely advertise the same lane count, operator bitmap, host-opcode
+    bitmap and sort capacity -- q19-scan and q19-packed-wide are identical
+    across all four -- so a host asking "is the device running the design I
+    flashed" gets a yes from a board running something else. The spec hash
+    distinguishes them by construction, and 64 bits of it fits the identity
+    block's BUILD_ID register pair.
+
+    Truncation is safe for this use. BUILD_ID answers "is this the design I
+    expect", where the alternative is a handful of shells built by the same
+    people, not an adversary searching for a collision; the full hash stays
+    in the manifest for anything stronger. Zero is reserved: an unstamped
+    shell reads back as zero, so the caller must treat it as "not stamped"
+    rather than as a design identity.
+    """
+    digest = value.split(":", 1)[-1]
+    if len(digest) < 16:
+        raise ValueError(f"spec hash {value!r} carries no 64-bit digest prefix")
+    return int(digest[:16], 16)
+
+
 def spec_from_canonical(text: str) -> ScanCompositionSpec:
     """Rebuild a spec from its canonical form. Construction re-validates
     against the registry (kinds, status roles, parameter bounds), so a
