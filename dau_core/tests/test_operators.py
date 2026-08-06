@@ -8,6 +8,7 @@ from dau_core.operators import (
     TOP_K_MAX,
     BarAggregate,
     BroadcastJoinConfig,
+    DispatchMode,
     FieldSumAggregate,
     FilterPredicate,
     GroupAggregate,
@@ -44,6 +45,7 @@ from dau_core.operators import (
     map_row_fields,
     map_rows,
     map_values,
+    mask_dispatch_records,
     mask_dispatch_rows,
     pack_splitters,
     scratchpad_scan,
@@ -402,19 +404,19 @@ def test_exact_branch_dispatch_routes_in_range_and_drops_the_rest() -> None:
     # every out-of-range key (negatives drop via their unsigned image) cost
     # zero lane deliveries; no power-of-two requirement
     rows = [(1, 1, 0, 0), (0, 2, 0, 0), (3, 3, 0, 0), (4, 4, 0, 0), (-1, 5, 0, 0), (2, 6, 0, 0), (0, 7, 0, 0)]
-    parts = mask_dispatch_rows(rows, num_partitions=3, exact_branch=True)
+    parts = mask_dispatch_rows(rows, num_partitions=3, mode=DispatchMode.EXACT_BRANCH)
     assert parts == [[(1, 1, 0, 0)], [(2, 6, 0, 0)], [(3, 3, 0, 0)]]
 
 
 def test_exact_branch_dispatch_preserves_order_within_a_branch() -> None:
     rows = [(2, i, 0, 0) for i in range(5)] + [(0, 99, 0, 0)]
-    parts = mask_dispatch_rows(rows, num_partitions=2, exact_branch=True)
+    parts = mask_dispatch_rows(rows, num_partitions=2, mode=DispatchMode.EXACT_BRANCH)
     assert parts == [[], [(2, i, 0, 0) for i in range(5)]]
 
 
 def test_exact_branch_dispatch_rejects_non_positive_partitions() -> None:
     with pytest.raises(ValueError, match="positive"):
-        mask_dispatch_rows([(1, 2, 3, 4)], num_partitions=0, exact_branch=True)
+        mask_dispatch_rows([(1, 2, 3, 4)], num_partitions=0, mode=DispatchMode.EXACT_BRANCH)
 
 
 def test_stride_distribute_routes_by_static_slot_group() -> None:
@@ -1149,3 +1151,55 @@ def test_sessionize_times_and_keys_live_in_the_int32_domain() -> None:
     sessions, code = sessionize_scan([(0xFFFFFFFF, 0), (-1, 1)], gap=3, capacity=4)
     assert code is SessionErrorCode.OK
     assert sessions == [(-1, 0, 1, 2)]  # one key on a 32-bit wire
+
+
+def test_hash_dispatch_spreads_keys_that_mask_dispatch_collapses() -> None:
+    """Why HASH mode exists: MASK reads the key's LOW bits, so keys sharing
+    a stride land on one lane. The multiplicative hash mixes the whole key
+    into the high bits before the select."""
+    strided = [(key * 4, 0, 0, 0) for key in range(64)]
+    masked = mask_dispatch_rows(strided, num_partitions=4, mode=DispatchMode.MASK)
+    assert [len(part) for part in masked] == [64, 0, 0, 0]  # every row on lane 0
+    hashed = mask_dispatch_rows(strided, num_partitions=4, mode=DispatchMode.HASH)
+    assert all(10 <= len(part) <= 22 for part in hashed), [len(part) for part in hashed]
+    assert sum(len(part) for part in hashed) == len(strided)
+
+
+def test_hash_dispatch_is_a_pinned_function_of_the_key() -> None:
+    """A row's partition is part of the answer, so the constant and the
+    bit-extraction are contract, not implementation. These values are what
+    the HDL must reproduce."""
+    from dau_core.operators import DISPATCH_HASH_MULTIPLIER
+
+    assert DISPATCH_HASH_MULTIPLIER == 0x9E37_79B9
+    for key, expected in ((0, 0), (1, 4), (2, 1), (-1, 3), (7, 2)):
+        (dest,) = [index for index, part in enumerate(mask_dispatch_rows([(key, 0, 0, 0)], num_partitions=8, mode=DispatchMode.HASH)) if part]
+        product = ((key & 0xFFFFFFFF) * DISPATCH_HASH_MULTIPLIER) & 0xFFFFFFFF
+        assert dest == product >> 29 == expected, (key, dest)
+
+
+def test_hash_dispatch_preserves_order_and_drops_nothing() -> None:
+    rows = [(key % 13, index, 0, 0) for index, key in enumerate(range(80))]
+    parts = mask_dispatch_rows(rows, num_partitions=4, mode=DispatchMode.HASH)
+    assert sum(len(part) for part in parts) == len(rows)  # HASH never drops
+    for part in parts:
+        assert [row[1] for row in part] == sorted(row[1] for row in part)
+    # every row of one key lands on one lane
+    for key in range(13):
+        lanes = {index for index, part in enumerate(parts) if any(row[0] == key for row in part)}
+        assert len(lanes) == 1, key
+
+
+def test_hash_dispatch_requires_a_power_of_two() -> None:
+    with pytest.raises(ValueError, match="power of two"):
+        mask_dispatch_rows([(1, 0, 0, 0)], num_partitions=3, mode=DispatchMode.HASH)
+    # a degenerate single partition routes everything to lane 0
+    assert len(mask_dispatch_rows([(5, 0, 0, 0)], num_partitions=1, mode=DispatchMode.HASH)[0]) == 1
+
+
+def test_hash_dispatch_records_agree_with_the_row_form() -> None:
+    rows = [(key * 3 + 1, key, 0, 0) for key in range(50)]
+    by_row = mask_dispatch_rows(rows, num_partitions=8, mode=DispatchMode.HASH)
+    records = [(((row[1] & 0xFFFFFFFF) << 32) | (row[0] & 0xFFFFFFFF), 0) for row in rows]
+    by_record = mask_dispatch_records(records, num_partitions=8, mode=DispatchMode.HASH)
+    assert [len(part) for part in by_row] == [len(part) for part in by_record]

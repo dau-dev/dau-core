@@ -504,8 +504,22 @@ def test_stride_distributor_runs_real_cocotb(tmp_path: Path, in_width: int, num_
 
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+@pytest.mark.parametrize(("in_width", "num_partitions"), [(64, 4), (128, 4), (128, 8)])
+def test_key_mask_dispatcher_hash_runs_real_cocotb(tmp_path: Path, in_width: int, num_partitions: int) -> None:
+    # MODE=HASH: dest = the top log2(N) bits of key * 0x9E3779B9, the mode
+    # for keys the host did not choose (MASK collapses strided keys)
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_KEY_MASK_DISPATCHER_SV)),),
+        hdl_toplevel="dau_int32_key_mask_dispatcher",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_key_mask_dispatcher_hash_tb",
+        tmp_path=tmp_path,
+        parameters={"IN_WIDTH": in_width, "MODE": 2, "NUM_PARTITIONS": num_partitions},
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_key_mask_dispatcher_exact_branch_wide_runs_real_cocotb(tmp_path: Path) -> None:
-    # EXACT_BRANCH=1 at the wide front, NUM_PARTITIONS=3 (no power-of-two):
+    # MODE=EXACT_BRANCH at the wide front, NUM_PARTITIONS=3 (no power-of-two):
     # dest = key - 1, out-of-range keys dropped at the router for zero lane
     # cycles — the q19 disjunct-branch fan-out
     _run_cocotb_verilator(
@@ -513,7 +527,7 @@ def test_key_mask_dispatcher_exact_branch_wide_runs_real_cocotb(tmp_path: Path) 
         hdl_toplevel="dau_int32_key_mask_dispatcher",
         test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_key_mask_dispatcher_exact_tb",
         tmp_path=tmp_path,
-        parameters={"IN_WIDTH": 128, "EXACT_BRANCH": 1, "NUM_PARTITIONS": 3},
+        parameters={"IN_WIDTH": 128, "MODE": 1, "NUM_PARTITIONS": 3},
     )
 
 
@@ -525,7 +539,7 @@ def test_key_mask_dispatcher_exact_branch_narrow_runs_real_cocotb(tmp_path: Path
         hdl_toplevel="dau_int32_key_mask_dispatcher",
         test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_key_mask_dispatcher_exact_tb",
         tmp_path=tmp_path,
-        parameters={"EXACT_BRANCH": 1, "NUM_PARTITIONS": 3},
+        parameters={"MODE": 1, "NUM_PARTITIONS": 3},
     )
 
 

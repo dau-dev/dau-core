@@ -240,25 +240,38 @@ def test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards() ->
     # the effective mask-mode partition count is the LANE count (the walker
     # derives NUM_PARTITIONS from it): three mask-mode lanes are rejected here,
     # not at Vivado elaboration
-    with pytest.raises(CompositionError, match="must be a power of two in mask mode"):
+    with pytest.raises(CompositionError, match="must be a power of two in MASK mode"):
         ScanCompositionSpec(
             name="bad-derived",
             lanes=tuple(LaneSpec(tile=_BAR) for _ in range(3)),
             partitioner=TileSpec(core="int32-key-mask-dispatcher"),
         )
     # the exact-branch mode lifts the power-of-two requirement (q19's three
-    # disjunct branches) — and an explicit EXACT_BRANCH: 0 flag is a legal
-    # enumerated choice, not a "non-positive" parameter
+    # disjunct branches) — and an explicit MODE: 0 is a legal enumerated
+    # choice, not a "non-positive" parameter
     ScanCompositionSpec(
         name="ok-exact",
         lanes=tuple(LaneSpec(tile=_BAR) for _ in range(3)),
-        partitioner=TileSpec(core="int32-key-mask-dispatcher", params={"NUM_PARTITIONS": 3, "EXACT_BRANCH": 1}),
+        partitioner=TileSpec(core="int32-key-mask-dispatcher", params={"NUM_PARTITIONS": 3, "MODE": 1}),
     )
     ScanCompositionSpec(
         name="ok-mask-explicit-flag",
         lanes=tuple(LaneSpec(tile=_BAR) for _ in range(4)),
-        partitioner=TileSpec(core="int32-key-mask-dispatcher", params={"NUM_PARTITIONS": 4, "EXACT_BRANCH": 0}),
+        partitioner=TileSpec(core="int32-key-mask-dispatcher", params={"NUM_PARTITIONS": 4, "MODE": 0}),
     )
+    # HASH keeps the power-of-two requirement: it shifts the product down to
+    # the top log2(N) bits, so a non-power-of-two would index past the lanes
+    ScanCompositionSpec(
+        name="ok-hash",
+        lanes=tuple(LaneSpec(tile=_BAR) for _ in range(4)),
+        partitioner=TileSpec(core="int32-key-mask-dispatcher", params={"NUM_PARTITIONS": 4, "MODE": 2}),
+    )
+    with pytest.raises(CompositionError, match="must be a power of two in HASH mode"):
+        ScanCompositionSpec(
+            name="bad-hash",
+            lanes=tuple(LaneSpec(tile=_BAR) for _ in range(3)),
+            partitioner=TileSpec(core="int32-key-mask-dispatcher", params={"NUM_PARTITIONS": 3, "MODE": 2}),
+        )
 
 
 def test_load_phase_shape_rules() -> None:

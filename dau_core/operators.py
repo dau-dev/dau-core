@@ -798,7 +798,50 @@ def gearbox_records(words: Iterable[int], *, record_words: int, record_count: in
     return [tuple(flat[i * record_words : (i + 1) * record_words]) for i in range(record_count)]
 
 
-def mask_dispatch_records(records: Iterable[Sequence[int]], *, num_partitions: int, exact_branch: bool = False) -> list[list[tuple[int, ...]]]:
+# Knuth's Fibonacci multiplicative-hash constant (2**32 / phi, rounded to
+# odd): the golden and the HDL must use this exact value, since a dispatch
+# key's partition is part of the answer, not an implementation detail.
+DISPATCH_HASH_MULTIPLIER = 0x9E37_79B9
+
+
+class DispatchMode(IntEnum):
+    """How the key-mask dispatcher maps a row's key to a partition. The
+    values ARE the tile's MODE parameter encoding, so the golden and the
+    HDL cannot drift apart silently."""
+
+    MASK = 0  # dest = key & (N - 1): the low key bits (N a power of two)
+    EXACT_BRANCH = 1  # dest = key - 1 for keys in [1, N], others dropped
+    HASH = 2  # dest = top log2(N) bits of key * DISPATCH_HASH_MULTIPLIER
+
+
+def _dispatch_dest(key_u32: int, *, num_partitions: int, mode: DispatchMode) -> int | None:
+    """The partition a key routes to, or ``None`` when the router drops the
+    row. One implementation shared by both golden record shapes."""
+    if mode is DispatchMode.EXACT_BRANCH:
+        if key_u32 == 0 or key_u32 > num_partitions:
+            return None  # dropped at the router, zero lane cycles
+        return key_u32 - 1
+    if mode is DispatchMode.HASH:
+        if num_partitions <= 1:
+            return 0
+        # the low 32 bits of the product, then its TOP log2(N) bits: the
+        # high bits of a multiplicative hash are the well-mixed ones, which
+        # is the whole reason this mode exists where MASK's low bits fail
+        product = (key_u32 * DISPATCH_HASH_MULTIPLIER) & 0xFFFF_FFFF
+        return product >> (32 - (num_partitions - 1).bit_length())
+    return key_u32 & (num_partitions - 1)
+
+
+def _check_dispatch_partitions(num_partitions: int, mode: DispatchMode) -> None:
+    if num_partitions < 1:
+        raise ValueError(f"num_partitions must be positive, got {num_partitions}")
+    if mode is not DispatchMode.EXACT_BRANCH and num_partitions & (num_partitions - 1):
+        raise ValueError(f"num_partitions must be a power of two, got {num_partitions}")
+
+
+def mask_dispatch_records(
+    records: Iterable[Sequence[int]], *, num_partitions: int, mode: DispatchMode = DispatchMode.MASK
+) -> list[list[tuple[int, ...]]]:
     """Golden semantics for the key-mask dispatcher over N-WORD records.
 
     The quad-row form (:func:`mask_dispatch_rows`) routes two 64-bit words
@@ -809,10 +852,7 @@ def mask_dispatch_records(records: Iterable[Sequence[int]], *, num_partitions: i
     the stream. Each record is a sequence of 64-bit words; the routing key
     is ``word0 & 0xFFFFFFFF`` read as a signed 32-bit value, exactly the
     hardware bit-select. Order is preserved within each partition."""
-    if num_partitions < 1:
-        raise ValueError(f"num_partitions must be positive, got {num_partitions}")
-    if not exact_branch and num_partitions & (num_partitions - 1):
-        raise ValueError(f"num_partitions must be a power of two, got {num_partitions}")
+    _check_dispatch_partitions(num_partitions, mode)
     parts: list[list[tuple[int, ...]]] = [[] for _ in range(num_partitions)]
     width = None
     for record in records:
@@ -821,18 +861,14 @@ def mask_dispatch_records(records: Iterable[Sequence[int]], *, num_partitions: i
             width = len(words)
         elif len(words) != width:
             raise ValueError(f"records must all carry the same word count, got {len(words)} after {width}")
-        key = words[0] & 0xFFFF_FFFF
-        if exact_branch:
-            if key == 0 or key > num_partitions:
-                continue  # dropped at the router, zero lane cycles
-            parts[key - 1].append(words)
-        else:
-            parts[key & (num_partitions - 1)].append(words)
+        dest = _dispatch_dest(words[0] & 0xFFFF_FFFF, num_partitions=num_partitions, mode=mode)
+        if dest is not None:
+            parts[dest].append(words)
     return parts
 
 
 def mask_dispatch_rows(
-    rows: Iterable[tuple[int, int, int, int]], *, num_partitions: int, exact_branch: bool = False
+    rows: Iterable[tuple[int, int, int, int]], *, num_partitions: int, mode: DispatchMode = DispatchMode.MASK
 ) -> list[list[tuple[int, int, int, int]]]:
     """Golden semantics for the key-mask dispatcher: route each
     (key, value, aux0, aux1) row to partition ``key & (num_partitions - 1)``
@@ -842,24 +878,29 @@ def mask_dispatch_rows(
     partition (``key & mask == lane``) moved from N per-lane filters into
     one shared router. Returns one ordered list per partition.
 
-    ``exact_branch`` selects the exact-branch-id mode (q19's disjunct
-    branches): partition ``key - 1`` for keys in ``[1, num_partitions]``,
-    every other key **dropped at the router** (branch 0 — and any negative
-    key, whose unsigned 32-bit image exceeds any partition count — costs
-    zero lane cycles). ``num_partitions`` needs no power-of-two."""
-    if num_partitions < 1:
-        raise ValueError(f"num_partitions must be positive, got {num_partitions}")
-    if not exact_branch and num_partitions & (num_partitions - 1):
-        raise ValueError(f"num_partitions must be a power of two, got {num_partitions}")
+    :class:`DispatchMode.EXACT_BRANCH` selects the exact-branch-id mode
+    (q19's disjunct branches): partition ``key - 1`` for keys in
+    ``[1, num_partitions]``, every other key **dropped at the router**
+    (branch 0 — and any negative key, whose unsigned 32-bit image exceeds
+    any partition count — costs zero lane cycles). It needs no
+    power-of-two.
+
+    :class:`DispatchMode.HASH` multiplies the key by
+    :data:`DISPATCH_HASH_MULTIPLIER` and takes the TOP ``log2(N)`` bits of
+    the low-32-bit product. MASK reads the key's LOW bits, so it spreads
+    keys evenly only when those bits already vary — dictionary ids
+    clustered by insertion order, or keys sharing a stride, collapse onto
+    a few lanes. The multiplicative hash mixes the whole key into the high
+    bits before the select, which is what makes it the fan-out for keys
+    the host did not choose. The constant is part of the contract: a
+    row's partition is part of the answer, so the golden and the HDL must
+    compute the identical value."""
+    _check_dispatch_partitions(num_partitions, mode)
     parts: list[list[tuple[int, int, int, int]]] = [[] for _ in range(num_partitions)]
     for row in rows:
-        if exact_branch:
-            key_u32 = _wrap_int32(row[0]) & 0xFFFF_FFFF
-            if not 1 <= key_u32 <= num_partitions:
-                continue
-            parts[key_u32 - 1].append(tuple(row))
-        else:
-            parts[_wrap_int32(row[0]) & (num_partitions - 1)].append(tuple(row))
+        dest = _dispatch_dest(_wrap_int32(row[0]) & 0xFFFF_FFFF, num_partitions=num_partitions, mode=mode)
+        if dest is not None:
+            parts[dest].append(tuple(row))
     return parts
 
 
