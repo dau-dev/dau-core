@@ -768,11 +768,21 @@ int32-key-mask-dispatcher:
     keys sustain the full front rate.'
   golden: dau_core.operators:mask_dispatch_rows
   bench: dau_core.tests.cocotb_benches.dau_int32_key_mask_dispatcher_tb
+  # Still a SCALAR envelope (this core's migration to (part, clock, params)
+  # measured points is open debt). It must therefore report the WORST case
+  # over the parameter space, because a scalar envelope ignores params:
+  # MODE=HASH costs 3 DSPs for the 32x32 multiply where MASK/EXACT_BRANCH
+  # cost none (measured 2026-08-06 at NUM_PARTITIONS=4, IN_WIDTH=128:
+  # MASK 176 LUT / 1049 FF / 0 DSP, HASH 188 / 1049 / 3, both parts met,
+  # WNS +5.359 vs +5.250 on Artix). Under-reporting DSPs would let a
+  # hash-dispatched design price as free and overflow at implementation --
+  # the failure the measured-point discipline exists to prevent -- so the
+  # declared dsp is the hash cost even for mask designs.
   resources:
     lut: 330
     ff: 1124
     bram36: 0.0
-    dsp: 0
+    dsp: 3
   contract_kind: row-stream
   record_words_param: RECORD_WORDS
   # framing-shaped: min(1, IN_WIDTH/128) — 64-bit two-beat framing is 1/2,
