@@ -848,6 +848,20 @@ def test_hash_grouped_aggregation_capacity_eight(tmp_path: Path, monkeypatch: py
 
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_hash_grouped_aggregation_capacity_one(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    # the declared lower bound: slot zero IS the final slot, so the drain's
+    # scan/fold boundary and emit_final coincide
+    monkeypatch.setenv("DAU_HASH_GROUPED_CAPACITY", "1")
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_HASH_GROUPED_AGGREGATION_SV)),),
+        hdl_toplevel="dau_int32_hash_grouped_aggregation",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_hash_grouped_aggregation_tb",
+        tmp_path=tmp_path,
+        parameters={"CAPACITY": 1},
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_session_gap_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
     _run_cocotb_verilator(
         sources=(Path(str(DAU_INT32_SESSION_GAP_SV)),),

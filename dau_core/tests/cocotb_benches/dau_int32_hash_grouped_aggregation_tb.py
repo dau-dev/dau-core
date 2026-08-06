@@ -32,7 +32,15 @@ _ROWS = [
 _MASK = 0b1010  # SUM(value) + SUM(aux1) per group
 
 
-@cocotb.test()
+def _needs_slots(count: int) -> bool:
+    """Skip predicate for cases whose POINT is holding several groups at
+    once: at a table too small for them the case would test the overflow
+    path instead, which its own case already covers. Weakening the fixture
+    to fit would weaken it at the default capacity too."""
+    return CAPACITY < count
+
+
+@cocotb.test(skip=_needs_slots(3))
 async def hash_grouped_matches_golden(dut):
     await _start(dut)
     words, code = await _run(dut, _ROWS, field_mask=_MASK)
@@ -42,7 +50,7 @@ async def hash_grouped_matches_golden(dut):
     assert len(expected) == 3  # one record per distinct key, not per run
 
 
-@cocotb.test()
+@cocotb.test(skip=_needs_slots(3))
 async def hash_grouped_is_permutation_invariant(dut):
     """The property the ordered tile cannot have: the answer does not
     depend on arrival order."""
@@ -57,7 +65,7 @@ async def hash_grouped_is_permutation_invariant(dut):
         assert words == reference
 
 
-@cocotb.test()
+@cocotb.test(skip=_needs_slots(6))
 async def hash_grouped_drain_is_signed_key_ascending(dut):
     await _start(dut)
     rows = [(key, key * 10, 0, 0) for key in (9, -9, 0, 2147483647, -2147483648, 3)]
@@ -68,7 +76,7 @@ async def hash_grouped_drain_is_signed_key_ascending(dut):
     assert words == _record_words(expected)
 
 
-@cocotb.test()
+@cocotb.test(skip=_needs_slots(2))
 async def hash_grouped_all_four_fields(dut):
     await _start(dut)
     rows = [(2, 5, 7, 11), (-4, 13, 17, 19), (2, -23, 29, -31)]
@@ -86,8 +94,11 @@ async def hash_grouped_colliding_keys_probe_correctly(dut):
     must keep them distinct."""
     await _start(dut)
     rows = [(0, 1, 0, 0), (CAPACITY, 2, 0, 0), (2 * CAPACITY, 4, 0, 0), (CAPACITY, 8, 0, 0)]
-    words, code = await _run(dut, rows, field_mask=0b0010)
     expected, expected_code = hash_grouped_field_sum_rows(rows, field_mask=0b0010, capacity=CAPACITY)
+    # at CAPACITY 1 or 2 these congruent keys legitimately overflow; the
+    # golden decides, so the same case runs at every legal capacity
+    overflows = expected_code is not HashGroupedErrorCode.OK
+    words, code = await _run(dut, rows, field_mask=0b0010, expect_error=overflows)
     assert code is expected_code
     assert words == _record_words(expected)
 
@@ -95,13 +106,47 @@ async def hash_grouped_colliding_keys_probe_correctly(dut):
 @cocotb.test()
 async def hash_grouped_overflow_is_a_defined_close_out(dut):
     """A new key with the table full invalidates the batch — never an
-    eviction, never a silent drop."""
+    eviction, never a silent drop, and never a partial the host could
+    double-count against its own re-run."""
     await _start(dut)
     rows = [(key, 1, 0, 0) for key in range(CAPACITY + 1)]
     words, code = await _run(dut, rows, field_mask=0b0010, expect_error=True)
-    assert code is HashGroupedErrorCode.GROUP_CAPACITY_EXCEEDED
-    assert words == []  # an error close-out invalidates the batch's records
+    expected, expected_code = hash_grouped_field_sum_rows(rows, field_mask=0b0010, capacity=CAPACITY)
+    assert code is expected_code is HashGroupedErrorCode.GROUP_CAPACITY_EXCEEDED
+    assert words == _record_words(expected) == []
     assert int(dut.group_count.value) == 0
+
+
+@cocotb.test(skip=_needs_slots(3))
+async def hash_grouped_overflow_mid_batch_drains_and_recovers(dut):
+    """Overflow NOT on the final row exercises the DISCARD path: the rest
+    of the batch is consumed, one error close-out is raised, and the NEXT
+    batch starts from clean state."""
+    await _start(dut)
+    overflowing = [(key, 1, 0, 0) for key in range(CAPACITY + 1)] + [(0, 99, 0, 0)] * 3
+    words, code = await _run(dut, overflowing, field_mask=0b0010, expect_error=True)
+    assert code is HashGroupedErrorCode.GROUP_CAPACITY_EXCEEDED and words == []
+    follow, follow_code = await _run(dut, _ROWS, field_mask=_MASK)
+    expected, _ = hash_grouped_field_sum_rows(_ROWS, field_mask=_MASK, capacity=CAPACITY)
+    assert follow_code is HashGroupedErrorCode.OK
+    assert follow == _record_words(expected)  # no leak from the failed batch
+
+
+@cocotb.test(skip=_needs_slots(3))
+async def hash_grouped_reports_group_count_and_one_close_out(dut):
+    """group_count reads the batch's emitted groups, and exactly one
+    close-out is raised — checked by stalling status_ready first, so a
+    tile that dropped or repeated it would fail here."""
+    await _start(dut)
+    words, code = await _run(dut, _ROWS, field_mask=_MASK, hold_status=6)
+    expected, _ = hash_grouped_field_sum_rows(_ROWS, field_mask=_MASK, capacity=CAPACITY)
+    assert code is HashGroupedErrorCode.OK
+    assert words == _record_words(expected)
+    assert int(dut.group_count.value) == len(expected)
+    # no second close-out follows the accepted one
+    for _ in range(32):
+        await RisingEdge(dut.clk)
+        assert int(dut.status_valid.value) == 0, "a second close-out was raised"
 
 
 @cocotb.test()
@@ -114,7 +159,7 @@ async def hash_grouped_full_table_without_a_new_key_succeeds(dut):
     assert words == _record_words(expected)
 
 
-@cocotb.test()
+@cocotb.test(skip=_needs_slots(3))
 async def hash_grouped_state_is_fresh_per_batch(dut):
     await _start(dut)
     first, _ = await _run(dut, _ROWS, field_mask=_MASK)
@@ -125,7 +170,7 @@ async def hash_grouped_state_is_fresh_per_batch(dut):
     assert await _run(dut, _ROWS, field_mask=_MASK) == (first, HashGroupedErrorCode.OK)
 
 
-@cocotb.test()
+@cocotb.test(skip=_needs_slots(3))
 async def hash_grouped_bad_configuration_is_refused(dut):
     await _start(dut)
     words, code = await _run(dut, _ROWS, field_mask=0, expect_error=True)
@@ -184,14 +229,14 @@ async def _start(dut) -> None:
     await RisingEdge(dut.clk)
 
 
-async def _run(dut, rows, *, field_mask: int, delay_seed=None, expect_error: bool = False):
+async def _run(dut, rows, *, field_mask: int, delay_seed=None, expect_error: bool = False, hold_status: int = 0):
     dut.cfg_field_mask.value = field_mask
     gap = random.Random(delay_seed).randint if delay_seed is not None else None
     stall = random.Random((delay_seed or 0) + 100).randint if delay_seed is not None else None
     send = cocotb.start_soon(_send_words(dut, _pack_rows(rows), gap=gap))
     words = await _collect_output(dut, stall=stall, expect_error=expect_error)
     await send
-    error, code = await _accept_status(dut)
+    error, code = await _accept_status(dut, hold=hold_status)
     return words, HashGroupedErrorCode(code) if error else HashGroupedErrorCode.OK
 
 
@@ -254,7 +299,23 @@ async def _collect_output(dut, *, stall=None, expect_error: bool = False) -> lis
     raise AssertionError("timed out collecting group records")
 
 
-async def _accept_status(dut):
+async def _accept_status(dut, *, hold: int = 0):
+    """Accept the close-out. ``hold`` keeps status_ready low for N cycles
+    once status_valid asserts, checking the status channel obeys the same
+    hold rule as the data channel."""
+    dut.status_ready.value = 0
+    if hold:
+        held = None
+        for _ in range(8 * CAPACITY + 512):
+            if int(dut.status_valid.value) == 1:
+                held = (int(dut.status_error.value), int(dut.status_error_code.value))
+                break
+            await RisingEdge(dut.clk)
+        assert held is not None, "timed out waiting for the close-out to assert"
+        for _ in range(hold):
+            await RisingEdge(dut.clk)
+            assert int(dut.status_valid.value) == 1, "status_valid dropped while stalled"
+            assert (int(dut.status_error.value), int(dut.status_error_code.value)) == held, "close-out changed while stalled"
     dut.status_ready.value = 1
     for _ in range(8 * CAPACITY + 512):
         if int(dut.status_valid.value) == 1:

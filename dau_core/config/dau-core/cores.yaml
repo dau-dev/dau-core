@@ -470,17 +470,29 @@ int32-hash-grouped-aggregation:
   count_port: group_count
   contract_kind: row-stream
   record_words: 2
+  # SUM + COUNT over INT32 inputs, per group — the same advertisement the
+  # ordered sibling makes, so a composition built only from this tile is
+  # discoverable by the planner rather than reporting an empty bitmap
+  opcodes:
+  - 3
+  - 4
+  opcode_input_types:
+  - 12
+  unit_kind: aggregation
   # the mask selects how many sum words ride each record (key + 1..4 sums +
   # count), exactly like the ordered tile
   output_record_words_variable: true
-  # a row costs 2 input beats + 2 probe cycles at probe depth 1 (2p+2); the
-  # declared floor states the assumption the way keyed-state does. The
-  # adversarial worst case is 2*CAPACITY+2 cycles for a row whose key
-  # collides through the whole table, and the key-ascending DRAIN is
-  # O(CAPACITY x live groups) paid once per batch at close-out — outside
-  # the per-row floor, like every other terminal's record emission.
   ingest:
     rows: 1
+    # the zero-collision cadence: W0+W1+PROBE+JUDGE = 4 cycles/row.
+    # Acceptance for probe depth p is 2p+2, so the STATED ASSUMPTION is
+    # hash-distributed keys at low load factor (p ~= 1); two resident keys
+    # congruent modulo CAPACITY already cost 6, and adversarial congruent
+    # fills degrade to 1/(2*CAPACITY+2) — a planner-regime concern per the
+    # IngestRate doctrine, visible here rather than hidden behind a padded
+    # number (the keyed-state precedent). The key-ascending DRAIN is a
+    # further O(CAPACITY x live groups) paid once per batch at close-out,
+    # outside the per-row cadence like every terminal's record emission.
     per_cycles: 4
   success_close_out: true
   parameters:
