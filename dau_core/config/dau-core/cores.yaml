@@ -380,6 +380,57 @@ int32-record-gather:
       default: 1
       maximum: 8
 
+int32-hash-grouped-aggregation:
+  _target_: dau_core.cores.CoreDefinition
+  name: int32-hash-grouped-aggregation
+  kind: operator
+  module: dau_int32_hash_grouped_aggregation
+  source: dau_int32_hash_grouped_aggregation.sv
+  description: 'Hash-mode grouped field-sum aggregation over quad rows: one INT64 accumulator set per DISTINCT key
+    in a CAPACITY-slot table, drained signed-key ASCENDING at close-out. Where int32-grouped-field-sum-aggregation
+    groups CONSECUTIVE equal keys — needing the staged table pre-sorted on the group key, and opening a second
+    partial whenever a key reappears — this tile holds per-key state, so input order does not matter and a key may
+    reappear anywhere in the batch: one record per distinct key, always. That removes the sorted_by_key staging
+    precondition from every grouped scan. Hash (low key bits) + linear probe over a {sums[3:0], count, key} BRAM
+    with a separate valid array; deliberately SEQUENTIAL (one row in flight), so no read-modify-write hazard
+    exists. All four field sums accumulate unconditionally — the accumulate path is config-free and cfg_field_mask
+    selects only which sums the drain emits, so the record shape matches the ordered tile word-for-word (shared
+    host decode). The ascending drain is a CONTRACT, not an implementation detail: a hash table has no intrinsic
+    order, so leaking probe order would make results depend on the hash function. Overflow (a new key with the
+    table full) is GROUP_CAPACITY_EXCEEDED and invalidates the batch — never an eviction; the host recovers by
+    key-range split and merge (dau_core.operators.merge_hash_grouped is exact because INT64 sums and counts are
+    additive per key). State is fresh per batch: the CLEAR sweep runs from both reset and close-out. A zero mask
+    is BAD_FIELD_MASK; input_last on a quad row w0 is BAD_STREAM. Matches
+    dau_core.operators.hash_grouped_field_sum_rows.'
+  golden: dau_core.operators:hash_grouped_field_sum_rows
+  bench: dau_core.tests.cocotb_benches.dau_int32_hash_grouped_aggregation_tb
+  count_port: group_count
+  contract_kind: row-stream
+  record_words: 2
+  # the mask selects how many sum words ride each record (key + 1..4 sums +
+  # count), exactly like the ordered tile
+  output_record_words_variable: true
+  # a row costs 2 input beats + 2 probe cycles at probe depth 1 (2p+2); the
+  # declared floor states the assumption the way keyed-state does. The
+  # adversarial worst case is 2*CAPACITY+2 cycles for a row whose key
+  # collides through the whole table, and the key-ascending DRAIN is
+  # O(CAPACITY x live groups) paid once per batch at close-out — outside
+  # the per-row floor, like every other terminal's record emission.
+  ingest:
+    rows: 1
+    per_cycles: 4
+  success_close_out: true
+  parameters:
+    CAPACITY:
+      default: 512
+      maximum: 1024
+  storage_intent:
+    - role: group_table
+      access: owned
+      bytes_per_unit: 40
+      scale_parameter: CAPACITY
+      tier_hint: bram
+
 int32-streaming-top-k:
   _target_: dau_core.cores.CoreDefinition
   name: int32-streaming-top-k
