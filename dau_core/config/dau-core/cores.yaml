@@ -404,69 +404,77 @@ int32-hash-grouped-aggregation:
     dau_core.operators.hash_grouped_field_sum_rows.'
   golden: dau_core.operators:hash_grouped_field_sum_rows
   bench: dau_core.tests.cocotb_benches.dau_int32_hash_grouped_aggregation_tb
-  # Measured 2026-08-06 via synthesize-cores at {256, 512, 1024} on both
-  # parts, all met. LUT/FF are nearly flat in CAPACITY (the datapath is one
-  # row and four 64-bit accumulators; only the address/probe counters widen),
-  # while BRAM steps 4.5 -> 9.0 at 1024: the 320-bit slot spans multiple
-  # RAMB36 and the depth crosses their 512-deep boundary. The Artix margin is
-  # the tightest in the palette at +0.410 -- the 320-bit registered read plus
-  # the signed-minimum fold is the critical path, so a wider slot or a deeper
-  # table wants a retime before it closes.
+  # Measured 2026-08-06 after the JUDGE/ACCUM retime, replacing the points
+  # for the pre-ACCUM netlist -- those measured +0.410 out of context and
+  # then MISSED composed timing at -0.348, and splitting the accumulate
+  # changed the netlist they described.
+  #
+  # The retime bought 1.6 ns on the Artix (+0.413 -> +2.027 at CAPACITY
+  # 1024), which moves the tile out of the band where an out-of-context
+  # margin says nothing about a composed build. It cost 285 FF -- the
+  # latched base is 4x64 sums plus a 32-bit count, and 288 bits is what that
+  # is -- and about 60 LUT. Area for a whole nanosecond of slack.
+  #
+  # LUT/FF stay nearly flat in CAPACITY (the datapath is one row and four
+  # 64-bit accumulators; only the address and probe counters widen), while
+  # BRAM steps 4.5 -> 9.0 at 1024: the 320-bit slot spans multiple RAMB36
+  # and the depth crosses their 512-deep boundary. The two parts synthesize
+  # identically here; only the slack differs.
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
       params: {CAPACITY: 256}
-      lut: 733
-      ff: 864
+      lut: 834
+      ff: 1148
       bram36: 4.5
       dsp: 0
       timing: met
-      wns_ns: 0.41
+      wns_ns: 2.035
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
       params: {CAPACITY: 512}
-      lut: 758
-      ff: 868
+      lut: 883
+      ff: 1152
       bram36: 4.5
       dsp: 0
       timing: met
-      wns_ns: 0.41
+      wns_ns: 2.048
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
       params: {CAPACITY: 1024}
-      lut: 846
-      ff: 871
+      lut: 905
+      ff: 1156
       bram36: 9.0
       dsp: 0
       timing: met
-      wns_ns: 0.413
+      wns_ns: 2.027
     - part: xc7k325tffg900-2
       clock_ns: 8.0
       params: {CAPACITY: 256}
-      lut: 733
-      ff: 864
+      lut: 834
+      ff: 1148
       bram36: 4.5
       dsp: 0
       timing: met
-      wns_ns: 2.736
+      wns_ns: 3.498
     - part: xc7k325tffg900-2
       clock_ns: 8.0
       params: {CAPACITY: 512}
-      lut: 757
-      ff: 868
+      lut: 883
+      ff: 1152
       bram36: 4.5
       dsp: 0
       timing: met
-      wns_ns: 2.736
+      wns_ns: 3.499
     - part: xc7k325tffg900-2
       clock_ns: 8.0
       params: {CAPACITY: 1024}
-      lut: 843
-      ff: 868
+      lut: 905
+      ff: 1156
       bram36: 9.0
       dsp: 0
       timing: met
-      wns_ns: 2.391
+      wns_ns: 3.49
   count_port: group_count
   contract_kind: row-stream
   record_words: 2
@@ -484,16 +492,18 @@ int32-hash-grouped-aggregation:
   output_record_words_variable: true
   ingest:
     rows: 1
-    # the zero-collision cadence: W0+W1+PROBE+JUDGE = 4 cycles/row.
-    # Acceptance for probe depth p is 2p+2, so the STATED ASSUMPTION is
+    # the zero-collision cadence: W0+W1+PROBE+JUDGE+ACCUM = 5 cycles/row.
+    # ACCUM is the retime that closes composed timing — the base select and
+    # the four 64-bit adds no longer share a cycle with the BRAM write.
+    # Acceptance for probe depth p is 2p+3, so the STATED ASSUMPTION is
     # hash-distributed keys at low load factor (p ~= 1); two resident keys
-    # congruent modulo CAPACITY already cost 6, and adversarial congruent
-    # fills degrade to 1/(2*CAPACITY+2) — a planner-regime concern per the
+    # congruent modulo CAPACITY already cost 7, and adversarial congruent
+    # fills degrade to 1/(2*CAPACITY+3) — a planner-regime concern per the
     # IngestRate doctrine, visible here rather than hidden behind a padded
     # number (the keyed-state precedent). The key-ascending DRAIN is a
     # further O(CAPACITY x live groups) paid once per batch at close-out,
     # outside the per-row cadence like every terminal's record emission.
-    per_cycles: 4
+    per_cycles: 5
   success_close_out: true
   parameters:
     CAPACITY:
