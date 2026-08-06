@@ -1533,9 +1533,9 @@ int32-scratchpad:
   module: dau_int32_scratchpad
   source: dau_int32_scratchpad.sv
   description: 'Owned-arena scratchpad: the deliberately trivial consumer of the
-    owned storage class (STORAGE_AND_NOC.md phase 1). A granted word arena
-    behind a host-written config port an allocator tile drives later; overflow
-    at the grant boundary is a defined STORAGE_OVERFLOW close-out preserving
+    owned storage class (STORAGE_AND_NOC.md). A granted word arena behind a
+    host-written config port an allocator tile drives later; overflow at the
+    grant boundary is a defined STORAGE_OVERFLOW close-out preserving
     emitted rows. Two words in per row {value,addr}/{we}, one word out
     {post_op_value,addr}. The interface keyed state consumes next.'
   golden: dau_core.operators:scratchpad_scan
@@ -1654,14 +1654,15 @@ int32-session-gap:
   kind: operator
   module: dau_int32_session_gap
   source: dau_int32_session_gap.sv
-  description: 'Session-gap tile: step 2 of the stateful programme, the
-    Nexmark-Q11 shape. Per-key sessions over time-ordered {time,key} rows: a
-    row past its key''s last time by more than cfg_gap closes the old session
+  description: 'Session-gap tile: the Nexmark-Q11 shape over bounded keyed
+    state (STORAGE_AND_NOC.md). Per-key sessions over time-ordered {time,key}
+    rows: a row past its key''s last time by more than cfg_gap closes the
+    old session
     (emitted immediately, arrival order, two words {start,key}/{count,last})
     and opens a new one; batch end drains open sessions SORTED BY SIGNED KEY
     via repeated minimum extraction, so no hash placement leaks into the
     contract. Processing-order scope: a time running backwards is TIME_ORDER,
-    refused, never reordered -- watermarks are the next programme step.
+    refused, never reordered -- event time and watermarks are out of scope.
     Composes the keyed-state table pattern (hash + linear probe, sequential,
     grant bounds distinct keys). Error close-outs preserve emitted sessions
     and skip the drain.'

@@ -1,9 +1,9 @@
 `default_nettype none
 
 // Scratchpad owned-arena tile: the deliberately trivial consumer of the OWNED
-// storage class (STORAGE_AND_NOC.md phase 1). A private word-addressed BRAM
-// arena behind a runtime GRANT; each row either writes a word or reads one,
-// and emits the post-op value. Matches dau_core.operators.scratchpad_scan
+// storage class (STORAGE_AND_NOC.md). A private word-addressed BRAM arena
+// behind a runtime GRANT; each row either writes a word or reads one, and
+// emits the post-op value. Matches dau_core.operators.scratchpad_scan
 // bit-for-bit. The contract under test is the grant, not the arithmetic: an
 // address at or past cfg_granted_words closes the batch out with
 // STORAGE_OVERFLOW — the defined error a grow-request replaces when the

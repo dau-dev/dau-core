@@ -204,9 +204,6 @@ async def constrained_random_batches_match_golden(dut):
         assert out == map_row_fields(rows, config), f"trial {trial}: rows={rows} config={config}"
 
 
-# ---- helpers ----
-
-
 def _signed32(value: int) -> int:
     value &= _MASK32
     return value - (1 << 32) if value >= (1 << 31) else value

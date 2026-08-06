@@ -138,9 +138,6 @@ async def randomized_jobs_match_golden(dut):
         assert flattened == sort_bar_rows_by_key(rows)
 
 
-# ---- helpers ----
-
-
 async def _start(dut) -> None:
     clock = Clock(dut.clk, 10, unit="ns")
     cocotb.start_soon(clock.start(start_high=False))
