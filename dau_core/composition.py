@@ -647,15 +647,20 @@ def throughput_rows_per_cycle(spec: ScanCompositionSpec, *, stage_pass_fractions
 def estimated_resources(spec: ScanCompositionSpec, *, part: str | None = None, clock_ns: float | None = None) -> ResourceEnvelope:
     """Sum resource envelopes for every instance the composition places.
 
-    Legacy scalar envelopes remain priceable for compatibility. A core with
-    measurement points requires an exact ``part``, ``clock_ns``, and effective
-    module-parameter match; an absent coordinate, an unmeasured tuple, or a
-    timing violation raises instead of returning a plausible-looking number.
-    Refusal is intentional: a marker could be dropped by a numeric consumer,
-    recreating the silent cross-part fallback this API must prevent.
+    Cores carry resources in one of two shapes, and the difference is
+    visible in the result rather than hidden:
 
-    Until their registry entries are migrated, legacy parameterized envelopes
-    retain their existing lower-bound behavior for non-default overrides.
+    * **Measurement points** are keyed by ``part``, ``clock_ns`` and module
+      parameters. Pricing one requires all three, and an absent coordinate,
+      an unmeasured tuple, or a timing violation RAISES rather than
+      returning a plausible-looking number. Refusal is intentional: a
+      marker could be dropped by a numeric consumer, recreating the silent
+      cross-part fallback this API exists to prevent.
+    * **Scalar envelopes** describe one shape and are not keyed at all.
+      They stay priceable, but a composition that includes one cannot claim
+      to be measured for a requested part, so ``measured`` on the result is
+      ``False`` whenever a ``part`` or ``clock_ns`` was asked for. Read
+      that flag before treating an estimate as a board-specific budget.
     """
     lut = ff = dsp = 0
     bram = 0.0
@@ -669,7 +674,14 @@ def estimated_resources(spec: ScanCompositionSpec, *, part: str | None = None, c
             measured = False
             return
         if isinstance(resources, ResourceEnvelope):
+            # a scalar envelope is not keyed by part, clock or parameters, so
+            # it cannot answer "what does this cost on THIS board". Pricing
+            # against it is still useful, but the result must not claim to be
+            # measured for the requested part -- that claim is what let an
+            # Artix number price a Kintex build while reporting measured=True.
             envelope = resources
+            if part is not None or clock_ns is not None:
+                measured = False
         else:
             if part is None or clock_ns is None:
                 missing = ", ".join(name for name, value in (("part", part), ("clock_ns", clock_ns)) if value is None)
