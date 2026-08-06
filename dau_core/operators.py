@@ -1437,12 +1437,15 @@ HASH_GROUPED_MAX_GROUPS = 1024
 
 
 class HashGroupedErrorCode(IntEnum):
-    """Status codes for the hash-mode grouped field-sum aggregation tile."""
+    """Status codes for the hash-mode grouped field-sum aggregation tile.
+    The values ARE the tile's ``status_error_code`` wire encoding, so the
+    golden and the HDL cannot drift apart silently."""
 
     OK = 0
     BAD_CAPACITY = 1  # declared capacity outside [1, HASH_GROUPED_MAX_GROUPS]
     BAD_FIELD_MASK = 2  # a zero mask (an unconfigured tile) or one past the four fields
     GROUP_CAPACITY_EXCEEDED = 3  # a new group key arrived with the table full
+    BAD_STREAM = 4  # hardware only: a torn row (input_last on a quad row's w0)
 
 
 @dataclass(frozen=True)

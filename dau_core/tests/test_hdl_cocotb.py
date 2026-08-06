@@ -21,6 +21,7 @@ from dau_core.hdl import (
     DAU_INT32_GROUPED_AGGREGATION_SV,
     DAU_INT32_GROUPED_FIELD_AGGREGATION_SV,
     DAU_INT32_GROUPED_FIELD_SUM_AGGREGATION_SV,
+    DAU_INT32_HASH_GROUPED_AGGREGATION_SV,
     DAU_INT32_KEY_MASK_DISPATCHER_SV,
     DAU_INT32_KEY_MEMBERSHIP_FILTER_SV,
     DAU_INT32_KEYED_MAP_ALU_SV,
@@ -818,6 +819,29 @@ def test_keyed_state_capacity_eight(tmp_path: Path, monkeypatch: pytest.MonkeyPa
         sources=(Path(str(DAU_INT32_KEYED_STATE_SV)),),
         hdl_toplevel="dau_int32_keyed_state",
         test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_keyed_state_tb",
+        tmp_path=tmp_path,
+        parameters={"CAPACITY": 8},
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_hash_grouped_aggregation_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_HASH_GROUPED_AGGREGATION_SV)),),
+        hdl_toplevel="dau_int32_hash_grouped_aggregation",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_hash_grouped_aggregation_tb",
+        tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_hash_grouped_aggregation_capacity_eight(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    # a tiny table: collisions, the overflow boundary, and a short drain scan
+    monkeypatch.setenv("DAU_HASH_GROUPED_CAPACITY", "8")
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_HASH_GROUPED_AGGREGATION_SV)),),
+        hdl_toplevel="dau_int32_hash_grouped_aggregation",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_hash_grouped_aggregation_tb",
         tmp_path=tmp_path,
         parameters={"CAPACITY": 8},
     )
