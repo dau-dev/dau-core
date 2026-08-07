@@ -207,7 +207,9 @@ class StreamJobRegisterContract:
 class RegisterBlockSnapshot:
     register_map_version: RegisterMapVersion = field(default_factory=lambda: CURRENT_REGISTER_MAP_VERSION)
     stream_protocol_version: StreamProtocolVersion = field(default_factory=lambda: StreamProtocolVersion(0, 1))
-    platform_id: str = "DPV1"
+    # empty means NOT ADVERTISED; a default board here would let an
+    # unidentified device be priced and constrained as that board
+    platform_id: str = ""
     build_id: int = 0
     status: int = 0
     operator_bitmap: int = 0
@@ -230,7 +232,11 @@ class RegisterBlockSnapshot:
     sort_capacity: int = 0
 
     def __post_init__(self) -> None:
-        platform_id_to_u32(self.platform_id)
+        # "" is the NOT-ADVERTISED sentinel: a board that identifies itself
+        # as nothing must stay nothing, because the alternative -- defaulting
+        # to a board -- reported a dead aperture as a working Artix
+        if self.platform_id:
+            platform_id_to_u32(self.platform_id)
         for name in (
             "status",
             "operator_bitmap",
@@ -262,7 +268,7 @@ class RegisterBlockSnapshot:
             RegisterOffset.MAGIC: DAU_MAGIC_WORD,
             RegisterOffset.REGISTER_MAP_VERSION: self.register_map_version.to_u32(),
             RegisterOffset.STREAM_PROTOCOL_VERSION: self.stream_protocol_version.to_u32(),
-            RegisterOffset.PLATFORM_ID: platform_id_to_u32(self.platform_id),
+            RegisterOffset.PLATFORM_ID: platform_id_to_u32(self.platform_id) if self.platform_id else 0,
             RegisterOffset.BUILD_ID_LOW: _low_u32(self.build_id),
             RegisterOffset.BUILD_ID_HIGH: _high_u32(self.build_id),
             RegisterOffset.STATUS: self.status,
