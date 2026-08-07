@@ -1301,7 +1301,7 @@ int32-row-predicate-filter:
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {}
+      params: {FIELD_WIDTH: 32}
       lut: 704
       ff: 514
       bram36: 0.0
@@ -1310,7 +1310,7 @@ int32-row-predicate-filter:
       wns_ns: 0.873
     - part: xc7a200tfbg484-2
       clock_ns: 10.0
-      params: {}
+      params: {FIELD_WIDTH: 32}
       lut: 704
       ff: 514
       bram36: 0.0
@@ -1319,7 +1319,7 @@ int32-row-predicate-filter:
       wns_ns: 2.873
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {}
+      params: {FIELD_WIDTH: 32}
       lut: 704
       ff: 514
       bram36: 0.0
@@ -1328,7 +1328,7 @@ int32-row-predicate-filter:
       wns_ns: 2.882
     - part: xc7k325tffg900-2
       clock_ns: 10.0
-      params: {}
+      params: {FIELD_WIDTH: 32}
       lut: 704
       ff: 514
       bram36: 0.0
@@ -1341,7 +1341,10 @@ int32-row-predicate-filter:
   ingest:
     rows: 1
     per_cycles: 2
-
+  parameters:
+    FIELD_WIDTH:
+      default: 32
+      choices: [16, 32, 64]
 int32-row-map-alu:
   _target_: dau_core.cores.CoreDefinition
   name: int32-row-map-alu
