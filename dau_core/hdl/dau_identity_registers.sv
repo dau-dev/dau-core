@@ -7,10 +7,8 @@ module dau_identity_registers #(
     parameter logic [31:0] REGISTER_MAP_VERSION = 32'h0000_0002,
     parameter logic [31:0] STREAM_PROTOCOL_VERSION = 32'h0000_0001,
     parameter logic [31:0] PLATFORM_ID = 32'h3156_5044,
-    parameter logic [31:0] SHELL_VERSION = 32'h0000_0000,
     parameter logic [63:0] BUILD_ID = 64'h0000_0000_0000_0000,
     parameter logic [31:0] STATUS = 32'h0000_0000,
-    parameter logic [31:0] DMA_CONSTRAINTS = 32'h0000_0000,
     parameter logic [31:0] OPERATOR_BITMAP = 32'h0000_0000,
     parameter logic [31:0] LANE_COUNT = 32'h0000_0000,
     parameter logic [31:0] HOST_OPCODE_BITMAP = 32'h0000_0000,
@@ -35,12 +33,10 @@ module dau_identity_registers #(
         (addr == 16'h0004) ? REGISTER_MAP_VERSION :
         (addr == 16'h0008) ? STREAM_PROTOCOL_VERSION :
         (addr == 16'h000c) ? PLATFORM_ID :
-        (addr == 16'h0010) ? SHELL_VERSION :
         (addr == 16'h0014) ? BUILD_ID[31:0] :
         (addr == 16'h0018) ? BUILD_ID[63:32] :
         (addr == 16'h001c) ? STATUS :
         (addr == 16'h0020) ? 32'h0000_0000 :
-        (addr == 16'h0024) ? DMA_CONSTRAINTS :
         (addr == 16'h0028) ? OPERATOR_BITMAP :
         (addr == 16'h002c) ? LAST_ERROR :
         (addr == 16'h0030) ? H2C_BYTES[31:0] :
