@@ -525,9 +525,6 @@ async def bypass_torn_row_reports_error_under_backpressure(dut):
     assert await _run_bypass(dut, _bypass_words(rows)) == _bypass_words(rows)
 
 
-# ---- helpers ----
-
-
 def _signed32(value: int) -> int:
     value &= _MASK32
     return value - (1 << 32) if value >= (1 << 31) else value

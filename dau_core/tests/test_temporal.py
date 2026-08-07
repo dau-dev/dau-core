@@ -30,10 +30,6 @@ from dau_core.temporal import (
     vwap_numerator,
 )
 
-# --------------------------------------------------------------------------- #
-# As-of alignment                                                             #
-# --------------------------------------------------------------------------- #
-
 
 def test_asof_backward_matches_most_recent_quote_including_equal_time() -> None:
     quotes = [(0, 10, 100, 102), (0, 20, 104, 106), (0, 30, 108, 110)]
@@ -70,11 +66,6 @@ def test_matched_rows_drops_the_misses() -> None:
     assert matched_rows(aligned) == [(0, 1, 0, 0, 0, 0), (0, 2, 0, 0, 0, 0)]
 
 
-# --------------------------------------------------------------------------- #
-# Market features                                                             #
-# --------------------------------------------------------------------------- #
-
-
 def test_market_feature_primitives() -> None:
     assert midpoint(100, 104) == 102
     assert midpoint(100, 105) == 102  # floor
@@ -92,11 +83,6 @@ def test_market_features_derives_every_field() -> None:
     rows = [(0, 10, 103, 5, 100, 104)]
     (f,) = market_features(rows)
     assert (f.midpoint, f.spread, f.trade_sign, f.signed_volume, f.dollar_volume) == (102, 4, 1, 5, 515)
-
-
-# --------------------------------------------------------------------------- #
-# Bars                                                                        #
-# --------------------------------------------------------------------------- #
 
 
 def test_time_bars_bucket_by_floor_and_close_on_bucket_or_symbol_change() -> None:
@@ -156,11 +142,6 @@ def test_bar_volume_and_dollar_accumulators_are_exact() -> None:
     assert bar.dollar == 100 * 3 + 110 * 4 + 90 * 5
 
 
-# --------------------------------------------------------------------------- #
-# Rolling + EWMA                                                              #
-# --------------------------------------------------------------------------- #
-
-
 def test_rolling_sum_min_max_warm_up_to_none_then_full_window() -> None:
     vals = [(0, 1), (0, 2), (0, 3), (0, 4), (0, 5)]
     assert rolling_sum(vals, window=3) == [None, None, 6, 9, 12]
@@ -209,22 +190,12 @@ def test_ewma_rejects_out_of_range_alpha() -> None:
         ewma([(0, 1)], alpha=0.0)
 
 
-# --------------------------------------------------------------------------- #
-# Delta / gap                                                                 #
-# --------------------------------------------------------------------------- #
-
-
 def test_deltas_first_difference_per_symbol() -> None:
     assert deltas([(0, 10), (0, 13), (0, 9), (1, 5)]) == [None, 3, -4, None]
 
 
 def test_gaps_flag_time_jumps_over_the_threshold() -> None:
     assert gaps([(0, 0), (0, 5), (0, 20), (1, 0)], max_gap=10) == [False, False, True, False]
-
-
-# --------------------------------------------------------------------------- #
-# Fixtures + workflow plan                                                    #
-# --------------------------------------------------------------------------- #
 
 
 def test_generate_market_stream_is_replay_deterministic() -> None:

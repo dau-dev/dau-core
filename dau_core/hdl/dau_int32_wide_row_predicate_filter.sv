@@ -144,9 +144,9 @@ module dau_int32_wide_row_predicate_filter
         logic term2;
         logic level01;
         begin
-            term0 = predicate_compare(op0, field_select(field0, row), constant0);
-            term1 = predicate_compare(op1, field_select(field1, row), constant1);
-            term2 = predicate_compare(op2, field_select(field2, row), constant2);
+            term0 = predicate_compare(op0, 64'(signed'(field_select(field0, row))), 64'(signed'(constant0)));
+            term1 = predicate_compare(op1, 64'(signed'(field_select(field1, row))), 64'(signed'(constant1)));
+            term2 = predicate_compare(op2, 64'(signed'(field_select(field2, row))), 64'(signed'(constant2)));
             level01 = (combine01 == COMBINE_AND) ? (term0 && term1)
                 : (combine01 == COMBINE_OR) ? (term0 || term1)
                 : term0;

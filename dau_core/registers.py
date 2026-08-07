@@ -47,12 +47,14 @@ class RegisterOffset(IntEnum):
     REGISTER_MAP_VERSION = 0x0004
     STREAM_PROTOCOL_VERSION = 0x0008
     PLATFORM_ID = 0x000C
-    SHELL_VERSION = 0x0010
+    # 0x0010 and 0x0024 are UNMAPPED: they carried SHELL_VERSION and
+    # DMA_CONSTRAINTS, which no generator ever stamped, so every host read
+    # returned zero. A register nothing writes is not a capability, and the
+    # identity block now falls through to all-ones there.
     BUILD_ID_LOW = 0x0014
     BUILD_ID_HIGH = 0x0018
     STATUS = 0x001C
     RESET = 0x0020
-    DMA_CONSTRAINTS = 0x0024
     OPERATOR_BITMAP = 0x0028
     LAST_ERROR = 0x002C
     H2C_BYTES_LOW = 0x0030
@@ -205,11 +207,11 @@ class StreamJobRegisterContract:
 class RegisterBlockSnapshot:
     register_map_version: RegisterMapVersion = field(default_factory=lambda: CURRENT_REGISTER_MAP_VERSION)
     stream_protocol_version: StreamProtocolVersion = field(default_factory=lambda: StreamProtocolVersion(0, 1))
-    platform_id: str = "DPV1"
-    shell_version: int = 0
+    # empty means NOT ADVERTISED; a default board here would let an
+    # unidentified device be priced and constrained as that board
+    platform_id: str = ""
     build_id: int = 0
     status: int = 0
-    dma_constraints: int = 0
     operator_bitmap: int = 0
     last_error: int = 0
     h2c_bytes: int = 0
@@ -230,11 +232,13 @@ class RegisterBlockSnapshot:
     sort_capacity: int = 0
 
     def __post_init__(self) -> None:
-        platform_id_to_u32(self.platform_id)
+        # "" is the NOT-ADVERTISED sentinel: a board that identifies itself
+        # as nothing must stay nothing, because the alternative -- defaulting
+        # to a board -- reported a dead aperture as a working Artix
+        if self.platform_id:
+            platform_id_to_u32(self.platform_id)
         for name in (
-            "shell_version",
             "status",
-            "dma_constraints",
             "operator_bitmap",
             "last_error",
             "batches",
@@ -264,13 +268,11 @@ class RegisterBlockSnapshot:
             RegisterOffset.MAGIC: DAU_MAGIC_WORD,
             RegisterOffset.REGISTER_MAP_VERSION: self.register_map_version.to_u32(),
             RegisterOffset.STREAM_PROTOCOL_VERSION: self.stream_protocol_version.to_u32(),
-            RegisterOffset.PLATFORM_ID: platform_id_to_u32(self.platform_id),
-            RegisterOffset.SHELL_VERSION: self.shell_version,
+            RegisterOffset.PLATFORM_ID: platform_id_to_u32(self.platform_id) if self.platform_id else 0,
             RegisterOffset.BUILD_ID_LOW: _low_u32(self.build_id),
             RegisterOffset.BUILD_ID_HIGH: _high_u32(self.build_id),
             RegisterOffset.STATUS: self.status,
             RegisterOffset.RESET: 0,
-            RegisterOffset.DMA_CONSTRAINTS: self.dma_constraints,
             RegisterOffset.OPERATOR_BITMAP: self.operator_bitmap,
             RegisterOffset.LAST_ERROR: self.last_error,
             RegisterOffset.H2C_BYTES_LOW: _low_u32(self.h2c_bytes),

@@ -175,6 +175,61 @@ def test_synthesizable_cores_carry_measured_envelopes() -> None:
                 assert all(point.lut > 0 for point in definition.resources), definition.name
 
 
+# Synthesizable tiles that still carry a SCALAR envelope rather than
+# (part, clock, params) measurement points. A scalar envelope cannot answer
+# the question that matters -- is this measured for MY board at MY clock --
+# so every name here is a tile that can still be priced against the wrong
+# hardware. The list is expected to shrink to empty.
+#
+# It is asserted EXACTLY, in both directions, on purpose. Migrate a tile
+# without removing it here and the test fails; add a new tile on a scalar
+# envelope and the test fails. The count stops being something a person
+# reports after reading the yaml and starts being something the suite owns.
+UNMIGRATED_SCALAR_ENVELOPES = frozenset(
+    {
+        "axi-burst-reader",
+        "axi-record-writer",
+        "axi-write-mux",
+        "int32-broadcast-hash-join",
+        "int32-key-mask-dispatcher",
+        "int32-key-membership-filter",
+        "int32-record-gather",
+        "int32-rolling-moments",
+        "int32-row-unpack",
+        "int32-time-bucket-key",
+        "int32-wide-row-predicate-filter",
+        "record-gearbox",
+        "stream-broadcast",
+    }
+)
+
+
+def test_the_scalar_envelope_holdouts_are_exactly_the_declared_ones() -> None:
+    """The standard is measurement points; this pins how far from it the
+    palette still is, so progress is reported by the suite rather than by
+    whoever last read the file.
+
+    Both directions matter. A stale name here means a migration landed and
+    nobody tightened the guard -- which is how "the migration is complete"
+    got said while thirteen tiles were still scalar. An unlisted name means
+    a new tile shipped without measurement points.
+    """
+    scalar = {
+        definition.name
+        for definition in loaded_cores().values()
+        if definition.kind in (CoreKind.OPERATOR, CoreKind.STREAM_INFRA)
+        and definition.resources is not None
+        and not isinstance(definition.resources, (list, tuple))
+    }
+    migrated_but_still_listed = UNMIGRATED_SCALAR_ENVELOPES - scalar
+    assert not migrated_but_still_listed, f"migrated -- remove from UNMIGRATED_SCALAR_ENVELOPES: {sorted(migrated_but_still_listed)}"
+    newly_scalar = scalar - UNMIGRATED_SCALAR_ENVELOPES
+    assert not newly_scalar, (
+        f"these tiles carry a scalar envelope, which cannot say which board it was measured on: {sorted(newly_scalar)}. "
+        "Measure them at (part, clock, params) via the synthesize-cores task"
+    )
+
+
 def _measured(**overrides):
     """A core carrying one measurement point, built here rather than read from
     the registry: which cores are migrated is a migration detail, and a test
@@ -213,7 +268,7 @@ def test_a_legacy_envelope_is_refused_rather_than_read_as_a_measurement() -> Non
     with pytest.raises(UnmeasuredResourceError, match="no measurement coordinates"):
         # a core still carrying a scalar envelope; migrating this one later is
         # expected to move this assertion, not delete it
-        core("int32-row-predicate-filter").resource_measurement(part="xc7k325tffg900-2", clock_ns=8.0, params={})
+        core("int32-key-membership-filter").resource_measurement(part="xc7k325tffg900-2", clock_ns=8.0, params={})
 
 
 def test_violated_measurement_is_retrievable_but_not_a_usable_envelope() -> None:
@@ -352,6 +407,10 @@ def test_storage_intent_prices_against_declared_parameters() -> None:
         {
             **core("int32-row-predicate-filter").model_dump(),
             "parameters": {"CAPACITY": {"default": 1024, "minimum": 1, "maximum": 16384}},
+            # the borrowed tile's points are keyed by ITS parameters (none);
+            # declaring one here would leave them describing a shape that no
+            # longer exists, which the model rightly refuses
+            "resources": [],
             "storage_intent": [
                 {"role": "arena", "access": "owned", "bytes_per_unit": 4, "scale_parameter": "CAPACITY", "tier_hint": "bram"},
             ],

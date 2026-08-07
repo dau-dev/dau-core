@@ -21,7 +21,8 @@
 // lives in a dedicated reset-free process so it infers block RAM). One row
 // in flight — deliberately SEQUENTIAL, so the read-modify-write hazard a
 // pipelined design must forward around does not exist. The declared ingest
-// rate carries that honesty.
+// rate carries that honesty: five cycles per row in the collision-free case
+// (w0, w1, probe, judge, accumulate).
 //
 // All four field sums accumulate unconditionally: the accumulate path is
 // config-free, and cfg_field_mask selects only which sums the drain emits
@@ -90,6 +91,7 @@ module dau_int32_hash_grouped_aggregation #(
         STATE_W1,          // accept w1; the row is complete
         STATE_PROBE,       // present the probe index to the slot BRAM
         STATE_JUDGE,       // registered slot: match / empty / collide
+        STATE_ACCUM,       // add into the latched base and write the slot
         STATE_DRAIN_SCAN,  // walk slots folding the running signed minimum
         STATE_DRAIN_READ,  // fold the final slot (one-cycle read lag)
         STATE_DRAIN_ADDR,  // present the winner's index
@@ -163,14 +165,19 @@ module dau_int32_hash_grouped_aggregation #(
     assign hit = valid_q && (slot_q[31:0] == cur_key);
     assign empty = !valid_q;
 
-    // the updated accumulator set: all four sums accumulate unconditionally
+    // The accumulate is split across two cycles, and the split is why this
+    // tile closes timing. Selecting the base (a 32-bit key compare feeding a
+    // 64-bit mux) and adding into it (four 64-bit carry chains) each fit in a
+    // cycle; chained into the same one they do not, and the BRAM write data
+    // arrives late enough to miss. JUDGE latches the base, ACCUM adds and
+    // writes. The declared ingest rate carries the extra cycle.
     logic [63:0] base_sums [4];
-    logic [63:0] next_sums [4];
     logic [31:0] base_count;
+
+    // all four sums accumulate unconditionally: register -> add -> BRAM
+    logic [63:0] next_sums [4];
     always_comb begin
-        base_count = hit ? slot_q[63:32] : 32'd0;
         for (int i = 0; i < 4; i++) begin
-            base_sums[i] = hit ? slot_q[64 + i * 64 +: 64] : 64'd0;
             // sign-extend the int32 field before the INT64 accumulate
             next_sums[i] = base_sums[i] + {{32{cur_fields[i][31]}}, cur_fields[i]};
         end
@@ -180,7 +187,7 @@ module dau_int32_hash_grouped_aggregation #(
                      : ((state == STATE_DRAIN_READ) || (state == STATE_DRAIN_ADDR)) ? min_idx
                      : probe_idx;
     assign slot_wdata = {next_sums[3], next_sums[2], next_sums[1], next_sums[0], base_count + 32'd1, cur_key};
-    assign slot_we = (state == STATE_JUDGE) && (hit || (empty && (live_count < CAPACITY[31:0])));
+    assign slot_we = (state == STATE_ACCUM);
 
     task automatic reset_state();
         state <= STATE_CLEAR;
@@ -213,9 +220,11 @@ module dau_int32_hash_grouped_aggregation #(
         emit_count <= 64'd0;
         emit_phase <= 3'd0;
         emit_final <= 1'b0;
+        base_count <= 32'd0;
         for (int i = 0; i < 4; i++) begin
             cur_fields[i] <= 32'd0;
             emit_sums[i] <= 64'd0;
+            base_sums[i] <= 64'd0;
         end
     endtask
 
@@ -297,22 +306,19 @@ module dau_int32_hash_grouped_aggregation #(
                     state <= STATE_JUDGE;
                 end
                 STATE_JUDGE: begin
+                    // latch the base this row accumulates onto; ACCUM adds it
+                    // and writes. A miss into a free slot starts from zero.
+                    base_count <= hit ? slot_q[63:32] : 32'd0;
+                    for (int i = 0; i < 4; i++) begin
+                        base_sums[i] <= hit ? slot_q[64 + i * 64 +: 64] : 64'd0;
+                    end
                     if (hit) begin
-                        // slot write happens this cycle (slot_we)
-                        if (cur_last) begin
-                            start_drain();
-                        end else begin
-                            state <= STATE_W0;
-                        end
+                        state <= STATE_ACCUM;
                     end else if (empty) begin
                         if (live_count < CAPACITY[31:0]) begin
                             valid_bits[probe_idx] <= 1'b1;
                             live_count <= live_count + 32'd1;
-                            if (cur_last) begin
-                                start_drain();
-                            end else begin
-                                state <= STATE_W0;
-                            end
+                            state <= STATE_ACCUM;
                         end else begin
                             // the table is full and this key is new: refuse
                             // the batch rather than evict or drop
@@ -333,6 +339,17 @@ module dau_int32_hash_grouped_aggregation #(
                             probe_idx <= (probe_idx == AW'(CAPACITY - 1)) ? '0 : probe_idx + 1'b1;
                             state <= STATE_PROBE;
                         end
+                    end
+                end
+                STATE_ACCUM: begin
+                    // slot_we writes {next_sums, base_count + 1, cur_key} at
+                    // slot_addr = probe_idx, which JUDGE left settled. If the
+                    // drain starts on this edge the write still commits first,
+                    // so DRAIN_SCAN reads the updated slot.
+                    if (cur_last) begin
+                        start_drain();
+                    end else begin
+                        state <= STATE_W0;
                     end
                 end
                 STATE_DRAIN_SCAN: begin

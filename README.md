@@ -27,6 +27,24 @@ packages agree on lives here, in three forms:
 The package also ships the canonical SystemVerilog for every registered
 core as importable resources, verified by cocotb benches under Verilator.
 
+## Documentation
+
+The [`docs/`](docs/) tree is organised by what you are trying to do.
+
+- **[Tutorial](docs/tutorial/)** — start here if the stack is new to you.
+  [Read a tile's contract end to end](docs/tutorial/read-a-tile-contract.md)
+  follows one operator through the five places its facts live.
+- **[How-to guides](docs/how-to/)** — for a specific job.
+  [Add an operator tile](docs/how-to/add-an-operator-tile.md) is the
+  golden-first sequence every tile in the palette went through.
+- **[Reference](docs/reference/)** — the field-by-field description of
+  [`CoreDefinition`](docs/reference/core-definition.md), the registry's
+  schema.
+- **[Explanation](docs/explanation/)** — the reasoning behind the two
+  decisions that shape everything else:
+  [why a golden model rather than a specification](docs/explanation/why-goldens-define-meaning.md)
+  and [why resource envelopes are measurements that refuse](docs/explanation/why-resources-are-measured.md).
+
 ## The registry is configuration
 
 There is no Python-literal list of cores. The registry is a
@@ -49,12 +67,14 @@ print(tile.resources)                      # measured LUT/FF/BRAM/DSP envelope
 sources_for("int32-stream-aggregation")    # dependency-closed HDL paths, in order
 ```
 
-The registered palette today: 27 operator tiles (filters, maps,
-aggregations, joins, sorters, partitioners, temporal operators, top-k), 4
-stream-infrastructure blocks (AXI burst reader, broadcast, record writer,
-write mux), 4 shell adapters, 3 shared SV packages, and 1 simulation
-model. Accessors are read-through views: a registry an application has
-already composed (including overrides) is the source of truth.
+The registered palette today: 36 operator tiles (filters, maps,
+aggregations both ordered and hash-mode, joins, membership, sorters,
+partitioners, dispatchers, temporal operators, top-k, and the stateful
+pair), 4 stream-infrastructure blocks (AXI burst reader, broadcast, record
+writer, write mux), 4 shell adapters, 3 shared SV packages, and 1
+simulation model — 48 entries in all. Accessors are read-through views: a
+registry an application has already composed (including overrides) is the
+source of truth.
 
 ## Golden semantics
 

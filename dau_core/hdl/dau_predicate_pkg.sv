@@ -21,7 +21,15 @@ package dau_predicate_pkg;
         end
     endfunction
 
-    function automatic logic predicate_compare(input logic [2:0] op, input logic signed [31:0] value, input logic signed [31:0] constant_value);
+    // Compares at the WIDEST field width the palette supports, so one
+    // comparison serves int8/int16/int32/int64 tiles alike.
+    //
+    // Callers MUST sign-extend their field to this width -- `64'(signed'(f))`
+    // where f is FIELD_WIDTH bits. A narrow UNSIGNED vector passed here
+    // zero-extends, which silently turns every negative field into a large
+    // positive one and makes LT/GE wrong for exactly the values a signed
+    // comparison exists to handle.
+    function automatic logic predicate_compare(input logic [2:0] op, input logic signed [63:0] value, input logic signed [63:0] constant_value);
         begin
             unique case (op)
                 OP_EQ: predicate_compare = value == constant_value;
@@ -46,8 +54,10 @@ package dau_predicate_pkg;
         logic first;
         logic second;
         begin
-            first = predicate_compare(op0, value, constant0);
-            second = predicate_compare(op1, value, constant1);
+            // sign-extend explicitly: these operands are 32-bit UNSIGNED
+            // vectors, and letting them widen implicitly would zero-extend
+            first = predicate_compare(op0, 64'(signed'(value)), 64'(signed'(constant0)));
+            second = predicate_compare(op1, 64'(signed'(value)), 64'(signed'(constant1)));
             unique case (combine)
                 COMBINE_AND: predicate_matches = first && second;
                 COMBINE_OR: predicate_matches = first || second;

@@ -356,9 +356,6 @@ async def constrained_random_batches_match_golden(dut):
         assert int(dut.group_count.value) == len(golden)
 
 
-# ---- helpers ----
-
-
 async def _start(dut) -> None:
     clock = Clock(dut.clk, 10, unit="ns")
     cocotb.start_soon(clock.start(start_high=False))

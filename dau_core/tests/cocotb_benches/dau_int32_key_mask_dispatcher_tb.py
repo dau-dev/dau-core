@@ -115,9 +115,6 @@ async def constrained_random_batches_match_golden(dut):
         assert parts == mask_dispatch_rows(rows, num_partitions=_num_parts(dut)), f"trial {trial}: rows={rows}"
 
 
-# ---- helpers ----
-
-
 def _num_parts(dut) -> int:
     return len(dut.output_valid)
 

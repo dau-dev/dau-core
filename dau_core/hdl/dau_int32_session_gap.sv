@@ -1,9 +1,9 @@
 `default_nettype none
 
-// Session-gap tile: step 2 of the stateful programme — the Nexmark-Q11
-// shape (STORAGE_AND_NOC.md). Per-key sessions over time-ordered rows:
-// a row whose time exceeds its key's last by more than cfg_gap CLOSES the
-// old session (emitted immediately, arrival order) and opens a new one;
+// Session-gap tile: the Nexmark-Q11 shape over bounded keyed state
+// (STORAGE_AND_NOC.md). Per-key sessions over time-ordered rows: a row
+// whose time exceeds its key's last by more than cfg_gap CLOSES the old
+// session (emitted immediately, arrival order) and opens a new one;
 // batch end drains everything still open SORTED BY SIGNED KEY — repeated
 // minimum-key extraction, so the emission order is the golden's contract
 // and no hash placement or slot index can leak into it. Matches
@@ -13,11 +13,11 @@
 // emits two words: w0 = {start[31:0], key[31:0]}, w1 = {count[31:0],
 // last[31:0]}.
 //
-// Phase scope is PROCESSING-order sessionization: times must be
-// non-decreasing across the batch, and a violation is TIME_ORDER — refused,
-// never silently reordered. Event time, watermarks and late arrivals are
-// the next programme step and deliberately absent. Error close-outs
-// (TIME_ORDER, SESSION_CAPACITY_EXCEEDED, BAD_*) preserve already-emitted
+// Scope is PROCESSING-order sessionization: times must be non-decreasing
+// across the batch, and a violation is TIME_ORDER — refused, never silently
+// reordered. Event time, watermarks and late arrivals are deliberately
+// absent. Error close-outs (TIME_ORDER, SESSION_CAPACITY_EXCEEDED, BAD_*)
+// preserve already-emitted
 // sessions and skip the drain, matching the golden; the CLEAR sweep
 // retires their leftover state.
 //

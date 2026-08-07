@@ -27,9 +27,6 @@ _ROWS = [
 _SPLITTERS = [10, 20, 30]  # a 4-partition (default) configuration
 
 
-# ---- targeted tests (default NUM_PARTITIONS == 4) ----
-
-
 @cocotb.test()
 async def partition_routes_rows_by_range(dut):
     await _start(dut)
@@ -87,9 +84,6 @@ async def last_lands_on_each_partitions_final_row(dut):
     parts = await _run(dut, rows, _SPLITTERS)
     assert parts[0] == [(5, 1, 1, 0), (5, 2, 2, 0)]
     assert parts[2] == [(25, 3, 3, 0), (25, 4, 4, 0), (25, 5, 5, 0)]
-
-
-# ---- N-agnostic tests (run for any NUM_PARTITIONS) ----
 
 
 @cocotb.test()
@@ -204,9 +198,6 @@ async def constrained_random_streams_match_golden(dut):
             pattern = pattern + (1,)
         parts = await _run(dut, rows, splitters, ready_pattern=pattern)
         assert parts == range_partition_bar_rows(rows, splitters=splitters), f"trial {trial}: splitters={splitters} rows={rows}"
-
-
-# ---- helpers ----
 
 
 def _num_parts(dut) -> int:

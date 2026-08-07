@@ -25,8 +25,7 @@ is the same one the sorted-scan tiles already require — the host sorts, or the
 range-partitioner + sorter path does.
 
 These are semantic references, ahead of the HDL. The ``int64`` timestamp / sum
-rung and the as-of / windowed-stat tiles byte-compare
-against them.
+tiles and the as-of / windowed-stat tiles byte-compare against them.
 """
 
 from __future__ import annotations
@@ -66,11 +65,6 @@ WORKFLOW_PLAN: tuple[dict[str, str], ...] = (
         "golden": "rolling_sum / rolling_min / rolling_max / rolling_moments / ewma",
     },
 )
-
-
-# --------------------------------------------------------------------------- #
-# As-of alignment                                                             #
-# --------------------------------------------------------------------------- #
 
 
 def asof_backward(
@@ -121,11 +115,6 @@ def matched_rows(aligned: Iterable[MarketRow | None]) -> list[MarketRow]:
     """Drop the as-of misses — the aligned market rows the downstream fused
     stages consume."""
     return [row for row in aligned if row is not None]
-
-
-# --------------------------------------------------------------------------- #
-# Market features (per-row derivations — ALU-shaped, stateless)               #
-# --------------------------------------------------------------------------- #
 
 
 def midpoint(bid: int, ask: int) -> int:
@@ -201,11 +190,6 @@ def market_features(rows: Iterable[MarketRow]) -> list[MarketFeatures]:
             )
         )
     return out
-
-
-# --------------------------------------------------------------------------- #
-# Bars — OHLCV + notional + signed volume, four close clocks                  #
-# --------------------------------------------------------------------------- #
 
 
 INT64_MIN, INT64_MAX = -(1 << 63), (1 << 63) - 1
@@ -342,10 +326,6 @@ def imbalance_bars(rows: Iterable[MarketRow], *, threshold: int) -> list[Tempora
     return _accumulator_bars(rows, threshold=threshold, metric="imbalance")
 
 
-# --------------------------------------------------------------------------- #
-# Rolling features over the reduced (bar / feature) stream                    #
-# --------------------------------------------------------------------------- #
-
 # Rolling windows are count-based (the last ``window`` observations) and reset
 # per symbol — matching ``pl.col(x).rolling_*(window_size=w).over("symbol")``
 # with the default ``min_periods == window`` (warm-up rows are ``None``).
@@ -438,11 +418,6 @@ def ewma(values: Iterable[tuple[int, int]], *, alpha: float) -> list[float]:
     return out
 
 
-# --------------------------------------------------------------------------- #
-# Previous-row features: delta / rate / gaps                                  #
-# --------------------------------------------------------------------------- #
-
-
 def deltas(values: Iterable[tuple[int, int]]) -> list[int | None]:
     """Per-symbol first difference (``value[i] - value[i-1]``; ``None`` for the
     first row of each symbol) — matches ``pl.col(x).diff().over("symbol")``."""
@@ -465,11 +440,6 @@ def gaps(times: Iterable[tuple[int, int]], *, max_gap: int) -> list[bool]:
         out.append(False if p is None else (time - p) > max_gap)
         prev[symbol_id] = time
     return out
-
-
-# --------------------------------------------------------------------------- #
-# Deterministic fixtures                                                      #
-# --------------------------------------------------------------------------- #
 
 
 @dataclass(frozen=True)

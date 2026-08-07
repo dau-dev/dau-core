@@ -23,20 +23,30 @@
 // current/last batch (0 after an error close-out).
 module dau_int32_row_predicate_filter
     import dau_predicate_pkg::*;
-(
+#(
+    // Width of one field. The 128-bit row is the transport unit and stays
+    // fixed -- it is the stream contract -- so a narrower type packs MORE
+    // fields per row rather than shrinking the beat, which is the point of
+    // supporting narrow types at all: int16 carries eight values per row
+    // where int32 carries four.
+    //
+    // Must divide 128. FIELD_WIDTH=32 reproduces the four-field row this
+    // tile has always had, port for port.
+    parameter int FIELD_WIDTH = 32
+) (
     input  wire logic        clk,
     input  wire logic        rst,
-    input  wire logic [1:0]  cfg_field0,
+    input  wire logic [SEL_BITS-1:0] cfg_field0,
     input  wire logic [2:0]  cfg_op0,
-    input  wire logic [31:0] cfg_constant0,
+    input  wire logic [FIELD_WIDTH-1:0] cfg_constant0,
     input  wire logic [1:0]  cfg_combine01,
-    input  wire logic [1:0]  cfg_field1,
+    input  wire logic [SEL_BITS-1:0] cfg_field1,
     input  wire logic [2:0]  cfg_op1,
-    input  wire logic [31:0] cfg_constant1,
+    input  wire logic [FIELD_WIDTH-1:0] cfg_constant1,
     input  wire logic [1:0]  cfg_combine2,
-    input  wire logic [1:0]  cfg_field2,
+    input  wire logic [SEL_BITS-1:0] cfg_field2,
     input  wire logic [2:0]  cfg_op2,
-    input  wire logic [31:0] cfg_constant2,
+    input  wire logic [FIELD_WIDTH-1:0] cfg_constant2,
     input  wire logic        input_valid,
     output logic             input_ready,
     input  wire logic [63:0] input_data,
@@ -53,6 +63,14 @@ module dau_int32_row_predicate_filter
 );
     localparam logic [7:0] ERR_CONFIG = 8'd1;
     localparam logic [7:0] ERR_STREAM = 8'd2;
+
+    localparam int ROW_BITS = 128;                 // the transport unit, fixed
+    localparam int FIELDS   = ROW_BITS / FIELD_WIDTH;
+    localparam int SEL_BITS = (FIELDS <= 1) ? 1 : $clog2(FIELDS);
+
+    if (FIELD_WIDTH < 8 || FIELD_WIDTH > 64 || (ROW_BITS % FIELD_WIDTH) != 0) begin : g_field_width_check
+        $error("FIELD_WIDTH must divide 128 and lie in [8, 64]");
+    end
 
     typedef enum logic [2:0] {
         STATE_W0,      // accept w0 of a row (batch config latches on the first)
@@ -76,17 +94,17 @@ module dau_int32_row_predicate_filter
     // batch-latched predicate config (quasi-static cfg inputs sampled at the
     // first row so a mid-batch change cannot tear the predicate)
     logic        batch_open;
-    logic [1:0]  active_field0;
+    logic [SEL_BITS-1:0] active_field0;
     logic [2:0]  active_op0;
-    logic [31:0] active_constant0;
+    logic [FIELD_WIDTH-1:0] active_constant0;
     logic [1:0]  active_combine01;
-    logic [1:0]  active_field1;
+    logic [SEL_BITS-1:0] active_field1;
     logic [2:0]  active_op1;
-    logic [31:0] active_constant1;
+    logic [FIELD_WIDTH-1:0] active_constant1;
     logic [1:0]  active_combine2;
-    logic [1:0]  active_field2;
+    logic [SEL_BITS-1:0] active_field2;
     logic [2:0]  active_op2;
-    logic [31:0] active_constant2;
+    logic [FIELD_WIDTH-1:0] active_constant2;
 
     logic [63:0] row_w0;
     logic        held_valid;
@@ -103,17 +121,17 @@ module dau_int32_row_predicate_filter
     logic first_row;
     logic row_match;
 
-    logic [1:0]  eff_field0;
+    logic [SEL_BITS-1:0] eff_field0;
     logic [2:0]  eff_op0;
-    logic [31:0] eff_constant0;
+    logic [FIELD_WIDTH-1:0] eff_constant0;
     logic [1:0]  eff_combine01;
-    logic [1:0]  eff_field1;
+    logic [SEL_BITS-1:0] eff_field1;
     logic [2:0]  eff_op1;
-    logic [31:0] eff_constant1;
+    logic [FIELD_WIDTH-1:0] eff_constant1;
     logic [1:0]  eff_combine2;
-    logic [1:0]  eff_field2;
+    logic [SEL_BITS-1:0] eff_field2;
     logic [2:0]  eff_op2;
-    logic [31:0] eff_constant2;
+    logic [FIELD_WIDTH-1:0] eff_constant2;
 
     logic term0;
     logic term1;
@@ -156,20 +174,19 @@ module dau_int32_row_predicate_filter
 
     // the four fields of the row being completed: w0 was registered, w1 is
     // on the input this cycle
-    function automatic logic [31:0] field_select(input logic [1:0] sel, input logic [63:0] w0, input logic [63:0] w1);
+    function automatic logic [FIELD_WIDTH-1:0] field_select(input logic [SEL_BITS-1:0] sel, input logic [63:0] w0, input logic [63:0] w1);
+        // one indexed slice of the row, so the field count follows
+        // FIELD_WIDTH instead of being four names in a case statement
+        logic [ROW_BITS-1:0] row;
         begin
-            unique case (sel)
-                2'd0: field_select = w0[31:0];
-                2'd1: field_select = w0[63:32];
-                2'd2: field_select = w1[31:0];
-                default: field_select = w1[63:32];
-            endcase
+            row = {w1, w0};
+            field_select = row[sel * FIELD_WIDTH +: FIELD_WIDTH];
         end
     endfunction
 
-    assign term0 = predicate_compare(eff_op0, field_select(eff_field0, row_w0, input_data), eff_constant0);
-    assign term1 = predicate_compare(eff_op1, field_select(eff_field1, row_w0, input_data), eff_constant1);
-    assign term2 = predicate_compare(eff_op2, field_select(eff_field2, row_w0, input_data), eff_constant2);
+    assign term0 = predicate_compare(eff_op0, 64'(signed'(field_select(eff_field0, row_w0, input_data))), 64'(signed'(eff_constant0)));
+    assign term1 = predicate_compare(eff_op1, 64'(signed'(field_select(eff_field1, row_w0, input_data))), 64'(signed'(eff_constant1)));
+    assign term2 = predicate_compare(eff_op2, 64'(signed'(field_select(eff_field2, row_w0, input_data))), 64'(signed'(eff_constant2)));
     assign level01 = (eff_combine01 == COMBINE_AND) ? (term0 && term1)
         : (eff_combine01 == COMBINE_OR) ? (term0 || term1)
         : term0;

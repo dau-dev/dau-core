@@ -47,10 +47,8 @@ def test_register_contract_uses_dau_magic_and_aligned_offsets():
 def test_register_block_snapshot_reads_identity_status_and_counters_as_u32_words():
     snapshot = RegisterBlockSnapshot(
         platform_id="DPV1",
-        shell_version=0x0102_0304,
         build_id=0x1122_3344_5566_7788,
         status=0x0000_0003,
-        dma_constraints=0x0040_0020,
         operator_bitmap=0b101,
         last_error=0xDEAD_BEEF,
         h2c_bytes=0x0102_0304_0506_0708,
@@ -71,12 +69,10 @@ def test_register_block_snapshot_reads_identity_status_and_counters_as_u32_words
 
     assert snapshot.read_u32(RegisterOffset.MAGIC) == DAU_MAGIC_WORD
     assert snapshot.read_u32(RegisterOffset.PLATFORM_ID) == int.from_bytes(b"DPV1", "little")
-    assert snapshot.read_u32(RegisterOffset.SHELL_VERSION) == 0x0102_0304
     assert snapshot.read_u32(RegisterOffset.BUILD_ID_LOW) == 0x5566_7788
     assert snapshot.read_u32(RegisterOffset.BUILD_ID_HIGH) == 0x1122_3344
     assert snapshot.read_u32(RegisterOffset.STATUS) == 0x0000_0003
     assert snapshot.read_u32(RegisterOffset.RESET) == 0
-    assert snapshot.read_u32(RegisterOffset.DMA_CONSTRAINTS) == 0x0040_0020
     assert snapshot.read_u32(RegisterOffset.OPERATOR_BITMAP) == 0b101
     assert snapshot.read_u32(RegisterOffset.LAST_ERROR) == 0xDEAD_BEEF
     assert snapshot.read_u32(RegisterOffset.H2C_BYTES_LOW) == 0x0506_0708
@@ -238,3 +234,15 @@ def test_device_capabilities_keep_host_computed_operators_apart_from_hardware():
     assert not capabilities.supports(OperationCode.AVERAGE, LogicalType.INT32)
     assert capabilities.supports_host_computed(OperationCode.AVERAGE, LogicalType.INT32)
     assert not capabilities.supports_host_computed(OperationCode.SUM, LogicalType.INT32)
+
+
+def test_the_addresses_of_the_deleted_registers_are_unmapped() -> None:
+    """0x0010 and 0x0024 carried SHELL_VERSION and DMA_CONSTRAINTS, which no
+    generator ever stamped, so every host read returned zero. A register
+    nothing writes is not a capability. They are gone from the offsets, and
+    the identity block falls through to all-ones there -- which the driver
+    already reads as 'not advertised' rather than as a value."""
+    assert not hasattr(RegisterOffset, "SHELL_VERSION")
+    assert not hasattr(RegisterOffset, "DMA_CONSTRAINTS")
+    live = {int(offset) for offset in RegisterOffset}
+    assert 0x0010 not in live and 0x0024 not in live

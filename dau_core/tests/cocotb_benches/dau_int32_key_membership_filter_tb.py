@@ -458,9 +458,6 @@ async def constrained_random_batches_match_golden(dut):
         assert int(dut.selected_count.value) == len(expected)
 
 
-# ---- helpers ----
-
-
 def _signed32(value: int) -> int:
     value &= _MASK32
     return value - (1 << 32) if value >= (1 << 31) else value

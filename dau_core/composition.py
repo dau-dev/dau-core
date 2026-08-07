@@ -647,15 +647,20 @@ def throughput_rows_per_cycle(spec: ScanCompositionSpec, *, stage_pass_fractions
 def estimated_resources(spec: ScanCompositionSpec, *, part: str | None = None, clock_ns: float | None = None) -> ResourceEnvelope:
     """Sum resource envelopes for every instance the composition places.
 
-    Legacy scalar envelopes remain priceable for compatibility. A core with
-    measurement points requires an exact ``part``, ``clock_ns``, and effective
-    module-parameter match; an absent coordinate, an unmeasured tuple, or a
-    timing violation raises instead of returning a plausible-looking number.
-    Refusal is intentional: a marker could be dropped by a numeric consumer,
-    recreating the silent cross-part fallback this API must prevent.
+    Cores carry resources in one of two shapes, and the difference is
+    visible in the result rather than hidden:
 
-    Until their registry entries are migrated, legacy parameterized envelopes
-    retain their existing lower-bound behavior for non-default overrides.
+    * **Measurement points** are keyed by ``part``, ``clock_ns`` and module
+      parameters. Pricing one requires all three, and an absent coordinate,
+      an unmeasured tuple, or a timing violation RAISES rather than
+      returning a plausible-looking number. Refusal is intentional: a
+      marker could be dropped by a numeric consumer, recreating the silent
+      cross-part fallback this API exists to prevent.
+    * **Scalar envelopes** describe one shape and are not keyed at all.
+      They stay priceable, but a composition that includes one cannot claim
+      to be measured for a requested part, so ``measured`` on the result is
+      ``False`` whenever a ``part`` or ``clock_ns`` was asked for. Read
+      that flag before treating an estimate as a board-specific budget.
     """
     lut = ff = dsp = 0
     bram = 0.0
@@ -669,7 +674,14 @@ def estimated_resources(spec: ScanCompositionSpec, *, part: str | None = None, c
             measured = False
             return
         if isinstance(resources, ResourceEnvelope):
+            # a scalar envelope is not keyed by part, clock or parameters, so
+            # it cannot answer "what does this cost on THIS board". Pricing
+            # against it is still useful, but the result must not claim to be
+            # measured for the requested part -- that claim is what let an
+            # Artix number price a Kintex build while reporting measured=True.
             envelope = resources
+            if part is not None or clock_ns is not None:
+                measured = False
         else:
             if part is None or clock_ns is None:
                 missing = ", ".join(name for name, value in (("part", part), ("clock_ns", clock_ns)) if value is None)
@@ -734,6 +746,41 @@ def spec_hash(spec: ScanCompositionSpec) -> str:
     built design that elaborate to the same spec share one hash."""
     digest = hashlib.sha256(canonical_spec_json(spec).encode()).hexdigest()
     return f"{SPEC_CANONICAL_VERSION}:{digest}"
+
+
+def build_id_from_spec_hash(value: str) -> int:
+    """The 64-bit identity a shell advertises for a spec, from that spec's
+    hash: the leading 64 bits of the digest.
+
+    A shell's capability words cannot identify a design. Distinct designs
+    routinely advertise the same lane count, operator bitmap, host-opcode
+    bitmap and sort capacity -- q19-scan and q19-packed-wide are identical
+    across all four -- so a host asking "is the device running the design I
+    flashed" gets a yes from a board running something else. The spec hash
+    distinguishes them by construction, and 64 bits of it fits the identity
+    block's BUILD_ID register pair.
+
+    Truncation is safe for this use. BUILD_ID answers "is this the design I
+    expect", where the alternative is a handful of shells built by the same
+    people, not an adversary searching for a collision; the full hash stays
+    in the manifest for anything stronger. Zero is reserved: an unstamped
+    shell reads back as zero, so the caller must treat it as "not stamped"
+    rather than as a design identity.
+
+    KNOW WHAT THIS DOES NOT IDENTIFY. It is the hash of a composition SPEC,
+    so it names the design's inputs, not the image built from them. Two
+    bitstreams built from the same spec at different times — different RTL,
+    generator, constraints or toolchain — carry the SAME id. That is the
+    right granularity for "did my flash take" (the alternative resident
+    image is a different design) and the wrong one for "is this the exact
+    artifact I validated", which only the bitstream digest answers. It also
+    drops the canonical-version prefix, so ``5:<digest>`` and ``6:<digest>``
+    are indistinguishable here while being different cache keys.
+    """
+    digest = value.split(":", 1)[-1]
+    if len(digest) < 16:
+        raise ValueError(f"spec hash {value!r} carries no 64-bit digest prefix")
+    return int(digest[:16], 16)
 
 
 def spec_from_canonical(text: str) -> ScanCompositionSpec:

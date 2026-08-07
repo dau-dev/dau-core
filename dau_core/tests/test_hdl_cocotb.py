@@ -896,3 +896,20 @@ def test_session_gap_capacity_eight(tmp_path: Path, monkeypatch: pytest.MonkeyPa
         tmp_path=tmp_path,
         parameters={"CAPACITY": 8},
     )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+@pytest.mark.parametrize("field_width", (16, 32, 64))
+def test_row_predicate_filter_runs_at_every_field_width(field_width: int, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """The 128-bit row is the transport unit and FIELD_WIDTH says how many
+    fields it carries, so int16 packs eight values per row where int32 packs
+    four. 32 is included so this bench is known to agree with the directed
+    one, not merely to run."""
+    monkeypatch.setenv("DAU_ROW_PREDICATE_FIELD_WIDTH", str(field_width))
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_PREDICATE_PKG_SV)), Path(str(DAU_INT32_ROW_PREDICATE_FILTER_SV))),
+        hdl_toplevel="dau_int32_row_predicate_filter",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_row_predicate_filter_width_tb",
+        tmp_path=tmp_path,
+        parameters={"FIELD_WIDTH": field_width},
+    )
