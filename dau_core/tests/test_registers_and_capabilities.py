@@ -32,10 +32,12 @@ def test_register_contract_uses_dau_magic_and_aligned_offsets():
     # two-phase load (additive): the free job-block slot between
     # RESULT_LENGTH_HIGH (0x0080) and the pipeline block (0x0090)
     assert RegisterOffset.LOAD_PHASE == 0x0084
-    # register map 0.2: composed-capability words, additive, below the NoC
-    # lane block at 0x0100
-    assert CURRENT_REGISTER_MAP_VERSION == RegisterMapVersion(0, 2)
-    assert CURRENT_REGISTER_MAP_VERSION.to_u32() == 0x00000002
+    # register map 0.3: composed-capability words plus the job capacity the
+    # host batches against, additive, below the NoC lane block at 0x0100
+    assert CURRENT_REGISTER_MAP_VERSION == RegisterMapVersion(0, 3)
+    assert CURRENT_REGISTER_MAP_VERSION.to_u32() == 0x00000003
+    assert RegisterOffset.INPUT_ROW_CAPACITY == 0x00CC
+    assert RegisterOffset.OUTPUT_RECORD_CAPACITY == 0x00D0
     assert RegisterOffset.LANE_COUNT == 0x00C0
     assert RegisterOffset.HOST_OPCODE_BITMAP == 0x00C4
     assert RegisterOffset.SORT_CAPACITY == 0x00C8

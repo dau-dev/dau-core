@@ -104,6 +104,13 @@ class RegisterOffset(IntEnum):
     LANE_COUNT = 0x00C0  # number of NoC lane register blocks at NOC_LANE_BASE (0 = no lane block)
     HOST_OPCODE_BITMAP = 0x00C4  # opcodes computable at protocol level from hardware results (host divide), not hardware opcodes
     SORT_CAPACITY = 0x00C8  # max sorter batch row capacity across lanes (0 = no sorter)
+    # register map 0.3. Extends the capability block rather than reusing the
+    # slots freed at 0x0010/0x0024: a resident 0.2 shell still decodes those
+    # two and would answer a capacity read with a stale SHELL_VERSION, while
+    # it falls through to all-ones here -- which already normalizes to
+    # not-advertised in every reader.
+    INPUT_ROW_CAPACITY = 0x00CC  # input rows one job may stage (0 = not advertised)
+    OUTPUT_RECORD_CAPACITY = 0x00D0  # output records one job may return (0 = not advertised)
 
 
 # broadcast-NoC lane register block: one NOC_LANE_STRIDE-sized window per
@@ -230,6 +237,13 @@ class RegisterBlockSnapshot:
     lane_count: int = 0
     host_opcode_bitmap: int = 0
     sort_capacity: int = 0
+    # job capacity (register map 0.3; 0 = not advertised). How many input
+    # rows and output records ONE job may stage, which is set by the shell's
+    # BRAM depths. The host has to batch to these, and it used to do so from
+    # constants compiled into the driver -- so a second shell shape was
+    # batched against the first one's depths with nothing to say so.
+    input_row_capacity: int = 0
+    output_record_capacity: int = 0
 
     def __post_init__(self) -> None:
         # "" is the NOT-ADVERTISED sentinel: a board that identifies itself
@@ -375,4 +389,4 @@ DEFAULT_STREAM_JOB_REGISTER_CONTRACT = StreamJobRegisterContract()
 # (LANE_COUNT / HOST_OPCODE_BITMAP / SORT_CAPACITY) and redefines
 # OPERATOR_BITMAP as the hardware truth of the composed design: a bit is
 # set only for OperationCodes some tile executes in HDL.
-CURRENT_REGISTER_MAP_VERSION = RegisterMapVersion(0, 2)
+CURRENT_REGISTER_MAP_VERSION = RegisterMapVersion(0, 3)

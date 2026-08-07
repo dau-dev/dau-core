@@ -109,7 +109,10 @@ def test_contract_mapping_round_trips_and_is_json_able() -> None:
     mapping = contract.to_mapping()
     assert mapping["contract"] == "dau-capability-contract"
     assert mapping["schema"] == CAPABILITY_CONTRACT_SCHEMA
-    assert mapping["register_map_version"] == "0.2"
+    # the contract states the map version it was composed against, so this
+    # tracks CURRENT rather than a literal -- pinning "0.2" here made a map
+    # revision look like a contract regression
+    assert mapping["register_map_version"] == f"{CURRENT_REGISTER_MAP_VERSION.major}.{CURRENT_REGISTER_MAP_VERSION.minor}"
     assert mapping["operator_bitmap"] == "0x00000000"
     assert mapping["lane_count"] == 2
     assert mapping["sort_capacity"] == 16
