@@ -287,7 +287,8 @@ def map_row_fields(rows: Iterable[tuple[int, int, int, int]], config: RowMapConf
 
 
 class SqrtErrorCode(IntEnum):
-    CONFIG = 1
+    # CONFIG (1) is the family's reserved code; this tile has no invalid
+    # configuration -- dst == src is a legal in-place update
     STREAM = 2
     # sqrt of a negative value has no int32 answer. Returning zero would be a
     # plausible-looking wrong number, so the batch is invalidated instead.
@@ -348,6 +349,84 @@ def sqrt_row_fields(rows: Iterable[tuple[int, int, int, int]], config: RowSqrtCo
         rooted = list(row)
         rooted[config.dst] = fixed_point_sqrt(_wrap_int32(row[config.src]), fractional_bits=config.fractional_bits)
         out.append(tuple(rooted))
+    return out
+
+
+class DivideErrorCode(IntEnum):
+    # CONFIG (1) is the family's reserved code; this tile has no invalid
+    # configuration -- dst may be either source, updating in place
+    STREAM = 2
+    # a zero divisor has no quotient
+    DOMAIN = 3
+    # the quotient is mathematically defined but does not fit int32. A
+    # fixed-point divide overflows easily: 1.0 / (1 * 2**-16) is 2**32. The
+    # batch is invalidated rather than wrapped or saturated, because both of
+    # those are wrong numbers that look right.
+    RANGE = 4
+
+
+DIVIDE_FRACTIONAL_BITS = 16
+
+
+def fixed_point_divide(numerator: int, denominator: int, *, fractional_bits: int = DIVIDE_FRACTIONAL_BITS) -> int:
+    """Quotient of two Q``(32-f)``.``f`` fixed-point values, EXACTLY.
+
+    With ``a = A * 2**-f`` and ``b = B * 2**-f``, the result ``(a/b) * 2**f``
+    is ``(A << f) / B`` — an integer division, so there is nothing to
+    approximate and the bench compares with no tolerance.
+
+    FLOOR, not truncation toward zero. That is the convention the rest of the
+    package already uses: ``MULSHR`` divides by a power of two with an
+    arithmetic shift, which floors, and ``-7 >> 1`` is ``-4``. Python's ``//``
+    floors too, so this is simply that operator. A tile that truncated toward
+    zero would disagree with the existing map ALU on every negative operand.
+
+    Raises on a zero divisor, and on a quotient that does not fit int32; the
+    tile reports ``DOMAIN`` and ``RANGE`` for those cases.
+    """
+    if denominator == 0:
+        raise ZeroDivisionError("fixed-point divide by zero has no quotient")
+    result = (numerator << fractional_bits) // denominator
+    if not -(1 << 31) <= result <= (1 << 31) - 1:
+        raise ValueError(f"fixed-point quotient {result} does not fit int32")
+    return result
+
+
+class RowDivideConfig(BaseModel):
+    """Which fields the quotient is formed from and which receives it."""
+
+    model_config = ConfigDict(frozen=True)
+
+    dst: RowField
+    numerator: RowField
+    denominator: RowField
+    fractional_bits: int = DIVIDE_FRACTIONAL_BITS
+
+    def model_post_init(self, context) -> None:
+        super().model_post_init(context)
+        if not 0 <= self.fractional_bits <= 31:
+            raise ValueError("fractional_bits must be in [0, 31]")
+
+
+def divide_row_fields(rows: Iterable[tuple[int, int, int, int]], config: RowDivideConfig) -> list[tuple[int, int, int, int]]:
+    """Golden semantics for the fixed-point divide tile: the destination field
+    is rewritten with the quotient of the two source fields, the others pass
+    through unchanged, order and count preserved.
+
+    This is what retires the deferred-division convention. Means, VWAP and
+    z-score denominators were computed as exact integer accumulators and
+    divided on the host because there was no divider; with one, the divide
+    stays on the device.
+    """
+    out: list[tuple[int, int, int, int]] = []
+    for row in rows:
+        divided = list(row)
+        divided[config.dst] = fixed_point_divide(
+            _wrap_int32(row[config.numerator]),
+            _wrap_int32(row[config.denominator]),
+            fractional_bits=config.fractional_bits,
+        )
+        out.append(tuple(divided))
     return out
 
 

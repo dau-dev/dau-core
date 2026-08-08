@@ -1351,6 +1351,75 @@ int32-row-predicate-filter:
       minimum: 8
       maximum: 64
       choices: [16, 32, 64]
+int32-fixed-point-divide:
+  _target_: dau_core.cores.CoreDefinition
+  name: int32-fixed-point-divide
+  kind: operator
+  module: dau_int32_fixed_point_divide
+  source: dau_int32_fixed_point_divide.sv
+  description: 'Fixed-point divide over 16-byte quad rows: the destination field is rewritten as numerator/denominator in
+    Q(32-F).F. This is what retires the deferred-division convention -- means, VWAP and z-score denominators were
+    accumulated as exact integers and divided on the host because there was no divider. EXACT and FLOOR: (A<<F)/B is an
+    integer division, and flooring matches the arithmetic shift MULSHR already uses, so the bench compares with no
+    tolerance. One iteration per pipeline stage, the quotient shifting into the dividend register as it vacates. A zero
+    divisor closes out ERR_DOMAIN; a quotient that does not fit int32 closes out ERR_RANGE, tested exactly without
+    dividing by comparing |A|<<F against |B|<<31. Matches dau_core.operators.divide_row_fields.'
+  golden: dau_core.operators:divide_row_fields
+  bench: dau_core.tests.cocotb_benches.dau_int32_fixed_point_divide_tb
+  contract_kind: row-stream
+  record_words: 2
+  ingest:
+    rows: 1
+    per_cycles: 3
+  parameters:
+    FRACTIONAL_BITS:
+      default: 16
+      minimum: 0
+      maximum: 31
+  # Measured 2026-08-08 via dau-build task=tasks/build/synthesize-cores.
+  # Zero DSP: long division is shift-subtract, not multiply.
+  # NOTE the Artix 8 ns margin is +0.620, far tighter than the sqrt
+  # tile's +4.105 -- twice the stages over a wider datapath. Above the
+  # half-nanosecond line where OOC stops predicting composed timing,
+  # but a composed design carrying this on an Artix at 125 MHz should
+  # be checked rather than assumed.
+  resources:
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {FRACTIONAL_BITS: 16}
+      lut: 3227
+      ff: 3724
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 0.620
+    - part: xc7a200tfbg484-2
+      clock_ns: 10.0
+      params: {FRACTIONAL_BITS: 16}
+      lut: 3227
+      ff: 3724
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.620
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {FRACTIONAL_BITS: 16}
+      lut: 3227
+      ff: 3724
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.050
+    - part: xc7k325tffg900-2
+      clock_ns: 10.0
+      params: {FRACTIONAL_BITS: 16}
+      lut: 3227
+      ff: 3724
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.050
 int32-fixed-point-sqrt:
   _target_: dau_core.cores.CoreDefinition
   name: int32-fixed-point-sqrt

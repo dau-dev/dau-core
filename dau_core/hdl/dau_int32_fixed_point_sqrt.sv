@@ -29,11 +29,14 @@
 //
 // A composed-pipeline stage: last-driven only (the upstream compaction's last
 // marker is trusted), silent on success -- the downstream tile's close-out is
-// authoritative. It raises its own status for an invalid config (dst == src,
-// which would make a row its own source; checked at the first row of a batch
-// and latched), for a torn final row (input_last on a w0: ERR_STREAM), and
-// for a NEGATIVE source value, which has no root: ERR_DOMAIN invalidates the
-// batch rather than emitting a substituted number that looks right.
+// authoritative. It raises its own status for a torn final row (input_last on
+// a w0: ERR_STREAM) and for a NEGATIVE source value, which has no root:
+// ERR_DOMAIN invalidates the batch rather than emitting a substituted number
+// that looks right.
+//
+// dst == src is LEGAL and updates in place -- the source is captured when the
+// row is pushed and the destination written when it retires, so they may be
+// the same field. The map ALU takes the same position.
 module dau_int32_fixed_point_sqrt #(
     // fractional bits of the fixed-point format (16 = Q16.16, the format the
     // golden defaults to)
@@ -56,7 +59,6 @@ module dau_int32_fixed_point_sqrt #(
     output logic             status_error,
     output logic [7:0]       status_error_code
 );
-    localparam logic [7:0] ERR_CONFIG = 8'd1;
     localparam logic [7:0] ERR_STREAM = 8'd2;
     localparam logic [7:0] ERR_DOMAIN = 8'd3;
 
@@ -93,7 +95,6 @@ module dau_int32_fixed_point_sqrt #(
     logic        batch_open;
     logic [1:0]  active_dst;
     logic [1:0]  active_src;
-    logic        config_ok;
     logic        status_pending;
     logic [7:0]  pending_error;
 
@@ -147,7 +148,7 @@ module dau_int32_fixed_point_sqrt #(
     // combinational loop that simulates fine and fails routed DRC.
     assign input_ready = !status_pending && ((in_state == IN_W0) || (in_state == IN_DISCARD) || ((in_state == IN_W1) && pipe_advance));
 
-    assign pipe_push = (in_state == IN_W1) && input_fire && config_ok && !src_value[31];
+    assign pipe_push = (in_state == IN_W1) && input_fire && !src_value[31];
 
     assign output_valid = (out_state == OUT_W0) || (out_state == OUT_W1);
     assign output_data = (out_state == OUT_W0) ? {emit_field[1], emit_field[0]} : {emit_field[3], emit_field[2]};
@@ -162,7 +163,6 @@ module dau_int32_fixed_point_sqrt #(
             in_state <= IN_W0;
             out_state <= OUT_IDLE;
             batch_open <= 1'b0;
-            config_ok <= 1'b1;
             status_pending <= 1'b0;
             pending_error <= 8'd0;
             emit_last <= 1'b0;
@@ -221,7 +221,6 @@ module dau_int32_fixed_point_sqrt #(
                                 batch_open <= 1'b1;
                                 active_dst <= cfg_dst_field;
                                 active_src <= cfg_src_field;
-                                config_ok <= (cfg_dst_field != cfg_src_field);
                             end
                             in_state <= IN_W1;
                         end
@@ -230,20 +229,13 @@ module dau_int32_fixed_point_sqrt #(
 
                 IN_W1: begin
                     if (input_fire) begin
-                        if (!config_ok) begin
-                            pending_error <= ERR_CONFIG;
-                            if (input_last) status_pending <= 1'b1;
-                            else in_state <= IN_DISCARD;
-                        end else if (src_value[31]) begin
+                        if (src_value[31]) begin
                             pending_error <= ERR_DOMAIN;
                             if (input_last) status_pending <= 1'b1;
                             else in_state <= IN_DISCARD;
                         end else begin
                             in_state <= IN_W0;
-                            if (input_last) begin
-                                batch_open <= 1'b0;
-                                config_ok <= 1'b1;
-                            end
+                            if (input_last) batch_open <= 1'b0;
                         end
                     end
                 end
@@ -282,7 +274,6 @@ module dau_int32_fixed_point_sqrt #(
                 status_pending <= 1'b0;
                 in_state <= IN_W0;
                 batch_open <= 1'b0;
-                config_ok <= 1'b1;
                 for (int unsigned i = 0; i <= ITERATIONS; i++) begin
                     stage_valid[i] <= 1'b0;
                 end

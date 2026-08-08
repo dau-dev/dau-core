@@ -71,7 +71,7 @@ async def every_dst_variant_passes_the_others_through(dut):
     await _start(dut)
     for dst in RowField:
         if dst == RowField.VALUE:
-            continue  # dst == src is the config error, covered separately
+            continue  # in place, so "passes the others through" does not apply
         config = RowSqrtConfig(dst=dst, src=RowField.VALUE)
         out = await _run(dut, _ROWS, config)
         assert out == sqrt_row_fields(_ROWS, config), dst.name
@@ -183,14 +183,17 @@ async def negative_row_never_escapes_while_the_close_out_waits(dut):
 
 
 @cocotb.test()
-async def dst_equal_to_src_reports_config_error(dut):
+async def dst_equal_to_src_updates_in_place(dut):
+    """In-place is legal, as it is for the map ALU: the source is captured
+    when the row is pushed and the destination written when it retires, so
+    they may be the same field."""
     await _start(dut)
-    _drive_config(dut, RowSqrtConfig(dst=RowField.VALUE, src=RowField.VALUE))
-    send = cocotb.start_soon(_send_rows(dut, _ROWS))
-    await _expect_status(dut, error=True, code=SqrtErrorCode.CONFIG)
-    await send
-
-    assert await _run(dut, _ROWS, _SQRT_VALUE) == sqrt_row_fields(_ROWS, _SQRT_VALUE)
+    config = RowSqrtConfig(dst=RowField.VALUE, src=RowField.VALUE)
+    rows = [(1, 4 * _ONE, 0, 0), (2, 9 * _ONE, 0, 0), (3, 2 * _ONE, 0, 0)]
+    out = await _run(dut, rows, config)
+    assert out == sqrt_row_fields(rows, config)
+    assert out[0][RowField.VALUE] == 2 * _ONE
+    assert out[1][RowField.VALUE] == 3 * _ONE
 
 
 @cocotb.test()
