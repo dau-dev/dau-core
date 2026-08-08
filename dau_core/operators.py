@@ -286,6 +286,71 @@ def map_row_fields(rows: Iterable[tuple[int, int, int, int]], config: RowMapConf
     return out
 
 
+class SqrtErrorCode(IntEnum):
+    CONFIG = 1
+    STREAM = 2
+    # sqrt of a negative value has no int32 answer. Returning zero would be a
+    # plausible-looking wrong number, so the batch is invalidated instead.
+    DOMAIN = 3
+
+
+#: fractional bits in the tile's fixed-point format. Q16.16 covers prices and
+#: returns in one format; the tile parameterizes it, this is the default.
+SQRT_FRACTIONAL_BITS = 16
+
+
+def fixed_point_sqrt(value: int, *, fractional_bits: int = SQRT_FRACTIONAL_BITS) -> int:
+    """Square root of a Q``(32-f)``.``f`` fixed-point value, EXACTLY.
+
+    A fixed-point root is an integer root in disguise. With ``x = X * 2**-f``,
+    the result ``sqrt(x) * 2**f`` is ``sqrt(X * 2**f)`` — so the answer is
+    ``isqrt(X << f)``, floor-truncated like every other fixed-point result in
+    this package (the multiply-shift convention).
+
+    This is worth stating because the obvious implementation is a polynomial
+    approximation, which would need an error bound and would still be wrong in
+    the last place. There is no approximation here and no tolerance in the
+    bench: the tile either matches this or it is broken.
+
+    Raises on a negative input; the tile reports ``DOMAIN`` for the same case.
+    """
+    if value < 0:
+        raise ValueError(f"sqrt of a negative fixed-point value is undefined, got {value}")
+    return math.isqrt(value << fractional_bits)
+
+
+class RowSqrtConfig(BaseModel):
+    """Which field the root is taken from and which one receives it."""
+
+    model_config = ConfigDict(frozen=True)
+
+    dst: RowField
+    src: RowField
+    fractional_bits: int = SQRT_FRACTIONAL_BITS
+
+    def model_post_init(self, context) -> None:
+        super().model_post_init(context)
+        if not 0 <= self.fractional_bits <= 31:
+            raise ValueError("fractional_bits must be in [0, 31]")
+
+
+def sqrt_row_fields(rows: Iterable[tuple[int, int, int, int]], config: RowSqrtConfig) -> list[tuple[int, int, int, int]]:
+    """Golden semantics for the fixed-point sqrt tile: the destination field
+    is rewritten with the root of the source field, the other fields pass
+    through unchanged, order and count preserved.
+
+    A negative source value raises here and closes the batch out with
+    ``DOMAIN`` on the tile — the row is not emitted with a substituted value,
+    because a wrong number that looks right is the failure this avoids.
+    """
+    out: list[tuple[int, int, int, int]] = []
+    for row in rows:
+        rooted = list(row)
+        rooted[config.dst] = fixed_point_sqrt(_wrap_int32(row[config.src]), fractional_bits=config.fractional_bits)
+        out.append(tuple(rooted))
+    return out
+
+
 UNPACK_CONFIG_VERSION = "0.1"
 
 

@@ -1351,6 +1351,73 @@ int32-row-predicate-filter:
       minimum: 8
       maximum: 64
       choices: [16, 32, 64]
+int32-fixed-point-sqrt:
+  _target_: dau_core.cores.CoreDefinition
+  name: int32-fixed-point-sqrt
+  kind: operator
+  module: dau_int32_fixed_point_sqrt
+  source: dau_int32_fixed_point_sqrt.sv
+  description: 'Fixed-point square root over 16-byte quad rows: the destination field is rewritten as sqrt of the source
+    field in Q(32-F).F. EXACT, not approximated -- a fixed-point root is an integer root in disguise (sqrt(x)*2**F =
+    isqrt(X<<F)), so a restoring radix-2 digit recurrence produces the golden bit for bit and the bench compares with no
+    tolerance. One iteration per pipeline stage, so the critical path is one compare-and-subtract whatever the format
+    width; ingest is one row per three cycles (measured 2.94) -- the ingest and emit state machines run concurrently,
+    and the emit path costs a latch cycle on top of the two words in a row. A negative
+    source has no root and closes the batch out with ERR_DOMAIN rather than emitting a substituted value. Matches
+    dau_core.operators.sqrt_row_fields.'
+  golden: dau_core.operators:sqrt_row_fields
+  bench: dau_core.tests.cocotb_benches.dau_int32_fixed_point_sqrt_tb
+  contract_kind: row-stream
+  record_words: 2
+  ingest:
+    rows: 1
+    per_cycles: 3
+  parameters:
+    FRACTIONAL_BITS:
+      default: 16
+      minimum: 0
+      maximum: 31
+  # Measured 2026-08-08 via dau-build task=tasks/build/synthesize-cores.
+  # Zero DSP: the root is a shift-subtract recurrence, not a polynomial.
+  # The margin is flat across parts and clocks, which is the
+  # constant-critical-path claim -- one compare-and-subtract per stage.
+  resources:
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {FRACTIONAL_BITS: 16}
+      lut: 1154
+      ff: 1369
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.105
+    - part: xc7a200tfbg484-2
+      clock_ns: 10.0
+      params: {FRACTIONAL_BITS: 16}
+      lut: 1154
+      ff: 1369
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 6.105
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {FRACTIONAL_BITS: 16}
+      lut: 1154
+      ff: 1369
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.591
+    - part: xc7k325tffg900-2
+      clock_ns: 10.0
+      params: {FRACTIONAL_BITS: 16}
+      lut: 1154
+      ff: 1369
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 7.591
 int32-row-map-alu:
   _target_: dau_core.cores.CoreDefinition
   name: int32-row-map-alu

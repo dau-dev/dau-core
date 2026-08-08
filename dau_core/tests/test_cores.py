@@ -337,6 +337,7 @@ def test_silent_on_success_operator_set_is_pinned() -> None:
         "int32-stride-distributor",
         "int32-row-predicate-filter",
         "int32-row-map-alu",
+        "int32-fixed-point-sqrt",
         "int32-key-membership-filter",
         "int32-broadcast-hash-join",
         "int32-row-unpack",

@@ -18,6 +18,7 @@ from dau_core.hdl import (
     DAU_INT32_BITONIC_SORTER_SV,
     DAU_INT32_BROADCAST_HASH_JOIN_SV,
     DAU_INT32_FIELD_SUM_AGGREGATION_SV,
+    DAU_INT32_FIXED_POINT_SQRT_SV,
     DAU_INT32_GROUPED_AGGREGATION_SV,
     DAU_INT32_GROUPED_FIELD_AGGREGATION_SV,
     DAU_INT32_GROUPED_FIELD_SUM_AGGREGATION_SV,
@@ -409,6 +410,16 @@ def test_row_predicate_filter_runs_real_cocotb_against_systemverilog(tmp_path: P
         sources=(Path(str(DAU_PREDICATE_PKG_SV)), Path(str(DAU_INT32_ROW_PREDICATE_FILTER_SV))),
         hdl_toplevel="dau_int32_row_predicate_filter",
         test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_row_predicate_filter_tb",
+        tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_fixed_point_sqrt_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_FIXED_POINT_SQRT_SV)),),
+        hdl_toplevel="dau_int32_fixed_point_sqrt",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_fixed_point_sqrt_tb",
         tmp_path=tmp_path,
     )
 

@@ -29,6 +29,7 @@ DAU_INT32_KEY_MASK_DISPATCHER_SV = files(__package__).joinpath("dau_int32_key_ma
 DAU_INT32_STRIDE_DISTRIBUTOR_SV = files(__package__).joinpath("dau_int32_stride_distributor.sv")
 DAU_INT32_BITONIC_SORTER_SV = files(__package__).joinpath("dau_int32_bitonic_sorter.sv")
 DAU_INT32_ROW_PREDICATE_FILTER_SV = files(__package__).joinpath("dau_int32_row_predicate_filter.sv")
+DAU_INT32_FIXED_POINT_SQRT_SV = files(__package__).joinpath("dau_int32_fixed_point_sqrt.sv")
 DAU_INT32_ROW_MAP_ALU_SV = files(__package__).joinpath("dau_int32_row_map_alu.sv")
 DAU_INT32_FIELD_SUM_AGGREGATION_SV = files(__package__).joinpath("dau_int32_field_sum_aggregation.sv")
 DAU_INT32_GROUPED_FIELD_SUM_AGGREGATION_SV = files(__package__).joinpath("dau_int32_grouped_field_sum_aggregation.sv")
@@ -84,6 +85,7 @@ __all__ = (
     "DAU_INT32_RECORD_BATCH_AGGREGATION_SV",
     "DAU_INT32_RECORD_GATHER_SV",
     "DAU_INT32_ROLLING_MOMENTS_SV",
+    "DAU_INT32_FIXED_POINT_SQRT_SV",
     "DAU_INT32_ROW_MAP_ALU_SV",
     "DAU_INT32_ROW_PREDICATE_FILTER_SV",
     "DAU_INT32_ROW_UNPACK_SV",
