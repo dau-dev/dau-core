@@ -100,3 +100,24 @@ def test_rounding_steps_only_help_where_precision_binds() -> None:
     fine = ExpDatapath(internal_bits=52, table_bits=8, degree=4)
     fine_rounded = fine.model_copy(update={"round_steps": True})
     assert _worst_deviation(fine, stride=_STRIDE)[0] == _worst_deviation(fine_rounded, stride=_STRIDE)[0] == 0
+
+
+def test_the_range_reduction_index_is_deliberately_narrow() -> None:
+    """`k` picks the split between table index and residue, nothing more.
+
+    Computing it at full internal precision made it the WIDEST multiply in
+    the datapath -- a 48-bit operand against a 61-bit constant, measured at 9
+    DSP48s -- and bought no accuracy: the sweep is correctly rounded at every
+    width down to 12 bits, because a k off by one merely widens the residue
+    and the polynomial still covers it.
+
+    Widening it back is not wrong, only wasteful, so this guards the reason
+    rather than the number: more precision here must not change a single
+    result.
+    """
+    assert EXP_EXACT.k_bits <= 32, "the reduction index does not need full internal precision"
+
+    wide = EXP_EXACT.model_copy(update={"k_bits": 52})
+    low, high = exp_domain()
+    for x in range(low, high + 1, _STRIDE):
+        assert EXP_EXACT.evaluate(x) == wide.evaluate(x), f"widening k changed the result at x={x}"

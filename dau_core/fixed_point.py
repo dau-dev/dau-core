@@ -92,6 +92,13 @@ class ExpDatapath(BaseModel):
     degree: int = 4
     round_steps: bool = False
     fractional_bits: int = EXP_FRACTIONAL_BITS
+    # Fractional bits of the reciprocal-of-ln2 constant that picks the range
+    # reduction index. Deliberately NARROW: k only chooses the split between
+    # table index and residue, and a k off by one merely widens the residue,
+    # which the polynomial still covers. Computing it at internal_bits made
+    # it the widest multiply in the datapath for no accuracy at all --
+    # measured correctly rounded at every width down to 12 bits.
+    k_bits: int = 24
 
     def model_post_init(self, context) -> None:
         super().model_post_init(context)
@@ -109,15 +116,15 @@ class ExpDatapath(BaseModel):
         return self.degree + 1 + 2
 
     def constants(self) -> dict:
-        return _exp_constants(self.internal_bits, self.table_bits, self.degree)
+        return _exp_constants(self.internal_bits, self.table_bits, self.degree, self.k_bits)
 
     def evaluate(self, x: int) -> int:
         """The integer datapath, bit for bit as the HDL runs it."""
         c = self.constants()
         q, f = self.internal_bits, self.fractional_bits
         half = 1 << (q - 1)
+        k = (x * c["inv_ln2_narrow"] + (1 << (self.k_bits + f - 1))) >> (self.k_bits + f)
         x_q = x << (q - f)
-        k = (x_q * c["inv_ln2"] + (1 << (2 * q - 1))) >> (2 * q)
         residue = x_q - ((k * c["ln2"]) >> self.table_bits)
 
         acc = c["coefficients"][self.degree]
@@ -132,7 +139,7 @@ class ExpDatapath(BaseModel):
 
 
 @lru_cache(maxsize=None)
-def _exp_constants(internal_bits: int, table_bits: int, degree: int) -> dict:
+def _exp_constants(internal_bits: int, table_bits: int, degree: int, k_bits: int) -> dict:
     _decimal_context()
     scale = Decimal(2) ** internal_bits
     ln2 = Decimal(2).ln()
@@ -140,6 +147,7 @@ def _exp_constants(internal_bits: int, table_bits: int, degree: int) -> dict:
     return {
         "ln2": round(scale * ln2),
         "inv_ln2": round(scale * entries / ln2),
+        "inv_ln2_narrow": round(Decimal(2) ** k_bits * entries / ln2),
         "table": tuple(round(scale * (Decimal(2) ** (Decimal(j) / entries))) for j in range(entries)),
         "coefficients": tuple(round(scale / math.factorial(n)) for n in range(degree + 1)),
     }
