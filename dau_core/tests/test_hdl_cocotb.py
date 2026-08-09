@@ -416,6 +416,28 @@ def test_row_predicate_filter_runs_real_cocotb_against_systemverilog(tmp_path: P
 
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+@pytest.mark.parametrize("point", ["exact", "light"])
+def test_fixed_point_exp_runs_real_cocotb_against_systemverilog(tmp_path: Path, point: str, monkeypatch) -> None:
+    """The rendered tile against the model it was rendered from.
+
+    Renders first, which is also the generated-core flow end to end: a core
+    with no checked-in file becomes a source path the runner can stage.
+    """
+    from dau_core.exp_generator import ExpTileGenerator
+    from dau_core.fixed_point import EXP_EXACT, EXP_LIGHT
+
+    monkeypatch.setenv("DAU_EXP_POINT", point)
+    datapath = EXP_LIGHT if point == "light" else EXP_EXACT
+    source = ExpTileGenerator(datapath=datapath).render().write(tmp_path / "rendered")
+    _run_cocotb_verilator(
+        sources=(source,),
+        hdl_toplevel="dau_int32_fixed_point_exp",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_fixed_point_exp_tb",
+        tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_fixed_point_divide_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
     _run_cocotb_verilator(
         sources=(Path(str(DAU_INT32_FIXED_POINT_DIVIDE_SV)),),
