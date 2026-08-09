@@ -98,7 +98,11 @@ class ExpDatapath(BaseModel):
     # which the polynomial still covers. Computing it at internal_bits made
     # it the widest multiply in the datapath for no accuracy at all --
     # measured correctly rounded at every width down to 12 bits.
-    k_bits: int = 24
+    # 12, not 24: the constant is 21 bits instead of 34, which shrinks the
+    # multiply and the fabric adder summing its partial products -- that
+    # adder was an 11-deep CARRY4 chain between two DSPs and the tile's
+    # critical path. Measured correctly rounded at every width down to 12.
+    k_bits: int = 12
 
     def model_post_init(self, context) -> None:
         super().model_post_init(context)

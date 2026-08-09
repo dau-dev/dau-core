@@ -76,7 +76,7 @@ class ExpTileGenerator(CoreGenerator):
         rounding = " + (PROD_ONE <<< (INTERNAL_BITS - 1))" if point.round_steps else ""
         stages = []
         for step in range(point.degree):
-            multiply = 3 + 2 * step
+            multiply = 4 + 2 * step
             accumulate = multiply + 1
             coefficient = point.degree - 1 - step
             stages.append(
@@ -87,7 +87,7 @@ class ExpTileGenerator(CoreGenerator):
                 f"(stage_prod[{multiply}]{rounding}) >>> INTERNAL_BITS)"
                 f" + signed'({{1'b0, COEFFICIENT[{coefficient}]}}));"
             )
-        table_multiply = 3 + 2 * point.degree
+        table_multiply = 4 + 2 * point.degree
         stages.append(
             f"                stage_prod[{table_multiply}] <= PROD_WIDTH'(stage_acc[{table_multiply - 1}])"
             f" * PROD_WIDTH'(signed'({{1'b0, TABLE[stage_k[{table_multiply - 1}][TABLE_BITS-1:0]]}}));"
@@ -177,7 +177,7 @@ module {self.module} #(
     localparam logic signed [31:0] MAX_INPUT = 32'sd{high};
 
     // the datapath, one multiply per stage:
-    //   0 push  1 k  2 residue, then a MULTIPLY stage and an ACCUMULATE
+    //   0 push  1 k  2 shifted ln2 product  3 residue, then a MULTIPLY stage and an ACCUMULATE
     //   stage per Horner step, the table multiply, and the final scale
     localparam int DEPTH = {depth};
 
@@ -239,6 +239,7 @@ module {self.module} #(
     // Products are formed at full width on purpose; see the generator.
     localparam int PROD_WIDTH = 2 * WIDE;
 {prod_one_decl}    logic signed [PROD_WIDTH-1:0] stage_prod [DEPTH];
+    logic signed [RES_WIDTH-1:0]  stage_ln2  [DEPTH];
 
     // Stages read the x CARRIED in the pipeline, never the live input
     // port. Reading src_value here worked for a single parked row and
@@ -258,7 +259,7 @@ module {self.module} #(
     logic signed [RES_WIDTH-1:0] residue_full;
     /* verilator lint_on UNUSEDSIGNAL */
     assign ln2_product = RES_WIDTH'(stage_k[1]) * RES_WIDTH'(signed'({{1'b0, LN2}}));
-    assign residue_full = (RES_WIDTH'(stage_res[1]) <<< (INTERNAL_BITS - FRACTIONAL_BITS)) - (ln2_product >>> TABLE_BITS);
+    assign residue_full = (RES_WIDTH'(stage_res[2]) <<< (INTERNAL_BITS - FRACTIONAL_BITS)) - stage_ln2[2];
 
     // the final scale: 2**e comes out as a shift, e = k >>> TABLE_BITS
     logic signed [K_WIDTH-1:0] final_e;
@@ -314,7 +315,11 @@ module {self.module} #(
                 // DSPs, which was the tile's critical path
                 stage_k[1] <= K_WIDTH'(k_product >>> (K_BITS + FRACTIONAL_BITS));
                 // stage 2 overrides: the residue replaces the carried x
-                stage_res[2] <= WIDE'(residue_full);
+                // the shifted product is registered, so the subtract no longer
+                // sits combinationally between two DSP48s (clock-to-out ~3.5 ns
+                // leaves no room for a carry chain at 8 ns)
+                stage_ln2[2] <= ln2_product >>> TABLE_BITS;
+                stage_res[3] <= WIDE'(residue_full);
 {horner_body}
                 // the table multiply, then the scale
             end
