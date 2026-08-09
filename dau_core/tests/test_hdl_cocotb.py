@@ -416,22 +416,22 @@ def test_row_predicate_filter_runs_real_cocotb_against_systemverilog(tmp_path: P
 
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
-@pytest.mark.parametrize("point", ["exact", "light"])
-def test_fixed_point_exp_runs_real_cocotb_against_systemverilog(tmp_path: Path, point: str, monkeypatch) -> None:
-    """The rendered tile against the model it was rendered from.
+@pytest.mark.parametrize("core_name", ["int32-fixed-point-exp", "int32-fixed-point-exp-light"])
+def test_fixed_point_exp_runs_real_cocotb_against_systemverilog(tmp_path: Path, core_name: str, monkeypatch) -> None:
+    """Each registered operating point against the model it renders from.
 
-    Renders first, which is also the generated-core flow end to end: a core
-    with no checked-in file becomes a source path the runner can stage.
+    Driven off the registry rather than a hardcoded pair, so a third point
+    is covered by adding an entry -- and so the bench can never test a
+    datapath the registry does not actually build.
     """
-    from dau_core.exp_generator import ExpTileGenerator
-    from dau_core.fixed_point import EXP_EXACT, EXP_LIGHT
+    from dau_core.cores import loaded_cores
 
-    monkeypatch.setenv("DAU_EXP_POINT", point)
-    datapath = EXP_LIGHT if point == "light" else EXP_EXACT
-    source = ExpTileGenerator(datapath=datapath).render().write(tmp_path / "rendered")
+    monkeypatch.setenv("DAU_EXP_CORE", core_name)
+    definition = loaded_cores()[core_name]
+    source = definition.render(into=tmp_path / "rendered")
     _run_cocotb_verilator(
         sources=(source,),
-        hdl_toplevel="dau_int32_fixed_point_exp",
+        hdl_toplevel=definition.module,
         test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_fixed_point_exp_tb",
         tmp_path=tmp_path,
     )

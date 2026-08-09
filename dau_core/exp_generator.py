@@ -9,12 +9,13 @@ this is a generator and not a checked-in file: the 256-entry table of
 ``2**(j/256)`` is a function of those parameters and SystemVerilog cannot
 compute it.
 
-The datapath is FOLDED onto one multiplier rather than pipelined per stage.
-A pipelined Q52 chain prices at roughly 63 DSP48s, which is 8% of dpv1 for a
-single tile; folded it is one multiplier sequenced over the range reduction,
-the Horner chain and the table, which fits the platform's actual shape --
-the measured device path is feed-bound, not compute-bound, so spending
-cycles to save DSPs is the right side of that trade.
+The datapath is PIPELINED, one multiply per stage, chosen after measuring
+what a multiply costs rather than from the estimate this docstring used to
+quote. Measured on the dpv1 Artix: 52 DSP48s at the exact point and 22 at
+the light one, against 740 on the part. Folding onto a shared multiplier
+would cut that to roughly a ninth, but at one row per nine cycles against
+sqrt's and divide's one per three -- the tile would become the bottleneck of
+any chain it joined.
 """
 
 # NOTE: no `from __future__ import annotations` — ccflow's Flow.call

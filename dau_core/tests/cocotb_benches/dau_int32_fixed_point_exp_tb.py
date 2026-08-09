@@ -14,10 +14,15 @@ import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import ReadOnly, RisingEdge
 
-from dau_core.fixed_point import EXP_EXACT, EXP_LIGHT, exp_domain
+from dau_core.cores import loaded_cores
+from dau_core.fixed_point import exp_domain
 
 _MASK32 = 0xFFFF_FFFF
-_POINT = EXP_LIGHT if os.environ.get("DAU_EXP_POINT") == "light" else EXP_EXACT
+# the datapath under test is the one the registry entry configures, so the
+# bench cannot drift from the core it is benching
+# defaults to the exact point so the module imports standalone; the runner
+# names the core under test
+_POINT = loaded_cores()[os.environ.get("DAU_EXP_CORE", "int32-fixed-point-exp")].generator.datapath
 
 
 def _signed32(value: int) -> int:

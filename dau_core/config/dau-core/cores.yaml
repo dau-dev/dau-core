@@ -1411,6 +1411,65 @@ int32-fixed-point-exp:
       dsp: 52
       timing: met
       wns_ns: 0.038
+int32-fixed-point-exp-light:
+  _target_: dau_core.cores.CoreDefinition
+  name: int32-fixed-point-exp-light
+  kind: operator
+  module: dau_int32_fixed_point_exp_light
+  source: dau_int32_fixed_point_exp_light.sv
+  description: 'Fixed-point exp at the DSP-light operating point: 36 internal bits, degree 3, rounded Horner steps.
+    FAITHFUL rather than correctly rounded -- measured never more than 1 ULP from the correctly rounded answer over every
+    one of the 1,453,635 representable inputs, against 0 ULP for int32-fixed-point-exp, for roughly a third of the
+    multiplier width. A separate core rather than a parameter of the exact one because it is separate silicon: its own
+    rendered module, its own resource envelope, and its own identity in a composition spec, so no design can quote one
+    point''s measurement while building the other. Same nine-stage-per-multiply structure and the same zero-tolerance
+    device-to-model contract; accuracy is where they differ, and that difference is a recorded fact.'
+  golden: dau_core.fixed_point:exp_reference
+  bench: dau_core.tests.cocotb_benches.dau_int32_fixed_point_exp_tb
+  contract_kind: row-stream
+  record_words: 2
+  ingest:
+    rows: 1
+    per_cycles: 3
+  generator:
+    _target_: dau_core.exp_generator.ExpTileGenerator
+    module: dau_int32_fixed_point_exp_light
+    datapath:
+      _target_: dau_core.fixed_point.ExpDatapath
+      internal_bits: 36
+      table_bits: 8
+      degree: 3
+      round_steps: true
+  # Measured 2026-08-09 via dau-build task=tasks/build/synthesize-cores.
+  #
+  # 22 DSP48s against the exact point's 52, for 1 ULP instead of 0 -- the
+  # trade the second operating point exists to offer.
+  #
+  # The WNS is IDENTICAL to the exact point at both clocks (-1.962 and
+  # +0.038) despite half the multiplier width, which says the critical path
+  # is NOT the multiply: it is the structure both points share, and the
+  # suspect is the final scale, where a variable rounding shift feeds a
+  # variable right shift combinationally. Splitting the multiplies further
+  # will not move this number.
+  resources:
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 1192
+      ff: 915
+      bram36: 1.0
+      dsp: 22
+      timing: violated
+      wns_ns: -1.962
+    - part: xc7a200tfbg484-2
+      clock_ns: 10.0
+      params: {}
+      lut: 1192
+      ff: 915
+      bram36: 1.0
+      dsp: 22
+      timing: met
+      wns_ns: 0.038
 int32-fixed-point-divide:
   _target_: dau_core.cores.CoreDefinition
   name: int32-fixed-point-divide
