@@ -30,6 +30,8 @@ tiles and the as-of / windowed-stat tiles byte-compare against them.
 
 from __future__ import annotations
 
+import math
+
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from typing import TypeVar
@@ -398,6 +400,21 @@ def moment_var(moment: RollingMoment, *, ddof: int = 1) -> float:
         raise ValueError(f"variance needs count > ddof, got count={moment.count} ddof={ddof}")
     numerator = moment.count * moment.total_sq - moment.total * moment.total
     return numerator / (moment.count * denom)
+
+
+def moment_std(moment: RollingMoment, *, ddof: int = 1) -> float:
+    """Sample standard deviation from a rolling moment.
+
+    The root of :func:`moment_var`, and deliberately defined in terms of it
+    rather than independently: polars' ``rolling_std`` is the root of its
+    ``rolling_var``, so any other formulation would disagree with the
+    reference in the last place for no benefit.
+
+    On device this is where the divide and sqrt tiles land -- variance
+    divides before it roots -- which is why the numerator stays exact
+    integers right up to the single divide.
+    """
+    return math.sqrt(moment_var(moment, ddof=ddof))
 
 
 def ewma(values: Iterable[tuple[int, int]], *, alpha: float) -> list[float]:
