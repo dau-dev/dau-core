@@ -41,9 +41,15 @@ def _definition(**overrides) -> CoreDefinition:
     return CoreDefinition(**{**_BASE, **overrides})
 
 
-def test_a_generated_core_refuses_its_source_until_rendered() -> None:
+def test_a_generated_core_refuses_its_source_until_rendered(tmp_path: Path, monkeypatch) -> None:
     """Rendering implicitly on read would hide which parameters produced the
-    file that then gets synthesized."""
+    file that then gets synthesized.
+
+    Points the render root at an empty directory: the session fixture renders
+    the real palette, and without this isolation that fixture would satisfy
+    the very refusal under test.
+    """
+    monkeypatch.setenv("DAU_CORE_RENDER_ROOT", str(tmp_path / "empty"))
     core = _definition(generator=ExpTileGenerator(datapath=EXP_EXACT))
     with pytest.raises(UnrenderedCoreError, match="render-cores"):
         core.source_path()

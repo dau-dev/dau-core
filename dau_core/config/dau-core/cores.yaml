@@ -1351,6 +1351,66 @@ int32-row-predicate-filter:
       minimum: 8
       maximum: 64
       choices: [16, 32, 64]
+int32-fixed-point-exp:
+  _target_: dau_core.cores.CoreDefinition
+  name: int32-fixed-point-exp
+  kind: operator
+  module: dau_int32_fixed_point_exp
+  source: dau_int32_fixed_point_exp.sv
+  description: 'Fixed-point exp over 16-byte quad rows: the destination field is rewritten as exp of the source field in
+    Q(32-F).F. GENERATED, not checked in -- its 256-entry table of 2**(j/256) and its polynomial coefficients are
+    transcendental constants at the configured internal precision, which SystemVerilog cannot compute at elaboration, so
+    the generator below renders them from the operating point. Unlike sqrt and divide there is no exact integer
+    algorithm, so accuracy is a MEASURED fact of the operating point rather than an identity: the registered point is
+    correctly rounded (0 ULP) over every one of the 1,453,635 representable inputs, swept exhaustively. The HDL mirrors
+    dau_core.fixed_point.ExpDatapath.evaluate step for step and the bench compares with zero tolerance, so the
+    device-to-model contract stays exact even where the model-to-mathematics one is measured. Nine-stage pipeline, one
+    multiply per stage. An input above the domain closes out ERR_RANGE; an underflow returns 0, which is the correctly
+    rounded answer and not an error.'
+  golden: dau_core.fixed_point:exp_reference
+  bench: dau_core.tests.cocotb_benches.dau_int32_fixed_point_exp_tb
+  contract_kind: row-stream
+  record_words: 2
+  ingest:
+    rows: 1
+    per_cycles: 3
+  generator:
+    _target_: dau_core.exp_generator.ExpTileGenerator
+    datapath:
+      _target_: dau_core.fixed_point.ExpDatapath
+      internal_bits: 52
+      table_bits: 8
+      degree: 4
+      round_steps: false
+  # Measured 2026-08-09 via dau-build task=tasks/build/synthesize-cores, which
+  # renders the generated source before staging it.
+  #
+  # 52 DSP48s -- the first tile in the palette to spend any. Registering every
+  # multiply took WNS at 8 ns from -4.819 to -1.962; the remaining path still
+  # misses 125 MHz, so on this part the tile is a 100 MHz component today and
+  # the 8 ns point is recorded VIOLATED rather than omitted. The +0.038 margin
+  # at 10 ns is well inside the range where OOC stops predicting composed
+  # timing, so a composition carrying this needs its own timing check, not
+  # this number.
+  resources:
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 1365
+      ff: 1115
+      bram36: 1.0
+      dsp: 52
+      timing: violated
+      wns_ns: -1.962
+    - part: xc7a200tfbg484-2
+      clock_ns: 10.0
+      params: {}
+      lut: 1365
+      ff: 1115
+      bram36: 1.0
+      dsp: 52
+      timing: met
+      wns_ns: 0.038
 int32-fixed-point-divide:
   _target_: dau_core.cores.CoreDefinition
   name: int32-fixed-point-divide

@@ -26,15 +26,33 @@ from dau_core.cores import (
 
 
 def test_every_hdl_file_belongs_to_exactly_one_core() -> None:
+    """Checked-in HDL and registry entries match exactly, in both directions.
+
+    A GENERATED core is excluded because it has no checked-in file by
+    definition -- and asserted to have none, which is the same guard from the
+    other side: a generated core with a file beside the entry means someone
+    committed rendered output, and whichever of the two is stale will be the
+    one that gets synthesized.
+    """
     hdl_dir = Path(str(hdl.__path__[0]))
     hdl_files = {path.name for path in hdl_dir.iterdir() if path.suffix in (".sv", ".v")}
-    registry_files = [definition.source for definition in loaded_cores().values()]
+
+    generated = {d.source for d in loaded_cores().values() if d.generator is not None}
+    committed_generated = generated & hdl_files
+    assert not committed_generated, (
+        f"rendered output is committed beside the registry: {sorted(committed_generated)}. "
+        "A generated core renders from its operating point; a file here would shadow it"
+    )
+
+    registry_files = [d.source for d in loaded_cores().values() if d.generator is None]
     assert sorted(registry_files) == sorted(set(registry_files)), "duplicate source in registry"
     assert set(registry_files) == hdl_files, f"registry/hdl drift: missing {hdl_files - set(registry_files)}, stale {set(registry_files) - hdl_files}"
 
 
 def test_all_source_paths_exist() -> None:
     for definition in loaded_cores().values():
+        if definition.generator is not None:
+            continue  # refuses until rendered; covered by test_generated_cores
         assert definition.source_path().is_file(), definition.name
 
 
@@ -339,6 +357,7 @@ def test_silent_on_success_operator_set_is_pinned() -> None:
         "int32-row-map-alu",
         "int32-fixed-point-sqrt",
         "int32-fixed-point-divide",
+        "int32-fixed-point-exp",
         "int32-key-membership-filter",
         "int32-broadcast-hash-join",
         "int32-row-unpack",

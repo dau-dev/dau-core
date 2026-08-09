@@ -68,23 +68,38 @@ class ExpTileGenerator(CoreGenerator):
         # `WIDE'((acc * res) >>> Q)` evaluates the multiply at WIDE and throws
         # away the high half BEFORE the shift -- which silently produced zero
         # for every input. The products therefore get their own wires.
+        # EVERY multiply gets its own pipeline stage. Multiplying, shifting and
+        # adding in one cycle left the DSP48 without its internal register and
+        # measured WNS -4.819 ns at 8 ns on the Artix -- a ~12.8 ns path. The
+        # product is registered, so each Horner step costs two stages.
         rounding = " + (PROD_ONE <<< (INTERNAL_BITS - 1))" if point.round_steps else ""
-        products = []
-        horner = []
+        stages = []
         for step in range(point.degree):
-            stage = 3 + step
+            multiply = 3 + 2 * step
+            accumulate = multiply + 1
             coefficient = point.degree - 1 - step
-            products.append(
-                f"    assign horner_product[{step}] = PROD_WIDTH'(stage_acc[{stage - 1}]) * PROD_WIDTH'(stage_res[{stage - 1}]);"
+            stages.append(
+                f"                stage_prod[{multiply}] <= PROD_WIDTH'(stage_acc[{multiply - 1}]) * PROD_WIDTH'(stage_res[{multiply - 1}]);"
             )
-            horner.append(
-                f"                stage_acc[{stage}] <= WIDE'(WIDE'("
-                f"(horner_product[{step}]{rounding}) >>> INTERNAL_BITS)"
+            stages.append(
+                f"                stage_acc[{accumulate}] <= WIDE'(WIDE'("
+                f"(stage_prod[{multiply}]{rounding}) >>> INTERNAL_BITS)"
                 f" + signed'({{1'b0, COEFFICIENT[{coefficient}]}}));"
             )
-        horner_body = "\n".join(horner)
-        product_wires = "\n".join(products)
+        table_multiply = 3 + 2 * point.degree
+        stages.append(
+            f"                stage_prod[{table_multiply}] <= PROD_WIDTH'(stage_acc[{table_multiply - 1}])"
+            f" * PROD_WIDTH'(signed'({{1'b0, TABLE[stage_k[{table_multiply - 1}][TABLE_BITS-1:0]]}}));"
+        )
+        stages.append(
+            f"                stage_acc[{table_multiply + 1}] <= WIDE'((stage_prod[{table_multiply}]{rounding}) >>> INTERNAL_BITS);"
+        )
+        stages.append(f"                stage_acc[{table_multiply + 2}] <= scaled;")
+        horner_body = "\n".join(stages)
+        product_wires = ""
         rounding_table = rounding
+        depth = table_multiply + 3
+        scale_source = table_multiply + 1
         prod_one_decl = "    localparam logic signed [PROD_WIDTH-1:0] PROD_ONE = 1;\n" if point.round_steps else ""
 
         text = f"""`default_nettype none
@@ -161,8 +176,9 @@ module {self.module} #(
     localparam logic signed [31:0] MAX_INPUT = 32'sd{high};
 
     // the datapath, one multiply per stage:
-    //   0 push  1 k  2 residue  3..{2 + point.degree} horner  {3 + point.degree} table  {4 + point.degree} scale
-    localparam int DEPTH = {5 + point.degree};
+    //   0 push  1 k  2 residue, then a MULTIPLY stage and an ACCUMULATE
+    //   stage per Horner step, the table multiply, and the final scale
+    localparam int DEPTH = {depth};
 
     typedef enum logic [1:0] {{ IN_W0, IN_W1, IN_DISCARD }} in_state_t;
     typedef enum logic [1:0] {{ OUT_IDLE, OUT_W0, OUT_W1 }} out_state_t;
@@ -221,10 +237,7 @@ module {self.module} #(
 
     // Products are formed at full width on purpose; see the generator.
     localparam int PROD_WIDTH = 2 * WIDE;
-{prod_one_decl}    logic signed [PROD_WIDTH-1:0] horner_product [DEGREE];
-    logic signed [PROD_WIDTH-1:0] table_product;
-{product_wires}
-    assign table_product = PROD_WIDTH'(stage_acc[{2 + point.degree}]) * PROD_WIDTH'(signed'({{1'b0, TABLE[stage_k[{2 + point.degree}][TABLE_BITS-1:0]]}}));
+{prod_one_decl}    logic signed [PROD_WIDTH-1:0] stage_prod [DEPTH];
 
     // Stages read the x CARRIED in the pipeline, never the live input
     // port. Reading src_value here worked for a single parked row and
@@ -250,14 +263,14 @@ module {self.module} #(
     logic signed [K_WIDTH-1:0] final_e;
     logic [7:0] final_shift;
     logic signed [WIDE-1:0] scaled;
-    assign final_e = stage_k[DEPTH-2] >>> TABLE_BITS;
+    assign final_e = stage_k[{scale_source}] >>> TABLE_BITS;
     assign final_shift = 8'((INTERNAL_BITS - FRACTIONAL_BITS) - final_e);
     // The rounding term must be added in a WIDER type: at the bottom of the
     // domain the shift reaches WIDE-1, and acc + (1 << (WIDE-2)) overflows a
     // signed WIDE, which wrapped a small positive answer to -1.
     localparam int SCALE_WIDTH = WIDE + 2;
     logic signed [SCALE_WIDTH-1:0] scale_sum;
-    assign scale_sum = SCALE_WIDTH'(stage_acc[DEPTH-2]) + (SCALE_WIDTH'(signed'(1)) <<< (final_shift - 8'd1));
+    assign scale_sum = SCALE_WIDTH'(stage_acc[{scale_source}]) + (SCALE_WIDTH'(signed'(1)) <<< (final_shift - 8'd1));
     // beyond SCALE_WIDTH the rounded result is zero, which is the correctly
     // rounded answer for an underflow, not an error
     assign scaled = (final_shift >= 8'(SCALE_WIDTH)) ? WIDE'(signed'(0)) : WIDE'(scale_sum >>> final_shift);
@@ -289,6 +302,7 @@ module {self.module} #(
                     stage_dst[i] <= stage_dst[i-1];
                     stage_k[i] <= stage_k[i-1];
                     stage_acc[i] <= stage_acc[i-1];
+                    stage_prod[i] <= stage_prod[i-1];
                     stage_res[i] <= stage_res[i-1];
                     for (int unsigned f = 0; f < 4; f++) stage_field[i][f] <= stage_field[i-1][f];
                 end
@@ -299,8 +313,6 @@ module {self.module} #(
                 stage_res[2] <= WIDE'(residue_full);
 {horner_body}
                 // the table multiply, then the scale
-                stage_acc[{3 + point.degree}] <= WIDE'((table_product{rounding_table}) >>> INTERNAL_BITS);
-                stage_acc[{4 + point.degree}] <= scaled;
             end
 
             case (in_state)
