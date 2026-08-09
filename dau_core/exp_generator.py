@@ -309,7 +309,10 @@ module {self.module} #(
                 end
 
                 // stage 1 overrides: k
-                stage_k[1] <= K_WIDTH'((k_product + (KP_WIDTH'(signed'(1)) <<< (K_BITS + FRACTIONAL_BITS - 1))) >>> (K_BITS + FRACTIONAL_BITS));
+                // truncated, not rounded: the rounding add spanned the whole
+                // product and measured as a 13-deep CARRY4 chain between two
+                // DSPs, which was the tile's critical path
+                stage_k[1] <= K_WIDTH'(k_product >>> (K_BITS + FRACTIONAL_BITS));
                 // stage 2 overrides: the residue replaces the carried x
                 stage_res[2] <= WIDE'(residue_full);
 {horner_body}

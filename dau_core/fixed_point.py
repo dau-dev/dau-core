@@ -123,7 +123,11 @@ class ExpDatapath(BaseModel):
         c = self.constants()
         q, f = self.internal_bits, self.fractional_bits
         half = 1 << (q - 1)
-        k = (x * c["inv_ln2_narrow"] + (1 << (self.k_bits + f - 1))) >> (self.k_bits + f)
+        # TRUNCATED, not rounded. The rounding add spanned the whole product
+        # and measured as a 13-deep CARRY4 chain between two DSPs -- the
+        # critical path of the whole tile. k only picks the table/residue
+        # split, so a half-step bias in it is absorbed by the residue.
+        k = (x * c["inv_ln2_narrow"]) >> (self.k_bits + f)
         x_q = x << (q - f)
         residue = x_q - ((k * c["ln2"]) >> self.table_bits)
 

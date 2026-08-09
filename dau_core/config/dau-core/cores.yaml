@@ -1385,32 +1385,33 @@ int32-fixed-point-exp:
   # Measured 2026-08-09 via dau-build task=tasks/build/synthesize-cores, which
   # renders the generated source before staging it.
   #
-  # 52 DSP48s -- the first tile in the palette to spend any. Registering every
-  # multiply took WNS at 8 ns from -4.819 to -1.962; the remaining path still
-  # misses 125 MHz, so on this part the tile is a 100 MHz component today and
-  # the 8 ns point is recorded VIOLATED rather than omitted. The +0.038 margin
-  # at 10 ns is well inside the range where OOC stops predicting composed
-  # timing, so a composition carrying this needs its own timing check, not
-  # this number.
+  # 52 DSP48s -- the first tile in the palette to spend any.
+  #
+  # Timing was chased with the report, not by guessing: registering every
+  # multiply took 8 ns WNS from -4.819 to -1.962, then splitting the final
+  # scale and the table read each moved it NOT AT ALL (both reverted). The
+  # report named the k rounding-add -- a 13-deep CARRY4 chain between two
+  # DSPs -- and truncating k took it to -1.280. Still a 100 MHz component on
+  # this part; the 8 ns point is recorded VIOLATED rather than omitted.
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
       params: {}
-      lut: 1365
+      lut: 1364
       ff: 1115
       bram36: 1.0
       dsp: 52
       timing: violated
-      wns_ns: -1.962
+      wns_ns: -1.280
     - part: xc7a200tfbg484-2
       clock_ns: 10.0
       params: {}
-      lut: 1365
+      lut: 1364
       ff: 1115
       bram36: 1.0
       dsp: 52
       timing: met
-      wns_ns: 0.038
+      wns_ns: 0.720
 int32-fixed-point-exp-light:
   _target_: dau_core.cores.CoreDefinition
   name: int32-fixed-point-exp-light
@@ -1445,31 +1446,30 @@ int32-fixed-point-exp-light:
   # 22 DSP48s against the exact point's 52, for 1 ULP instead of 0 -- the
   # trade the second operating point exists to offer.
   #
-  # The WNS is IDENTICAL to the exact point at both clocks (-1.962 and
-  # +0.038) despite half the multiplier width, which says the critical path
-  # is NOT the multiply: it is the structure both points share, and the
-  # suspect is the final scale, where a variable rounding shift feeds a
-  # variable right shift combinationally. Splitting the multiplies further
-  # will not move this number.
+  # Both points once reported IDENTICAL WNS despite half the multiplier
+  # width, which ruled the multiply out. The timing report named the real
+  # path -- the k rounding-add, a 13-deep CARRY4 chain between two DSPs --
+  # and truncating k (measured harmless over every input) separated the two
+  # points and bought 1.08 ns here. Still short of 125 MHz.
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
       params: {}
-      lut: 1192
+      lut: 1191
       ff: 915
       bram36: 1.0
       dsp: 22
       timing: violated
-      wns_ns: -1.962
+      wns_ns: -0.882
     - part: xc7a200tfbg484-2
       clock_ns: 10.0
       params: {}
-      lut: 1192
+      lut: 1191
       ff: 915
       bram36: 1.0
       dsp: 22
       timing: met
-      wns_ns: 0.038
+      wns_ns: 1.118
 int32-fixed-point-divide:
   _target_: dau_core.cores.CoreDefinition
   name: int32-fixed-point-divide
