@@ -179,3 +179,112 @@ EXP_LIGHT = ExpDatapath(internal_bits=36, table_bits=8, degree=3, round_steps=Tr
 #: worth having: sampling declared a configuration flawless that an
 #: exhaustive sweep showed wrong on three inputs.
 EXP_MEASURED_ULP: dict[str, int] = {"exact": 0, "light": 1}
+
+LN_FRACTIONAL_BITS = 16
+
+
+def ln_reference(x: int, *, fractional_bits: int = LN_FRACTIONAL_BITS) -> int:
+    """True ``ln`` of a Q(32-f).f value, correctly rounded to Q(32-f).f.
+
+    The mathematical contract, like :func:`exp_reference`. Computed in 80
+    digits so the half-way cases double precision cannot decide are decided
+    here.
+
+    Raises on a non-positive input; the tile reports ``DOMAIN``, the same
+    position the sqrt tile takes -- ln of zero or a negative has no value and
+    a substituted one would be a wrong number that looks right.
+    """
+    if x <= 0:
+        raise ValueError(f"ln of a non-positive fixed-point value is undefined, got {x}")
+    _decimal_context()
+    one = 1 << fractional_bits
+    value = (Decimal(x) / one).ln() * one
+    return int((value + Decimal("0.5")).to_integral_value(rounding="ROUND_FLOOR"))
+
+
+class LnDatapath(BaseModel):
+    """One operating point of the ln datapath.
+
+    ``x`` is normalised to ``m * 2**e`` with ``m`` in [1, 2), so
+    ``ln(x) = e*ln2 + ln(m)``. The mantissa's top ``table_bits`` index two
+    tables -- ``ln(1 + j/N)`` and the reciprocal ``1/(1 + j/N)`` -- reducing
+    the residue to ``|v| <= 1/N`` before a short Horner series for
+    ``ln(1+v)``. The reciprocal table is what keeps the polynomial degree low
+    without a divider: a direct series on [0,1) would need many more terms.
+
+    The exponent term is EXACT integer work: ``e`` is a small signed integer
+    and ``ln2`` a constant, so the only approximation is the mantissa series.
+    """
+
+    model_config: ClassVar = ConfigDict(frozen=True)
+
+    internal_bits: int = 52
+    table_bits: int = 8
+    degree: int = 3
+    round_steps: bool = False
+    fractional_bits: int = LN_FRACTIONAL_BITS
+
+    def model_post_init(self, context) -> None:
+        super().model_post_init(context)
+        if not 1 <= self.degree <= 8:
+            raise ValueError("degree must be in [1, 8]")
+        if not 1 <= self.table_bits <= 12:
+            raise ValueError("table_bits must be in [1, 12]")
+
+    @property
+    def multiplies(self) -> int:
+        """The reciprocal multiply, the Horner chain, and e*ln2."""
+        return 1 + self.degree + 1
+
+    def constants(self) -> dict:
+        return _ln_constants(self.internal_bits, self.table_bits)
+
+    def evaluate(self, x: int) -> int:
+        """The integer datapath, bit for bit as the HDL will run it."""
+        if x <= 0:
+            raise ValueError("ln datapath requires a positive input")
+        c = self.constants()
+        q, f = self.internal_bits, self.fractional_bits
+        half = 1 << (q - 1)
+
+        # normalise: x = m * 2**e with m in [1, 2), m carried at q bits
+        msb = x.bit_length() - 1
+        exponent = msb - f
+        mantissa = (x << (q - msb)) if q >= msb else (x >> (msb - q))
+
+        index = (mantissa >> (q - self.table_bits)) & ((1 << self.table_bits) - 1)
+        # v = m * recip[index] - 1, small by construction
+        v = ((mantissa * c["reciprocal"][index]) >> q) - (1 << q)
+
+        # ln(1+v) by Horner on the alternating series
+        acc = c["series"][self.degree]
+        for term in range(self.degree - 1, 0, -1):
+            product = acc * v
+            acc = ((product + half) >> q if self.round_steps else product >> q) + c["series"][term]
+        product = acc * v
+        acc = (product + half) >> q if self.round_steps else product >> q
+
+        total = exponent * c["ln2"] + c["ln_table"][index] + acc
+        shift = q - f
+        return (total + (1 << (shift - 1))) >> shift if shift > 0 else total << (-shift)
+
+
+@lru_cache(maxsize=None)
+def _ln_constants(internal_bits: int, table_bits: int) -> dict:
+    _decimal_context()
+    scale = Decimal(2) ** internal_bits
+    entries = 1 << table_bits
+    ln_table = []
+    reciprocal = []
+    for j in range(entries):
+        base = 1 + Decimal(j) / entries
+        ln_table.append(round(scale * base.ln()))
+        reciprocal.append(round(scale / base))
+    # ln(1+v) = v - v^2/2 + v^3/3 - ...; index k holds the coefficient of v^k
+    series = [0] + [round(scale * (Decimal(-1) ** (k + 1)) / k) for k in range(1, 9)]
+    return {
+        "ln2": round(scale * Decimal(2).ln()),
+        "ln_table": tuple(ln_table),
+        "reciprocal": tuple(reciprocal),
+        "series": tuple(series),
+    }
