@@ -416,6 +416,22 @@ def test_row_predicate_filter_runs_real_cocotb_against_systemverilog(tmp_path: P
 
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_normal_cdf_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
+    """The rendered CDF tile against its model, which is correctly rounded
+    over every representable input."""
+    from dau_core.normal_cdf_generator import NormalCdfTileGenerator
+
+    generator = NormalCdfTileGenerator()
+    source = generator.render().write(tmp_path / "rendered")
+    _run_cocotb_verilator(
+        sources=(source,),
+        hdl_toplevel=generator.module,
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_normal_cdf_tb",
+        tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 @pytest.mark.parametrize("core_name", ["int32-fixed-point-exp", "int32-fixed-point-exp-light"])
 def test_fixed_point_exp_runs_real_cocotb_against_systemverilog(tmp_path: Path, core_name: str, monkeypatch) -> None:
     """Each registered operating point against the model it renders from.
