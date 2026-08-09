@@ -125,6 +125,7 @@ module {self.module} #(
     localparam int PROD_WIDTH = 2 * WIDE;
     localparam int SEGMENTS = {segments};
     localparam int SEG_BITS = {max(point.table_bits, 1)};
+    localparam int SEGMENT_SHIFT = {constants['segment_shift']};
     localparam logic signed [31:0] LIMIT = 32'sd{limit};
     localparam logic [31:0] ONE = 32'd{1 << point.fractional_bits};
 
@@ -195,13 +196,14 @@ module {self.module} #(
     assign status_error = 1'b1;
     assign status_error_code = pending_error;
 
-    // the segment index and the residue measured from the segment start
-    logic [63:0] scaled_index;
+    // The segmented range is a POWER OF TWO, so the index is a SHIFT and the
+    // start a mask. Segmenting the true domain edge instead made both a
+    // division by a non-power-of-two constant -- free in the Python model,
+    // a runtime divider in fabric, measured at WNS -9.576 ns.
     logic [SEG_BITS-1:0] segment_index;
     logic [31:0] segment_start;
-    assign scaled_index = 64'(magnitude) * 64'(SEGMENTS);
-    assign segment_index = SEG_BITS'(scaled_index / 64'(LIMIT));
-    assign segment_start = 32'((64'(segment_index) * 64'(LIMIT)) / 64'(SEGMENTS));
+    assign segment_index = SEG_BITS'(magnitude >> SEGMENT_SHIFT);
+    assign segment_start = 32'(segment_index) << SEGMENT_SHIFT;
 
     // the rounded, symmetry-folded result
     logic signed [WIDE-1:0] rounded;

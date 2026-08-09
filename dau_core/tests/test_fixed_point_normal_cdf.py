@@ -63,7 +63,7 @@ def test_symmetry_holds_exactly() -> None:
         assert CDF_EXACT.evaluate(magnitude) + CDF_EXACT.evaluate(-magnitude) == one
 
 
-@pytest.mark.parametrize(("table_bits", "degree"), [(8, 3)])
+@pytest.mark.parametrize(("table_bits", "degree"), [(9, 3)])
 def test_a_cheaper_point_is_not_correctly_rounded(table_bits: int, degree: int) -> None:
     """Pins WHY the registered point costs what it does: the obvious cheaper
     configuration misses, so the extra segments are load-bearing rather than

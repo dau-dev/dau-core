@@ -392,9 +392,20 @@ class NormalCdfDatapath(BaseModel):
     # 256/degree-4 also reaches 0 but spends a fourth multiply. A multiply
     # costs 5-9 DSP48s and the extra segments cost about one BRAM36, and DSPs
     # are the scarcer resource here.
-    table_bits: int = 9
+    # 1024 segments at degree 3 is the cheapest correctly-rounded point once
+    # the range is power-of-two aligned: 512/degree-3 leaves 4 of 573,441
+    # wrong, and 512/degree-4 also reaches 0 but spends a fourth multiply.
+    # Segments cost BRAM, multiplies cost 5-9 DSP48s each, and DSPs are the
+    # scarcer resource.
+    table_bits: int = 10
     degree: int = 3
     fractional_bits: int = NORMAL_CDF_FRACTIONAL_BITS
+    # The segmented range is [0, 2**(span_bits - f)), a POWER OF TWO, so the
+    # segment index is a shift and the segment start a mask. Segmenting the
+    # true domain edge (4.375) instead made both a division by a
+    # non-power-of-two constant -- free in Python, a runtime divider in
+    # fabric, and measured at WNS -9.576 ns on the Artix.
+    span_bits: int = 19
 
     def model_post_init(self, context) -> None:
         super().model_post_init(context)
@@ -409,7 +420,7 @@ class NormalCdfDatapath(BaseModel):
         return self.degree
 
     def constants(self) -> dict:
-        return _normal_cdf_constants(self.internal_bits, self.table_bits, self.degree, self.fractional_bits)
+        return _normal_cdf_constants(self.internal_bits, self.table_bits, self.degree, self.fractional_bits, self.span_bits)
 
     def evaluate(self, x: int) -> int:
         """The integer datapath, bit for bit as the HDL will run it."""
@@ -421,8 +432,9 @@ class NormalCdfDatapath(BaseModel):
         if magnitude >= c["limit"]:
             return 0 if negative else one
 
-        index = (magnitude * c["segments"]) // c["limit"]
-        segment_start = (index * c["limit"]) // c["segments"]
+        # shift and mask, not divide -- see span_bits
+        index = magnitude >> c["segment_shift"]
+        segment_start = index << c["segment_shift"]
         residue = (magnitude - segment_start) << (q - f)
 
         coefficients = c["coefficients"][index]
@@ -437,18 +449,19 @@ class NormalCdfDatapath(BaseModel):
 
 
 @lru_cache(maxsize=None)
-def _normal_cdf_constants(internal_bits: int, table_bits: int, degree: int, fractional_bits: int) -> dict:
+def _normal_cdf_constants(internal_bits: int, table_bits: int, degree: int, fractional_bits: int, span_bits: int) -> dict:
     _decimal_context()
     scale = Decimal(2) ** internal_bits
     one = 1 << fractional_bits
-    _low, high = normal_cdf_domain(fractional_bits=fractional_bits)
+    _low, saturate_at = normal_cdf_domain(fractional_bits=fractional_bits)
     segments = 1 << table_bits
+    segment_shift = span_bits - table_bits
     root_two = Decimal(2).sqrt()
     root_two_pi = (2 * _pi()).sqrt()
 
     coefficients = []
     for index in range(segments):
-        start_ticks = (index * high) // segments
+        start_ticks = index << segment_shift
         start = Decimal(start_ticks) / one
         density = (-start * start / 2).exp() / root_two_pi
         # derivatives of the CDF at the segment START, in closed form:
@@ -463,4 +476,9 @@ def _normal_cdf_constants(internal_bits: int, table_bits: int, degree: int, frac
         ]
         coefficients.append(tuple(round(scale * taylor[term]) for term in range(degree + 1)))
 
-    return {"limit": high, "segments": segments, "coefficients": tuple(coefficients)}
+    return {
+        "limit": saturate_at,
+        "segments": segments,
+        "segment_shift": segment_shift,
+        "coefficients": tuple(coefficients),
+    }
