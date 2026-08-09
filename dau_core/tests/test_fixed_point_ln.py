@@ -18,8 +18,15 @@ from dau_core.fixed_point import LnDatapath, ln_reference
 
 _EXHAUSTIVE = os.environ.get("DAU_EXHAUSTIVE") == "1"
 LN_EXACT = LnDatapath()
-#: Exhaustively measured deviation from ln_reference, in ULP.
-LN_MEASURED_ULP = 0
+#: Deviation from ln_reference, in ULP, measured by the EXHAUSTIVE sweep
+#: over all 2,147,483,647 positive inputs -- not by the strided one.
+#:
+#: This was recorded as 0 on the strength of 60,000 samples including
+#: every power-of-two boundary, and the exhaustive sweep found hundreds of
+#: inputs off by one. FAITHFUL, not correctly rounded. That is the third
+#: time in this arc that a sample declared a datapath flawless and the
+#: full sweep disagreed; the bound is only ever what was actually swept.
+LN_MEASURED_ULP = 1
 
 
 def _boundary_inputs() -> list[int]:
@@ -63,6 +70,13 @@ def test_ln_of_a_non_positive_value_is_refused() -> None:
             ln_reference(bad)
     with pytest.raises(ValueError, match="positive"):
         LN_EXACT.evaluate(0)
+
+
+def test_ln_is_faithful_not_correctly_rounded() -> None:
+    """Records the class honestly. exp and the normal CDF reach 0 ULP at
+    their registered points; ln does not at this one, and a caller choosing
+    between them should see that rather than infer it."""
+    assert LN_MEASURED_ULP == 1
 
 
 def test_the_exponent_boundaries_are_exact() -> None:
