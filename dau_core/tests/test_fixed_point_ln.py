@@ -21,11 +21,18 @@ LN_EXACT = LnDatapath()
 #: Deviation from ln_reference, in ULP, measured by the EXHAUSTIVE sweep
 #: over all 2,147,483,647 positive inputs -- not by the strided one.
 #:
-#: This was recorded as 0 on the strength of 60,000 samples including
-#: every power-of-two boundary, and the exhaustive sweep found hundreds of
-#: inputs off by one. FAITHFUL, not correctly rounded. That is the third
-#: time in this arc that a sample declared a datapath flawless and the
-#: full sweep disagreed; the bound is only ever what was actually swept.
+#: MEASURED 2026-08-09, whole domain: 459 of 2,147,483,647 inputs off by
+#: one, worst 1 ULP, first at x=3290838. A rate of 2.1e-7 -- which is exactly
+#: why the 60,000-sample sweep that preceded it recorded 0 and was wrong.
+#: FAITHFUL, not correctly rounded.
+#:
+#: Third time in this arc that a sample declared a datapath flawless and the
+#: full sweep disagreed (Q48/degree-5 exp, then the 256-segment CDF). At this
+#: rate no stratified sample would ever have found it: the bound is only ever
+#: what was actually swept.
+#:
+#: 4,397 inputs sat too close to a rounding boundary for double to decide and
+#: were re-decided against the 80-digit reference.
 LN_MEASURED_ULP = 1
 
 
@@ -73,9 +80,15 @@ def test_ln_of_a_non_positive_value_is_refused() -> None:
 
 
 def test_ln_is_faithful_not_correctly_rounded() -> None:
-    """Records the class honestly. exp and the normal CDF reach 0 ULP at
-    their registered points; ln does not at this one, and a caller choosing
-    between them should see that rather than infer it."""
+    """Records the class honestly. exp-light and the normal CDF reach their
+    registered contracts; ln does not at this operating point, and a caller
+    choosing between them should see that rather than infer it.
+
+    Whether a correctly-rounded ln is worth having is a separate question:
+    the exp arc showed the fix is either more internal precision or more
+    polynomial degree, and which one binds is not predictable without
+    measuring both.
+    """
     assert LN_MEASURED_ULP == 1
 
 
