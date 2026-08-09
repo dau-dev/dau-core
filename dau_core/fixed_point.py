@@ -288,3 +288,82 @@ def _ln_constants(internal_bits: int, table_bits: int) -> dict:
         "reciprocal": tuple(reciprocal),
         "series": tuple(series),
     }
+
+NORMAL_CDF_FRACTIONAL_BITS = 16
+
+
+def normal_cdf_reference(x: int, *, fractional_bits: int = NORMAL_CDF_FRACTIONAL_BITS) -> int:
+    """The standard normal CDF of a Q(32-f).f value, correctly rounded.
+
+    TOTAL: every int32 input has an answer, so unlike ln and exp there is no
+    error path. Beyond about +/-4.33 the result saturates to 0 or 1 exactly,
+    which IS the correctly rounded answer rather than a clamp.
+    """
+    _decimal_context()
+    one = 1 << fractional_bits
+    value = Decimal(x) / one
+    # 0.5 * erfc(-v / sqrt(2)), evaluated in Decimal via the error function
+    half = Decimal("0.5")
+    result = half * _erfc(-value / Decimal(2).sqrt())
+    return int((result * one + half).to_integral_value(rounding="ROUND_FLOOR"))
+
+
+def _erfc(z: Decimal) -> Decimal:
+    """Complementary error function to the working precision."""
+    if z < 0:
+        return 2 - _erfc(-z)
+    if z == 0:
+        return Decimal(1)
+    if z > 12:  # underflows the working precision
+        return Decimal(0)
+    # erf(z) = 2/sqrt(pi) * sum_{n} (-1)^n z^(2n+1) / (n! (2n+1))
+    pi = _pi()
+    total = Decimal(0)
+    term_z = z
+    factorial = Decimal(1)
+    for n in range(0, 200):
+        if n:
+            factorial *= n
+            term_z *= z * z
+        term = (Decimal(-1) ** n) * term_z / (factorial * (2 * n + 1))
+        total += term
+        if abs(term) < Decimal(10) ** (-getcontext().prec):
+            break
+    erf = 2 / pi.sqrt() * total
+    return 1 - erf
+
+
+@lru_cache(maxsize=1)
+def _pi() -> Decimal:
+    """Pi to the working precision (Chudnovsky is overkill; Machin suffices)."""
+    getcontext().prec += 10
+    one = Decimal(1)
+
+    def arctan_inverse(value: int) -> Decimal:
+        total = term = one / value
+        square = value * value
+        divisor = 1
+        while True:
+            term = -term / square
+            divisor += 2
+            step = term / divisor
+            if not step:
+                return total
+            total += step
+
+    result = 4 * (4 * arctan_inverse(5) - arctan_inverse(239))
+    getcontext().prec -= 10
+    return +result
+
+
+def normal_cdf_domain(*, fractional_bits: int = NORMAL_CDF_FRACTIONAL_BITS) -> tuple[int, int]:
+    """The inputs where the CDF is neither 0 nor 1 to the last bit.
+
+    Small enough to sweep EXHAUSTIVELY, which is what makes a correctness
+    claim about this tile a proof rather than a sample.
+    """
+    one = 1 << fractional_bits
+    limit = 0
+    while normal_cdf_reference(limit, fractional_bits=fractional_bits) < one:
+        limit += one // 16
+    return -limit, limit
