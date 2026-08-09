@@ -367,3 +367,100 @@ def normal_cdf_domain(*, fractional_bits: int = NORMAL_CDF_FRACTIONAL_BITS) -> t
     while normal_cdf_reference(limit, fractional_bits=fractional_bits) < one:
         limit += one // 16
     return -limit, limit
+
+
+class NormalCdfDatapath(BaseModel):
+    """One operating point of the normal-CDF datapath.
+
+    Folds on symmetry (the CDF of -x is one minus the CDF of x), so only the
+    positive half is approximated, then evaluates a PER-SEGMENT Taylor
+    polynomial: the magnitude's top ``table_bits`` select a segment and the
+    coefficients are the CDF's derivatives at that segment, which have closed
+    forms in the density. Piecewise rather than one polynomial because the
+    CDF has no useful global series.
+
+    Saturation is exact rather than a clamp: beyond the domain the correctly
+    rounded answer IS 0 or 1, so this tile is TOTAL and needs no error path
+    -- the one transcendental here that does not.
+    """
+
+    model_config: ClassVar = ConfigDict(frozen=True)
+
+    internal_bits: int = 52
+    # 512 segments at degree 3 is the CHEAPEST correctly-rounded point on the
+    # measured curve: 256/degree-3 leaves 6 of 573,441 inputs wrong, and
+    # 256/degree-4 also reaches 0 but spends a fourth multiply. A multiply
+    # costs 5-9 DSP48s and the extra segments cost about one BRAM36, and DSPs
+    # are the scarcer resource here.
+    table_bits: int = 9
+    degree: int = 3
+    fractional_bits: int = NORMAL_CDF_FRACTIONAL_BITS
+
+    def model_post_init(self, context) -> None:
+        super().model_post_init(context)
+        if not 1 <= self.degree <= 5:
+            raise ValueError("degree must be in [1, 5]")
+        if not 1 <= self.table_bits <= 12:
+            raise ValueError("table_bits must be in [1, 12]")
+
+    @property
+    def multiplies(self) -> int:
+        """The Horner chain; the symmetry fold and saturation are free."""
+        return self.degree
+
+    def constants(self) -> dict:
+        return _normal_cdf_constants(self.internal_bits, self.table_bits, self.degree, self.fractional_bits)
+
+    def evaluate(self, x: int) -> int:
+        """The integer datapath, bit for bit as the HDL will run it."""
+        c = self.constants()
+        q, f = self.internal_bits, self.fractional_bits
+        one = 1 << f
+        negative = x < 0
+        magnitude = -x if negative else x
+        if magnitude >= c["limit"]:
+            return 0 if negative else one
+
+        index = (magnitude * c["segments"]) // c["limit"]
+        segment_start = (index * c["limit"]) // c["segments"]
+        residue = (magnitude - segment_start) << (q - f)
+
+        coefficients = c["coefficients"][index]
+        acc = coefficients[self.degree]
+        for term in range(self.degree - 1, -1, -1):
+            acc = ((acc * residue) >> q) + coefficients[term]
+
+        shift = q - f
+        result = (acc + (1 << (shift - 1))) >> shift
+        result = max(0, min(one, result))
+        return (one - result) if negative else result
+
+
+@lru_cache(maxsize=None)
+def _normal_cdf_constants(internal_bits: int, table_bits: int, degree: int, fractional_bits: int) -> dict:
+    _decimal_context()
+    scale = Decimal(2) ** internal_bits
+    one = 1 << fractional_bits
+    _low, high = normal_cdf_domain(fractional_bits=fractional_bits)
+    segments = 1 << table_bits
+    root_two = Decimal(2).sqrt()
+    root_two_pi = (2 * _pi()).sqrt()
+
+    coefficients = []
+    for index in range(segments):
+        start_ticks = (index * high) // segments
+        start = Decimal(start_ticks) / one
+        density = (-start * start / 2).exp() / root_two_pi
+        # derivatives of the CDF at the segment START, in closed form:
+        # d0 = Phi, d1 = phi, d2 = -x*phi, d3 = (x^2-1)*phi, ...
+        taylor = [
+            Decimal("0.5") * _erfc(-start / root_two),
+            density,
+            -start * density / 2,
+            (start * start - 1) * density / 6,
+            start * (3 - start * start) * density / 24,
+            (start**4 - 6 * start * start + 3) * density / 120,
+        ]
+        coefficients.append(tuple(round(scale * taylor[term]) for term in range(degree + 1)))
+
+    return {"limit": high, "segments": segments, "coefficients": tuple(coefficients)}
