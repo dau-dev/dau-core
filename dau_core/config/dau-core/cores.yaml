@@ -1351,6 +1351,62 @@ int32-row-predicate-filter:
       minimum: 8
       maximum: 64
       choices: [16, 32, 64]
+int32-normal-cdf:
+  _target_: dau_core.cores.CoreDefinition
+  name: int32-normal-cdf
+  kind: operator
+  module: dau_int32_normal_cdf
+  source: dau_int32_normal_cdf.sv
+  description: 'Standard normal CDF over 16-byte quad rows: the destination field is rewritten as Phi of the source field
+    in Q(32-F).F. GENERATED -- its per-segment Taylor coefficients are transcendental constants at the configured
+    internal precision, which SystemVerilog cannot compute at elaboration. CORRECTLY ROUNDED over every one of the
+    573,441 representable inputs where the answer is neither 0 nor 1 to the last bit, swept exhaustively, so for this
+    tile the algorithm and the mathematics coincide and the bench compares with zero tolerance. TOTAL: every input has
+    an answer and there is NO error path -- beyond the domain the result saturates to 0 or 1.0 and that saturation is
+    the correctly rounded answer, not a clamp. Symmetry is folded so only the positive half is approximated. Matches
+    dau_core.fixed_point.NormalCdfDatapath.evaluate.'
+  golden: dau_core.fixed_point:normal_cdf_reference
+  bench: dau_core.tests.cocotb_benches.dau_int32_normal_cdf_tb
+  contract_kind: row-stream
+  record_words: 2
+  ingest:
+    rows: 1
+    per_cycles: 3
+  generator:
+    _target_: dau_core.normal_cdf_generator.NormalCdfTileGenerator
+    datapath:
+      _target_: dau_core.fixed_point.NormalCdfDatapath
+      internal_bits: 52
+      table_bits: 10
+      degree: 3
+  # Measured 2026-08-09 on the dpv1 part. MEETS 125 MHz, which the
+  # correctly-rounded exp point does not.
+  #
+  # The first measurement was WNS -9.576: the segment index was a division by
+  # a non-power-of-two constant, which is free in the Python model and a
+  # runtime divider in fabric. Aligning the segmented range to [0, 8) made it
+  # a shift and took WNS to +0.657. Widening the segments then cost accuracy,
+  # so the point moved from 512 to 1024 segments rather than to a fourth
+  # multiply -- segments cost BRAM, multiplies cost 5-9 DSP48s each.
+  resources:
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 1011
+      ff: 739
+      bram36: 11.5
+      dsp: 27
+      timing: met
+      wns_ns: 0.657
+    - part: xc7a200tfbg484-2
+      clock_ns: 10.0
+      params: {}
+      lut: 1011
+      ff: 739
+      bram36: 11.5
+      dsp: 27
+      timing: met
+      wns_ns: 2.657
 int32-fixed-point-exp:
   _target_: dau_core.cores.CoreDefinition
   name: int32-fixed-point-exp

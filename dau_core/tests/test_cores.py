@@ -358,6 +358,7 @@ def test_silent_on_success_operator_set_is_pinned() -> None:
         "int32-fixed-point-sqrt",
         "int32-fixed-point-divide",
         "int32-fixed-point-exp",
+        "int32-normal-cdf",
         "int32-fixed-point-exp-light",
         "int32-key-membership-filter",
         "int32-broadcast-hash-join",
