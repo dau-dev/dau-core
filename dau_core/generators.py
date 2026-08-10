@@ -30,8 +30,8 @@ from pydantic import ConfigDict
 
 __all__ = ("CoreGenerator", "RenderedCore", "RenderContext")
 
-#: A generator takes no runtime input -- everything it needs is configuration
-#: -- but ccflow calls with a context, so this names the empty one.
+# A generator takes no runtime input -- everything it needs is configuration
+# -- but ccflow calls with a context, so this names the empty one.
 RenderContext = GenericContext[str]
 
 

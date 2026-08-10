@@ -18,21 +18,21 @@ from dau_core.fixed_point import LnDatapath, ln_reference
 
 _EXHAUSTIVE = os.environ.get("DAU_EXHAUSTIVE") == "1"
 LN_EXACT = LnDatapath()
-#: Deviation from ln_reference, in ULP, measured by the EXHAUSTIVE sweep
-#: over all 2,147,483,647 positive inputs -- not by the strided one.
+# Deviation from ln_reference, in ULP, measured by the EXHAUSTIVE sweep
+# over all 2,147,483,647 positive inputs -- not by the strided one.
 #:
-#: MEASURED 2026-08-09, whole domain: 459 of 2,147,483,647 inputs off by
-#: one, worst 1 ULP, first at x=3290838. A rate of 2.1e-7 -- which is exactly
-#: why the 60,000-sample sweep that preceded it recorded 0 and was wrong.
-#: FAITHFUL, not correctly rounded.
+# MEASURED 2026-08-09, whole domain: 459 of 2,147,483,647 inputs off by
+# one, worst 1 ULP, first at x=3290838. A rate of 2.1e-7 -- which is exactly
+# why the 60,000-sample sweep that preceded it recorded 0 and was wrong.
+# FAITHFUL, not correctly rounded.
 #:
-#: Third time in this arc that a sample declared a datapath flawless and the
-#: full sweep disagreed (Q48/degree-5 exp, then the 256-segment CDF). At this
-#: rate no stratified sample would ever have found it: the bound is only ever
-#: what was actually swept.
+# Third time in this arc that a sample declared a datapath flawless and the
+# full sweep disagreed (Q48/degree-5 exp, then the 256-segment CDF). At this
+# rate no stratified sample would ever have found it: the bound is only ever
+# what was actually swept.
 #:
-#: 4,397 inputs sat too close to a rounding boundary for double to decide and
-#: were re-decided against the 80-digit reference.
+# 4,397 inputs sat too close to a rounding boundary for double to decide and
+# were re-decided against the 80-digit reference.
 LN_MEASURED_ULP = 1
 
 

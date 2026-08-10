@@ -15,7 +15,7 @@ import pytest
 from dau_core.fixed_point import NormalCdfDatapath, normal_cdf_domain, normal_cdf_reference
 
 CDF_EXACT = NormalCdfDatapath()
-#: Exhaustively measured deviation from the reference, in ULP.
+# Exhaustively measured deviation from the reference, in ULP.
 CDF_MEASURED_ULP = 0
 
 

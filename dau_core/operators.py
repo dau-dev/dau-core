@@ -295,8 +295,8 @@ class SqrtErrorCode(IntEnum):
     DOMAIN = 3
 
 
-#: fractional bits in the tile's fixed-point format. Q16.16 covers prices and
-#: returns in one format; the tile parameterizes it, this is the default.
+# fractional bits in the tile's fixed-point format. Q16.16 covers prices and
+# returns in one format; the tile parameterizes it, this is the default.
 SQRT_FRACTIONAL_BITS = 16
 
 
