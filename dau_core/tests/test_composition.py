@@ -690,7 +690,6 @@ def test_the_wide_lane_shape_composes_and_rate_matches():
     assert throughput_rows_per_cycle(spec) == Fraction(4)
     # no broadcast is placed: source closure and pricing must not count one
     assert "stream-broadcast" not in spec.core_names()
-    from dau_core.composition import estimated_resources
 
     # the wide TILES carry measured points at this coordinate, so pricing
     # resolves rather than raising. The composite `measured` flag is False
