@@ -1344,7 +1344,327 @@ int32-row-predicate-filter:
   parameters:
     FIELD_WIDTH:
       default: 32
+      # the tile's own elaboration guard is [8, 64] and must divide 128; the
+      # registry left minimum at its 1 default, so a composition could pass
+      # validation and then fail to elaborate. choices are the measured
+      # widths, the range is what the tile will actually build.
+      minimum: 8
+      maximum: 64
       choices: [16, 32, 64]
+int32-normal-cdf:
+  _target_: dau_core.cores.CoreDefinition
+  name: int32-normal-cdf
+  kind: operator
+  module: dau_int32_normal_cdf
+  source: dau_int32_normal_cdf.sv
+  description: 'Standard normal CDF over 16-byte quad rows: the destination field is rewritten as Phi of the source field
+    in Q(32-F).F. GENERATED -- its per-segment Taylor coefficients are transcendental constants at the configured
+    internal precision, which SystemVerilog cannot compute at elaboration. CORRECTLY ROUNDED over every one of the
+    573,441 representable inputs where the answer is neither 0 nor 1 to the last bit, swept exhaustively, so for this
+    tile the algorithm and the mathematics coincide and the bench compares with zero tolerance. TOTAL: every input has
+    an answer and there is NO error path -- beyond the domain the result saturates to 0 or 1.0 and that saturation is
+    the correctly rounded answer, not a clamp. Symmetry is folded so only the positive half is approximated. Matches
+    dau_core.fixed_point.NormalCdfDatapath.evaluate.'
+  golden: dau_core.fixed_point:normal_cdf_reference
+  bench: dau_core.tests.cocotb_benches.dau_int32_normal_cdf_tb
+  contract_kind: row-stream
+  record_words: 2
+  ingest:
+    rows: 1
+    per_cycles: 3
+  generator:
+    _target_: dau_core.normal_cdf_generator.NormalCdfTileGenerator
+    datapath:
+      _target_: dau_core.fixed_point.NormalCdfDatapath
+      internal_bits: 52
+      table_bits: 10
+      degree: 3
+  # Measured 2026-08-09 on the dpv1 part. MEETS 125 MHz, which the
+  # correctly-rounded exp point does not.
+  #
+  # The first measurement was WNS -9.576: the segment index was a division by
+  # a non-power-of-two constant, which is free in the Python model and a
+  # runtime divider in fabric. Aligning the segmented range to [0, 8) made it
+  # a shift and took WNS to +0.657. Widening the segments then cost accuracy,
+  # so the point moved from 512 to 1024 segments rather than to a fourth
+  # multiply -- segments cost BRAM, multiplies cost 5-9 DSP48s each.
+  resources:
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 1011
+      ff: 739
+      bram36: 11.5
+      dsp: 27
+      timing: met
+      wns_ns: 0.657
+    - part: xc7a200tfbg484-2
+      clock_ns: 10.0
+      params: {}
+      lut: 1011
+      ff: 739
+      bram36: 11.5
+      dsp: 27
+      timing: met
+      wns_ns: 2.657
+int32-fixed-point-exp:
+  _target_: dau_core.cores.CoreDefinition
+  name: int32-fixed-point-exp
+  kind: operator
+  module: dau_int32_fixed_point_exp
+  source: dau_int32_fixed_point_exp.sv
+  description: 'Fixed-point exp over 16-byte quad rows: the destination field is rewritten as exp of the source field in
+    Q(32-F).F. GENERATED, not checked in -- its 256-entry table of 2**(j/256) and its polynomial coefficients are
+    transcendental constants at the configured internal precision, which SystemVerilog cannot compute at elaboration, so
+    the generator below renders them from the operating point. Unlike sqrt and divide there is no exact integer
+    algorithm, so accuracy is a MEASURED fact of the operating point rather than an identity: the registered point is
+    correctly rounded (0 ULP) over every one of the 1,453,635 representable inputs, swept exhaustively. The HDL mirrors
+    dau_core.fixed_point.ExpDatapath.evaluate step for step and the bench compares with zero tolerance, so the
+    device-to-model contract stays exact even where the model-to-mathematics one is measured. Nine-stage pipeline, one
+    multiply per stage. An input above the domain closes out ERR_RANGE; an underflow returns 0, which is the correctly
+    rounded answer and not an error.'
+  golden: dau_core.fixed_point:exp_reference
+  bench: dau_core.tests.cocotb_benches.dau_int32_fixed_point_exp_tb
+  contract_kind: row-stream
+  record_words: 2
+  ingest:
+    rows: 1
+    per_cycles: 3
+  generator:
+    _target_: dau_core.exp_generator.ExpTileGenerator
+    datapath:
+      _target_: dau_core.fixed_point.ExpDatapath
+      internal_bits: 52
+      table_bits: 8
+      degree: 4
+      round_steps: false
+  # Measured 2026-08-09 via dau-build task=tasks/build/synthesize-cores, which
+  # renders the generated source before staging it.
+  #
+  # 50 DSP48s -- the first tile in the palette to spend any.
+  #
+  # STILL SHORT OF 125 MHz: this point is a 100 MHz component and its 8 ns
+  # measurement is recorded VIOLATED rather than omitted. The lighter point
+  # does meet 8 ns, so the gap here is the wider datapath, not the structure.
+  #
+  # Timing was chased with the REPORT, after three changes moved WNS by
+  # exactly nothing (splitting the final scale, splitting the table read, and
+  # registering the k product were all tried and reverted). Every real gain
+  # came from the same shape: a DSP48's clock-to-out is ~3.5 ns, so any carry
+  # chain sitting combinationally between two DSPs overruns 8 ns. Registering
+  # the shifted ln2 product and narrowing the reduction constant to 12 bits
+  # took 8 ns WNS from -4.819 to -0.909.
+  resources:
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 1329
+      ff: 1171
+      bram36: 1.0
+      dsp: 50
+      timing: violated
+      wns_ns: -0.909
+    - part: xc7a200tfbg484-2
+      clock_ns: 10.0
+      params: {}
+      lut: 1329
+      ff: 1171
+      bram36: 1.0
+      dsp: 50
+      timing: met
+      wns_ns: 1.091
+int32-fixed-point-exp-light:
+  _target_: dau_core.cores.CoreDefinition
+  name: int32-fixed-point-exp-light
+  kind: operator
+  module: dau_int32_fixed_point_exp_light
+  source: dau_int32_fixed_point_exp_light.sv
+  description: 'Fixed-point exp at the DSP-light operating point: 36 internal bits, degree 3, rounded Horner steps.
+    FAITHFUL rather than correctly rounded -- measured never more than 1 ULP from the correctly rounded answer over every
+    one of the 1,453,635 representable inputs, against 0 ULP for int32-fixed-point-exp, for roughly a third of the
+    multiplier width. A separate core rather than a parameter of the exact one because it is separate silicon: its own
+    rendered module, its own resource envelope, and its own identity in a composition spec, so no design can quote one
+    point''s measurement while building the other. Same nine-stage-per-multiply structure and the same zero-tolerance
+    device-to-model contract; accuracy is where they differ, and that difference is a recorded fact.'
+  golden: dau_core.fixed_point:exp_reference
+  bench: dau_core.tests.cocotb_benches.dau_int32_fixed_point_exp_tb
+  contract_kind: row-stream
+  record_words: 2
+  ingest:
+    rows: 1
+    per_cycles: 3
+  generator:
+    _target_: dau_core.exp_generator.ExpTileGenerator
+    module: dau_int32_fixed_point_exp_light
+    datapath:
+      _target_: dau_core.fixed_point.ExpDatapath
+      internal_bits: 36
+      table_bits: 8
+      degree: 3
+      round_steps: true
+  # Measured 2026-08-09 via dau-build task=tasks/build/synthesize-cores.
+  #
+  # 22 DSP48s against the exact point's 52, for 1 ULP instead of 0 -- the
+  # trade the second operating point exists to offer.
+  #
+  # MEETS 125 MHz at +0.682 ns, where the exact point does not -- a 20-DSP
+  # transcendental that keeps pace with sqrt and divide. The difference is
+  # datapath width alone; both points share this structure.
+  resources:
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 1148
+      ff: 951
+      bram36: 1.0
+      dsp: 20
+      timing: met
+      wns_ns: 0.682
+    - part: xc7a200tfbg484-2
+      clock_ns: 10.0
+      params: {}
+      lut: 1148
+      ff: 951
+      bram36: 1.0
+      dsp: 20
+      timing: met
+      wns_ns: 2.682
+int32-fixed-point-divide:
+  _target_: dau_core.cores.CoreDefinition
+  name: int32-fixed-point-divide
+  kind: operator
+  module: dau_int32_fixed_point_divide
+  source: dau_int32_fixed_point_divide.sv
+  description: 'Fixed-point divide over 16-byte quad rows: the destination field is rewritten as numerator/denominator in
+    Q(32-F).F. This is what retires the deferred-division convention -- means, VWAP and z-score denominators were
+    accumulated as exact integers and divided on the host because there was no divider. EXACT and FLOOR: (A<<F)/B is an
+    integer division, and flooring matches the arithmetic shift MULSHR already uses, so the bench compares with no
+    tolerance. One iteration per pipeline stage, the quotient shifting into the dividend register as it vacates. A zero
+    divisor closes out ERR_DOMAIN; a quotient that does not fit int32 closes out ERR_RANGE, tested exactly without
+    dividing by comparing |A|<<F against |B|<<31. Matches dau_core.operators.divide_row_fields.'
+  golden: dau_core.operators:divide_row_fields
+  bench: dau_core.tests.cocotb_benches.dau_int32_fixed_point_divide_tb
+  contract_kind: row-stream
+  record_words: 2
+  ingest:
+    rows: 1
+    per_cycles: 3
+  parameters:
+    FRACTIONAL_BITS:
+      default: 16
+      minimum: 0
+      maximum: 31
+  # Measured 2026-08-08 via dau-build task=tasks/build/synthesize-cores.
+  # Zero DSP: long division is shift-subtract, not multiply.
+  # NOTE the Artix 8 ns margin is +0.620, far tighter than the sqrt
+  # tile's +4.105 -- twice the stages over a wider datapath. Above the
+  # half-nanosecond line where OOC stops predicting composed timing,
+  # but a composed design carrying this on an Artix at 125 MHz should
+  # be checked rather than assumed.
+  resources:
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {FRACTIONAL_BITS: 16}
+      lut: 3227
+      ff: 3724
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 0.620
+    - part: xc7a200tfbg484-2
+      clock_ns: 10.0
+      params: {FRACTIONAL_BITS: 16}
+      lut: 3227
+      ff: 3724
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.620
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {FRACTIONAL_BITS: 16}
+      lut: 3227
+      ff: 3724
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.050
+    - part: xc7k325tffg900-2
+      clock_ns: 10.0
+      params: {FRACTIONAL_BITS: 16}
+      lut: 3227
+      ff: 3724
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.050
+int32-fixed-point-sqrt:
+  _target_: dau_core.cores.CoreDefinition
+  name: int32-fixed-point-sqrt
+  kind: operator
+  module: dau_int32_fixed_point_sqrt
+  source: dau_int32_fixed_point_sqrt.sv
+  description: 'Fixed-point square root over 16-byte quad rows: the destination field is rewritten as sqrt of the source
+    field in Q(32-F).F. EXACT, not approximated -- a fixed-point root is an integer root in disguise (sqrt(x)*2**F =
+    isqrt(X<<F)), so a restoring radix-2 digit recurrence produces the golden bit for bit and the bench compares with no
+    tolerance. One iteration per pipeline stage, so the critical path is one compare-and-subtract whatever the format
+    width; ingest is one row per three cycles (measured 2.94) -- the ingest and emit state machines run concurrently,
+    and the emit path costs a latch cycle on top of the two words in a row. A negative
+    source has no root and closes the batch out with ERR_DOMAIN rather than emitting a substituted value. Matches
+    dau_core.operators.sqrt_row_fields.'
+  golden: dau_core.operators:sqrt_row_fields
+  bench: dau_core.tests.cocotb_benches.dau_int32_fixed_point_sqrt_tb
+  contract_kind: row-stream
+  record_words: 2
+  ingest:
+    rows: 1
+    per_cycles: 3
+  parameters:
+    FRACTIONAL_BITS:
+      default: 16
+      minimum: 0
+      maximum: 31
+  # Measured 2026-08-08 via dau-build task=tasks/build/synthesize-cores.
+  # Zero DSP: the root is a shift-subtract recurrence, not a polynomial.
+  # The margin is flat across parts and clocks, which is the
+  # constant-critical-path claim -- one compare-and-subtract per stage.
+  resources:
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {FRACTIONAL_BITS: 16}
+      lut: 1154
+      ff: 1369
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.105
+    - part: xc7a200tfbg484-2
+      clock_ns: 10.0
+      params: {FRACTIONAL_BITS: 16}
+      lut: 1154
+      ff: 1369
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 6.105
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {FRACTIONAL_BITS: 16}
+      lut: 1154
+      ff: 1369
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.591
+    - part: xc7k325tffg900-2
+      clock_ns: 10.0
+      params: {FRACTIONAL_BITS: 16}
+      lut: 1154
+      ff: 1369
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 7.591
 int32-row-map-alu:
   _target_: dau_core.cores.CoreDefinition
   name: int32-row-map-alu

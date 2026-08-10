@@ -27,6 +27,7 @@ from ccflow import BaseModel
 from pydantic import ConfigDict, Field, NonNegativeFloat, NonNegativeInt, StrictInt, field_validator, model_validator
 
 from .design import UnitKind
+from .generators import CoreGenerator
 from .stream import LogicalType, OperationCode
 
 
@@ -268,6 +269,12 @@ class CoreDefinition(BaseModel):
     kind: CoreKind
     module: str
     source: str
+    # Set when the HDL is RENDERED rather than checked in, because its
+    # content is a function of configuration -- a transcendental table
+    # cannot be computed at elaboration. `source` then names the file it
+    # renders TO, so staging, dependency closure and synthesis reach it
+    # through the same seam as every hand-written tile.
+    generator: CoreGenerator | None = None
     description: str
     depends: tuple[str, ...] = ()
     golden: str | None = None  # "module:callable" defining the semantics
@@ -444,9 +451,32 @@ class CoreDefinition(BaseModel):
         raise UnmeasuredResourceError(f"core {self.name!r} has unmeasured {gap}; measured points: {available or 'none'}")
 
     def source_path(self) -> Path:
+        """The HDL this core synthesizes from.
+
+        A GENERATED core (one declaring a ``generator``) has no checked-in
+        file, so it refuses until it has been rendered rather than rendering
+        implicitly on first read. What sits on disk is what gets synthesized;
+        rendering behind a read would hide which parameters produced it, and
+        the whole reason this core is generated is that its constants are a
+        function of those parameters.
+        """
         from . import hdl
 
+        if self.generator is not None:
+            rendered = render_root() / self.source
+            if not rendered.is_file():
+                raise UnrenderedCoreError(
+                    f"core {self.name!r} is generated and has not been rendered to {rendered}. "
+                    "Render it first: dau-build task=tasks/build/render-cores"
+                )
+            return rendered
         return Path(str(hdl.__path__[0])) / self.source
+
+    def render(self, *, into: Path | None = None) -> Path:
+        """Render this core's HDL, returning the written path."""
+        if self.generator is None:
+            raise ValueError(f"core {self.name!r} is not generated; its source is checked in at {self.source_path()}")
+        return self.generator.render().write(into if into is not None else render_root())
 
     def golden_callable(self):
         if self.golden is None:
@@ -457,6 +487,10 @@ class CoreDefinition(BaseModel):
 
 class UnknownCoreError(KeyError):
     pass
+
+
+class UnrenderedCoreError(RuntimeError):
+    """A generated core was asked for its source before it was rendered."""
 
 
 class UnmeasuredResourceError(LookupError):
@@ -502,6 +536,23 @@ def core_for_module(module: str) -> CoreDefinition:
 
 def cores_of_kind(kind: CoreKind) -> tuple[CoreDefinition, ...]:
     return tuple(definition for definition in loaded_cores().values() if definition.kind == kind)
+
+
+def render_root() -> Path:
+    """Where generated cores are materialized.
+
+    Defaults beside the package so a checkout behaves like one with the
+    files committed; a build tree points DAU_CORE_RENDER_ROOT at its own
+    directory so two builds cannot race on one file.
+    """
+    import os
+
+    override = os.environ.get("DAU_CORE_RENDER_ROOT")
+    if override:
+        return Path(override)
+    from . import hdl
+
+    return Path(str(hdl.__path__[0])) / "generated"
 
 
 def sources_for(*names: str) -> tuple[Path, ...]:

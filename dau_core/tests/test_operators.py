@@ -1206,3 +1206,35 @@ def test_hash_dispatch_records_agree_with_the_row_form() -> None:
     records = [(((row[1] & 0xFFFFFFFF) << 32) | (row[0] & 0xFFFFFFFF), 0) for row in rows]
     by_record = mask_dispatch_records(records, num_partitions=8, mode=DispatchMode.HASH)
     assert [len(part) for part in by_row] == [len(part) for part in by_record]
+
+
+def test_divide_at_zero_fractional_bits_is_python_floor_division() -> None:
+    """The bridge a `col_a // col_b` lowering rests on.
+
+    polars integer `//` floors, and so does this tile at FRACTIONAL_BITS=0 --
+    `(A << 0) // B` is just `A // B`. That equivalence is what lets a
+    column-by-column floor divide lower onto the divide tile with no host
+    correction, so it is pinned rather than left as a reading of the code.
+
+    The negative cases are the ones that matter: a tile truncating toward
+    zero would agree on every positive pair and disagree on half the rest.
+    """
+    import random
+
+    from dau_core.operators import fixed_point_divide
+
+    assert fixed_point_divide(7, 2, fractional_bits=0) == 7 // 2 == 3
+    assert fixed_point_divide(-7, 2, fractional_bits=0) == -7 // 2 == -4
+    assert fixed_point_divide(7, -2, fractional_bits=0) == 7 // -2 == -4
+    assert fixed_point_divide(-7, -2, fractional_bits=0) == -7 // -2 == 3
+
+    rng = random.Random(0xF100)
+    for _ in range(5000):
+        numerator = rng.randint(-(1 << 31), (1 << 31) - 1)
+        denominator = rng.randint(-(1 << 31), (1 << 31) - 1)
+        if denominator == 0:
+            continue
+        quotient = numerator // denominator
+        if not -(1 << 31) <= quotient <= (1 << 31) - 1:
+            continue  # the RANGE close-out covers these
+        assert fixed_point_divide(numerator, denominator, fractional_bits=0) == quotient

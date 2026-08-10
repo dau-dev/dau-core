@@ -286,6 +286,150 @@ def map_row_fields(rows: Iterable[tuple[int, int, int, int]], config: RowMapConf
     return out
 
 
+class SqrtErrorCode(IntEnum):
+    # CONFIG (1) is the family's reserved code; this tile has no invalid
+    # configuration -- dst == src is a legal in-place update
+    STREAM = 2
+    # sqrt of a negative value has no int32 answer. Returning zero would be a
+    # plausible-looking wrong number, so the batch is invalidated instead.
+    DOMAIN = 3
+
+
+# fractional bits in the tile's fixed-point format. Q16.16 covers prices and
+# returns in one format; the tile parameterizes it, this is the default.
+SQRT_FRACTIONAL_BITS = 16
+
+
+def fixed_point_sqrt(value: int, *, fractional_bits: int = SQRT_FRACTIONAL_BITS) -> int:
+    """Square root of a Q``(32-f)``.``f`` fixed-point value, EXACTLY.
+
+    A fixed-point root is an integer root in disguise. With ``x = X * 2**-f``,
+    the result ``sqrt(x) * 2**f`` is ``sqrt(X * 2**f)`` — so the answer is
+    ``isqrt(X << f)``, floor-truncated like every other fixed-point result in
+    this package (the multiply-shift convention).
+
+    This is worth stating because the obvious implementation is a polynomial
+    approximation, which would need an error bound and would still be wrong in
+    the last place. There is no approximation here and no tolerance in the
+    bench: the tile either matches this or it is broken.
+
+    Raises on a negative input; the tile reports ``DOMAIN`` for the same case.
+    """
+    if value < 0:
+        raise ValueError(f"sqrt of a negative fixed-point value is undefined, got {value}")
+    return math.isqrt(value << fractional_bits)
+
+
+class RowSqrtConfig(BaseModel):
+    """Which field the root is taken from and which one receives it."""
+
+    model_config = ConfigDict(frozen=True)
+
+    dst: RowField
+    src: RowField
+    fractional_bits: int = SQRT_FRACTIONAL_BITS
+
+    def model_post_init(self, context) -> None:
+        super().model_post_init(context)
+        if not 0 <= self.fractional_bits <= 31:
+            raise ValueError("fractional_bits must be in [0, 31]")
+
+
+def sqrt_row_fields(rows: Iterable[tuple[int, int, int, int]], config: RowSqrtConfig) -> list[tuple[int, int, int, int]]:
+    """Golden semantics for the fixed-point sqrt tile: the destination field
+    is rewritten with the root of the source field, the other fields pass
+    through unchanged, order and count preserved.
+
+    A negative source value raises here and closes the batch out with
+    ``DOMAIN`` on the tile — the row is not emitted with a substituted value,
+    because a wrong number that looks right is the failure this avoids.
+    """
+    out: list[tuple[int, int, int, int]] = []
+    for row in rows:
+        rooted = list(row)
+        rooted[config.dst] = fixed_point_sqrt(_wrap_int32(row[config.src]), fractional_bits=config.fractional_bits)
+        out.append(tuple(rooted))
+    return out
+
+
+class DivideErrorCode(IntEnum):
+    # CONFIG (1) is the family's reserved code; this tile has no invalid
+    # configuration -- dst may be either source, updating in place
+    STREAM = 2
+    # a zero divisor has no quotient
+    DOMAIN = 3
+    # the quotient is mathematically defined but does not fit int32. A
+    # fixed-point divide overflows easily: 1.0 / (1 * 2**-16) is 2**32. The
+    # batch is invalidated rather than wrapped or saturated, because both of
+    # those are wrong numbers that look right.
+    RANGE = 4
+
+
+DIVIDE_FRACTIONAL_BITS = 16
+
+
+def fixed_point_divide(numerator: int, denominator: int, *, fractional_bits: int = DIVIDE_FRACTIONAL_BITS) -> int:
+    """Quotient of two Q``(32-f)``.``f`` fixed-point values, EXACTLY.
+
+    With ``a = A * 2**-f`` and ``b = B * 2**-f``, the result ``(a/b) * 2**f``
+    is ``(A << f) / B`` — an integer division, so there is nothing to
+    approximate and the bench compares with no tolerance.
+
+    FLOOR, not truncation toward zero. That is the convention the rest of the
+    package already uses: ``MULSHR`` divides by a power of two with an
+    arithmetic shift, which floors, and ``-7 >> 1`` is ``-4``. Python's ``//``
+    floors too, so this is simply that operator. A tile that truncated toward
+    zero would disagree with the existing map ALU on every negative operand.
+
+    Raises on a zero divisor, and on a quotient that does not fit int32; the
+    tile reports ``DOMAIN`` and ``RANGE`` for those cases.
+    """
+    if denominator == 0:
+        raise ZeroDivisionError("fixed-point divide by zero has no quotient")
+    result = (numerator << fractional_bits) // denominator
+    if not -(1 << 31) <= result <= (1 << 31) - 1:
+        raise ValueError(f"fixed-point quotient {result} does not fit int32")
+    return result
+
+
+class RowDivideConfig(BaseModel):
+    """Which fields the quotient is formed from and which receives it."""
+
+    model_config = ConfigDict(frozen=True)
+
+    dst: RowField
+    numerator: RowField
+    denominator: RowField
+    fractional_bits: int = DIVIDE_FRACTIONAL_BITS
+
+    def model_post_init(self, context) -> None:
+        super().model_post_init(context)
+        if not 0 <= self.fractional_bits <= 31:
+            raise ValueError("fractional_bits must be in [0, 31]")
+
+
+def divide_row_fields(rows: Iterable[tuple[int, int, int, int]], config: RowDivideConfig) -> list[tuple[int, int, int, int]]:
+    """Golden semantics for the fixed-point divide tile: the destination field
+    is rewritten with the quotient of the two source fields, the others pass
+    through unchanged, order and count preserved.
+
+    This is what retires the deferred-division convention. Means, VWAP and
+    z-score denominators were computed as exact integer accumulators and
+    divided on the host because there was no divider; with one, the divide
+    stays on the device.
+    """
+    out: list[tuple[int, int, int, int]] = []
+    for row in rows:
+        divided = list(row)
+        divided[config.dst] = fixed_point_divide(
+            _wrap_int32(row[config.numerator]),
+            _wrap_int32(row[config.denominator]),
+            fractional_bits=config.fractional_bits,
+        )
+        out.append(tuple(divided))
+    return out
+
+
 UNPACK_CONFIG_VERSION = "0.1"
 
 
