@@ -92,9 +92,7 @@ class ExpTileGenerator(CoreGenerator):
             f"                stage_prod[{table_multiply}] <= PROD_WIDTH'(stage_acc[{table_multiply - 1}])"
             f" * PROD_WIDTH'(signed'({{1'b0, TABLE[stage_k[{table_multiply - 1}][TABLE_BITS-1:0]]}}));"
         )
-        stages.append(
-            f"                stage_acc[{table_multiply + 1}] <= WIDE'((stage_prod[{table_multiply}]{rounding}) >>> INTERNAL_BITS);"
-        )
+        stages.append(f"                stage_acc[{table_multiply + 1}] <= WIDE'((stage_prod[{table_multiply}]{rounding}) >>> INTERNAL_BITS);")
         stages.append(f"                stage_acc[{table_multiply + 2}] <= scaled;")
         horner_body = "\n".join(stages)
         depth = table_multiply + 3
