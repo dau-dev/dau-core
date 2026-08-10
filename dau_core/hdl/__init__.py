@@ -44,6 +44,7 @@ DAU_INT32_BROADCAST_HASH_JOIN_SV = files(__package__).joinpath("dau_int32_broadc
 DAU_INT32_ROW_UNPACK_SV = files(__package__).joinpath("dau_int32_row_unpack.sv")
 DAU_INT32_ASOF_BACKWARD_SV = files(__package__).joinpath("dau_int32_asof_backward.sv")
 DAU_INT32_ROLLING_MOMENTS_SV = files(__package__).joinpath("dau_int32_rolling_moments.sv")
+DAU_ROLLING_EXTREMUM_SV = files(__package__).joinpath("dau_rolling_extremum.sv")
 DAU_INT32_MARKET_FEATURE_SV = files(__package__).joinpath("dau_int32_market_feature.sv")
 DAU_INT32_RECORD_GATHER_SV = files(__package__).joinpath("dau_int32_record_gather.sv")
 DAU_INT32_TIME_BUCKET_KEY_SV = files(__package__).joinpath("dau_int32_time_bucket_key.sv")
@@ -103,5 +104,6 @@ __all__ = (
     "DAU_MAP_ALU_PKG_SV",
     "DAU_PREDICATE_PKG_SV",
     "DAU_RECORD_GEARBOX_SV",
+    "DAU_ROLLING_EXTREMUM_SV",
     "DAU_STREAM_BROADCAST_SV",
 )

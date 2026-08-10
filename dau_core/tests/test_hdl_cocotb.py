@@ -52,6 +52,7 @@ from dau_core.hdl import (
     DAU_MAP_ALU_PKG_SV,
     DAU_PREDICATE_PKG_SV,
     DAU_RECORD_GEARBOX_SV,
+    DAU_ROLLING_EXTREMUM_SV,
     DAU_STREAM_BROADCAST_SV,
 )
 
@@ -275,6 +276,42 @@ def test_rolling_moments_runs_real_cocotb_against_systemverilog(tmp_path: Path) 
         hdl_toplevel="dau_int32_rolling_moments",
         test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_rolling_moments_tb",
         tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+@pytest.mark.parametrize("value_width", [32, 64])
+@pytest.mark.parametrize("find_max", [1, 0])
+def test_rolling_extremum_matches_golden(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, value_width: int, find_max: int) -> None:
+    """Every build of the tile against the same golden.
+
+    The point of the parameter sweep is the tile's claim: extremum does not
+    depend on the width it is computed in, so ONE implementation serves every
+    signed integer type. If that were wrong, a width would disagree with the
+    golden here rather than on silicon.
+    """
+    monkeypatch.setenv("DAU_EXTREMUM_VALUE_WIDTH", str(value_width))
+    monkeypatch.setenv("DAU_EXTREMUM_FIND_MAX", str(find_max))
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_ROLLING_EXTREMUM_SV)),),
+        hdl_toplevel="dau_rolling_extremum",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_rolling_extremum_tb",
+        tmp_path=tmp_path,
+        parameters={"WINDOW": 4, "VALUE_WIDTH": value_width, "FIND_MAX": find_max},
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_rolling_extremum_window_eight(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """A second window depth: the Hillis-Steele network gains a stage, and the
+    per-symbol reset has to keep working across it."""
+    monkeypatch.setenv("DAU_EXTREMUM_WINDOW", "8")
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_ROLLING_EXTREMUM_SV)),),
+        hdl_toplevel="dau_rolling_extremum",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_rolling_extremum_tb",
+        tmp_path=tmp_path,
+        parameters={"WINDOW": 8},
     )
 
 
