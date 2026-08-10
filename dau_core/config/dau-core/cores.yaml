@@ -537,6 +537,50 @@ int32-rolling-moments:
       default: 4
       minimum: 2
 
+rolling-extremum:
+  _target_: dau_core.cores.CoreDefinition
+  name: rolling-extremum
+  kind: operator
+  module: dau_rolling_extremum
+  source: dau_rolling_extremum.sv
+  description: Keyed rolling extremum (max or min) over a fixed count window, as a SEGMENTED Hillis-Steele network of
+    ceil(log2 WINDOW) stages. Serves a NON-INVERTIBLE aggregate, which subtract-on-evict structurally cannot. Deliberately
+    carries NO int32- prefix - extremum is the aggregate whose result does not depend on the width it is computed in,
+    because sign extension is order preserving, so one build serves every signed integer type that fits the value field and
+    VALUE_WIDTH selects the FRAMING (words per row) rather than the arithmetic. Its accumulating neighbours cannot make that
+    claim, which is why they keep theirs. A symbol change is a segment boundary and resets the window for free on the
+    host-sorted, symbol-grouped stream. Warm-up rows (window not yet full) are dropped, matching the None entries of
+    dau_core.temporal.rolling_max/rolling_min. SILENT ON SUCCESS while forwarding, so it chains mid-lane - the newest
+    emitted row is held in a skid released when a newer row completes or the stream ends, so output_last always lands on
+    the final forwarded row even when trailing rows are warm-up; a stream forwarding ZERO rows still closes out, because
+    that is the one outcome a downstream tile cannot tell from a stall. WINDOW is a power of two so the network spans it
+    exactly. Backpressure freezes the whole pipeline, never just the input - an in-flight row would otherwise reach the end
+    against a full skid and be dropped silently.
+  golden: dau_core.temporal:rolling_max
+  bench: dau_core.tests.cocotb_benches.dau_rolling_extremum_tb
+  contract_kind: row-stream
+  record_words: 1
+  output_record_words: 1
+  # The network is STRUCTURALLY II=1 -- no loop-carried dependency, one row
+  # per cycle through every stage, and the bench sustains it. The declaration
+  # is nonetheless the composed 1-row/2-cycle lane floor, because a full-rate
+  # claim is a measured upgrade and this tile has not been measured on
+  # silicon. Under-declaring a floor is safe for the scheduler; over-declaring
+  # one is not.
+  ingest:
+    rows: 1
+    per_cycles: 2
+  success_close_out: false
+  parameters:
+    WINDOW:
+      default: 4
+      minimum: 2
+    VALUE_WIDTH:
+      default: 32
+      choices: [32, 64]
+    FIND_MAX:
+      default: 1
+
 int32-market-feature:
   _target_: dau_core.cores.CoreDefinition
   name: int32-market-feature
