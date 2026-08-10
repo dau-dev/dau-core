@@ -16,7 +16,7 @@ You need `dau-core` installed. Nothing here needs hardware or a simulator.
 Open a Python prompt and ask the registry for it:
 
 ```python
-from dau_core.cores import core
+from dau_core.registry import core
 
 tile = core("int32-streaming-top-k")
 print(tile.name)
@@ -105,7 +105,7 @@ design gets priced against the wrong hardware.
 The registry knows which sources the tile needs, in compile order:
 
 ```python
-from dau_core.cores import sources_for
+from dau_core.registry import sources_for
 
 for path in sources_for("int32-streaming-top-k"):
     print(path.name)

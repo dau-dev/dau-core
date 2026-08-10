@@ -14,8 +14,8 @@ import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import ReadOnly, RisingEdge
 
-from dau_core.cores import loaded_cores
 from dau_core.fixed_point import exp_domain
+from dau_core.registry import loaded_cores
 
 _MASK32 = 0xFFFF_FFFF
 # the datapath under test is the one the registry entry configures, so the

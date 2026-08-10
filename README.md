@@ -56,7 +56,7 @@ search path via a `hydra.lernaplugins` entry point, so any composing
 application discovers the cores without importing this package's code.
 
 ```python
-from dau_core.cores import loaded_cores, core, sources_for
+from dau_core.registry import loaded_cores, core, sources_for
 
 cores = loaded_cores()                     # name -> CoreDefinition, registry order
 tile = core("int32-predicate-filter")      # one core

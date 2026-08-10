@@ -4,7 +4,8 @@ import os
 
 import pytest
 
-from dau_core.cores import ContractKind, CoreKind, cores_of_kind
+from dau_core.cores import ContractKind, CoreKind
+from dau_core.registry import cores_of_kind
 
 
 def test_every_operator_conforms_to_the_stream_tile_contract() -> None:

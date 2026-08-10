@@ -6,7 +6,7 @@ from fractions import Fraction
 import cocotb
 from cocotb.triggers import ReadOnly, RisingEdge
 
-from dau_core.cores import core
+from dau_core.registry import core
 
 RATE_TOLERANCE = Fraction(1, 100)
 

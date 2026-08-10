@@ -440,7 +440,7 @@ def test_fixed_point_exp_runs_real_cocotb_against_systemverilog(tmp_path: Path, 
     is covered by adding an entry -- and so the bench can never test a
     datapath the registry does not actually build.
     """
-    from dau_core.cores import loaded_cores
+    from dau_core.registry import loaded_cores
 
     monkeypatch.setenv("DAU_EXP_CORE", core_name)
     definition = loaded_cores()[core_name]
