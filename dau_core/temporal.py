@@ -31,7 +31,6 @@ tiles and the as-of / windowed-stat tiles byte-compare against them.
 from __future__ import annotations
 
 import math
-
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from typing import TypeVar

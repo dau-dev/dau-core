@@ -26,13 +26,13 @@ _HDL_DIR = Path(str(hdl.__path__[0]))
 
 # `module <name> #( ... ) (` — the parameter list is what precedes the port
 # list; `parameter [31:0] NAME` / `parameter int NAME` / `parameter NAME`.
-_MODULE = re.compile(r"^\s*module\s+(\w+)\s*#?\(", re.M)
+_MODULE = re.compile(r"^\s*module\s+(\w+)\s*#?\(", re.MULTILINE)
 _PARAMETER = re.compile(r"\bparameter\b(?:\s+(?:logic|int|bit|reg|wire|integer))?(?:\s+(?:signed|unsigned))?\s*(?:\[[^\]]*\]\s*)?(\w+)\s*=")
 # the port list opens after the parameter list closes; the two may be
 # separated by a newline (`)\n(`), which a literal ") (" match misses
 _PORT_LIST = re.compile(r"\)\s*\(")
 # `dau_something #( .NAME(...), ... ) instance_name (`
-_INSTANTIATION = re.compile(r"\b(dau_\w+)\s*#\s*\((.*?)\)\s*\w+\s*\(", re.S)
+_INSTANTIATION = re.compile(r"\b(dau_\w+)\s*#\s*\((.*?)\)\s*\w+\s*\(", re.DOTALL)
 _BINDING = re.compile(r"\.(\w+)\s*\(")
 
 

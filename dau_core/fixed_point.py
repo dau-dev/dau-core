@@ -24,7 +24,8 @@ from __future__ import annotations
 
 import math
 from decimal import Decimal, getcontext
-from functools import lru_cache
+from functools import cache, lru_cache
+from typing import ClassVar
 
 from ccflow import BaseModel
 from pydantic import ConfigDict
@@ -36,8 +37,7 @@ EXP_FRACTIONAL_BITS = 16
 
 
 def _decimal_context() -> None:
-    if getcontext().prec < _ORACLE_PRECISION:
-        getcontext().prec = _ORACLE_PRECISION
+    getcontext().prec = max(getcontext().prec, _ORACLE_PRECISION)
 
 
 def exp_reference(x: int, *, fractional_bits: int = EXP_FRACTIONAL_BITS) -> int:
@@ -146,7 +146,7 @@ class ExpDatapath(BaseModel):
         return (acc + (1 << (shift - 1))) >> shift if shift > 0 else acc << (-shift)
 
 
-@lru_cache(maxsize=None)
+@cache
 def _exp_constants(internal_bits: int, table_bits: int, degree: int, k_bits: int) -> dict:
     _decimal_context()
     scale = Decimal(2) ** internal_bits
@@ -269,7 +269,7 @@ class LnDatapath(BaseModel):
         return (total + (1 << (shift - 1))) >> shift if shift > 0 else total << (-shift)
 
 
-@lru_cache(maxsize=None)
+@cache
 def _ln_constants(internal_bits: int, table_bits: int) -> dict:
     _decimal_context()
     scale = Decimal(2) ** internal_bits
@@ -321,7 +321,7 @@ def _erfc(z: Decimal) -> Decimal:
     total = Decimal(0)
     term_z = z
     factorial = Decimal(1)
-    for n in range(0, 200):
+    for n in range(200):
         if n:
             factorial *= n
             term_z *= z * z
@@ -448,7 +448,7 @@ class NormalCdfDatapath(BaseModel):
         return (one - result) if negative else result
 
 
-@lru_cache(maxsize=None)
+@cache
 def _normal_cdf_constants(internal_bits: int, table_bits: int, degree: int, fractional_bits: int, span_bits: int) -> dict:
     _decimal_context()
     scale = Decimal(2) ** internal_bits

@@ -63,7 +63,7 @@ class ExpTileGenerator(CoreGenerator):
         # k reaches about +/-4400 over the useful domain; the extra bits keep
         # the intermediate shifts clear of it
         k_width = 20
-        low, high = exp_domain(fractional_bits=point.fractional_bits)
+        _low, high = exp_domain(fractional_bits=point.fractional_bits)
         # A product must be formed at FULL width. In SystemVerilog the
         # operands of `a * b` are sized by the expression context, so
         # `WIDE'((acc * res) >>> Q)` evaluates the multiply at WIDE and throws
@@ -97,8 +97,6 @@ class ExpTileGenerator(CoreGenerator):
         )
         stages.append(f"                stage_acc[{table_multiply + 2}] <= scaled;")
         horner_body = "\n".join(stages)
-        product_wires = ""
-        rounding_table = rounding
         depth = table_multiply + 3
         scale_source = table_multiply + 1
         prod_one_decl = "    localparam logic signed [PROD_WIDTH-1:0] PROD_ONE = 1;\n" if point.round_steps else ""

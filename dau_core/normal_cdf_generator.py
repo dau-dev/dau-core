@@ -20,7 +20,7 @@ them overruns 8 ns.
 
 from ccflow import Flow
 
-from .fixed_point import NormalCdfDatapath, normal_cdf_domain
+from .fixed_point import NormalCdfDatapath
 from .generators import CoreGenerator, RenderContext, RenderedCore
 
 __all__ = ("NormalCdfTileGenerator",)
@@ -48,7 +48,6 @@ class NormalCdfTileGenerator(CoreGenerator):
         segments = constants["segments"]
         limit = constants["limit"]
         wide = q + 3  # coefficients are signed and the constant term reaches 1.0
-        _low, high = normal_cdf_domain(fractional_bits=point.fractional_bits)
 
         # one flat coefficient ROM, segment-major: index*(DEGREE+1) + term
         flat = [value for segment in constants["coefficients"] for value in segment]

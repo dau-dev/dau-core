@@ -23,12 +23,13 @@ produced the file sitting on disk, and that file is what gets synthesized.
 # NOTE: no `from __future__ import annotations` — ccflow's Flow.call
 # inspects the real annotation objects on __call__
 
+from collections.abc import Mapping
 from pathlib import Path
 
 from ccflow import CallableModel, Flow, GenericContext, ResultBase
 from pydantic import ConfigDict
 
-__all__ = ("CoreGenerator", "RenderedCore", "RenderContext")
+__all__ = ("CoreGenerator", "RenderContext", "RenderedCore")
 
 # A generator takes no runtime input -- everything it needs is configuration
 # -- but ccflow calls with a context, so this names the empty one.
@@ -48,7 +49,7 @@ class RenderedCore(ResultBase):
     module: str
     source_name: str
     text: str
-    parameters: dict = {}
+    parameters: Mapping[str, int] = {}
 
     def write(self, into: Path) -> Path:
         """Materialize under ``into``, returning the written path."""
