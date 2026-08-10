@@ -478,3 +478,66 @@ def test_storage_bytes_refuses_illegal_scale_overrides() -> None:
         definition.storage_bytes({"CAPACITY": -2})
     with pytest.raises(ValueError, match="<= 16384"):
         definition.storage_bytes({"CAPACITY": 32768})
+
+
+def test_a_core_resolves_hdl_from_the_package_that_declares_it(tmp_path, monkeypatch) -> None:
+    """A tile contributed by another distribution finds its own HDL.
+
+    The registry is a hydra search path, so any package joining it through
+    the `hydra.lernaplugins` entry point can contribute cores. Their HDL
+    used to be resolved under dau_core.hdl regardless, so a third-party
+    tile could be registered from anywhere but had to vendor its Verilog
+    into this package. `source_package` is the seam.
+    """
+    import sys
+
+    from dau_core.cores import CoreDefinition, CoreKind, IngestRate
+
+    foreign = tmp_path / "vendor_tiles" / "hdl"
+    foreign.mkdir(parents=True)
+    (foreign / "__init__.py").write_text("")
+    (foreign / "vendor_widget.sv").write_text("module vendor_widget; endmodule\n")
+    (tmp_path / "vendor_tiles" / "__init__.py").write_text("")
+    monkeypatch.syspath_prepend(str(tmp_path))
+
+    definition = CoreDefinition(
+        name="vendor-widget",
+        kind=CoreKind.OPERATOR,
+        module="vendor_widget",
+        source="vendor_widget.sv",
+        source_package="vendor_tiles.hdl",
+        description="A tile from outside this package.",
+        record_words=1,
+        ingest=IngestRate(rows=1, per_cycles=2),
+    )
+    resolved = definition.source_path()
+    assert resolved == foreign / "vendor_widget.sv"
+    assert resolved.is_file()
+    # and it is NOT resolved under dau_core's own tree
+    from dau_core import hdl as dau_core_hdl
+
+    assert Path(str(dau_core_hdl.__path__[0])) not in resolved.parents
+
+    for module in [name for name in sys.modules if name.startswith("vendor_tiles")]:
+        del sys.modules[module]
+
+
+def test_a_core_naming_an_uninstalled_hdl_package_refuses_clearly() -> None:
+    """The failure names the missing distribution rather than surfacing an
+    ImportError from inside a path resolution."""
+    import pytest
+
+    from dau_core.cores import CoreDefinition, CoreKind, IngestRate, UnknownCoreSourceError
+
+    definition = CoreDefinition(
+        name="absent-widget",
+        kind=CoreKind.OPERATOR,
+        module="absent_widget",
+        source="absent_widget.sv",
+        source_package="no_such_vendor.hdl",
+        description="Declares a package nobody installed.",
+        record_words=1,
+        ingest=IngestRate(rows=1, per_cycles=2),
+    )
+    with pytest.raises(UnknownCoreSourceError, match="no_such_vendor.hdl"):
+        definition.source_path()
