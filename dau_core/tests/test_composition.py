@@ -690,7 +690,6 @@ def test_the_wide_lane_shape_composes_and_rate_matches():
     assert throughput_rows_per_cycle(spec) == Fraction(4)
     # no broadcast is placed: source closure and pricing must not count one
     assert "stream-broadcast" not in spec.core_names()
-    from dau_core.composition import estimated_resources
 
     # the wide TILES carry measured points at this coordinate, so pricing
     # resolves rather than raising. The composite `measured` flag is False
@@ -940,9 +939,7 @@ def test_front_gearbox_reaches_core_names_and_resources() -> None:
     )
     assert "record-gearbox" in spec.core_names()
     priced = _priced(spec)
-    without = _priced(
-        ScanCompositionSpec(name="geared-scan", lanes=sorted_scan_spec().lanes, data_width=512, partitioner=_record_dispatcher())
-    )
+    without = _priced(ScanCompositionSpec(name="geared-scan", lanes=sorted_scan_spec().lanes, data_width=512, partitioner=_record_dispatcher()))
     gearbox = core("record-gearbox").resources
     assert gearbox is not None
     assert priced.lut - without.lut == gearbox.lut
