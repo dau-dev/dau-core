@@ -101,7 +101,8 @@ pricing path all consult it rather than re-implementing the checks.
 ## Accessors
 
 ```python
-from dau_core.cores import loaded_cores, core, cores_of_kind, sources_for, CoreKind
+from dau_core.cores import CoreKind
+from dau_core.registry import loaded_cores, core, cores_of_kind, sources_for
 
 loaded_cores()                       # name -> CoreDefinition, registry order
 core("int32-streaming-top-k")        # one definition

@@ -13,9 +13,10 @@ from dau_core.capability_contract import (
     tile_capability,
 )
 from dau_core.composition import LaneSpec, ScanCompositionSpec, TileSpec
-from dau_core.cores import ContractKind, CoreKind, cores_of_kind
+from dau_core.cores import ContractKind, CoreKind
 from dau_core.design import UnitKind
 from dau_core.registers import CURRENT_REGISTER_MAP_VERSION
+from dau_core.registry import cores_of_kind
 from dau_core.stream import LogicalType, OperationCode
 from dau_core.tests.test_composition import bar_noc_spec, sorted_scan_spec
 

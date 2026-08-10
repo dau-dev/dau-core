@@ -109,7 +109,7 @@ on-chip storage, declare `storage_intent`.
 Check it loads:
 
 ```bash
-python -c "from dau_core.cores import core; print(core('int32-<name>'))"
+python -c "from dau_core.registry import core; print(core('int32-<name>'))"
 ```
 
 ## 6. Measure the envelope

@@ -15,8 +15,10 @@ from dau_core.cores import (
     ResourceMeasurement,
     TimingStatus,
     TimingViolationError,
-    UnknownCoreError,
     UnmeasuredResourceError,
+)
+from dau_core.registry import (
+    UnknownCoreError,
     core,
     core_for_module,
     cores_of_kind,

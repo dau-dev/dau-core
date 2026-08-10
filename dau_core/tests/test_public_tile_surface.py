@@ -47,15 +47,15 @@ ALLOWED_INTERNAL = {
 
 # Dependencies the surface has TODAY that an extraction has to resolve.
 # Recorded rather than hidden, and pinned so it cannot grow: each entry is a
-# task, and the set shrinking to empty is what "the surface is extractable"
+# task, and the set being empty is what "the surface is extractable"
 # actually means.
 #
-# `config`: cores.py is two things in one file -- the declaration models a
-# third-party author needs, and the accessors (`loaded_cores`, `core`,
-# `sources_for`) that load THIS package's own registry of tiles. An author
-# needs the former and must never carry the latter. Splitting them is the
-# substance of the extraction; everything else is moving files.
-EXTRACTION_DEBT = {"config"}
+# It is empty. It held `config` until the registry accessors moved to
+# dau_core.registry: cores.py had been two things in one file -- the
+# declaration models a third-party author needs, and the accessors that
+# load THIS package's own tiles, which reached for the packaged config to
+# do it. An author needs the former and must never carry the latter.
+EXTRACTION_DEBT: set[str] = set()
 
 
 def _surface_paths() -> tuple[Path, ...]:

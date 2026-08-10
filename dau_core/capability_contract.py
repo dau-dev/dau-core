@@ -26,9 +26,10 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from .composition import ScanCompositionSpec, TileSpec
-from .cores import ContractKind, core
+from .cores import ContractKind
 from .design import DauDesign, OperatorUnit, UnitKind
 from .registers import CURRENT_REGISTER_MAP_VERSION, RegisterMapVersion
+from .registry import core
 from .stream import LogicalType, OperationCode
 
 CAPABILITY_CONTRACT_SCHEMA = 1

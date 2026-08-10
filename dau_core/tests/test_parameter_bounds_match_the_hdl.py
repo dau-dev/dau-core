@@ -18,7 +18,7 @@ import re
 from pathlib import Path
 
 from dau_core import hdl
-from dau_core.cores import loaded_cores
+from dau_core.registry import loaded_cores
 
 _HDL_DIR = Path(str(hdl.__path__[0]))
 

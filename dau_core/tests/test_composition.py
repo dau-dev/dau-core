@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 
 from dau_core.composition import CompositionError, LaneSpec, ScanCompositionSpec, TileSpec, estimated_resources, stream_shape_mismatches
-from dau_core.cores import core
+from dau_core.registry import core
 
 _BAR = TileSpec(core="int32-bar-aggregation", config={"cfg_mode": "2'd0", "cfg_row_count": "64'd0"})
 

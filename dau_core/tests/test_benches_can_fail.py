@@ -30,7 +30,7 @@ from shutil import which
 
 import pytest
 
-from dau_core.cores import core, sources_for
+from dau_core.registry import core, sources_for
 
 _COCOTB_BENCH_PREFIX = "dau_core.tests.cocotb_benches"
 

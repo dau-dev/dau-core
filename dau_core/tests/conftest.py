@@ -15,7 +15,7 @@ def _render_generated_cores():
     strict in production while letting the suites see a complete palette, and
     it exercises the render path on every run.
     """
-    from dau_core.cores import loaded_cores
+    from dau_core.registry import loaded_cores
 
     for definition in loaded_cores().values():
         if definition.generator is not None:

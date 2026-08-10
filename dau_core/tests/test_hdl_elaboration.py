@@ -20,7 +20,8 @@ from shutil import which
 
 import pytest
 
-from dau_core.cores import CoreKind, cores_of_kind
+from dau_core.cores import CoreKind
+from dau_core.registry import cores_of_kind
 
 # the classes that mean "this will not synthesize" — the same promotion the
 # cocotb runner applies (see VERILATOR_BUILD_ARGS there)
@@ -74,7 +75,7 @@ def _sources_for(definition) -> list[str]:
     """The core's own source plus every dependency's, resolved through the
     REGISTRY rather than guessed from the dependency name — package files
     do not follow the core naming."""
-    from dau_core.cores import UnknownCoreError, core as core_definition, loaded_cores
+    from dau_core.registry import UnknownCoreError, core as core_definition, loaded_cores
 
     known = loaded_cores()
     paths: list[str] = []
@@ -92,7 +93,7 @@ def _sources_for(definition) -> list[str]:
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 @pytest.mark.parametrize("core_name", sorted(d.name for d in cores_of_kind(CoreKind.OPERATOR)))
 def test_every_declared_parameterization_elaborates(core_name: str) -> None:
-    from dau_core.cores import core as core_definition
+    from dau_core.registry import core as core_definition
 
     definition = core_definition(core_name)
     sources = _sources_for(definition)

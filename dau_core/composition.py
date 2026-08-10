@@ -22,8 +22,9 @@ from itertools import pairwise
 from ccflow import BaseModel
 from pydantic import ConfigDict, StrictInt
 
-from .cores import ContractKind, CoreDefinition, CoreKind, LoadImageKind, ResourceEnvelope, UnmeasuredResourceError, core
+from .cores import ContractKind, CoreDefinition, CoreKind, LoadImageKind, ResourceEnvelope, UnmeasuredResourceError
 from .operators import DispatchMode
+from .registry import core
 
 SCAN_INFRASTRUCTURE_CORES = ("axi-burst-reader", "stream-broadcast", "axi-record-writer", "axi-write-mux", "identity-registers")
 
