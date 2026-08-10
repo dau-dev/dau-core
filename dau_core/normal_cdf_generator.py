@@ -124,7 +124,7 @@ module {self.module} #(
     localparam int PROD_WIDTH = 2 * WIDE;
     localparam int SEGMENTS = {segments};
     localparam int SEG_BITS = {max(point.table_bits, 1)};
-    localparam int SEGMENT_SHIFT = {constants['segment_shift']};
+    localparam int SEGMENT_SHIFT = {constants["segment_shift"]};
     localparam logic signed [31:0] LIMIT = 32'sd{limit};
     localparam logic [31:0] ONE = 32'd{1 << point.fractional_bits};
 

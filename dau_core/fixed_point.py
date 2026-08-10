@@ -289,6 +289,7 @@ def _ln_constants(internal_bits: int, table_bits: int) -> dict:
         "series": tuple(series),
     }
 
+
 NORMAL_CDF_FRACTIONAL_BITS = 16
 
 
