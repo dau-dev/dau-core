@@ -269,6 +269,13 @@ class CoreDefinition(BaseModel):
     kind: CoreKind
     module: str
     source: str
+    # The package `source` is resolved inside. Declared, not assumed: the
+    # registry is a hydra search path, so a package that joins it through
+    # the `hydra.lernaplugins` entry point contributes cores whose HDL
+    # lives in ITS tree, not this one. Resolving every core's source under
+    # dau_core.hdl meant a tile could be registered from anywhere but its
+    # Verilog had to be vendored here.
+    source_package: str = "dau_core.hdl"
     # Set when the HDL is RENDERED rather than checked in, because its
     # content is a function of configuration -- a transcendental table
     # cannot be computed at elaboration. `source` then names the file it
@@ -460,17 +467,15 @@ class CoreDefinition(BaseModel):
         the whole reason this core is generated is that its constants are a
         function of those parameters.
         """
-        from . import hdl
-
         if self.generator is not None:
-            rendered = render_root() / self.source
+            rendered = render_root(self.source_package) / self.source
             if not rendered.is_file():
                 raise UnrenderedCoreError(
                     f"core {self.name!r} is generated and has not been rendered to {rendered}. "
                     "Render it first: dau-build task=tasks/build/render-cores"
                 )
             return rendered
-        return Path(str(hdl.__path__[0])) / self.source
+        return package_root(self.source_package) / self.source
 
     def render(self, *, into: Path | None = None) -> Path:
         """Render this core's HDL, returning the written path."""
@@ -487,6 +492,10 @@ class CoreDefinition(BaseModel):
 
 class UnknownCoreError(KeyError):
     pass
+
+
+class UnknownCoreSourceError(RuntimeError):
+    """A core names an HDL package that is not installed."""
 
 
 class UnrenderedCoreError(RuntimeError):
@@ -538,21 +547,36 @@ def cores_of_kind(kind: CoreKind) -> tuple[CoreDefinition, ...]:
     return tuple(definition for definition in loaded_cores().values() if definition.kind == kind)
 
 
-def render_root() -> Path:
+def package_root(package: str) -> Path:
+    """The on-disk directory of an HDL package.
+
+    Resolved through importlib rather than a relative path from this file,
+    so a core contributed by another distribution finds its own tree.
+    """
+    from importlib.resources import files
+
+    try:
+        return Path(str(files(package)))
+    except ModuleNotFoundError as error:
+        raise UnknownCoreSourceError(
+            f"HDL package {package!r} is not importable. A core declaring source_package must ship it: "
+            "register the package on the hydra search path (the `hydra.lernaplugins` entry point) and install it"
+        ) from error
+
+
+def render_root(package: str = "dau_core.hdl") -> Path:
     """Where generated cores are materialized.
 
-    Defaults beside the package so a checkout behaves like one with the
-    files committed; a build tree points DAU_CORE_RENDER_ROOT at its own
-    directory so two builds cannot race on one file.
+    Defaults beside the declaring package so a checkout behaves like one
+    with the files committed; a build tree points DAU_CORE_RENDER_ROOT at
+    its own directory so two builds cannot race on one file.
     """
     import os
 
     override = os.environ.get("DAU_CORE_RENDER_ROOT")
     if override:
         return Path(override)
-    from . import hdl
-
-    return Path(str(hdl.__path__[0])) / "generated"
+    return package_root(package) / "generated"
 
 
 def sources_for(*names: str) -> tuple[Path, ...]:
