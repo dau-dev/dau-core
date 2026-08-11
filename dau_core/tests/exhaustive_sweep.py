@@ -48,8 +48,7 @@ class SweepResult:
 
     def __repr__(self) -> str:
         return (
-            f"SweepResult(worst={self.worst}, wrong={self.wrong:,} of {self.checked:,}, "
-            f"first={self.first}, boundary_redecisions={self.boundary:,})"
+            f"SweepResult(worst={self.worst}, wrong={self.wrong:,} of {self.checked:,}, first={self.first}, boundary_redecisions={self.boundary:,})"
         )
 
 
