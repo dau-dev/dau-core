@@ -1688,17 +1688,43 @@ int32-fixed-point-ln:
       table_bits: 8
       degree: 3
       round_steps: false
-  # UNPRICED. Its envelope needs an OOC run through dau-build's
-  # synthesize-cores task on a build host, which is the only sanctioned path
-  # to a number here, and no such run has happened for this tile. Until then
-  # the planner cannot fit it, which is the correct failure -- a guessed
-  # envelope would let it be composed into a design that does not close.
+  # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
   #
-  # The exp measurements say what to expect and where the risk is: five
-  # multiplies at this width cost DSP48s in the dozens, and the exact exp
-  # point misses 8 ns while the narrower one meets it. The exponent path
-  # here adds a priority encoder and a barrel shift ahead of the first
-  # multiply, neither of which exp had to pay for.
+  # ln MISSES 125 MHz and MEETS 100. Both points are recorded, the violated
+  # one included: that a tile does not close at a clock is a fact the planner
+  # needs, and omitting it would leave the gap looking unmeasured rather than
+  # measured and negative. usable_envelope() refuses the 8 ns point, so it
+  # can be read but never priced into a design.
+  #
+  # The note this replaces predicted both outcomes from the exp measurements
+  # -- DSP48s in the dozens, and a miss at 8 ns where the narrower exp point
+  # meets it. Recorded because the estimate was right for the right reason:
+  # at this precision the limit is datapath width, not structure.
+  #
+  # 39 DSP is the first thing to attack. Five multiplies should not cost that
+  # many -- the e*ln2 term casts an 8-bit exponent and the 54-bit constant to
+  # 62 bits before multiplying (the exp tile's idiom), so Vivado infers a wide
+  # multiplier for what is really 8x54. A narrower e*ln2, then a lighter
+  # operating point, in that order.
+  resources:
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 1098
+      ff: 1180
+      bram36: 2.0
+      dsp: 39
+      timing: violated
+      wns_ns: -0.909
+    - part: xc7a200tfbg484-2
+      clock_ns: 10.0
+      params: {}
+      lut: 1098
+      ff: 1180
+      bram36: 2.0
+      dsp: 39
+      timing: met
+      wns_ns: 1.091
 int32-fixed-point-divide:
   _target_: dau_core.cores.CoreDefinition
   name: int32-fixed-point-divide
