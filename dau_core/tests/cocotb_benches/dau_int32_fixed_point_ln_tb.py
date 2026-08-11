@@ -92,8 +92,9 @@ async def non_positive_source_reports_domain_error(dut):
     when the close-out is taken promptly it flushes the pipeline anyway, so
     the guard on the push is only load-bearing under status backpressure.
     """
+    await _start(dut)
     for bad in (0, -_ONE):
-        await _start(dut)
+        await _reset(dut)
         rows = [(1, 4 * _ONE, 0, 0), (2, bad, 0, 0), (3, 9 * _ONE, 0, 0)]
         seen: list[int] = []
         drain = cocotb.start_soon(_drain_and_record(dut, seen))
@@ -142,7 +143,15 @@ def _pack(rows) -> list[int]:
 
 
 async def _start(dut) -> None:
+    # the clock is started ONCE per test. _reset re-arms the DUT between
+    # cases: calling this in a loop would leave a second free-running Clock
+    # driving dut.clk, and the result would depend on which driver the
+    # simulator resolved last rather than on the tile.
     cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start(start_high=False))
+    await _reset(dut)
+
+
+async def _reset(dut) -> None:
     dut.rst.value = 1
     dut.cfg_dst_field.value = 3
     dut.cfg_src_field.value = 1
