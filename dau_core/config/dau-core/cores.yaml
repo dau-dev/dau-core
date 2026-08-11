@@ -1849,7 +1849,37 @@ int32-fixed-point-ln-light:
       table_bits: 8
       degree: 3
       round_steps: false
-  # UNPRICED until the OOC run lands.
+  # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
+  #
+  # THIS POINT MEETS 125 MHz WHERE THE FULL ONE DOES NOT, at 18 DSPs
+  # against 39, for the same faithful 1-ULP contract. Narrowing the
+  # datapath was the whole lever: the Q52 point spends its DSPs on five
+  # 54x54 multiplies at ~9 each, and a 36-bit internal width cuts both the
+  # multiplier cost and the path through it. An earlier note blamed the
+  # e*ln2 cast for the DSP count; this measurement is what settled it.
+  #
+  # +0.682 ns is the same margin the exp light point closes at, which is
+  # the shape of the pattern rather than a coincidence: at these
+  # precisions the critical path is one multiply per stage either way.
+  resources:
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 1043
+      ff: 1064
+      bram36: 2.0
+      dsp: 18
+      timing: met
+      wns_ns: 0.682
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {}
+      lut: 1042
+      ff: 1064
+      bram36: 2.0
+      dsp: 18
+      timing: met
+      wns_ns: 1.878
 
 int32-fixed-point-divide:
   _target_: dau_core.cores.CoreDefinition

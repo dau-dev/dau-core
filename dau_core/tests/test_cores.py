@@ -343,6 +343,7 @@ def test_silent_on_success_operator_set_is_pinned() -> None:
     semantics — confirm intent here."""
     silent = {d.name for d in cores_of_kind(CoreKind.OPERATOR) if not d.success_close_out}
     assert silent == {
+        "int32-fixed-point-ln-light",
         "rolling-extremum",
         "int32-pair-key-filter",
         "int32-range-partitioner",
