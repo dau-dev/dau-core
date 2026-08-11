@@ -567,8 +567,15 @@ def test_a_measured_point_matches_a_derived_clock_period() -> None:
         record_words=1,
         resources=(
             ResourceMeasurement(
-                part="xc7k325tffg900-2", clock_ns=6.66667, params={}, lut=1, ff=1, bram36=0.0, dsp=0,
-                timing=TimingStatus.MET, wns_ns=0.1,
+                part="xc7k325tffg900-2",
+                clock_ns=6.66667,
+                params={},
+                lut=1,
+                ff=1,
+                bram36=0.0,
+                dsp=0,
+                timing=TimingStatus.MET,
+                wns_ns=0.1,
             ),
         ),
     )

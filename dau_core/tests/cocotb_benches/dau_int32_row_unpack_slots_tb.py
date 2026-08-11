@@ -148,7 +148,6 @@ async def sustained_ingest_meets_the_slots_floor(dut):
     assert measured >= SLOTS, f"SLOTS={SLOTS} must sustain {SLOTS} rows/cycle, measured {measured}"
 
 
-
 def _packable_specs(rng):
     """A random field map this tile will accept at the configured SLOTS.
 
@@ -167,10 +166,7 @@ def _packable_specs(rng):
 def _beats(words: list[int]) -> list[int]:
     """Pack SLOTS packed rows into one input beat, row s at [64*s +: 64]."""
     assert len(words) % SLOTS == 0, "caller pads to a whole beat"
-    return [
-        sum(words[offset + slot] << (64 * slot) for slot in range(SLOTS))
-        for offset in range(0, len(words), SLOTS)
-    ]
+    return [sum(words[offset + slot] << (64 * slot) for slot in range(SLOTS)) for offset in range(0, len(words), SLOTS)]
 
 
 def _decode_row(row: int) -> tuple[int, int, int, int]:
