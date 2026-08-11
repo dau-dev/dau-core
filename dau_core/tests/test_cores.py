@@ -94,10 +94,14 @@ def test_every_selectable_operator_declares_its_ingest_rate() -> None:
     # measured upgrade, not a copy-paste default. The wide-lane cores are
     # 1/1 PER SLOT by construction (scales_with_param carries the multi-row
     # claim; their cocotb benches prove one beat per cycle).
+    # int32-row-unpack left this set when silicon proved its MULTI-row rate:
+    # it declares 1/128 row per cycle scaled by OUT_WIDTH, which is 1/2 at the
+    # 64-bit framing and 8 at 1024. The multi-row claim rides the scaling
+    # parameter exactly as the wide-lane cores' does, so the declared figure is
+    # below 1/1 rather than at it.
     assert full_rate == {
         "int32-key-mask-dispatcher",
         "int32-stride-distributor",
-        "int32-row-unpack",
         "int32-wide-row-predicate-filter",
         "int32-wide-row-map-alu",
         "int32-wide-field-sum-aggregation",

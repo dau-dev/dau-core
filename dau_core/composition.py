@@ -609,9 +609,16 @@ def throughput_rows_per_cycle(spec: ScanCompositionSpec, *, stage_pass_fractions
             raise CompositionError(f"{role} core {tile.core!r}: {exc}") from exc
 
     if spec.front_unpack is not None:
-        # the packed feed: one 8-byte packed row per 64-bit beat from the
-        # reader, then the unpacker's own framing-shaped rate
-        delivery = min(Fraction(1), _tile_rate(spec.front_unpack, "front unpacker"))
+        # the packed feed: the reader supplies data_width/64 packed rows per
+        # beat (a packed row is 8 bytes), and the unpacker re-times them at its
+        # own framing rate -- the slower of the two binds.
+        #
+        # This used to cap at a flat 1 row/cycle, which read the packed path as
+        # "one 8-byte row per 64-bit beat" and was true only while data_width
+        # was 64. A packed WIDE feed hands over data_width/64 rows per beat, and
+        # the flat cap under-reported the silicon-measured eight-slot lane by
+        # 8x, pricing it as no faster than the build it replaced.
+        delivery = min(Fraction(spec.data_width, 64), _tile_rate(spec.front_unpack, "front unpacker"))
     elif spec.data_width == 64:
         delivery = Fraction(1, 2)
     else:

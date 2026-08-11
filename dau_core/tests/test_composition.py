@@ -1090,3 +1090,41 @@ def test_a_packed_front_can_feed_a_wide_lane() -> None:
     # and data_width still describes the packed read, not the quad-row side
     with pytest.raises(CompositionError, match="reads SLOTS packed 64-bit rows"):
         ScanCompositionSpec(name="bad-read", lanes=(lane,), front_unpack=front, data_width=256)
+
+
+def test_a_packed_wide_feed_rates_at_the_unpacker_not_at_one_row() -> None:
+    """The packed feed's ceiling is the READER's packed-row supply, which is
+    data_width/64, not a flat one row per cycle.
+
+    The flat cap read the packed path as "one 8-byte row per 64-bit beat",
+    true only while data_width was 64. A packed WIDE feed hands the unpacker
+    data_width/64 packed rows per beat, and capping at 1 under-reported the
+    silicon-measured eight-slot lane by 8x -- the design would have been
+    priced as no faster than the build it replaced.
+    """
+    from fractions import Fraction
+
+    from dau_core.composition import LaneSpec, ScanCompositionSpec, TileSpec, throughput_rows_per_cycle
+
+    chain = (TileSpec(core="int32-wide-row-predicate-filter", params={"SLOTS": 8}),)
+    lane = LaneSpec(
+        tile=TileSpec(core="int32-wide-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}, params={"SLOTS": 8}),
+        chain=chain,
+    )
+    spec = ScanCompositionSpec(
+        name="packed-wide",
+        lanes=(lane,),
+        front_unpack=TileSpec(core="int32-row-unpack", params={"OUT_WIDTH": 1024}),
+        data_width=512,
+    )
+    assert throughput_rows_per_cycle(spec) == Fraction(8)
+
+    # the classic 64-bit packed path is unchanged: one packed row per beat
+    narrow_lane = LaneSpec(tile=TileSpec(core="int32-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}))
+    narrow = ScanCompositionSpec(
+        name="packed-narrow",
+        lanes=(narrow_lane,) * 4,
+        partitioner=TileSpec(core="int32-key-mask-dispatcher", params={"NUM_PARTITIONS": 4}),
+        front_unpack=TileSpec(core="int32-row-unpack"),
+    )
+    assert throughput_rows_per_cycle(narrow) == Fraction(1, 2)
