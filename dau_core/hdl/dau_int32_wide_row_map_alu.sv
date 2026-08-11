@@ -17,7 +17,7 @@
 module dau_int32_wide_row_map_alu
     import dau_map_alu_pkg::*;
 #(
-    parameter int SLOTS = 4,          // quad rows per beat: 1, 2, or 4
+    parameter int SLOTS = 4,          // quad rows per beat: 1, 2, 4, or 8
     parameter int PIPELINE_DEPTH = 3  // elastic stages: 1 through 8
 ) (
     input  wire logic                         clk,
@@ -40,8 +40,8 @@ module dau_int32_wide_row_map_alu
     output logic                              status_error,
     output logic [7:0]                        status_error_code
 );
-    if (!(SLOTS == 1 || SLOTS == 2 || SLOTS == 4)) begin : g_bad_slots
-        $error("SLOTS must be 1, 2, or 4");
+    if (!(SLOTS == 1 || SLOTS == 2 || SLOTS == 4 || SLOTS == 8)) begin : g_bad_slots
+        $error("SLOTS must be 1, 2, 4, or 8");
     end
     if (PIPELINE_DEPTH < 1 || PIPELINE_DEPTH > 8) begin : g_bad_pipeline_depth
         $error("PIPELINE_DEPTH must be between 1 and 8");

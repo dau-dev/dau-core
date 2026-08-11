@@ -671,7 +671,7 @@ def test_row_unpack_wide_quad_stream_runs_real_cocotb(tmp_path: Path) -> None:
 
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
-@pytest.mark.parametrize("slots", [1, 2, 4])
+@pytest.mark.parametrize("slots", [1, 2, 4, 8])
 def test_row_unpack_multi_slot_beats_run_real_cocotb(tmp_path: Path, monkeypatch, slots: int) -> None:
     # SLOTS = OUT_WIDTH/128 whole quad rows per beat, fed by SLOTS packed rows
     # per input beat -- what lets a packed feed drive a SLOTS-wide lane. SLOTS=1
@@ -722,7 +722,7 @@ def test_field_sum_aggregation_runs_real_cocotb_against_systemverilog(tmp_path: 
 
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
-@pytest.mark.parametrize("slots", [1, 2, 4])
+@pytest.mark.parametrize("slots", [1, 2, 4, 8])
 @pytest.mark.parametrize("pipeline_depth", [1, 2, 3, 4])
 def test_wide_row_predicate_filter_runs_real_cocotb_against_systemverilog(tmp_path: Path, slots: int, pipeline_depth: int) -> None:
     _run_cocotb_verilator(
@@ -735,7 +735,7 @@ def test_wide_row_predicate_filter_runs_real_cocotb_against_systemverilog(tmp_pa
 
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
-@pytest.mark.parametrize("slots", [1, 2, 4])
+@pytest.mark.parametrize("slots", [1, 2, 4, 8])
 @pytest.mark.parametrize("pipeline_depth", [1, 2, 3, 4])
 def test_wide_row_map_alu_runs_real_cocotb_against_systemverilog(tmp_path: Path, slots: int, pipeline_depth: int) -> None:
     _run_cocotb_verilator(
@@ -748,7 +748,7 @@ def test_wide_row_map_alu_runs_real_cocotb_against_systemverilog(tmp_path: Path,
 
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
-@pytest.mark.parametrize("slots", [1, 2, 4])
+@pytest.mark.parametrize("slots", [1, 2, 4, 8])
 def test_wide_field_sum_aggregation_runs_real_cocotb_against_systemverilog(tmp_path: Path, slots: int) -> None:
     _run_cocotb_verilator(
         sources=(Path(str(DAU_INT32_WIDE_FIELD_SUM_AGGREGATION_SV)),),

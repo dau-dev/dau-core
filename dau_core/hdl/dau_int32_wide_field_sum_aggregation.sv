@@ -18,7 +18,7 @@
 // tile's ERR_STREAM path has no equivalent here. An all-pad beat (a
 // trailing pad-only tail) accumulates nothing and closes normally.
 module dau_int32_wide_field_sum_aggregation #(
-    parameter int SLOTS = 4  // quad rows per beat: 1, 2, or 4
+    parameter int SLOTS = 4  // quad rows per beat: 1, 2, 4, or 8
 ) (
     input  wire logic                     clk,
     input  wire logic                     rst,
@@ -37,8 +37,8 @@ module dau_int32_wide_field_sum_aggregation #(
     output logic [7:0]                    status_error_code,
     output logic [63:0]                   aggregated_count
 );
-    if (!(SLOTS == 1 || SLOTS == 2 || SLOTS == 4)) begin : g_bad_slots
-        $error("SLOTS must be 1, 2, or 4");
+    if (!(SLOTS == 1 || SLOTS == 2 || SLOTS == 4 || SLOTS == 8)) begin : g_bad_slots
+        $error("SLOTS must be 1, 2, 4, or 8");
     end
 
     localparam logic [7:0] ERR_CONFIG = 8'd1;
@@ -85,15 +85,24 @@ module dau_int32_wide_field_sum_aggregation #(
     localparam int BEAT_SUM_W = 32 + $clog2(SLOTS);
     localparam int ROWS_W = $clog2(SLOTS + 1);
 
-    logic [3:0] slot_live;                              // padded to 4; unused slots stay 0
-    logic signed [BEAT_SUM_W-1:0] slot_term [0:3][0:3]; // [field][slot], 0 for pads and unused slots
+    // reduction depth, so the tree stays balanced at every SLOTS. At SLOTS==1
+    // this is 0: there is nothing to reduce and the single slot IS the sum.
+    localparam int LEVELS = $clog2(SLOTS);
+
+    logic [SLOTS-1:0] slot_live;
+    logic signed [BEAT_SUM_W-1:0] slot_term [0:3][0:SLOTS-1]; // [field][slot], 0 for pads
+    // [field][level][node]: level 0 is the slot terms, each level halves, and
+    // level LEVELS node 0 is the beat sum. Written as a parameterized tree
+    // rather than the hand-written (a+b)+(c+d) it replaces, which silently
+    // fixed the tile at four slots.
+    logic signed [BEAT_SUM_W-1:0] tree [0:3][0:LEVELS][0:SLOTS-1];
     logic signed [BEAT_SUM_W-1:0] beat_sum [4];
     logic [ROWS_W-1:0] beat_rows;
 
     always_comb begin
-        slot_live = 4'd0;
+        slot_live = '0;
         for (int f = 0; f < 4; f++) begin
-            for (int s = 0; s < 4; s++) begin
+            for (int s = 0; s < SLOTS; s++) begin
                 slot_term[f][s] = '0;
             end
         end
@@ -107,7 +116,17 @@ module dau_int32_wide_field_sum_aggregation #(
         end
         beat_rows = ROWS_W'($countones(slot_live));
         for (int f = 0; f < 4; f++) begin
-            beat_sum[f] = (slot_term[f][0] + slot_term[f][1]) + (slot_term[f][2] + slot_term[f][3]);
+            for (int s = 0; s < SLOTS; s++) begin
+                tree[f][0][s] = slot_term[f][s];
+            end
+            for (int l = 0; l < LEVELS; l++) begin
+                for (int i = 0; i < SLOTS; i++) begin
+                    tree[f][l + 1][i] = (i < (SLOTS >> (l + 1)))
+                        ? (tree[f][l][2 * i] + tree[f][l][2 * i + 1])
+                        : '0;
+                end
+            end
+            beat_sum[f] = tree[f][LEVELS][0];
         end
     end
 

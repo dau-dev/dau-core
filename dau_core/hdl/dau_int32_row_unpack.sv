@@ -129,8 +129,8 @@ module dau_int32_row_unpack #(
     // the all-ones quad row the wide-row tiles already drop (SLOTS > 1 only)
     localparam logic [63:0]  PAD_PACKED = {64{1'b1}};
     localparam logic [127:0] PAD_ROW    = {128{1'b1}};
-    if (OUT_WIDTH != 64 && OUT_WIDTH != 128 && OUT_WIDTH != 256 && OUT_WIDTH != 512) begin : g_bad_out_width
-        $fatal(1, "dau_int32_row_unpack: OUT_WIDTH must be 64, 128, 256, or 512");
+    if (OUT_WIDTH != 64 && OUT_WIDTH != 128 && OUT_WIDTH != 256 && OUT_WIDTH != 512 && OUT_WIDTH != 1024) begin : g_bad_out_width
+        $fatal(1, "dau_int32_row_unpack: OUT_WIDTH must be 64, 128, 256, 512, or 1024");
     end
 
     typedef enum logic [1:0] {

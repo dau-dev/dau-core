@@ -2117,6 +2117,70 @@ int32-row-unpack:
       dsp: 0
       timing: met
       wns_ns: 3.441
+    # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {OUT_WIDTH: 128}
+      lut: 1580
+      ff: 260
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 1.943
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {OUT_WIDTH: 128}
+      lut: 1580
+      ff: 260
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.866
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {OUT_WIDTH: 256}
+      lut: 2290
+      ff: 449
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.192
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {OUT_WIDTH: 256}
+      lut: 2290
+      ff: 449
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.110
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {OUT_WIDTH: 512}
+      lut: 4384
+      ff: 833
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.185
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {OUT_WIDTH: 512}
+      lut: 4384
+      ff: 833
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.119
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {OUT_WIDTH: 1024}
+      lut: 8491
+      ff: 1599
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.106
   contract_kind: row-stream
   record_words: 1
   output_record_words: 2
@@ -2145,6 +2209,7 @@ int32-row-unpack:
       - 128
       - 256
       - 512
+      - 1024
 
 int32-field-sum-aggregation:
   _target_: dau_core.cores.CoreDefinition
@@ -2799,6 +2864,16 @@ int32-wide-row-predicate-filter:
       dsp: 0
       timing: met
       wns_ns: 3.334
+    # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {SLOTS: 8, PIPELINE_DEPTH: 3}
+      lut: 5696
+      ff: 3291
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.83
   count_port: selected_count
   contract_kind: wide-row-stream
   record_words: 2
@@ -2811,7 +2886,7 @@ int32-wide-row-predicate-filter:
   parameters:
     SLOTS:
       default: 4
-      choices: [1, 2, 4]
+      choices: [1, 2, 4, 8]
     PIPELINE_DEPTH:
       default: 3
       minimum: 1
@@ -2888,6 +2963,16 @@ int32-wide-row-map-alu:
       dsp: 16
       timing: met
       wns_ns: 1.983
+    # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {SLOTS: 8, PIPELINE_DEPTH: 3}
+      lut: 5492
+      ff: 4667
+      bram36: 0.0
+      dsp: 32
+      timing: met
+      wns_ns: 1.971
   contract_kind: wide-row-stream
   record_words: 2
   supports_pipeline_depth: true
@@ -2899,7 +2984,7 @@ int32-wide-row-map-alu:
   parameters:
     SLOTS:
       default: 4
-      choices: [1, 2, 4]
+      choices: [1, 2, 4, 8]
     PIPELINE_DEPTH:
       default: 3
       minimum: 1
@@ -2973,6 +3058,16 @@ int32-wide-field-sum-aggregation:
       dsp: 0
       timing: met
       wns_ns: 5.369
+    # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {SLOTS: 8}
+      lut: 2281
+      ff: 470
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.327
   count_port: aggregated_count
   contract_kind: wide-row-stream
   record_words: 2
@@ -2984,7 +3079,7 @@ int32-wide-field-sum-aggregation:
   parameters:
     SLOTS:
       default: 4
-      choices: [1, 2, 4]
+      choices: [1, 2, 4, 8]
   opcodes:
   - 3
   - 4
