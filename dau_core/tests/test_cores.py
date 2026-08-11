@@ -184,7 +184,12 @@ def test_synthesizable_cores_carry_measured_envelopes() -> None:
         for definition in loaded_cores().values()
         if definition.kind in (CoreKind.OPERATOR, CoreKind.STREAM_INFRA) and definition.resources is None
     }
-    assert resource_free == {"int32-stride-distributor"}
+    # int32-fixed-point-ln is UNPRICED: an envelope needs an OOC run through
+    # dau-build's synthesize-cores task on a build host, the only sanctioned
+    # path to a number here. Until then the planner cannot fit it, which is
+    # the correct failure -- a guessed envelope would let it be composed into
+    # a design that does not close.
+    assert resource_free == {"int32-stride-distributor", "int32-fixed-point-ln"}
     for definition in loaded_cores().values():
         if definition.kind in (CoreKind.OPERATOR, CoreKind.STREAM_INFRA) and definition.resources is not None:
             if isinstance(definition.resources, ResourceEnvelope):
@@ -363,6 +368,7 @@ def test_silent_on_success_operator_set_is_pinned() -> None:
         "int32-fixed-point-exp",
         "int32-normal-cdf",
         "int32-fixed-point-exp-light",
+        "int32-fixed-point-ln",
         "int32-key-membership-filter",
         "int32-broadcast-hash-join",
         "int32-row-unpack",
