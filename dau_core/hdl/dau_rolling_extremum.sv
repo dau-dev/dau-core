@@ -44,7 +44,12 @@
 module dau_rolling_extremum #(
     parameter int WINDOW = 4,
     parameter int VALUE_WIDTH = 32,
-    parameter bit FIND_MAX = 1'b1
+    parameter bit FIND_MAX = 1'b1,
+    // The stream words one row occupies. Derivable from VALUE_WIDTH, but
+    // declared so the REGISTRY can state the record shape: record_words is a
+    // registry fact naming a parameter, and a composition that framed a
+    // 64-bit build as one word would mis-slice every row.
+    parameter int RECORD_WORDS = (VALUE_WIDTH == 64) ? 2 : 1
 ) (
     input  wire logic        clk,
     input  wire logic        rst,
@@ -68,8 +73,10 @@ module dau_rolling_extremum #(
     // otherwise keep advancing, reach the end while the skid slot is still
     // full, and be dropped with nothing reporting it.
     logic advance;
+    // asserted for one cycle when a finished batch may release its state
+    logic rearm;
     localparam int K = $clog2(WINDOW);
-    localparam int WORDS = (VALUE_WIDTH == 64) ? 2 : 1;
+    localparam int WORDS = RECORD_WORDS;
     // run length saturates at WINDOW: nothing above it changes a decision
     localparam int CW = $clog2(WINDOW + 1) + 1;
 
@@ -81,6 +88,9 @@ module dau_rolling_extremum #(
     end
     if (VALUE_WIDTH != 32 && VALUE_WIDTH != 64) begin : g_value_width
         $error("VALUE_WIDTH must be 32 or 64");
+    end
+    if (RECORD_WORDS != ((VALUE_WIDTH == 64) ? 2 : 1)) begin : g_record_words
+        $error("RECORD_WORDS must be 2 at VALUE_WIDTH 64, else 1");
     end
 
     typedef logic signed [VALUE_WIDTH-1:0] value_t;
@@ -152,6 +162,12 @@ module dau_rolling_extremum #(
             prev_symbol <= '0;
             have_prev   <= 1'b0;
             run_len     <= '0;
+        end else if (rearm) begin
+            // the batch is over: drop the segment state so a following batch
+            // starting with the SAME symbol is a fresh window rather than a
+            // continuation of the last one
+            have_prev <= 1'b0;
+            run_len   <= '0;
         end else if (advance && row_fire) begin
             prev_symbol <= row_symbol_now;
             have_prev   <= 1'b1;
@@ -259,6 +275,7 @@ module dau_rolling_extremum #(
     logic stream_ended_q;
     always_ff @(posedge clk) begin
         if (rst) stream_ended_q <= 1'b0;
+        else if (rearm) stream_ended_q <= 1'b0;
         else if (stream_end) stream_ended_q <= 1'b1;
     end
 
@@ -293,6 +310,7 @@ module dau_rolling_extremum #(
             forwarded_any <= 1'b0;
         end else begin
             if (output_fire) out_valid_q <= 1'b0;
+            if (rearm) forwarded_any <= 1'b0;
 
             if (out_second && out_free) begin
                 // second word of the row already begun; it carries last when
@@ -332,9 +350,24 @@ module dau_rolling_extremum #(
     // one outcome a downstream tile cannot distinguish from a stall.
     logic status_valid_q;
     logic status_error_q;
+    // the batch has closed out: everything drained and any status delivered.
+    // Latched state (segment, stream-ended, forwarded) clears here so a
+    // following batch starts clean -- without it a second batch beginning
+    // with the same symbol continues the previous window, and the close-out
+    // condition, which is level-triggered on stream_ended_q, re-fires status
+    // every cycle forever.
+    logic closed_out_q;
+    wire  drained = stream_ended_q && !skid_valid && !out_valid_q && !out_second;
+    assign rearm = drained && closed_out_q && !status_valid_q;
     assign status_valid      = status_valid_q;
     assign status_error      = status_error_q;
     assign status_error_code = status_error_q ? ERR_STREAM : 8'd0;
+
+    always_ff @(posedge clk) begin
+        if (rst) closed_out_q <= 1'b0;
+        else if (rearm) closed_out_q <= 1'b0;
+        else if (stream_end || stream_ended_q) closed_out_q <= 1'b1;
+    end
 
     always_ff @(posedge clk) begin
         if (rst) begin
@@ -343,7 +376,7 @@ module dau_rolling_extremum #(
         end else if (torn) begin
             status_valid_q <= 1'b1;
             status_error_q <= 1'b1;
-        end else if ((stream_end || stream_ended_q) && !forwarded_any && !skid_valid && !emit_now) begin
+        end else if ((stream_end || stream_ended_q) && !forwarded_any && !skid_valid && !emit_now && !closed_out_q) begin
             status_valid_q <= 1'b1;
             status_error_q <= 1'b0;
         end else if (status_valid_q && status_ready) begin

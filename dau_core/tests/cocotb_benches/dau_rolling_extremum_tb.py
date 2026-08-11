@@ -91,6 +91,48 @@ async def rolling_extremum_last_rides_the_final_forwarded_row(dut):
     assert last_at == len(words) - 1, (last_at, len(words))
 
 
+@cocotb.test()
+async def rolling_extremum_reuses_across_batches(dut):
+    """A SECOND batch after input_last must be a fresh window.
+
+    Every other test resets first, which is exactly how a tile that carries
+    its segment state across a batch boundary passes a whole bench. Here the
+    second batch opens with the SAME symbol the first one closed on: if the
+    run length survived, its first rows emit during what should be warm-up.
+    """
+    await _start(dut)
+    batch = [(7, v) for v in range(1, WINDOW + 1)]
+    first = await _run(dut, batch)
+    assert first == _golden(batch)
+    # no reset between batches
+    second = await _run(dut, batch)
+    assert second == _golden(batch), "the second batch inherited the first batch's window"
+
+
+@cocotb.test()
+async def rolling_extremum_zero_row_close_out_fires_exactly_once(dut):
+    """The close-out is a pulse, not a level.
+
+    The condition is derived from a latched 'stream has ended' bit, so
+    without a fired-once guard it re-asserts every cycle and a consumer
+    holding status_ready sees an unbounded run of transfers.
+    """
+    await _start(dut)
+    short = [(3, 1)] * (WINDOW - 1)
+    rows = await _run(dut, short, expect_close_out=True)
+    assert rows == []
+    # status must be quiescent afterwards
+    dut.status_ready.value = 1
+    extra = 0
+    for _ in range(64):
+        await ReadOnly()
+        if int(dut.status_valid.value) == 1:
+            extra += 1
+        await RisingEdge(dut.clk)
+    dut.status_ready.value = 0
+    assert extra == 0, f"close-out re-fired {extra} more times after being accepted"
+
+
 async def _start(dut) -> None:
     clock = Clock(dut.clk, 10, unit="ns")
     cocotb.start_soon(clock.start(start_high=False))
