@@ -518,11 +518,26 @@ int32-rolling-moments:
   golden: dau_core.temporal:rolling_moments
   bench: dau_core.tests.cocotb_benches.dau_int32_rolling_moments_tb
   # OOC WINDOW=4 xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +3.155)
+  # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
   resources:
-    lut: 683
-    ff: 1001
-    bram36: 0.0
-    dsp: 8
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {WINDOW: 4}
+      lut: 683
+      ff: 1001
+      bram36: 0.0
+      dsp: 8
+      timing: met
+      wns_ns: 3.155
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {WINDOW: 4}
+      lut: 683
+      ff: 1001
+      bram36: 0.0
+      dsp: 8
+      timing: met
+      wns_ns: 3.892
   count_port: moment_count
   contract_kind: row-stream
   record_words: 1
@@ -743,11 +758,26 @@ int32-time-bucket-key:
   golden: dau_core.operators:time_bucket_key_rows
   bench: dau_core.tests.cocotb_benches.dau_int32_time_bucket_key_tb
   # OOC BUCKET_BITS=16 xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +2.175)
+  # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
   resources:
-    lut: 291
-    ff: 305
-    bram36: 0.0
-    dsp: 0
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {BUCKET_BITS: 16}
+      lut: 245
+      ff: 305
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.085
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {BUCKET_BITS: 16}
+      lut: 245
+      ff: 305
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.706
   contract_kind: row-stream
   record_words: 3
   output_record_words: 2
@@ -773,11 +803,26 @@ int32-record-gather:
     output_last rides the emitted record final word, and success is silent.'
   golden: dau_core.operators:gather_records
   bench: dau_core.tests.cocotb_benches.dau_int32_record_gather_tb
+  # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
   resources:
-    lut: 291
-    ff: 305
-    bram36: 0.0
-    dsp: 0
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {IN_WORDS: 4, OUT_WORDS: 1}
+      lut: 357
+      ff: 280
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.391
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {IN_WORDS: 4, OUT_WORDS: 1}
+      lut: 357
+      ff: 280
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 6.168
   contract_kind: row-stream
   record_words_param: IN_WORDS
   output_record_words_param: OUT_WORDS
@@ -1211,11 +1256,26 @@ record-gearbox:
   golden: dau_core.operators:gearbox_records
   bench: dau_core.tests.cocotb_benches.dau_record_gearbox_tb
   # OOC IN_WIDTH=512 RECORD_WORDS=3 xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +2.533)
+  # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
   resources:
-    lut: 3844
-    ff: 1451
-    bram36: 0.0
-    dsp: 0
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {IN_WIDTH: 512, RECORD_WORDS: 3}
+      lut: 3836
+      ff: 1451
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.062
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {IN_WIDTH: 512, RECORD_WORDS: 3}
+      lut: 3836
+      ff: 1451
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.699
   contract_kind: row-stream
   # one record per cycle when the bus can supply one: the input delivers
   # IN_WIDTH/64 words per cycle against RECORD_WORDS per record, so the
@@ -1265,11 +1325,45 @@ int32-key-mask-dispatcher:
   # hash-dispatched design price as free and overflow at implementation --
   # the failure the measured-point discipline exists to prevent -- so the
   # declared dsp is the hash cost even for mask designs.
+  # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
   resources:
-    lut: 330
-    ff: 1124
-    bram36: 0.0
-    dsp: 3
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {NUM_PARTITIONS: 4, RECORD_WORDS: 2, IN_WIDTH: 64, RECORD_INPUT: 0, MODE: 0}
+      lut: 277
+      ff: 1188
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.738
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {NUM_PARTITIONS: 4, RECORD_WORDS: 2, IN_WIDTH: 64, RECORD_INPUT: 0, MODE: 0}
+      lut: 277
+      ff: 1188
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.698
+    # the wide record-input point the front-gearbox compositions use
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {NUM_PARTITIONS: 4, RECORD_WORDS: 3, IN_WIDTH: 192, RECORD_INPUT: 1, MODE: 0}
+      lut: 309
+      ff: 1565
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.152
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {NUM_PARTITIONS: 4, RECORD_WORDS: 3, IN_WIDTH: 192, RECORD_INPUT: 1, MODE: 0}
+      lut: 309
+      ff: 1565
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 6.163
   contract_kind: row-stream
   record_words_param: RECORD_WORDS
   # framing-shaped: min(1, IN_WIDTH/128) — 64-bit two-beat framing is 1/2,
@@ -1937,11 +2031,26 @@ int32-row-unpack:
     from column ranges.'
   golden: dau_core.operators:unpack_rows
   bench: dau_core.tests.cocotb_benches.dau_int32_row_unpack_tb
+  # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
   resources:
-    lut: 1509
-    ff: 194
-    bram36: 0.0
-    dsp: 0
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {OUT_WIDTH: 64}
+      lut: 1443
+      ff: 197
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 1.529
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {OUT_WIDTH: 64}
+      lut: 1443
+      ff: 197
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.441
   contract_kind: row-stream
   record_words: 1
   output_record_words: 2
@@ -2096,11 +2205,49 @@ int32-key-membership-filter:
   golden: dau_core.operators:filter_rows_by_membership
   bench: dau_core.tests.cocotb_benches.dau_int32_key_membership_filter_tb
   # OOC KEY_SPACE=4096; bitmap is one RAMB36, 8 ns met
+  # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
   resources:
-    lut: 363
-    ff: 413
-    bram36: 1.0
-    dsp: 0
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {KEY_SPACE: 4096}
+      lut: 425
+      ff: 552
+      bram36: 1.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.132
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {KEY_SPACE: 4096}
+      lut: 425
+      ff: 552
+      bram36: 1.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.788
+    # KEY_SPACE=6000000 is the configuration proven on silicon, and the
+    # reason a scalar envelope was not good enough: this tile is a BITMAP,
+    # so its BRAM cost is the key space. The retired scalar declared
+    # bram36 1.0 for every KEY_SPACE, pricing this build at 1/192 of what
+    # it actually places -- 192 of the Artix's 335 budgeted BRAM36.
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {KEY_SPACE: 6000000}
+      lut: 848
+      ff: 632
+      bram36: 192.0
+      dsp: 0
+      timing: met
+      wns_ns: 1.930
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {KEY_SPACE: 6000000}
+      lut: 824
+      ff: 632
+      bram36: 192.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.830
   count_port: selected_count
   contract_kind: row-stream
   record_words: 2
@@ -2128,11 +2275,26 @@ int32-broadcast-hash-join:
   golden: dau_core.operators:broadcast_hash_join_rows
   bench: dau_core.tests.cocotb_benches.dau_int32_broadcast_hash_join_tb
   # OOC KEY_SPACE=1024; payload table is 3 RAMB36, 8 ns met (WNS +3.421)
+  # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
   resources:
-    lut: 713
-    ff: 422
-    bram36: 3.0
-    dsp: 0
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {KEY_SPACE: 1024}
+      lut: 708
+      ff: 423
+      bram36: 3.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.857
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {KEY_SPACE: 1024}
+      lut: 708
+      ff: 423
+      bram36: 3.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.651
   count_port: joined_count
   contract_kind: row-stream
   record_words: 2
@@ -2343,11 +2505,26 @@ stream-broadcast:
   module: dau_stream_broadcast
   source: dau_stream_broadcast.sv
   description: N-way stream fanout with taken-bit bookkeeping.
+  # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
   resources:
-    lut: 5
-    ff: 2
-    bram36: 0.0
-    dsp: 0
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 5
+      ff: 2
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 6.72
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {}
+      lut: 5
+      ff: 2
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 7.188
 
 axi-burst-reader:
   _target_: dau_core.cores.CoreDefinition
@@ -2362,11 +2539,26 @@ axi-burst-reader:
     DATA_WIDTH:
       default: 64
       choices: [64, 128, 256, 512]
+  # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
   resources:
-    lut: 529
-    ff: 340
-    bram36: 0.0
-    dsp: 0
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {DATA_WIDTH: 64}
+      lut: 534
+      ff: 340
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 1.582
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {DATA_WIDTH: 64}
+      lut: 534
+      ff: 340
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.516
 
 axi-record-writer:
   _target_: dau_core.cores.CoreDefinition
@@ -2375,11 +2567,26 @@ axi-record-writer:
   module: dau_axi_record_writer
   source: dau_axi_record_writer.sv
   description: AXI4 burst write master draining one record stream to a region.
+  # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
   resources:
-    lut: 406
-    ff: 1266
-    bram36: 0.0
-    dsp: 0
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 404
+      ff: 1267
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.393
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {}
+      lut: 404
+      ff: 1267
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.396
 
 axi-write-mux:
   _target_: dau_core.cores.CoreDefinition
@@ -2388,11 +2595,26 @@ axi-write-mux:
   module: dau_axi_write_mux
   source: dau_axi_write_mux.sv
   description: N:1 AXI write-channel mux, round-robin, locked AW to B.
+  # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
   resources:
-    lut: 133
-    ff: 4
-    bram36: 0.0
-    dsp: 0
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 133
+      ff: 4
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.786
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {}
+      lut: 133
+      ff: 4
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 6.519
 
 bram-stream-job:
   _target_: dau_core.cores.CoreDefinition
@@ -2401,11 +2623,26 @@ bram-stream-job:
   module: dau_bram_stream_job
   source: dau_bram_stream_job.sv
   description: BRAM-staged tile-agnostic job runner.
+  # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
   resources:
-    lut: 104
-    ff: 232
-    bram36: 0.0
-    dsp: 0
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 100
+      ff: 232
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.325
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {}
+      lut: 100
+      ff: 232
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.801
 
 axi-stream-job:
   _target_: dau_core.cores.CoreDefinition
@@ -2415,11 +2652,26 @@ axi-stream-job:
   source: dau_axi_stream_job.sv
   description: DDR-staged AXI4 master job runner (reader + writer halves fused).
   bench: dau_core.tests.cocotb_benches.dau_axi_bar_job_tb
+  # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
   resources:
-    lut: 3341
-    ff: 9712
-    bram36: 0.0
-    dsp: 0
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 3341
+      ff: 9712
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 0.141
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {}
+      lut: 3341
+      ff: 9712
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.523
 
 identity-registers:
   _target_: dau_core.cores.CoreDefinition
@@ -2448,11 +2700,26 @@ int32-wide-row-predicate-filter:
   golden: dau_core.operators:filter_rows_by_predicate
   bench: dau_core.tests.cocotb_benches.dau_int32_wide_row_predicate_filter_tb
   # Reference hand-split 3-stage OOC: SLOTS=4 xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +3.129)
+  # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
   resources:
-    lut: 2276
-    ff: 2124
-    bram36: 0.0
-    dsp: 0
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {SLOTS: 4, PIPELINE_DEPTH: 3}
+      lut: 3473
+      ff: 1741
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 0.489
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {SLOTS: 4, PIPELINE_DEPTH: 3}
+      lut: 3473
+      ff: 1741
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.334
   count_port: selected_count
   contract_kind: wide-row-stream
   record_words: 2

@@ -20,8 +20,11 @@ def _priced(spec: ScanCompositionSpec):
 
 
 def _tile_lut(name: str) -> int:
-    """A tile's LUTs at the coordinate above, whichever envelope shape it
-    still carries — the palette is mid-migration, so both exist."""
+    """A tile's LUTs at the coordinate above.
+
+    Every operator and stream-infra tile carries measurement points as of
+    2026-08-11; the scalar branch remains for the one shell-adapter that
+    has no clock to characterize against."""
     definition = core(name)
     if isinstance(definition.resources, (list, tuple)):
         return definition.resource_measurement(part=_PART, clock_ns=_CLOCK_NS, params={}).usable_envelope().lut
@@ -468,18 +471,25 @@ def test_shared_partitioner_params_are_validated() -> None:
         )
 
 
-def test_param_less_tiles_are_unchanged_and_price_at_default_size() -> None:
-    # a param'd membership tile does not crash the resource estimate (the
-    # envelope is looked up by core name, independent of KEY_SPACE)
+def test_a_sized_tile_prices_at_its_size_not_its_default() -> None:
+    """A parameter that changes the hardware has to change the price.
+
+    This assertion used to be the OPPOSITE -- that a 6M-key membership
+    filter priced identically to a default 4096-key one -- and it was true
+    only because the tile carried a scalar envelope that answered every
+    KEY_SPACE with the same numbers. The membership filter is a BITMAP, so
+    its BRAM cost IS the key space: 1 BRAM36 at 4096, 192 at 6,000,000,
+    which is 57% of the Artix's 335 budgeted blocks. Every composition
+    using the silicon-proven configuration was priced at 1/192 of the BRAM
+    it actually places.
+    """
     membership = TileSpec(core="int32-key-membership-filter", params={"KEY_SPACE": 6_000_000})
-    spec = ScanCompositionSpec(name="q3", lanes=(LaneSpec(tile=_BAR, chain=(membership,)),))
-    priced = _priced(spec)
-    # equals the default-size envelope sum: the param override does not (yet) rescale the estimate
+    priced = _priced(ScanCompositionSpec(name="q3", lanes=(LaneSpec(tile=_BAR, chain=(membership,)),)))
     default_sized = _priced(
         ScanCompositionSpec(name="q3-default", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-key-membership-filter"),)),))
     )
-    assert priced.bram36 == default_sized.bram36
-    assert priced.lut == default_sized.lut
+    assert priced.bram36 - default_sized.bram36 == 191.0, (priced.bram36, default_sized.bram36)
+    assert priced.lut > default_sized.lut
 
 
 _FRONT_UNPACK_CONFIG = {
@@ -510,9 +520,7 @@ def test_front_unpack_validates_and_reaches_core_names_and_resources() -> None:
     # the front unpacker's envelope is added on top of the fan-out shape
     priced = _priced(spec)
     without = _priced(bar_noc_spec())
-    unpack = core("int32-row-unpack").resources
-    assert unpack is not None
-    assert priced.lut - without.lut == unpack.lut
+    assert priced.lut - without.lut == _tile_lut("int32-row-unpack")
     assert not priced.measured  # the axi infra tiles are still scalar
     # it coexists with a shared partitioner too (still one clean-key row into the fan-out)
     partitioned = ScanCompositionSpec(
@@ -955,9 +963,7 @@ def test_front_gearbox_reaches_core_names_and_resources() -> None:
     assert "record-gearbox" in spec.core_names()
     priced = _priced(spec)
     without = _priced(ScanCompositionSpec(name="geared-scan", lanes=sorted_scan_spec().lanes, data_width=512, partitioner=_record_dispatcher()))
-    gearbox = core("record-gearbox").resources
-    assert gearbox is not None
-    assert priced.lut - without.lut == gearbox.lut
+    assert priced.lut - without.lut == _tile_lut("record-gearbox")
 
 
 def test_a_geared_design_does_not_share_a_hash_with_an_ungeared_one() -> None:
