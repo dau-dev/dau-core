@@ -671,6 +671,27 @@ def test_row_unpack_wide_quad_stream_runs_real_cocotb(tmp_path: Path) -> None:
 
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+@pytest.mark.parametrize("slots", [1, 2, 4])
+def test_row_unpack_multi_slot_beats_run_real_cocotb(tmp_path: Path, monkeypatch, slots: int) -> None:
+    # SLOTS = OUT_WIDTH/128 whole quad rows per beat, fed by SLOTS packed rows
+    # per input beat -- what lets a packed feed drive a SLOTS-wide lane. SLOTS=1
+    # is included so this generic bench is known to AGREE with the directed
+    # 128-bit one, not merely to run.
+    #
+    # The env var tells the bench how to lay out a beat; `parameters` tells
+    # verilator how to elaborate. Nothing enforces that they agree, so both are
+    # derived from the same pytest parameter.
+    monkeypatch.setenv("DAU_UNPACK_SLOTS", str(slots))
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_ROW_UNPACK_SV)),),
+        hdl_toplevel="dau_int32_row_unpack",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_row_unpack_slots_tb",
+        tmp_path=tmp_path,
+        parameters={"OUT_WIDTH": slots * 128},
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_keyed_predicate_filter_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
     _run_cocotb_verilator(
         sources=(Path(str(DAU_PREDICATE_PKG_SV)), Path(str(DAU_INT32_KEYED_PREDICATE_FILTER_SV))),

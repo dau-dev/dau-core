@@ -59,6 +59,27 @@
 // w1 cycle — still zero added row latency); torn-row and batch-latch semantics
 // are unchanged. Any other OUT_WIDTH fails elaboration.
 //
+// 256 and 512 carry SLOTS = OUT_WIDTH/128 whole quad rows per beat, slot s at
+// [128*s +: 128], and widen the INPUT to match: IN_WIDTH = SLOTS*64, packed
+// row s at [64*s +: 64]. This is what lets a packed feed drive a SLOTS-wide
+// lane — at OUT_WIDTH=128 the tile emits one row per beat and starves a
+// four-slot wide-row chain, which is why q6-packed-wide and q6-wide-sf1 could
+// not be composed. The field extraction is replicated per slot and is purely
+// combinational, so the cost is linear in SLOTS with no new sequencing.
+//
+// RAGGED TAILS (SLOTS > 1 only): a batch whose row count is not a multiple of
+// SLOTS is padded by the host with the reserved ALL-ONES packed word, which
+// this tile passes through as the reserved ALL-ONES 128-bit PAD row rather
+// than unpacking it — the same PAD the wide-row tiles already drop in fabric,
+// so positions are preserved and no consumer changes. At SLOTS == 1 every
+// beat is exactly one row, raggedness cannot arise, and an all-ones packed
+// word unpacks normally exactly as the silicon-proven 64/128 builds do.
+//
+// BYPASS at any width needs TWO input beats per output beat, because a quad
+// row is 128 bits against a 64-bit packed row: 2*IN_WIDTH == OUT_WIDTH holds
+// for every SLOTS, so the existing gearbox (beat 0 latched, the beat emitted
+// on beat 1) generalizes unchanged.
+//
 // FOLLOW-UP (not wired here): realizing the feed win requires (a) the scan
 // composition to stage packed rows and place this unpacker after the burst
 // reader, before the broadcast/partition fan-out, and (b) a flywheel
@@ -83,7 +104,7 @@ module dau_int32_row_unpack #(
     input  wire logic        cfg_bypass,
     input  wire logic        input_valid,
     output logic             input_ready,
-    input  wire logic [63:0] input_data,
+    input  wire logic [((OUT_WIDTH >= 128) ? (OUT_WIDTH / 128) : 1) * 64 - 1:0] input_data,
     input  wire logic        input_last,
     output logic             output_valid,
     input  wire logic        output_ready,
@@ -97,11 +118,19 @@ module dau_int32_row_unpack #(
     localparam logic [7:0] ERR_CONFIG = 8'd1;
     localparam logic [7:0] ERR_STREAM = 8'd2;
 
-    // rows/cycle axis: WIDE emits one whole quad row per beat (EMIT_W0 is the
-    // row's only — and final — beat; EMIT_W1 is unreachable)
-    localparam bit WIDE = (OUT_WIDTH == 128);
-    if (OUT_WIDTH != 64 && OUT_WIDTH != 128) begin : g_bad_out_width
-        $fatal(1, "dau_int32_row_unpack: OUT_WIDTH must be 64 or 128");
+    // rows/cycle axis: WIDE emits SLOTS whole quad rows per beat (EMIT_W0 is
+    // the beat's only — and final — beat; EMIT_W1 is unreachable)
+    localparam bit WIDE = (OUT_WIDTH >= 128);
+    // quad rows per output beat, and the packed rows per input beat that feed
+    // them one-for-one
+    localparam int unsigned SLOTS = WIDE ? (OUT_WIDTH / 128) : 1;
+    localparam int unsigned IN_WIDTH = SLOTS * 64;
+    // the reserved ragged-tail pads: an all-ones packed row passes through as
+    // the all-ones quad row the wide-row tiles already drop (SLOTS > 1 only)
+    localparam logic [63:0]  PAD_PACKED = {64{1'b1}};
+    localparam logic [127:0] PAD_ROW    = {128{1'b1}};
+    if (OUT_WIDTH != 64 && OUT_WIDTH != 128 && OUT_WIDTH != 256 && OUT_WIDTH != 512) begin : g_bad_out_width
+        $fatal(1, "dau_int32_row_unpack: OUT_WIDTH must be 64, 128, 256, or 512");
     end
 
     typedef enum logic [1:0] {
@@ -132,9 +161,10 @@ module dau_int32_row_unpack #(
     logic [5:0] active_width0, active_width1, active_width2, active_width3;
     logic       active_signed0, active_signed1, active_signed2, active_signed3;
 
-    logic [63:0] emit_w0;
-    logic [63:0] emit_w1;
-    logic        emit_last;
+    // one held quad row per slot; at SLOTS == 1 this is the classic
+    // {w1, w0} pair, so the 64-bit two-beat path reads its halves
+    logic [127:0] emit_row [SLOTS];
+    logic         emit_last;
 
     logic input_fire;
     logic output_fire;
@@ -150,12 +180,8 @@ module dau_int32_row_unpack #(
     logic [5:0] eff_width0, eff_width1, eff_width2, eff_width3;
     logic       eff_signed0, eff_signed1, eff_signed2, eff_signed3;
 
-    logic [31:0] field0;
-    logic [31:0] field1;
-    logic [31:0] field2;
-    logic [31:0] field3;
-    logic [63:0] row_out_w0;
-    logic [63:0] row_out_w1;
+    // the widened quad row per input slot, combinational
+    logic [127:0] row_out [SLOTS];
 
     assign input_fire = input_valid && input_ready;
     assign output_fire = output_valid && output_ready;
@@ -187,7 +213,15 @@ module dau_int32_row_unpack #(
         // zero row latency. bypass_w0 needs no reset: phase discipline
         // guarantees a row's w0 is latched before its w1 cycle reads it, and
         // the output is only valid at phase 1.
-        logic [63:0] bypass_w0;
+        // 2*IN_WIDTH == OUT_WIDTH at every SLOTS, so the bypass gearbox holds
+        // exactly the first half of an output beat
+        logic [IN_WIDTH-1:0] bypass_w0;
+        logic [OUT_WIDTH-1:0] emit_beat;
+        always_comb begin
+            for (int s = 0; s < SLOTS; s++) begin
+                emit_beat[128*s +: 128] = emit_row[s];
+            end
+        end
         always_ff @(posedge clk) begin
             if (input_fire && (state == S_RUN) && eff_bypass && !bypass_phase) begin
                 bypass_w0 <= input_data;
@@ -198,7 +232,7 @@ module dau_int32_row_unpack #(
             : eff_bypass                          ? (!emit_busy && (output_ready || !bypass_phase))
                                                   : emit_free;
         assign output_valid = emit_busy || (bypass_pass && input_valid && bypass_phase);
-        assign output_data = emit_busy ? {emit_w1, emit_w0} : {input_data, bypass_w0};
+        assign output_data = emit_busy ? emit_beat : {input_data, bypass_w0};
         assign output_last = emit_busy ? emit_last : (bypass_pass && input_last && bypass_phase);
     end else begin : g_out_narrow
         // the emit engine owns the output whenever it holds a beat; otherwise a
@@ -214,7 +248,7 @@ module dau_int32_row_unpack #(
             : eff_bypass                          ? (!emit_busy && (output_ready || bypass_torn))
                                                   : emit_free;
         assign output_valid = emit_busy || (bypass_pass && input_valid && !bypass_torn);
-        assign output_data = emit_busy ? ((emit_state == EMIT_W0) ? emit_w0 : emit_w1) : input_data;
+        assign output_data = emit_busy ? ((emit_state == EMIT_W0) ? emit_row[0][63:0] : emit_row[0][127:64]) : input_data;
         assign output_last = emit_busy ? ((emit_state == EMIT_W1) && emit_last) : (bypass_pass && input_last && bypass_phase);
     end
 
@@ -273,13 +307,21 @@ module dau_int32_row_unpack #(
         end
     endfunction
 
-    assign field0 = extract_field(input_data, eff_offset0, eff_width0, eff_signed0);
-    assign field1 = extract_field(input_data, eff_offset1, eff_width1, eff_signed1);
-    assign field2 = extract_field(input_data, eff_offset2, eff_width2, eff_signed2);
-    assign field3 = extract_field(input_data, eff_offset3, eff_width3, eff_signed3);
-    // w0 = {value, key}, w1 = {aux1, aux0}
-    assign row_out_w0 = {field1, field0};
-    assign row_out_w1 = {field3, field2};
+    // one widener per slot: w0 = {value, key}, w1 = {aux1, aux0}. A reserved
+    // all-ones packed word is a ragged-tail pad and passes through as the
+    // reserved PAD row instead of being sliced (SLOTS > 1 only — at SLOTS == 1
+    // a beat is always exactly one row, so no pad can occur and the
+    // silicon-proven 64/128 behaviour is untouched).
+    for (genvar s = 0; s < SLOTS; s++) begin : g_slot
+        wire [63:0] packed_s = input_data[64*s +: 64];
+        wire        is_pad   = (SLOTS > 1) && (packed_s == PAD_PACKED);
+        assign row_out[s] = is_pad ? PAD_ROW : {
+            extract_field(packed_s, eff_offset3, eff_width3, eff_signed3),
+            extract_field(packed_s, eff_offset2, eff_width2, eff_signed2),
+            extract_field(packed_s, eff_offset1, eff_width1, eff_signed1),
+            extract_field(packed_s, eff_offset0, eff_width0, eff_signed0)
+        };
+    end
 
     always_ff @(posedge clk) begin
         if (rst) begin
@@ -354,7 +396,7 @@ module dau_int32_row_unpack #(
                             end
                         end else begin
                             // widen this packed row and emit its quad-row pair
-                            start_emit(row_out_w0, row_out_w1, input_last);
+                            start_emit(input_last);
                             if (input_last) begin
                                 // silent success: the downstream tile closes out
                                 batch_open <= 1'b0;
@@ -393,10 +435,11 @@ module dau_int32_row_unpack #(
         end
     end
 
-    task automatic start_emit(input logic [63:0] w0, input logic [63:0] w1, input logic last_row);
+    task automatic start_emit(input logic last_row);
         begin
-            emit_w0 <= w0;
-            emit_w1 <= w1;
+            for (int s = 0; s < SLOTS; s++) begin
+                emit_row[s] <= row_out[s];
+            end
             emit_last <= last_row;
             emit_state <= EMIT_W0;
         end
@@ -432,8 +475,9 @@ module dau_int32_row_unpack #(
             active_offset3 <= 6'd0;
             active_width3 <= 6'd0;
             active_signed3 <= 1'b0;
-            emit_w0 <= 64'd0;
-            emit_w1 <= 64'd0;
+            for (int s = 0; s < SLOTS; s++) begin
+                emit_row[s] <= 128'd0;
+            end
             emit_last <= 1'b0;
             status_valid <= 1'b0;
             status_error <= 1'b0;
