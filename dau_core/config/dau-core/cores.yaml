@@ -556,11 +556,16 @@ rolling-extremum:
     that is the one outcome a downstream tile cannot tell from a stall. WINDOW is a power of two so the network spans it
     exactly. Backpressure freezes the whole pipeline, never just the input - an in-flight row would otherwise reach the end
     against a full skid and be dropped silently.
+  # FIND_MAX selects which of the pair this build computes; the bench proves
+  # both against their own golden.
   golden: dau_core.temporal:rolling_max
   bench: dau_core.tests.cocotb_benches.dau_rolling_extremum_tb
   contract_kind: row-stream
-  record_words: 1
-  output_record_words: 1
+  # the record shape FOLLOWS the value width: a 64-bit value needs two stream
+  # words, and a fixed 1 here would let a composition mis-slice every row of a
+  # 64-bit build
+  record_words_param: RECORD_WORDS
+  output_record_words_param: RECORD_WORDS
   # The network is STRUCTURALLY II=1 -- no loop-carried dependency, one row
   # per cycle through every stage, and the bench sustains it. The declaration
   # is nonetheless the composed 1-row/2-cycle lane floor, because a full-rate
@@ -575,11 +580,84 @@ rolling-extremum:
     WINDOW:
       default: 4
       minimum: 2
+      # both bounds mirror the RTL elaboration guards: the Hillis-Steele
+      # network spans exactly 2**K, so a non-power-of-two window would report
+      # a window the caller did not ask for
+      maximum: 256
+      power_of_two: true
     VALUE_WIDTH:
       default: 32
       choices: [32, 64]
-    FIND_MAX:
+    RECORD_WORDS:
       default: 1
+      choices: [1, 2]
+    FIND_MAX:
+      # an enumerated flag, not a count -- without the choices the blanket
+      # positive-int rule makes the MIN build (0) unreachable through
+      # composition even though the bench proves it
+      choices: [0, 1]
+      default: 1
+  # Measured 2026-08-10 via dau-build task=tasks/build/synthesize-cores.
+  # Zero DSP and zero BRAM at every point: the network is comparators and
+  # registers, and it holds its own delay lines in fabric flops.
+  #
+  # The SLACK IS THE RESULT. Across a 16x window range and both value
+  # widths the margin never drops below +4.0 ns at 8 ns, because the
+  # critical path is one comparator plus one mux at every stage no matter
+  # how many stages there are -- which is the whole claim of the log-depth
+  # form, now measured rather than argued. Cost grows with WINDOW (more
+  # stages, deeper lines) while timing does not.
+  #
+  # The estimate this tile was proposed on said ~400-600 LUT and ~400 FF at
+  # WINDOW=64. LUT landed inside it at 460; FF was under by 2.2x at 899.
+  # The delay lines were costed, the per-stage run/symbol/valid registers
+  # carried alongside them were not.
+  resources:
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {WINDOW: 4, VALUE_WIDTH: 32, RECORD_WORDS: 1, FIND_MAX: 1}
+      lut: 129
+      ff: 407
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.771
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {WINDOW: 16, VALUE_WIDTH: 32, RECORD_WORDS: 1, FIND_MAX: 1}
+      lut: 295
+      ff: 626
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.956
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {WINDOW: 64, VALUE_WIDTH: 32, RECORD_WORDS: 1, FIND_MAX: 1}
+      lut: 460
+      ff: 899
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.213
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {WINDOW: 4, VALUE_WIDTH: 64, RECORD_WORDS: 2, FIND_MAX: 1}
+      lut: 288
+      ff: 700
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.558
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {WINDOW: 64, VALUE_WIDTH: 64, RECORD_WORDS: 2, FIND_MAX: 1}
+      lut: 925
+      ff: 1448
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.052
 
 int32-market-feature:
   _target_: dau_core.cores.CoreDefinition
