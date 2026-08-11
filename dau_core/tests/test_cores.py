@@ -538,3 +538,39 @@ def test_a_core_naming_an_uninstalled_hdl_package_refuses_clearly() -> None:
     )
     with pytest.raises(UnknownCoreSourceError, match="no_such_vendor.hdl"):
         definition.source_path()
+
+
+def test_a_measured_point_matches_a_derived_clock_period() -> None:
+    """A clock period is DERIVED (1000 / job_clock_mhz), so exact float
+    equality is the wrong test.
+
+    150 MHz gives 6.666666666666667 while a registry writes 6.66667: the same
+    physical clock, and the lookup refused it as unmeasured while printing the
+    point it had just rejected. Real clock tiers differ by more than a
+    nanosecond, so a picosecond tolerance keeps the "never a neighboring
+    point" guarantee intact while tolerating representation.
+    """
+    from dau_core.cores import CoreDefinition, IngestRate, ResourceMeasurement, TimingStatus, UnmeasuredResourceError
+
+    definition = CoreDefinition(
+        name="probe",
+        kind=CoreKind.OPERATOR,
+        module="dau_probe",
+        source="dau_probe.sv",
+        description="probe",
+        golden="dau_core.operators:unpack_rows",
+        ingest=IngestRate(rows=1, per_cycles=1),
+        record_words=1,
+        resources=(
+            ResourceMeasurement(
+                part="xc7k325tffg900-2", clock_ns=6.66667, params={}, lut=1, ff=1, bram36=0.0, dsp=0,
+                timing=TimingStatus.MET, wns_ns=0.1,
+            ),
+        ),
+    )
+    point = definition.resource_measurement(part="xc7k325tffg900-2", clock_ns=1000 / 150, params={})
+    assert point.lut == 1
+
+    # and a genuinely different tier still misses
+    with pytest.raises(UnmeasuredResourceError):
+        definition.resource_measurement(part="xc7k325tffg900-2", clock_ns=8.0, params={})

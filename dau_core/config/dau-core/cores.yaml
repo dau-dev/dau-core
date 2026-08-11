@@ -2180,6 +2180,16 @@ int32-row-unpack:
       dsp: 0
       timing: met
       wns_ns: 4.106
+    # Measured 2026-08-11 at 150 MHz via dau-build task=tasks/build/synthesize-cores.
+    - part: xc7k325tffg900-2
+      clock_ns: 6.66667
+      params: {OUT_WIDTH: 1024}
+      lut: 9534
+      ff: 1604
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.774
   contract_kind: row-stream
   record_words: 1
   output_record_words: 2
@@ -2709,6 +2719,16 @@ axi-burst-reader:
       dsp: 0
       timing: met
       wns_ns: 3.516
+    # Measured 2026-08-11 at 150 MHz via dau-build task=tasks/build/synthesize-cores.
+    - part: xc7k325tffg900-2
+      clock_ns: 6.66667
+      params: {DATA_WIDTH: 64}
+      lut: 534
+      ff: 340
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.183
 
 axi-record-writer:
   _target_: dau_core.cores.CoreDefinition
@@ -2737,6 +2757,16 @@ axi-record-writer:
       dsp: 0
       timing: met
       wns_ns: 5.396
+    # Measured 2026-08-11 at 150 MHz via dau-build task=tasks/build/synthesize-cores.
+    - part: xc7k325tffg900-2
+      clock_ns: 6.66667
+      params: {}
+      lut: 404
+      ff: 1267
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.063
 
 axi-write-mux:
   _target_: dau_core.cores.CoreDefinition
@@ -2765,6 +2795,16 @@ axi-write-mux:
       dsp: 0
       timing: met
       wns_ns: 6.519
+    # Measured 2026-08-11 at 150 MHz via dau-build task=tasks/build/synthesize-cores.
+    - part: xc7k325tffg900-2
+      clock_ns: 6.66667
+      params: {}
+      lut: 133
+      ff: 4
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.186
 
 bram-stream-job:
   _target_: dau_core.cores.CoreDefinition
@@ -2880,6 +2920,16 @@ int32-wide-row-predicate-filter:
       dsp: 0
       timing: met
       wns_ns: 2.83
+    # Measured 2026-08-11 at 150 MHz via dau-build task=tasks/build/synthesize-cores.
+    - part: xc7k325tffg900-2
+      clock_ns: 6.66667
+      params: {SLOTS: 8, PIPELINE_DEPTH: 3}
+      lut: 5696
+      ff: 3291
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 1.497
   count_port: selected_count
   contract_kind: wide-row-stream
   record_words: 2
@@ -2979,6 +3029,16 @@ int32-wide-row-map-alu:
       dsp: 32
       timing: met
       wns_ns: 1.971
+    # Measured 2026-08-11 at 150 MHz via dau-build task=tasks/build/synthesize-cores.
+    - part: xc7k325tffg900-2
+      clock_ns: 6.66667
+      params: {SLOTS: 8, PIPELINE_DEPTH: 3}
+      lut: 5492
+      ff: 4667
+      bram36: 0.0
+      dsp: 32
+      timing: met
+      wns_ns: 0.638
   contract_kind: wide-row-stream
   record_words: 2
   supports_pipeline_depth: true
@@ -3074,6 +3134,16 @@ int32-wide-field-sum-aggregation:
       dsp: 0
       timing: met
       wns_ns: 5.327
+    # Measured 2026-08-11 at 150 MHz via dau-build task=tasks/build/synthesize-cores.
+    - part: xc7k325tffg900-2
+      clock_ns: 6.66667
+      params: {SLOTS: 8}
+      lut: 2281
+      ff: 470
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.994
   count_port: aggregated_count
   contract_kind: wide-row-stream
   record_words: 2
