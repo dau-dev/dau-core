@@ -205,23 +205,13 @@ def test_synthesizable_cores_carry_measured_envelopes() -> None:
 # without removing it here and the test fails; add a new tile on a scalar
 # envelope and the test fails. The count stops being something a person
 # reports after reading the yaml and starts being something the suite owns.
-UNMIGRATED_SCALAR_ENVELOPES = frozenset(
-    {
-        "axi-burst-reader",
-        "axi-record-writer",
-        "axi-write-mux",
-        "int32-broadcast-hash-join",
-        "int32-key-mask-dispatcher",
-        "int32-key-membership-filter",
-        "int32-record-gather",
-        "int32-rolling-moments",
-        "int32-row-unpack",
-        "int32-time-bucket-key",
-        "int32-wide-row-predicate-filter",
-        "record-gearbox",
-        "stream-broadcast",
-    }
-)
+# EMPTY as of 2026-08-11: every operator and stream-infra tile now carries
+# (part, clock, params) measurement points. The last 13 migrated in one
+# batch. `identity-registers` still has a scalar envelope but is a
+# SHELL-ADAPTER, outside this set -- it is a combinational parameter ROM
+# with no clock and therefore no timing paths, so `synthesize-cores` finds
+# no slack line and it needs the combinational path (clock_ports entry "").
+UNMIGRATED_SCALAR_ENVELOPES: frozenset[str] = frozenset()
 
 
 def test_the_scalar_envelope_holdouts_are_exactly_the_declared_ones() -> None:
@@ -286,9 +276,11 @@ def test_a_legacy_envelope_is_refused_rather_than_read_as_a_measurement() -> Non
     # a scalar envelope carries no part or clock, so it cannot answer "is this
     # measured for MY board" -- the question that matters. Refuse, do not guess.
     with pytest.raises(UnmeasuredResourceError, match="no measurement coordinates"):
-        # a core still carrying a scalar envelope; migrating this one later is
-        # expected to move this assertion, not delete it
-        core("int32-key-membership-filter").resource_measurement(part="xc7k325tffg900-2", clock_ns=8.0, params={})
+        # identity-registers is the last scalar envelope in the registry (a
+        # combinational parameter ROM). When it migrates, this assertion
+        # moves to a synthetic definition rather than being deleted -- the
+        # refusal is the behaviour under test, not the core.
+        core("identity-registers").resource_measurement(part="xc7k325tffg900-2", clock_ns=8.0, params={})
 
 
 def test_violated_measurement_is_retrievable_but_not_a_usable_envelope() -> None:
