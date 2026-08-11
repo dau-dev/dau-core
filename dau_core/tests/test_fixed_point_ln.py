@@ -108,3 +108,33 @@ def test_the_operating_point_meets_its_recorded_bound() -> None:
         f"ln deviates by {worst} ULP over {checked:,} inputs ({wrong:,} wrong), but LN_MEASURED_ULP records "
         f"{LN_MEASURED_ULP}. Re-measure exhaustively and update the record, or fix the datapath"
     )
+
+
+def test_the_two_tier_sweep_agrees_with_the_exact_reference() -> None:
+    """The affordable sweep must answer what the expensive one answers.
+
+    The harness decides in double and re-decides only near-boundary inputs
+    against the 80-digit reference. That is only sound if it never differs
+    from an all-exact sweep, so this checks both over a window containing a
+    KNOWN deviation -- a harness that agreed everywhere except where the
+    datapath is wrong would be worse than useless.
+    """
+    from dau_core.tests.exhaustive_sweep import sweep
+
+    window = range(3290838 - 3000, 3290838 + 3000)
+    fast = sweep(LN_EXACT.evaluate, ln_reference, window, scale=1 << 16)
+    exact_worst, exact_wrong, _ = _sweep(LN_EXACT, window)
+    assert (fast.worst, fast.wrong) == (exact_worst, exact_wrong)
+    assert fast.first == 3290838, fast
+    assert fast.faithful and not fast.correctly_rounded
+
+
+def test_the_light_point_is_faithful_at_the_full_points_known_deviation() -> None:
+    """The registered light point carries the SAME 1-ULP contract, measured
+    by an exhaustive sweep (3,544 of 2,147,483,647 off by one, against the
+    full point's 459). Pin the shared boundary case here; the full-domain
+    number lives in the registry entry and BENCHMARKS."""
+    from dau_core.fixed_point import LnDatapath
+
+    light = LnDatapath(internal_bits=36)
+    assert abs(light.evaluate(3290838) - ln_reference(3290838)) <= 1

@@ -1819,6 +1819,68 @@ int32-fixed-point-ln:
       dsp: 39
       timing: met
       wns_ns: 1.091
+int32-fixed-point-ln-light:
+  _target_: dau_core.cores.CoreDefinition
+  name: int32-fixed-point-ln-light
+  kind: operator
+  module: dau_int32_fixed_point_ln_light
+  source: dau_int32_fixed_point_ln_light.sv
+  description: 'Fixed-point natural log at the DSP-light operating point: 36 internal bits against the registered
+    point''s 52, same 8-bit table and degree 3. SAME ACCURACY CONTRACT AS THE FULL POINT -- FAITHFUL, never more than
+    1 ULP from the correctly rounded answer -- measured by an EXHAUSTIVE sweep over all 2,147,483,647 positive inputs:
+    3,544 inputs off by one (first at x=541866) against the Q52 point''s 459. More deviations, the same bound, which is
+    what makes this a legitimate second registered point rather than a worse one. The lever is the DATAPATH WIDTH: the
+    Q52 point spends 39 DSPs because five multiplies at 54x54 cost 9 each, so a narrower internal width is the only
+    thing that moves the total. Mirrors dau_core.fixed_point.LnDatapath(internal_bits=36) step for step; the bench
+    compares with ZERO tolerance against that model.'
+  golden: dau_core.fixed_point:ln_reference
+  bench: dau_core.tests.cocotb_benches.dau_int32_fixed_point_ln_tb
+  contract_kind: row-stream
+  record_words: 2
+  ingest:
+    rows: 1
+    per_cycles: 3
+  generator:
+    _target_: dau_core.ln_generator.LnTileGenerator
+    module: dau_int32_fixed_point_ln_light
+    datapath:
+      _target_: dau_core.fixed_point.LnDatapath
+      internal_bits: 36
+      table_bits: 8
+      degree: 3
+      round_steps: false
+  # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
+  #
+  # THIS POINT MEETS 125 MHz WHERE THE FULL ONE DOES NOT, at 18 DSPs
+  # against 39, for the same faithful 1-ULP contract. Narrowing the
+  # datapath was the whole lever: the Q52 point spends its DSPs on five
+  # 54x54 multiplies at ~9 each, and a 36-bit internal width cuts both the
+  # multiplier cost and the path through it. An earlier note blamed the
+  # e*ln2 cast for the DSP count; this measurement is what settled it.
+  #
+  # +0.682 ns is the same margin the exp light point closes at, which is
+  # the shape of the pattern rather than a coincidence: at these
+  # precisions the critical path is one multiply per stage either way.
+  resources:
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {}
+      lut: 1043
+      ff: 1064
+      bram36: 2.0
+      dsp: 18
+      timing: met
+      wns_ns: 0.682
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {}
+      lut: 1042
+      ff: 1064
+      bram36: 2.0
+      dsp: 18
+      timing: met
+      wns_ns: 1.878
+
 int32-fixed-point-divide:
   _target_: dau_core.cores.CoreDefinition
   name: int32-fixed-point-divide
