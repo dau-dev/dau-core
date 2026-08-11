@@ -1654,6 +1654,51 @@ int32-fixed-point-exp-light:
       dsp: 20
       timing: met
       wns_ns: 2.682
+int32-fixed-point-ln:
+  _target_: dau_core.cores.CoreDefinition
+  name: int32-fixed-point-ln
+  kind: operator
+  module: dau_int32_fixed_point_ln
+  source: dau_int32_fixed_point_ln.sv
+  description: 'Fixed-point natural log over 16-byte quad rows: the destination field is rewritten as ln of the source
+    field in Q(32-F).F. GENERATED like exp and the normal CDF -- its two 256-entry tables (ln(1 + j/256) and the
+    reciprocal 1/(1 + j/256)) and its series coefficients are transcendental constants at the configured internal
+    precision, which SystemVerilog cannot compute at elaboration. x is normalised to m * 2**e with m in [1, 2), so
+    ln(x) = e*ln2 + ln(m): the EXPONENT half is exact integer work (priority encode, barrel shift, one multiply by a
+    constant) and only the mantissa series approximates, which is why the reciprocal table -- not a divider -- is what
+    keeps the polynomial at degree 3. FAITHFUL, not correctly rounded: measured never more than 1 ULP from the
+    correctly rounded answer over all 2,147,483,647 positive inputs, swept exhaustively, with 459 of them off by one
+    (first at x=3290838). That is a fact about the operating point, not a tolerance -- the HDL mirrors
+    dau_core.fixed_point.LnDatapath.evaluate step for step and the bench compares with ZERO tolerance. Thirteen-stage
+    pipeline, five multiplies, one per stage. A non-positive source has no logarithm and closes the batch out with
+    ERR_DOMAIN rather than emitting a substituted value, the position the sqrt tile takes; there is no range error,
+    since ln of any positive int32 lands well inside int32.'
+  golden: dau_core.fixed_point:ln_reference
+  bench: dau_core.tests.cocotb_benches.dau_int32_fixed_point_ln_tb
+  contract_kind: row-stream
+  record_words: 2
+  ingest:
+    rows: 1
+    per_cycles: 3
+  generator:
+    _target_: dau_core.ln_generator.LnTileGenerator
+    datapath:
+      _target_: dau_core.fixed_point.LnDatapath
+      internal_bits: 52
+      table_bits: 8
+      degree: 3
+      round_steps: false
+  # UNPRICED. Its envelope needs an OOC run through dau-build's
+  # synthesize-cores task on a build host, which is the only sanctioned path
+  # to a number here, and no such run has happened for this tile. Until then
+  # the planner cannot fit it, which is the correct failure -- a guessed
+  # envelope would let it be composed into a design that does not close.
+  #
+  # The exp measurements say what to expect and where the risk is: five
+  # multiplies at this width cost DSP48s in the dozens, and the exact exp
+  # point misses 8 ns while the narrower one meets it. The exponent path
+  # here adds a priority encoder and a barrel shift ahead of the first
+  # multiply, neither of which exp had to pay for.
 int32-fixed-point-divide:
   _target_: dau_core.cores.CoreDefinition
   name: int32-fixed-point-divide

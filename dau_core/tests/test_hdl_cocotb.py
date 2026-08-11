@@ -491,6 +491,23 @@ def test_fixed_point_exp_runs_real_cocotb_against_systemverilog(tmp_path: Path, 
 
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_fixed_point_ln_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
+    """The rendered ln tile against the model it renders from, with zero
+    tolerance -- the model's own 1 ULP deviation from the mathematics is a
+    separate, measured question."""
+    from dau_core.registry import loaded_cores
+
+    definition = loaded_cores()["int32-fixed-point-ln"]
+    source = definition.render(into=tmp_path / "rendered")
+    _run_cocotb_verilator(
+        sources=(source,),
+        hdl_toplevel=definition.module,
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_fixed_point_ln_tb",
+        tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_fixed_point_divide_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
     _run_cocotb_verilator(
         sources=(Path(str(DAU_INT32_FIXED_POINT_DIVIDE_SV)),),
