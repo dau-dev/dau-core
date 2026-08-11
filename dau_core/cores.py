@@ -263,6 +263,17 @@ class StorageIntent(BaseModel):
     tier_hint: str | None = None
 
 
+def _same_clock(a: float, b: float) -> bool:
+    """Two clock periods naming the same physical clock.
+
+    The unit is NANOSECONDS, so the tolerance is a picosecond: 6.66667 against
+    a derived 6.666666666666667 differs by 3.3e-6 ns. Clock tiers in this
+    registry are more than a nanosecond apart (8.0 vs 6.667 vs 10.0), so a
+    picosecond is a thousand times too small to reach a neighbour.
+    """
+    return abs(a - b) <= 1e-3
+
+
 class CoreDefinition(BaseModel):
     """One HDL building block and its contract surround."""
 
@@ -438,6 +449,12 @@ class CoreDefinition(BaseModel):
         Composition overrides are expanded with declared defaults before
         comparison. Legacy scalar envelopes have no coordinates and therefore
         cannot answer this lookup safely.
+
+        Clock periods are DERIVED (1000 / job_clock_mhz), so they are compared
+        to the picosecond rather than by float equality: 150 MHz yields
+        6.666666666666667 while a registry writes 6.66667, and exact equality
+        rejected a point while printing it in the same breath. Real clock tiers
+        are more than a nanosecond apart, so this cannot reach a neighbour.
         """
         requested = {name: int(params.get(name, spec.default)) for name, spec in self.parameters.items()}
         requested.update({name: int(value) for name, value in params.items() if name not in requested})
@@ -448,14 +465,14 @@ class CoreDefinition(BaseModel):
             )
 
         for point in self.resources:
-            if point.part == part and point.clock_ns == clock_ns and dict(point.params) == requested:
+            if point.part == part and _same_clock(point.clock_ns, clock_ns) and dict(point.params) == requested:
                 return point
 
         part_points = [point for point in self.resources if point.part == part]
         if not part_points:
             gap = f"part {part!r}"
         else:
-            clock_points = [point for point in part_points if point.clock_ns == clock_ns]
+            clock_points = [point for point in part_points if _same_clock(point.clock_ns, clock_ns)]
             gap = f"clock_ns {clock_ns:g} on part {part!r}" if not clock_points else f"params {requested!r} at part={part!r}, clock_ns={clock_ns:g}"
         available = ", ".join(f"(part={point.part!r}, clock_ns={point.clock_ns:g}, params={dict(point.params)!r})" for point in self.resources)
         raise UnmeasuredResourceError(f"core {self.name!r} has unmeasured {gap}; measured points: {available or 'none'}")

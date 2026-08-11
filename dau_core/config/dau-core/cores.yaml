@@ -514,7 +514,7 @@ int32-rolling-moments:
     — the bar tile's key-change shape, no per-symbol table. Warm-up rows (window not yet full) are dropped, matching the
     None entries of dau_core.temporal.rolling_moments/rolling_sum. The moment update pipelines over four beats (READ->MUL->DIFF->UPDATE)
     keeping the 32x32 DSP products and the difference/accumulate off one path; one record is buffered so the final emitted
-    record carries output_last. WINDOW >= 2 (a size-1 sample variance is undefined; the compiler residues it).
+    record carries output_last. WINDOW >= 2 (a size-1 sample variance is undefined; the compiler residues it). ARITHMETIC PRECONDITION, binding INSIDE the int32 domain. sum_sq accumulates WINDOW squares, so the host must guarantee WINDOW * max(|value|)**2 <= 2**63 - 1. Full-range int32 does NOT satisfy it -- (2**31-1)**2 is already 2**61, so sum_sq needs 64 bits at WINDOW=3 and 68 at WINDOW=64, and it wraps SILENTLY into a wrong variance rather than erroring. The tile sees one row at a time and has no bound to check against, so the proof lives in the lowering -- dau-polars refuses a rolling scan whose value column declares no magnitude_bits, and checks WINDOW against the declared bound when it does.
   golden: dau_core.temporal:rolling_moments
   bench: dau_core.tests.cocotb_benches.dau_int32_rolling_moments_tb
   # OOC WINDOW=4 xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +3.155)
@@ -1366,20 +1366,6 @@ int32-key-mask-dispatcher:
       wns_ns: 6.163
   contract_kind: row-stream
   record_words_param: RECORD_WORDS
-  # framing-shaped: min(1, IN_WIDTH/128) — 64-bit two-beat framing is 1/2,
-  # 128 is 1, wider stays 1 (the serializer forwards one row per cycle;
-  # silicon 2026-07-30). Assumes mask-distributed keys (same-lane runs
-  # throttle on the lane drain — documented above).
-  # RATE LIMITATION: this declaration is valid at RECORD_WORDS=2 only. The
-  # 64-bit front ingests one WORD per cycle, so an N-word record costs N
-  # cycles (1/3 for the as-of record, not 1/2) — while a wide framing
-  # delivers a whole record per beat-slot. Those are two different rules
-  # and the current rate shapes (fixed / frames_on_param /
-  # scales_with_param) cannot express the pair. record_words_param now makes
-  # the ABI shape explicit for mismatch detection, but this detection-only
-  # increment deliberately does not alter the rate model. A composition using
-  # RECORD_WORDS != 2 remains OVER-predicted by throughput_rows_per_cycle and
-  # must be hand-checked until rates compose with record shape.
   ingest:
     rows: 1
     per_cycles: 1
@@ -2088,9 +2074,13 @@ int32-row-unpack:
     silicon and isolates the host packing overhead. OUT_WIDTH (the rows/cycle axis) selects the quad-stream framing: 64
     (default) emits two 64-bit beats per row; 128 emits one whole quad row per beat ({w1, w0}), lifting the shared-front
     emit cap from ~1 row per 2 cycles to 1 row/cycle (silicon showed the 2-beat emit, not the DDR, gates the packed feed)
-    — bypass then gearboxes each two-word quad into one beat. FOLLOW-UP: the scan composition must stage packed rows + place
-    this after the burst reader before broadcast/partition, and the flywheel needs a pack-schema deriving field offsets/widths
-    from column ranges.'
+    — bypass then gearboxes each two-word quad into one beat. 256, 512 and 1024 carry SLOTS = OUT_WIDTH/128 whole quad rows per beat
+    and widen the input to IN_WIDTH = SLOTS*64 (packed row s at [64*s +: 64], quad row s at [128*s +: 128]), which is what lets a
+    packed feed drive a SLOTS-wide lane: at 128 the tile emits one row per beat and starves a four-slot wide-row chain. At SLOTS > 1
+    a ragged tail is padded by the host with the reserved all-ones packed word and passes through as the reserved all-ones PAD quad
+    row the wide-row tiles already drop, so positions are preserved; a field layout whose COVERAGE spans all 64 bits could forge that sentinel from real data and is refused as ERR_CONFIG at SLOTS > 1, which also keeps the answer independent of OUT_WIDTH. In bypass at SLOTS > 1 an input beat is whole quad rows, so input_last on the first phase is a legitimate short final beat (emitted PAD-filled), not a torn row. FOLLOW-UP: the scan composition must stage packed rows + place
+    this after the burst reader before broadcast/partition. The flywheel pack-schema this asked for now exists
+    (dau_polars.pack.pack_schema).'
   golden: dau_core.operators:unpack_rows
   bench: dau_core.tests.cocotb_benches.dau_int32_row_unpack_tb
   # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
@@ -2113,21 +2103,109 @@ int32-row-unpack:
       dsp: 0
       timing: met
       wns_ns: 3.441
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {OUT_WIDTH: 128}
+      lut: 1580
+      ff: 260
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 1.943
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {OUT_WIDTH: 128}
+      lut: 1580
+      ff: 260
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.866
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {OUT_WIDTH: 256}
+      lut: 2290
+      ff: 449
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.192
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {OUT_WIDTH: 256}
+      lut: 2290
+      ff: 449
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.110
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {OUT_WIDTH: 512}
+      lut: 4384
+      ff: 833
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.185
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {OUT_WIDTH: 512}
+      lut: 4384
+      ff: 833
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.119
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {OUT_WIDTH: 1024}
+      lut: 8491
+      ff: 1599
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.106
+    # Measured 2026-08-11 at 150 MHz via dau-build task=tasks/build/synthesize-cores.
+    - part: xc7k325tffg900-2
+      clock_ns: 6.66667
+      params: {OUT_WIDTH: 1024}
+      lut: 9534
+      ff: 1604
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.774
   contract_kind: row-stream
   record_words: 1
   output_record_words: 2
-  # framing-shaped: min(1, OUT_WIDTH/128) — the 64-bit quad-stream emit is
-  # 1/2 (two beats per row), OUT_WIDTH=128 sustains 1 (silicon-proven)
+  # ONE ROW PER 128 OUTPUT BITS, which is what a quad row costs. Scaling
+  # 1/128 by OUT_WIDTH yields exactly 1/2, 1, 2, 4 and 8 rows/cycle across
+  # 64..1024 from a SINGLE declaration naming a SINGLE parameter.
+  #
+  # A derived second parameter (words-per-beat) also expresses it, and was
+  # tried and rejected: a design setting only OUT_WIDTH would leave the
+  # derived one at its registry default, so the declared rate and the RTL's
+  # actual behaviour would silently disagree. One parameter cannot drift.
+  # frames_on_param cannot serve here because it caps at `rows`.
+  #
+  # The declared rate stays 1/2 <= 1, so the multi-row claim rides the scaling
+  # parameter exactly as the wide-lane cores' does. It is SILICON-PROVEN:
+  # 6,001,215 SF1 rows in 5.1 ms at OUT_WIDTH=1024 and 150 MHz is 7.84 of a
+  # theoretical 8 rows/cycle, bit-exact (BENCHMARKS 2026-08-11).
   ingest:
     rows: 1
-    per_cycles: 1
-    frames_on_param: OUT_WIDTH
+    per_cycles: 128
+    scales_with_param: OUT_WIDTH
   parameters:
     OUT_WIDTH:
       default: 64
       choices:
       - 64
       - 128
+      - 256
+      - 512
+      - 1024
 
 int32-field-sum-aggregation:
   _target_: dau_core.cores.CoreDefinition
@@ -2621,6 +2699,16 @@ axi-burst-reader:
       dsp: 0
       timing: met
       wns_ns: 3.516
+    # Measured 2026-08-11 at 150 MHz via dau-build task=tasks/build/synthesize-cores.
+    - part: xc7k325tffg900-2
+      clock_ns: 6.66667
+      params: {DATA_WIDTH: 64}
+      lut: 534
+      ff: 340
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.183
 
 axi-record-writer:
   _target_: dau_core.cores.CoreDefinition
@@ -2649,6 +2737,16 @@ axi-record-writer:
       dsp: 0
       timing: met
       wns_ns: 5.396
+    # Measured 2026-08-11 at 150 MHz via dau-build task=tasks/build/synthesize-cores.
+    - part: xc7k325tffg900-2
+      clock_ns: 6.66667
+      params: {}
+      lut: 404
+      ff: 1267
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.063
 
 axi-write-mux:
   _target_: dau_core.cores.CoreDefinition
@@ -2677,6 +2775,16 @@ axi-write-mux:
       dsp: 0
       timing: met
       wns_ns: 6.519
+    # Measured 2026-08-11 at 150 MHz via dau-build task=tasks/build/synthesize-cores.
+    - part: xc7k325tffg900-2
+      clock_ns: 6.66667
+      params: {}
+      lut: 133
+      ff: 4
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.186
 
 bram-stream-job:
   _target_: dau_core.cores.CoreDefinition
@@ -2782,6 +2890,26 @@ int32-wide-row-predicate-filter:
       dsp: 0
       timing: met
       wns_ns: 3.334
+    # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {SLOTS: 8, PIPELINE_DEPTH: 3}
+      lut: 5696
+      ff: 3291
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.83
+    # Measured 2026-08-11 at 150 MHz via dau-build task=tasks/build/synthesize-cores.
+    - part: xc7k325tffg900-2
+      clock_ns: 6.66667
+      params: {SLOTS: 8, PIPELINE_DEPTH: 3}
+      lut: 5696
+      ff: 3291
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 1.497
   count_port: selected_count
   contract_kind: wide-row-stream
   record_words: 2
@@ -2794,7 +2922,7 @@ int32-wide-row-predicate-filter:
   parameters:
     SLOTS:
       default: 4
-      choices: [1, 2, 4]
+      choices: [1, 2, 4, 8]
     PIPELINE_DEPTH:
       default: 3
       minimum: 1
@@ -2871,6 +2999,26 @@ int32-wide-row-map-alu:
       dsp: 16
       timing: met
       wns_ns: 1.983
+    # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {SLOTS: 8, PIPELINE_DEPTH: 3}
+      lut: 5492
+      ff: 4667
+      bram36: 0.0
+      dsp: 32
+      timing: met
+      wns_ns: 1.971
+    # Measured 2026-08-11 at 150 MHz via dau-build task=tasks/build/synthesize-cores.
+    - part: xc7k325tffg900-2
+      clock_ns: 6.66667
+      params: {SLOTS: 8, PIPELINE_DEPTH: 3}
+      lut: 5492
+      ff: 4667
+      bram36: 0.0
+      dsp: 32
+      timing: met
+      wns_ns: 0.638
   contract_kind: wide-row-stream
   record_words: 2
   supports_pipeline_depth: true
@@ -2882,7 +3030,7 @@ int32-wide-row-map-alu:
   parameters:
     SLOTS:
       default: 4
-      choices: [1, 2, 4]
+      choices: [1, 2, 4, 8]
     PIPELINE_DEPTH:
       default: 3
       minimum: 1
@@ -2956,6 +3104,26 @@ int32-wide-field-sum-aggregation:
       dsp: 0
       timing: met
       wns_ns: 5.369
+    # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {SLOTS: 8}
+      lut: 2281
+      ff: 470
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.327
+    # Measured 2026-08-11 at 150 MHz via dau-build task=tasks/build/synthesize-cores.
+    - part: xc7k325tffg900-2
+      clock_ns: 6.66667
+      params: {SLOTS: 8}
+      lut: 2281
+      ff: 470
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.994
   count_port: aggregated_count
   contract_kind: wide-row-stream
   record_words: 2
@@ -2967,7 +3135,7 @@ int32-wide-field-sum-aggregation:
   parameters:
     SLOTS:
       default: 4
-      choices: [1, 2, 4]
+      choices: [1, 2, 4, 8]
   opcodes:
   - 3
   - 4

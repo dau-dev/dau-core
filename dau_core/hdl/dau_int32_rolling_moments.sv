@@ -17,6 +17,26 @@
 // per-symbol table. sum/sum_sq are INT64; a value column exceeding INT32 is a
 // host-side rescale (a wide variant is a follow-up).
 //
+// ARITHMETIC PRECONDITION, and it binds INSIDE the int32 domain: sum_sq
+// accumulates WINDOW squares, so the host must guarantee
+//     WINDOW * max(|value|)**2 <= 2**63 - 1
+// Full-range int32 does NOT satisfy this. (2**31-1)**2 is already 2**61, so
+// the sum of squares needs 64 bits at WINDOW=3 and 68 at WINDOW=64 -- it
+// wraps SILENTLY and returns a wrong variance rather than an error. The
+// sentence above only ever addressed values LARGER than int32; values at the
+// top of the declared domain break it just as thoroughly.
+//
+// The largest magnitude each window admits:
+//     WINDOW   2 -> |v| <= 2,147,483,647   (full int32, the only safe window)
+//     WINDOW   4 -> |v| <= 1,518,500,249
+//     WINDOW   8 -> |v| <= 1,073,741,823
+//     WINDOW  64 -> |v| <= 379,625,062
+//     WINDOW 256 -> |v| <= 189,812,531
+// The tile cannot check this -- it sees one row at a time and has no bound to
+// compare against -- so the proof lives in the LOWERING: dau-polars refuses to
+// route a rolling scan whose value column declares no `magnitude_bits`, and
+// checks WINDOW against the declared bound when it does.
+//
 // The moment update runs in four beats (READ -> MUL -> DIFF -> UPDATE) so no
 // register-to-register path carries more than one operation: READ latches the
 // entering/leaving values (behind the symbol-change select), MUL forms the two

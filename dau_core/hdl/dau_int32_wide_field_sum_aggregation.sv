@@ -18,7 +18,7 @@
 // tile's ERR_STREAM path has no equivalent here. An all-pad beat (a
 // trailing pad-only tail) accumulates nothing and closes normally.
 module dau_int32_wide_field_sum_aggregation #(
-    parameter int SLOTS = 4  // quad rows per beat: 1, 2, or 4
+    parameter int SLOTS = 4  // quad rows per beat: 1, 2, 4, or 8
 ) (
     input  wire logic                     clk,
     input  wire logic                     rst,
@@ -37,8 +37,8 @@ module dau_int32_wide_field_sum_aggregation #(
     output logic [7:0]                    status_error_code,
     output logic [63:0]                   aggregated_count
 );
-    if (!(SLOTS == 1 || SLOTS == 2 || SLOTS == 4)) begin : g_bad_slots
-        $error("SLOTS must be 1, 2, or 4");
+    if (!(SLOTS == 1 || SLOTS == 2 || SLOTS == 4 || SLOTS == 8)) begin : g_bad_slots
+        $error("SLOTS must be 1, 2, 4, or 8");
     end
 
     localparam logic [7:0] ERR_CONFIG = 8'd1;
@@ -67,7 +67,10 @@ module dau_int32_wide_field_sum_aggregation #(
 
     assign input_fire = input_valid && input_ready;
     assign output_fire = output_valid && output_ready;
-    assign input_ready = (state == STATE_ACCUM) || (state == STATE_DISCARD);
+    // While the final beat of a batch is in the pipeline the next batch's
+    // first beat must not be accepted, or it would latch its mask over a
+    // batch that has not finished accumulating. One bubble per batch.
+    assign input_ready = (state == STATE_ACCUM && !(pend_valid && pend_last)) || (state == STATE_DISCARD);
 
     assign first_beat = !batch_open;
     assign eff_mask = first_beat ? cfg_field_mask : active_mask;
@@ -85,15 +88,36 @@ module dau_int32_wide_field_sum_aggregation #(
     localparam int BEAT_SUM_W = 32 + $clog2(SLOTS);
     localparam int ROWS_W = $clog2(SLOTS + 1);
 
-    logic [3:0] slot_live;                              // padded to 4; unused slots stay 0
-    logic signed [BEAT_SUM_W-1:0] slot_term [0:3][0:3]; // [field][slot], 0 for pads and unused slots
+    // reduction depth, so the tree stays balanced at every SLOTS. At SLOTS==1
+    // this is 0: there is nothing to reduce and the single slot IS the sum.
+    localparam int LEVELS = $clog2(SLOTS);
+
+    logic [SLOTS-1:0] slot_live;
+    logic signed [BEAT_SUM_W-1:0] slot_term [0:3][0:SLOTS-1]; // [field][slot], 0 for pads
+    // [field][level][node]: level 0 is the slot terms, each level halves, and
+    // level LEVELS node 0 is the beat sum. Written as a parameterized tree
+    // rather than the hand-written (a+b)+(c+d) it replaces, which silently
+    // fixed the tile at four slots.
+    logic signed [BEAT_SUM_W-1:0] tree [0:3][0:LEVELS][0:SLOTS-1];
     logic signed [BEAT_SUM_W-1:0] beat_sum [4];
     logic [ROWS_W-1:0] beat_rows;
 
+    // RETIME (2026-08-11): the reduction tree and the 64-bit accumulate used
+    // to share one cycle, and at SLOTS=8 the composed 150 MHz path ran the
+    // map ALU through slot extraction, three levels of 35-bit adds and a
+    // 64-bit accumulate as ONE 29-deep carry chain -- WNS -0.665. These
+    // registers split it: the tree lands here, the accumulate reads it next
+    // cycle. A pipeline register, not a stall, so the beat rate is unchanged.
+    logic                          pend_valid;
+    logic                          pend_first;
+    logic                          pend_last;
+    logic signed [BEAT_SUM_W-1:0]  pend_sum [4];
+    logic [ROWS_W-1:0]             pend_rows;
+
     always_comb begin
-        slot_live = 4'd0;
+        slot_live = '0;
         for (int f = 0; f < 4; f++) begin
-            for (int s = 0; s < 4; s++) begin
+            for (int s = 0; s < SLOTS; s++) begin
                 slot_term[f][s] = '0;
             end
         end
@@ -107,7 +131,17 @@ module dau_int32_wide_field_sum_aggregation #(
         end
         beat_rows = ROWS_W'($countones(slot_live));
         for (int f = 0; f < 4; f++) begin
-            beat_sum[f] = (slot_term[f][0] + slot_term[f][1]) + (slot_term[f][2] + slot_term[f][3]);
+            for (int s = 0; s < SLOTS; s++) begin
+                tree[f][0][s] = slot_term[f][s];
+            end
+            for (int l = 0; l < LEVELS; l++) begin
+                for (int i = 0; i < SLOTS; i++) begin
+                    tree[f][l + 1][i] = (i < (SLOTS >> (l + 1)))
+                        ? (tree[f][l][2 * i] + tree[f][l][2 * i + 1])
+                        : '0;
+                end
+            end
+            beat_sum[f] = tree[f][LEVELS][0];
         end
     end
 
@@ -120,6 +154,39 @@ module dau_int32_wide_field_sum_aggregation #(
             end
             case (state)
                 STATE_ACCUM: begin
+                    // STAGE 2 FIRST, and the order is load-bearing. Both
+                    // stages assign pend_valid in this one always_ff, so on
+                    // back-to-back beats the LATER assignment wins: with
+                    // stage 1 first, stage 2's clear silently discarded the
+                    // beat stage 1 had just accepted (counts came out about
+                    // half, and the close-out never fired). Written this way
+                    // stage 1's set wins when a beat arrives and stage 2's
+                    // clear applies only when one does not.
+                    //
+                    // It accumulates the beat registered LAST cycle, so it
+                    // runs whether or not a new beat arrives -- which is what
+                    // lets the final beat land after input_last was accepted.
+                    if (pend_valid) begin
+                        if (pend_first) begin
+                            for (int f = 0; f < 4; f++) begin
+                                sums[f] <= (active_mask[f]) ? 64'(pend_sum[f]) : 64'sd0;
+                            end
+                            row_count <= pend_rows;
+                        end else begin
+                            for (int f = 0; f < 4; f++) begin
+                                if (active_mask[f]) begin
+                                    sums[f] <= sums[f] + 64'(pend_sum[f]);
+                                end
+                            end
+                            row_count <= row_count + pend_rows;
+                        end
+                        pend_valid <= 1'b0;
+                        if (pend_last) begin
+                            emit_phase <= 3'd0;
+                            state <= STATE_EMIT;
+                        end
+                    end
+                    // STAGE 1: latch the mask, hand the reduction to the pipe
                     if (input_fire) begin
                         if (first_beat && (cfg_field_mask == 4'd0)) begin
                             if (input_last) begin
@@ -129,25 +196,20 @@ module dau_int32_wide_field_sum_aggregation #(
                                 state <= STATE_DISCARD;
                             end
                         end else begin
+                            // STAGE 1: latch the batch mask and hand the
+                            // reduction to the pipeline register. No adding
+                            // here -- that is the whole point of the retime.
                             if (first_beat) begin
                                 batch_open <= 1'b1;
                                 active_mask <= cfg_field_mask;
-                                for (int f = 0; f < 4; f++) begin
-                                    sums[f] <= (eff_mask[f]) ? beat_sum[f] : 64'sd0;
-                                end
-                                row_count <= beat_rows;
-                            end else begin
-                                for (int f = 0; f < 4; f++) begin
-                                    if (active_mask[f]) begin
-                                        sums[f] <= sums[f] + beat_sum[f];
-                                    end
-                                end
-                                row_count <= row_count + beat_rows;
                             end
-                            if (input_last) begin
-                                emit_phase <= 3'd0;
-                                state <= STATE_EMIT;
+                            pend_valid <= 1'b1;
+                            pend_first <= first_beat;
+                            pend_last <= input_last;
+                            for (int f = 0; f < 4; f++) begin
+                                pend_sum[f] <= beat_sum[f];
                             end
+                            pend_rows <= beat_rows;
                         end
                     end
                 end
@@ -208,6 +270,21 @@ module dau_int32_wide_field_sum_aggregation #(
             status_error <= 1'b1;
             status_error_code <= code;
             state <= STATE_STATUS;
+            // a rejected batch must not leave a beat in the pipeline for the
+            // next batch to accumulate
+            clear_pending();
+        end
+    endtask
+
+    task automatic clear_pending;
+        begin
+            pend_valid <= 1'b0;
+            pend_first <= 1'b0;
+            pend_last <= 1'b0;
+            pend_rows <= '0;
+            for (int f = 0; f < 4; f++) begin
+                pend_sum[f] <= '0;
+            end
         end
     endtask
 
@@ -228,6 +305,7 @@ module dau_int32_wide_field_sum_aggregation #(
             status_error <= 1'b0;
             status_error_code <= 8'd0;
             aggregated_count <= 64'd0;
+            clear_pending();
         end
     endtask
 endmodule
