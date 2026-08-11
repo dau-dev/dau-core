@@ -514,7 +514,7 @@ int32-rolling-moments:
     — the bar tile's key-change shape, no per-symbol table. Warm-up rows (window not yet full) are dropped, matching the
     None entries of dau_core.temporal.rolling_moments/rolling_sum. The moment update pipelines over four beats (READ->MUL->DIFF->UPDATE)
     keeping the 32x32 DSP products and the difference/accumulate off one path; one record is buffered so the final emitted
-    record carries output_last. WINDOW >= 2 (a size-1 sample variance is undefined; the compiler residues it).
+    record carries output_last. WINDOW >= 2 (a size-1 sample variance is undefined; the compiler residues it). ARITHMETIC PRECONDITION, binding INSIDE the int32 domain. sum_sq accumulates WINDOW squares, so the host must guarantee WINDOW * max(|value|)**2 <= 2**63 - 1. Full-range int32 does NOT satisfy it -- (2**31-1)**2 is already 2**61, so sum_sq needs 64 bits at WINDOW=3 and 68 at WINDOW=64, and it wraps SILENTLY into a wrong variance rather than erroring. The tile sees one row at a time and has no bound to check against, so the proof lives in the lowering -- dau-polars refuses a rolling scan whose value column declares no magnitude_bits, and checks WINDOW against the declared bound when it does.
   golden: dau_core.temporal:rolling_moments
   bench: dau_core.tests.cocotb_benches.dau_int32_rolling_moments_tb
   # OOC WINDOW=4 xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +3.155)
