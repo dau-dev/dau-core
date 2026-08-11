@@ -184,12 +184,7 @@ def test_synthesizable_cores_carry_measured_envelopes() -> None:
         for definition in loaded_cores().values()
         if definition.kind in (CoreKind.OPERATOR, CoreKind.STREAM_INFRA) and definition.resources is None
     }
-    # rolling-extremum is UNPRICED: its envelope needs an OOC run through
-    # dau-build's synthesize-cores task on a build host, which is the only
-    # sanctioned path to a number here. Until then the planner cannot fit it,
-    # which is the correct failure -- a guessed envelope would let it be
-    # composed into a design that does not close.
-    assert resource_free == {"int32-stride-distributor", "rolling-extremum"}
+    assert resource_free == {"int32-stride-distributor"}
     for definition in loaded_cores().values():
         if definition.kind in (CoreKind.OPERATOR, CoreKind.STREAM_INFRA) and definition.resources is not None:
             if isinstance(definition.resources, ResourceEnvelope):
