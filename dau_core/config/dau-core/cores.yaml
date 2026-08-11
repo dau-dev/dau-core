@@ -597,7 +597,10 @@ rolling-extremum:
       # composition even though the bench proves it
       choices: [0, 1]
       default: 1
-  # Measured 2026-08-10 via dau-build task=tasks/build/synthesize-cores.
+  # Measured via dau-build task=tasks/build/synthesize-cores, RE-MEASURED
+  # 2026-08-11 after the review fixes: the close-out latch and the
+  # rearm path cost a handful of LUT and two FF at every point, which
+  # is what the drift check caught.
   # Zero DSP and zero BRAM at every point: the network is comparators and
   # registers, and it holds its own delay lines in fabric flops.
   #
@@ -616,8 +619,8 @@ rolling-extremum:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
       params: {WINDOW: 4, VALUE_WIDTH: 32, RECORD_WORDS: 1, FIND_MAX: 1}
-      lut: 129
-      ff: 407
+      lut: 136
+      ff: 409
       bram36: 0.0
       dsp: 0
       timing: met
@@ -625,17 +628,17 @@ rolling-extremum:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
       params: {WINDOW: 16, VALUE_WIDTH: 32, RECORD_WORDS: 1, FIND_MAX: 1}
-      lut: 295
-      ff: 626
+      lut: 287
+      ff: 628
       bram36: 0.0
       dsp: 0
       timing: met
-      wns_ns: 4.956
+      wns_ns: 4.523
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
       params: {WINDOW: 64, VALUE_WIDTH: 32, RECORD_WORDS: 1, FIND_MAX: 1}
-      lut: 460
-      ff: 899
+      lut: 467
+      ff: 901
       bram36: 0.0
       dsp: 0
       timing: met
@@ -643,8 +646,8 @@ rolling-extremum:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
       params: {WINDOW: 4, VALUE_WIDTH: 64, RECORD_WORDS: 2, FIND_MAX: 1}
-      lut: 288
-      ff: 700
+      lut: 293
+      ff: 702
       bram36: 0.0
       dsp: 0
       timing: met
@@ -652,8 +655,8 @@ rolling-extremum:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
       params: {WINDOW: 64, VALUE_WIDTH: 64, RECORD_WORDS: 2, FIND_MAX: 1}
-      lut: 925
-      ff: 1448
+      lut: 928
+      ff: 1450
       bram36: 0.0
       dsp: 0
       timing: met
