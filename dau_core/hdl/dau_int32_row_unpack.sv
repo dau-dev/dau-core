@@ -59,13 +59,13 @@
 // w1 cycle — still zero added row latency); torn-row and batch-latch semantics
 // are unchanged. Any other OUT_WIDTH fails elaboration.
 //
-// 256 and 512 carry SLOTS = OUT_WIDTH/128 whole quad rows per beat, slot s at
-// [128*s +: 128], and widen the INPUT to match: IN_WIDTH = SLOTS*64, packed
-// row s at [64*s +: 64]. This is what lets a packed feed drive a SLOTS-wide
-// lane — at OUT_WIDTH=128 the tile emits one row per beat and starves a
-// four-slot wide-row chain, which is why q6-packed-wide and q6-wide-sf1 could
-// not be composed. The field extraction is replicated per slot and is purely
-// combinational, so the cost is linear in SLOTS with no new sequencing.
+// 256, 512 and 1024 carry SLOTS = OUT_WIDTH/128 whole quad rows per beat,
+// slot s at [128*s +: 128], and widen the INPUT to match: IN_WIDTH = SLOTS*64,
+// packed row s at [64*s +: 64]. This is what lets a packed feed drive a
+// SLOTS-wide lane — at OUT_WIDTH=128 the tile emits one row per beat and
+// starves a wider wide-row chain, which is why q6-packed-wide and q6-wide-sf1
+// could not be composed. The field extraction is replicated per slot and is
+// purely combinational, so the cost is linear in SLOTS with no new sequencing.
 //
 // RAGGED TAILS (SLOTS > 1 only): a batch whose row count is not a multiple of
 // SLOTS is padded by the host with the reserved ALL-ONES packed word, which
@@ -75,10 +75,22 @@
 // beat is exactly one row, raggedness cannot arise, and an all-ones packed
 // word unpacks normally exactly as the silicon-proven 64/128 builds do.
 //
+// Because that sentinel only exists at SLOTS > 1, a field layout that can
+// PRODUCE all-ones from real data would make a legitimate row indistinguishable
+// from a pad — and since the same row unpacks normally at SLOTS == 1, the
+// ANSWER WOULD DEPEND ON OUT_WIDTH. So at SLOTS > 1 a layout whose widths sum
+// to all 64 bits is refused as ERR_CONFIG, which makes the sentinel unreachable
+// by construction rather than by convention. Every real packing has headroom
+// (the SF1 q6 layout is 56 bits, q1 is 41).
+//
 // BYPASS at any width needs TWO input beats per output beat, because a quad
 // row is 128 bits against a 64-bit packed row: 2*IN_WIDTH == OUT_WIDTH holds
 // for every SLOTS, so the existing gearbox (beat 0 latched, the beat emitted
-// on beat 1) generalizes unchanged.
+// on beat 1) generalizes unchanged. What does NOT generalize is the torn-row
+// rule: at SLOTS == 1 an input beat is HALF a quad row, so input_last on phase
+// 0 is a genuine tear, but at SLOTS > 1 the beat holds SLOTS/2 WHOLE rows and
+// a batch with an odd row count ends exactly there. That is a legitimate SHORT
+// FINAL BEAT, emitted with its unfilled upper half as PAD — not an error.
 //
 // FOLLOW-UP (not wired here): realizing the feed win requires (a) the scan
 // composition to stage packed rows and place this unpacker after the burst
@@ -227,13 +239,22 @@ module dau_int32_row_unpack #(
                 bypass_w0 <= input_data;
             end
         end
+        // At SLOTS == 1 an input beat is HALF a quad row, so input_last at
+        // phase 0 is a genuinely torn row. At SLOTS > 1 the beat holds
+        // SLOTS/2 WHOLE quad rows, so a phase-0 last is a legitimate SHORT
+        // FINAL BEAT -- a batch with an odd number of quad rows ends exactly
+        // there -- and it is emitted with the unfilled upper half as PAD.
+        // Treating it as torn would reject well-formed streams.
+        wire bypass_short_last = (SLOTS > 1) && bypass_pass && input_valid && input_last && !bypass_phase;
         assign input_ready = (state == S_DISCARD) ? 1'b1
             : (state != S_RUN)                    ? 1'b0
-            : eff_bypass                          ? (!emit_busy && (output_ready || !bypass_phase))
+            : eff_bypass                          ? (!emit_busy && (output_ready || (!bypass_phase && !bypass_short_last)))
                                                   : emit_free;
-        assign output_valid = emit_busy || (bypass_pass && input_valid && bypass_phase);
-        assign output_data = emit_busy ? emit_beat : {input_data, bypass_w0};
-        assign output_last = emit_busy ? emit_last : (bypass_pass && input_last && bypass_phase);
+        assign output_valid = emit_busy || (bypass_pass && input_valid && (bypass_phase || bypass_short_last));
+        assign output_data = emit_busy ? emit_beat
+            : bypass_phase                ? {input_data, bypass_w0}
+                                          : {{IN_WIDTH{1'b1}}, input_data};
+        assign output_last = emit_busy ? emit_last : (bypass_pass && input_last && (bypass_phase || bypass_short_last));
     end else begin : g_out_narrow
         // the emit engine owns the output whenever it holds a beat; otherwise a
         // bypass batch drives the output straight from the input word (zero
@@ -276,10 +297,39 @@ module dau_int32_row_unpack #(
         end
     endfunction
 
+    // At SLOTS > 1 the all-ones packed word is the reserved ragged-tail PAD.
+    // A layout whose fields can COVER all 64 bits could therefore produce a
+    // legitimate row indistinguishable from a pad -- four unsigned 16-bit
+    // fields all at max is exactly all-ones -- and that row would be dropped
+    // by the wide tiles downstream. Worse, the same input would unpack
+    // normally at SLOTS == 1, so the ANSWER WOULD DEPEND ON OUT_WIDTH.
+    //
+    // Requiring a spare bit makes the sentinel unreachable by construction
+    // rather than by convention. Every real packing has room (the SF1 q6
+    // layout is 56 bits, q1 is 41); a layout that genuinely needs all 64 is
+    // rejected as a bad config rather than silently losing a row.
+    // COVERAGE, not a width sum: field descriptors are not required to be
+    // disjoint (an overlapping pair reading the same bits into two output
+    // fields is legal and benched), so summing widths over-rejects a layout
+    // whose union still leaves bits free — and an over-rejection is itself an
+    // OUT_WIDTH-dependent behaviour difference, the very thing being fixed.
+    function automatic logic [63:0] field_mask(input logic [5:0] offset, input logic [5:0] width);
+        begin
+            field_mask = ((64'd1 << width) - 64'd1) << offset;
+        end
+    endfunction
+
+    wire [63:0] packed_bits_covered = field_mask(cfg_field0_offset, cfg_field0_width)
+        | field_mask(cfg_field1_offset, cfg_field1_width)
+        | field_mask(cfg_field2_offset, cfg_field2_width)
+        | field_mask(cfg_field3_offset, cfg_field3_width);
+    wire pad_is_unreachable = (SLOTS == 1) || (packed_bits_covered != {64{1'b1}});
+
     assign config_ok = field_cfg_ok(cfg_field0_offset, cfg_field0_width)
         && field_cfg_ok(cfg_field1_offset, cfg_field1_width)
         && field_cfg_ok(cfg_field2_offset, cfg_field2_width)
-        && field_cfg_ok(cfg_field3_offset, cfg_field3_width);
+        && field_cfg_ok(cfg_field3_offset, cfg_field3_width)
+        && pad_is_unreachable;
 
     // barrel-extract one field to LSB, mask to width, then sign/zero-extend to
     // int32 (the exact 32-bit pattern a downstream signed compare reads back)
@@ -367,16 +417,20 @@ module dau_int32_row_unpack #(
                             // (input_fire == output_fire); nothing loads the
                             // emit engine. Two words per row, batch-last on the
                             // row's w1. Field descriptors are unused.
-                            if (input_last && bypass_phase) begin
-                                // last on a w1: well-framed batch, silent
+                            if (input_last && (bypass_phase || (SLOTS > 1))) begin
+                                // last on a w1, or -- at SLOTS > 1, where an
+                                // input beat is whole quad rows -- a short
+                                // final beat on phase 0, emitted PAD-filled.
+                                // Either way a well-framed batch: silent
                                 // success (the downstream tile closes out)
                                 bypass_phase <= 1'b0;
                                 batch_open <= 1'b0;
                             end else if (input_last) begin
-                                // torn row: last on a w0. The emit engine is
-                                // idle in bypass (the accept gate requires it),
-                                // so there is no in-flight beat to drain — raise
-                                // the ERR_STREAM close-out directly.
+                                // torn row: last on a w0 at SLOTS == 1, where
+                                // a beat really is half a quad row. The emit
+                                // engine is idle in bypass (the accept gate
+                                // requires it), so there is no in-flight beat
+                                // to drain — raise ERR_STREAM directly.
                                 raise_error(ERR_STREAM);
                             end else begin
                                 bypass_phase <= ~bypass_phase;

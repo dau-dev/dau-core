@@ -1054,3 +1054,39 @@ def test_addr_width_is_32_or_64_only() -> None:
     for width in (16, 40, 48, 63, 128):
         with pytest.raises(CompositionError, match="addr_width must be 32 or 64"):
             ScanCompositionSpec(name="scan", lanes=lanes, addr_width=width)
+
+
+def test_a_packed_front_can_feed_a_wide_lane() -> None:
+    """The packed feed and the wide lane compose.
+
+    Each is silicon-proven alone and they were mutually exclusive: the wide
+    lane read whole quad rows straight from the reader, so it burned 16
+    bytes of DDR per row, and the next SLOTS doubling would have demanded
+    19.2 GB/s from a 12.8 GB/s DDR3. Packed, the same lane demands 9.6.
+
+    Two widths are in play and they are NOT the same number. ``data_width``
+    is the READ width -- SLOTS packed 64-bit rows per beat -- while the lane
+    downstream of the unpacker sees SLOTS whole 128-bit quad rows. Note the
+    consequence: an unpacked SLOTS=8 lane would need data_width=1024, which
+    is not a legal tier, so packing is what puts eight slots in reach at all.
+    """
+    chain = (TileSpec(core="int32-wide-row-predicate-filter", params={"SLOTS": 8}),)
+    lane = LaneSpec(
+        tile=TileSpec(core="int32-wide-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}, params={"SLOTS": 8}),
+        chain=chain,
+    )
+    front = TileSpec(core="int32-row-unpack", params={"OUT_WIDTH": 1024})
+    spec = ScanCompositionSpec(name="packed-wide", lanes=(lane,), front_unpack=front, data_width=512)
+    assert spec.data_width == 512  # the PACKED read: 8 rows x 64 bits
+
+    # the front must emit exactly what the lane consumes
+    with pytest.raises(CompositionError, match="emits 512-bit beats"):
+        ScanCompositionSpec(
+            name="mismatch",
+            lanes=(lane,),
+            front_unpack=TileSpec(core="int32-row-unpack", params={"OUT_WIDTH": 512}),
+            data_width=512,
+        )
+    # and data_width still describes the packed read, not the quad-row side
+    with pytest.raises(CompositionError, match="reads SLOTS packed 64-bit rows"):
+        ScanCompositionSpec(name="bad-read", lanes=(lane,), front_unpack=front, data_width=256)

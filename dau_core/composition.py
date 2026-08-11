@@ -196,8 +196,6 @@ class ScanCompositionSpec(BaseModel):
                 raise CompositionError("a wide lane is the whole datapath: exactly one lane (no wide fan-out exists)")
             if self.partitioner is not None:
                 raise CompositionError("a wide lane consumes the reader stream directly; a shared partitioner cannot feed it")
-            if self.front_unpack is not None:
-                raise CompositionError("a wide lane reads whole quad rows; the packed front unpacker (64-bit packed rows) cannot feed it")
             lane = self.lanes[0]
             if lane.partition is not None:
                 raise CompositionError("a wide lane takes no per-lane partition filter (it sees every row by construction)")
@@ -218,7 +216,25 @@ class ScanCompositionSpec(BaseModel):
                 stage_slots = _slots_of(stage, "wide lane chain stage")
                 if stage_slots != slots:
                     raise CompositionError(f"wide lane SLOTS disagree: chain stage {stage.core!r} has {stage_slots}, the terminal has {slots}")
-            if self.data_width != slots * 128:
+            if self.front_unpack is not None:
+                # PACKED wide feed: two different widths, and conflating them
+                # is the whole hazard. data_width is the READ width — SLOTS
+                # packed 64-bit rows per beat — while the lane downstream of
+                # the unpacker sees SLOTS whole 128-bit quad rows, so the
+                # front's OUT_WIDTH is what has to match the lane.
+                out_spec = self.front_unpack.definition().parameters.get("OUT_WIDTH")
+                front_width = self.front_unpack.params.get("OUT_WIDTH", out_spec.default if out_spec else 64)
+                if front_width != slots * 128:
+                    raise CompositionError(
+                        f"the front unpacker emits {front_width}-bit beats but a wide lane at SLOTS={slots} consumes "
+                        f"{slots * 128}-bit beats (set the front's OUT_WIDTH = SLOTS x 128)"
+                    )
+                if self.data_width != slots * 64:
+                    raise CompositionError(
+                        f"a packed wide feed reads SLOTS packed 64-bit rows per beat; at SLOTS={slots} that is "
+                        f"{slots * 64} bits, not data_width={self.data_width} (set data_width = SLOTS x 64)"
+                    )
+            elif self.data_width != slots * 128:
                 raise CompositionError(
                     f"a wide lane at SLOTS={slots} consumes {slots * 128}-bit beats; data_width={self.data_width} does not match "
                     "(set data_width = SLOTS x 128)"
@@ -326,7 +342,10 @@ class ScanCompositionSpec(BaseModel):
                     "packed rows after the burst reader and before the fan-out, a role only the row-unpack core fills"
                 )
             _validate_tile_params(self.front_unpack, "front unpacker")
-            if self.partitioner is None:
+            # a WIDE lane consumes the unpacker's beats directly — there is no
+            # broadcast in that shape, so this width rule does not apply to it
+            # (the lane's own SLOTS check above is what constrains the front)
+            if self.partitioner is None and not wide_lane:
                 out_spec = self.front_unpack.definition().parameters.get("OUT_WIDTH")
                 unpack_width = self.front_unpack.params.get("OUT_WIDTH", out_spec.default if out_spec else 64)
                 if unpack_width != 64:
