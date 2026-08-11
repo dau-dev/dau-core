@@ -210,6 +210,21 @@ def test_minimum_constraint_mirrors_the_rolling_window_guard() -> None:
         ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=TileSpec(core="int32-rolling-moments", params={"WINDOW": 1})),))
 
 
+def test_a_declared_zero_minimum_admits_zero() -> None:
+    # the fixed-point tiles guard FRACTIONAL_BITS to [0, 31] in RTL, and Q0
+    # (an integer floor divide) is the whole point of the lower bound: the
+    # blanket positive-int rule must not make a declared minimum 0 unreachable
+    ScanCompositionSpec(
+        name="ok",
+        lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-fixed-point-divide", params={"FRACTIONAL_BITS": 0}),)),),
+    )
+    with pytest.raises(CompositionError, match="must be >= 0"):
+        ScanCompositionSpec(
+            name="bad",
+            lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-fixed-point-divide", params={"FRACTIONAL_BITS": -1}),)),),
+        )
+
+
 def test_maximum_constraint_mirrors_the_bucket_bits_guard() -> None:
     # BUCKET_BITS must be in [1, 31] (a chain-stage transform, over a bar lane);
     # the upper bound mirrors the tile's RTL elaboration guard

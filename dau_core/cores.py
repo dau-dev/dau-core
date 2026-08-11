@@ -218,7 +218,10 @@ class ParameterSpec(BaseModel):
                 allowed = ", ".join(str(choice) for choice in self.choices)
                 return f"must be one of {allowed}, got {value!r}"
             return None  # an enumerated choice set (which may include a 0 flag) is the whole constraint
-        if value <= 0:
+        if value <= 0 and self.minimum > 0:
+            # a spec that declares minimum 0 mirrors an HDL guard that ADMITS
+            # zero (the fixed-point tiles' FRACTIONAL_BITS is [0, 31]); the
+            # blanket positive-int rule would make that bound unreachable
             return f"must be a positive int, got {value!r}"
         if value < self.minimum:
             return f"must be >= {self.minimum}, got {value!r}"
