@@ -495,7 +495,18 @@ class CoreDefinition(BaseModel):
                     "Render it first: dau-build task=tasks/build/render-cores"
                 )
             return rendered
-        return package_root(self.source_package) / self.source
+        checked_in = package_root(self.source_package) / self.source
+        if not checked_in.is_file():
+            # An out-of-tree tile whose HDL directory is not an importable
+            # package resolves to a MultiplexedPath that PRINTS correctly and
+            # does not exist, so the first symptom is a synthesis run against a
+            # missing file rather than a declaration error. Say it here.
+            raise UnknownCoreSourceError(
+                f"core {self.name!r} declares source {self.source!r} in package {self.source_package!r}, which does not "
+                f"resolve to a file ({checked_in}). An HDL directory must be an importable package: add an __init__.py "
+                "beside the .sv files so importlib can traverse it"
+            )
+        return checked_in
 
     def render(self, *, into: Path | None = None) -> Path:
         """Render this core's HDL, returning the written path."""

@@ -585,3 +585,29 @@ def test_a_measured_point_matches_a_derived_clock_period() -> None:
     # and a genuinely different tier still misses
     with pytest.raises(UnmeasuredResourceError):
         definition.resource_measurement(part="xc7k325tffg900-2", clock_ns=8.0, params={})
+
+
+def test_an_unresolvable_hdl_source_says_so() -> None:
+    """A declared source that does not resolve is a DECLARATION error.
+
+    An out-of-tree tile whose HDL directory is not an importable package
+    resolves to a MultiplexedPath that prints the right path and does not
+    exist, so the first symptom used to be a synthesis run against a missing
+    file. The requirement -- an __init__.py beside the .sv files, so importlib
+    can traverse the directory -- is stated in the error rather than left to
+    be discovered.
+    """
+    from dau_core.cores import CoreDefinition, IngestRate, UnknownCoreSourceError
+
+    definition = CoreDefinition(
+        name="probe-missing-source",
+        kind=CoreKind.OPERATOR,
+        module="dau_probe_missing",
+        source="dau_probe_missing.sv",
+        description="probe",
+        golden="dau_core.operators:unpack_rows",
+        ingest=IngestRate(rows=1, per_cycles=1),
+        record_words=1,
+    )
+    with pytest.raises(UnknownCoreSourceError, match="importable package"):
+        definition.source_path()
