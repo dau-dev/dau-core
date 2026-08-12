@@ -26,6 +26,21 @@ from dau_core.registry import (
     sources_for,
 )
 
+# dau-core's own cores, which is what `source_package`'s default names. The
+# registry is open: a third party ships tiles by composing their own hydra
+# config into `/dau-core`, and `loaded_cores()` then returns theirs beside
+# ours. Every guard below that asserts an EXACT set -- the HDL directory
+# listing, the descriptor-tagged operators, the envelope-free tiles, the
+# scalar-envelope holdouts -- is a statement about OUR palette, and would
+# otherwise report an installed vendor tile as drift in this suite. Scoping
+# them here is what makes the seam usable: a vendor can install tiles without
+# failing our tests, and we still hold our own palette to the exact standard.
+OWN_PACKAGE = "dau_core.hdl"
+
+
+def own_cores() -> tuple:
+    return tuple(d for d in loaded_cores().values() if d.source_package == OWN_PACKAGE)
+
 
 def test_every_hdl_file_belongs_to_exactly_one_core() -> None:
     """Checked-in HDL and registry entries match exactly, in both directions.
@@ -39,14 +54,14 @@ def test_every_hdl_file_belongs_to_exactly_one_core() -> None:
     hdl_dir = Path(str(hdl.__path__[0]))
     hdl_files = {path.name for path in hdl_dir.iterdir() if path.suffix in (".sv", ".v")}
 
-    generated = {d.source for d in loaded_cores().values() if d.generator is not None}
+    generated = {d.source for d in own_cores() if d.generator is not None}
     committed_generated = generated & hdl_files
     assert not committed_generated, (
         f"rendered output is committed beside the registry: {sorted(committed_generated)}. "
         "A generated core renders from its operating point; a file here would shadow it"
     )
 
-    registry_files = [d.source for d in loaded_cores().values() if d.generator is None]
+    registry_files = [d.source for d in own_cores() if d.generator is None]
     assert sorted(registry_files) == sorted(set(registry_files)), "duplicate source in registry"
     assert set(registry_files) == hdl_files, f"registry/hdl drift: missing {hdl_files - set(registry_files)}, stale {set(registry_files) - hdl_files}"
 
@@ -132,7 +147,7 @@ def test_every_selectable_operator_declares_its_contract_kind() -> None:
     # the one descriptor-driven tile is registry data, not a test special case;
     # pinned as a set: no Arrow-lite validator exists yet, so a newly
     # descriptor-tagged operator would skip conformance — confirm intent here
-    descriptor = {d.name for d in cores_of_kind(CoreKind.OPERATOR) if d.contract_kind is ContractKind.ARROW_LITE_DESCRIPTOR}
+    descriptor = {d.name for d in own_cores() if d.kind is CoreKind.OPERATOR and d.contract_kind is ContractKind.ARROW_LITE_DESCRIPTOR}
     assert descriptor == {"int32-stream-aggregation"}, "descriptor-tagged operator set changed — confirm intent"
     # only operators declare a stream contract
     for definition in loaded_cores().values():
@@ -185,11 +200,11 @@ def test_synthesizable_cores_carry_measured_envelopes() -> None:
     """Recorded operator/stream-infra envelopes are measured OOC values."""
     resource_free = {
         definition.name
-        for definition in loaded_cores().values()
+        for definition in own_cores()
         if definition.kind in (CoreKind.OPERATOR, CoreKind.STREAM_INFRA) and definition.resources is None
     }
     assert resource_free == {"int32-stride-distributor"}
-    for definition in loaded_cores().values():
+    for definition in own_cores():
         if definition.kind in (CoreKind.OPERATOR, CoreKind.STREAM_INFRA) and definition.resources is not None:
             if isinstance(definition.resources, ResourceEnvelope):
                 assert definition.resources.measured, definition.name
@@ -230,7 +245,7 @@ def test_the_scalar_envelope_holdouts_are_exactly_the_declared_ones() -> None:
     """
     scalar = {
         definition.name
-        for definition in loaded_cores().values()
+        for definition in own_cores()
         if definition.kind in (CoreKind.OPERATOR, CoreKind.STREAM_INFRA)
         and definition.resources is not None
         and not isinstance(definition.resources, (list, tuple))
@@ -521,6 +536,80 @@ def test_a_core_resolves_hdl_from_the_package_that_declares_it(tmp_path, monkeyp
 
     for module in [name for name in sys.modules if name.startswith("vendor_tiles")]:
         del sys.modules[module]
+
+
+def test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards(monkeypatch) -> None:
+    """Installing a third-party tile must not fail THIS suite.
+
+    Four guards here assert an exact set over the whole registry -- the HDL
+    directory listing, the descriptor-tagged operators, the envelope-free
+    tiles, and the scalar-envelope holdouts. Each is a statement about
+    dau-core's own palette, and each read `loaded_cores()`, so a vendor tile
+    registered through the entry point showed up as drift in all four. A
+    contributor's first experience of the platform was our test suite
+    failing on their correct tile.
+
+    The line drawn is between those four and the universal-property guards
+    (every operator has a golden, a contract kind, record words, a measured
+    envelope). Those are contract requirements a well-formed tile satisfies,
+    so they stay registry-wide on purpose -- which is why the tile below is
+    built well-formed rather than minimal. It is the exact-set guards that
+    fail even a perfect vendor tile, and only those are scoped.
+    """
+    from dau_core.cores import IngestRate
+
+    vendor = CoreDefinition(
+        name="vendor-widget",
+        kind=CoreKind.OPERATOR,
+        module="vendor_widget",
+        source="vendor_widget.sv",
+        source_package="vendor_tiles.hdl",
+        description="A well-formed tile from outside this package.",
+        record_words=1,
+        ingest=IngestRate(rows=1, per_cycles=2),
+        contract_kind=ContractKind.ROW_STREAM,
+        golden="dau_core.operators:filter_values",
+        resources=[
+            ResourceMeasurement(
+                part="xc7k325t",
+                clock_ns=8.0,
+                lut=100,
+                ff=100,
+                bram36=0,
+                dsp=0,
+                timing=TimingStatus.MET,
+                wns_ns=1.0,
+            )
+        ],
+    )
+    # Both bindings: this module imported the accessor by name, and
+    # `cores_of_kind` reads the registry's own. Patching only one would leave
+    # the vendor tile invisible to half the guards and prove nothing.
+    #
+    # The module target is `sys.modules[__name__]` rather than a dotted
+    # string. There is no `__init__.py` here, so pytest imports this file as
+    # top-level `test_cores` while `"dau_core.tests.test_cores"` resolves
+    # through the implicit namespace package to a SECOND copy -- patching
+    # that one succeeds, changes nothing, and the test passes against
+    # unscoped guards.
+    import sys
+
+    with_vendor = {**loaded_cores(), vendor.name: vendor}
+    monkeypatch.setattr("dau_core.registry.loaded_cores", lambda: with_vendor)
+    monkeypatch.setattr(sys.modules[__name__], "loaded_cores", lambda: with_vendor)
+
+    assert vendor in cores_of_kind(CoreKind.OPERATOR), "the tile must be visible to the guards"
+
+    # The four exact-set guards, which is the regression. Each fails against
+    # an unscoped `own_cores()`: the vendor source is not in our HDL
+    # directory, and its name is in neither the descriptor set, the
+    # envelope-free set, nor the scalar-holdout set.
+    test_every_hdl_file_belongs_to_exactly_one_core()
+    test_every_selectable_operator_declares_its_contract_kind()
+    test_synthesizable_cores_carry_measured_envelopes()
+    test_the_scalar_envelope_holdouts_are_exactly_the_declared_ones()
+
+    assert vendor not in own_cores(), "a vendor tile must not count as ours"
 
 
 def test_a_core_naming_an_uninstalled_hdl_package_refuses_clearly() -> None:
