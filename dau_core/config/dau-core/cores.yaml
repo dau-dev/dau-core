@@ -3591,6 +3591,7 @@ datetime-format:
     renders -- closes the batch out with ERR_DOMAIN rather than emitting a truncated year. Matches
     dau_core.operators.format_datetime_rows.'
   golden: dau_core.operators:format_datetime_rows
+  bench: dau_core.tests.cocotb_benches.dau_datetime_format_tb
   contract_kind: row-stream
   record_words: 1
   output_record_words: 1

@@ -12,6 +12,7 @@ from dau_core.hdl import (
     DAU_AXI_RECORD_WRITER_SV,
     DAU_AXI_STREAM_JOB_SV,
     DAU_AXI_WRITE_MUX_SV,
+    DAU_DATETIME_FORMAT_SV,
     DAU_INT32_ARROW_LITE_STREAM_AGGREGATION_SV,
     DAU_INT32_ASOF_BACKWARD_SV,
     DAU_INT32_BAR_AGGREGATION_SV,
@@ -513,6 +514,20 @@ def test_fixed_point_divide_runs_real_cocotb_against_systemverilog(tmp_path: Pat
         sources=(Path(str(DAU_INT32_FIXED_POINT_DIVIDE_SV)),),
         hdl_toplevel="dau_int32_fixed_point_divide",
         test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_fixed_point_divide_tb",
+        tmp_path=tmp_path,
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_datetime_format_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
+    """The tile shipped with no bench at all: its only test read constants out
+    of the SystemVerilog and exercised the Python golden, so the module was
+    never instantiated and its measured resource number described an
+    unverified design."""
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_DATETIME_FORMAT_SV)),),
+        hdl_toplevel="dau_datetime_format",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_datetime_format_tb",
         tmp_path=tmp_path,
     )
 
