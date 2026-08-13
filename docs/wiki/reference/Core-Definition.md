@@ -120,10 +120,45 @@ a parameter set, validating overrides against the declared parameter specs.
 | `parameters` | `Mapping[str, ParameterSpec]` | Module parameters that may be overridden per instance. |
 
 A `ParameterSpec` carries `default`, and optionally `minimum`, `maximum`,
-`multiple_of`, `choices`, and `power_of_two`. These mirror the RTL's
-elaboration guards, and `ParameterSpec.violation()` is the single statement
-of the override rule — composition validation, the build layer, and the
-pricing path all consult it rather than re-implementing the checks.
+`multiple_of`, `choices`, `power_of_two`, and `element_type`. These mirror
+the RTL's elaboration guards, and `ParameterSpec.violation()` is the single
+statement of the override rule — composition validation, the build layer,
+and the pricing path all consult it rather than re-implementing the checks.
+
+### Element types
+
+`element_type: true` marks a parameter that names WHAT AN ELEMENT IS rather
+than how big something is. Its `default` and `choices` may then be written
+as type spellings, and a composition may override it the same way:
+
+```yaml
+FIELD_WIDTH:
+  element_type: true
+  default: int32
+  choices: [int16, int32, int64]
+  minimum: 8
+  maximum: 64
+```
+
+The spellings are `intN`/`uintN`, `float32`/`float64`, and the fixed-point
+form `qI.F` (I integer bits including the sign, F fractional, I+F total —
+`q16.16` is 32 bits). They resolve to the encoding in
+`dau_core/hdl/types.svh`, which tiles include to decode a type's width,
+signedness, fractional bits and float-ness. A plain signed integer encodes
+as its own width, so `int32` and `32` are the same declaration and an entry
+migrated from a width names exactly the tile it always did.
+
+Bounds on such a parameter constrain the type's WIDTH, because that is what
+the RTL guard they mirror is about; `choices` match the whole type, so
+`int32` and `q16.16` are not interchangeable despite both being 32 bits.
+
+Bus and beat widths — `IN_WIDTH`, `OUT_WIDTH`, `DATA_WIDTH` — count bits per
+handshake and are **not** element types. Leave `element_type` unset for them.
+
+A tile that includes `types.svh` needs its directory on the include path;
+`dau_core.hdl.DAU_HDL_INCLUDE_DIR` is that directory. Verilator does not
+search the including file's own directory, so a bench or lint run that omits
+`-I` fails on the include rather than on anything to do with the tile.
 
 ## Accessors
 

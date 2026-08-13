@@ -1,11 +1,11 @@
 """The modules a third-party tile author needs, and what they may import.
 
 A tile contributed from outside this package declares a ``CoreDefinition``,
-speaks the row-stream ABI, and may render its HDL through a
-``CoreGenerator``. Those four modules are therefore the *authoring surface*
--- the part that has to be reachable by someone who will never have this
-repository, whether that eventually means extracting them into a public
-distribution or publishing dau-core itself.
+speaks the row-stream ABI, names the element types its parameters take, and
+may render its HDL through a ``CoreGenerator``. Those five modules are
+therefore the *authoring surface* -- the part that has to be reachable by
+someone who will never have this repository, whether that eventually means
+extracting them into a public distribution or publishing dau-core itself.
 
 That only stays true if the surface keeps its dependencies shallow. This
 guard enumerates what it may import. It is not a style rule: every name
@@ -25,8 +25,15 @@ from pathlib import Path
 
 import dau_core
 
-# The authoring surface: models + the stream ABI + the generator protocol.
-SURFACE_MODULES = ("cores", "design", "generators", "stream")
+# The authoring surface: models + the stream ABI + the element type
+# vocabulary + the generator protocol. element_types is here rather than
+# recorded as debt because a tile declared elsewhere has to spell its types
+# the SAME way this one does -- "int32" and "q16.16" mean a particular
+# encoding, which the author's own HDL decodes out of the shipped
+# dau_core/hdl/types.svh. A private copy of that vocabulary would be a
+# second encoding, which is the failure this whole mechanism exists to
+# prevent.
+SURFACE_MODULES = ("cores", "design", "element_types", "generators", "stream")
 
 # Third-party runtime dependencies the surface may use. ccflow and pydantic
 # ARE the declaration language -- a CoreDefinition is a ccflow BaseModel, so

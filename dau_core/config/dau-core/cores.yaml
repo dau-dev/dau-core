@@ -621,8 +621,13 @@ rolling-extremum:
       maximum: 256
       power_of_two: true
     VALUE_WIDTH:
-      default: 32
-      choices: [32, 64]
+      # the element type of the value field. This tile is the one that can
+      # say "any signed integer type that fits" and mean it -- sign extension
+      # is order preserving, so the comparator is the same at either width and
+      # only the framing changes.
+      element_type: true
+      default: int32
+      choices: [int32, int64]
     RECORD_WORDS:
       default: 1
       choices: [1, 2]
@@ -653,7 +658,7 @@ rolling-extremum:
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {WINDOW: 4, VALUE_WIDTH: 32, RECORD_WORDS: 1, FIND_MAX: 1}
+      params: {WINDOW: 4, VALUE_WIDTH: int32, RECORD_WORDS: 1, FIND_MAX: 1}
       lut: 136
       ff: 409
       bram36: 0.0
@@ -662,7 +667,7 @@ rolling-extremum:
       wns_ns: 4.771
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {WINDOW: 16, VALUE_WIDTH: 32, RECORD_WORDS: 1, FIND_MAX: 1}
+      params: {WINDOW: 16, VALUE_WIDTH: int32, RECORD_WORDS: 1, FIND_MAX: 1}
       lut: 287
       ff: 628
       bram36: 0.0
@@ -671,7 +676,7 @@ rolling-extremum:
       wns_ns: 4.523
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {WINDOW: 64, VALUE_WIDTH: 32, RECORD_WORDS: 1, FIND_MAX: 1}
+      params: {WINDOW: 64, VALUE_WIDTH: int32, RECORD_WORDS: 1, FIND_MAX: 1}
       lut: 467
       ff: 901
       bram36: 0.0
@@ -680,7 +685,7 @@ rolling-extremum:
       wns_ns: 4.213
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {WINDOW: 4, VALUE_WIDTH: 64, RECORD_WORDS: 2, FIND_MAX: 1}
+      params: {WINDOW: 4, VALUE_WIDTH: int64, RECORD_WORDS: 2, FIND_MAX: 1}
       lut: 293
       ff: 702
       bram36: 0.0
@@ -689,7 +694,7 @@ rolling-extremum:
       wns_ns: 4.558
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {WINDOW: 64, VALUE_WIDTH: 64, RECORD_WORDS: 2, FIND_MAX: 1}
+      params: {WINDOW: 64, VALUE_WIDTH: int64, RECORD_WORDS: 2, FIND_MAX: 1}
       lut: 928
       ff: 1450
       bram36: 0.0
@@ -1646,7 +1651,7 @@ int32-row-predicate-filter:
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {FIELD_WIDTH: 32}
+      params: {FIELD_WIDTH: int32}
       lut: 704
       ff: 514
       bram36: 0.0
@@ -1655,7 +1660,7 @@ int32-row-predicate-filter:
       wns_ns: 0.873
     - part: xc7a200tfbg484-2
       clock_ns: 10.0
-      params: {FIELD_WIDTH: 32}
+      params: {FIELD_WIDTH: int32}
       lut: 704
       ff: 514
       bram36: 0.0
@@ -1664,7 +1669,7 @@ int32-row-predicate-filter:
       wns_ns: 2.873
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {FIELD_WIDTH: 32}
+      params: {FIELD_WIDTH: int32}
       lut: 704
       ff: 514
       bram36: 0.0
@@ -1673,7 +1678,7 @@ int32-row-predicate-filter:
       wns_ns: 2.882
     - part: xc7k325tffg900-2
       clock_ns: 10.0
-      params: {FIELD_WIDTH: 32}
+      params: {FIELD_WIDTH: int32}
       lut: 704
       ff: 514
       bram36: 0.0
@@ -1688,14 +1693,18 @@ int32-row-predicate-filter:
     per_cycles: 2
   parameters:
     FIELD_WIDTH:
-      default: 32
+      # an ELEMENT TYPE, not a bit count: the tile decodes width, signedness
+      # and fractional bits from it (dau_core/hdl/types.svh). int32 encodes as
+      # 32, so this declares exactly the tile it always built.
+      element_type: true
+      default: int32
       # the tile's own elaboration guard is [8, 64] and must divide 128; the
       # registry left minimum at its 1 default, so a composition could pass
       # validation and then fail to elaborate. choices are the measured
-      # widths, the range is what the tile will actually build.
+      # types, the range is what the tile will actually build.
       minimum: 8
       maximum: 64
-      choices: [16, 32, 64]
+      choices: [int16, int32, int64]
 int32-normal-cdf:
   _target_: dau_core.cores.CoreDefinition
   name: int32-normal-cdf

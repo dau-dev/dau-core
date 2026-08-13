@@ -20,9 +20,10 @@ from fractions import Fraction
 from itertools import pairwise
 
 from ccflow import BaseModel
-from pydantic import ConfigDict, StrictInt
+from pydantic import ConfigDict, StrictInt, model_validator
 
 from .cores import ContractKind, CoreDefinition, CoreKind, LoadImageKind, ResourceEnvelope, UnmeasuredResourceError
+from .element_types import ElementTypeError, element_code
 from .operators import DispatchMode
 from .registry import core
 
@@ -64,8 +65,9 @@ class CompositionError(Exception):
 def _validate_tile_params(tile: TileSpec, role: str) -> None:
     """Every module-parameter override on a tile must name a parameter the
     core declares as overridable (``CoreDefinition.parameters``) and carry a
-    positive integer value (SV sizes are positive). An unknown name is a
-    typo or a param the core does not expose — rejected up front."""
+    positive integer value (SV sizes are positive; an element type has already
+    been resolved to its encoding by then). An unknown name is a typo or a
+    param the core does not expose — rejected up front."""
     if not tile.params:
         return
     declared = tile.definition().parameters
@@ -88,7 +90,12 @@ class TileSpec(BaseModel):
     literals or expressions in terms of the top's signals) and any
     module-parameter overrides (``params``: SystemVerilog PARAMETERs, e.g.
     the membership core's ``KEY_SPACE``, that size the built RTL). Config
-    ports are runtime bindings; params are elaboration-time sizes."""
+    ports are runtime bindings; params are elaboration-time sizes.
+
+    A parameter the core declares as an element type may be written as a type
+    spelling (``{"FIELD_WIDTH": "int32"}``) and is stored as its encoding, so
+    a spec means the same design however it was written and hashes to one
+    cache key."""
 
     model_config = ConfigDict(frozen=True)
 
@@ -97,6 +104,38 @@ class TileSpec(BaseModel):
     # StrictInt: lax coercion (True -> 1, "4" -> 4) would silently satisfy the
     # positive-int parameter contract before _validate_tile_params ever ran
     params: Mapping[str, StrictInt] = {}
+
+    @model_validator(mode="before")
+    @classmethod
+    def _resolve_element_type_params(cls, data):
+        """Turn declared type spellings into the encoding the RTL elaborates
+        with. Only a parameter the core DECLARES as an element type may be
+        spelled this way -- otherwise "int32" on a capacity parameter would
+        quietly become 32, which is the class of silent misreading this whole
+        mechanism exists to prevent. The registry is consulted only when a
+        spelling is actually present, so specs written in integers construct
+        exactly as before."""
+        if not isinstance(data, Mapping):
+            return data
+        params = data.get("params")
+        if not isinstance(params, Mapping) or not any(isinstance(value, str) for value in params.values()):
+            return data
+        name = data.get("core")
+        if not isinstance(name, str):
+            return data
+        declared = core(name).parameters
+        resolved = {}
+        for parameter, value in params.items():
+            if isinstance(value, str):
+                spec = declared.get(parameter)
+                if spec is None or not spec.element_type:
+                    raise CompositionError(f"tile {name!r} parameter {parameter!r} is not an element type, so it takes an integer, not {value!r}")
+                try:
+                    value = element_code(value)
+                except ElementTypeError as error:
+                    raise CompositionError(f"tile {name!r} parameter {parameter!r}: {error}") from error
+            resolved[parameter] = value
+        return {**data, "params": resolved}
 
     def definition(self) -> CoreDefinition:
         return core(self.core)

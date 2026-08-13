@@ -18,6 +18,7 @@ import re
 from pathlib import Path
 
 from dau_core import hdl
+from dau_core.element_types import decode_element_type
 from dau_core.registry import loaded_cores
 
 _HDL_DIR = Path(str(hdl.__path__[0]))
@@ -68,6 +69,20 @@ def _parameterized_cores() -> list[tuple[str, object]]:
     return [(name, definition) for name, definition in loaded_cores().items() if getattr(definition, "parameters", None)]
 
 
+def _magnitude(parameter, value: int) -> int:
+    """What the tile's guard is a bound ON.
+
+    An element-type parameter carries a type encoding, and a guard reading
+    "must divide 128 and lie in [8, 64]" bounds the type's WIDTH -- the
+    encoding itself is not a quantity anything is measured in. For a plain
+    signed integer the two coincide (int32 encodes as 32), which is exactly
+    why this has to be explicit: it would otherwise appear to work until the
+    first fixed-point or float type was declared, and then compare 4128
+    against a bound about bits.
+    """
+    return decode_element_type(value).width if parameter.element_type else value
+
+
 def test_declared_bounds_match_the_tiles_elaboration_guard() -> None:
     checked: list[str] = []
     for name, definition in _parameterized_cores():
@@ -79,22 +94,26 @@ def test_declared_bounds_match_the_tiles_elaboration_guard() -> None:
 
             if parameter_name in ranges:
                 low, high = ranges[parameter_name]
+                default = _magnitude(parameter, parameter.default)
                 if parameter.minimum is not None:
                     assert parameter.minimum == low, f"{where}: registry minimum {parameter.minimum} != elaboration guard {low}"
                 if parameter.maximum is not None:
                     assert parameter.maximum == high, f"{where}: registry maximum {parameter.maximum} != elaboration guard {high}"
-                assert low <= parameter.default <= high, f"{where}: default {parameter.default} outside the tile's own [{low}, {high}]"
+                assert low <= default <= high, f"{where}: default {default} outside the tile's own [{low}, {high}]"
                 for choice in parameter.choices or ():
-                    assert low <= choice <= high, f"{where}: declared choice {choice} outside the tile's own [{low}, {high}]"
+                    magnitude = _magnitude(parameter, choice)
+                    assert low <= magnitude <= high, f"{where}: declared choice {magnitude} outside the tile's own [{low}, {high}]"
                 checked.append(where)
 
             elif parameter_name in choices:
                 legal = choices[parameter_name]
+                declared = tuple(_magnitude(parameter, choice) for choice in parameter.choices or ())
                 if parameter.choices:
-                    assert tuple(sorted(parameter.choices)) == tuple(sorted(legal)), (
-                        f"{where}: registry offers {sorted(parameter.choices)} but the tile elaborates only {sorted(legal)}"
+                    assert tuple(sorted(declared)) == tuple(sorted(legal)), (
+                        f"{where}: registry offers {sorted(declared)} but the tile elaborates only {sorted(legal)}"
                     )
-                assert parameter.default in legal, f"{where}: default {parameter.default} is not one the tile elaborates {legal}"
+                default = _magnitude(parameter, parameter.default)
+                assert default in legal, f"{where}: default {default} is not one the tile elaborates {legal}"
                 checked.append(where)
 
     assert len(checked) >= 8, f"parsed almost no bounds -- the guard wording has changed: {checked}"
