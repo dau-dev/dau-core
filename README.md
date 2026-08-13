@@ -29,21 +29,30 @@ core as importable resources, verified by cocotb benches under Verilator.
 
 ## Documentation
 
-The [`docs/`](docs/) tree is organised by what you are trying to do.
+The documentation lives in [the wiki](https://github.com/dau-dev/dau-core/wiki),
+authored under [`docs/wiki`](docs/wiki) and published from there. It is
+organised by what you are trying to do.
 
-- **[Tutorial](docs/tutorial/)** — start here if the stack is new to you.
-  [Read a tile's contract end to end](docs/tutorial/read-a-tile-contract.md)
+- **Tutorial** — start here if the stack is new to you.
+  [Read a tile's contract end to end](https://github.com/dau-dev/dau-core/wiki/Read-a-Tile-Contract)
   follows one operator through the five places its facts live.
-- **[How-to guides](docs/how-to/)** — for a specific job.
-  [Add an operator tile](docs/how-to/add-an-operator-tile.md) is the
-  golden-first sequence every tile in the palette went through.
-- **[Reference](docs/reference/)** — the field-by-field description of
-  [`CoreDefinition`](docs/reference/core-definition.md), the registry's
-  schema.
-- **[Explanation](docs/explanation/)** — the reasoning behind the two
-  decisions that shape everything else:
-  [why a golden model rather than a specification](docs/explanation/why-goldens-define-meaning.md)
-  and [why resource envelopes are measurements that refuse](docs/explanation/why-resources-are-measured.md).
+- **How-to guides** — for a specific job.
+  [Add an operator tile](https://github.com/dau-dev/dau-core/wiki/Add-an-Operator-Tile) is the
+  golden-first sequence every tile in the palette went through;
+  [test a core](https://github.com/dau-dev/dau-core/wiki/Test-a-Core) is the
+  layered proof it has to survive; and
+  [measure a resource envelope](https://github.com/dau-dev/dau-core/wiki/Measure-a-Resource-Envelope)
+  is the one step that needs a synthesis host.
+- **Reference** — the field-by-field description of
+  [`CoreDefinition`](https://github.com/dau-dev/dau-core/wiki/Core-Definition), the registry's
+  schema, and the
+  [registry-wide guards](https://github.com/dau-dev/dau-core/wiki/Registry-Guards)
+  with what each one refuses.
+- **Explanation** — the reasoning behind the decisions that shape everything
+  else:
+  [why the registry is configuration](https://github.com/dau-dev/dau-core/wiki/Why-the-Registry-Is-Configuration),
+  [why a golden model rather than a specification](https://github.com/dau-dev/dau-core/wiki/Why-Goldens-Define-Meaning),
+  and [why resource envelopes are measurements that refuse](https://github.com/dau-dev/dau-core/wiki/Why-Resources-Are-Measured).
 
 ## The registry is configuration
 
@@ -67,14 +76,14 @@ print(tile.resources)                      # measured LUT/FF/BRAM/DSP envelope
 sources_for("int32-stream-aggregation")    # dependency-closed HDL paths, in order
 ```
 
-The registered palette today: 36 operator tiles (filters, maps,
+The registered palette today: 45 operator tiles (filters, maps,
 aggregations both ordered and hash-mode, joins, membership, sorters,
-partitioners, dispatchers, temporal operators, top-k, and the stateful
-pair), 4 stream-infrastructure blocks (AXI burst reader, broadcast, record
-writer, write mux), 4 shell adapters, 3 shared SV packages, and 1
-simulation model — 48 entries in all. Accessors are read-through views: a
-registry an application has already composed (including overrides) is the
-source of truth.
+partitioners, dispatchers, temporal operators, top-k, fixed-point
+transcendentals, and the stateful group), 4 stream-infrastructure blocks
+(AXI burst reader, broadcast, record writer, write mux), 4 shell adapters,
+3 shared SV packages, and 1 simulation model — 57 entries in all.
+Accessors are read-through views: a registry an application has already
+composed (including overrides) is the source of truth.
 
 ## Golden semantics
 
@@ -127,8 +136,12 @@ spec = ScanCompositionSpec(
         for lane in range(4)
     ),
 )
-print(estimated_resources(spec))
+print(estimated_resources(spec, part="xc7a200tfbg484-2", clock_ns=8.0))
 ```
+
+Pricing takes a coordinate. Every measurement-point core is looked up at
+exactly that part and clock, and a coordinate nobody measured raises
+`UnmeasuredResourceError` naming the gap rather than interpolating.
 
 ### Wide lanes
 
@@ -168,7 +181,7 @@ spec = ScanCompositionSpec(
         ),
     ),
 )
-print(estimated_resources(spec))
+print(estimated_resources(spec, part="xc7k325tffg900-2", clock_ns=8.0))
 ```
 
 The throughput this buys is a rate-model consequence, not a measurement

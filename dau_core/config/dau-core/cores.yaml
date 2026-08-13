@@ -3571,3 +3571,55 @@ int32-session-gap:
       bytes_per_unit: 16
       scale_parameter: CAPACITY
       tier_hint: bram
+int32-datetime-format:
+  _target_: dau_core.cores.CoreDefinition
+  name: int32-datetime-format
+  kind: operator
+  module: dau_int32_datetime_format
+  source: dau_int32_datetime_format.sv
+  description: 'Datetime formatter: one int64 epoch-SECONDS value per beat in, the 19-byte ASCII rendering "YYYY-MM-DD
+    HH:MM:SS" out, one row per cycle. This is the hardware answer to a per-row string build on the CPU (polars
+    dt.to_string). The civil date is Howard Hinnant''s civil_from_days and the time of day is three constant divisions,
+    so EVERY division in the tile is by a compile-time constant and every one is a multiply-shift with the divisor''s
+    power-of-two factor peeled off first (86400 = 128*675, 3600 = 16*225, 1460 = 4*365, ...); there is no general
+    divider. Leap years are exact -- all three rules -- because they fall out of the 400-year era arithmetic rather than
+    being special-cased. Binary-to-BCD is double dabble, the year''s fourteen iterations split across two pipeline
+    stages. THE OUTPUT BEAT IS 152 BITS, not the 64-bit lane word: 19 bytes per row at one row per cycle is 2.85 GB/s at
+    150 MHz, which no 64-bit lane carries, so a lane consumer either takes the wide beat or pays a three-word serializer
+    (and one row per three cycles) behind it. The port names and directions are the row-stream contract''s; the width is
+    not. Input outside [0, 253402300799] -- 1970-01-01T00:00:00 through 9999-12-31T23:59:59, the range a four-digit year
+    renders -- closes the batch out with ERR_DOMAIN rather than emitting a truncated year. Matches
+    dau_core.operators.format_datetime_rows.'
+  golden: dau_core.operators:format_datetime_rows
+  contract_kind: row-stream
+  record_words: 1
+  output_record_words: 1
+  ingest:
+    rows: 1
+    per_cycles: 1
+  # Measured 2026-08-13 via dau-build task=tasks/build/synthesize-cores,
+  # Vivado 2025.2. The tile is DSP-priced, not LUT-priced: the eleven
+  # multiply-shift divisions map to 17 DSP48E1s, and the pipeline's pure carry
+  # chains (time-of-day, day-of-era, era) map to 72 LUTs of SRL rather than to
+  # flops, which is why 24 stages cost 428 FF. Only 296 LUTs are logic. The
+  # margin at 6.667 ns is 0.240 ns, under the half-nanosecond line: budget a
+  # retime before composing this at 150 MHz.
+  resources:
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {}
+      lut: 368
+      ff: 428
+      bram36: 0.0
+      dsp: 17
+      timing: met
+      wns_ns: 1.573
+    - part: xc7k325tffg900-2
+      clock_ns: 6.667
+      params: {}
+      lut: 368
+      ff: 428
+      bram36: 0.0
+      dsp: 17
+      timing: met
+      wns_ns: 0.240

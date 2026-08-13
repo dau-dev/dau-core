@@ -352,6 +352,66 @@ def sqrt_row_fields(rows: Iterable[tuple[int, int, int, int]], config: RowSqrtCo
     return out
 
 
+class DatetimeFormatErrorCode(IntEnum):
+    # CONFIG (1) and STREAM (2) are the family's reserved codes. This tile has
+    # no configuration to be invalid, and its record is a single word, so
+    # neither can occur -- there is no torn row to detect.
+    DOMAIN = 3
+
+
+# The widest instant "YYYY-MM-DD HH:MM:SS" can name, in epoch seconds:
+# 1970-01-01T00:00:00 through 9999-12-31T23:59:59. The bound is the FORMAT's,
+# not the algorithm's -- civil_from_days is exact well outside it -- so it is
+# the point past which the tile would render a year it cannot fit in four
+# digits.
+DATETIME_FORMAT_MAX_EPOCH_SECONDS = 253402300799
+DATETIME_FORMAT_WIDTH = 19
+
+
+def format_datetime(epoch_seconds: int) -> str:
+    """``epoch_seconds`` rendered as ``YYYY-MM-DD HH:MM:SS``, in UTC.
+
+    The civil date comes from Howard Hinnant's ``civil_from_days``, written
+    here in the same shape the tile implements it: every division is by a
+    CONSTANT, which is what lets the hardware do all of them as multiply-shift
+    with no divider. Leap years are exact, all three rules (4, 100, 400) --
+    they are not special-cased anywhere, they fall out of the 400-year era
+    arithmetic.
+
+    Raises outside the representable range; the tile reports ``DOMAIN`` for
+    the same case rather than emitting a truncated year.
+    """
+    if not 0 <= epoch_seconds <= DATETIME_FORMAT_MAX_EPOCH_SECONDS:
+        raise ValueError(f"epoch seconds {epoch_seconds} is outside [0, {DATETIME_FORMAT_MAX_EPOCH_SECONDS}]")
+    days, second_of_day = divmod(epoch_seconds, 86400)
+    hour, second_of_hour = divmod(second_of_day, 3600)
+    minute, second = divmod(second_of_hour, 60)
+    shifted = days + 719468  # days from 0000-03-01, where the era arithmetic starts
+    era = shifted // 146097
+    day_of_era = shifted - era * 146097
+    year_of_era = (day_of_era - day_of_era // 1460 + day_of_era // 36524 - day_of_era // 146096) // 365
+    year = year_of_era + era * 400
+    day_of_year = day_of_era - (365 * year_of_era + year_of_era // 4 - year_of_era // 100)
+    shifted_month = (5 * day_of_year + 2) // 153
+    day = day_of_year - (153 * shifted_month + 2) // 5 + 1
+    month = shifted_month + 3 if shifted_month < 10 else shifted_month - 9
+    if month <= 2:
+        year += 1  # January and February belong to the following civil year
+    return f"{year:04d}-{month:02d}-{day:02d} {hour:02d}:{minute:02d}:{second:02d}"
+
+
+def format_datetime_rows(rows: Iterable[int]) -> list[str]:
+    """Golden semantics for the datetime formatter tile: one int64 epoch-second
+    value in, one fixed-width 19-character rendering out, order and count
+    preserved.
+
+    The tile emits the ASCII of each string in one 152-bit beat, character i
+    in bits ``[8*i+7:8*i]``. An out-of-range value is not rendered: it closes
+    the batch out with ``DOMAIN``.
+    """
+    return [format_datetime(row) for row in rows]
+
+
 class DivideErrorCode(IntEnum):
     # CONFIG (1) is the family's reserved code; this tile has no invalid
     # configuration -- dst may be either source, updating in place
