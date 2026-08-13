@@ -3594,7 +3594,12 @@ datetime-format:
   bench: dau_core.tests.cocotb_benches.dau_datetime_format_tb
   contract_kind: row-stream
   record_words: 1
-  output_record_words: 1
+  # 19 ASCII bytes is 152 bits, which is THREE 64-bit words. The description
+  # has always said so, but prose is not what the composition layer reads:
+  # declaring 1 here told the width check this tile emits 64 bits, and that
+  # check is detection-only, so the mismatch would be reported and wired up
+  # anyway, dropping 11 of the 19 characters. See test_output_beat_declarations.
+  output_record_words: 3
   ingest:
     rows: 1
     per_cycles: 1
