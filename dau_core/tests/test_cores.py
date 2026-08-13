@@ -115,6 +115,11 @@ def test_every_selectable_operator_declares_its_ingest_rate() -> None:
     # parameter exactly as the wide-lane cores' does, so the declared figure is
     # below 1/1 rather than at it.
     assert full_rate == {
+        # a straight-line arithmetic pipeline with no state and no record
+        # framing: one word in, one beat out, no reason to be slower. The
+        # cocotb-free evidence is the tile's own verilator run -- 4096 rows in
+        # 4128 cycles with the output always ready.
+        "int32-datetime-format",
         "int32-key-mask-dispatcher",
         "int32-stride-distributor",
         "int32-wide-row-predicate-filter",
@@ -362,6 +367,7 @@ def test_silent_on_success_operator_set_is_pinned() -> None:
     semantics — confirm intent here."""
     silent = {d.name for d in cores_of_kind(CoreKind.OPERATOR) if not d.success_close_out}
     assert silent == {
+        "int32-datetime-format",
         "int32-fixed-point-ln-light",
         "rolling-extremum",
         "int32-pair-key-filter",
