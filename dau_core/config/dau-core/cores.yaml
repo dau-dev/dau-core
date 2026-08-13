@@ -3571,12 +3571,12 @@ int32-session-gap:
       bytes_per_unit: 16
       scale_parameter: CAPACITY
       tier_hint: bram
-int32-datetime-format:
+datetime-format:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-datetime-format
+  name: datetime-format
   kind: operator
-  module: dau_int32_datetime_format
-  source: dau_int32_datetime_format.sv
+  module: dau_datetime_format
+  source: dau_datetime_format.sv
   description: 'Datetime formatter: one int64 epoch-SECONDS value per beat in, the 19-byte ASCII rendering "YYYY-MM-DD
     HH:MM:SS" out, one row per cycle. This is the hardware answer to a per-row string build on the CPU (polars
     dt.to_string). The civil date is Howard Hinnant''s civil_from_days and the time of day is three constant divisions,
