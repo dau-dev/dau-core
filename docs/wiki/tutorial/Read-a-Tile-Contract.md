@@ -149,13 +149,13 @@ python -m pytest dau_core/tests/test_hdl_cocotb.py -q -k streaming_top_k
 
 Five facts about a tile live in five places, and each has one owner:
 
-| Fact | Lives in |
-| --- | --- |
-| That it exists, and its shape | the registry yaml |
-| What it computes | the golden function |
-| What it costs | measurement points on the registry entry |
-| How it computes it | the SystemVerilog |
-| That the last two agree | the cocotb bench |
+| Fact                          | Lives in                                 |
+| ----------------------------- | ---------------------------------------- |
+| That it exists, and its shape | the registry yaml                        |
+| What it computes              | the golden function                      |
+| What it costs                 | measurement points on the registry entry |
+| How it computes it            | the SystemVerilog                        |
+| That the last two agree       | the cocotb bench                         |
 
 Adding a tile means producing all five, in that order. That is the subject
-of [how to add an operator tile](../how-to/add-an-operator-tile.md).
+of [how to add an operator tile](Add-an-Operator-Tile).
