@@ -3,11 +3,13 @@ from __future__ import annotations
 import pytest
 
 from dau_core.operators import (
+    DEDUP_KEY_SPACE_MAX,
     KEYED_STATE_MAX_KEYS,
     SCRATCHPAD_MAX_WORDS,
     TOP_K_MAX,
     BarAggregate,
     BroadcastJoinConfig,
+    DedupErrorCode,
     DispatchMode,
     FieldSumAggregate,
     FilterPredicate,
@@ -34,6 +36,7 @@ from dau_core.operators import (
     UnpackFieldSpec,
     bar_aggregate_rows,
     broadcast_hash_join_rows,
+    count_distinct_rows,
     field_sum_rows,
     filter_rows,
     filter_rows_by_membership,
@@ -629,6 +632,47 @@ def test_membership_order_is_preserved() -> None:
     build = MembershipBuildSet.from_keys({7}, key_space=64)
     rows = [(7, i, 0, 0) for i in range(5)]
     assert filter_rows_by_membership(rows, build, mode=MembershipMode.SEMI) == rows
+
+
+def test_dedup_counts_each_key_once() -> None:
+    rows = [(7, 1, 0, 0), (100, 2, 0, 0), (7, 3, 0, 0), (63, 4, 0, 0), (100, 5, 0, 0)]
+    result = count_distinct_rows(rows, key_space=192)
+    assert result.count == 3
+    assert result.seen == frozenset({7, 63, 100})
+    assert result.error is DedupErrorCode.OK
+    # the count is the whole record: N keys in, one count out
+    assert result.record_words() == [3]
+
+
+def test_dedup_accumulates_across_batches() -> None:
+    # the tile's bitmap survives a batch boundary, so a scan split into
+    # batches is ONE dedup -- per-batch counts would count a key once per
+    # batch it appears in
+    first = count_distinct_rows([(1, 0, 0, 0), (2, 0, 0, 0)], key_space=64)
+    second = count_distinct_rows([(2, 0, 0, 0), (3, 0, 0, 0)], key_space=64, seen=first.seen)
+    assert (first.count, second.count) == (2, 3)
+    # started fresh instead, the second batch sees two distinct keys
+    assert count_distinct_rows([(2, 0, 0, 0), (3, 0, 0, 0)], key_space=64).count == 2
+
+
+def test_dedup_rejects_an_out_of_range_key_and_drops_the_accumulation() -> None:
+    # unlike the membership filter, where an unrepresentable key is honestly a
+    # non-member, a dedup has nowhere to record one; the rows before it already
+    # set their bits, so the batch takes the whole accumulation with it
+    for key in (64, -1, -(2**31), 2**31 - 1):
+        result = count_distinct_rows([(1, 0, 0, 0), (key, 0, 0, 0), (2, 0, 0, 0)], key_space=64)
+        assert result.error is DedupErrorCode.RANGE, key
+        assert (result.count, result.seen) == (0, frozenset()), key
+    assert count_distinct_rows([(63, 0, 0, 0)], key_space=64).error is DedupErrorCode.OK
+
+
+def test_dedup_key_space_must_be_a_representable_bitmap() -> None:
+    with pytest.raises(ValueError, match="multiple of 64"):
+        count_distinct_rows([], key_space=100)
+    with pytest.raises(ValueError, match="multiple of 64"):
+        count_distinct_rows([], key_space=0)
+    with pytest.raises(ValueError, match="<="):
+        count_distinct_rows([], key_space=DEDUP_KEY_SPACE_MAX + 64)
 
 
 _JOIN_BUILD = [

@@ -62,6 +62,7 @@ DAU_INT32_SCRATCHPAD_SV = files(__package__).joinpath("dau_int32_scratchpad.sv")
 DAU_INT32_HASH_GROUPED_AGGREGATION_SV = files(__package__).joinpath("dau_int32_hash_grouped_aggregation.sv")
 DAU_INT32_SESSION_GAP_SV = files(__package__).joinpath("dau_int32_session_gap.sv")
 DAU_INT32_STREAMING_TOP_K_SV = files(__package__).joinpath("dau_int32_streaming_top_k.sv")
+DAU_INT32_STREAMING_DEDUP_SV = files(__package__).joinpath("dau_int32_streaming_dedup.sv")
 
 __all__ = (
     "DAU_AGGREGATION_PKG_SV",
@@ -105,6 +106,7 @@ __all__ = (
     "DAU_INT32_ROW_UNPACK_SV",
     "DAU_INT32_SCRATCHPAD_SV",
     "DAU_INT32_SESSION_GAP_SV",
+    "DAU_INT32_STREAMING_DEDUP_SV",
     "DAU_INT32_STREAMING_TOP_K_SV",
     "DAU_INT32_STREAM_AGGREGATION_SV",
     "DAU_INT32_STRIDE_DISTRIBUTOR_SV",
