@@ -19,6 +19,8 @@ vanishing entirely.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 from ccflow import ModelRegistry
 
@@ -103,3 +105,52 @@ def test_contributed_tiles_reach_the_registry(contrib_dir) -> None:
     finally:
         ModelRegistry.root().clear()
         load_config(overwrite=True)
+
+
+def test_discovery_inside_an_existing_initialization_leaves_it_standing(contrib_dir) -> None:
+    """The regression that broke two downstream suites.
+
+    Hydra's global state is process-wide. A first version of discovery
+    initialized its own instance and cleared it in a `finally`, which tore
+    down whatever the CALLER was inside -- dau-sim and dau-polars then
+    asserted `is_initialized()` against nothing. Discovery must reuse an
+    initialization it did not create, and must leave it exactly as found.
+    """
+    from hydra import initialize_config_dir
+    from hydra.core.global_hydra import GlobalHydra
+
+    import dau_core.config
+    from dau_core.config import contributed_options
+
+    path = contrib_dir("vendor-a")
+    parent = str(Path(dau_core.config.__file__).parent)
+
+    GlobalHydra.instance().clear()
+    with initialize_config_dir(config_dir=parent, version_base=None):
+        assert GlobalHydra.instance().is_initialized()
+        contributed_options(path)
+        assert GlobalHydra.instance().is_initialized(), "discovery tore down a caller's hydra"
+    GlobalHydra.instance().clear()
+
+
+def test_discovery_never_registers_anything(contrib_dir) -> None:
+    """Initializing hydra runs the searchpath plugin, which LOADS provider
+    configs into the root registry. Asking what is installed must not change
+    what is installed, or the composition that follows fails adding `dau-core`
+    a second time."""
+    from dau_core.config import contributed_options
+
+    path = contrib_dir("vendor-a")
+    before = set(ModelRegistry.root().models)
+    assert contributed_options(path) == ("vendor-a",)
+    assert set(ModelRegistry.root().models) == before
+
+
+def test_an_unreadable_searchpath_does_not_take_down_composition(tmp_path) -> None:
+    """Discovery is best-effort. A directory hydra cannot read must cost the
+    contributions, not the compose that would otherwise have worked."""
+    from dau_core.config import compose_config, contributed_options
+
+    missing = str(tmp_path / "does-not-exist")
+    assert contributed_options(missing) == ()
+    assert len(compose_config().cfg["dau-core"]) > 50
