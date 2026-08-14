@@ -83,10 +83,16 @@ def test_handle_table_aperture_is_word_aligned_and_shares_no_address():
 def test_handle_table_aperture_matches_the_generator_that_emits_it():
     """The register contract lives here, but the ADDRESSES are decoded by
     what dau-build emits: a disagreement is not a crash, it is a host writing
-    a length into a generation. Pin them against the generator's layout."""
-    scan_composition = pytest.importorskip("dau_build.scan_composition", reason="dau-build not installed")
-    if "handle_index" not in scan_composition.RegisterLayout.model_fields:
-        pytest.skip("installed dau-build predates the shell handle table")
+    a length into a generation. Pin them against the generator's layout.
+
+    Imported outright rather than skipped around: a guard that skips when the
+    other side of the contract is missing reports the same green as one that
+    checked, which is how this ran for exactly nobody while the aperture was
+    being placed. The develop extra installs the dau-build this is written
+    against, so a missing generator is a broken environment, not a reason to
+    pass."""
+    from dau_build import scan_composition
+
     layout = scan_composition.RegisterLayout()
     assert layout.handle_index == HandleTableRegisterOffset.INDEX
     assert layout.handle_base_low == HandleTableRegisterOffset.BASE_LOW
