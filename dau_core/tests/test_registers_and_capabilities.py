@@ -9,6 +9,7 @@ from dau_core.registers import (
     DEFAULT_STREAM_JOB_REGISTER_CONTRACT,
     NOC_LANE_BASE,
     HandleFaultCode,
+    HandleTableControlFlag,
     HandleTableRegisterOffset,
     JobControlFlag,
     JobStatusFlag,
@@ -78,6 +79,9 @@ def test_handle_table_aperture_is_word_aligned_and_shares_no_address():
     # the codes a shell reports in LAST_ERROR for a job it refused to start,
     # below the shell's own 0xFE length gate
     assert (HandleFaultCode.BAD_ID, HandleFaultCode.STALE, HandleFaultCode.OUT_OF_BOUNDS) == (0xFD, 0xFC, 0xFB)
+    # the two commits a CONTROL write can perform, in the same bits the shell
+    # decodes them from
+    assert (HandleTableControlFlag.INSTALL, HandleTableControlFlag.FREE) == (1, 2)
 
 
 def test_handle_table_aperture_matches_the_generator_that_emits_it():
@@ -105,6 +109,11 @@ def test_handle_table_aperture_matches_the_generator_that_emits_it():
     assert scan_composition.HANDLE_FAULT_BAD_ID == HandleFaultCode.BAD_ID
     assert scan_composition.HANDLE_FAULT_STALE == HandleFaultCode.STALE
     assert scan_composition.HANDLE_FAULT_OUT_OF_BOUNDS == HandleFaultCode.OUT_OF_BOUNDS
+    # the CONTROL commits are a bit POSITION on the generator's side and a mask
+    # on the host's; pin the two forms against each other, or an install
+    # becomes a free the first time somebody counts from one
+    assert 1 << scan_composition.HANDLE_CONTROL_INSTALL_BIT == HandleTableControlFlag.INSTALL
+    assert 1 << scan_composition.HANDLE_CONTROL_FREE_BIT == HandleTableControlFlag.FREE
 
 
 def test_register_block_snapshot_reads_identity_status_and_counters_as_u32_words():

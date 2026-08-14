@@ -155,6 +155,21 @@ class HandleTableRegisterOffset(IntEnum):
     JOB_HANDLE_GENERATION = 0x00F0
 
 
+class HandleTableControlFlag(IntFlag):
+    """The WRITE bits of ``HandleTableRegisterOffset.CONTROL``: which of the
+    staged entry's two commits the write performs. Both are one-cycle pulses,
+    so they always read back zero -- CONTROL reads report the resolution state
+    instead.
+
+    Here rather than in the host, for the same reason the offsets are: a bit
+    position a programmer carries in their head is how a free ends up
+    installing. A host stages one commit or the other; the table resolves the
+    collision in free's favour, which is a safety net, not a sequence."""
+
+    INSTALL = 1 << 0
+    FREE = 1 << 1
+
+
 class HandleFaultCode(IntEnum):
     """LAST_ERROR codes a shell reports for a job it REFUSED to start on a
     handle. A refused job never starts the reader, so it reads nothing at all
