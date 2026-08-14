@@ -2835,6 +2835,52 @@ stream-broadcast:
       timing: met
       wns_ns: 8.72
 
+axi-random-probe:
+  _target_: dau_core.cores.CoreDefinition
+  name: axi-random-probe
+  kind: stream-infra
+  module: dau_axi_random_probe
+  source: dau_axi_random_probe.sv
+  description: 'AXI4 random-read probe bench: single-beat reads to pseudo-random addresses in a window,
+    up to MAX_OUTSTANDING in flight, reporting the cycles a run took. It measures the number that decides
+    whether a join build side can live in DRAM -- sustained random read rate against outstanding depth --
+    which axi-burst-reader cannot answer: that reader issues a new address only once the previous is
+    accepted, so it holds ONE outstanding read. Right for sequential bursts, where a single AR fetches
+    many beats; fatal for random probes, where the rate collapses to 1/latency. Against the RAM model at
+    READ_LATENCY=16 the sweep runs 21.33 cycles/probe at depth 1, 10.67 at 2, and 1.22 from depth 4 on:
+    modest depth converts a latency-bound probe into a throughput-bound one. Addresses walk an xorshift
+    masked into the window so the pattern defeats row-buffer locality the way a hash probe does; a
+    sequential sweep would measure the memory best case and answer the wrong question. NOT an operator --
+    it computes nothing and has no golden; it is instrumentation.'
+  bench: dau_core.tests.cocotb_benches.dau_axi_random_probe_tb
+  parameters:
+    MAX_OUTSTANDING:
+      default: 8
+      minimum: 1
+      maximum: 64
+  # Measured 2026-08-14 via dau-build task=tasks/build/synthesize-cores.
+  # Identical on both parts because the tile is pure control: counters, an
+  # xorshift and an AR handshake, no memory and no arithmetic.
+  resources:
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {MAX_OUTSTANDING: 8}
+      lut: 218
+      ff: 238
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.958
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {MAX_OUTSTANDING: 8}
+      lut: 218
+      ff: 238
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.601
+
 axi-burst-reader:
   _target_: dau_core.cores.CoreDefinition
   name: axi-burst-reader
