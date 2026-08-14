@@ -7,6 +7,9 @@ from dau_core.registers import (
     CURRENT_REGISTER_MAP_VERSION,
     DAU_MAGIC_WORD,
     DEFAULT_STREAM_JOB_REGISTER_CONTRACT,
+    NOC_LANE_BASE,
+    HandleFaultCode,
+    HandleTableRegisterOffset,
     JobControlFlag,
     JobStatusFlag,
     RegisterBlockSnapshot,
@@ -44,6 +47,54 @@ def test_register_contract_uses_dau_magic_and_aligned_offsets():
     assert JobControlFlag.START == 1
     assert JobStatusFlag.ERROR == 1 << 3
     assert ResetScope.OPERATOR | ResetScope.STREAM == ResetScope.OPERATOR | ResetScope.STREAM
+
+
+def test_handle_table_aperture_is_word_aligned_and_names_its_overlap():
+    """The handle aperture the composed scan shell decodes. Its offsets are
+    the generator's, and they deliberately land on the static pipeline block:
+    a shell bakes that pipeline in or composes lanes, never both. Keeping the
+    two in separate enums is what lets each keep its own name — an IntEnum
+    member at an address another already holds is an alias, and a host
+    programming a handle would be reading PIPELINE_FILTER_OP in its logs."""
+    assert HandleTableRegisterOffset.INDEX == 0x0090
+    assert HandleTableRegisterOffset.BASE_LOW == 0x0094
+    assert HandleTableRegisterOffset.BASE_HIGH == 0x0098
+    assert HandleTableRegisterOffset.LENGTH == 0x009C
+    assert HandleTableRegisterOffset.GENERATION == 0x00A0
+    assert HandleTableRegisterOffset.CONTROL == 0x00A4
+    assert HandleTableRegisterOffset.JOB_HANDLE_ID == 0x00A8
+    assert HandleTableRegisterOffset.JOB_HANDLE_GENERATION == 0x00AC
+    assert all(int(offset) % 4 == 0 for offset in HandleTableRegisterOffset)
+    # the whole aperture sits below the NoC lane block, so declaring a table
+    # moves no lane register
+    assert max(HandleTableRegisterOffset) < NOC_LANE_BASE
+    # the overlap is real, deliberate, and named on both sides
+    assert int(HandleTableRegisterOffset.INDEX) == int(RegisterOffset.PIPELINE_FILTER_OP)
+    assert HandleTableRegisterOffset.INDEX.name == "INDEX"
+    # the codes a shell reports in LAST_ERROR for a job it refused to start,
+    # below the shell's own 0xFE length gate
+    assert (HandleFaultCode.BAD_ID, HandleFaultCode.STALE, HandleFaultCode.OUT_OF_BOUNDS) == (0xFD, 0xFC, 0xFB)
+
+
+def test_handle_table_aperture_matches_the_generator_that_emits_it():
+    """The register contract lives here, but the ADDRESSES are decoded by
+    what dau-build emits: a disagreement is not a crash, it is a host writing
+    a length into a generation. Pin them against the generator's layout."""
+    scan_composition = pytest.importorskip("dau_build.scan_composition", reason="dau-build not installed")
+    if "handle_index" not in scan_composition.RegisterLayout.model_fields:
+        pytest.skip("installed dau-build predates the shell handle table")
+    layout = scan_composition.RegisterLayout()
+    assert layout.handle_index == HandleTableRegisterOffset.INDEX
+    assert layout.handle_base_low == HandleTableRegisterOffset.BASE_LOW
+    assert layout.handle_base_high == HandleTableRegisterOffset.BASE_HIGH
+    assert layout.handle_length == HandleTableRegisterOffset.LENGTH
+    assert layout.handle_generation == HandleTableRegisterOffset.GENERATION
+    assert layout.handle_control == HandleTableRegisterOffset.CONTROL
+    assert layout.job_handle_id == HandleTableRegisterOffset.JOB_HANDLE_ID
+    assert layout.job_handle_generation == HandleTableRegisterOffset.JOB_HANDLE_GENERATION
+    assert scan_composition.HANDLE_FAULT_BAD_ID == HandleFaultCode.BAD_ID
+    assert scan_composition.HANDLE_FAULT_STALE == HandleFaultCode.STALE
+    assert scan_composition.HANDLE_FAULT_OUT_OF_BOUNDS == HandleFaultCode.OUT_OF_BOUNDS
 
 
 def test_register_block_snapshot_reads_identity_status_and_counters_as_u32_words():
