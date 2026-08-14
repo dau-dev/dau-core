@@ -26,23 +26,62 @@ class UnknownCoreError(KeyError):
     pass
 
 
+class DuplicateCoreError(ValueError):
+    """Two composed groups declare the same core name."""
+
+
 def loaded_cores() -> Mapping[str, CoreDefinition]:
-    """The core registry, name -> definition in registry order: dau-core's
-    hydra config tree (``dau-core/cores.yaml``) composed into the ccflow
-    ``ModelRegistry`` at ``/dau-core/<core-name>``. Composition IS the
-    registry — there is no Python-literal core list; these accessors are
-    thin read-through views for in-process consumers (tests, dau shell
-    walking). A ``/dau-core`` subregistry a consumer already composed
-    (possibly with overrides) is the source of truth and is never reloaded
-    or overwritten here; the packaged defaults load only when it is absent."""
+    """Every composed core, name -> definition, dau-core's own first.
+
+    dau-core's tiles come from its hydra config tree
+    (``dau-core/cores.yaml``) composed into the ccflow ``ModelRegistry`` at
+    ``/dau-core/<core-name>``. Composition IS the registry — there is no
+    Python-literal core list; these accessors are thin read-through views
+    for in-process consumers (tests, dau shell walking). A ``/dau-core``
+    subregistry a consumer already composed (possibly with overrides) is the
+    source of truth and is never reloaded or overwritten here; the packaged
+    defaults load only when it is absent.
+
+    **A CONTRIBUTED core is a core.** A third party composing a
+    ``CoreDefinition`` under its own group used to compose successfully,
+    register, and then be invisible to every consumer, because this only
+    ever read ``/dau-core``: the author did everything right and their tile
+    silently vanished, with no error to explain it. Any ``CoreDefinition``
+    the application composed is returned, whichever group holds it.
+
+    This does not blur the packages. ``source_package`` is the seam that
+    tells a foreign tile from one of ours, and dau-core's own guards already
+    scope themselves by it rather than assuming every registered core is
+    theirs. A name collision is raised rather than resolved, because
+    silently preferring one definition is the failure this fixes.
+    """
     from ccflow import ModelRegistry
 
-    subregistry = ModelRegistry.root().models.get("dau-core")
+    root = ModelRegistry.root()
+    subregistry = root.models.get("dau-core")
     if subregistry is None:
         from dau_core.config import load_config
 
         subregistry = load_config().models["dau-core"]
-    return {name: model for name, model in subregistry.models.items() if isinstance(model, CoreDefinition)}
+    cores = {name: model for name, model in subregistry.models.items() if isinstance(model, CoreDefinition)}
+
+    for group_name, group in root.models.items():
+        if group_name == "dau-core" or not hasattr(group, "models"):
+            continue
+        for name, model in group.models.items():
+            if not isinstance(model, CoreDefinition):
+                continue
+            existing = cores.get(name)
+            if existing is not None and existing is not model:
+                raise DuplicateCoreError(
+                    f"core {name!r} is declared by more than one composed group: "
+                    f"{existing.source_package!r} and {model.source_package!r} "
+                    f"(the second was found under {group_name!r}). Rename one; a core name is how "
+                    "every design, spec hash and cached manifest refers to it, so resolving this "
+                    "silently would let a design mean two different things."
+                )
+            cores[name] = model
+    return cores
 
 
 def core(name: str) -> CoreDefinition:
