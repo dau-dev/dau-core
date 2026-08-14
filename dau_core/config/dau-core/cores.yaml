@@ -2858,6 +2858,28 @@ axi-random-probe:
       default: 8
       minimum: 1
       maximum: 64
+  # Measured 2026-08-14 via dau-build task=tasks/build/synthesize-cores.
+  # Identical on both parts because the tile is pure control: counters, an
+  # xorshift and an AR handshake, no memory and no arithmetic.
+  resources:
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {MAX_OUTSTANDING: 8}
+      lut: 218
+      ff: 238
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.958
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {MAX_OUTSTANDING: 8}
+      lut: 218
+      ff: 238
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.601
 
 axi-burst-reader:
   _target_: dau_core.cores.CoreDefinition
