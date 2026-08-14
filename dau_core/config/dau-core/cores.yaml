@@ -2560,6 +2560,90 @@ int32-key-membership-filter:
       default: 4096
       multiple_of: 64
 
+int32-streaming-dedup:
+  _target_: dau_core.cores.CoreDefinition
+  name: int32-streaming-dedup
+  kind: operator
+  module: dau_int32_streaming_dedup
+  source: dau_int32_streaming_dedup.sv
+  description: 'Streaming insert-on-probe dedup over 16-byte quad rows: COUNT(DISTINCT key) on the device. The row key
+    (w0.lo) indexes a direct-mapped bitmap over [0, KEY_SPACE); a row whose bit is clear sets it and counts, a row whose
+    bit is set changes nothing. No rows are forwarded — the batch closes out with ONE 64-bit word, the distinct count, so
+    N keys cross the bus inbound and one number crosses it back. The membership filter is the static sibling (loaded once,
+    probed read-only); writing the bitmap while probing is what a distinct needs and what that tile cannot do, and it costs
+    a read-modify-write whose read-during-write collision on repeated keys is closed by forwarding the in-flight write. The
+    bitmap survives batch boundaries so an overlapped multi-batch scan is ONE dedup (per-batch counts are not summable);
+    cfg_clear, sampled at a batch''s first word, starts a fresh accumulation. Sized by CARDINALITY, not row count. An
+    out-of-range key is ERR_RANGE rather than a miss: a dedup cannot record it and wrapping would merge two keys into one
+    count.'
+  golden: dau_core.operators:count_distinct_rows
+  bench: dau_core.tests.cocotb_benches.dau_int32_streaming_dedup_tb
+  # Measured 2026-08-14 via dau-build task=tasks/build/synthesize-cores, both
+  # parts, at the default KEY_SPACE and at the 1.5M-distinct point the screen
+  # was argued on. Two corrections to that screen, both from measurement:
+  # the tile is far LEANER than the ~700 LUT it was priced at (268 at 4096,
+  # 421 at 1.5M -- it forwards no rows, so there is no emit engine or skid
+  # slot), and its bitmap costs MORE BRAM than the bit count suggests. 1.5M
+  # bits is 40.7 RAMB36 of raw capacity but the memory is 23,438 words of 64
+  # bits, and a RAMB36 in 64-bit mode holds 512 words, so the array rounds up
+  # to 64 -- still 19% of the Artix's 335 budget. Timing meets 8 ns on both
+  # parts at both sizes, including across the forwarded read-modify-write
+  # path at the 64-BRAM output mux.
+  resources:
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {KEY_SPACE: 4096}
+      lut: 268
+      ff: 299
+      bram36: 1.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.816
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {KEY_SPACE: 4096}
+      lut: 268
+      ff: 299
+      bram36: 1.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.173
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {KEY_SPACE: 1500032}
+      lut: 421
+      ff: 326
+      bram36: 64.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.846
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {KEY_SPACE: 1500032}
+      lut: 389
+      ff: 326
+      bram36: 64.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.235
+  count_port: distinct_count
+  contract_kind: row-stream
+  record_words: 2
+  output_record_words: 1
+  ingest:
+    rows: 1
+    per_cycles: 2
+  # no unit_kind: the design inventory has no dedup unit, and borrowing
+  # `membership` would advertise semi/anti filtering this tile cannot do while
+  # `aggregation` would advertise capacity for opcodes it does not execute.
+  success_close_out: true
+  parameters:
+    KEY_SPACE:
+      default: 4096
+      minimum: 64
+      maximum: 8388608
+      multiple_of: 64
+
 int32-broadcast-hash-join:
   _target_: dau_core.cores.CoreDefinition
   name: int32-broadcast-hash-join

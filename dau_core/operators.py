@@ -779,6 +779,95 @@ def filter_rows_by_membership(
     return out
 
 
+DEDUP_KEY_SPACE_MAX = 8_388_608
+
+
+class DedupErrorCode(IntEnum):
+    """Status codes for the streaming dedup tile. Code 1 — ``CONFIG`` in every
+    tile that has one — is deliberately absent: ``cfg_clear`` is a single bit
+    with no invalid encoding, so there is no configuration this tile can
+    reject. ``STREAM`` keeps the palette-wide value 2 and ``RANGE`` the value
+    the broadcast hash join gives the same condition."""
+
+    OK = 0
+    STREAM = 2  # torn row (input_last on a w0) — hardware only, no golden equivalent
+    RANGE = 3  # a row key outside [0, key_space)
+
+
+@dataclass(frozen=True)
+class DistinctCount:
+    """What the streaming dedup tile holds after a batch: the running distinct
+    count it emits as its one-word close-out record, and the bitmap that count
+    was taken from.
+
+    ``seen`` is carried rather than derived because the tile's bitmap SURVIVES
+    a batch boundary. A scan split into overlapped batches is one dedup, and
+    summing per-batch counts would count a key once per batch it appears in —
+    so the accumulation runs until the host asks for a fresh one (``cfg_clear``
+    on the batch that starts it), and the final batch's count is the answer.
+    Feed a result's ``seen`` back in to model the next batch of the same
+    accumulation; pass nothing to model one that cleared first."""
+
+    key_space: int
+    count: int
+    seen: frozenset[int]
+    error: DedupErrorCode = DedupErrorCode.OK
+
+    def record_words(self) -> list[int]:
+        """The close-out record as unsigned 64-bit stream words: the distinct
+        count and nothing else — N keys in, ONE count out."""
+        return [self.count]
+
+
+def count_distinct_rows(
+    rows: Iterable[tuple[int, int, int, int]],
+    *,
+    key_space: int,
+    seen: Iterable[int] = (),
+) -> DistinctCount:
+    """Golden semantics for the streaming insert-on-probe dedup tile: one pass
+    over (key, value, aux0, aux1) rows counting each key the FIRST time it is
+    seen — ``COUNT(DISTINCT key)`` over the dictionary-id space
+    ``[0, key_space)``.
+
+    The membership filter's bitmap is STATIC: loaded in a build phase, then
+    probed read-only. This one is written as it is probed — if the row key's
+    bit is clear, set it and count the row; otherwise the key has been seen
+    and the row changes nothing. That single difference (insert on probe) is
+    what a ``distinct`` needs and what a static bitmap cannot do, and it is
+    why the tile pays a read-modify-write per row where the filter pays a
+    read.
+
+    Sized by CARDINALITY, not by row count: the bitmap holds one bit per
+    distinct key, so the memory is set by how many distinct keys exist, not by
+    how many rows carry them. That is the whole reason this fits on-chip where
+    a join build side does not.
+
+    An out-of-range key is an ERROR here rather than the definitional miss it
+    is in the membership filter. A filter can honestly answer "not a member"
+    for a key the build set could never hold; a dedup cannot answer "have I
+    seen this" for a key it has nowhere to record, and silently wrapping it
+    into another key's bit would merge two distinct keys into one count. The
+    tile drains the batch and closes out ``RANGE``; the accumulation goes with
+    it (count zero, empty bitmap), because rows before the bad one already set
+    their bits and a half-inserted bitmap is not a state anything can resume
+    from."""
+    if key_space <= 0 or key_space % 64 != 0:
+        raise ValueError("key_space must be a positive multiple of 64")
+    if key_space > DEDUP_KEY_SPACE_MAX:
+        raise ValueError(f"key_space must be <= {DEDUP_KEY_SPACE_MAX}")
+    bitmap = set(seen)
+    count = len(bitmap)
+    for row in rows:
+        key = _wrap_int32(row[0])
+        if not 0 <= key < key_space:
+            return DistinctCount(key_space=key_space, count=0, seen=frozenset(), error=DedupErrorCode.RANGE)
+        if key not in bitmap:  # insert on probe: the first sighting is the one that counts
+            bitmap.add(key)
+            count += 1
+    return DistinctCount(key_space=key_space, count=count, seen=frozenset(bitmap))
+
+
 class JoinSource(IntEnum):
     """Output field-select sources for the broadcast hash join tile: the six
     32-bit operands an emitted output field may carry — the matched build row's

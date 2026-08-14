@@ -46,6 +46,7 @@ from dau_core.hdl import (
     DAU_INT32_SCRATCHPAD_SV,
     DAU_INT32_SESSION_GAP_SV,
     DAU_INT32_STREAM_AGGREGATION_SV,
+    DAU_INT32_STREAMING_DEDUP_SV,
     DAU_INT32_STREAMING_TOP_K_SV,
     DAU_INT32_STRIDE_DISTRIBUTOR_SV,
     DAU_INT32_TIME_BUCKET_KEY_SV,
@@ -330,6 +331,16 @@ def test_rolling_moments_window_two(tmp_path: Path, monkeypatch: pytest.MonkeyPa
         test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_rolling_moments_tb",
         tmp_path=tmp_path,
         parameters={"WINDOW": 2},
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+def test_streaming_dedup_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_INT32_STREAMING_DEDUP_SV)),),
+        hdl_toplevel="dau_int32_streaming_dedup",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_streaming_dedup_tb",
+        tmp_path=tmp_path,
     )
 
 
