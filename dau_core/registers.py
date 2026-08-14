@@ -88,12 +88,6 @@ class RegisterOffset(IntEnum):
     # static composed-pipeline configuration (the OHLCV shell): the filter
     # row count comes from INPUT_LENGTH (one row per 64-bit word), never a
     # separate register.
-    #
-    # 0x0090-0x00A0 is ALSO where a composed scan shell puts its handle-table
-    # aperture (HandleTableRegisterOffset). The two shells are mutually
-    # exclusive -- one bakes this pipeline in, the other composes lanes -- so
-    # no bitstream ever decodes both meanings, but a host that reads these
-    # words must know which personality it is talking to.
     PIPELINE_FILTER_OP = 0x0090  # [2:0] op0, [5:4] combine, [10:8] op1, [16] target lane
     PIPELINE_FILTER_CONSTANT0 = 0x0094
     PIPELINE_FILTER_CONSTANT1 = 0x0098
@@ -132,29 +126,33 @@ class RegisterOffset(IntEnum):
 # (dau_build.scan_composition.RegisterLayout). A number that disagrees here is
 # not a crash, it is a host writing a length into a generation.
 #
-# These are a SEPARATE enum rather than RegisterOffset members because
-# 0x090-0x0A0 is already spoken for there by the static OHLCV/bar pipeline
-# block. The reuse is safe -- a shell is one personality or the other, never
-# both -- but an IntEnum member at an address another member already holds is
-# an ALIAS, so RegisterOffset.HANDLE_INDEX would answer to the name
-# PIPELINE_FILTER_OP in every log line and error message. Same address, two
-# meanings, and each says which it means.
+# The aperture sits above the capability block (which ends at
+# OUTPUT_RECORD_CAPACITY) and below NOC_LANE_BASE, so declaring a table moves
+# no register any host already decodes. It stays off the 0x0090-0x00A0 gap on
+# purpose: the static pipeline block above spends those five words, and while
+# a shell bakes that pipeline in or composes lanes and never both, one meaning
+# per address is a property, not an invariant somebody has to remember.
+#
+# A SEPARATE enum rather than RegisterOffset members because the aperture is
+# opt-in: only a shell that declares a capacity decodes it, and on every other
+# shell these addresses read back as unmapped. RegisterOffset is what a host
+# may always read.
 class HandleTableRegisterOffset(IntEnum):
-    INDEX = 0x0090  # the slot the next CONTROL write installs or frees
-    BASE_LOW = 0x0094
-    BASE_HIGH = 0x0098  # decoded only by a shell whose job master is wider than 32 bits
-    LENGTH = 0x009C  # bytes granted; a job reading past it is refused
-    GENERATION = 0x00A0  # the allocator's generation for this slot; 0 is never issued
+    INDEX = 0x00D4  # the slot the next CONTROL write installs or frees
+    BASE_LOW = 0x00D8
+    BASE_HIGH = 0x00DC  # decoded only by a shell whose job master is wider than 32 bits
+    LENGTH = 0x00E0  # bytes granted; a job reading past it is refused
+    GENERATION = 0x00E4  # the allocator's generation for this slot; 0 is never issued
     # write: bit 0 installs the staged entry, bit 1 frees the slot (a one-cycle
     # pulse each, so one write can never install twice, and free outranks
     # install). read: bit 0 = a resolve is pending, bit 1 = the last resolve
     # faulted -- the write bits always read back zero, being pulses.
-    CONTROL = 0x00A4
+    CONTROL = 0x00E8
     # the handle THE NEXT JOB resolves. Both reset to zero and the allocator
     # issues no generation zero, so a host that forgets to arm a handle is
     # refused rather than quietly reading slot zero.
-    JOB_HANDLE_ID = 0x00A8
-    JOB_HANDLE_GENERATION = 0x00AC
+    JOB_HANDLE_ID = 0x00EC
+    JOB_HANDLE_GENERATION = 0x00F0
 
 
 class HandleFaultCode(IntEnum):
