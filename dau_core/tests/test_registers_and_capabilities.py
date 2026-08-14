@@ -49,28 +49,32 @@ def test_register_contract_uses_dau_magic_and_aligned_offsets():
     assert ResetScope.OPERATOR | ResetScope.STREAM == ResetScope.OPERATOR | ResetScope.STREAM
 
 
-def test_handle_table_aperture_is_word_aligned_and_names_its_overlap():
+def test_handle_table_aperture_is_word_aligned_and_shares_no_address():
     """The handle aperture the composed scan shell decodes. Its offsets are
-    the generator's, and they deliberately land on the static pipeline block:
-    a shell bakes that pipeline in or composes lanes, never both. Keeping the
-    two in separate enums is what lets each keep its own name — an IntEnum
-    member at an address another already holds is an alias, and a host
-    programming a handle would be reading PIPELINE_FILTER_OP in its logs."""
-    assert HandleTableRegisterOffset.INDEX == 0x0090
-    assert HandleTableRegisterOffset.BASE_LOW == 0x0094
-    assert HandleTableRegisterOffset.BASE_HIGH == 0x0098
-    assert HandleTableRegisterOffset.LENGTH == 0x009C
-    assert HandleTableRegisterOffset.GENERATION == 0x00A0
-    assert HandleTableRegisterOffset.CONTROL == 0x00A4
-    assert HandleTableRegisterOffset.JOB_HANDLE_ID == 0x00A8
-    assert HandleTableRegisterOffset.JOB_HANDLE_GENERATION == 0x00AC
+    the generator's, and they sit in free window space: above the capability
+    block, below the lane block, overlapping nothing the base register map
+    defines. An aperture laid over the static pipeline block would decode
+    correctly (a shell is one personality or the other) but would leave every
+    address in it meaning two things, which is a thing to remember rather
+    than a property to rely on."""
+    assert HandleTableRegisterOffset.INDEX == 0x00D4
+    assert HandleTableRegisterOffset.BASE_LOW == 0x00D8
+    assert HandleTableRegisterOffset.BASE_HIGH == 0x00DC
+    assert HandleTableRegisterOffset.LENGTH == 0x00E0
+    assert HandleTableRegisterOffset.GENERATION == 0x00E4
+    assert HandleTableRegisterOffset.CONTROL == 0x00E8
+    assert HandleTableRegisterOffset.JOB_HANDLE_ID == 0x00EC
+    assert HandleTableRegisterOffset.JOB_HANDLE_GENERATION == 0x00F0
     assert all(int(offset) % 4 == 0 for offset in HandleTableRegisterOffset)
-    # the whole aperture sits below the NoC lane block, so declaring a table
-    # moves no lane register
+    # the whole aperture sits above every base register and below the NoC lane
+    # block, so declaring a table moves neither
+    assert min(HandleTableRegisterOffset) > max(RegisterOffset)
     assert max(HandleTableRegisterOffset) < NOC_LANE_BASE
-    # the overlap is real, deliberate, and named on both sides
-    assert int(HandleTableRegisterOffset.INDEX) == int(RegisterOffset.PIPELINE_FILTER_OP)
-    assert HandleTableRegisterOffset.INDEX.name == "INDEX"
+    # no address means two things -- compared as ints, since two IntEnums hash
+    # by member name and would intersect empty no matter what they address
+    aperture = {int(offset) for offset in HandleTableRegisterOffset}
+    assert not (aperture & {int(offset) for offset in RegisterOffset})
+    assert int(RegisterOffset.PIPELINE_FILTER_OP) not in aperture
     # the codes a shell reports in LAST_ERROR for a job it refused to start,
     # below the shell's own 0xFE length gate
     assert (HandleFaultCode.BAD_ID, HandleFaultCode.STALE, HandleFaultCode.OUT_OF_BOUNDS) == (0xFD, 0xFC, 0xFB)
