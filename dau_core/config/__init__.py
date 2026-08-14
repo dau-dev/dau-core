@@ -52,7 +52,7 @@ def contributed_options(config_dir: str | None = None, *, version_base: str | No
     if instance.is_initialized():
         try:
             return options(instance.config_loader())
-        except Exception:
+        except Exception:  # noqa: BLE001  # discovery is best-effort; never fail a compose over it
             return ()
 
     # Initializing hydra runs the searchpath plugin, which LOADS provider
@@ -65,7 +65,7 @@ def contributed_options(config_dir: str | None = None, *, version_base: str | No
     try:
         with initialize_config_dir(config_dir=parent_dir, version_base=version_base):
             return options(instance.config_loader())
-    except Exception:
+    except Exception:  # noqa: BLE001
         # discovery is best-effort: a searchpath hydra cannot read must not
         # take down composition that would otherwise have worked
         return ()
