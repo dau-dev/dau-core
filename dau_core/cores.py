@@ -27,6 +27,7 @@ from ccflow import BaseModel
 from pydantic import ConfigDict, Field, NonNegativeFloat, NonNegativeInt, StrictInt, field_validator, model_validator
 
 from .design import UnitKind
+from .element_types import ElementTypeError, decode_element_type, element_code, element_type
 from .generators import CoreGenerator
 from .stream import LogicalType, OperationCode
 
@@ -96,6 +97,22 @@ class ResourceMeasurement(BaseModel):
     dsp: NonNegativeInt
     timing: TimingStatus
     wns_ns: float
+
+    @model_validator(mode="before")
+    @classmethod
+    def _accept_type_spellings(cls, data):
+        """A coordinate may name an element type where the synthesis run took
+        one ("FIELD_WIDTH: int32"), and is stored as the encoding, so it
+        compares equal to the same point written as a number. No parameter of
+        an SV module has a legal non-numeric value other than a type, so a
+        string here needs no further disambiguation."""
+        if not isinstance(data, Mapping):
+            return data
+        params = data.get("params")
+        if not isinstance(params, Mapping) or not any(isinstance(value, str) for value in params.values()):
+            return data
+        resolved = {name: element_code(value) if isinstance(value, str) else value for name, value in params.items()}
+        return {**data, "params": resolved}
 
     @model_validator(mode="after")
     def _timing_matches_wns(self) -> ResourceMeasurement:
@@ -197,7 +214,28 @@ class ParameterSpec(BaseModel):
     ``power_of_two`` mirrors mask/bit-select decodes (the key-mask dispatcher's
     ``NUM_PARTITIONS``); ``minimum`` mirrors a lower bound (the rolling-moment
     window is ``>= 2`` — a size-1 sample variance is undefined). The HDL is the
-    source of truth; this mirrors it."""
+    source of truth; this mirrors it.
+
+    ``element_type`` marks the parameter as naming WHAT AN ELEMENT IS rather
+    than how big something is, and changes three things:
+
+    * ``default`` and ``choices`` may be written as type spellings
+      (``int32``, ``q16.16``, ``float64``) as well as integers, and are stored
+      as the :mod:`dau_core.element_types` encoding either way. A plain signed
+      integer encodes as its own width, so ``32`` and ``int32`` are the same
+      declaration and no existing entry changes meaning.
+    * ``choices`` are matched on the whole type. ``int32`` and ``q16.16`` are
+      both 32 bits wide and are NOT interchangeable, which is the distinction
+      a width could not draw.
+    * ``minimum``/``maximum``/``multiple_of``/``power_of_two`` constrain the
+      type's WIDTH, because that is what the RTL guard they mirror is about
+      ("FIELD_WIDTH must divide 128 and lie in [8, 64]" is a statement about
+      the field's bits, not about the number that names its type).
+
+    Set it only for a parameter that genuinely selects an element type. Bus
+    and beat widths (``IN_WIDTH``, ``OUT_WIDTH``, ``DATA_WIDTH``) count bits
+    per handshake and are not types; declaring one here would let a design ask
+    for a fixed-point AXI bus."""
 
     model_config = ConfigDict(frozen=True)
 
@@ -207,31 +245,84 @@ class ParameterSpec(BaseModel):
     power_of_two: bool = False
     minimum: int = 1
     maximum: int | None = None
+    element_type: bool = False
 
-    def violation(self, value: int) -> str | None:
+    @model_validator(mode="before")
+    @classmethod
+    def _accept_type_spellings(cls, data):
+        """Resolve declared type spellings to their encoding before the int
+        fields see them, so everything downstream -- the constraint checks,
+        the ``-generic`` a synthesis run passes, the canonical spec hash --
+        works on one integer form and never has to know how it was written."""
+        if not isinstance(data, Mapping) or not data.get("element_type"):
+            return data
+        resolved = dict(data)
+        if "default" in resolved:
+            resolved["default"] = element_code(resolved["default"])
+        choices = resolved.get("choices")
+        if choices is not None:
+            resolved["choices"] = tuple(element_code(choice) for choice in choices)
+        return resolved
+
+    def violation(self, value: int | str) -> str | None:
         """Why ``value`` is not a legal override, or ``None`` when it is.
         This is the ONE statement of the constraint -- composition wraps it
         with tile context, and the model's own coherence check runs the
         default through it, so the rule cannot drift between the two."""
+        if self.element_type:
+            try:
+                element = element_type(value)
+            except ElementTypeError as error:
+                return str(error)
+            return self._violation(element.code, element.width)
+        if isinstance(value, str):
+            return f"must be an int, got {value!r}; only a parameter declared element_type accepts a type spelling"
+        return self._violation(value, value)
+
+    def normalize(self, value: int | str) -> int:
+        """The integer the RTL elaborates with, however the value was written.
+
+        A consumer holding a raw override -- a build task assembling
+        ``-generic`` arguments, say -- has to turn a spelling into its code
+        before it reaches a tool, and cannot import this package to do it:
+        dau-build is public and the encoding lives here. Asking the spec that
+        declared the parameter keeps the vocabulary in one place.
+        """
+        return element_code(value) if self.element_type else value
+
+    def _violation(self, value: int, magnitude: int) -> str | None:
+        """``value`` is what the RTL elaborates with; ``magnitude`` is what the
+        bounds constrain -- the same number for a size parameter, and the
+        element type's width for a type parameter."""
         if self.choices is not None:
             if value not in self.choices:
-                allowed = ", ".join(str(choice) for choice in self.choices)
-                return f"must be one of {allowed}, got {value!r}"
+                allowed = ", ".join(self._spell(choice) for choice in self.choices)
+                return f"must be one of {allowed}, got {self._spell(value)}"
             return None  # an enumerated choice set (which may include a 0 flag) is the whole constraint
-        if value <= 0 and self.minimum > 0:
+        if magnitude <= 0 and self.minimum > 0:
             # a spec that declares minimum 0 mirrors an HDL guard that ADMITS
             # zero (the fixed-point tiles' FRACTIONAL_BITS is [0, 31]); the
             # blanket positive-int rule would make that bound unreachable
-            return f"must be a positive int, got {value!r}"
-        if value < self.minimum:
-            return f"must be >= {self.minimum}, got {value!r}"
-        if self.maximum is not None and value > self.maximum:
-            return f"must be <= {self.maximum}, got {value!r}"
-        if value % self.multiple_of != 0:
-            return f"must be a positive multiple of {self.multiple_of}, got {value!r}"
-        if self.power_of_two and value & (value - 1):
-            return f"must be a power of two, got {value!r}"
+            return f"must be a positive int, got {self._spell(value)}"
+        if magnitude < self.minimum:
+            return f"must be >= {self.minimum}, got {self._spell(value)}"
+        if self.maximum is not None and magnitude > self.maximum:
+            return f"must be <= {self.maximum}, got {self._spell(value)}"
+        if magnitude % self.multiple_of != 0:
+            return f"must be a positive multiple of {self.multiple_of}, got {self._spell(value)}"
+        if self.power_of_two and magnitude & (magnitude - 1):
+            return f"must be a power of two, got {self._spell(value)}"
         return None
+
+    def _spell(self, value: int) -> str:
+        """How a value appears in a message: a type parameter's values are
+        named, because '4128' tells a reader nothing and 'q16.16' does."""
+        if not self.element_type:
+            return repr(value)
+        try:
+            return decode_element_type(value).name
+        except ElementTypeError:
+            return repr(value)
 
     @model_validator(mode="after")
     def _constraints_cohere(self) -> ParameterSpec:
@@ -244,7 +335,7 @@ class ParameterSpec(BaseModel):
             raise ValueError("choices, when given, must be non-empty")
         reason = self.violation(self.default)
         if reason is not None:
-            raise ValueError(f"default {self.default} violates the spec's own constraints: {reason}")
+            raise ValueError(f"default {self._spell(self.default)} violates the spec's own constraints: {reason}")
         return self
 
 

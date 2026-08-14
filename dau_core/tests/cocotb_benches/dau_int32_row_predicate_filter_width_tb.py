@@ -1,16 +1,24 @@
-"""The row predicate filter at field widths other than 32.
+"""The row predicate filter at element types other than int32.
 
-The tile's row is a fixed 128-bit transport unit; FIELD_WIDTH says how many
-fields that row carries. So int16 packs eight values per row where int32
-packs four, which is the reason to support narrow types at all -- more
+The tile's row is a fixed 128-bit transport unit; the field TYPE says how
+many fields that row carries. So int16 packs eight values per row where
+int32 packs four, which is the reason to support narrow types at all -- more
 values per beat, not a smaller beat.
 
 This bench is separate from the 32-bit one on purpose. That one pins the
-q6/q19 field map and its directed vectors; this one is generic over
-FIELD_WIDTH and proves the parameter actually works rather than merely
+q6/q19 field map and its directed vectors; this one is generic over the
+field type and proves the parameter actually works rather than merely
 elaborating. It compares against a golden computed here from Python ints,
 with sign interpretation at the field width under test -- the case a
 zero-extending implementation gets wrong.
+
+The type is passed by SPELLING and resolved through the same
+dau_core.element_types the registry uses, so what the bench drives and what
+a composition would ask for are the same value. q16.16 is exercised
+alongside the integers because it is the case a width cannot express: 32
+bits wide like int32 but a different type, ordered by the identical
+comparator (scaling by 2**-F preserves order), which is exactly the claim
+the tile's fixed-point guard makes.
 """
 
 from __future__ import annotations
@@ -22,6 +30,8 @@ import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import ReadOnly, RisingEdge
 
+from dau_core.element_types import element_type
+
 ROW_BITS = 128
 
 _OP_LT = 3
@@ -30,7 +40,8 @@ _COMBINE_SINGLE = 0
 
 
 def _field_width() -> int:
-    return int(os.environ.get("DAU_ROW_PREDICATE_FIELD_WIDTH", "32"))
+    """The field's width in bits, decoded from the type under test."""
+    return element_type(os.environ.get("DAU_ROW_PREDICATE_FIELD_TYPE", "int32")).width
 
 
 def _signed(value: int, width: int) -> int:
@@ -112,7 +123,7 @@ async def width_parameterized_filter_matches_golden(dut) -> None:
 
     # Select the LAST field, not the first. Field 0 sits at offset zero for
     # every width, so a predicate reading it cannot tell a correct
-    # `sel * FIELD_WIDTH` slice from a stride hardcoded to 32 -- the bench
+    # `sel * FIELD_BITS` slice from a stride hardcoded to 32 -- the bench
     # would pass while the tile was width-broken. The highest index puts the
     # stride under maximum load.
     #
@@ -134,5 +145,6 @@ async def width_parameterized_filter_matches_golden(dut) -> None:
 
     got = await _drive(dut, rows, width)
     want = [row for row in rows if row[selected] >= threshold]
-    assert got == want, f"FIELD_WIDTH={width}: device {got[:4]} != golden {want[:4]} ({len(got)} vs {len(want)} rows)"
+    spelling = os.environ.get("DAU_ROW_PREDICATE_FIELD_TYPE", "int32")
+    assert got == want, f"FIELD_WIDTH={spelling}: device {got[:4]} != golden {want[:4]} ({len(got)} vs {len(want)} rows)"
     assert want != rows, "the predicate must actually reject something, or this proves nothing"

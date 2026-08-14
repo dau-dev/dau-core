@@ -1,7 +1,15 @@
 from __future__ import annotations
 
 from importlib.resources import files
+from pathlib import Path
 
+# The directory tiles `include headers from. A tool compiling a tile of this
+# palette must be told about it -- Verilator does NOT search the including
+# file's directory, so a bench or lint run that omits it fails on the include
+# rather than on anything to do with the tile.
+DAU_HDL_INCLUDE_DIR = Path(str(files(__package__)))
+
+DAU_TYPES_SVH = files(__package__).joinpath("types.svh")
 DAU_AGGREGATION_PKG_SV = files(__package__).joinpath("dau_aggregation_pkg.sv")
 DAU_PREDICATE_PKG_SV = files(__package__).joinpath("dau_predicate_pkg.sv")
 DAU_MAP_ALU_PKG_SV = files(__package__).joinpath("dau_map_alu_pkg.sv")
@@ -64,6 +72,7 @@ __all__ = (
     "DAU_AXI_WRITE_MUX_SV",
     "DAU_BRAM_STREAM_JOB_SV",
     "DAU_DATETIME_FORMAT_SV",
+    "DAU_HDL_INCLUDE_DIR",
     "DAU_IDENTITY_AXIL_V",
     "DAU_IDENTITY_REGISTERS_SV",
     "DAU_INT32_ARROW_LITE_STREAM_AGGREGATION_SV",
@@ -108,4 +117,5 @@ __all__ = (
     "DAU_RECORD_GEARBOX_SV",
     "DAU_ROLLING_EXTREMUM_SV",
     "DAU_STREAM_BROADCAST_SV",
+    "DAU_TYPES_SVH",
 )

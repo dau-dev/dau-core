@@ -5,6 +5,7 @@ from shutil import which
 
 import pytest
 
+from dau_core.element_types import element_code
 from dau_core.hdl import (
     DAU_AGGREGATION_PKG_SV,
     DAU_AXI_BURST_READER_SV,
@@ -13,6 +14,7 @@ from dau_core.hdl import (
     DAU_AXI_STREAM_JOB_SV,
     DAU_AXI_WRITE_MUX_SV,
     DAU_DATETIME_FORMAT_SV,
+    DAU_HDL_INCLUDE_DIR,
     DAU_INT32_ARROW_LITE_STREAM_AGGREGATION_SV,
     DAU_INT32_ASOF_BACKWARD_SV,
     DAU_INT32_BAR_AGGREGATION_SV,
@@ -925,7 +927,17 @@ def test_record_batch_aggregation_runs_real_cocotb_against_systemverilog(tmp_pat
 
 # non-fatal, but these two classes mean "this will not synthesize" and are
 # promoted to hard errors. Verified to break nothing in the current RTL.
-VERILATOR_BUILD_ARGS = ("--timing", "-Wno-fatal", "-Werror-USERFATAL", "-Werror-SELRANGE", "-Werror-MULTIDRIVEN")
+# The include path is not optional: a tile that `includes types.svh does not
+# compile without it, and Verilator does not search the including file's own
+# directory.
+VERILATOR_BUILD_ARGS = (
+    "--timing",
+    "-Wno-fatal",
+    "-Werror-USERFATAL",
+    "-Werror-SELRANGE",
+    "-Werror-MULTIDRIVEN",
+    f"-I{DAU_HDL_INCLUDE_DIR}",
+)
 
 
 def _run_cocotb_verilator(*, sources: tuple[Path, ...], hdl_toplevel: str, test_module: str, tmp_path: Path, parameters=None) -> None:
@@ -1049,17 +1061,21 @@ def test_session_gap_capacity_eight(tmp_path: Path, monkeypatch: pytest.MonkeyPa
 
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
-@pytest.mark.parametrize("field_width", (16, 32, 64))
-def test_row_predicate_filter_runs_at_every_field_width(field_width: int, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    """The 128-bit row is the transport unit and FIELD_WIDTH says how many
+@pytest.mark.parametrize("field_type", ("int16", "int32", "int64", "q16.16"))
+def test_row_predicate_filter_runs_at_every_field_type(field_type: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """The 128-bit row is the transport unit and the field TYPE says how many
     fields it carries, so int16 packs eight values per row where int32 packs
-    four. 32 is included so this bench is known to agree with the directed
-    one, not merely to run."""
-    monkeypatch.setenv("DAU_ROW_PREDICATE_FIELD_WIDTH", str(field_width))
+    four. int32 is included so this bench is known to agree with the directed
+    one, not merely to run; q16.16 is the case the old width parameter could
+    not state at all -- 32 bits like int32, a different type, and ordered
+    correctly by the same comparator."""
+    monkeypatch.setenv("DAU_ROW_PREDICATE_FIELD_TYPE", field_type)
     _run_cocotb_verilator(
         sources=(Path(str(DAU_PREDICATE_PKG_SV)), Path(str(DAU_INT32_ROW_PREDICATE_FILTER_SV))),
         hdl_toplevel="dau_int32_row_predicate_filter",
         test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_row_predicate_filter_width_tb",
         tmp_path=tmp_path,
-        parameters={"FIELD_WIDTH": field_width},
+        # the tile's parameter takes the type's ENCODING, which is what a
+        # composition resolves a spelling to and what Vivado gets as a generic
+        parameters={"FIELD_WIDTH": element_code(field_type)},
     )

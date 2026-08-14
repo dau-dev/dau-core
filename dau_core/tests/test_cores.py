@@ -447,6 +447,70 @@ def test_parameter_spec_violation_is_the_single_constraint_source() -> None:
     assert "one of 64, 128" in choice.violation(96)
 
 
+def test_an_element_type_parameter_accepts_a_width_or_a_spelling() -> None:
+    """The two forms are the same declaration where they overlap, and the
+    spelling reaches types a width never could."""
+    spec = ParameterSpec(element_type=True, default="int32", choices=["int16", "int32", "int64"], minimum=8, maximum=64)
+
+    # stored as the encoding, which for a plain signed integer IS the width --
+    # so this declares exactly what `default: 32` always declared
+    assert spec.default == 32
+    assert spec.choices == (16, 32, 64)
+    assert ParameterSpec(element_type=True, default=32).default == spec.default
+
+    assert spec.violation("int16") is None
+    assert spec.violation(16) is None  # the integer form still means int16
+    assert spec.violation(64) is None
+
+    # a type is matched WHOLE: q16.16 is 32 bits wide and is still not int32
+    assert "got q16.16" in spec.violation("q16.16")
+    assert "got float32" in spec.violation("float32")
+    # and the message names types rather than printing their encodings
+    assert "one of int16, int32, int64" in spec.violation("float32")
+
+
+def test_an_element_type_parameter_bounds_the_width_not_the_encoding() -> None:
+    """A registry bound mirrors an RTL guard about BITS. q16.16 encodes as
+    4128 and is a 32-bit type; bounding the encoding would reject it for being
+    a large number, which is a statement about nothing."""
+    spec = ParameterSpec(element_type=True, default="int32", minimum=8, maximum=64)
+
+    assert spec.violation("q16.16") is None
+    assert spec.violation("float64") is None
+    assert "must be <= 64" in spec.violation("int128")
+    assert "must be >= 8" in spec.violation(4)
+
+
+def test_an_element_type_spelling_is_refused_where_no_type_is_declared() -> None:
+    """A size parameter takes a size. Silently reading "int32" as 32 on a
+    capacity is the misreading the whole mechanism exists to prevent."""
+    sized = ParameterSpec(default=1024)
+    assert "only a parameter declared element_type" in sized.violation("int32")
+    with pytest.raises(ValidationError):
+        ParameterSpec(default="int32")
+
+
+def test_an_element_type_default_must_name_a_type_the_spec_admits() -> None:
+    with pytest.raises(ValidationError, match="names no element type"):
+        ParameterSpec(element_type=True, default="int33x")
+    with pytest.raises(ValidationError, match="default float32 violates"):
+        ParameterSpec(element_type=True, default="float32", choices=["int32"])
+
+
+def test_a_measurement_coordinate_may_name_the_type_it_was_measured_at() -> None:
+    """The same point, written either way, is one point -- so migrating a
+    registry entry to spellings cannot orphan an envelope that was measured
+    before types existed."""
+    spelled = ResourceMeasurement(
+        part="xc7a200tfbg484-2", clock_ns=8.0, params={"FIELD_WIDTH": "int32"}, lut=704, ff=514, bram36=0.0, dsp=0, timing="met", wns_ns=0.873
+    )
+    assert spelled.params == {"FIELD_WIDTH": 32}
+
+    definition = core("int32-row-predicate-filter")
+    measured = definition.resource_measurement(part="xc7a200tfbg484-2", clock_ns=8.0, params={"FIELD_WIDTH": 32})
+    assert measured.lut == 704
+
+
 def test_storage_intent_prices_against_declared_parameters() -> None:
     definition = CoreDefinition.model_validate(
         {

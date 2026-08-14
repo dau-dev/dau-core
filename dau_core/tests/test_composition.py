@@ -190,12 +190,16 @@ def test_tile_params_validate_declared_names_and_positive_values() -> None:
     with pytest.raises(CompositionError, match="no overridable parameter 'KEY_SPACE' \\(declared: none\\)"):
         ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-row-map-alu", params={"KEY_SPACE": 8}),)),))
     # type garbage is rejected at the field boundary, never coerced (True -> 1
-    # or "4" -> 4 would silently satisfy the positive-int contract)
+    # would silently satisfy the positive-int contract)
     import pydantic
 
-    for garbage in (True, "4", 4.0):
+    for garbage in (True, 4.0):
         with pytest.raises(pydantic.ValidationError):
             TileSpec(core="int32-key-membership-filter", params={"KEY_SPACE": garbage})
+    # a string is the ELEMENT TYPE spelling, and this parameter is a capacity,
+    # not a type -- so "4" is refused by name rather than coerced to 4
+    with pytest.raises(CompositionError, match="'KEY_SPACE' is not an element type"):
+        TileSpec(core="int32-key-membership-filter", params={"KEY_SPACE": "4"})
     # non-positive / non-int values are rejected
     with pytest.raises(CompositionError, match="must be a positive int"):
         ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-key-membership-filter", params={"KEY_SPACE": 0}),)),))
@@ -203,6 +207,38 @@ def test_tile_params_validate_declared_names_and_positive_values() -> None:
         ScanCompositionSpec(
             name="bad", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-key-membership-filter", params={"KEY_SPACE": -64}),)),)
         )
+
+
+def test_a_design_may_pick_an_element_type_by_name() -> None:
+    """What the migration is FOR: a design says what its fields are, not how
+    many bits they take."""
+    typed = TileSpec(core="int32-row-predicate-filter", params={"FIELD_WIDTH": "int16"})
+    ScanCompositionSpec(name="ok", lanes=(LaneSpec(tile=_BAR, chain=(typed,)),))
+    # stored as the encoding, so everything downstream -- the `-generic` a
+    # synthesis run passes, the measured coordinate it is priced against --
+    # sees one integer form and never has to know how it was written
+    assert typed.params == {"FIELD_WIDTH": 16}
+
+    with pytest.raises(CompositionError, match="must be one of int16, int32, int64, got float32"):
+        ScanCompositionSpec(
+            name="bad", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-row-predicate-filter", params={"FIELD_WIDTH": "float32"}),)),)
+        )
+    with pytest.raises(CompositionError, match="names no element type"):
+        TileSpec(core="int32-row-predicate-filter", params={"FIELD_WIDTH": "int32ish"})
+
+
+def test_a_type_and_its_width_are_the_same_design() -> None:
+    """int32 IS 32, so the two spellings are one cache key rather than two --
+    a design cache that missed on spelling would rebuild an identical shell."""
+    from dau_core.composition import spec_hash
+
+    def spec(field: object) -> ScanCompositionSpec:
+        return ScanCompositionSpec(
+            name="q6-where",
+            lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-row-predicate-filter", params={"FIELD_WIDTH": field}),)),),
+        )
+
+    assert spec_hash(spec("int32")) == spec_hash(spec(32))
 
 
 def test_minimum_constraint_mirrors_the_rolling_window_guard() -> None:
