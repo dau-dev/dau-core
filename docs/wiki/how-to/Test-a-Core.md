@@ -35,7 +35,7 @@ python -m pytest dau_core/tests/test_<name>.py -q
 
 ## 2. Prove the HDL equal to the golden
 
-The cocotb bench in `dau_core/tests/cocotb_benches/dau_int32_<name>_tb.py`
+The cocotb bench in `dau_core/tests/cocotb_benches/dau_<name>_tb.py`
 drives the DUT and compares against the golden — never against hand-written
 expected values. Build the tile's config object once and pass the same
 object to both sides, so a config misreading cannot cancel out:
@@ -84,7 +84,7 @@ trusting it, using the rate probe:
 ```python
 from .rate_probe import assert_sustained_ingest
 
-await assert_sustained_ingest(dut, "int32-<name>", send=send, input_beats=256)
+await assert_sustained_ingest(dut, "<name>", send=send, input_beats=256)
 ```
 
 It reads the floor out of the registry, holds every sink ready, forbids

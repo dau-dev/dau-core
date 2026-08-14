@@ -52,7 +52,7 @@
 // A composed-pipeline stage: last-driven only, silent on success -- the
 // downstream tile's close-out is authoritative. It raises status only for
 // ERR_DOMAIN.
-module dau_int32_datetime_format (
+module dau_datetime_format (
     input  wire logic         clk,
     input  wire logic         rst,
     input  wire logic         input_valid,

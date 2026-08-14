@@ -19,7 +19,7 @@ form to check into review or hand to whoever has the toolchain:
 
 ```bash
 dau-build task=tasks/build/synthesize-cores \
-  'model.cores=[/dau-core/int32-<name>]' \
+  'model.cores=[/dau-core/<name>]' \
   model.output_root=./ooc \
   model.part=<part> \
   model.clock_period_ns=8.0
@@ -36,7 +36,7 @@ configuration:
 
 ```bash
 dau-build task=tasks/build/synthesize-cores \
-  'model.cores=[/dau-core/int32-<name>]' \
+  'model.cores=[/dau-core/<name>]' \
   model.output_root=./ooc \
   platform=platforms/<vendor>/<board>
 ```
@@ -49,9 +49,9 @@ mis-price a build. Pass the overrides explicitly:
 
 ```bash
 dau-build task=tasks/build/synthesize-cores \
-  'model.cores=[/dau-core/int32-<name>]' \
+  'model.cores=[/dau-core/<name>]' \
   model.output_root=./ooc model.part=<part> \
-  '+model.parameters={int32-<name>: {PARAM: <value>}}' \
+  '+model.parameters={<name>: {PARAM: <value>}}' \
   model.execute=true
 ```
 
@@ -60,14 +60,14 @@ Vivado is invoked. Run the sweep for every value the catalog can request,
 on every supported part, and at every clock the board can run the job at.
 
 A combinational core has no clock to constrain: give it an empty clock port
-(`'+model.clock_ports={int32-<name>: ""}'`) and the task skips both the XDC
+(`'+model.clock_ports={<name>: ""}'`) and the task skips both the XDC
 and the timing report.
 
 ## Run it
 
 ```bash
 dau-build task=tasks/build/synthesize-cores \
-  'model.cores=[/dau-core/int32-<name>]' \
+  'model.cores=[/dau-core/<name>]' \
   model.output_root=./ooc model.part=<part> \
   model.execute=true
 ```
@@ -109,7 +109,7 @@ with the sign of its `wns_ns` is refused at load.
 Confirm the entry loads and resolves at the coordinate you measured:
 
 ```bash
-python -c "from dau_core.registry import core; print(core('int32-<name>').resource_measurement(part='<part>', clock_ns=8.0, params={'PARAM': <value>}))"
+python -c "from dau_core.registry import core; print(core('<name>').resource_measurement(part='<part>', clock_ns=8.0, params={'PARAM': <value>}))"
 ```
 
 ## Read a thin margin as a warning

@@ -18,12 +18,24 @@ any HDL exists and settle the semantics there.
 
 Decide and encode these explicitly — they are the parts prose gets wrong:
 
-- **The domain.** Keys and fields are int32 *wires*. Wrap with
-  `_wrap_int32` so `-1` and `0xFFFFFFFF` are the same key.
+- **The domain.** Fields are fixed-width, null-free *wires* — the width is
+  a tile PARAMETER, not part of the tile's identity. Wrap at the declared
+  width so `-1` and the all-ones pattern are the same key.
+
+  **Do not put a width in the name.** Most of the existing palette is called
+  `int32-*` because it was written before the width was parameterized, and
+  `int32-row-predicate-filter` is already wrong: its `FIELD_WIDTH` accepts
+  16, 32 and 64, so the name is false for two of its three legal
+  configurations. A name that claims a width the parameters contradict has
+  to be either renamed or kept in step forever, and the second never
+  happens.
+
 - **Emission order.** If your tile holds state, say exactly what order
   results leave in, and pick something implementation-independent.
+
 - **Error codes.** Add an `IntEnum` whose values ARE the tile's
   `status_error_code` wire encoding, and say so in its docstring.
+
 - **Capacity behaviour.** A bounded table that fills is an error, never an
   eviction. State what the caller gets back.
 
@@ -33,7 +45,7 @@ Return `(results, error_code)` when the tile can fail.
 
 Add `dau_core/tests/test_<name>.py` with property tests, not just examples:
 permutation invariance if order should not matter, agreement with an
-existing golden where the two overlap, boundary values, and the int32 wire
+existing golden where the two overlap, boundary values, and the declared-width wire
 identity. If your tile has a host-side counterpart (a merge, a split), prove
 the algebra — `merge(split(rows)) == one_shot(rows)`.
 
@@ -45,8 +57,10 @@ python -m pytest dau_core/tests/test_<name>.py -q
 
 ## 3. Write the HDL
 
-Put `dau_int32_<name>.sv` in `dau_core/hdl/` and export it from
-`dau_core/hdl/__init__.py`. Follow the palette's conventions:
+Put `dau_<name>.sv` in `dau_core/hdl/` and export it from
+`dau_core/hdl/__init__.py`. **Name it for what it computes, not for a
+width** — declare a `FIELD_WIDTH` (or equivalent) parameter and let the
+composition choose. Follow the palette's conventions:
 
 - `input_valid`/`input_ready`/`input_data`/`input_last` in,
   `output_*` out, plus the `status_*` close-out channel.
@@ -61,12 +75,12 @@ Put `dau_int32_<name>.sv` in `dau_core/hdl/` and export it from
 Lint before simulating:
 
 ```bash
-verilator --lint-only -Wall --timing dau_core/hdl/dau_int32_<name>.sv
+verilator --lint-only -Wall --timing dau_core/hdl/dau_<name>.sv
 ```
 
 ## 4. Write the cocotb bench
 
-Add `dau_core/tests/cocotb_benches/dau_int32_<name>_tb.py`. It drives the
+Add `dau_core/tests/cocotb_benches/dau_<name>_tb.py`. It drives the
 HDL and compares against the golden — never against hand-written expected
 values.
 
@@ -109,7 +123,7 @@ on-chip storage, declare `storage_intent`.
 Check it loads:
 
 ```bash
-python -c "from dau_core.registry import core; print(core('int32-<name>'))"
+python -c "from dau_core.registry import core; print(core('<name>'))"
 ```
 
 ## 6. Measure the envelope
@@ -119,9 +133,9 @@ from a hand-run synthesis:
 
 ```bash
 dau-build task=tasks/build/synthesize-cores \
-  'model.cores=[/dau-core/int32-<name>]' \
+  'model.cores=[/dau-core/<name>]' \
   model.output_root=./ooc model.part=<part> \
-  '+model.parameters={int32-<name>: {PARAM: <value>}}' \
+  '+model.parameters={<name>: {PARAM: <value>}}' \
   model.execute=true
 ```
 

@@ -3571,12 +3571,12 @@ int32-session-gap:
       bytes_per_unit: 16
       scale_parameter: CAPACITY
       tier_hint: bram
-int32-datetime-format:
+datetime-format:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-datetime-format
+  name: datetime-format
   kind: operator
-  module: dau_int32_datetime_format
-  source: dau_int32_datetime_format.sv
+  module: dau_datetime_format
+  source: dau_datetime_format.sv
   description: 'Datetime formatter: one int64 epoch-SECONDS value per beat in, the 19-byte ASCII rendering "YYYY-MM-DD
     HH:MM:SS" out, one row per cycle. This is the hardware answer to a per-row string build on the CPU (polars
     dt.to_string). The civil date is Howard Hinnant''s civil_from_days and the time of day is three constant divisions,
@@ -3591,9 +3591,15 @@ int32-datetime-format:
     renders -- closes the batch out with ERR_DOMAIN rather than emitting a truncated year. Matches
     dau_core.operators.format_datetime_rows.'
   golden: dau_core.operators:format_datetime_rows
+  bench: dau_core.tests.cocotb_benches.dau_datetime_format_tb
   contract_kind: row-stream
   record_words: 1
-  output_record_words: 1
+  # 19 ASCII bytes is 152 bits, which is THREE 64-bit words. The description
+  # has always said so, but prose is not what the composition layer reads:
+  # declaring 1 here told the width check this tile emits 64 bits, and that
+  # check is detection-only, so the mismatch would be reported and wired up
+  # anyway, dropping 11 of the 19 characters. See test_output_beat_declarations.
+  output_record_words: 3
   ingest:
     rows: 1
     per_cycles: 1
