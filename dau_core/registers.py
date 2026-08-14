@@ -87,7 +87,13 @@ class RegisterOffset(IntEnum):
     LOAD_PHASE = 0x0084
     # static composed-pipeline configuration (the OHLCV shell): the filter
     # row count comes from INPUT_LENGTH (one row per 64-bit word), never a
-    # separate register
+    # separate register.
+    #
+    # 0x0090-0x00A0 is ALSO where a composed scan shell puts its handle-table
+    # aperture (HandleTableRegisterOffset). The two shells are mutually
+    # exclusive -- one bakes this pipeline in, the other composes lanes -- so
+    # no bitstream ever decodes both meanings, but a host that reads these
+    # words must know which personality it is talking to.
     PIPELINE_FILTER_OP = 0x0090  # [2:0] op0, [5:4] combine, [10:8] op1, [16] target lane
     PIPELINE_FILTER_CONSTANT0 = 0x0094
     PIPELINE_FILTER_CONSTANT1 = 0x0098
@@ -111,6 +117,59 @@ class RegisterOffset(IntEnum):
     # not-advertised in every reader.
     INPUT_ROW_CAPACITY = 0x00CC  # input rows one job may stage (0 = not advertised)
     OUTPUT_RECORD_CAPACITY = 0x00D0  # output records one job may return (0 = not advertised)
+
+
+# THE HANDLE-TABLE APERTURE, decoded only by a composed scan shell that
+# declares a ``handle_table_capacity`` (dau_core.composition). The host
+# allocator stages one entry -- INDEX, then the grant (BASE/LENGTH/GENERATION)
+# -- and the CONTROL write commits it; a job then names a handle in
+# JOB_HANDLE_ID/JOB_HANDLE_GENERATION instead of writing INPUT_ADDRESS, and
+# the shell resolves it or refuses the job. INPUT_ADDRESS keeps its offsets in
+# handle mode but feeds nothing: naming a raw address is what the table exists
+# to take away.
+#
+# Window-absolute offsets, pinned to what the generator emits
+# (dau_build.scan_composition.RegisterLayout). A number that disagrees here is
+# not a crash, it is a host writing a length into a generation.
+#
+# These are a SEPARATE enum rather than RegisterOffset members because
+# 0x090-0x0A0 is already spoken for there by the static OHLCV/bar pipeline
+# block. The reuse is safe -- a shell is one personality or the other, never
+# both -- but an IntEnum member at an address another member already holds is
+# an ALIAS, so RegisterOffset.HANDLE_INDEX would answer to the name
+# PIPELINE_FILTER_OP in every log line and error message. Same address, two
+# meanings, and each says which it means.
+class HandleTableRegisterOffset(IntEnum):
+    INDEX = 0x0090  # the slot the next CONTROL write installs or frees
+    BASE_LOW = 0x0094
+    BASE_HIGH = 0x0098  # decoded only by a shell whose job master is wider than 32 bits
+    LENGTH = 0x009C  # bytes granted; a job reading past it is refused
+    GENERATION = 0x00A0  # the allocator's generation for this slot; 0 is never issued
+    # write: bit 0 installs the staged entry, bit 1 frees the slot (a one-cycle
+    # pulse each, so one write can never install twice, and free outranks
+    # install). read: bit 0 = a resolve is pending, bit 1 = the last resolve
+    # faulted -- the write bits always read back zero, being pulses.
+    CONTROL = 0x00A4
+    # the handle THE NEXT JOB resolves. Both reset to zero and the allocator
+    # issues no generation zero, so a host that forgets to arm a handle is
+    # refused rather than quietly reading slot zero.
+    JOB_HANDLE_ID = 0x00A8
+    JOB_HANDLE_GENERATION = 0x00AC
+
+
+class HandleFaultCode(IntEnum):
+    """LAST_ERROR codes a shell reports for a job it REFUSED to start on a
+    handle. A refused job never starts the reader, so it reads nothing at all
+    -- these mean the datapath is untouched, not that it produced garbage.
+
+    They sit at the top of the code space, below the shell's own 0xFE
+    length-gate fault, because that space is the shell's: a tile's error codes
+    are small and per-core (dau_core.operators), and a fault that refuses the
+    job outright is not one of them."""
+
+    BAD_ID = 0xFD  # the id names no slot of this table (capacity is planned, never discovered)
+    STALE = 0xFC  # the slot is freed, or live at a different generation: the region was handed to someone else
+    OUT_OF_BOUNDS = 0xFB  # the job asks for more bytes than the grant
 
 
 # broadcast-NoC lane register block: one NOC_LANE_STRIDE-sized window per

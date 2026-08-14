@@ -635,9 +635,9 @@ def test_spec_hash_pinned_fixture() -> None:
         ),
         burst_beats=16,
     )
-    # canonical version 2: data_width joined the canonical form (the
-    # width-tier knob) — every v1 cache key misses cold, by design
-    assert spec_hash(spec) == "5:7f17ae3456d67c1ed91760ee4c5435e405b87986c7d542ad2fb38f091cf762a7"
+    # canonical version 6: handle_table_capacity joined the canonical form (a
+    # handle table is hardware) — every v5 cache key misses cold, by design
+    assert spec_hash(spec) == "6:2ce10a25792ae816fa44d01b5568455392a19d3503cb5591a576b6b3ae387866"
 
 
 def test_spec_from_canonical_revalidates() -> None:
@@ -663,6 +663,32 @@ def test_spec_hash_stable_when_defaults_are_explicit() -> None:
         front_unpack=None,
     )
     assert spec_hash(implicit) == spec_hash(explicit)
+
+
+def test_handle_table_capacity_is_design_identity_and_inert_at_zero() -> None:
+    """A handle table is HARDWARE — a table of flops and a resolve stage in
+    front of the reader — so a design that carries one must not share a cache
+    key with one that does not, and eight slots is not sixteen. Zero is the
+    no-table default: a spec that never mentions it keeps the shape it has
+    today and round-trips unchanged."""
+    from dau_core.composition import canonical_spec_json, spec_from_canonical, spec_hash
+
+    lane = LaneSpec(tile=TileSpec(core="int32-bar-aggregation"))
+    plain = ScanCompositionSpec(name="t", lanes=(lane,))
+    tabled = ScanCompositionSpec(name="t", lanes=(lane,), handle_table_capacity=8)
+    assert plain.handle_table_capacity == 0
+    assert spec_hash(plain) != spec_hash(tabled)
+    assert spec_hash(tabled) != spec_hash(ScanCompositionSpec(name="t", lanes=(lane,), handle_table_capacity=16))
+
+    text = canonical_spec_json(plain)
+    assert '"handle_table_capacity":0' in text  # defaults are included, which is what makes the miss a miss and not a collision
+    rebuilt = spec_from_canonical(text)
+    assert rebuilt == plain
+    assert rebuilt.handle_table_capacity == 0
+    assert canonical_spec_json(spec_from_canonical(canonical_spec_json(tabled))) == canonical_spec_json(tabled)
+
+    with pytest.raises(CompositionError, match="handle_table_capacity must be 0"):
+        ScanCompositionSpec(name="t", lanes=(lane,), handle_table_capacity=-1)
 
 
 def test_wide_data_width_composition_rules() -> None:
@@ -1066,6 +1092,12 @@ def test_a_stream_job_composition_refuses_scan_shaped_fields() -> None:
         ScanCompositionSpec(name="s", stream_job="bram-stream-job", lanes=lanes * 2)
     with pytest.raises(CompositionError, match="stream_job must be one of"):
         ScanCompositionSpec(name="s", stream_job="not-a-job", lanes=lanes)
+    # the handle table resolves an address for a burst reader the stream job
+    # does not have, and its top decodes no handle aperture — a capacity here
+    # would be silently dropped, which is the raw-address exposure the table
+    # exists to close
+    with pytest.raises(CompositionError, match="no burst reader to resolve a handle for"):
+        ScanCompositionSpec(name="s", stream_job="bram-stream-job", lanes=lanes, handle_table_capacity=4)
 
 
 def test_the_scan_shell_still_requires_a_lane_counter() -> None:

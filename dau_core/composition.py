@@ -209,6 +209,27 @@ class ScanCompositionSpec(BaseModel):
     # chain that fuses close-outs reads differently at the register level, so
     # the composition says so out loud.
     fused_chain: bool = False
+    # THE HANDLE TABLE, opt-in, zero (no table) by default. A positive
+    # capacity replaces the job's raw input address with that many
+    # generation-checked identities: the host allocator programs the slots
+    # over the register aperture (registers.HandleTableRegisterOffset), a job
+    # names one, and the shell resolves it or refuses the job
+    # (registers.HandleFaultCode). A raw address has no answer for a region
+    # that was freed and handed to someone else -- it still reads, it just
+    # reads the new tenant's bytes.
+    #
+    # Declared HERE rather than as a build flag because it is hardware the
+    # design carries: a table of flops and a resolve stage in front of the
+    # reader. A design with a table is a different bitstream from one without,
+    # so the two must not share a cache key.
+    #
+    # The value is the number of concurrently live allocations the personality
+    # must hold, and it is PLANNED: a job naming a slot the table does not
+    # have is a fault, never a resize. The ceiling is the emitter's flop
+    # budget (dau_build.scan_composition.MAX_HANDLE_TABLE_CAPACITY), enforced
+    # where the flops are rather than duplicated here as a second number to
+    # keep in step.
+    handle_table_capacity: int = 0
 
     def model_post_init(self, context) -> None:
         # composition validation raises CompositionError directly (the public
@@ -226,6 +247,8 @@ class ScanCompositionSpec(BaseModel):
         # two widths and needs an explicit pad at any other.
         if self.addr_width not in (32, 64):
             raise CompositionError(f"addr_width must be 32 or 64, got {self.addr_width}")
+        if self.handle_table_capacity < 0:
+            raise CompositionError(f"handle_table_capacity must be 0 (no table) or a positive slot count, got {self.handle_table_capacity}")
         wide_lane = self.lanes[0].tile.definition().contract_kind is ContractKind.WIDE_ROW_STREAM
         if wide_lane:
             # THE WIDE LANE: reader beats wire straight into a chain of
@@ -363,6 +386,15 @@ class ScanCompositionSpec(BaseModel):
             for stage in (*self.lanes[0].chain, self.lanes[0].tile):
                 if stage.definition().contract_kind is ContractKind.WIDE_ROW_STREAM:
                     raise CompositionError(f"{stage.core!r} speaks the wide-row-stream contract; the {self.stream_job} tile ports are 64-bit")
+            # the handle table is emitted by the SCAN walker, around the burst
+            # reader it resolves an address for. A stream-job top is
+            # hand-written and has neither the aperture nor a reader to gate,
+            # so a capacity declared here would be silently dropped -- which is
+            # the raw-address exposure the table exists to close.
+            if self.handle_table_capacity:
+                raise CompositionError(
+                    f"a {self.stream_job} composition has no burst reader to resolve a handle for; its top decodes no handle aperture"
+                )
             # the stream-job tops expose no LOAD_PHASE register, so a chain
             # that expects a two-phase load has nothing to drive it
             for stage in (*self.lanes[0].chain, self.lanes[0].tile):
@@ -789,7 +821,7 @@ def estimated_resources(spec: ScanCompositionSpec, *, part: str | None = None, c
     return ResourceEnvelope(lut=lut, ff=ff, bram36=bram, dsp=dsp, measured=measured)
 
 
-SPEC_CANONICAL_VERSION = "5"  # 5: stream_job joined the canonical form (stream-job shells are composition-declared, 2026-08-01)
+SPEC_CANONICAL_VERSION = "6"  # 6: handle_table_capacity joined the canonical form (a table is hardware, so it is design identity, 2026-08-14)
 
 
 def canonical_spec_json(spec: ScanCompositionSpec) -> str:
