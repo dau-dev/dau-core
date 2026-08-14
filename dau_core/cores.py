@@ -279,6 +279,17 @@ class ParameterSpec(BaseModel):
             return f"must be an int, got {value!r}; only a parameter declared element_type accepts a type spelling"
         return self._violation(value, value)
 
+    def normalize(self, value: int | str) -> int:
+        """The integer the RTL elaborates with, however the value was written.
+
+        A consumer holding a raw override -- a build task assembling
+        ``-generic`` arguments, say -- has to turn a spelling into its code
+        before it reaches a tool, and cannot import this package to do it:
+        dau-build is public and the encoding lives here. Asking the spec that
+        declared the parameter keeps the vocabulary in one place.
+        """
+        return element_code(value) if self.element_type else value
+
     def _violation(self, value: int, magnitude: int) -> str | None:
         """``value`` is what the RTL elaborates with; ``magnitude`` is what the
         bounds constrain -- the same number for a size parameter, and the
