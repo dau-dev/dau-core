@@ -255,12 +255,12 @@ def test_a_declared_zero_minimum_admits_zero() -> None:
     # blanket positive-int rule must not make a declared minimum 0 unreachable
     ScanCompositionSpec(
         name="ok",
-        lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-fixed-point-divide", params={"FRACTIONAL_BITS": 0}),)),),
+        lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="fixed-point-divide", params={"FRACTIONAL_BITS": 0}),)),),
     )
     with pytest.raises(CompositionError, match="must be >= 0"):
         ScanCompositionSpec(
             name="bad",
-            lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-fixed-point-divide", params={"FRACTIONAL_BITS": -1}),)),),
+            lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="fixed-point-divide", params={"FRACTIONAL_BITS": -1}),)),),
         )
 
 

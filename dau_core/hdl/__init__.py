@@ -37,8 +37,8 @@ DAU_INT32_KEY_MASK_DISPATCHER_SV = files(__package__).joinpath("dau_int32_key_ma
 DAU_INT32_STRIDE_DISTRIBUTOR_SV = files(__package__).joinpath("dau_int32_stride_distributor.sv")
 DAU_INT32_BITONIC_SORTER_SV = files(__package__).joinpath("dau_int32_bitonic_sorter.sv")
 DAU_INT32_ROW_PREDICATE_FILTER_SV = files(__package__).joinpath("dau_int32_row_predicate_filter.sv")
-DAU_INT32_FIXED_POINT_DIVIDE_SV = files(__package__).joinpath("dau_int32_fixed_point_divide.sv")
-DAU_INT32_FIXED_POINT_SQRT_SV = files(__package__).joinpath("dau_int32_fixed_point_sqrt.sv")
+DAU_FIXED_POINT_DIVIDE_SV = files(__package__).joinpath("dau_fixed_point_divide.sv")
+DAU_FIXED_POINT_SQRT_SV = files(__package__).joinpath("dau_fixed_point_sqrt.sv")
 DAU_DATETIME_FORMAT_SV = files(__package__).joinpath("dau_datetime_format.sv")
 DAU_INT32_ROW_MAP_ALU_SV = files(__package__).joinpath("dau_int32_row_map_alu.sv")
 DAU_INT32_FIELD_SUM_AGGREGATION_SV = files(__package__).joinpath("dau_int32_field_sum_aggregation.sv")
@@ -73,6 +73,8 @@ __all__ = (
     "DAU_AXI_WRITE_MUX_SV",
     "DAU_BRAM_STREAM_JOB_SV",
     "DAU_DATETIME_FORMAT_SV",
+    "DAU_FIXED_POINT_DIVIDE_SV",
+    "DAU_FIXED_POINT_SQRT_SV",
     "DAU_HDL_INCLUDE_DIR",
     "DAU_IDENTITY_AXIL_V",
     "DAU_IDENTITY_REGISTERS_SV",
@@ -82,8 +84,6 @@ __all__ = (
     "DAU_INT32_BITONIC_SORTER_SV",
     "DAU_INT32_BROADCAST_HASH_JOIN_SV",
     "DAU_INT32_FIELD_SUM_AGGREGATION_SV",
-    "DAU_INT32_FIXED_POINT_DIVIDE_SV",
-    "DAU_INT32_FIXED_POINT_SQRT_SV",
     "DAU_INT32_GROUPED_AGGREGATION_SV",
     "DAU_INT32_GROUPED_FIELD_AGGREGATION_SV",
     "DAU_INT32_GROUPED_FIELD_SUM_AGGREGATION_SV",

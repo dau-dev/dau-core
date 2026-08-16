@@ -14,6 +14,8 @@ from dau_core.hdl import (
     DAU_AXI_STREAM_JOB_SV,
     DAU_AXI_WRITE_MUX_SV,
     DAU_DATETIME_FORMAT_SV,
+    DAU_FIXED_POINT_DIVIDE_SV,
+    DAU_FIXED_POINT_SQRT_SV,
     DAU_HDL_INCLUDE_DIR,
     DAU_INT32_ARROW_LITE_STREAM_AGGREGATION_SV,
     DAU_INT32_ASOF_BACKWARD_SV,
@@ -21,8 +23,6 @@ from dau_core.hdl import (
     DAU_INT32_BITONIC_SORTER_SV,
     DAU_INT32_BROADCAST_HASH_JOIN_SV,
     DAU_INT32_FIELD_SUM_AGGREGATION_SV,
-    DAU_INT32_FIXED_POINT_DIVIDE_SV,
-    DAU_INT32_FIXED_POINT_SQRT_SV,
     DAU_INT32_GROUPED_AGGREGATION_SV,
     DAU_INT32_GROUPED_FIELD_AGGREGATION_SV,
     DAU_INT32_GROUPED_FIELD_SUM_AGGREGATION_SV,
@@ -477,13 +477,13 @@ def test_normal_cdf_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> No
     _run_cocotb_verilator(
         sources=(source,),
         hdl_toplevel=generator.module,
-        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_normal_cdf_tb",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_normal_cdf_tb",
         tmp_path=tmp_path,
     )
 
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
-@pytest.mark.parametrize("core_name", ["int32-fixed-point-exp", "int32-fixed-point-exp-light"])
+@pytest.mark.parametrize("core_name", ["fixed-point-exp", "fixed-point-exp-light"])
 def test_fixed_point_exp_runs_real_cocotb_against_systemverilog(tmp_path: Path, core_name: str, monkeypatch) -> None:
     """Each registered operating point against the model it renders from.
 
@@ -499,7 +499,7 @@ def test_fixed_point_exp_runs_real_cocotb_against_systemverilog(tmp_path: Path, 
     _run_cocotb_verilator(
         sources=(source,),
         hdl_toplevel=definition.module,
-        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_fixed_point_exp_tb",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_fixed_point_exp_tb",
         tmp_path=tmp_path,
     )
 
@@ -511,12 +511,12 @@ def test_fixed_point_ln_runs_real_cocotb_against_systemverilog(tmp_path: Path) -
     separate, measured question."""
     from dau_core.registry import loaded_cores
 
-    definition = loaded_cores()["int32-fixed-point-ln"]
+    definition = loaded_cores()["fixed-point-ln"]
     source = definition.render(into=tmp_path / "rendered")
     _run_cocotb_verilator(
         sources=(source,),
         hdl_toplevel=definition.module,
-        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_fixed_point_ln_tb",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_fixed_point_ln_tb",
         tmp_path=tmp_path,
     )
 
@@ -524,9 +524,9 @@ def test_fixed_point_ln_runs_real_cocotb_against_systemverilog(tmp_path: Path) -
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_fixed_point_divide_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
     _run_cocotb_verilator(
-        sources=(Path(str(DAU_INT32_FIXED_POINT_DIVIDE_SV)),),
-        hdl_toplevel="dau_int32_fixed_point_divide",
-        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_fixed_point_divide_tb",
+        sources=(Path(str(DAU_FIXED_POINT_DIVIDE_SV)),),
+        hdl_toplevel="dau_fixed_point_divide",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_fixed_point_divide_tb",
         tmp_path=tmp_path,
     )
 
@@ -548,9 +548,9 @@ def test_datetime_format_runs_real_cocotb_against_systemverilog(tmp_path: Path) 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_fixed_point_sqrt_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
     _run_cocotb_verilator(
-        sources=(Path(str(DAU_INT32_FIXED_POINT_SQRT_SV)),),
-        hdl_toplevel="dau_int32_fixed_point_sqrt",
-        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_fixed_point_sqrt_tb",
+        sources=(Path(str(DAU_FIXED_POINT_SQRT_SV)),),
+        hdl_toplevel="dau_fixed_point_sqrt",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_fixed_point_sqrt_tb",
         tmp_path=tmp_path,
     )
 

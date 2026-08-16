@@ -22,13 +22,20 @@ Decide and encode these explicitly — they are the parts prose gets wrong:
   a tile PARAMETER, not part of the tile's identity. Wrap at the declared
   width so `-1` and the all-ones pattern are the same key.
 
-  **Do not put a width in the name.** Most of the existing palette is called
+  **Do not put a width in the name.** Much of the existing palette is called
   `int32-*` because it was written before the width was parameterized, and
   `int32-row-predicate-filter` is already wrong: its `FIELD_WIDTH` accepts
   16, 32 and 64, so the name is false for two of its three legal
   configurations. A name that claims a width the parameters contradict has
   to be either renamed or kept in step forever, and the second never
   happens.
+
+  That debt is being paid down tile by tile, and `WIDTH_NAMED_TILES` in
+  `dau_core/tests/test_cores.py` holds the remaining set EXACTLY — 36 of
+  them, each with a comment saying why the width is still in its identity
+  and what removes it. Five of the 36 keep their names on purpose, because
+  for those the width really is part of the contract. Your new tile is not
+  one of them: give it a width in its name and that guard fails.
 
 - **Emission order.** If your tile holds state, say exactly what order
   results leave in, and pick something implementation-independent.

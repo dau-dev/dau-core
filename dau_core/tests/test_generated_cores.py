@@ -28,8 +28,8 @@ from dau_core.fixed_point import EXP_EXACT, EXP_LIGHT
 _BASE = {
     "name": "generated-probe",
     "kind": "operator",
-    "module": "dau_int32_fixed_point_exp",
-    "source": "dau_int32_fixed_point_exp.sv",
+    "module": "dau_fixed_point_exp",
+    "source": "dau_fixed_point_exp.sv",
     "description": "a generated core used to pin the rendering contract",
     "contract_kind": "row-stream",
     "record_words": 2,

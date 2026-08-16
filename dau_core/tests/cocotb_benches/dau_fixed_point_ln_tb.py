@@ -25,7 +25,7 @@ from dau_core.tests.cocotb_benches.rate_probe import assert_sustained_ingest
 _MASK32 = 0xFFFF_FFFF
 _INT32_MAX = (1 << 31) - 1
 _ONE = 1 << 16  # 1.0 in Q16.16
-_CORE = "int32-fixed-point-ln"
+_CORE = "fixed-point-ln"
 # the datapath under test is the one the registry entry configures, so the
 # bench cannot drift from the core it is benching
 _POINT = loaded_cores()[_CORE].generator.datapath
