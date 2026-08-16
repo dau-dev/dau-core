@@ -43,9 +43,9 @@ def _hex_literal(value: int, width: int) -> str:
 
 
 class LnTileGenerator(CoreGenerator):
-    """Renders ``dau_int32_fixed_point_ln`` for one operating point."""
+    """Renders ``dau_fixed_point_ln`` for one operating point."""
 
-    module: str = "dau_int32_fixed_point_ln"
+    module: str = "dau_fixed_point_ln"
     datapath: LnDatapath = LnDatapath()
 
     @property

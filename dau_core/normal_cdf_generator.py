@@ -31,9 +31,9 @@ def _hex_literal(value: int, width: int) -> str:
 
 
 class NormalCdfTileGenerator(CoreGenerator):
-    """Renders ``dau_int32_normal_cdf`` for one operating point."""
+    """Renders ``dau_normal_cdf`` for one operating point."""
 
-    module: str = "dau_int32_normal_cdf"
+    module: str = "dau_normal_cdf"
     datapath: NormalCdfDatapath = NormalCdfDatapath()
 
     @property

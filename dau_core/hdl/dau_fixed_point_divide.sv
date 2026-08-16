@@ -1,51 +1,52 @@
 `default_nettype none
 
-// Fixed-point square root over 16-byte quad rows (two 64-bit words,
+// Fixed-point divide over 16-byte quad rows (two 64-bit words,
 // w0 = {value, key}, w1 = {aux1, aux0}; field i is the i-th 32-bit lane in
 // (key, value, aux0, aux1) order). The configured destination field is
-// rewritten as sqrt of the configured source field in Q(32-F).F fixed point;
-// the other fields pass through unchanged, one row out per row in, row count
-// preserved (dau_core.operators.sqrt_row_fields is the golden).
+// rewritten as numerator / denominator in Q(32-F).F fixed point; the other
+// fields pass through unchanged, one row out per row in, row count preserved
+// (dau_core.operators.divide_row_fields is the golden).
 //
-// EXACT, not approximated. A fixed-point root is an integer root in disguise:
-// with x = X * 2**-F, the answer sqrt(x) * 2**F is isqrt(X << F). So this is
-// a restoring radix-2 digit recurrence producing floor(sqrt(X << F)) bit for
-// bit, and the bench compares with no tolerance. The obvious alternative --
-// a segmented polynomial -- would need an error bound, would still be wrong
-// in the last place, and would cost DSPs. This uses none.
+// This is what retires the deferred-division convention. Means, VWAP and
+// z-score denominators were accumulated as exact integers and divided on the
+// host because the platform had no divider.
 //
-// One iteration per pipeline stage, ITERATIONS deep, so the critical path is
-// a single REM_BITS compare-and-subtract regardless of the format's width --
-// the same constant-critical-path reasoning as the systolic top-k array.
+// EXACT. With a = A * 2**-F and b = B * 2**-F, the quotient (a/b) * 2**F is
+// (A << F) / B -- an integer division, so a restoring long division produces
+// the golden bit for bit and the bench compares with no tolerance.
 //
-// Throughput is one row every three cycles, MEASURED at 2.94. The ingest and
-// emit state machines are separate and the root pipeline sits between them,
-// so the two row protocols run CONCURRENTLY -- a single state machine would
-// have serialized them at five. The remaining cycle is the emit latch: a
-// finished row is taken out of the last stage in OUT_IDLE and only then goes
-// out as two words. Presenting w0 straight from the last stage would reach
-// two cycles per row at the cost of a combinational path from the pipeline to
-// output_data; not taken, because nothing yet needs it.
+// FLOOR, not truncation toward zero: MULSHR already divides by powers of two
+// with an arithmetic shift, and -7 >> 1 is -4. A tile that truncated toward
+// zero would disagree with the map ALU on every negative operand. The
+// recurrence produces a magnitude, so the floor correction is applied at
+// retire -- negative and inexact rounds away from zero.
 //
-// A composed-pipeline stage: last-driven only (the upstream compaction's last
-// marker is trusted), silent on success -- the downstream tile's close-out is
-// authoritative. It raises its own status for a torn final row (input_last on
-// a w0: ERR_STREAM) and for a NEGATIVE source value, which has no root:
-// ERR_DOMAIN invalidates the batch rather than emitting a substituted number
-// that looks right.
+// One iteration per pipeline stage, so the critical path is a single
+// REM_BITS compare-and-subtract whatever the format width. The quotient
+// shifts into the dividend register as it vacates, which is why there is one
+// ITERATIONS-wide register here and not two.
 //
-// dst == src is LEGAL and updates in place -- the source is captured when the
-// row is pushed and the destination written when it retires, so they may be
-// the same field. The map ALU takes the same position.
-module dau_int32_fixed_point_sqrt #(
-    // fractional bits of the fixed-point format (16 = Q16.16, the format the
-    // golden defaults to)
+// A composed-pipeline stage: last-driven only, silent on success -- the
+// downstream tile's close-out is authoritative. dst may be either source,
+// updating in place. Three of its own statuses, all raised at INGEST so
+// there is one drain path:
+//   ERR_STREAM  a torn final row (input_last on a w0)
+//   ERR_DOMAIN  a zero divisor, which has no quotient
+//   ERR_RANGE   a quotient that is defined but does not fit int32. Fixed
+//               point overflows easily -- 1.0 / (1 * 2**-16) is 2**32 -- and
+//               the check is exact WITHOUT dividing: the quotient fits iff
+//               |A| << F is below |B| << 31 (at or below it when the signs
+//               differ, where the result rounds the other way). Wrapping or
+//               saturating instead would be a wrong number that looks right.
+module dau_fixed_point_divide #(
+    // fractional bits of the fixed-point format (16 = Q16.16)
     parameter int FRACTIONAL_BITS = 16
 ) (
     input  wire logic        clk,
     input  wire logic        rst,
     input  wire logic [1:0]  cfg_dst_field,
-    input  wire logic [1:0]  cfg_src_field,
+    input  wire logic [1:0]  cfg_numerator_field,
+    input  wire logic [1:0]  cfg_denominator_field,
     input  wire logic        input_valid,
     output logic             input_ready,
     input  wire logic [63:0] input_data,
@@ -61,32 +62,31 @@ module dau_int32_fixed_point_sqrt #(
 );
     localparam logic [7:0] ERR_STREAM = 8'd2;
     localparam logic [7:0] ERR_DOMAIN = 8'd3;
+    localparam logic [7:0] ERR_RANGE  = 8'd4;
 
-    // the source is a NON-NEGATIVE int32, so 31 magnitude bits; the radicand
-    // adds the fractional shift and the root is half of it, rounded up
-    localparam int RADICAND_BITS = 31 + FRACTIONAL_BITS;
-    localparam int ITERATIONS = (RADICAND_BITS + 1) / 2;
-    localparam int ROOT_BITS = ITERATIONS;
-    // the recurrence's remainder stays under 4*(root+1); three bits over the
-    // root covers it with margin (the measured maximum needs two)
-    localparam int REM_BITS = ROOT_BITS + 3;
-    // two radicand bits are consumed per iteration
-    localparam int RAD_BITS = ITERATIONS * 2;
+    // |A| reaches 2**31 (for A = -2**31), so the dividend is 32 + F bits and
+    // the quotient is the same width before the range check narrows it
+    localparam int ITERATIONS = 32 + FRACTIONAL_BITS;
+    // the remainder stays below the divisor (<= 2**31) and is shifted once
+    // more before the compare
+    localparam int REM_BITS = 33;
+    // |B| << 31 is the widest term: 32 magnitude bits shifted 31
+    localparam int LIMIT_BITS = 32 + 31;
 
     if (FRACTIONAL_BITS < 0 || FRACTIONAL_BITS > 31) begin : g_fractional_bits_check
         $error("FRACTIONAL_BITS must be in [0, 31]");
     end
 
     typedef enum logic [1:0] {
-        IN_W0,      // accept w0 of a row (batch config latches on the first)
-        IN_W1,      // accept w1, form the radicand, push into the pipeline
-        IN_DISCARD  // bad config or domain error: consume the batch to input_last
+        IN_W0,
+        IN_W1,
+        IN_DISCARD
     } in_state_t;
 
     typedef enum logic [1:0] {
-        OUT_IDLE,   // free to take a finished row out of the pipeline
-        OUT_W0,     // emit the rooted row's first word
-        OUT_W1      // emit its second word
+        OUT_IDLE,
+        OUT_W0,
+        OUT_W1
     } out_state_t;
 
     in_state_t in_state;
@@ -94,24 +94,22 @@ module dau_int32_fixed_point_sqrt #(
 
     logic        batch_open;
     logic [1:0]  active_dst;
-    logic [1:0]  active_src;
+    logic [1:0]  active_num;
+    logic [1:0]  active_den;
     logic        status_pending;
     logic [7:0]  pending_error;
 
     logic [31:0] held_field0;
     logic [31:0] held_field1;
 
-    // stage i holds the recurrence state AFTER iteration i, with the row it
-    // belongs to. The destination travels WITH the row: a batch boundary can
-    // relatch the config while earlier rows are still in flight, and reading
-    // the live config at retire would apply the new batch's destination to
-    // the old batch's rows.
     logic                 stage_valid [ITERATIONS+1];
     logic [REM_BITS-1:0]  stage_rem   [ITERATIONS+1];
-    logic [ROOT_BITS-1:0] stage_root  [ITERATIONS+1];
-    logic [RAD_BITS-1:0]  stage_rad   [ITERATIONS+1];
+    // the dividend, progressively replaced by the quotient it vacates
+    logic [ITERATIONS-1:0] stage_qd   [ITERATIONS+1];
+    logic [31:0]          stage_div   [ITERATIONS+1];
     logic [31:0]          stage_field [ITERATIONS+1][4];
     logic [1:0]           stage_dst   [ITERATIONS+1];
+    logic                 stage_neg   [ITERATIONS+1];
     logic                 stage_last  [ITERATIONS+1];
 
     logic [31:0] emit_field [4];
@@ -122,33 +120,51 @@ module dau_int32_fixed_point_sqrt #(
     logic retire_valid;
     logic pipe_advance;
     logic pipe_push;
-    logic [31:0] src_value;
-    logic [31:0] in_field [4];
 
-    // w1's two fields arrive THIS cycle; reading them back out of a register
-    // would read the previous row, so the source select and the pushed row
-    // both come from the live word
+    logic [31:0] in_field [4];
+    logic [31:0] num_value;
+    logic [31:0] den_value;
+    logic [31:0] num_magnitude;
+    logic [31:0] den_magnitude;
+    logic        result_negative;
+    logic        divisor_zero;
+    logic        quotient_overflows;
+    logic [LIMIT_BITS-1:0] scaled_numerator;
+    logic [LIMIT_BITS-1:0] overflow_limit;
+
     assign in_field[0] = held_field0;
     assign in_field[1] = held_field1;
     assign in_field[2] = input_data[31:0];
     assign in_field[3] = input_data[63:32];
-    assign src_value = in_field[active_src];
+    assign num_value = in_field[active_num];
+    assign den_value = in_field[active_den];
+
+    assign num_magnitude = num_value[31] ? (~num_value + 32'd1) : num_value;
+    assign den_magnitude = den_value[31] ? (~den_value + 32'd1) : den_value;
+    assign result_negative = num_value[31] ^ den_value[31];
+    assign divisor_zero = (den_value == 32'd0);
+
+    // exact overflow test, no division: |A| << F against |B| << 31. At the
+    // limit the same-sign result is 2**31 (one too large) while the
+    // opposite-sign result is exactly -2**31 (representable), so the
+    // comparison is inclusive only when the signs agree.
+    assign scaled_numerator = {{(LIMIT_BITS - 32 - FRACTIONAL_BITS){1'b0}}, num_magnitude, {FRACTIONAL_BITS{1'b0}}};
+    assign overflow_limit = {den_magnitude, 31'd0};
+    assign quotient_overflows = result_negative ? (scaled_numerator > overflow_limit) : (scaled_numerator >= overflow_limit);
 
     assign input_fire = input_valid && input_ready;
     assign output_fire = output_valid && output_ready;
     assign retire_valid = stage_valid[ITERATIONS];
 
-    // The pipeline moves as one. It may move whenever the last stage is empty
-    // or its row is being taken into the emit registers this cycle, which is
-    // exactly when the emit path is idle.
     assign pipe_advance = !retire_valid || (out_state == OUT_IDLE);
 
-    // Deliberately independent of input_fire: deriving readiness from the
-    // push (which depends on the fire, which depends on readiness) is a
-    // combinational loop that simulates fine and fails routed DRC.
     assign input_ready = !status_pending && ((in_state == IN_W0) || (in_state == IN_DISCARD) || ((in_state == IN_W1) && pipe_advance));
 
-    assign pipe_push = (in_state == IN_W1) && input_fire && !src_value[31];
+    // No separate zero-divisor term: a zero divisor makes the overflow limit
+    // zero, so the comparison below is already true for every numerator --
+    // dividing by zero is infinite, which certainly does not fit. The DOMAIN
+    // code still exists to name the cause in the close-out.
+    assign pipe_push = (in_state == IN_W1) && input_fire && !quotient_overflows;
 
     assign output_valid = (out_state == OUT_W0) || (out_state == OUT_W1);
     assign output_data = (out_state == OUT_W0) ? {emit_field[1], emit_field[0]} : {emit_field[3], emit_field[2]};
@@ -174,10 +190,9 @@ module dau_int32_fixed_point_sqrt #(
                 stage_valid[0] <= pipe_push;
                 if (pipe_push) begin
                     stage_rem[0] <= '0;
-                    stage_root[0] <= '0;
-                    // left-aligned so the recurrence consumes the top two
-                    // bits first
-                    stage_rad[0] <= {{(RAD_BITS - RADICAND_BITS){1'b0}}, src_value[30:0], {FRACTIONAL_BITS{1'b0}}};
+                    stage_qd[0] <= {num_magnitude, {FRACTIONAL_BITS{1'b0}}};
+                    stage_div[0] <= den_magnitude;
+                    stage_neg[0] <= result_negative;
                     stage_last[0] <= input_last;
                     stage_dst[0] <= active_dst;
                     for (int unsigned f = 0; f < 4; f++) begin
@@ -187,24 +202,22 @@ module dau_int32_fixed_point_sqrt #(
 
                 for (int unsigned i = 0; i < ITERATIONS; i++) begin
                     automatic logic [REM_BITS-1:0] shifted;
-                    automatic logic [REM_BITS-1:0] trial;
-                    shifted = {stage_rem[i][REM_BITS-3:0], stage_rad[i][RAD_BITS-1:RAD_BITS-2]};
-                    trial = {{(REM_BITS - ROOT_BITS - 2){1'b0}}, stage_root[i], 2'b01};
+                    automatic logic               fits;
+                    shifted = {stage_rem[i][REM_BITS-2:0], stage_qd[i][ITERATIONS-1]};
+                    fits = (shifted >= {1'b0, stage_div[i]});
 
                     stage_valid[i+1] <= stage_valid[i];
                     stage_last[i+1] <= stage_last[i];
                     stage_dst[i+1] <= stage_dst[i];
-                    stage_rad[i+1] <= {stage_rad[i][RAD_BITS-3:0], 2'b00};
+                    stage_neg[i+1] <= stage_neg[i];
+                    stage_div[i+1] <= stage_div[i];
                     for (int unsigned f = 0; f < 4; f++) begin
                         stage_field[i+1][f] <= stage_field[i][f];
                     end
-                    if (shifted >= trial) begin
-                        stage_rem[i+1] <= shifted - trial;
-                        stage_root[i+1] <= {stage_root[i][ROOT_BITS-2:0], 1'b1};
-                    end else begin
-                        stage_rem[i+1] <= shifted;
-                        stage_root[i+1] <= {stage_root[i][ROOT_BITS-2:0], 1'b0};
-                    end
+                    // the quotient bit shifts in where the consumed dividend
+                    // bit shifted out
+                    stage_qd[i+1] <= {stage_qd[i][ITERATIONS-2:0], fits};
+                    stage_rem[i+1] <= fits ? (shifted - {1'b0, stage_div[i]}) : shifted;
                 end
             end
 
@@ -220,7 +233,8 @@ module dau_int32_fixed_point_sqrt #(
                             if (!batch_open) begin
                                 batch_open <= 1'b1;
                                 active_dst <= cfg_dst_field;
-                                active_src <= cfg_src_field;
+                                active_num <= cfg_numerator_field;
+                                active_den <= cfg_denominator_field;
                             end
                             in_state <= IN_W1;
                         end
@@ -229,8 +243,8 @@ module dau_int32_fixed_point_sqrt #(
 
                 IN_W1: begin
                     if (input_fire) begin
-                        if (src_value[31]) begin
-                            pending_error <= ERR_DOMAIN;
+                        if (divisor_zero || quotient_overflows) begin
+                            pending_error <= divisor_zero ? ERR_DOMAIN : ERR_RANGE;
                             if (input_last) status_pending <= 1'b1;
                             else in_state <= IN_DISCARD;
                         end else begin
@@ -252,10 +266,18 @@ module dau_int32_fixed_point_sqrt #(
             case (out_state)
                 OUT_IDLE: begin
                     if (retire_valid) begin
+                        automatic logic [31:0] magnitude;
+                        automatic logic [31:0] signed_result;
+                        magnitude = stage_qd[ITERATIONS][31:0];
+                        // floor: a negative quotient with a remainder rounds
+                        // away from zero, which is one further down
+                        signed_result = stage_neg[ITERATIONS]
+                            ? ((stage_rem[ITERATIONS] != '0) ? (~magnitude) : (~magnitude + 32'd1))
+                            : magnitude;
                         for (int unsigned f = 0; f < 4; f++) begin
                             emit_field[f] <= stage_field[ITERATIONS][f];
                         end
-                        emit_field[stage_dst[ITERATIONS]] <= {{(32 - ROOT_BITS){1'b0}}, stage_root[ITERATIONS]};
+                        emit_field[stage_dst[ITERATIONS]] <= signed_result;
                         emit_last <= stage_last[ITERATIONS];
                         out_state <= OUT_W0;
                     end
@@ -269,8 +291,6 @@ module dau_int32_fixed_point_sqrt #(
             endcase
 
             if (status_pending && status_ready) begin
-                // the error close-out invalidates the whole batch, so rows of
-                // it still in flight are dropped rather than emitted
                 status_pending <= 1'b0;
                 in_state <= IN_W0;
                 batch_open <= 1'b0;

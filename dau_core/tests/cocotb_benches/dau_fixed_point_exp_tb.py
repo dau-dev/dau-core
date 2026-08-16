@@ -22,7 +22,7 @@ _MASK32 = 0xFFFF_FFFF
 # bench cannot drift from the core it is benching
 # defaults to the exact point so the module imports standalone; the runner
 # names the core under test
-_POINT = loaded_cores()[os.environ.get("DAU_EXP_CORE", "int32-fixed-point-exp")].generator.datapath
+_POINT = loaded_cores()[os.environ.get("DAU_EXP_CORE", "fixed-point-exp")].generator.datapath
 
 
 def _signed32(value: int) -> int:

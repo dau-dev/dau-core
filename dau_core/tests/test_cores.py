@@ -264,6 +264,109 @@ def test_the_scalar_envelope_holdouts_are_exactly_the_declared_ones() -> None:
     )
 
 
+# Tiles whose NAME still carries a width. The rule the how-to teaches is
+# that a width is a PARAMETER, never part of the identity, and a name that
+# claims a width its parameters contradict has to be either renamed or kept
+# in step forever -- the second never happens.
+#
+# Asserted EXACTLY, in both directions, for the same reason as the set
+# above: a tile renamed without shrinking this set fails here, and a NEW
+# tile shipped with a width in its name fails here. That is what makes a
+# staged migration safe -- at every point the suite states how far it has
+# got, so "the migration is complete" cannot be said while thirty remain.
+#
+# 43 as of 2026-08-16; 36 once the seven fixed-point and transcendental
+# tiles landed their rename. It ends at 5, NOT at 0: for the five REDESIGN
+# tiles below the width is a true statement about the contract, and
+# replacing a true name with a false one is the exact failure this rule
+# exists to prevent. Each of those five leaves when its redesign lands.
+WIDTH_NAMED_TILES: frozenset[str] = frozenset(
+    {
+        # RETYPE -- compare/select/mask/index datapaths over the 128-bit
+        # quad row. The width is already a container: the transport unit
+        # stays 128 bits, so a narrower element packs MORE fields per row
+        # rather than shrinking the beat. Removed by giving each an
+        # element-type parameter and substituting [31:0] -> [FIELD_BITS-1:0],
+        # exactly the edit `int32-row-predicate-filter` already proved.
+        # `predicate_compare` is already width-generic, so the filter family
+        # is the cheap half.
+        "int32-row-predicate-filter",  # parameter already landed; only the name remains
+        "int32-wide-row-predicate-filter",
+        "int32-pair-key-filter",
+        "int32-key-membership-filter",
+        "int32-streaming-dedup",
+        "int32-bitonic-sorter",
+        "int32-streaming-top-k",
+        "int32-range-partitioner",
+        "int32-key-mask-dispatcher",
+        "int32-scratchpad",
+        "int32-keyed-state",
+        "int32-session-gap",
+        "int32-time-bucket-key",  # PART_BITS = 32 - BUCKET_BITS is already parametric in the width
+        "int32-row-unpack",  # FAMILY-COUPLED: its output IS the quad row, so it moves when the family's field width does
+        "int32-stride-distributor",  # the one tile with no measured envelope at all, so it cannot be its own control run
+        "int32-row-map-alu",  # blocked on dau_map_alu_pkg, which is 32-bit throughout
+        "int32-wide-row-map-alu",  # same block; generalize the package once and four tiles follow
+        # RETYPE-DOWN -- the emitted record's width is a function of the
+        # input width. int8/int16 ride free (the INT64 accumulator is ample
+        # and only framing changes); int64 CANNOT, because the sums need more
+        # than 64 bits and the record cannot express them -- that is a
+        # versioned stream-format change, i.e. a different tile. Removed by
+        # deciding the narrow-type record packing rule ONCE for the family.
+        "int32-field-sum-aggregation",
+        "int32-grouped-field-sum-aggregation",
+        "int32-grouped-field-aggregation",  # 11-word record packs pairs two-per-64-bit-word, host-decode-visible
+        "int32-grouped-aggregation",
+        "int32-bar-aggregation",  # 6-word record, same packing question
+        "int32-wide-field-sum-aggregation",
+        "int32-stream-aggregation",
+        "int32-arrow-lite-stream-aggregation",
+        "int32-record-batch-aggregation",
+        "int32-hash-grouped-aggregation",
+        "int32-rolling-moments",  # carries an undeclared sum_sq magnitude precondition; widening makes it worse, so declare or fix it first
+        "int32-broadcast-hash-join",  # slot is {valid, b0, b1, b2}, so BRAM cost moves with the type: every offered type is its own measured point
+        # RENAME -- the name is already false and no RTL changes. Both are in
+        # the built `hero-temporal` design, so they carry a cache and silicon
+        # consequence the seven already-renamed tiles did not.
+        "int32-market-feature",  # the record mixes int32 lanes with INT64 spread, signed volume and dollar volume
+        "int32-asof-backward",  # the MERGE AXIS is already int64 (time[63:0], a 65-bit tolerance difference); only key and payload lanes are 32-bit
+        # REDESIGN -- these five KEEP their names. The width is genuinely part
+        # of the contract, so renaming would replace a true name with a false
+        # one. Four consume TWO SAMPLES PER 64-BIT WORD, hardcoded in five
+        # separate idioms; generalizing to N turns a 2-input select into a
+        # popcount plus variable-rotate compaction network whose cost is
+        # superlinear in N. They leave this set when that redesign lands, not
+        # before.
+        "int32-predicate-filter",
+        "int32-map-alu",
+        "int32-keyed-predicate-filter",
+        "int32-keyed-map-alu",
+        # and one config-ABI case: the selector config word encodes 32-bit
+        # halves (bit 6 = low/high, bits [11:7] = shift), so other widths need
+        # more selector bits -- a host-visible protocol change.
+        "int32-record-gather",
+    }
+)
+
+
+def test_the_width_named_tiles_are_exactly_the_declared_ones() -> None:
+    """The naming rule is that a width is a parameter, not an identity; this
+    pins how much of the palette still contradicts it.
+
+    Scoped to `own_cores()` for the same reason every exact-set guard here
+    is: an installed third-party tile with a width in its name is that
+    vendor's business, not drift in our palette.
+    """
+    width_named = {definition.name for definition in own_cores() if definition.name.startswith("int32-")}
+    renamed_but_still_listed = WIDTH_NAMED_TILES - width_named
+    assert not renamed_but_still_listed, f"renamed -- remove from WIDTH_NAMED_TILES: {sorted(renamed_but_still_listed)}"
+    newly_width_named = width_named - WIDTH_NAMED_TILES
+    assert not newly_width_named, (
+        f"these tiles put a width in their identity: {sorted(newly_width_named)}. "
+        "Name the tile for what it computes and declare the width as a parameter"
+    )
+
+
 def _measured(**overrides):
     """A core carrying one measurement point, built here rather than read from
     the registry: which cores are migrated is a migration detail, and a test
@@ -368,7 +471,7 @@ def test_silent_on_success_operator_set_is_pinned() -> None:
     silent = {d.name for d in cores_of_kind(CoreKind.OPERATOR) if not d.success_close_out}
     assert silent == {
         "datetime-format",
-        "int32-fixed-point-ln-light",
+        "fixed-point-ln-light",
         "rolling-extremum",
         "int32-pair-key-filter",
         "int32-range-partitioner",
@@ -376,12 +479,12 @@ def test_silent_on_success_operator_set_is_pinned() -> None:
         "int32-stride-distributor",
         "int32-row-predicate-filter",
         "int32-row-map-alu",
-        "int32-fixed-point-sqrt",
-        "int32-fixed-point-divide",
-        "int32-fixed-point-exp",
-        "int32-normal-cdf",
-        "int32-fixed-point-exp-light",
-        "int32-fixed-point-ln",
+        "fixed-point-sqrt",
+        "fixed-point-divide",
+        "fixed-point-exp",
+        "normal-cdf",
+        "fixed-point-exp-light",
+        "fixed-point-ln",
         "int32-key-membership-filter",
         "int32-broadcast-hash-join",
         "int32-row-unpack",

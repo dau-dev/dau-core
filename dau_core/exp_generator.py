@@ -34,9 +34,9 @@ def _hex_literal(value: int, width: int) -> str:
 
 
 class ExpTileGenerator(CoreGenerator):
-    """Renders ``dau_int32_fixed_point_exp`` for one operating point."""
+    """Renders ``dau_fixed_point_exp`` for one operating point."""
 
-    module: str = "dau_int32_fixed_point_exp"
+    module: str = "dau_fixed_point_exp"
     datapath: ExpDatapath = ExpDatapath()
 
     @property

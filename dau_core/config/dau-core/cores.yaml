@@ -1705,12 +1705,12 @@ int32-row-predicate-filter:
       minimum: 8
       maximum: 64
       choices: [int16, int32, int64]
-int32-normal-cdf:
+normal-cdf:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-normal-cdf
+  name: normal-cdf
   kind: operator
-  module: dau_int32_normal_cdf
-  source: dau_int32_normal_cdf.sv
+  module: dau_normal_cdf
+  source: dau_normal_cdf.sv
   description: 'Standard normal CDF over 16-byte quad rows: the destination field is rewritten as Phi of the source field
     in Q(32-F).F. GENERATED -- its per-segment Taylor coefficients are transcendental constants at the configured
     internal precision, which SystemVerilog cannot compute at elaboration. CORRECTLY ROUNDED over every one of the
@@ -1720,7 +1720,7 @@ int32-normal-cdf:
     the correctly rounded answer, not a clamp. Symmetry is folded so only the positive half is approximated. Matches
     dau_core.fixed_point.NormalCdfDatapath.evaluate.'
   golden: dau_core.fixed_point:normal_cdf_reference
-  bench: dau_core.tests.cocotb_benches.dau_int32_normal_cdf_tb
+  bench: dau_core.tests.cocotb_benches.dau_normal_cdf_tb
   contract_kind: row-stream
   record_words: 2
   ingest:
@@ -1761,12 +1761,12 @@ int32-normal-cdf:
       dsp: 27
       timing: met
       wns_ns: 2.657
-int32-fixed-point-exp:
+fixed-point-exp:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-fixed-point-exp
+  name: fixed-point-exp
   kind: operator
-  module: dau_int32_fixed_point_exp
-  source: dau_int32_fixed_point_exp.sv
+  module: dau_fixed_point_exp
+  source: dau_fixed_point_exp.sv
   description: 'Fixed-point exp over 16-byte quad rows: the destination field is rewritten as exp of the source field in
     Q(32-F).F. GENERATED, not checked in -- its 256-entry table of 2**(j/256) and its polynomial coefficients are
     transcendental constants at the configured internal precision, which SystemVerilog cannot compute at elaboration, so
@@ -1778,7 +1778,7 @@ int32-fixed-point-exp:
     multiply per stage. An input above the domain closes out ERR_RANGE; an underflow returns 0, which is the correctly
     rounded answer and not an error.'
   golden: dau_core.fixed_point:exp_reference
-  bench: dau_core.tests.cocotb_benches.dau_int32_fixed_point_exp_tb
+  bench: dau_core.tests.cocotb_benches.dau_fixed_point_exp_tb
   contract_kind: row-stream
   record_words: 2
   ingest:
@@ -1827,21 +1827,21 @@ int32-fixed-point-exp:
       dsp: 50
       timing: met
       wns_ns: 1.091
-int32-fixed-point-exp-light:
+fixed-point-exp-light:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-fixed-point-exp-light
+  name: fixed-point-exp-light
   kind: operator
-  module: dau_int32_fixed_point_exp_light
-  source: dau_int32_fixed_point_exp_light.sv
+  module: dau_fixed_point_exp_light
+  source: dau_fixed_point_exp_light.sv
   description: 'Fixed-point exp at the DSP-light operating point: 36 internal bits, degree 3, rounded Horner steps.
     FAITHFUL rather than correctly rounded -- measured never more than 1 ULP from the correctly rounded answer over every
-    one of the 1,453,635 representable inputs, against 0 ULP for int32-fixed-point-exp, for roughly a third of the
+    one of the 1,453,635 representable inputs, against 0 ULP for fixed-point-exp, for roughly a third of the
     multiplier width. A separate core rather than a parameter of the exact one because it is separate silicon: its own
     rendered module, its own resource envelope, and its own identity in a composition spec, so no design can quote one
     point''s measurement while building the other. Same nine-stage-per-multiply structure and the same zero-tolerance
     device-to-model contract; accuracy is where they differ, and that difference is a recorded fact.'
   golden: dau_core.fixed_point:exp_reference
-  bench: dau_core.tests.cocotb_benches.dau_int32_fixed_point_exp_tb
+  bench: dau_core.tests.cocotb_benches.dau_fixed_point_exp_tb
   contract_kind: row-stream
   record_words: 2
   ingest:
@@ -1849,7 +1849,7 @@ int32-fixed-point-exp-light:
     per_cycles: 3
   generator:
     _target_: dau_core.exp_generator.ExpTileGenerator
-    module: dau_int32_fixed_point_exp_light
+    module: dau_fixed_point_exp_light
     datapath:
       _target_: dau_core.fixed_point.ExpDatapath
       internal_bits: 36
@@ -1883,12 +1883,12 @@ int32-fixed-point-exp-light:
       dsp: 20
       timing: met
       wns_ns: 2.682
-int32-fixed-point-ln:
+fixed-point-ln:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-fixed-point-ln
+  name: fixed-point-ln
   kind: operator
-  module: dau_int32_fixed_point_ln
-  source: dau_int32_fixed_point_ln.sv
+  module: dau_fixed_point_ln
+  source: dau_fixed_point_ln.sv
   description: 'Fixed-point natural log over 16-byte quad rows: the destination field is rewritten as ln of the source
     field in Q(32-F).F. GENERATED like exp and the normal CDF -- its two 256-entry tables (ln(1 + j/256) and the
     reciprocal 1/(1 + j/256)) and its series coefficients are transcendental constants at the configured internal
@@ -1903,7 +1903,7 @@ int32-fixed-point-ln:
     ERR_DOMAIN rather than emitting a substituted value, the position the sqrt tile takes; there is no range error,
     since ln of any positive int32 lands well inside int32.'
   golden: dau_core.fixed_point:ln_reference
-  bench: dau_core.tests.cocotb_benches.dau_int32_fixed_point_ln_tb
+  bench: dau_core.tests.cocotb_benches.dau_fixed_point_ln_tb
   contract_kind: row-stream
   record_words: 2
   ingest:
@@ -1954,12 +1954,12 @@ int32-fixed-point-ln:
       dsp: 39
       timing: met
       wns_ns: 1.091
-int32-fixed-point-ln-light:
+fixed-point-ln-light:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-fixed-point-ln-light
+  name: fixed-point-ln-light
   kind: operator
-  module: dau_int32_fixed_point_ln_light
-  source: dau_int32_fixed_point_ln_light.sv
+  module: dau_fixed_point_ln_light
+  source: dau_fixed_point_ln_light.sv
   description: 'Fixed-point natural log at the DSP-light operating point: 36 internal bits against the registered
     point''s 52, same 8-bit table and degree 3. SAME ACCURACY CONTRACT AS THE FULL POINT -- FAITHFUL, never more than
     1 ULP from the correctly rounded answer -- measured by an EXHAUSTIVE sweep over all 2,147,483,647 positive inputs:
@@ -1969,7 +1969,7 @@ int32-fixed-point-ln-light:
     thing that moves the total. Mirrors dau_core.fixed_point.LnDatapath(internal_bits=36) step for step; the bench
     compares with ZERO tolerance against that model.'
   golden: dau_core.fixed_point:ln_reference
-  bench: dau_core.tests.cocotb_benches.dau_int32_fixed_point_ln_tb
+  bench: dau_core.tests.cocotb_benches.dau_fixed_point_ln_tb
   contract_kind: row-stream
   record_words: 2
   ingest:
@@ -1977,7 +1977,7 @@ int32-fixed-point-ln-light:
     per_cycles: 3
   generator:
     _target_: dau_core.ln_generator.LnTileGenerator
-    module: dau_int32_fixed_point_ln_light
+    module: dau_fixed_point_ln_light
     datapath:
       _target_: dau_core.fixed_point.LnDatapath
       internal_bits: 36
@@ -2016,12 +2016,12 @@ int32-fixed-point-ln-light:
       timing: met
       wns_ns: 1.878
 
-int32-fixed-point-divide:
+fixed-point-divide:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-fixed-point-divide
+  name: fixed-point-divide
   kind: operator
-  module: dau_int32_fixed_point_divide
-  source: dau_int32_fixed_point_divide.sv
+  module: dau_fixed_point_divide
+  source: dau_fixed_point_divide.sv
   description: 'Fixed-point divide over 16-byte quad rows: the destination field is rewritten as numerator/denominator in
     Q(32-F).F. This is what retires the deferred-division convention -- means, VWAP and z-score denominators were
     accumulated as exact integers and divided on the host because there was no divider. EXACT and FLOOR: (A<<F)/B is an
@@ -2030,7 +2030,7 @@ int32-fixed-point-divide:
     divisor closes out ERR_DOMAIN; a quotient that does not fit int32 closes out ERR_RANGE, tested exactly without
     dividing by comparing |A|<<F against |B|<<31. Matches dau_core.operators.divide_row_fields.'
   golden: dau_core.operators:divide_row_fields
-  bench: dau_core.tests.cocotb_benches.dau_int32_fixed_point_divide_tb
+  bench: dau_core.tests.cocotb_benches.dau_fixed_point_divide_tb
   contract_kind: row-stream
   record_words: 2
   ingest:
@@ -2085,12 +2085,12 @@ int32-fixed-point-divide:
       dsp: 0
       timing: met
       wns_ns: 5.050
-int32-fixed-point-sqrt:
+fixed-point-sqrt:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-fixed-point-sqrt
+  name: fixed-point-sqrt
   kind: operator
-  module: dau_int32_fixed_point_sqrt
-  source: dau_int32_fixed_point_sqrt.sv
+  module: dau_fixed_point_sqrt
+  source: dau_fixed_point_sqrt.sv
   description: 'Fixed-point square root over 16-byte quad rows: the destination field is rewritten as sqrt of the source
     field in Q(32-F).F. EXACT, not approximated -- a fixed-point root is an integer root in disguise (sqrt(x)*2**F =
     isqrt(X<<F)), so a restoring radix-2 digit recurrence produces the golden bit for bit and the bench compares with no
@@ -2100,7 +2100,7 @@ int32-fixed-point-sqrt:
     source has no root and closes the batch out with ERR_DOMAIN rather than emitting a substituted value. Matches
     dau_core.operators.sqrt_row_fields.'
   golden: dau_core.operators:sqrt_row_fields
-  bench: dau_core.tests.cocotb_benches.dau_int32_fixed_point_sqrt_tb
+  bench: dau_core.tests.cocotb_benches.dau_fixed_point_sqrt_tb
   contract_kind: row-stream
   record_words: 2
   ingest:
