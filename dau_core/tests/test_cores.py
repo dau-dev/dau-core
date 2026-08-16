@@ -16,6 +16,7 @@ from dau_core.cores import (
     TimingStatus,
     TimingViolationError,
     UnmeasuredResourceError,
+    render_root,
 )
 from dau_core.registry import (
     UnknownCoreError,
@@ -36,10 +37,36 @@ from dau_core.registry import (
 # them here is what makes the seam usable: a vendor can install tiles without
 # failing our tests, and we still hold our own palette to the exact standard.
 OWN_PACKAGE = "dau_core.hdl"
+HDL_SUFFIXES = (".sv", ".v")
 
 
 def own_cores() -> tuple:
     return tuple(d for d in loaded_cores().values() if d.source_package == OWN_PACKAGE)
+
+
+def committed_hdl(hdl_dir: Path) -> set[str] | None:
+    """The HDL git CARRIES under ``hdl_dir``, as paths relative to it, or
+    None when there is no repository to ask.
+
+    Committedness is a git fact, and only git can answer it. A directory
+    listing cannot: the suite renders every generated core into the render
+    root on each run (``conftest._render_generated_cores``), so a rendered
+    file being PRESENT there is the normal state and says nothing about
+    whether someone checked it in. Absent a repository -- an installed
+    distribution -- nothing is committed and there is nothing to check.
+    """
+    import subprocess
+
+    try:
+        listed = subprocess.run(
+            ["git", "-C", str(hdl_dir), "ls-files", "--", "."],
+            capture_output=True,
+            check=True,
+            text=True,
+        ).stdout
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    return {line for line in listed.splitlines() if line.endswith(HDL_SUFFIXES)}
 
 
 def test_every_hdl_file_belongs_to_exactly_one_core() -> None:
@@ -50,9 +77,19 @@ def test_every_hdl_file_belongs_to_exactly_one_core() -> None:
     other side: a generated core with a file beside the entry means someone
     committed rendered output, and whichever of the two is stale will be the
     one that gets synthesized.
+
+    The reach is the whole package, not one directory listing. Listing
+    ``hdl/`` alone left the render root -- a SUBDIRECTORY of it -- outside
+    this guard entirely, and three rendered tiles sat committed there until a
+    rename made their filenames disagree with their contents. So the walk
+    descends, and the committed set comes from git: a rendered file being
+    present in the render root is the normal working state (the suite renders
+    there on every run), and what distinguishes that from the mistake is
+    whether it was checked in.
     """
     hdl_dir = Path(str(hdl.__path__[0]))
-    hdl_files = {path.name for path in hdl_dir.iterdir() if path.suffix in (".sv", ".v")}
+    rendered_root = render_root(OWN_PACKAGE)
+    hdl_files = {path.name for path in hdl_dir.iterdir() if path.suffix in HDL_SUFFIXES}
 
     generated = {d.source for d in own_cores() if d.generator is not None}
     committed_generated = generated & hdl_files
@@ -64,6 +101,24 @@ def test_every_hdl_file_belongs_to_exactly_one_core() -> None:
     registry_files = [d.source for d in own_cores() if d.generator is None]
     assert sorted(registry_files) == sorted(set(registry_files)), "duplicate source in registry"
     assert set(registry_files) == hdl_files, f"registry/hdl drift: missing {hdl_files - set(registry_files)}, stale {set(registry_files) - hdl_files}"
+
+    stray = sorted(
+        path.relative_to(hdl_dir).as_posix()
+        for path in hdl_dir.rglob("*")
+        if path.suffix in HDL_SUFFIXES and path.parent not in (hdl_dir, rendered_root)
+    )
+    assert not stray, (
+        f"HDL lives in a subdirectory no core reads from: {stray}. Every checked-in tile sits beside the "
+        f"registry entry naming it, and the only subdirectory any core resolves through is the render root ({rendered_root.name}/)"
+    )
+
+    committed = committed_hdl(hdl_dir)
+    if committed is not None:
+        assert committed == set(registry_files), (
+            f"committed HDL is not the registry's checked-in sources: extra {sorted(committed - set(registry_files))}, "
+            f"missing {sorted(set(registry_files) - committed)}. Rendered output committed anywhere under "
+            f"{hdl_dir.name}/ is a second copy of a tile only its operating point defines, and whichever copy is stale is the one that gets synthesized"
+        )
 
 
 def test_all_source_paths_exist() -> None:
