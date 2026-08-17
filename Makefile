@@ -62,10 +62,16 @@ check: checks
 #########
 # TESTS #
 #########
-.PHONY: test coverage tests
+.PHONY: test test-hdl coverage tests
 
 test:  ## run python tests
 	python -m pytest -v dau_core/tests
+
+# the benches compile and simulate RTL, so they skip wherever verilator is
+# absent: run them on their own so a skipped bench tier is visible as an empty
+# run rather than as noise inside the full suite
+test-hdl:  ## run the verilator benches (elaboration, cocotb, raw testbenches)
+	python -m pytest -v dau_core/tests/test_hdl_elaboration.py dau_core/tests/test_hdl_cocotb.py dau_core/tests/test_hdl_verilator.py dau_core/tests/test_benches_can_fail.py
 
 coverage:  ## run tests and collect test coverage
 	python -m pytest -v dau_core/tests --cov=dau_core --cov-report term-missing --cov-report xml
