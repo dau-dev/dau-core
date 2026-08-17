@@ -88,3 +88,37 @@ jobs:
         with:
           name: dist
           path: dist
+
+  # the benches compile and simulate RTL, which the `build` job cannot afford:
+  # they live here so a python-only change keeps its fast signal and a bench
+  # still runs on every pull request
+  hdl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions-ext/python/setup@6e1b91a408ea89f49bc8aff8724f83826f7b5446
+        with:
+          version: "3.11"
+
+      - name: Install dependencies
+        run: make develop
+
+      - name: Install simulation tools (verilator)
+        run: |
+          gh release download v0.0.14 --repo dau-dev/tools --pattern 'verilator_*.deb' --dir /tmp/tools
+          sudo apt-get update
+          sudo apt-get install -y /tmp/tools/verilator_*.deb
+          verilator --version
+          nproc
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Benches
+        run: make test-hdl
