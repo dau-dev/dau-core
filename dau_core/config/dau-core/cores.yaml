@@ -1575,6 +1575,35 @@ stride-distributor:
       - 512
     NUM_PARTITIONS:
       default: 8
+  # Measured 2026-08-16 via dau-build task=tasks/build/synthesize-cores, both
+  # parts, 8 ns, at the declared defaults (IN_WIDTH=512, NUM_PARTITIONS=8).
+  # This tile was the palette's one unpriced operator, so nothing could
+  # price a design containing it; that is now closed.
+  #
+  # The shape is FF-dominated and LUT-light, which is what a positional
+  # router should look like: eight lanes each holding a two-word row in a
+  # skid plus an emit register is 8 x (4 x 64) bits of storage, and the only
+  # combinational work is the PAD compare and the round-robin select. Zero
+  # BRAM by construction -- no lane buffers rows, it holds exactly one.
+  resources:
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {IN_WIDTH: 512, NUM_PARTITIONS: 8}
+      lut: 763
+      ff: 2101
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.129
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {IN_WIDTH: 512, NUM_PARTITIONS: 8}
+      lut: 763
+      ff: 2101
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.549
 
 int32-bitonic-sorter:
   _target_: dau_core.cores.CoreDefinition
@@ -3652,11 +3681,18 @@ keyed-state:
       choices: [int32]
   # OOC on both parts, 8 ns, CAPACITY=1024. 1024 x 64-bit slots = exactly
   # two RAMB36; the valid bitmap rides in LUTRAM.
+  #
+  # RE-MEASURED 2026-08-16 alongside the element-type retype, which is where
+  # the LUT count moved by one. Not because of the retype: the same
+  # coordinate on the PRE-retype RTL reports the same 409 on both parts, so
+  # the netlist is unchanged and the recorded 408 simply predates
+  # dau-build#165, which put `-include_dirs` on synth_design. Every other
+  # number, including WNS to the picosecond, is what it was.
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
       params: {CAPACITY: 1024, FIELD_WIDTH: int32}
-      lut: 408
+      lut: 409
       ff: 389
       bram36: 2.0
       dsp: 0
@@ -3665,7 +3701,7 @@ keyed-state:
     - part: xc7k325tffg900-2
       clock_ns: 8.0
       params: {CAPACITY: 1024, FIELD_WIDTH: int32}
-      lut: 408
+      lut: 409
       ff: 389
       bram36: 2.0
       dsp: 0
@@ -3736,11 +3772,17 @@ session-gap:
   # OOC on both parts, 8 ns, CAPACITY=1024. 1024 x 128-bit slots = exactly
   # four RAMB36. The dpv1 margin is the tightest of the stateful tiles (the
   # 33-bit gap compare plus the 128-bit slot path) but met.
+  #
+  # RE-MEASURED 2026-08-16, same cause as the keyed state tile beside it: the
+  # PRE-retype RTL reports these same numbers at both coordinates, so the
+  # retype moved nothing and the recorded 567/566 predate dau-build#165's
+  # `-include_dirs`. Both parts now land on the same 576, which is what a
+  # part-independent front end should do.
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
       params: {CAPACITY: 1024, FIELD_WIDTH: int32}
-      lut: 567
+      lut: 576
       ff: 575
       bram36: 4.0
       dsp: 0
@@ -3749,12 +3791,12 @@ session-gap:
     - part: xc7k325tffg900-2
       clock_ns: 8.0
       params: {CAPACITY: 1024, FIELD_WIDTH: int32}
-      lut: 566
+      lut: 576
       ff: 575
       bram36: 4.0
       dsp: 0
       timing: met
-      wns_ns: 2.427
+      wns_ns: 2.423
   storage_intent:
     - role: session_table
       access: owned

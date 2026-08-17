@@ -202,13 +202,22 @@ def test_lookup_errors_are_typed() -> None:
 
 
 def test_synthesizable_cores_carry_measured_envelopes() -> None:
-    """Recorded operator/stream-infra envelopes are measured OOC values."""
+    """Recorded operator/stream-infra envelopes are measured OOC values.
+
+    EMPTY as of 2026-08-16: the stride distributor was the last operator
+    carrying no envelope at all, and no design containing it could be
+    priced. Asserted exactly, so a tile shipped without a measurement fails
+    here rather than surfacing as an unpriceable design later.
+    """
     resource_free = {
         definition.name
         for definition in own_cores()
         if definition.kind in (CoreKind.OPERATOR, CoreKind.STREAM_INFRA) and definition.resources is None
     }
-    assert resource_free == {"stride-distributor"}
+    assert resource_free == set(), (
+        f"these tiles carry no measured envelope, so nothing can price a design containing them: {sorted(resource_free)}. "
+        "Measure them at (part, clock, params) via the synthesize-cores task"
+    )
     for definition in own_cores():
         if definition.kind in (CoreKind.OPERATOR, CoreKind.STREAM_INFRA) and definition.resources is not None:
             if isinstance(definition.resources, ResourceEnvelope):
