@@ -1549,17 +1549,17 @@ int32-key-mask-dispatcher:
       - 1
       - 2
 
-int32-stride-distributor:
+stride-distributor:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-stride-distributor
+  name: stride-distributor
   kind: operator
-  module: dau_int32_stride_distributor
-  source: dau_int32_stride_distributor.sv
+  module: dau_stride_distributor
+  source: dau_stride_distributor.sv
   description: 'Static stride distributor: routes each slot of an IN_WIDTH-wide quad-row beat round-robin within its own
     contiguous lane group, drops all-ones PAD rows, and emits independent 64-bit two-beat streams for existing stateful
     terminals. Routing is positional and never key-dependent; per-lane keyed partials are merged by key on the host.'
   golden: dau_core.operators:stride_distribute_rows
-  bench: dau_core.tests.cocotb_benches.dau_int32_stride_distributor_tb
+  bench: dau_core.tests.cocotb_benches.dau_stride_distributor_tb
   contract_kind: row-stream
   record_words: 2
   ingest:
@@ -2560,12 +2560,12 @@ int32-key-membership-filter:
       default: 4096
       multiple_of: 64
 
-int32-streaming-dedup:
+streaming-dedup:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-streaming-dedup
+  name: streaming-dedup
   kind: operator
-  module: dau_int32_streaming_dedup
-  source: dau_int32_streaming_dedup.sv
+  module: dau_streaming_dedup
+  source: dau_streaming_dedup.sv
   description: 'Streaming insert-on-probe dedup over 16-byte quad rows: COUNT(DISTINCT key) on the device. The row key
     (w0.lo) indexes a direct-mapped bitmap over [0, KEY_SPACE); a row whose bit is clear sets it and counts, a row whose
     bit is set changes nothing. No rows are forwarded — the batch closes out with ONE 64-bit word, the distinct count, so
@@ -2577,7 +2577,7 @@ int32-streaming-dedup:
     out-of-range key is ERR_RANGE rather than a miss: a dedup cannot record it and wrapping would merge two keys into one
     count.'
   golden: dau_core.operators:count_distinct_rows
-  bench: dau_core.tests.cocotb_benches.dau_int32_streaming_dedup_tb
+  bench: dau_core.tests.cocotb_benches.dau_streaming_dedup_tb
   # Measured 2026-08-14 via dau-build task=tasks/build/synthesize-cores, both
   # parts, at the default KEY_SPACE and at the 1.5M-distinct point the screen
   # was argued on. Two corrections to that screen, both from measurement:
@@ -3531,12 +3531,12 @@ axi-ram-sim:
   source: dau_axi_ram_sim.sv
   description: Behavioral AXI4 RAM with pipelined ARs, back-to-back bursts, stall injection, backdoor.
 
-int32-scratchpad:
+scratchpad:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-scratchpad
+  name: scratchpad
   kind: operator
-  module: dau_int32_scratchpad
-  source: dau_int32_scratchpad.sv
+  module: dau_scratchpad
+  source: dau_scratchpad.sv
   description: 'Owned-arena scratchpad: the deliberately trivial consumer of the
     owned storage class (STORAGE_AND_NOC.md). A granted word arena behind a
     host-written config port an allocator tile drives later; overflow at the
@@ -3544,7 +3544,7 @@ int32-scratchpad:
     emitted rows. Two words in per row {value,addr}/{we}, one word out
     {post_op_value,addr}. The interface keyed state consumes next.'
   golden: dau_core.operators:scratchpad_scan
-  bench: dau_core.tests.cocotb_benches.dau_int32_scratchpad_tb
+  bench: dau_core.tests.cocotb_benches.dau_scratchpad_tb
   count_port: row_count
   contract_kind: row-stream
   record_words: 2
@@ -3602,12 +3602,12 @@ int32-scratchpad:
       scale_parameter: CAPACITY
       tier_hint: bram
 
-int32-keyed-state:
+keyed-state:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-keyed-state
+  name: keyed-state
   kind: operator
-  module: dau_int32_keyed_state
-  source: dau_int32_keyed_state.sv
+  module: dau_keyed_state
+  source: dau_keyed_state.sv
   description: 'Keyed state tile: the first stateful operator and the owned
     storage class''s first real consumer. A per-key accumulator (SET/ADD/MAX/MIN
     from cfg_op, first row of a key seeded from cfg_initial) emitting the
@@ -3619,7 +3619,7 @@ int32-keyed-state:
     hazard exists; the 1-row/cycle CAM/pipelined variant is the named
     follow-up and the declared ingest rate carries the honesty.'
   golden: dau_core.operators:keyed_state_scan
-  bench: dau_core.tests.cocotb_benches.dau_int32_keyed_state_tb
+  bench: dau_core.tests.cocotb_benches.dau_keyed_state_tb
   count_port: row_count
   contract_kind: row-stream
   record_words: 1
@@ -3679,12 +3679,12 @@ int32-keyed-state:
       scale_parameter: CAPACITY
       tier_hint: bram
 
-int32-session-gap:
+session-gap:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-session-gap
+  name: session-gap
   kind: operator
-  module: dau_int32_session_gap
-  source: dau_int32_session_gap.sv
+  module: dau_session_gap
+  source: dau_session_gap.sv
   description: 'Session-gap tile: the Nexmark-Q11 shape over bounded keyed
     state (STORAGE_AND_NOC.md). Per-key sessions over time-ordered {time,key}
     rows: a row past its key''s last time by more than cfg_gap closes the
@@ -3698,7 +3698,7 @@ int32-session-gap:
     grant bounds distinct keys). Error close-outs preserve emitted sessions
     and skip the drain.'
   golden: dau_core.operators:sessionize_scan
-  bench: dau_core.tests.cocotb_benches.dau_int32_session_gap_tb
+  bench: dau_core.tests.cocotb_benches.dau_session_gap_tb
   count_port: session_count
   contract_kind: row-stream
   record_words: 1

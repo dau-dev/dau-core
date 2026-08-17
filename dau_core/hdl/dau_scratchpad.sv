@@ -29,7 +29,7 @@
 // arena persists across batches (grants persist; only the host's allocator
 // retires them). Addresses compare unsigned against the grant, so a negative
 // address is never inside any grant.
-module dau_int32_scratchpad #(
+module dau_scratchpad #(
     parameter int CAPACITY = 1024,  // arena words; [1, 16384]
     // The ELEMENT TYPE of one stored word, as encoded by types.svh. The arena
     // NEVER INTERPRETS what it holds — it stores a value and hands the same

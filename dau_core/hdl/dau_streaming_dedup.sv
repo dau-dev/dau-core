@@ -69,7 +69,7 @@
 // set their bits, and a half-inserted bitmap is not a state an accumulation
 // can resume from — the host restarts it. (The shell reaches the same
 // conclusion from the other side: a job error asserts the lane reset.)
-module dau_int32_streaming_dedup #(
+module dau_streaming_dedup #(
     // dictionary-id space (bitmap width in bits); a multiple of 64, sized to
     // the column's CARDINALITY rather than its row count — one bit per
     // distinct key is what makes this fit on-chip where a join build side

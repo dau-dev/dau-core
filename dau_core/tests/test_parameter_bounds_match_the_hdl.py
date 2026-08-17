@@ -40,7 +40,7 @@ _CHOICE_FORMS = (
 # the registry cannot be checked against it here.
 UNPARSED_GUARDS = {
     ("int32-rolling-moments", "WINDOW"): "open-ended >= 2; the registry declares the same minimum and no maximum",
-    ("int32-stride-distributor", "NUM_PARTITIONS"): "positive multiple of IN_WIDTH/128 -- depends on another parameter",
+    ("stride-distributor", "NUM_PARTITIONS"): "positive multiple of IN_WIDTH/128 -- depends on another parameter",
     ("int32-key-mask-dispatcher", "MODE"): "values carry mode names in the message, so the list is not machine-readable",
 }
 

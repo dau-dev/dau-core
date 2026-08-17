@@ -43,7 +43,7 @@
 // bounded, batch-tail amortized per the IngestRate doctrine, and the price
 // of an implementation-independent emission order. A systolic sorted drain
 // (the top-k array) is the named follow-up if a workload needs it.
-module dau_int32_session_gap #(
+module dau_session_gap #(
     parameter int CAPACITY = 1024,  // session slots; [1, 1024]
     // The ELEMENT TYPE of every lane of the row and the emitted session, as
     // encoded by types.svh. A plain signed integer encodes as its own width,

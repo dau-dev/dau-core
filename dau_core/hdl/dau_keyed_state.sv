@@ -36,7 +36,7 @@
 // State is FRESH per batch, matching the golden: a CLEAR sweep over the
 // valid array runs from BOTH reset and close-out, so a mid-batch reset
 // cannot leak one batch's keys into the next.
-module dau_int32_keyed_state #(
+module dau_keyed_state #(
     parameter int CAPACITY = 1024,  // key slots; [1, 1024]
     // The ELEMENT TYPE of the key and value lanes, as encoded by types.svh.
     // A plain signed integer encodes as its own width, so `DAU_TYPE_INT32 is
