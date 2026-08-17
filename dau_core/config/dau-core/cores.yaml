@@ -2534,6 +2534,23 @@ int32-key-membership-filter:
   bench: dau_core.tests.cocotb_benches.dau_int32_key_membership_filter_tb
   # OOC KEY_SPACE=4096; bitmap is one RAMB36, 8 ns met
   # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
+  #
+  # A KEY_SPACE LADDER, measured 2026-08-17 on the same task, because two
+  # points do not price a dimension. The compiler sizes KEY_SPACE from the
+  # key dictionary, so a tile priced only at 4096 and 6000000 is reachable
+  # from no real table: every cardinality between them refused as unmeasured.
+  # The rungs at 2^17, 2^19 and 2^21 make the whole range priceable by
+  # rounding a dictionary UP to the next measured rung -- sound, because a
+  # larger bitmap holds the same set.
+  #
+  # The cost law the ladder states: ONE RAMB36 per 32,768 bits (512 words of
+  # 64), so bram36 = KEY_SPACE / 32768, exactly linear. It is the cheapest
+  # per key of anything in the registry -- one bit per key -- which is why
+  # every TPC-H SF1 table fits: lineitem's 6M keys place 192 of the Artix's
+  # 335 budgeted BRAM36, and the 1.5M-key orders rung below it places 64.
+  # LUT is NOT monotone in KEY_SPACE (488 at 2^17, 444 at 2^19): the output
+  # mux over the BRAM array restructures with the array's shape.
+  # Both parts meet 8 ns at every rung.
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -2553,6 +2570,60 @@ int32-key-membership-filter:
       dsp: 0
       timing: met
       wns_ns: 3.788
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {KEY_SPACE: 131072}
+      lut: 488
+      ff: 558
+      bram36: 4.0
+      dsp: 0
+      timing: met
+      wns_ns: 1.579
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {KEY_SPACE: 131072}
+      lut: 488
+      ff: 558
+      bram36: 4.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.312
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {KEY_SPACE: 524288}
+      lut: 444
+      ff: 560
+      bram36: 16.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.280
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {KEY_SPACE: 524288}
+      lut: 438
+      ff: 560
+      bram36: 16.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.838
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {KEY_SPACE: 2097152}
+      lut: 584
+      ff: 570
+      bram36: 64.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.064
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {KEY_SPACE: 2097152}
+      lut: 552
+      ff: 562
+      bram36: 64.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.737
     # KEY_SPACE=6000000 is the configuration proven on silicon, and the
     # reason a scalar envelope was not good enough: this tile is a BITMAP,
     # so its BRAM cost is the key space. The retired scalar declared
@@ -2700,6 +2771,30 @@ int32-broadcast-hash-join:
   bench: dau_core.tests.cocotb_benches.dau_int32_broadcast_hash_join_tb
   # OOC KEY_SPACE=1024; payload table is 3 RAMB36, 8 ns met (WNS +3.421)
   # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
+  #
+  # A KEY_SPACE LADDER, measured 2026-08-17 on the same task, to answer the
+  # question one point could not: how big a dimension can this tile join.
+  #
+  # The cost law, and the whole difference from the membership bitmap: this
+  # table stores a 97-bit SLOT per key ({valid, b0, b1, b2}), not one bit,
+  # and Vivado builds it as one memory bit per block. Above 1024 that is
+  # exactly 97 RAMB36 per 32,768 slots -- 48.5 tiles at 2^14 (97 RAMB18),
+  # 97 at 2^15, 194 at 2^16, 388 at 2^17. Per key it costs 97x the
+  # membership filter, and that ratio IS the join tier's ceiling.
+  #
+  # THE CEILING, stated per part so it does not have to be re-derived:
+  #   * dpv1 (xc7a200t, 335 budgeted of 365 on the part): the largest rung
+  #     that fits is 65,536 keys at 194 BRAM36 (58% of budget). 2^17 places
+  #     388, which is 106.3% of the PART -- synthesizable, unplaceable. The
+  #     budget's true maximum is 335/97 * 32768 = 113,154 keys.
+  #   * dpv2 (xc7k325t, 415 budgeted of 445): 2^17 fits at 388 (93.5% of
+  #     budget, 87.2% of part) but leaves 27 BRAM36 for the rest of the
+  #     composition. True maximum 415/97 * 32768 = 140,190 keys.
+  # Against TPC-H SF1 that puts supplier (10K) inside the ceiling on both
+  # boards and customer (150K) outside it on both -- by 7% on dpv2. The
+  # 2^17 point is recorded ANYWAY, over-budget on dpv1, so the planner
+  # refuses it by arithmetic against a measured number instead of refusing
+  # it as unmeasured. Both parts meet 8 ns at every rung.
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -2719,6 +2814,81 @@ int32-broadcast-hash-join:
       dsp: 0
       timing: met
       wns_ns: 4.651
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {KEY_SPACE: 16384}
+      lut: 797
+      ff: 427
+      bram36: 48.5
+      dsp: 0
+      timing: met
+      wns_ns: 3.857
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {KEY_SPACE: 16384}
+      lut: 782
+      ff: 427
+      bram36: 48.5
+      dsp: 0
+      timing: met
+      wns_ns: 4.728
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {KEY_SPACE: 32768}
+      lut: 890
+      ff: 429
+      bram36: 97.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.808
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {KEY_SPACE: 32768}
+      lut: 860
+      ff: 429
+      bram36: 97.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.684
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {KEY_SPACE: 65536}
+      lut: 1076
+      ff: 430
+      bram36: 194.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.788
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {KEY_SPACE: 65536}
+      lut: 1071
+      ff: 430
+      bram36: 194.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.852
+    # 388 BRAM36: over the dpv1 BUDGET and over the xc7a200t PART (106.3%).
+    # Recorded so the refusal is priced rather than unmeasured; it is a
+    # dpv2-only point.
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {KEY_SPACE: 131072}
+      lut: 1993
+      ff: 426
+      bram36: 388.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.696
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {KEY_SPACE: 131072}
+      lut: 1988
+      ff: 426
+      bram36: 388.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.722
   count_port: joined_count
   contract_kind: row-stream
   record_words: 2
