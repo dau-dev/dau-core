@@ -176,7 +176,7 @@ def test_every_selectable_operator_declares_its_ingest_rate() -> None:
         # 4128 cycles with the output always ready.
         "datetime-format",
         "int32-key-mask-dispatcher",
-        "int32-stride-distributor",
+        "stride-distributor",
         "int32-wide-row-predicate-filter",
         "int32-wide-row-map-alu",
         "int32-wide-field-sum-aggregation",
@@ -257,13 +257,22 @@ def test_lookup_errors_are_typed() -> None:
 
 
 def test_synthesizable_cores_carry_measured_envelopes() -> None:
-    """Recorded operator/stream-infra envelopes are measured OOC values."""
+    """Recorded operator/stream-infra envelopes are measured OOC values.
+
+    EMPTY as of 2026-08-16: the stride distributor was the last operator
+    carrying no envelope at all, and no design containing it could be
+    priced. Asserted exactly, so a tile shipped without a measurement fails
+    here rather than surfacing as an unpriceable design later.
+    """
     resource_free = {
         definition.name
         for definition in own_cores()
         if definition.kind in (CoreKind.OPERATOR, CoreKind.STREAM_INFRA) and definition.resources is None
     }
-    assert resource_free == {"int32-stride-distributor"}
+    assert resource_free == set(), (
+        f"these tiles carry no measured envelope, so nothing can price a design containing them: {sorted(resource_free)}. "
+        "Measure them at (part, clock, params) via the synthesize-cores task"
+    )
     for definition in own_cores():
         if definition.kind in (CoreKind.OPERATOR, CoreKind.STREAM_INFRA) and definition.resources is not None:
             if isinstance(definition.resources, ResourceEnvelope):
@@ -331,7 +340,9 @@ def test_the_scalar_envelope_holdouts_are_exactly_the_declared_ones() -> None:
 # got, so "the migration is complete" cannot be said while thirty remain.
 #
 # 43 as of 2026-08-16; 36 once the seven fixed-point and transcendental
-# tiles landed their rename. It ends at 5, NOT at 0: for the five REDESIGN
+# tiles landed their rename, and 31 once the five dau-core-only tiles
+# (scratchpad, keyed-state, session-gap, streaming-dedup and the stride
+# distributor) landed theirs. It ends at 5, NOT at 0: for the five REDESIGN
 # tiles below the width is a true statement about the contract, and
 # replacing a true name with a false one is the exact failure this rule
 # exists to prevent. Each of those five leaves when its redesign lands.
@@ -349,17 +360,12 @@ WIDTH_NAMED_TILES: frozenset[str] = frozenset(
         "int32-wide-row-predicate-filter",
         "int32-pair-key-filter",
         "int32-key-membership-filter",
-        "int32-streaming-dedup",
         "int32-bitonic-sorter",
         "int32-streaming-top-k",
         "int32-range-partitioner",
         "int32-key-mask-dispatcher",
-        "int32-scratchpad",
-        "int32-keyed-state",
-        "int32-session-gap",
         "int32-time-bucket-key",  # PART_BITS = 32 - BUCKET_BITS is already parametric in the width
         "int32-row-unpack",  # FAMILY-COUPLED: its output IS the quad row, so it moves when the family's field width does
-        "int32-stride-distributor",  # the one tile with no measured envelope at all, so it cannot be its own control run
         "int32-row-map-alu",  # blocked on dau_map_alu_pkg, which is 32-bit throughout
         "int32-wide-row-map-alu",  # same block; generalize the package once and four tiles follow
         # RETYPE-DOWN -- the emitted record's width is a function of the
@@ -531,7 +537,7 @@ def test_silent_on_success_operator_set_is_pinned() -> None:
         "int32-pair-key-filter",
         "int32-range-partitioner",
         "int32-key-mask-dispatcher",
-        "int32-stride-distributor",
+        "stride-distributor",
         "int32-row-predicate-filter",
         "int32-row-map-alu",
         "fixed-point-sqrt",
@@ -713,7 +719,7 @@ def test_storage_intent_without_scale_is_a_fixed_cost() -> None:
 
 
 def test_storage_bytes_refuses_illegal_scale_overrides() -> None:
-    definition = core("int32-scratchpad")
+    definition = core("scratchpad")
     with pytest.raises(ValueError, match="not an int"):
         definition.storage_bytes({"CAPACITY": "4096"})
     with pytest.raises(ValueError, match="not an int"):

@@ -34,7 +34,7 @@ DAU_STREAM_BROADCAST_SV = files(__package__).joinpath("dau_stream_broadcast.sv")
 DAU_INT32_PAIR_KEY_FILTER_SV = files(__package__).joinpath("dau_int32_pair_key_filter.sv")
 DAU_INT32_RANGE_PARTITIONER_SV = files(__package__).joinpath("dau_int32_range_partitioner.sv")
 DAU_INT32_KEY_MASK_DISPATCHER_SV = files(__package__).joinpath("dau_int32_key_mask_dispatcher.sv")
-DAU_INT32_STRIDE_DISTRIBUTOR_SV = files(__package__).joinpath("dau_int32_stride_distributor.sv")
+DAU_STRIDE_DISTRIBUTOR_SV = files(__package__).joinpath("dau_stride_distributor.sv")
 DAU_INT32_BITONIC_SORTER_SV = files(__package__).joinpath("dau_int32_bitonic_sorter.sv")
 DAU_INT32_ROW_PREDICATE_FILTER_SV = files(__package__).joinpath("dau_int32_row_predicate_filter.sv")
 DAU_FIXED_POINT_DIVIDE_SV = files(__package__).joinpath("dau_fixed_point_divide.sv")
@@ -57,12 +57,12 @@ DAU_ROLLING_EXTREMUM_SV = files(__package__).joinpath("dau_rolling_extremum.sv")
 DAU_INT32_MARKET_FEATURE_SV = files(__package__).joinpath("dau_int32_market_feature.sv")
 DAU_INT32_RECORD_GATHER_SV = files(__package__).joinpath("dau_int32_record_gather.sv")
 DAU_INT32_TIME_BUCKET_KEY_SV = files(__package__).joinpath("dau_int32_time_bucket_key.sv")
-DAU_INT32_KEYED_STATE_SV = files(__package__).joinpath("dau_int32_keyed_state.sv")
-DAU_INT32_SCRATCHPAD_SV = files(__package__).joinpath("dau_int32_scratchpad.sv")
+DAU_KEYED_STATE_SV = files(__package__).joinpath("dau_keyed_state.sv")
+DAU_SCRATCHPAD_SV = files(__package__).joinpath("dau_scratchpad.sv")
 DAU_INT32_HASH_GROUPED_AGGREGATION_SV = files(__package__).joinpath("dau_int32_hash_grouped_aggregation.sv")
-DAU_INT32_SESSION_GAP_SV = files(__package__).joinpath("dau_int32_session_gap.sv")
+DAU_SESSION_GAP_SV = files(__package__).joinpath("dau_session_gap.sv")
 DAU_INT32_STREAMING_TOP_K_SV = files(__package__).joinpath("dau_int32_streaming_top_k.sv")
-DAU_INT32_STREAMING_DEDUP_SV = files(__package__).joinpath("dau_int32_streaming_dedup.sv")
+DAU_STREAMING_DEDUP_SV = files(__package__).joinpath("dau_streaming_dedup.sv")
 
 __all__ = (
     "DAU_AGGREGATION_PKG_SV",
@@ -90,7 +90,6 @@ __all__ = (
     "DAU_INT32_HASH_GROUPED_AGGREGATION_SV",
     "DAU_INT32_KEYED_MAP_ALU_SV",
     "DAU_INT32_KEYED_PREDICATE_FILTER_SV",
-    "DAU_INT32_KEYED_STATE_SV",
     "DAU_INT32_KEY_MASK_DISPATCHER_SV",
     "DAU_INT32_KEY_MEMBERSHIP_FILTER_SV",
     "DAU_INT32_MAP_ALU_SV",
@@ -104,20 +103,21 @@ __all__ = (
     "DAU_INT32_ROW_MAP_ALU_SV",
     "DAU_INT32_ROW_PREDICATE_FILTER_SV",
     "DAU_INT32_ROW_UNPACK_SV",
-    "DAU_INT32_SCRATCHPAD_SV",
-    "DAU_INT32_SESSION_GAP_SV",
-    "DAU_INT32_STREAMING_DEDUP_SV",
     "DAU_INT32_STREAMING_TOP_K_SV",
     "DAU_INT32_STREAM_AGGREGATION_SV",
-    "DAU_INT32_STRIDE_DISTRIBUTOR_SV",
     "DAU_INT32_TIME_BUCKET_KEY_SV",
     "DAU_INT32_WIDE_FIELD_SUM_AGGREGATION_SV",
     "DAU_INT32_WIDE_ROW_MAP_ALU_SV",
     "DAU_INT32_WIDE_ROW_PREDICATE_FILTER_SV",
+    "DAU_KEYED_STATE_SV",
     "DAU_MAP_ALU_PKG_SV",
     "DAU_PREDICATE_PKG_SV",
     "DAU_RECORD_GEARBOX_SV",
     "DAU_ROLLING_EXTREMUM_SV",
+    "DAU_SCRATCHPAD_SV",
+    "DAU_SESSION_GAP_SV",
+    "DAU_STREAMING_DEDUP_SV",
     "DAU_STREAM_BROADCAST_SV",
+    "DAU_STRIDE_DISTRIBUTOR_SV",
     "DAU_TYPES_SVH",
 )

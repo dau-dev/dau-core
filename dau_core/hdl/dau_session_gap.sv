@@ -1,5 +1,7 @@
 `default_nettype none
 
+`include "types.svh"
+
 // Session-gap tile: the Nexmark-Q11 shape over bounded keyed state
 // (STORAGE_AND_NOC.md). Per-key sessions over time-ordered rows: a row
 // whose time exceeds its key's last by more than cfg_gap CLOSES the old
@@ -9,9 +11,16 @@
 // and no hash placement or slot index can leak into it. Matches
 // dau_core.operators.sessionize_scan bit-for-bit.
 //
-// One 64-bit word in per row: {time[31:0], key[31:0]}. Each CLOSED session
-// emits two words: w0 = {start[31:0], key[31:0]}, w1 = {count[31:0],
-// last[31:0]}.
+// One 64-bit word in per row: {time, key}. Each CLOSED session emits two
+// words: w0 = {start, key}, w1 = {count, last}. Every lane is one
+// FIELD_WIDTH element, so a pair tiles a 64-bit stream word.
+//
+// THE WHOLE RECORD IS ONE ELEMENT TYPE, including the session's ROW COUNT:
+// it shares a word with `last` and a record whose halves had different
+// widths would not be decodable by the same rule as the rest of the family.
+// The consequence is that a narrower type bounds the row count a session can
+// report, which is why only int32 is offered — a count that wrapped silently
+// would be worse than one that cannot be asked for.
 //
 // Scope is PROCESSING-order sessionization: times must be non-decreasing
 // across the batch, and a violation is TIME_ORDER — refused, never silently
@@ -25,21 +34,29 @@
 // linear probe over a CAPACITY-slot {key, start, last, count} BRAM with a
 // separate valid array, sequential (one row in flight, no RMW hazard), the
 // grant bounding DISTINCT KEYS per batch (a gap-close immediately reopens,
-// so it never frees a slot mid-batch). The gap compare runs in 33-bit
-// signed arithmetic: times are int32 wires and their difference spans
-// +/- 2^32, exactly the golden's unbounded-integer compare.
+// so it never frees a slot mid-batch). The gap compare runs ONE BIT WIDER
+// THAN THE FIELD: two signed FIELD_BITS times differ by up to +/- 2**FIELD_BITS,
+// so the difference needs FIELD_BITS+1 bits to be exactly the golden's
+// unbounded-integer compare (33 bits at the default int32).
 //
 // The drain costs O(CAPACITY x live_sessions) cycles at close-out —
 // bounded, batch-tail amortized per the IngestRate doctrine, and the price
 // of an implementation-independent emission order. A systolic sorted drain
 // (the top-k array) is the named follow-up if a workload needs it.
-module dau_int32_session_gap #(
-    parameter int CAPACITY = 1024  // session slots; [1, 1024]
+module dau_session_gap #(
+    parameter int CAPACITY = 1024,  // session slots; [1, 1024]
+    // The ELEMENT TYPE of every lane of the row and the emitted session, as
+    // encoded by types.svh. A plain signed integer encodes as its own width,
+    // so `DAU_TYPE_INT32 is 32 and this reproduces the {time, key} word and
+    // the two-word session record the tile has always had. Times are
+    // SUBTRACTED and ORDERED and keys are SORTED SIGNED, so the type must be
+    // one those operations mean something in: signed and non-float.
+    parameter int FIELD_WIDTH = `DAU_TYPE_INT32
 ) (
     input  wire logic        clk,
     input  wire logic        rst,
-    input  wire logic [31:0] cfg_gap,
-    input  wire logic [31:0] cfg_granted_keys,
+    input  wire logic [FIELD_BITS-1:0] cfg_gap,
+    input  wire logic [31:0] cfg_granted_keys,  // a COUNT of keys, not an element
     input  wire logic        input_valid,
     output logic             input_ready,
     input  wire logic [63:0] input_data,
@@ -59,9 +76,33 @@ module dau_int32_session_gap #(
     localparam logic [7:0] ERR_BAD_GAP = 8'd3;
     localparam logic [7:0] ERR_TIME_ORDER = 8'd4;
     localparam int AW = (CAPACITY <= 1) ? 1 : $clog2(CAPACITY);
+    // the type, taken apart: every lane sizes off FIELD_BITS and the other
+    // two facts are what the guards check the type against
+    localparam int FIELD_BITS      = `DAU_TYPE_WIDTH(FIELD_WIDTH);
+    localparam int FIELD_IS_FLOAT  = `DAU_TYPE_IS_FLOAT(FIELD_WIDTH);
+    localparam int FIELD_IS_SIGNED = `DAU_TYPE_IS_SIGNED(FIELD_WIDTH);
+    localparam int SLOT_BITS = 4 * FIELD_BITS;  // {count, last, start, key}
 
     if (CAPACITY < 1 || CAPACITY > 1024) begin : g_param_check
         $error("CAPACITY must be in [1, 1024]");
+    end
+    // a pair of lanes tiles one 64-bit stream word, on the way in and on
+    // both emitted words
+    if (FIELD_BITS < 8 || FIELD_BITS > 32 || (64 % FIELD_BITS) != 0) begin : g_field_width_check
+        $error("FIELD_WIDTH must divide 64 and lie in [8, 32]");
+    end
+    // A TYPE IS NOT A CAPABILITY. The gap test subtracts two's-complement
+    // times and the drain orders keys signed: handed a float this would
+    // subtract exponent bits as though they were magnitude, and handed an
+    // unsigned type it would sort every high-bit-set key as negative. Both
+    // are silently wrong answers, so refuse them at elaboration. Fixed point
+    // is admissible unchanged -- scaling by 2**-F preserves both the
+    // difference and the order, and cfg_gap arrives in the field's format.
+    if (FIELD_IS_FLOAT != 0) begin : g_field_float_check
+        $error("FIELD_WIDTH must not name a floating-point type: this tile subtracts and orders two's-complement integers");
+    end
+    if (FIELD_IS_SIGNED == 0) begin : g_field_signed_check
+        $error("FIELD_WIDTH must not name an unsigned type: this tile subtracts and orders two's-complement integers");
     end
 
     typedef enum logic [3:0] {
@@ -82,37 +123,37 @@ module dau_int32_session_gap #(
     state_t state;
 
     // {count, last, start, key} per slot
-    (* ram_style = "block" *) logic [127:0] slots [0:CAPACITY-1];
+    (* ram_style = "block" *) logic [SLOT_BITS-1:0] slots [0:CAPACITY-1];
     logic valid_bits [0:CAPACITY-1];
 
     logic        batch_open;
-    logic [31:0] gap_q;
+    logic [FIELD_BITS-1:0] gap_q;
     logic [31:0] granted;
     logic [31:0] live_count;
-    logic [31:0] prev_time;
+    logic [FIELD_BITS-1:0] prev_time;
     logic        prev_time_set;
 
-    logic [31:0] cur_key;
-    logic [31:0] cur_time;
+    logic [FIELD_BITS-1:0] cur_key;
+    logic [FIELD_BITS-1:0] cur_time;
     logic        cur_last;
 
     logic [AW-1:0] probe_idx;
     logic [31:0]   probes_done;
-    logic [127:0]  slot_q;
+    logic [SLOT_BITS-1:0] slot_q;
     logic          valid_q;
 
     // the closed session being emitted (from a gap split or the drain)
-    logic [31:0] emit_key;
-    logic [31:0] emit_start;
-    logic [31:0] emit_last_t;
-    logic [31:0] emit_count;
+    logic [FIELD_BITS-1:0] emit_key;
+    logic [FIELD_BITS-1:0] emit_start;
+    logic [FIELD_BITS-1:0] emit_last_t;
+    logic [FIELD_BITS-1:0] emit_count;
     logic        emit_from_drain;
     logic        row_was_last;  // the split row was the batch's last
 
     // drain scan
     logic [AW-1:0] scan_idx;
     logic [AW-1:0] min_idx;
-    logic [31:0]   min_key;
+    logic [FIELD_BITS-1:0] min_key;
     logic          min_found;
     logic          scan_slot_valid;
 
@@ -122,16 +163,19 @@ module dau_int32_session_gap #(
 
     assign input_ready = (state == STATE_ROW) || (state == STATE_DISCARD);
 
-    // 33-bit signed gap compare: time - last > gap, exact over int32 wires
-    logic signed [32:0] time_minus_last;
-    assign time_minus_last = $signed({cur_time[31], cur_time}) - $signed({slot_q[95], slot_q[95:64]});
+    // signed gap compare one bit wider than the field: time - last > gap,
+    // exact over FIELD_BITS wires (33 bits at int32). Both operands are
+    // sign-extended by one bit; the gap itself is non-negative (a negative
+    // cfg_gap is refused below) and so zero-extends.
+    logic signed [FIELD_BITS:0] time_minus_last;
+    assign time_minus_last = $signed({cur_time[FIELD_BITS-1], cur_time}) - $signed({slot_q[3*FIELD_BITS-1], slot_q[2*FIELD_BITS +: FIELD_BITS]});
     logic gap_exceeded;
     assign gap_exceeded = time_minus_last > $signed({1'b0, gap_q});
 
     // slot BRAM: dedicated reset-free process (the BRAM-inference lesson)
     logic           slot_we;
     logic [AW-1:0]  slot_addr;
-    logic [127:0]   slot_wdata;
+    logic [SLOT_BITS-1:0] slot_wdata;
     always_ff @(posedge clk) begin
         if (slot_we) begin
             slots[slot_addr] <= slot_wdata;
@@ -141,15 +185,15 @@ module dau_int32_session_gap #(
 
     logic hit;
     logic empty;
-    assign hit = valid_q && (slot_q[31:0] == cur_key);
+    assign hit = valid_q && (slot_q[FIELD_BITS-1:0] == cur_key);
     assign empty = !valid_q;
 
     // a matched row either extends {start, time, count+1} or reopens
     // {time, time, 1}; a new key opens {time, time, 1}
-    logic [127:0] extended;
-    logic [127:0] reopened;
-    assign extended = {slot_q[127:96] + 32'd1, cur_time, slot_q[63:32], cur_key};
-    assign reopened = {32'd1, cur_time, cur_time, cur_key};
+    logic [SLOT_BITS-1:0] extended;
+    logic [SLOT_BITS-1:0] reopened;
+    assign extended = {slot_q[3*FIELD_BITS +: FIELD_BITS] + FIELD_BITS'(1), cur_time, slot_q[FIELD_BITS +: FIELD_BITS], cur_key};
+    assign reopened = {FIELD_BITS'(1), cur_time, cur_time, cur_key};
 
     assign slot_addr = (state == STATE_DRAIN_SCAN) ? scan_idx
                      : (state == STATE_DRAIN_ADDR || state == STATE_DRAIN_JUDGE) ? min_idx
@@ -162,10 +206,10 @@ module dau_int32_session_gap #(
             state <= STATE_CLEAR;
             clear_idx <= '0;
             batch_open <= 1'b0;
-            gap_q <= 32'd0;
+            gap_q <= '0;
             granted <= 32'd0;
             live_count <= 32'd0;
-            prev_time <= 32'd0;
+            prev_time <= '0;
             prev_time_set <= 1'b0;
             output_valid <= 1'b0;
             output_last <= 1'b0;
@@ -175,21 +219,21 @@ module dau_int32_session_gap #(
             err_pending <= 1'b0;
             err_code <= 8'd0;
             session_count <= 64'd0;
-            cur_key <= 32'd0;
-            cur_time <= 32'd0;
+            cur_key <= '0;
+            cur_time <= '0;
             cur_last <= 1'b0;
             probe_idx <= '0;
             probes_done <= 32'd0;
             valid_q <= 1'b0;
-            emit_key <= 32'd0;
-            emit_start <= 32'd0;
-            emit_last_t <= 32'd0;
-            emit_count <= 32'd0;
+            emit_key <= '0;
+            emit_start <= '0;
+            emit_last_t <= '0;
+            emit_count <= '0;
             emit_from_drain <= 1'b0;
             row_was_last <= 1'b0;
             scan_idx <= '0;
             min_idx <= '0;
-            min_key <= 32'd0;
+            min_key <= '0;
             min_found <= 1'b0;
             scan_slot_valid <= 1'b0;
         end else begin
@@ -207,10 +251,10 @@ module dau_int32_session_gap #(
                 end
                 STATE_ROW: begin
                     if (input_valid) begin
-                        cur_key <= input_data[31:0];
-                        cur_time <= input_data[63:32];
+                        cur_key <= input_data[FIELD_BITS-1:0];
+                        cur_time <= input_data[FIELD_BITS +: FIELD_BITS];
                         cur_last <= input_last;
-                        probe_idx <= AW'(input_data[31:0] % CAPACITY);
+                        probe_idx <= AW'(input_data[FIELD_BITS-1:0] % CAPACITY);
                         probes_done <= 32'd0;
                         if (!batch_open) begin
                             batch_open <= 1'b1;
@@ -223,21 +267,21 @@ module dau_int32_session_gap #(
                                 err_pending <= 1'b1;
                                 err_code <= ERR_BAD_GRANT;
                                 state <= input_last ? STATE_STATUS : STATE_DISCARD;
-                            end else if (cfg_gap == 32'd0 || cfg_gap[31]) begin
+                            end else if (cfg_gap == '0 || cfg_gap[FIELD_BITS-1]) begin
                                 err_pending <= 1'b1;
                                 err_code <= ERR_BAD_GAP;
                                 state <= input_last ? STATE_STATUS : STATE_DISCARD;
                             end else begin
-                                prev_time <= input_data[63:32];
+                                prev_time <= input_data[FIELD_BITS +: FIELD_BITS];
                                 prev_time_set <= 1'b1;
                                 state <= STATE_PROBE;
                             end
-                        end else if (prev_time_set && ($signed(input_data[63:32]) < $signed(prev_time))) begin
+                        end else if (prev_time_set && ($signed(input_data[FIELD_BITS +: FIELD_BITS]) < $signed(prev_time))) begin
                             err_pending <= 1'b1;
                             err_code <= ERR_TIME_ORDER;
                             state <= input_last ? STATE_STATUS : STATE_DISCARD;
                         end else begin
-                            prev_time <= input_data[63:32];
+                            prev_time <= input_data[FIELD_BITS +: FIELD_BITS];
                             state <= STATE_PROBE;
                         end
                     end
@@ -250,10 +294,10 @@ module dau_int32_session_gap #(
                     if (hit) begin
                         if (gap_exceeded) begin
                             // the old session closes (slot reopens this cycle)
-                            emit_key <= slot_q[31:0];
-                            emit_start <= slot_q[63:32];
-                            emit_last_t <= slot_q[95:64];
-                            emit_count <= slot_q[127:96];
+                            emit_key <= slot_q[FIELD_BITS-1:0];
+                            emit_start <= slot_q[FIELD_BITS +: FIELD_BITS];
+                            emit_last_t <= slot_q[2*FIELD_BITS +: FIELD_BITS];
+                            emit_count <= slot_q[3*FIELD_BITS +: FIELD_BITS];
                             emit_from_drain <= 1'b0;
                             row_was_last <= cur_last;
                             state <= STATE_EMIT_W0;
@@ -288,7 +332,9 @@ module dau_int32_session_gap #(
                 end
                 STATE_EMIT_W0: begin
                     output_valid <= 1'b1;
-                    output_data <= {emit_start, emit_key};
+                    // the record occupies the low lanes of the stream word;
+                    // an element narrower than the word leaves the rest zero
+                    output_data <= 64'({emit_start, emit_key});
                     output_last <= 1'b0;
                     if (output_valid && output_ready) begin
                         output_valid <= 1'b0;
@@ -297,7 +343,7 @@ module dau_int32_session_gap #(
                 end
                 STATE_EMIT_W1: begin
                     output_valid <= 1'b1;
-                    output_data <= {emit_count, emit_last_t};
+                    output_data <= 64'({emit_count, emit_last_t});
                     // the last word of the batch's final drained session
                     output_last <= emit_from_drain && (live_count == 32'd1);
                     if (output_valid && output_ready) begin
@@ -329,9 +375,9 @@ module dau_int32_session_gap #(
                     // cycle folds the PREVIOUS slot's {valid, key} pair
                     scan_slot_valid <= valid_bits[scan_idx];
                     if (scan_idx != '0) begin
-                        if (scan_slot_valid && (!min_found || ($signed(slot_q[31:0]) < $signed(min_key)))) begin
+                        if (scan_slot_valid && (!min_found || ($signed(slot_q[FIELD_BITS-1:0]) < $signed(min_key)))) begin
                             min_found <= 1'b1;
-                            min_key <= slot_q[31:0];
+                            min_key <= slot_q[FIELD_BITS-1:0];
                             min_idx <= scan_idx - 1'b1;
                         end
                     end
@@ -342,9 +388,9 @@ module dau_int32_session_gap #(
                 end
                 STATE_DRAIN_READ: begin
                     // fold the final slot (registered on the last scan cycle)
-                    if (scan_slot_valid && (!min_found || ($signed(slot_q[31:0]) < $signed(min_key)))) begin
+                    if (scan_slot_valid && (!min_found || ($signed(slot_q[FIELD_BITS-1:0]) < $signed(min_key)))) begin
                         min_found <= 1'b1;
-                        min_key <= slot_q[31:0];
+                        min_key <= slot_q[FIELD_BITS-1:0];
                         min_idx <= AW'(CAPACITY - 1);
                     end
                     state <= STATE_DRAIN_ADDR;
@@ -356,10 +402,10 @@ module dau_int32_session_gap #(
                 end
                 STATE_DRAIN_JUDGE: begin
                     // slot_q now holds the winner (slot_addr = min_idx)
-                    emit_key <= slot_q[31:0];
-                    emit_start <= slot_q[63:32];
-                    emit_last_t <= slot_q[95:64];
-                    emit_count <= slot_q[127:96];
+                    emit_key <= slot_q[FIELD_BITS-1:0];
+                    emit_start <= slot_q[FIELD_BITS +: FIELD_BITS];
+                    emit_last_t <= slot_q[2*FIELD_BITS +: FIELD_BITS];
+                    emit_count <= slot_q[3*FIELD_BITS +: FIELD_BITS];
                     emit_from_drain <= 1'b1;
                     state <= STATE_EMIT_W0;
                 end

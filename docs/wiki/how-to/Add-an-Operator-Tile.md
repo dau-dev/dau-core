@@ -31,9 +31,9 @@ Decide and encode these explicitly — they are the parts prose gets wrong:
   happens.
 
   That debt is being paid down tile by tile, and `WIDTH_NAMED_TILES` in
-  `dau_core/tests/test_cores.py` holds the remaining set EXACTLY — 36 of
+  `dau_core/tests/test_cores.py` holds the remaining set EXACTLY — 31 of
   them, each with a comment saying why the width is still in its identity
-  and what removes it. Five of the 36 keep their names on purpose, because
+  and what removes it. Five of the 31 keep their names on purpose, because
   for those the width really is part of the contract. Your new tile is not
   one of them: give it a width in its name and that guard fails.
 

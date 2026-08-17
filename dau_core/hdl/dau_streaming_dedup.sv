@@ -1,9 +1,11 @@
 `default_nettype none
 
+`include "types.svh"
+
 // Streaming insert-on-probe dedup for 16-byte quad rows (two 64-bit words,
 // w0 = {value, key}, w1 = {aux1, aux0}): COUNT(DISTINCT key) on the device.
-// The row key (w0.lo, signed int32) indexes a direct-mapped bitmap over the
-// dictionary-id space [0, KEY_SPACE); a row whose bit is CLEAR sets it and
+// The row key (w0.lo, the row's first KEY_WIDTH lane) indexes a direct-mapped
+// bitmap over the dictionary-id space [0, KEY_SPACE); a row whose bit is CLEAR sets it and
 // increments the distinct count, a row whose bit is already set changes
 // nothing. Rows are not forwarded — at input_last the tile emits ONE 64-bit
 // word, the distinct count, with output_last set, then a success close-out
@@ -67,13 +69,22 @@
 // set their bits, and a half-inserted bitmap is not a state an accumulation
 // can resume from — the host restarts it. (The shell reaches the same
 // conclusion from the other side: a job error asserts the lane reset.)
-module dau_int32_streaming_dedup #(
+module dau_streaming_dedup #(
     // dictionary-id space (bitmap width in bits); a multiple of 64, sized to
     // the column's CARDINALITY rather than its row count — one bit per
     // distinct key is what makes this fit on-chip where a join build side
     // does not. The maximum is the largest bitmap that fits the BRAM budget
     // of the boards this palette targets (8 Mbit = 228 RAMB36).
-    parameter int KEY_SPACE = 4096
+    parameter int KEY_SPACE = 4096,
+    // The ELEMENT TYPE of the key lane, as encoded by types.svh. A plain
+    // signed integer encodes as its own width, so `DAU_TYPE_INT32 is 32 and
+    // this reads exactly the w0.lo key the tile has always read. The key is
+    // a DICTIONARY ID — an index, not a magnitude — so the range test is one
+    // unsigned compare against KEY_SPACE at either signedness, and it is a
+    // float that has no meaning here rather than an unsigned integer.
+    // A narrower type does not shrink the bitmap: KEY_SPACE does that, and it
+    // is the cardinality that sizes the memory.
+    parameter int KEY_WIDTH = `DAU_TYPE_INT32
 ) (
     input  wire logic        clk,
     input  wire logic        rst,
@@ -101,6 +112,8 @@ module dau_int32_streaming_dedup #(
     localparam int AWIDTH = (WORDS <= 1) ? 1 : $clog2(WORDS);
     localparam logic [AWIDTH-1:0] LAST_WORD = AWIDTH'(WORDS - 1);
     localparam logic [31:0] KEY_SPACE_U = KEY_SPACE;
+    localparam int KEY_BITS     = `DAU_TYPE_WIDTH(KEY_WIDTH);
+    localparam int KEY_IS_FLOAT = `DAU_TYPE_IS_FLOAT(KEY_WIDTH);
 
     // no ERR_CONFIG: cfg_clear is one bit with no invalid encoding, so this
     // tile has no configuration it can reject. The codes it does raise keep
@@ -114,6 +127,19 @@ module dau_int32_streaming_dedup #(
     end
     if (KEY_SPACE % 64 != 0) begin : g_key_space_grid
         $error("KEY_SPACE must be a multiple of 64");
+    end
+    // the key is one lane of the {value, key} word, so a pair of lanes tiles
+    // it; the id space itself tops out at 2**23, so a wider key would address
+    // nothing the bitmap can hold
+    if (KEY_BITS < 8 || KEY_BITS > 32 || (64 % KEY_BITS) != 0) begin : g_key_width_check
+        $error("KEY_WIDTH must divide 64 and lie in [8, 32]");
+    end
+    // A TYPE IS NOT A CAPABILITY. A float bit pattern is not an index into
+    // anything: its exponent bits would select a bitmap word and its mantissa
+    // a bit within it, which counts distinct BIT PATTERNS while claiming to
+    // count distinct values. Refuse it at elaboration.
+    if (KEY_IS_FLOAT != 0) begin : g_key_float_check
+        $error("KEY_WIDTH must not name a floating-point type: the key is a dictionary id, an integer index");
     end
 
     typedef enum logic [2:0] {
@@ -158,7 +184,8 @@ module dau_int32_streaming_dedup #(
     logic input_fire;
     logic output_fire;
 
-    logic [31:0]       probe_key;
+    logic [KEY_BITS-1:0] probe_key;
+    logic [31:0]       probe_key_u;
     logic              key_in_range;
     logic [AWIDTH-1:0] probe_raddr;
     logic              probe_w0_accept;
@@ -174,11 +201,16 @@ module dau_int32_streaming_dedup #(
     assign output_fire = output_valid && output_ready;
 
     // the bitmap index: the row key (w0.lo). One unsigned compare catches
-    // negatives (they read as >= 2**31 > KEY_SPACE_U) and ids past the space;
-    // the address is clamped so a rejected key never indexes past the memory.
-    assign probe_key = input_data[31:0];
-    assign key_in_range = (probe_key < KEY_SPACE_U);
-    assign probe_raddr = key_in_range ? probe_key[6+:AWIDTH] : '0;
+    // negatives (they read as >= 2**(KEY_BITS-1) > KEY_SPACE_U) and ids past
+    // the space; the address is clamped so a rejected key never indexes past
+    // the memory. The compare and the address slice run on the key
+    // ZERO-EXTENDED to 32 bits: KEY_SPACE reaches 2**23 and the word address
+    // is bits [6 +: AWIDTH] of the id, neither of which a narrow key could
+    // hold, and at the default int32 the extension is the identity.
+    assign probe_key = input_data[KEY_BITS-1:0];
+    assign probe_key_u = 32'(probe_key);
+    assign key_in_range = (probe_key_u < KEY_SPACE_U);
+    assign probe_raddr = key_in_range ? probe_key_u[6+:AWIDTH] : '0;
 
     // a probe w0 is accepted this cycle (the batch's first word at S_ARM, or a
     // subsequent S_W0): the read is issued here and lands in stage 1 next cycle
@@ -218,7 +250,7 @@ module dau_int32_streaming_dedup #(
             // the memory read stays pure; the collision is recorded beside it
             // and applied one hop later (see the READ-DURING-WRITE note above)
             read_word <= dedup_mem[probe_raddr];
-            probe_bit <= probe_key[5:0];
+            probe_bit <= probe_key_u[5:0];
             probe_addr <= probe_raddr;
             fwd_pending <= set_new && (probe_raddr == probe_addr2);
             fwd_word <= set_word;

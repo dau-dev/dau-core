@@ -122,7 +122,7 @@ endmodule
 /* verilator lint_on DECLFILENAME */
 
 
-module dau_int32_stride_distributor #(
+module dau_stride_distributor #(
     parameter int IN_WIDTH = 512,
     parameter int NUM_PARTITIONS = 8
 ) (
@@ -148,10 +148,10 @@ module dau_int32_stride_distributor #(
     localparam logic [127:0] PAD_ROW = {128{1'b1}};
 
     if (!(IN_WIDTH inside {128, 256, 512})) begin : g_bad_in_width
-        $error("dau_int32_stride_distributor: IN_WIDTH must be 128/256/512");
+        $error("dau_stride_distributor: IN_WIDTH must be 128/256/512");
     end
     if (NUM_PARTITIONS < 1 || NUM_PARTITIONS % R != 0) begin : g_bad_partition_count
-        $error("dau_int32_stride_distributor: NUM_PARTITIONS must be a positive multiple of IN_WIDTH/128");
+        $error("dau_stride_distributor: NUM_PARTITIONS must be a positive multiple of IN_WIDTH/128");
     end
 
     typedef enum logic {

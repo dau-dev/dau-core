@@ -31,7 +31,6 @@ from dau_core.hdl import (
     DAU_INT32_KEY_MEMBERSHIP_FILTER_SV,
     DAU_INT32_KEYED_MAP_ALU_SV,
     DAU_INT32_KEYED_PREDICATE_FILTER_SV,
-    DAU_INT32_KEYED_STATE_SV,
     DAU_INT32_MAP_ALU_SV,
     DAU_INT32_MARKET_FEATURE_SV,
     DAU_INT32_PAIR_KEY_FILTER_SV,
@@ -43,21 +42,22 @@ from dau_core.hdl import (
     DAU_INT32_ROW_MAP_ALU_SV,
     DAU_INT32_ROW_PREDICATE_FILTER_SV,
     DAU_INT32_ROW_UNPACK_SV,
-    DAU_INT32_SCRATCHPAD_SV,
-    DAU_INT32_SESSION_GAP_SV,
     DAU_INT32_STREAM_AGGREGATION_SV,
-    DAU_INT32_STREAMING_DEDUP_SV,
     DAU_INT32_STREAMING_TOP_K_SV,
-    DAU_INT32_STRIDE_DISTRIBUTOR_SV,
     DAU_INT32_TIME_BUCKET_KEY_SV,
     DAU_INT32_WIDE_FIELD_SUM_AGGREGATION_SV,
     DAU_INT32_WIDE_ROW_MAP_ALU_SV,
     DAU_INT32_WIDE_ROW_PREDICATE_FILTER_SV,
+    DAU_KEYED_STATE_SV,
     DAU_MAP_ALU_PKG_SV,
     DAU_PREDICATE_PKG_SV,
     DAU_RECORD_GEARBOX_SV,
     DAU_ROLLING_EXTREMUM_SV,
+    DAU_SCRATCHPAD_SV,
+    DAU_SESSION_GAP_SV,
     DAU_STREAM_BROADCAST_SV,
+    DAU_STREAMING_DEDUP_SV,
+    DAU_STRIDE_DISTRIBUTOR_SV,
 )
 
 _COCOTB_BENCH_PREFIX = "dau_core.tests.cocotb_benches"
@@ -337,9 +337,9 @@ def test_rolling_moments_window_two(tmp_path: Path, monkeypatch: pytest.MonkeyPa
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_streaming_dedup_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
     _run_cocotb_verilator(
-        sources=(Path(str(DAU_INT32_STREAMING_DEDUP_SV)),),
-        hdl_toplevel="dau_int32_streaming_dedup",
-        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_streaming_dedup_tb",
+        sources=(Path(str(DAU_STREAMING_DEDUP_SV)),),
+        hdl_toplevel="dau_streaming_dedup",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_streaming_dedup_tb",
         tmp_path=tmp_path,
     )
 
@@ -637,9 +637,9 @@ def test_key_mask_dispatcher_multi_row_runs_real_cocotb(tmp_path: Path, in_width
 @pytest.mark.parametrize(("in_width", "num_partitions"), [(256, 2), (256, 4), (512, 4), (512, 8)])
 def test_stride_distributor_runs_real_cocotb(tmp_path: Path, in_width: int, num_partitions: int) -> None:
     _run_cocotb_verilator(
-        sources=(Path(str(DAU_INT32_STRIDE_DISTRIBUTOR_SV)),),
-        hdl_toplevel="dau_int32_stride_distributor",
-        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_stride_distributor_tb",
+        sources=(Path(str(DAU_STRIDE_DISTRIBUTOR_SV)),),
+        hdl_toplevel="dau_stride_distributor",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_stride_distributor_tb",
         tmp_path=tmp_path,
         parameters={"IN_WIDTH": in_width, "NUM_PARTITIONS": num_partitions},
     )
@@ -968,9 +968,9 @@ def _run_cocotb_verilator(*, sources: tuple[Path, ...], hdl_toplevel: str, test_
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_scratchpad_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
     _run_cocotb_verilator(
-        sources=(Path(str(DAU_INT32_SCRATCHPAD_SV)),),
-        hdl_toplevel="dau_int32_scratchpad",
-        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_scratchpad_tb",
+        sources=(Path(str(DAU_SCRATCHPAD_SV)),),
+        hdl_toplevel="dau_scratchpad",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_scratchpad_tb",
         tmp_path=tmp_path,
     )
 
@@ -980,9 +980,9 @@ def test_scratchpad_capacity_sixteen(tmp_path: Path, monkeypatch: pytest.MonkeyP
     # a tiny arena: the grant boundary sits within easy random reach
     monkeypatch.setenv("DAU_SCRATCHPAD_CAPACITY", "16")
     _run_cocotb_verilator(
-        sources=(Path(str(DAU_INT32_SCRATCHPAD_SV)),),
-        hdl_toplevel="dau_int32_scratchpad",
-        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_scratchpad_tb",
+        sources=(Path(str(DAU_SCRATCHPAD_SV)),),
+        hdl_toplevel="dau_scratchpad",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_scratchpad_tb",
         tmp_path=tmp_path,
         parameters={"CAPACITY": 16},
     )
@@ -991,9 +991,9 @@ def test_scratchpad_capacity_sixteen(tmp_path: Path, monkeypatch: pytest.MonkeyP
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_keyed_state_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
     _run_cocotb_verilator(
-        sources=(Path(str(DAU_INT32_KEYED_STATE_SV)),),
-        hdl_toplevel="dau_int32_keyed_state",
-        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_keyed_state_tb",
+        sources=(Path(str(DAU_KEYED_STATE_SV)),),
+        hdl_toplevel="dau_keyed_state",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_keyed_state_tb",
         tmp_path=tmp_path,
     )
 
@@ -1003,9 +1003,9 @@ def test_keyed_state_capacity_eight(tmp_path: Path, monkeypatch: pytest.MonkeyPa
     # a tiny table: collisions and the grant boundary within easy reach
     monkeypatch.setenv("DAU_KEYED_STATE_CAPACITY", "8")
     _run_cocotb_verilator(
-        sources=(Path(str(DAU_INT32_KEYED_STATE_SV)),),
-        hdl_toplevel="dau_int32_keyed_state",
-        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_keyed_state_tb",
+        sources=(Path(str(DAU_KEYED_STATE_SV)),),
+        hdl_toplevel="dau_keyed_state",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_keyed_state_tb",
         tmp_path=tmp_path,
         parameters={"CAPACITY": 8},
     )
@@ -1051,9 +1051,9 @@ def test_hash_grouped_aggregation_capacity_one(tmp_path: Path, monkeypatch: pyte
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_session_gap_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
     _run_cocotb_verilator(
-        sources=(Path(str(DAU_INT32_SESSION_GAP_SV)),),
-        hdl_toplevel="dau_int32_session_gap",
-        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_session_gap_tb",
+        sources=(Path(str(DAU_SESSION_GAP_SV)),),
+        hdl_toplevel="dau_session_gap",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_session_gap_tb",
         tmp_path=tmp_path,
     )
 
@@ -1063,9 +1063,9 @@ def test_session_gap_capacity_eight(tmp_path: Path, monkeypatch: pytest.MonkeyPa
     # a tiny table: collisions, the grant boundary, and a short drain scan
     monkeypatch.setenv("DAU_SESSION_GAP_CAPACITY", "8")
     _run_cocotb_verilator(
-        sources=(Path(str(DAU_INT32_SESSION_GAP_SV)),),
-        hdl_toplevel="dau_int32_session_gap",
-        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_session_gap_tb",
+        sources=(Path(str(DAU_SESSION_GAP_SV)),),
+        hdl_toplevel="dau_session_gap",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_session_gap_tb",
         tmp_path=tmp_path,
         parameters={"CAPACITY": 8},
     )

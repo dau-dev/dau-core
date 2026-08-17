@@ -1,5 +1,7 @@
 `default_nettype none
 
+`include "types.svh"
+
 // Keyed state tile: the first stateful operator, and the owned storage
 // class's first real consumer (STORAGE_AND_NOC.md). A per-key accumulator
 // updated once per row, emitting the POST-update state for every row —
@@ -7,11 +9,17 @@
 // loop-carried-per-key shape a SIMD CPU cannot vectorize: state lives in a
 // BRAM arena beside the compute and updates at on-chip bandwidth.
 //
-// One 64-bit word per row: {value[31:0], key[31:0]}. Output mirrors it:
-// {post_update[31:0], key[31:0]}. The op (SET/ADD/MAX/MIN), the initial
-// accumulator, and the KEY GRANT latch from config ports on each batch's
-// first beat — host-written today, allocator-tile-driven tomorrow, the tile
-// cannot tell.
+// One 64-bit word per row: {value[FIELD_BITS-1:0], key[FIELD_BITS-1:0]}.
+// Output mirrors it: {post_update, key}. The op (SET/ADD/MAX/MIN), the
+// initial accumulator, and the KEY GRANT latch from config ports on each
+// batch's first beat — host-written today, allocator-tile-driven tomorrow,
+// the tile cannot tell.
+//
+// THE KEY AND THE VALUE ARE THE SAME ELEMENT TYPE, because they share the
+// row: two FIELD_WIDTH lanes tile one 64-bit word, and the emitted record
+// mirrors the accepted one. A narrower type therefore packs the pair into
+// less of the word rather than changing the beat, exactly as it does across
+// the quad-row family.
 //
 // Implementation: hash (low key bits) + linear probe over a CAPACITY-slot
 // {key, value} BRAM with a separate valid array. Deliberately SEQUENTIAL —
@@ -28,14 +36,20 @@
 // State is FRESH per batch, matching the golden: a CLEAR sweep over the
 // valid array runs from BOTH reset and close-out, so a mid-batch reset
 // cannot leak one batch's keys into the next.
-module dau_int32_keyed_state #(
-    parameter int CAPACITY = 1024  // key slots; [1, 1024]
+module dau_keyed_state #(
+    parameter int CAPACITY = 1024,  // key slots; [1, 1024]
+    // The ELEMENT TYPE of the key and value lanes, as encoded by types.svh.
+    // A plain signed integer encodes as its own width, so `DAU_TYPE_INT32 is
+    // 32 and this reproduces the {value, key} word the tile has always had.
+    // The accumulator ORDERS and ADDS two's-complement magnitudes, so the
+    // type must be one it can actually compute in: signed and non-float.
+    parameter int FIELD_WIDTH = `DAU_TYPE_INT32
 ) (
     input  wire logic        clk,
     input  wire logic        rst,
     input  wire logic [1:0]  cfg_op,            // 0 SET, 1 ADD, 2 MAX, 3 MIN
-    input  wire logic [31:0] cfg_initial,
-    input  wire logic [31:0] cfg_granted_keys,
+    input  wire logic [FIELD_BITS-1:0] cfg_initial,
+    input  wire logic [31:0] cfg_granted_keys,   // a COUNT of keys, not an element
     input  wire logic        input_valid,
     output logic             input_ready,
     input  wire logic [63:0] input_data,
@@ -53,9 +67,33 @@ module dau_int32_keyed_state #(
     localparam logic [7:0] ERR_BAD_GRANT = 8'd1;
     localparam logic [7:0] ERR_KEY_CAPACITY = 8'd2;
     localparam int AW = (CAPACITY <= 1) ? 1 : $clog2(CAPACITY);
+    // the type, taken apart: the row's lanes size off FIELD_BITS and the
+    // other two facts are what the guards check the type against
+    localparam int FIELD_BITS      = `DAU_TYPE_WIDTH(FIELD_WIDTH);
+    localparam int FIELD_IS_FLOAT  = `DAU_TYPE_IS_FLOAT(FIELD_WIDTH);
+    localparam int FIELD_IS_SIGNED = `DAU_TYPE_IS_SIGNED(FIELD_WIDTH);
+    localparam int SLOT_BITS = 2 * FIELD_BITS;
 
     if (CAPACITY < 1 || CAPACITY > 1024) begin : g_param_check
         $error("CAPACITY must be in [1, 1024]");
+    end
+    // {value, key} tile one 64-bit stream word, so the pair must fit it and
+    // divide it evenly
+    if (FIELD_BITS < 8 || FIELD_BITS > 32 || (64 % FIELD_BITS) != 0) begin : g_field_width_check
+        $error("FIELD_WIDTH must divide 64 and lie in [8, 32]");
+    end
+    // A TYPE IS NOT A CAPABILITY. MAX/MIN order two's-complement magnitudes
+    // and ADD wraps at the field width: handed a float this would compare and
+    // add exponent bits as though they were magnitude, and handed an unsigned
+    // type it would read every high-bit-set value as negative. Both are
+    // silently wrong answers, so refuse them at elaboration. Fixed point is
+    // admissible unchanged -- qI.F values order and add as their raw
+    // integers, and cfg_initial arrives in the same format as the field.
+    if (FIELD_IS_FLOAT != 0) begin : g_field_float_check
+        $error("FIELD_WIDTH must not name a floating-point type: this tile orders and adds two's-complement integers");
+    end
+    if (FIELD_IS_SIGNED == 0) begin : g_field_signed_check
+        $error("FIELD_WIDTH must not name an unsigned type: this tile orders and adds two's-complement integers");
     end
 
     typedef enum logic [2:0] {
@@ -72,32 +110,32 @@ module dau_int32_keyed_state #(
 
     // {key, value} per slot; valid bits separate so the CLEAR sweep never
     // touches the wide BRAM
-    (* ram_style = "block" *) logic [63:0] slots [0:CAPACITY-1];
+    (* ram_style = "block" *) logic [SLOT_BITS-1:0] slots [0:CAPACITY-1];
     logic valid_bits [0:CAPACITY-1];
 
     logic        batch_open;
     logic [1:0]  op_q;
-    logic [31:0] initial_q;
+    logic [FIELD_BITS-1:0] initial_q;
     logic [31:0] granted;
     logic [31:0] live_count;
 
-    logic [31:0] cur_key;
-    logic [31:0] cur_value;
+    logic [FIELD_BITS-1:0] cur_key;
+    logic [FIELD_BITS-1:0] cur_value;
     logic        cur_last;
 
     logic [AW-1:0] probe_idx;
     logic [31:0]   probes_done;
-    logic [63:0]   slot_q;
+    logic [SLOT_BITS-1:0] slot_q;
     logic          valid_q;
-    logic [31:0]   emit_value;
+    logic [FIELD_BITS-1:0] emit_value;
     logic [AW-1:0] clear_idx;
     logic          err_pending;
     logic [7:0]    err_code;
 
     assign input_ready = (state == STATE_ROW) || (state == STATE_DISCARD);
 
-    // the post-update value: op(current-or-initial, row value), int32 wires
-    function automatic logic [31:0] apply_op(input logic [1:0] op, input logic [31:0] current, input logic [31:0] value);
+    // the post-update value: op(current-or-initial, row value)
+    function automatic logic [FIELD_BITS-1:0] apply_op(input logic [1:0] op, input logic [FIELD_BITS-1:0] current, input logic [FIELD_BITS-1:0] value);
         unique case (op)
             2'd0: apply_op = value;                                                       // SET
             2'd1: apply_op = current + value;                                             // ADD (wraps)
@@ -111,7 +149,7 @@ module dau_int32_keyed_state #(
     // JUDGE on a match or a granted new key.
     logic             slot_we;
     logic [AW-1:0]    slot_addr;
-    logic [63:0]      slot_wdata;
+    logic [SLOT_BITS-1:0] slot_wdata;
     always_ff @(posedge clk) begin
         if (slot_we) begin
             slots[slot_addr] <= slot_wdata;
@@ -122,11 +160,11 @@ module dau_int32_keyed_state #(
     // judged outcomes (combinational off the registered slot read)
     logic hit;
     logic empty;
-    assign hit = valid_q && (slot_q[31:0] == cur_key);
+    assign hit = valid_q && (slot_q[FIELD_BITS-1:0] == cur_key);
     assign empty = !valid_q;
 
-    logic [31:0] updated;
-    assign updated = hit ? apply_op(op_q, slot_q[63:32], cur_value)
+    logic [FIELD_BITS-1:0] updated;
+    assign updated = hit ? apply_op(op_q, slot_q[FIELD_BITS +: FIELD_BITS], cur_value)
                          : apply_op(op_q, initial_q, cur_value);
 
     assign slot_addr = probe_idx;
@@ -140,7 +178,7 @@ module dau_int32_keyed_state #(
             batch_open <= 1'b0;
             granted <= 32'd0;
             op_q <= 2'd0;
-            initial_q <= 32'd0;
+            initial_q <= '0;
             live_count <= 32'd0;
             output_valid <= 1'b0;
             output_last <= 1'b0;
@@ -150,13 +188,13 @@ module dau_int32_keyed_state #(
             err_pending <= 1'b0;
             err_code <= 8'd0;
             row_count <= 64'd0;
-            cur_key <= 32'd0;
-            cur_value <= 32'd0;
+            cur_key <= '0;
+            cur_value <= '0;
             cur_last <= 1'b0;
             probe_idx <= '0;
             probes_done <= 32'd0;
             valid_q <= 1'b0;
-            emit_value <= 32'd0;
+            emit_value <= '0;
         end else begin
             case (state)
                 STATE_CLEAR: begin
@@ -171,10 +209,10 @@ module dau_int32_keyed_state #(
                 end
                 STATE_ROW: begin
                     if (input_valid) begin
-                        cur_key <= input_data[31:0];
-                        cur_value <= input_data[63:32];
+                        cur_key <= input_data[FIELD_BITS-1:0];
+                        cur_value <= input_data[FIELD_BITS +: FIELD_BITS];
                         cur_last <= input_last;
-                        probe_idx <= AW'(input_data[31:0] % CAPACITY);
+                        probe_idx <= AW'(input_data[FIELD_BITS-1:0] % CAPACITY);
                         probes_done <= 32'd0;
                         if (!batch_open) begin
                             batch_open <= 1'b1;
@@ -231,7 +269,9 @@ module dau_int32_keyed_state #(
                 end
                 STATE_EMIT: begin
                     output_valid <= 1'b1;
-                    output_data <= {emit_value, cur_key};
+                    // the record occupies the low lanes of the stream word;
+                    // an element narrower than the word leaves the rest zero
+                    output_data <= 64'({emit_value, cur_key});
                     output_last <= cur_last;
                     if (output_valid && output_ready) begin
                         output_valid <= 1'b0;

@@ -1549,17 +1549,17 @@ int32-key-mask-dispatcher:
       - 1
       - 2
 
-int32-stride-distributor:
+stride-distributor:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-stride-distributor
+  name: stride-distributor
   kind: operator
-  module: dau_int32_stride_distributor
-  source: dau_int32_stride_distributor.sv
+  module: dau_stride_distributor
+  source: dau_stride_distributor.sv
   description: 'Static stride distributor: routes each slot of an IN_WIDTH-wide quad-row beat round-robin within its own
     contiguous lane group, drops all-ones PAD rows, and emits independent 64-bit two-beat streams for existing stateful
     terminals. Routing is positional and never key-dependent; per-lane keyed partials are merged by key on the host.'
   golden: dau_core.operators:stride_distribute_rows
-  bench: dau_core.tests.cocotb_benches.dau_int32_stride_distributor_tb
+  bench: dau_core.tests.cocotb_benches.dau_stride_distributor_tb
   contract_kind: row-stream
   record_words: 2
   ingest:
@@ -1575,6 +1575,35 @@ int32-stride-distributor:
       - 512
     NUM_PARTITIONS:
       default: 8
+  # Measured 2026-08-16 via dau-build task=tasks/build/synthesize-cores, both
+  # parts, 8 ns, at the declared defaults (IN_WIDTH=512, NUM_PARTITIONS=8).
+  # This tile was the palette's one unpriced operator, so nothing could
+  # price a design containing it; that is now closed.
+  #
+  # The shape is FF-dominated and LUT-light, which is what a positional
+  # router should look like: eight lanes each holding a two-word row in a
+  # skid plus an emit register is 8 x (4 x 64) bits of storage, and the only
+  # combinational work is the PAD compare and the round-robin select. Zero
+  # BRAM by construction -- no lane buffers rows, it holds exactly one.
+  resources:
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {IN_WIDTH: 512, NUM_PARTITIONS: 8}
+      lut: 763
+      ff: 2101
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.129
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {IN_WIDTH: 512, NUM_PARTITIONS: 8}
+      lut: 763
+      ff: 2101
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 4.549
 
 int32-bitonic-sorter:
   _target_: dau_core.cores.CoreDefinition
@@ -2560,12 +2589,12 @@ int32-key-membership-filter:
       default: 4096
       multiple_of: 64
 
-int32-streaming-dedup:
+streaming-dedup:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-streaming-dedup
+  name: streaming-dedup
   kind: operator
-  module: dau_int32_streaming_dedup
-  source: dau_int32_streaming_dedup.sv
+  module: dau_streaming_dedup
+  source: dau_streaming_dedup.sv
   description: 'Streaming insert-on-probe dedup over 16-byte quad rows: COUNT(DISTINCT key) on the device. The row key
     (w0.lo) indexes a direct-mapped bitmap over [0, KEY_SPACE); a row whose bit is clear sets it and counts, a row whose
     bit is set changes nothing. No rows are forwarded — the batch closes out with ONE 64-bit word, the distinct count, so
@@ -2577,7 +2606,7 @@ int32-streaming-dedup:
     out-of-range key is ERR_RANGE rather than a miss: a dedup cannot record it and wrapping would merge two keys into one
     count.'
   golden: dau_core.operators:count_distinct_rows
-  bench: dau_core.tests.cocotb_benches.dau_int32_streaming_dedup_tb
+  bench: dau_core.tests.cocotb_benches.dau_streaming_dedup_tb
   # Measured 2026-08-14 via dau-build task=tasks/build/synthesize-cores, both
   # parts, at the default KEY_SPACE and at the 1.5M-distinct point the screen
   # was argued on. Two corrections to that screen, both from measurement:
@@ -2592,7 +2621,7 @@ int32-streaming-dedup:
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {KEY_SPACE: 4096}
+      params: {KEY_SPACE: 4096, KEY_WIDTH: int32}
       lut: 268
       ff: 299
       bram36: 1.0
@@ -2601,7 +2630,7 @@ int32-streaming-dedup:
       wns_ns: 3.816
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {KEY_SPACE: 4096}
+      params: {KEY_SPACE: 4096, KEY_WIDTH: int32}
       lut: 268
       ff: 299
       bram36: 1.0
@@ -2610,7 +2639,7 @@ int32-streaming-dedup:
       wns_ns: 5.173
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {KEY_SPACE: 1500032}
+      params: {KEY_SPACE: 1500032, KEY_WIDTH: int32}
       lut: 421
       ff: 326
       bram36: 64.0
@@ -2619,7 +2648,7 @@ int32-streaming-dedup:
       wns_ns: 3.846
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {KEY_SPACE: 1500032}
+      params: {KEY_SPACE: 1500032, KEY_WIDTH: int32}
       lut: 389
       ff: 326
       bram36: 64.0
@@ -2643,6 +2672,18 @@ int32-streaming-dedup:
       minimum: 64
       maximum: 8388608
       multiple_of: 64
+    KEY_WIDTH:
+      # the ELEMENT TYPE of the key lane -- the only lane this tile reads. The
+      # key is a DICTIONARY ID, an index rather than a magnitude, so the range
+      # test is one unsigned compare either way and the tile's own guard
+      # refuses only float. A narrower type does NOT shrink the bitmap:
+      # KEY_SPACE sizes that, and cardinality sizes KEY_SPACE. int32 encodes
+      # as 32, so this declares exactly the tile it always built.
+      element_type: true
+      default: int32
+      minimum: 8
+      maximum: 32
+      choices: [int32]
 
 int32-broadcast-hash-join:
   _target_: dau_core.cores.CoreDefinition
@@ -3519,12 +3560,12 @@ axi-ram-sim:
   source: dau_axi_ram_sim.sv
   description: Behavioral AXI4 RAM with pipelined ARs, back-to-back bursts, stall injection, backdoor.
 
-int32-scratchpad:
+scratchpad:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-scratchpad
+  name: scratchpad
   kind: operator
-  module: dau_int32_scratchpad
-  source: dau_int32_scratchpad.sv
+  module: dau_scratchpad
+  source: dau_scratchpad.sv
   description: 'Owned-arena scratchpad: the deliberately trivial consumer of the
     owned storage class (STORAGE_AND_NOC.md). A granted word arena behind a
     host-written config port an allocator tile drives later; overflow at the
@@ -3532,7 +3573,7 @@ int32-scratchpad:
     emitted rows. Two words in per row {value,addr}/{we}, one word out
     {post_op_value,addr}. The interface keyed state consumes next.'
   golden: dau_core.operators:scratchpad_scan
-  bench: dau_core.tests.cocotb_benches.dau_int32_scratchpad_tb
+  bench: dau_core.tests.cocotb_benches.dau_scratchpad_tb
   count_port: row_count
   contract_kind: row-stream
   record_words: 2
@@ -3546,6 +3587,20 @@ int32-scratchpad:
       default: 1024
       minimum: 1
       maximum: 16384
+    VALUE_WIDTH:
+      # the ELEMENT TYPE of a stored word, not a bit count. The arena never
+      # interprets what it holds, so every type is admissible here -- the
+      # bound is the packing one: the value lane rides above the fixed 32-bit
+      # ADDRESS lane in one 64-bit word. int32 encodes as 32, so this declares
+      # exactly the tile it always built, and storage_intent's 4 bytes per
+      # word is that type's size.
+      element_type: true
+      default: int32
+      minimum: 8
+      maximum: 32
+      # only int32 is MEASURED; the RTL elaborates the whole declared range,
+      # and widening this list is a measurement task, not an RTL one
+      choices: [int32]
   # OOC on both parts, 8 ns, CAPACITY=1024. The first run of this tile
   # landed in 512 LUTs of distributed RAM because the arena access lived in
   # the reset-carrying FSM process; the dedicated reset-free process infers
@@ -3553,7 +3608,7 @@ int32-scratchpad:
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {CAPACITY: 1024}
+      params: {CAPACITY: 1024, VALUE_WIDTH: int32}
       lut: 84
       ff: 210
       bram36: 1.0
@@ -3562,7 +3617,7 @@ int32-scratchpad:
       wns_ns: 3.857
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {CAPACITY: 1024}
+      params: {CAPACITY: 1024, VALUE_WIDTH: int32}
       lut: 84
       ff: 210
       bram36: 1.0
@@ -3576,12 +3631,12 @@ int32-scratchpad:
       scale_parameter: CAPACITY
       tier_hint: bram
 
-int32-keyed-state:
+keyed-state:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-keyed-state
+  name: keyed-state
   kind: operator
-  module: dau_int32_keyed_state
-  source: dau_int32_keyed_state.sv
+  module: dau_keyed_state
+  source: dau_keyed_state.sv
   description: 'Keyed state tile: the first stateful operator and the owned
     storage class''s first real consumer. A per-key accumulator (SET/ADD/MAX/MIN
     from cfg_op, first row of a key seeded from cfg_initial) emitting the
@@ -3593,7 +3648,7 @@ int32-keyed-state:
     hazard exists; the 1-row/cycle CAM/pipelined variant is the named
     follow-up and the declared ingest rate carries the honesty.'
   golden: dau_core.operators:keyed_state_scan
-  bench: dau_core.tests.cocotb_benches.dau_int32_keyed_state_tb
+  bench: dau_core.tests.cocotb_benches.dau_keyed_state_tb
   count_port: row_count
   contract_kind: row-stream
   record_words: 1
@@ -3612,13 +3667,32 @@ int32-keyed-state:
       default: 1024
       minimum: 1
       maximum: 1024
+    FIELD_WIDTH:
+      # the ELEMENT TYPE of the key and value lanes -- one type, because the
+      # two share a 64-bit word and the emitted record mirrors the accepted
+      # one. The accumulator orders and adds two's-complement magnitudes, so
+      # the tile's own guard refuses float and unsigned types. int32 encodes
+      # as 32, so this declares exactly the tile it always built.
+      element_type: true
+      default: int32
+      minimum: 8
+      maximum: 32
+      # only int32 is MEASURED; the RTL elaborates the whole declared range
+      choices: [int32]
   # OOC on both parts, 8 ns, CAPACITY=1024. 1024 x 64-bit slots = exactly
   # two RAMB36; the valid bitmap rides in LUTRAM.
+  #
+  # RE-MEASURED 2026-08-16 alongside the element-type retype, which is where
+  # the LUT count moved by one. Not because of the retype: the same
+  # coordinate on the PRE-retype RTL reports the same 409 on both parts, so
+  # the netlist is unchanged and the recorded 408 simply predates
+  # dau-build#165, which put `-include_dirs` on synth_design. Every other
+  # number, including WNS to the picosecond, is what it was.
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {CAPACITY: 1024}
-      lut: 408
+      params: {CAPACITY: 1024, FIELD_WIDTH: int32}
+      lut: 409
       ff: 389
       bram36: 2.0
       dsp: 0
@@ -3626,8 +3700,8 @@ int32-keyed-state:
       wns_ns: 1.289
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {CAPACITY: 1024}
-      lut: 408
+      params: {CAPACITY: 1024, FIELD_WIDTH: int32}
+      lut: 409
       ff: 389
       bram36: 2.0
       dsp: 0
@@ -3641,12 +3715,12 @@ int32-keyed-state:
       scale_parameter: CAPACITY
       tier_hint: bram
 
-int32-session-gap:
+session-gap:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-session-gap
+  name: session-gap
   kind: operator
-  module: dau_int32_session_gap
-  source: dau_int32_session_gap.sv
+  module: dau_session_gap
+  source: dau_session_gap.sv
   description: 'Session-gap tile: the Nexmark-Q11 shape over bounded keyed
     state (STORAGE_AND_NOC.md). Per-key sessions over time-ordered {time,key}
     rows: a row past its key''s last time by more than cfg_gap closes the
@@ -3660,7 +3734,7 @@ int32-session-gap:
     grant bounds distinct keys). Error close-outs preserve emitted sessions
     and skip the drain.'
   golden: dau_core.operators:sessionize_scan
-  bench: dau_core.tests.cocotb_benches.dau_int32_session_gap_tb
+  bench: dau_core.tests.cocotb_benches.dau_session_gap_tb
   count_port: session_count
   contract_kind: row-stream
   record_words: 1
@@ -3681,14 +3755,34 @@ int32-session-gap:
       default: 1024
       minimum: 1
       maximum: 1024
+    FIELD_WIDTH:
+      # the ELEMENT TYPE of every lane of the row and of the emitted session,
+      # INCLUDING the session's row count -- count shares a word with `last`,
+      # and a record whose halves had different widths would not decode by the
+      # family's rule. That is also why only int32 is offered: a narrower type
+      # bounds the count a session can report, and a count that wrapped
+      # silently is worse than one that cannot be asked for. Times are
+      # subtracted and keys sorted signed, so the tile's own guard refuses
+      # float and unsigned types.
+      element_type: true
+      default: int32
+      minimum: 8
+      maximum: 32
+      choices: [int32]
   # OOC on both parts, 8 ns, CAPACITY=1024. 1024 x 128-bit slots = exactly
   # four RAMB36. The dpv1 margin is the tightest of the stateful tiles (the
   # 33-bit gap compare plus the 128-bit slot path) but met.
+  #
+  # RE-MEASURED 2026-08-16, same cause as the keyed state tile beside it: the
+  # PRE-retype RTL reports these same numbers at both coordinates, so the
+  # retype moved nothing and the recorded 567/566 predate dau-build#165's
+  # `-include_dirs`. Both parts now land on the same 576, which is what a
+  # part-independent front end should do.
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {CAPACITY: 1024}
-      lut: 567
+      params: {CAPACITY: 1024, FIELD_WIDTH: int32}
+      lut: 576
       ff: 575
       bram36: 4.0
       dsp: 0
@@ -3696,13 +3790,13 @@ int32-session-gap:
       wns_ns: 0.249
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {CAPACITY: 1024}
-      lut: 566
+      params: {CAPACITY: 1024, FIELD_WIDTH: int32}
+      lut: 576
       ff: 575
       bram36: 4.0
       dsp: 0
       timing: met
-      wns_ns: 2.427
+      wns_ns: 2.423
   storage_intent:
     - role: session_table
       access: owned
