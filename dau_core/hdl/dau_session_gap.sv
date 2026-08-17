@@ -167,10 +167,8 @@ module dau_session_gap #(
     // exact over FIELD_BITS wires (33 bits at int32). Both operands are
     // sign-extended by one bit; the gap itself is non-negative (a negative
     // cfg_gap is refused below) and so zero-extends.
-    logic [FIELD_BITS-1:0] slot_last_t;
-    assign slot_last_t = slot_q[2*FIELD_BITS +: FIELD_BITS];
     logic signed [FIELD_BITS:0] time_minus_last;
-    assign time_minus_last = $signed({cur_time[FIELD_BITS-1], cur_time}) - $signed({slot_last_t[FIELD_BITS-1], slot_last_t});
+    assign time_minus_last = $signed({cur_time[FIELD_BITS-1], cur_time}) - $signed({slot_q[3*FIELD_BITS-1], slot_q[2*FIELD_BITS +: FIELD_BITS]});
     logic gap_exceeded;
     assign gap_exceeded = time_minus_last > $signed({1'b0, gap_q});
 
