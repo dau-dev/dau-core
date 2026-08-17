@@ -1,5 +1,7 @@
 `default_nettype none
 
+`include "types.svh"
+
 // Scratchpad owned-arena tile: the deliberately trivial consumer of the OWNED
 // storage class (STORAGE_AND_NOC.md). A private word-addressed BRAM arena
 // behind a runtime GRANT; each row either writes a word or reads one, and
@@ -11,17 +13,31 @@
 // today and an allocator tile drives tomorrow; the tile cannot tell.
 //
 // Two 64-bit words per row (a row is atomic; input_last only legal on w1):
-//   w0 = {value[31:0], addr[31:0]}
+//   w0 = {value[VALUE_BITS-1:0], addr[31:0]}
 //   w1 = {63'b?, we}         (bit 0: 1 = write value at addr, 0 = read addr)
-// Output: one 64-bit word per row, {post_op_value[31:0], addr[31:0]}.
+// Output: one 64-bit word per row, {post_op_value[VALUE_BITS-1:0], addr[31:0]}.
+//
+// THE ADDRESS IS NOT AN ELEMENT. The arena stores VALUE_WIDTH elements and
+// the value lane follows that type; the address lane is a fixed 32-bit WORD
+// INDEX into the arena, which is a property of the arena's size (CAPACITY <=
+// 16384) and not of what the arena holds. It therefore keeps its own width,
+// and the value lane sits above it — at the default int32 that is exactly the
+// {value, addr} halves this tile has always had, port for port.
 //
 // The grant is latched on the first beat of each batch; a grant of zero or
 // beyond CAPACITY is BAD_GRANT (the batch drains, error close-out). The
 // arena persists across batches (grants persist; only the host's allocator
 // retires them). Addresses compare unsigned against the grant, so a negative
-// int32 address is never inside any grant.
+// address is never inside any grant.
 module dau_int32_scratchpad #(
-    parameter int CAPACITY = 1024  // arena words; [1, 16384]
+    parameter int CAPACITY = 1024,  // arena words; [1, 16384]
+    // The ELEMENT TYPE of one stored word, as encoded by types.svh. The arena
+    // NEVER INTERPRETS what it holds — it stores a value and hands the same
+    // bits back — so every type this parameter can name is admissible here,
+    // including the float and unsigned types the comparing tiles must refuse.
+    // The only bound is the packing one: the value lane rides above the
+    // 32-bit address in a single 64-bit word.
+    parameter int VALUE_WIDTH = `DAU_TYPE_INT32
 ) (
     input  wire logic        clk,
     input  wire logic        rst,
@@ -44,9 +60,16 @@ module dau_int32_scratchpad #(
     localparam logic [7:0] ERR_STORAGE_OVERFLOW = 8'd2;
     localparam logic [7:0] ERR_STREAM = 8'd3;
     localparam int AW = (CAPACITY <= 1) ? 1 : $clog2(CAPACITY);
+    localparam int ADDR_BITS = 32;                       // the address lane, fixed
+    localparam int VALUE_BITS = `DAU_TYPE_WIDTH(VALUE_WIDTH);
 
     if (CAPACITY < 1 || CAPACITY > 16384) begin : g_param_check
         $error("CAPACITY must be in [1, 16384]");
+    end
+    // the value rides above the address in one 64-bit word, so the type must
+    // fit the remaining half
+    if (VALUE_BITS < 8 || VALUE_BITS > 32) begin : g_value_width_check
+        $error("VALUE_WIDTH must be in [8, 32]");
     end
 
     typedef enum logic [2:0] {
@@ -60,17 +83,17 @@ module dau_int32_scratchpad #(
 
     state_t state;
 
-    (* ram_style = "block" *) logic [31:0] arena [0:CAPACITY-1];
+    (* ram_style = "block" *) logic [VALUE_BITS-1:0] arena [0:CAPACITY-1];
 
-    logic        batch_open;
-    logic [31:0] granted;
-    logic [31:0] row_addr;
-    logic [31:0] row_value;
-    logic        row_we;
-    logic        row_last;
-    logic [31:0] read_data;
-    logic        err_pending;
-    logic [7:0]  err_code;
+    logic                  batch_open;
+    logic [ADDR_BITS-1:0]  granted;
+    logic [ADDR_BITS-1:0]  row_addr;
+    logic [VALUE_BITS-1:0] row_value;
+    logic                  row_we;
+    logic                  row_last;
+    logic [VALUE_BITS-1:0] read_data;
+    logic                  err_pending;
+    logic [7:0]            err_code;
 
     assign input_ready = (state == STATE_W0) || (state == STATE_W1) || (state == STATE_DISCARD);
 
@@ -99,7 +122,7 @@ module dau_int32_scratchpad #(
         if (rst) begin
             state <= STATE_W0;
             batch_open <= 1'b0;
-            granted <= 32'd0;
+            granted <= '0;
             output_valid <= 1'b0;
             output_last <= 1'b0;
             status_valid <= 1'b0;
@@ -108,20 +131,20 @@ module dau_int32_scratchpad #(
             err_pending <= 1'b0;
             err_code <= 8'd0;
             row_count <= 64'd0;
-            row_addr <= 32'd0;
-            row_value <= 32'd0;
+            row_addr <= '0;
+            row_value <= '0;
             row_we <= 1'b0;
             row_last <= 1'b0;
         end else begin
             case (state)
                 STATE_W0: begin
                     if (input_valid) begin
-                        row_addr <= input_data[31:0];
-                        row_value <= input_data[63:32];
+                        row_addr <= input_data[ADDR_BITS-1:0];
+                        row_value <= input_data[ADDR_BITS +: VALUE_BITS];
                         if (!batch_open) begin
                             batch_open <= 1'b1;
                             granted <= cfg_granted_words;
-                            if (cfg_granted_words == 32'd0 || cfg_granted_words > CAPACITY[31:0]) begin
+                            if (cfg_granted_words == 32'd0 || cfg_granted_words > CAPACITY[ADDR_BITS-1:0]) begin
                                 err_pending <= 1'b1;
                                 err_code <= ERR_BAD_GRANT;
                                 state <= input_last ? STATE_STATUS : STATE_DISCARD;
@@ -161,7 +184,9 @@ module dau_int32_scratchpad #(
                 end
                 STATE_EMIT: begin
                     output_valid <= 1'b1;
-                    output_data <= {read_data, row_addr};
+                    // the record occupies the low lanes of the stream word;
+                    // an element narrower than the word leaves the rest zero
+                    output_data <= 64'({read_data, row_addr});
                     output_last <= row_last;
                     if (output_valid && output_ready) begin
                         output_valid <= 1'b0;

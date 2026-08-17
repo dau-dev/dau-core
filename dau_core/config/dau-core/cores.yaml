@@ -2592,7 +2592,7 @@ int32-streaming-dedup:
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {KEY_SPACE: 4096}
+      params: {KEY_SPACE: 4096, KEY_WIDTH: int32}
       lut: 268
       ff: 299
       bram36: 1.0
@@ -2601,7 +2601,7 @@ int32-streaming-dedup:
       wns_ns: 3.816
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {KEY_SPACE: 4096}
+      params: {KEY_SPACE: 4096, KEY_WIDTH: int32}
       lut: 268
       ff: 299
       bram36: 1.0
@@ -2610,7 +2610,7 @@ int32-streaming-dedup:
       wns_ns: 5.173
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {KEY_SPACE: 1500032}
+      params: {KEY_SPACE: 1500032, KEY_WIDTH: int32}
       lut: 421
       ff: 326
       bram36: 64.0
@@ -2619,7 +2619,7 @@ int32-streaming-dedup:
       wns_ns: 3.846
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {KEY_SPACE: 1500032}
+      params: {KEY_SPACE: 1500032, KEY_WIDTH: int32}
       lut: 389
       ff: 326
       bram36: 64.0
@@ -2643,6 +2643,18 @@ int32-streaming-dedup:
       minimum: 64
       maximum: 8388608
       multiple_of: 64
+    KEY_WIDTH:
+      # the ELEMENT TYPE of the key lane -- the only lane this tile reads. The
+      # key is a DICTIONARY ID, an index rather than a magnitude, so the range
+      # test is one unsigned compare either way and the tile's own guard
+      # refuses only float. A narrower type does NOT shrink the bitmap:
+      # KEY_SPACE sizes that, and cardinality sizes KEY_SPACE. int32 encodes
+      # as 32, so this declares exactly the tile it always built.
+      element_type: true
+      default: int32
+      minimum: 8
+      maximum: 32
+      choices: [int32]
 
 int32-broadcast-hash-join:
   _target_: dau_core.cores.CoreDefinition
@@ -3546,6 +3558,20 @@ int32-scratchpad:
       default: 1024
       minimum: 1
       maximum: 16384
+    VALUE_WIDTH:
+      # the ELEMENT TYPE of a stored word, not a bit count. The arena never
+      # interprets what it holds, so every type is admissible here -- the
+      # bound is the packing one: the value lane rides above the fixed 32-bit
+      # ADDRESS lane in one 64-bit word. int32 encodes as 32, so this declares
+      # exactly the tile it always built, and storage_intent's 4 bytes per
+      # word is that type's size.
+      element_type: true
+      default: int32
+      minimum: 8
+      maximum: 32
+      # only int32 is MEASURED; the RTL elaborates the whole declared range,
+      # and widening this list is a measurement task, not an RTL one
+      choices: [int32]
   # OOC on both parts, 8 ns, CAPACITY=1024. The first run of this tile
   # landed in 512 LUTs of distributed RAM because the arena access lived in
   # the reset-carrying FSM process; the dedicated reset-free process infers
@@ -3553,7 +3579,7 @@ int32-scratchpad:
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {CAPACITY: 1024}
+      params: {CAPACITY: 1024, VALUE_WIDTH: int32}
       lut: 84
       ff: 210
       bram36: 1.0
@@ -3562,7 +3588,7 @@ int32-scratchpad:
       wns_ns: 3.857
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {CAPACITY: 1024}
+      params: {CAPACITY: 1024, VALUE_WIDTH: int32}
       lut: 84
       ff: 210
       bram36: 1.0
@@ -3612,12 +3638,24 @@ int32-keyed-state:
       default: 1024
       minimum: 1
       maximum: 1024
+    FIELD_WIDTH:
+      # the ELEMENT TYPE of the key and value lanes -- one type, because the
+      # two share a 64-bit word and the emitted record mirrors the accepted
+      # one. The accumulator orders and adds two's-complement magnitudes, so
+      # the tile's own guard refuses float and unsigned types. int32 encodes
+      # as 32, so this declares exactly the tile it always built.
+      element_type: true
+      default: int32
+      minimum: 8
+      maximum: 32
+      # only int32 is MEASURED; the RTL elaborates the whole declared range
+      choices: [int32]
   # OOC on both parts, 8 ns, CAPACITY=1024. 1024 x 64-bit slots = exactly
   # two RAMB36; the valid bitmap rides in LUTRAM.
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {CAPACITY: 1024}
+      params: {CAPACITY: 1024, FIELD_WIDTH: int32}
       lut: 408
       ff: 389
       bram36: 2.0
@@ -3626,7 +3664,7 @@ int32-keyed-state:
       wns_ns: 1.289
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {CAPACITY: 1024}
+      params: {CAPACITY: 1024, FIELD_WIDTH: int32}
       lut: 408
       ff: 389
       bram36: 2.0
@@ -3681,13 +3719,27 @@ int32-session-gap:
       default: 1024
       minimum: 1
       maximum: 1024
+    FIELD_WIDTH:
+      # the ELEMENT TYPE of every lane of the row and of the emitted session,
+      # INCLUDING the session's row count -- count shares a word with `last`,
+      # and a record whose halves had different widths would not decode by the
+      # family's rule. That is also why only int32 is offered: a narrower type
+      # bounds the count a session can report, and a count that wrapped
+      # silently is worse than one that cannot be asked for. Times are
+      # subtracted and keys sorted signed, so the tile's own guard refuses
+      # float and unsigned types.
+      element_type: true
+      default: int32
+      minimum: 8
+      maximum: 32
+      choices: [int32]
   # OOC on both parts, 8 ns, CAPACITY=1024. 1024 x 128-bit slots = exactly
   # four RAMB36. The dpv1 margin is the tightest of the stateful tiles (the
   # 33-bit gap compare plus the 128-bit slot path) but met.
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {CAPACITY: 1024}
+      params: {CAPACITY: 1024, FIELD_WIDTH: int32}
       lut: 567
       ff: 575
       bram36: 4.0
@@ -3696,7 +3748,7 @@ int32-session-gap:
       wns_ns: 0.249
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {CAPACITY: 1024}
+      params: {CAPACITY: 1024, FIELD_WIDTH: int32}
       lut: 566
       ff: 575
       bram36: 4.0
