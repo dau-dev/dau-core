@@ -3174,42 +3174,50 @@ stream-aggregation:
   golden: dau_core.operators:aggregate_values
   bench: dau_core.tests.cocotb_benches.dau_stream_aggregation_tb
   resources:
+  # RE-MEASURED 2026-08-18: the element-type retype MOVED this netlist, and a
+  # pre-change control run at all four coordinates reproduces the old numbers
+  # exactly, so the move is the edit and not a stale record. aggregate_next now
+  # takes the sample already sign-extended instead of widening a bare 32-bit
+  # one, and the descriptor's logical type id, physical width and payload
+  # length are derived from the element rather than written as INT32 literals;
+  # both fold, and timing improves with the area. 414 -> 407 LUT at every recorded
+  # coordinate, all met.
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
       params: {VALUE_WIDTH: int32}
-      lut: 414
+      lut: 407
       ff: 269
       bram36: 0.0
       dsp: 0
       timing: met
-      wns_ns: 1.276
+      wns_ns: 1.563
     - part: xc7a200tfbg484-2
       clock_ns: 10.0
       params: {VALUE_WIDTH: int32}
-      lut: 414
+      lut: 407
       ff: 269
       bram36: 0.0
       dsp: 0
       timing: met
-      wns_ns: 3.276
+      wns_ns: 3.563
     - part: xc7k325tffg900-2
       clock_ns: 8.0
       params: {VALUE_WIDTH: int32}
-      lut: 414
+      lut: 407
       ff: 269
       bram36: 0.0
       dsp: 0
       timing: met
-      wns_ns: 3.545
+      wns_ns: 3.689
     - part: xc7k325tffg900-2
       clock_ns: 10.0
       params: {VALUE_WIDTH: int32}
-      lut: 414
+      lut: 407
       ff: 269
       bram36: 0.0
       dsp: 0
       timing: met
-      wns_ns: 5.545
+      wns_ns: 5.689
   contract_kind: arrow-lite-descriptor
   record_words: 1
   ingest:
@@ -3253,42 +3261,50 @@ arrow-lite-stream-aggregation:
   golden: dau_core.operators:aggregate_values
   bench: dau_core.tests.cocotb_benches.dau_arrow_lite_stream_aggregation_tb
   resources:
+  # RE-MEASURED 2026-08-18: the element-type retype MOVED this netlist, and a
+  # pre-change control run at all four coordinates reproduces the old numbers
+  # exactly, so the move is the edit and not a stale record. aggregate_next now
+  # takes the sample already sign-extended instead of widening a bare 32-bit
+  # one, and the descriptor's logical type id, physical width and payload
+  # length are derived from the element rather than written as INT32 literals;
+  # both fold, and timing improves with the area. 1359 -> 1268 (and 630 -> 632 flops) LUT at every recorded
+  # coordinate, all met.
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
       params: {VALUE_WIDTH: int32}
-      lut: 1359
-      ff: 630
+      lut: 1268
+      ff: 632
       bram36: 0.0
       dsp: 0
       timing: met
-      wns_ns: 1.199
+      wns_ns: 2.023
     - part: xc7a200tfbg484-2
       clock_ns: 10.0
       params: {VALUE_WIDTH: int32}
-      lut: 1359
-      ff: 630
+      lut: 1268
+      ff: 632
       bram36: 0.0
       dsp: 0
       timing: met
-      wns_ns: 3.199
+      wns_ns: 4.023
     - part: xc7k325tffg900-2
       clock_ns: 8.0
       params: {VALUE_WIDTH: int32}
-      lut: 1359
-      ff: 630
+      lut: 1268
+      ff: 632
       bram36: 0.0
       dsp: 0
       timing: met
-      wns_ns: 3.564
+      wns_ns: 3.791
     - part: xc7k325tffg900-2
       clock_ns: 10.0
       params: {VALUE_WIDTH: int32}
-      lut: 1359
-      ff: 630
+      lut: 1268
+      ff: 632
       bram36: 0.0
       dsp: 0
       timing: met
-      wns_ns: 5.564
+      wns_ns: 5.791
   contract_kind: row-stream
   record_words: 1
   output_record_words: 17
@@ -3333,42 +3349,50 @@ record-batch-aggregation:
   golden: dau_core.operators:aggregate_values
   bench: dau_core.tests.cocotb_benches.dau_record_batch_aggregation_tb
   resources:
+  # RE-MEASURED 2026-08-18: the element-type retype MOVED this netlist, and a
+  # pre-change control run at all four coordinates reproduces the old numbers
+  # exactly, so the move is the edit and not a stale record. aggregate_next now
+  # takes the sample already sign-extended instead of widening a bare 32-bit
+  # one, and the descriptor's logical type id, physical width and payload
+  # length are derived from the element rather than written as INT32 literals;
+  # both fold, and timing improves with the area. 2015 -> 1864 LUT at every recorded
+  # coordinate, all met.
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
       params: {VALUE_WIDTH: int32}
-      lut: 2015
+      lut: 1864
       ff: 2740
       bram36: 0.0
       dsp: 0
       timing: met
-      wns_ns: 0.766
+      wns_ns: 0.900
     - part: xc7a200tfbg484-2
       clock_ns: 10.0
       params: {VALUE_WIDTH: int32}
-      lut: 2015
+      lut: 1864
       ff: 2740
       bram36: 0.0
       dsp: 0
       timing: met
-      wns_ns: 2.766
+      wns_ns: 2.900
     - part: xc7k325tffg900-2
       clock_ns: 8.0
       params: {VALUE_WIDTH: int32}
-      lut: 2015
+      lut: 1864
       ff: 2740
       bram36: 0.0
       dsp: 0
       timing: met
-      wns_ns: 3.19
+      wns_ns: 3.313
     - part: xc7k325tffg900-2
       clock_ns: 10.0
       params: {VALUE_WIDTH: int32}
-      lut: 2015
+      lut: 1864
       ff: 2740
       bram36: 0.0
       dsp: 0
       timing: met
-      wns_ns: 5.19
+      wns_ns: 5.313
   contract_kind: row-stream
   record_words: 1
   output_record_words: 17
@@ -3933,60 +3957,68 @@ wide-field-sum-aggregation:
   # Measured points only. The pre-balanced-tree xc7a200t point is deliberately
   # absent: it measured different HDL.
   resources:
+  # RE-MEASURED 2026-08-18 at SLOTS 1, 2 and 4 on both parts, because a control
+  # run reported drift the retype had not caused: the same coordinates report
+  # the same numbers on the pre-change tree and on this one, and SLOTS=8
+  # reproduces exactly. What moved was #161, which rebuilt the reduction as a
+  # parameterized tree and split the 64-bit accumulate off it behind the pend_*
+  # registers ("costs 249 flops"), then recorded only the SLOTS=8 points it had
+  # just added. Flat 470/470/469 flops against a rising 600/605/610 is that
+  # retime; the LUT understatement was 59, 103 and 106.
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
       params: {SLOTS: 1, FIELD_WIDTH: int32}
-      lut: 827
-      ff: 470
-      bram36: 0.0
-      dsp: 0
-      timing: met
-      wns_ns: 3.828
-    - part: xc7k325tffg900-2
-      clock_ns: 8.0
-      params: {SLOTS: 1, FIELD_WIDTH: int32}
-      lut: 827
-      ff: 470
-      bram36: 0.0
-      dsp: 0
-      timing: met
-      wns_ns: 5.404
-    - part: xc7a200tfbg484-2
-      clock_ns: 8.0
-      params: {SLOTS: 2, FIELD_WIDTH: int32}
-      lut: 1002
-      ff: 470
+      lut: 886
+      ff: 600
       bram36: 0.0
       dsp: 0
       timing: met
       wns_ns: 4.065
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {SLOTS: 2, FIELD_WIDTH: int32}
-      lut: 1002
-      ff: 470
+      params: {SLOTS: 1, FIELD_WIDTH: int32}
+      lut: 886
+      ff: 600
       bram36: 0.0
       dsp: 0
       timing: met
-      wns_ns: 5.43
+      wns_ns: 5.426
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {SLOTS: 2, FIELD_WIDTH: int32}
+      lut: 1105
+      ff: 605
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.758
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {SLOTS: 2, FIELD_WIDTH: int32}
+      lut: 1105
+      ff: 605
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.33
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
       params: {SLOTS: 4, FIELD_WIDTH: int32}
-      lut: 1375
-      ff: 469
+      lut: 1481
+      ff: 610
       bram36: 0.0
       dsp: 0
       timing: met
-      wns_ns: 3.819
+      wns_ns: 3.758
     - part: xc7k325tffg900-2
       clock_ns: 8.0
       params: {SLOTS: 4, FIELD_WIDTH: int32}
-      lut: 1375
-      ff: 469
+      lut: 1481
+      ff: 610
       bram36: 0.0
       dsp: 0
       timing: met
-      wns_ns: 5.369
+      wns_ns: 5.33
     # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
