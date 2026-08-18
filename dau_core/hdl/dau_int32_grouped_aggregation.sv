@@ -1,17 +1,21 @@
 `default_nettype none
 
+`include "types.svh"
+
 // Ordered grouped-aggregation tile (the Q100 grouped-aggregate
 // shape, close-out mode).
 //
-// Consumes one keyed row per 64-bit word ({value[31:0], key[31:0]}, both
-// signed INT32) and computes first/last/min/max (INT32) and sum/count
-// (INT64) for each run of consecutive equal keys. A group closes when the
-// key changes or the stream ends; close-out emits a 5-word group record:
+// Consumes one keyed row per 64-bit word ({value, key}, lanes 0 and 1 of the
+// word at FIELD_WIDTH each) and computes first/last/min/max (the element
+// type) and sum/count (INT64) for each run of consecutive equal keys. A group
+// closes when the key changes or the stream ends; close-out emits a 5-word
+// group record whose slots do NOT move with the element type -- an element
+// statistic rides a 32-bit slot sign-extended, an accumulator a 64-bit word:
 //
-//   w0 = {first, key}
-//   w1 = {minimum, last}
+//   w0 = {first, key}          (two 32-bit slots)
+//   w1 = {minimum, last}       (two 32-bit slots)
 //   w2 = {32'd0, maximum}
-//   w3 = sum[63:0]     (INT64 accumulator over INT32 values)
+//   w3 = sum[63:0]     (INT64 accumulator over the element values)
 //   w4 = count[63:0]
 //
 // A key that reappears after other keys opens a NEW group — partial groups
@@ -24,14 +28,27 @@
 // last-driven mode (stages downstream of a compaction trust the upstream
 // last marker). Configuration ports are latched at the first beat, matching
 // dau_core.operators.grouped_aggregate_rows bit-for-bit.
-module dau_int32_grouped_aggregation (
+module dau_int32_grouped_aggregation #(
+    // The ELEMENT TYPE of the key and value lanes, as encoded by types.svh.
+    // The 64-bit keyed word is the transport unit and stays fixed; lane i is
+    // its i-th FIELD_BITS lane, so `DAU_TYPE_INT32 is 32 and the default
+    // reproduces the {value, key} word the tile has always read. The record's
+    // element slots are 32 bits and its accumulators 64, which is why the
+    // type may narrow but not widen.
+    parameter int FIELD_WIDTH = `DAU_TYPE_INT32
+) (
     input  wire logic        clk,
     input  wire logic        rst,
     input  wire logic [1:0]  cfg_mode,
     input  wire logic [63:0] cfg_row_count,
     input  wire logic        input_valid,
     output logic             input_ready,
+    // only lanes 0 and 1 -- the key and the value -- are read. At the default
+    // int32 those are the whole word; a narrower element leaves the lanes
+    // above them reserved and unread (the streaming dedup says the same).
+    /* verilator lint_off UNUSEDSIGNAL */
     input  wire logic [63:0] input_data,
+    /* verilator lint_on UNUSEDSIGNAL */
     input  wire logic        input_last,
     output logic             output_valid,
     input  wire logic        output_ready,
@@ -47,6 +64,29 @@ module dau_int32_grouped_aggregation (
 
     localparam logic [7:0] ERR_CONFIG = 8'd1;
     localparam logic [7:0] ERR_STREAM = 8'd2;
+
+    localparam int WORD_BITS = 64;  // the transport unit, fixed
+    localparam int FIELD_BITS      = `DAU_TYPE_WIDTH(FIELD_WIDTH);
+    localparam int FIELD_IS_FLOAT  = `DAU_TYPE_IS_FLOAT(FIELD_WIDTH);
+    localparam int FIELD_IS_SIGNED = `DAU_TYPE_IS_SIGNED(FIELD_WIDTH);
+    localparam int SLOT_BITS = 32;  // the record's element slot, fixed with the record
+
+    // The upper bound is the RECORD, not the lane: first/last/min/max ride
+    // 32-bit slots and the sum a 64-bit word, so a wider element would need a
+    // versioned record, i.e. a different tile. Narrowing is free.
+    if (FIELD_BITS < 8 || FIELD_BITS > 32 || (WORD_BITS % FIELD_BITS) != 0) begin : g_field_width_check
+        $error("FIELD_WIDTH must divide 64 and lie in [8, 32]");
+    end
+    // A TYPE IS NOT A CAPABILITY. This datapath ORDERS values (min/max) and
+    // sign-extends them into a two's-complement INT64 accumulator: handed a
+    // float it would order exponent bits as magnitude, and handed an unsigned
+    // type it would read every high-bit-set value as negative.
+    if (FIELD_IS_FLOAT != 0) begin : g_field_float_check
+        $error("FIELD_WIDTH must not name a floating-point type: this tile orders and sums two's-complement integers");
+    end
+    if (FIELD_IS_SIGNED == 0) begin : g_field_signed_check
+        $error("FIELD_WIDTH must not name an unsigned type: this tile orders and sums two's-complement integers");
+    end
 
     typedef enum logic [3:0] {
         STATE_IDLE,
@@ -66,17 +106,17 @@ module dau_int32_grouped_aggregation (
     logic        count_checked;
     logic [63:0] rows_remaining;
     logic        group_open;
-    logic signed [31:0] group_key;
-    logic signed [31:0] group_first;
-    logic signed [31:0] group_last;
-    logic signed [31:0] group_min;
-    logic signed [31:0] group_max;
+    logic signed [FIELD_BITS-1:0] group_key;
+    logic signed [FIELD_BITS-1:0] group_first;
+    logic signed [FIELD_BITS-1:0] group_last;
+    logic signed [FIELD_BITS-1:0] group_min;
+    logic signed [FIELD_BITS-1:0] group_max;
     logic signed [63:0] group_sum;
     logic [63:0] group_rows;
     logic        final_after_emit;
     logic        pending_row_valid;
-    logic signed [31:0] pending_key;
-    logic signed [31:0] pending_value;
+    logic signed [FIELD_BITS-1:0] pending_key;
+    logic signed [FIELD_BITS-1:0] pending_value;
     logic        pending_row_final;
     logic [7:0]  pending_error_code;
 
@@ -89,8 +129,8 @@ module dau_int32_grouped_aggregation (
 
     logic [63:0] eff_remaining;
     logic        eff_count_checked;
-    logic signed [31:0] row_key;
-    logic signed [31:0] row_value;
+    logic signed [FIELD_BITS-1:0] row_key;
+    logic signed [FIELD_BITS-1:0] row_value;
 
     assign eff_remaining = (state == STATE_IDLE) ? cfg_row_count : rows_remaining;
     assign eff_count_checked = (state == STATE_IDLE) ? (|cfg_row_count) : count_checked;
@@ -107,8 +147,8 @@ module dau_int32_grouped_aggregation (
     // last-driven (row_count 0): the upstream last marker decides
     assign final_word = eff_count_checked ? ((~|eff_remaining[63:1]) && eff_remaining[0]) : input_last;
 
-    assign row_key = signed'(input_data[31:0]);
-    assign row_value = signed'(input_data[63:32]);
+    assign row_key = signed'(input_data[0*FIELD_BITS +: FIELD_BITS]);
+    assign row_value = signed'(input_data[1*FIELD_BITS +: FIELD_BITS]);
     assign key_change = group_open && (row_key != group_key);
 
     always_ff @(posedge clk) begin
@@ -158,7 +198,7 @@ module dau_int32_grouped_aggregation (
                 STATE_EMIT_W0: begin
                     if (!output_valid || output_ready) begin
                         output_valid <= 1'b1;
-                        output_data <= {group_first, group_key};
+                        output_data <= {SLOT_BITS'(signed'(group_first)), SLOT_BITS'(signed'(group_key))};
                         output_last <= 1'b0;
                         state <= STATE_EMIT_W1;
                     end
@@ -166,7 +206,7 @@ module dau_int32_grouped_aggregation (
                 STATE_EMIT_W1: begin
                     if (!output_valid || output_ready) begin
                         output_valid <= 1'b1;
-                        output_data <= {group_min, group_last};
+                        output_data <= {SLOT_BITS'(signed'(group_min)), SLOT_BITS'(signed'(group_last))};
                         output_last <= 1'b0;
                         state <= STATE_EMIT_W2;
                     end
@@ -174,7 +214,7 @@ module dau_int32_grouped_aggregation (
                 STATE_EMIT_W2: begin
                     if (!output_valid || output_ready) begin
                         output_valid <= 1'b1;
-                        output_data <= {32'd0, group_max};
+                        output_data <= {32'd0, SLOT_BITS'(signed'(group_max))};
                         output_last <= 1'b0;
                         state <= STATE_EMIT_W3;
                     end
@@ -236,7 +276,7 @@ module dau_int32_grouped_aggregation (
         end
     end
 
-    task automatic open_group(input logic signed [31:0] key, input logic signed [31:0] value);
+    task automatic open_group(input logic signed [FIELD_BITS-1:0] key, input logic signed [FIELD_BITS-1:0] value);
         begin
             group_open <= 1'b1;
             group_key <= key;
@@ -249,7 +289,7 @@ module dau_int32_grouped_aggregation (
         end
     endtask
 
-    task automatic absorb_row(input logic signed [31:0] key, input logic signed [31:0] value);
+    task automatic absorb_row(input logic signed [FIELD_BITS-1:0] key, input logic signed [FIELD_BITS-1:0] value);
         begin
             if (!group_open) begin
                 open_group(key, value);
@@ -314,15 +354,15 @@ module dau_int32_grouped_aggregation (
     task automatic reset_state;
         begin
             reset_stream_state();
-            group_key <= 32'd0;
-            group_first <= 32'd0;
-            group_last <= 32'd0;
-            group_min <= 32'd0;
-            group_max <= 32'd0;
+            group_key <= '0;
+            group_first <= '0;
+            group_last <= '0;
+            group_min <= '0;
+            group_max <= '0;
             group_sum <= 64'd0;
             group_rows <= 64'd0;
-            pending_key <= 32'd0;
-            pending_value <= 32'd0;
+            pending_key <= '0;
+            pending_value <= '0;
         end
     endtask
 endmodule

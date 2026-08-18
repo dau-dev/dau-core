@@ -1,9 +1,12 @@
 `default_nettype none
 
+`include "types.svh"
+
 // Wide-lane batch field-sum aggregation: SLOTS whole 16-byte quad rows per
 // beat, one beat per cycle — the multi-row-per-cycle terminal of the wide
 // lane (ingest SLOTS rows/cycle vs the 64-bit tile's one per two). A slot
-// carries one row {aux1, aux0, value, key} (field i at bits [32*i +: 32]);
+// carries one row {aux1, aux0, value, key} (field i at bits
+// [FIELD_BITS*i +: FIELD_BITS]);
 // the reserved ALL-ONES 128-bit row is the PAD (the ragged-tail / dropped-
 // slot convention shared with the wide dispatcher and the wide filter):
 // pads are neither accumulated nor counted, so an upstream wide predicate
@@ -18,7 +21,15 @@
 // tile's ERR_STREAM path has no equivalent here. An all-pad beat (a
 // trailing pad-only tail) accumulates nothing and closes normally.
 module dau_int32_wide_field_sum_aggregation #(
-    parameter int SLOTS = 4  // quad rows per beat: 1, 2, 4, or 8
+    parameter int SLOTS = 4,  // quad rows per beat: 1, 2, 4, or 8
+    // The ELEMENT TYPE of one field, as encoded by types.svh. A slot stays a
+    // 128-bit row (the wide lane's transport unit, and what the PAD is a value
+    // of), and field i is its i-th FIELD_BITS lane. This tile sums the FIELDS
+    // lanes it names and ignores any a narrower type leaves beyond them.
+    // `DAU_TYPE_INT32 is 32, so the default reproduces the four-field slot
+    // port for port; the sums are INT64 whatever the element is, which is why
+    // the type may narrow but not widen.
+    parameter int FIELD_WIDTH = `DAU_TYPE_INT32
 ) (
     input  wire logic                     clk,
     input  wire logic                     rst,
@@ -37,12 +48,33 @@ module dau_int32_wide_field_sum_aggregation #(
     output logic [7:0]                    status_error_code,
     output logic [63:0]                   aggregated_count
 );
+    localparam int ROW_BITS = 128;  // one slot, the wide lane's transport unit
+    localparam int FIELDS   = 4;    // the lanes this tile accumulates
+    localparam int FIELD_BITS      = `DAU_TYPE_WIDTH(FIELD_WIDTH);
+    localparam int FIELD_IS_FLOAT  = `DAU_TYPE_IS_FLOAT(FIELD_WIDTH);
+    localparam int FIELD_IS_SIGNED = `DAU_TYPE_IS_SIGNED(FIELD_WIDTH);
+
     if (!(SLOTS == 1 || SLOTS == 2 || SLOTS == 4 || SLOTS == 8)) begin : g_bad_slots
         $error("SLOTS must be 1, 2, 4, or 8");
     end
+    // The upper bound is the RECORD, not the lane: a sum word is 64 bits, so
+    // an element wider than 32 would need more sum bits than the record can
+    // express -- a versioned record, i.e. a different tile. Narrowing is free.
+    if (FIELD_BITS < 8 || FIELD_BITS > 32 || (ROW_BITS % FIELD_BITS) != 0) begin : g_field_width_check
+        $error("FIELD_WIDTH must divide 128 and lie in [8, 32]");
+    end
+    // A TYPE IS NOT A CAPABILITY. The reduction tree sign-extends each field
+    // and the accumulator is two's-complement INT64: a float would be added as
+    // exponent bits, an unsigned type read as negative above its half-range.
+    if (FIELD_IS_FLOAT != 0) begin : g_field_float_check
+        $error("FIELD_WIDTH must not name a floating-point type: this tile sums two's-complement integers");
+    end
+    if (FIELD_IS_SIGNED == 0) begin : g_field_signed_check
+        $error("FIELD_WIDTH must not name an unsigned type: this tile sign-extends into a signed accumulator");
+    end
 
     localparam logic [7:0] ERR_CONFIG = 8'd1;
-    localparam logic [127:0] PAD_ROW = {128{1'b1}};
+    localparam logic [ROW_BITS-1:0] PAD_ROW = {ROW_BITS{1'b1}};
 
     typedef enum logic [2:0] {
         STATE_ACCUM,   // accept one beat of SLOTS rows per cycle
@@ -56,7 +88,7 @@ module dau_int32_wide_field_sum_aggregation #(
 
     logic        batch_open;
     logic [3:0]  active_mask;
-    logic signed [63:0] sums [4];
+    logic signed [63:0] sums [FIELDS];
     logic [63:0] row_count;
     logic [2:0]  emit_phase;
 
@@ -81,11 +113,12 @@ module dau_int32_wide_field_sum_aggregation #(
     // Two things here are deliberate and were not always true. The tree is
     // balanced -- (a+b)+(c+d), depth ceil(log2(SLOTS)) -- rather than a
     // left-fold accumulation, whose depth is SLOTS. And it is BEAT_SUM_W wide,
-    // not 64: summing SLOTS signed 32-bit values needs 32+clog2(SLOTS) bits,
-    // and only the running accumulator below needs the full 64. A left-fold at
+    // not 64: summing SLOTS signed FIELD_BITS values needs
+    // FIELD_BITS+clog2(SLOTS) bits, and only the running accumulator below
+    // needs the full 64. A left-fold at
     // 64 bits put four chained 64-bit carry chains ahead of the accumulator and
     // made this tile the path that bound the whole job clock.
-    localparam int BEAT_SUM_W = 32 + $clog2(SLOTS);
+    localparam int BEAT_SUM_W = FIELD_BITS + $clog2(SLOTS);
     localparam int ROWS_W = $clog2(SLOTS + 1);
 
     // reduction depth, so the tree stays balanced at every SLOTS. At SLOTS==1
@@ -93,13 +126,13 @@ module dau_int32_wide_field_sum_aggregation #(
     localparam int LEVELS = $clog2(SLOTS);
 
     logic [SLOTS-1:0] slot_live;
-    logic signed [BEAT_SUM_W-1:0] slot_term [0:3][0:SLOTS-1]; // [field][slot], 0 for pads
+    logic signed [BEAT_SUM_W-1:0] slot_term [0:FIELDS-1][0:SLOTS-1]; // [field][slot], 0 for pads
     // [field][level][node]: level 0 is the slot terms, each level halves, and
     // level LEVELS node 0 is the beat sum. Written as a parameterized tree
     // rather than the hand-written (a+b)+(c+d) it replaces, which silently
     // fixed the tile at four slots.
-    logic signed [BEAT_SUM_W-1:0] tree [0:3][0:LEVELS][0:SLOTS-1];
-    logic signed [BEAT_SUM_W-1:0] beat_sum [4];
+    logic signed [BEAT_SUM_W-1:0] tree [0:FIELDS-1][0:LEVELS][0:SLOTS-1];
+    logic signed [BEAT_SUM_W-1:0] beat_sum [FIELDS];
     logic [ROWS_W-1:0] beat_rows;
 
     // RETIME (2026-08-11): the reduction tree and the 64-bit accumulate used
@@ -111,26 +144,26 @@ module dau_int32_wide_field_sum_aggregation #(
     logic                          pend_valid;
     logic                          pend_first;
     logic                          pend_last;
-    logic signed [BEAT_SUM_W-1:0]  pend_sum [4];
+    logic signed [BEAT_SUM_W-1:0]  pend_sum [FIELDS];
     logic [ROWS_W-1:0]             pend_rows;
 
     always_comb begin
         slot_live = '0;
-        for (int f = 0; f < 4; f++) begin
+        for (int f = 0; f < FIELDS; f++) begin
             for (int s = 0; s < SLOTS; s++) begin
                 slot_term[f][s] = '0;
             end
         end
         for (int s = 0; s < SLOTS; s++) begin
-            slot_live[s] = (input_data[128*s +: 128] != PAD_ROW);
-            for (int f = 0; f < 4; f++) begin
+            slot_live[s] = (input_data[ROW_BITS*s +: ROW_BITS] != PAD_ROW);
+            for (int f = 0; f < FIELDS; f++) begin
                 if (slot_live[s]) begin
-                    slot_term[f][s] = BEAT_SUM_W'(signed'(input_data[128*s + 32*f +: 32]));
+                    slot_term[f][s] = BEAT_SUM_W'(signed'(input_data[ROW_BITS*s + FIELD_BITS*f +: FIELD_BITS]));
                 end
             end
         end
         beat_rows = ROWS_W'($countones(slot_live));
-        for (int f = 0; f < 4; f++) begin
+        for (int f = 0; f < FIELDS; f++) begin
             for (int s = 0; s < SLOTS; s++) begin
                 tree[f][0][s] = slot_term[f][s];
             end
@@ -168,12 +201,12 @@ module dau_int32_wide_field_sum_aggregation #(
                     // lets the final beat land after input_last was accepted.
                     if (pend_valid) begin
                         if (pend_first) begin
-                            for (int f = 0; f < 4; f++) begin
+                            for (int f = 0; f < FIELDS; f++) begin
                                 sums[f] <= (active_mask[f]) ? 64'(pend_sum[f]) : 64'sd0;
                             end
                             row_count <= pend_rows;
                         end else begin
-                            for (int f = 0; f < 4; f++) begin
+                            for (int f = 0; f < FIELDS; f++) begin
                                 if (active_mask[f]) begin
                                     sums[f] <= sums[f] + 64'(pend_sum[f]);
                                 end
@@ -206,7 +239,7 @@ module dau_int32_wide_field_sum_aggregation #(
                             pend_valid <= 1'b1;
                             pend_first <= first_beat;
                             pend_last <= input_last;
-                            for (int f = 0; f < 4; f++) begin
+                            for (int f = 0; f < FIELDS; f++) begin
                                 pend_sum[f] <= beat_sum[f];
                             end
                             pend_rows <= beat_rows;
@@ -282,7 +315,7 @@ module dau_int32_wide_field_sum_aggregation #(
             pend_first <= 1'b0;
             pend_last <= 1'b0;
             pend_rows <= '0;
-            for (int f = 0; f < 4; f++) begin
+            for (int f = 0; f < FIELDS; f++) begin
                 pend_sum[f] <= '0;
             end
         end
@@ -293,7 +326,7 @@ module dau_int32_wide_field_sum_aggregation #(
             state <= STATE_ACCUM;
             batch_open <= 1'b0;
             active_mask <= 4'd0;
-            for (int f = 0; f < 4; f++) begin
+            for (int f = 0; f < FIELDS; f++) begin
                 sums[f] <= 64'sd0;
             end
             row_count <= 64'd0;

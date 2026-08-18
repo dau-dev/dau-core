@@ -7,6 +7,7 @@ import pytest
 
 from dau_core.hdl import (
     DAU_AGGREGATION_PKG_SV,
+    DAU_HDL_INCLUDE_DIR,
     DAU_AXI_RAM_SIM_SV,
     DAU_AXI_STREAM_JOB_SV,
     DAU_INT32_ARROW_LITE_STREAM_AGGREGATION_SV,
@@ -145,4 +146,11 @@ def test_record_batch_aggregation_systemverilog_bench_runs_under_verilator(tmp_p
 
 def _run_verilator_testbench(**kwargs):
     verilator_module = pytest.importorskip("dau_sim.integrations.verilator", reason="dau-sim Verilator integration not installed")
+    # The include path is not optional and belongs here rather than at each
+    # call: a tile that `includes types.svh does not compile without it, and
+    # Verilator does not search the including file's own directory. The cocotb
+    # runner has carried the same flag since the element types landed; these
+    # SystemVerilog benches are simply the first to instantiate a tile that
+    # needs it.
+    kwargs.setdefault("extra_args", (f"-I{DAU_HDL_INCLUDE_DIR}",))
     return verilator_module.run_verilator_testbench(**kwargs)

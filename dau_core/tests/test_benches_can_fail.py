@@ -52,14 +52,14 @@ class _Mutation:
 _MUTATIONS = (
     _Mutation(
         core_name="int32-hash-grouped-aggregation",
-        find="base_count + 32'd1",
-        replace="base_count + 32'd2",
+        find="base_count + COUNT_BITS'(1)",
+        replace="base_count + COUNT_BITS'(2)",
         what_it_breaks="every group's row count is doubled",
     ),
     _Mutation(
         core_name="int32-field-sum-aggregation",
-        find="sums[0] <= sums[0] + 64'(signed'(row_w0[31:0]))",
-        replace="sums[0] <= sums[0] - 64'(signed'(row_w0[31:0]))",
+        find="sums[0] <= sums[0] + 64'(signed'(row_lanes[0*FIELD_BITS +: FIELD_BITS]))",
+        replace="sums[0] <= sums[0] - 64'(signed'(row_lanes[0*FIELD_BITS +: FIELD_BITS]))",
         what_it_breaks="field 0's sum is negated",
     ),
 )

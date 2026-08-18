@@ -276,7 +276,7 @@ int32-grouped-aggregation:
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {}
+      params: {FIELD_WIDTH: int32}
       lut: 679
       ff: 565
       bram36: 0.0
@@ -285,7 +285,7 @@ int32-grouped-aggregation:
       wns_ns: 2.847
     - part: xc7a200tfbg484-2
       clock_ns: 10.0
-      params: {}
+      params: {FIELD_WIDTH: int32}
       lut: 679
       ff: 565
       bram36: 0.0
@@ -294,7 +294,7 @@ int32-grouped-aggregation:
       wns_ns: 4.847
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {}
+      params: {FIELD_WIDTH: int32}
       lut: 679
       ff: 565
       bram36: 0.0
@@ -303,7 +303,7 @@ int32-grouped-aggregation:
       wns_ns: 4.28
     - part: xc7k325tffg900-2
       clock_ns: 10.0
-      params: {}
+      params: {FIELD_WIDTH: int32}
       lut: 679
       ff: 565
       bram36: 0.0
@@ -318,6 +318,22 @@ int32-grouped-aggregation:
     rows: 1
     per_cycles: 2
   success_close_out: true
+  parameters:
+    FIELD_WIDTH:
+      # the ELEMENT TYPE of one field lane. The 64-bit keyed word is the
+      # transport unit and stays fixed, so lane i is its i-th lane at this
+      # width; the tile reads the key and value lanes and ignores any a
+      # narrower type leaves beyond them. int32 encodes as 32, so this declares exactly the
+      # tile that has always been built.
+      element_type: true
+      default: int32
+      # the record bounds it from above, not the row: the sums are INT64 and
+      # the element statistics ride 32-bit record slots, so a wider element
+      # would need a versioned record -- a different tile
+      minimum: 8
+      maximum: 32
+      # only int32 is MEASURED; the RTL elaborates the whole declared range
+      choices: [int32]
 
 int32-grouped-field-aggregation:
   _target_: dau_core.cores.CoreDefinition
@@ -337,7 +353,7 @@ int32-grouped-field-aggregation:
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {}
+      params: {FIELD_WIDTH: int32}
       lut: 807
       ff: 878
       bram36: 0.0
@@ -346,7 +362,7 @@ int32-grouped-field-aggregation:
       wns_ns: 3.846
     - part: xc7a200tfbg484-2
       clock_ns: 10.0
-      params: {}
+      params: {FIELD_WIDTH: int32}
       lut: 807
       ff: 878
       bram36: 0.0
@@ -355,7 +371,7 @@ int32-grouped-field-aggregation:
       wns_ns: 5.846
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {}
+      params: {FIELD_WIDTH: int32}
       lut: 807
       ff: 878
       bram36: 0.0
@@ -364,7 +380,7 @@ int32-grouped-field-aggregation:
       wns_ns: 5.242
     - part: xc7k325tffg900-2
       clock_ns: 10.0
-      params: {}
+      params: {FIELD_WIDTH: int32}
       lut: 807
       ff: 878
       bram36: 0.0
@@ -379,6 +395,22 @@ int32-grouped-field-aggregation:
     rows: 1
     per_cycles: 2
   success_close_out: true
+  parameters:
+    FIELD_WIDTH:
+      # the ELEMENT TYPE of one field lane. The 128-bit row is the transport
+      # unit and stays fixed, so field i is its i-th lane at this width; the
+      # tile keeps the four lanes it names and ignores any a narrower type
+      # leaves beyond them. int32 encodes as 32, so this declares exactly the
+      # tile that has always been built.
+      element_type: true
+      default: int32
+      # the record bounds it from above, not the row: the sums are INT64 and
+      # the element statistics ride 32-bit record slots, so a wider element
+      # would need a versioned record -- a different tile
+      minimum: 8
+      maximum: 32
+      # only int32 is MEASURED; the RTL elaborates the whole declared range
+      choices: [int32]
 
 int32-bar-aggregation:
   _target_: dau_core.cores.CoreDefinition
@@ -392,7 +424,7 @@ int32-bar-aggregation:
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {}
+      params: {FIELD_WIDTH: int32}
       lut: 828
       ff: 631
       bram36: 0.0
@@ -401,7 +433,7 @@ int32-bar-aggregation:
       wns_ns: 2.66
     - part: xc7a200tfbg484-2
       clock_ns: 10.0
-      params: {}
+      params: {FIELD_WIDTH: int32}
       lut: 828
       ff: 631
       bram36: 0.0
@@ -410,7 +442,7 @@ int32-bar-aggregation:
       wns_ns: 4.66
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {}
+      params: {FIELD_WIDTH: int32}
       lut: 828
       ff: 631
       bram36: 0.0
@@ -419,7 +451,7 @@ int32-bar-aggregation:
       wns_ns: 4.113
     - part: xc7k325tffg900-2
       clock_ns: 10.0
-      params: {}
+      params: {FIELD_WIDTH: int32}
       lut: 828
       ff: 631
       bram36: 0.0
@@ -434,6 +466,22 @@ int32-bar-aggregation:
     rows: 1
     per_cycles: 2
   success_close_out: true
+  parameters:
+    FIELD_WIDTH:
+      # the ELEMENT TYPE of one field lane. The 128-bit row is the transport
+      # unit and stays fixed, so field i is its i-th lane at this width; the
+      # tile keeps the four lanes it names and ignores any a narrower type
+      # leaves beyond them. int32 encodes as 32, so this declares exactly the
+      # tile that has always been built.
+      element_type: true
+      default: int32
+      # the record bounds it from above, not the row: the sums are INT64 and
+      # the element statistics ride 32-bit record slots, so a wider element
+      # would need a versioned record -- a different tile
+      minimum: 8
+      maximum: 32
+      # only int32 is MEASURED; the RTL elaborates the whole declared range
+      choices: [int32]
 
 int32-asof-backward:
   _target_: dau_core.cores.CoreDefinition
@@ -522,7 +570,7 @@ int32-rolling-moments:
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {WINDOW: 4}
+      params: {WINDOW: 4, VALUE_WIDTH: int32}
       lut: 683
       ff: 1001
       bram36: 0.0
@@ -531,7 +579,7 @@ int32-rolling-moments:
       wns_ns: 3.155
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {WINDOW: 4}
+      params: {WINDOW: 4, VALUE_WIDTH: int32}
       lut: 683
       ff: 1001
       bram36: 0.0
@@ -541,7 +589,7 @@ int32-rolling-moments:
     # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {WINDOW: 3}
+      params: {WINDOW: 3, VALUE_WIDTH: int32}
       lut: 721
       ff: 1029
       bram36: 0.0
@@ -551,7 +599,7 @@ int32-rolling-moments:
     # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {WINDOW: 3}
+      params: {WINDOW: 3, VALUE_WIDTH: int32}
       lut: 721
       ff: 1029
       bram36: 0.0
@@ -571,6 +619,20 @@ int32-rolling-moments:
     WINDOW:
       default: 4
       minimum: 2
+    VALUE_WIDTH:
+      # the ELEMENT TYPE of the value lane; the symbol id beside it is a
+      # 32-bit container and does not move. int32 encodes as 32, so this
+      # declares exactly the tile that has always been built.
+      element_type: true
+      default: int32
+      # sum_sq bounds it from above: at 32 a squared value still leaves the
+      # INT64 accumulator a usable window (see the ARITHMETIC PRECONDITION in
+      # the description), and NARROWING weakens that obligation -- at int16
+      # the whole domain is safe. Widening would need a wider record.
+      minimum: 8
+      maximum: 32
+      # only int32 is MEASURED; the RTL elaborates the whole declared range
+      choices: [int32]
 
 rolling-extremum:
   _target_: dau_core.cores.CoreDefinition
@@ -961,7 +1023,7 @@ int32-hash-grouped-aggregation:
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {CAPACITY: 256}
+      params: {CAPACITY: 256, FIELD_WIDTH: int32}
       lut: 834
       ff: 1148
       bram36: 4.5
@@ -970,7 +1032,7 @@ int32-hash-grouped-aggregation:
       wns_ns: 2.035
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {CAPACITY: 512}
+      params: {CAPACITY: 512, FIELD_WIDTH: int32}
       lut: 883
       ff: 1152
       bram36: 4.5
@@ -979,7 +1041,7 @@ int32-hash-grouped-aggregation:
       wns_ns: 2.048
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {CAPACITY: 1024}
+      params: {CAPACITY: 1024, FIELD_WIDTH: int32}
       lut: 905
       ff: 1156
       bram36: 9.0
@@ -988,7 +1050,7 @@ int32-hash-grouped-aggregation:
       wns_ns: 2.027
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {CAPACITY: 256}
+      params: {CAPACITY: 256, FIELD_WIDTH: int32}
       lut: 834
       ff: 1148
       bram36: 4.5
@@ -997,7 +1059,7 @@ int32-hash-grouped-aggregation:
       wns_ns: 3.498
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {CAPACITY: 512}
+      params: {CAPACITY: 512, FIELD_WIDTH: int32}
       lut: 883
       ff: 1152
       bram36: 4.5
@@ -1006,7 +1068,7 @@ int32-hash-grouped-aggregation:
       wns_ns: 3.499
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {CAPACITY: 1024}
+      params: {CAPACITY: 1024, FIELD_WIDTH: int32}
       lut: 905
       ff: 1156
       bram36: 9.0
@@ -1047,6 +1109,21 @@ int32-hash-grouped-aggregation:
     CAPACITY:
       default: 512
       maximum: 1024
+    FIELD_WIDTH:
+      # the ELEMENT TYPE of one field lane. The 128-bit row is the transport
+      # unit and stays fixed, so field i is its i-th lane at this width; the
+      # tile keeps the four lanes it names and ignores any a narrower type
+      # leaves beyond them. int32 encodes as 32, so this declares exactly the
+      # tile that has always been built.
+      element_type: true
+      default: int32
+      # the record bounds it from above, not the row: the sums are INT64 and
+      # the element statistics ride 32-bit record slots, so a wider element
+      # would need a versioned record -- a different tile
+      minimum: 8
+      maximum: 32
+      # only int32 is MEASURED; the RTL elaborates the whole declared range
+      choices: [int32]
   storage_intent:
     - role: group_table
       access: owned
@@ -2533,7 +2610,7 @@ int32-field-sum-aggregation:
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {}
+      params: {FIELD_WIDTH: int32}
       lut: 620
       ff: 529
       bram36: 0.0
@@ -2542,7 +2619,7 @@ int32-field-sum-aggregation:
       wns_ns: 3.839
     - part: xc7a200tfbg484-2
       clock_ns: 10.0
-      params: {}
+      params: {FIELD_WIDTH: int32}
       lut: 620
       ff: 529
       bram36: 0.0
@@ -2551,7 +2628,7 @@ int32-field-sum-aggregation:
       wns_ns: 5.839
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {}
+      params: {FIELD_WIDTH: int32}
       lut: 620
       ff: 529
       bram36: 0.0
@@ -2560,7 +2637,7 @@ int32-field-sum-aggregation:
       wns_ns: 5.278
     - part: xc7k325tffg900-2
       clock_ns: 10.0
-      params: {}
+      params: {FIELD_WIDTH: int32}
       lut: 620
       ff: 529
       bram36: 0.0
@@ -2581,6 +2658,22 @@ int32-field-sum-aggregation:
   - 12
   unit_kind: aggregation
   success_close_out: true
+  parameters:
+    FIELD_WIDTH:
+      # the ELEMENT TYPE of one field lane. The 128-bit row is the transport
+      # unit and stays fixed, so field i is its i-th lane at this width; the
+      # tile keeps the four lanes it names and ignores any a narrower type
+      # leaves beyond them. int32 encodes as 32, so this declares exactly the
+      # tile that has always been built.
+      element_type: true
+      default: int32
+      # the record bounds it from above, not the row: the sums are INT64 and
+      # the element statistics ride 32-bit record slots, so a wider element
+      # would need a versioned record -- a different tile
+      minimum: 8
+      maximum: 32
+      # only int32 is MEASURED; the RTL elaborates the whole declared range
+      choices: [int32]
 
 int32-grouped-field-sum-aggregation:
   _target_: dau_core.cores.CoreDefinition
@@ -2596,7 +2689,7 @@ int32-grouped-field-sum-aggregation:
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {}
+      params: {FIELD_WIDTH: int32}
       lut: 868
       ff: 637
       bram36: 0.0
@@ -2605,7 +2698,7 @@ int32-grouped-field-sum-aggregation:
       wns_ns: 3.846
     - part: xc7a200tfbg484-2
       clock_ns: 10.0
-      params: {}
+      params: {FIELD_WIDTH: int32}
       lut: 868
       ff: 637
       bram36: 0.0
@@ -2614,7 +2707,7 @@ int32-grouped-field-sum-aggregation:
       wns_ns: 5.846
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {}
+      params: {FIELD_WIDTH: int32}
       lut: 868
       ff: 637
       bram36: 0.0
@@ -2623,7 +2716,7 @@ int32-grouped-field-sum-aggregation:
       wns_ns: 5.285
     - part: xc7k325tffg900-2
       clock_ns: 10.0
-      params: {}
+      params: {FIELD_WIDTH: int32}
       lut: 868
       ff: 637
       bram36: 0.0
@@ -2644,6 +2737,22 @@ int32-grouped-field-sum-aggregation:
   - 12
   unit_kind: aggregation
   success_close_out: true
+  parameters:
+    FIELD_WIDTH:
+      # the ELEMENT TYPE of one field lane. The 128-bit row is the transport
+      # unit and stays fixed, so field i is its i-th lane at this width; the
+      # tile keeps the four lanes it names and ignores any a narrower type
+      # leaves beyond them. int32 encodes as 32, so this declares exactly the
+      # tile that has always been built.
+      element_type: true
+      default: int32
+      # the record bounds it from above, not the row: the sums are INT64 and
+      # the element statistics ride 32-bit record slots, so a wider element
+      # would need a versioned record -- a different tile
+      minimum: 8
+      maximum: 32
+      # only int32 is MEASURED; the RTL elaborates the whole declared range
+      choices: [int32]
 
 key-membership-filter:
   _target_: dau_core.cores.CoreDefinition
@@ -2937,7 +3046,7 @@ int32-broadcast-hash-join:
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {KEY_SPACE: 1024}
+      params: {KEY_SPACE: 1024, FIELD_WIDTH: int32}
       lut: 708
       ff: 423
       bram36: 3.0
@@ -2946,7 +3055,7 @@ int32-broadcast-hash-join:
       wns_ns: 3.857
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {KEY_SPACE: 1024}
+      params: {KEY_SPACE: 1024, FIELD_WIDTH: int32}
       lut: 708
       ff: 423
       bram36: 3.0
@@ -2955,7 +3064,7 @@ int32-broadcast-hash-join:
       wns_ns: 4.651
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {KEY_SPACE: 16384}
+      params: {KEY_SPACE: 16384, FIELD_WIDTH: int32}
       lut: 797
       ff: 427
       bram36: 48.5
@@ -2964,7 +3073,7 @@ int32-broadcast-hash-join:
       wns_ns: 3.857
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {KEY_SPACE: 16384}
+      params: {KEY_SPACE: 16384, FIELD_WIDTH: int32}
       lut: 782
       ff: 427
       bram36: 48.5
@@ -2973,7 +3082,7 @@ int32-broadcast-hash-join:
       wns_ns: 4.728
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {KEY_SPACE: 32768}
+      params: {KEY_SPACE: 32768, FIELD_WIDTH: int32}
       lut: 890
       ff: 429
       bram36: 97.0
@@ -2982,7 +3091,7 @@ int32-broadcast-hash-join:
       wns_ns: 3.808
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {KEY_SPACE: 32768}
+      params: {KEY_SPACE: 32768, FIELD_WIDTH: int32}
       lut: 860
       ff: 429
       bram36: 97.0
@@ -2991,7 +3100,7 @@ int32-broadcast-hash-join:
       wns_ns: 4.684
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {KEY_SPACE: 65536}
+      params: {KEY_SPACE: 65536, FIELD_WIDTH: int32}
       lut: 1076
       ff: 430
       bram36: 194.0
@@ -3000,7 +3109,7 @@ int32-broadcast-hash-join:
       wns_ns: 2.788
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {KEY_SPACE: 65536}
+      params: {KEY_SPACE: 65536, FIELD_WIDTH: int32}
       lut: 1071
       ff: 430
       bram36: 194.0
@@ -3012,7 +3121,7 @@ int32-broadcast-hash-join:
     # dpv2-only point.
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {KEY_SPACE: 131072}
+      params: {KEY_SPACE: 131072, FIELD_WIDTH: int32}
       lut: 1993
       ff: 426
       bram36: 388.0
@@ -3021,7 +3130,7 @@ int32-broadcast-hash-join:
       wns_ns: 2.696
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {KEY_SPACE: 131072}
+      params: {KEY_SPACE: 131072, FIELD_WIDTH: int32}
       lut: 1988
       ff: 426
       bram36: 388.0
@@ -3039,7 +3148,20 @@ int32-broadcast-hash-join:
   parameters:
     KEY_SPACE:
       default: 1024
-
+    FIELD_WIDTH:
+      # the ELEMENT TYPE of one lane, on the way in and in the joined row on
+      # the way out. int32 encodes as 32, so this declares exactly the tile
+      # that has always been built.
+      #
+      # THE SLOT IS {valid, b2, b1, b0}, so unlike the accumulator tiles this
+      # one's BRAM cost moves DIRECTLY with the element: every offered type is
+      # its own measured point at every KEY_SPACE rung.
+      element_type: true
+      default: int32
+      minimum: 8
+      maximum: 32
+      # only int32 is MEASURED; the RTL elaborates the whole declared range
+      choices: [int32]
 int32-stream-aggregation:
   _target_: dau_core.cores.CoreDefinition
   name: int32-stream-aggregation
@@ -3054,7 +3176,7 @@ int32-stream-aggregation:
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {}
+      params: {VALUE_WIDTH: int32}
       lut: 414
       ff: 269
       bram36: 0.0
@@ -3063,7 +3185,7 @@ int32-stream-aggregation:
       wns_ns: 1.276
     - part: xc7a200tfbg484-2
       clock_ns: 10.0
-      params: {}
+      params: {VALUE_WIDTH: int32}
       lut: 414
       ff: 269
       bram36: 0.0
@@ -3072,7 +3194,7 @@ int32-stream-aggregation:
       wns_ns: 3.276
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {}
+      params: {VALUE_WIDTH: int32}
       lut: 414
       ff: 269
       bram36: 0.0
@@ -3081,7 +3203,7 @@ int32-stream-aggregation:
       wns_ns: 3.545
     - part: xc7k325tffg900-2
       clock_ns: 10.0
-      params: {}
+      params: {VALUE_WIDTH: int32}
       lut: 414
       ff: 269
       bram36: 0.0
@@ -3102,6 +3224,22 @@ int32-stream-aggregation:
   - 12
   unit_kind: aggregation
   success_close_out: true
+  parameters:
+    VALUE_WIDTH:
+      # the ELEMENT TYPE of the aggregated column. The descriptor already
+      # carries the column's logical type and physical width; this is which
+      # one the tile accepts, and the payload packs 64/width samples to a
+      # word. int32 encodes as 32, so this declares exactly the INT32 column
+      # the tile has always accepted.
+      element_type: true
+      default: int32
+      # the RESULT bounds it from above: the accumulator and the result
+      # descriptor are INT64, so a wider element could overflow a sum the
+      # result cannot express -- a different tile
+      minimum: 8
+      maximum: 32
+      # only int32 is MEASURED; the RTL elaborates the whole declared range
+      choices: [int32]
 
 int32-arrow-lite-stream-aggregation:
   _target_: dau_core.cores.CoreDefinition
@@ -3117,7 +3255,7 @@ int32-arrow-lite-stream-aggregation:
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {}
+      params: {VALUE_WIDTH: int32}
       lut: 1359
       ff: 630
       bram36: 0.0
@@ -3126,7 +3264,7 @@ int32-arrow-lite-stream-aggregation:
       wns_ns: 1.199
     - part: xc7a200tfbg484-2
       clock_ns: 10.0
-      params: {}
+      params: {VALUE_WIDTH: int32}
       lut: 1359
       ff: 630
       bram36: 0.0
@@ -3135,7 +3273,7 @@ int32-arrow-lite-stream-aggregation:
       wns_ns: 3.199
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {}
+      params: {VALUE_WIDTH: int32}
       lut: 1359
       ff: 630
       bram36: 0.0
@@ -3144,7 +3282,7 @@ int32-arrow-lite-stream-aggregation:
       wns_ns: 3.564
     - part: xc7k325tffg900-2
       clock_ns: 10.0
-      params: {}
+      params: {VALUE_WIDTH: int32}
       lut: 1359
       ff: 630
       bram36: 0.0
@@ -3166,6 +3304,22 @@ int32-arrow-lite-stream-aggregation:
   - 12
   unit_kind: aggregation
   success_close_out: true
+  parameters:
+    VALUE_WIDTH:
+      # the ELEMENT TYPE of the aggregated column. The descriptor already
+      # carries the column's logical type and physical width; this is which
+      # one the tile accepts, and the payload packs 64/width samples to a
+      # word. int32 encodes as 32, so this declares exactly the INT32 column
+      # the tile has always accepted.
+      element_type: true
+      default: int32
+      # the RESULT bounds it from above: the accumulator and the result
+      # descriptor are INT64, so a wider element could overflow a sum the
+      # result cannot express -- a different tile
+      minimum: 8
+      maximum: 32
+      # only int32 is MEASURED; the RTL elaborates the whole declared range
+      choices: [int32]
 
 int32-record-batch-aggregation:
   _target_: dau_core.cores.CoreDefinition
@@ -3181,7 +3335,7 @@ int32-record-batch-aggregation:
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {}
+      params: {VALUE_WIDTH: int32}
       lut: 2015
       ff: 2740
       bram36: 0.0
@@ -3190,7 +3344,7 @@ int32-record-batch-aggregation:
       wns_ns: 0.766
     - part: xc7a200tfbg484-2
       clock_ns: 10.0
-      params: {}
+      params: {VALUE_WIDTH: int32}
       lut: 2015
       ff: 2740
       bram36: 0.0
@@ -3199,7 +3353,7 @@ int32-record-batch-aggregation:
       wns_ns: 2.766
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {}
+      params: {VALUE_WIDTH: int32}
       lut: 2015
       ff: 2740
       bram36: 0.0
@@ -3208,7 +3362,7 @@ int32-record-batch-aggregation:
       wns_ns: 3.19
     - part: xc7k325tffg900-2
       clock_ns: 10.0
-      params: {}
+      params: {VALUE_WIDTH: int32}
       lut: 2015
       ff: 2740
       bram36: 0.0
@@ -3230,6 +3384,22 @@ int32-record-batch-aggregation:
   - 12
   unit_kind: aggregation
   success_close_out: true
+  parameters:
+    VALUE_WIDTH:
+      # the ELEMENT TYPE of the aggregated column. The descriptor already
+      # carries the column's logical type and physical width; this is which
+      # one the tile accepts, and the payload packs 64/width samples to a
+      # word. int32 encodes as 32, so this declares exactly the INT32 column
+      # the tile has always accepted.
+      element_type: true
+      default: int32
+      # the RESULT bounds it from above: the accumulator and the result
+      # descriptor are INT64, so a wider element could overflow a sum the
+      # result cannot express -- a different tile
+      minimum: 8
+      maximum: 32
+      # only int32 is MEASURED; the RTL elaborates the whole declared range
+      choices: [int32]
 
 stream-broadcast:
   _target_: dau_core.cores.CoreDefinition
@@ -3765,7 +3935,7 @@ int32-wide-field-sum-aggregation:
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {SLOTS: 1}
+      params: {SLOTS: 1, FIELD_WIDTH: int32}
       lut: 827
       ff: 470
       bram36: 0.0
@@ -3774,7 +3944,7 @@ int32-wide-field-sum-aggregation:
       wns_ns: 3.828
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {SLOTS: 1}
+      params: {SLOTS: 1, FIELD_WIDTH: int32}
       lut: 827
       ff: 470
       bram36: 0.0
@@ -3783,7 +3953,7 @@ int32-wide-field-sum-aggregation:
       wns_ns: 5.404
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {SLOTS: 2}
+      params: {SLOTS: 2, FIELD_WIDTH: int32}
       lut: 1002
       ff: 470
       bram36: 0.0
@@ -3792,7 +3962,7 @@ int32-wide-field-sum-aggregation:
       wns_ns: 4.065
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {SLOTS: 2}
+      params: {SLOTS: 2, FIELD_WIDTH: int32}
       lut: 1002
       ff: 470
       bram36: 0.0
@@ -3801,7 +3971,7 @@ int32-wide-field-sum-aggregation:
       wns_ns: 5.43
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {SLOTS: 4}
+      params: {SLOTS: 4, FIELD_WIDTH: int32}
       lut: 1375
       ff: 469
       bram36: 0.0
@@ -3810,7 +3980,7 @@ int32-wide-field-sum-aggregation:
       wns_ns: 3.819
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {SLOTS: 4}
+      params: {SLOTS: 4, FIELD_WIDTH: int32}
       lut: 1375
       ff: 469
       bram36: 0.0
@@ -3820,7 +3990,7 @@ int32-wide-field-sum-aggregation:
     # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {SLOTS: 8}
+      params: {SLOTS: 8, FIELD_WIDTH: int32}
       lut: 2132
       ff: 615
       bram36: 0.0
@@ -3830,7 +4000,7 @@ int32-wide-field-sum-aggregation:
     # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {SLOTS: 8}
+      params: {SLOTS: 8, FIELD_WIDTH: int32}
       lut: 2132
       ff: 615
       bram36: 0.0
@@ -3840,7 +4010,7 @@ int32-wide-field-sum-aggregation:
     # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
     - part: xc7k325tffg900-2
       clock_ns: 6.66667
-      params: {SLOTS: 8}
+      params: {SLOTS: 8, FIELD_WIDTH: int32}
       lut: 2132
       ff: 615
       bram36: 0.0
@@ -3859,6 +4029,21 @@ int32-wide-field-sum-aggregation:
     SLOTS:
       default: 4
       choices: [1, 2, 4, 8]
+    FIELD_WIDTH:
+      # the ELEMENT TYPE of one field lane. The 128-bit row is the transport
+      # unit and stays fixed, so field i is its i-th lane at this width; the
+      # tile keeps the four lanes it names and ignores any a narrower type
+      # leaves beyond them. int32 encodes as 32, so this declares exactly the
+      # tile that has always been built.
+      element_type: true
+      default: int32
+      # the record bounds it from above, not the row: the sums are INT64 and
+      # the element statistics ride 32-bit record slots, so a wider element
+      # would need a versioned record -- a different tile
+      minimum: 8
+      maximum: 32
+      # only int32 is MEASURED; the RTL elaborates the whole declared range
+      choices: [int32]
   opcodes:
   - 3
   - 4

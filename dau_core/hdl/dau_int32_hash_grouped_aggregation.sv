@@ -1,8 +1,11 @@
 `default_nettype none
 
+`include "types.svh"
+
 // Hash-mode grouped field-sum aggregation over 16-byte quad rows (two
 // 64-bit words, w0 = {value, key}, w1 = {aux1, aux0}; field i is the i-th
-// 32-bit lane in (key, value, aux0, aux1) order). One INT64 accumulator
+// FIELD_WIDTH lane of the row, which at the default int32 is
+// (key, value, aux0, aux1) order). One INT64 accumulator
 // set per DISTINCT key in a CAPACITY-slot table, drained key-ascending at
 // close-out — matches dau_core.operators.hash_grouped_field_sum_rows
 // bit-for-bit.
@@ -53,7 +56,17 @@
 // unconfigured tile (ERR_CONFIG); input_last on a w0 is a torn row
 // (ERR_STREAM).
 module dau_int32_hash_grouped_aggregation #(
-    parameter int CAPACITY = 512  // group slots; [1, 1024]
+    parameter int CAPACITY = 512,  // group slots; [1, 1024]
+    // The ELEMENT TYPE of one field, as encoded by types.svh. The 128-bit row
+    // is the transport unit and stays fixed; lane i is its i-th FIELD_BITS
+    // lane, the decode row-unpack packs and the quad-row filter family reads.
+    // This tile keeps the FIELDS lanes it names and ignores any a narrower
+    // type leaves beyond them -- the lane count is what the four INT64
+    // accumulators per slot cost, and it sizes the slot BRAM. `DAU_TYPE_INT32
+    // is 32, so the default reproduces the four-field row port for port. The
+    // sums are INT64 and the emitted key word is 64 bits whatever the element
+    // is, which is why the type may narrow but not widen.
+    parameter int FIELD_WIDTH = `DAU_TYPE_INT32
 ) (
     input  wire logic        clk,
     input  wire logic        rst,
@@ -78,11 +91,38 @@ module dau_int32_hash_grouped_aggregation #(
     localparam logic [7:0] ERR_GROUP_CAPACITY = 8'd3;  // GROUP_CAPACITY_EXCEEDED
     localparam logic [7:0] ERR_STREAM = 8'd4;          // BAD_STREAM (hardware only)
     localparam int AW = (CAPACITY <= 1) ? 1 : $clog2(CAPACITY);
-    // {sum3, sum2, sum1, sum0, count, key}
-    localparam int SLOTW = 4 * 64 + 32 + 32;
+    localparam int ROW_BITS = 128;  // the transport unit, fixed
+    localparam int FIELDS   = 4;    // the lanes this tile sums
+    localparam int FIELD_BITS      = `DAU_TYPE_WIDTH(FIELD_WIDTH);
+    localparam int FIELD_IS_FLOAT  = `DAU_TYPE_IS_FLOAT(FIELD_WIDTH);
+    localparam int FIELD_IS_SIGNED = `DAU_TYPE_IS_SIGNED(FIELD_WIDTH);
+    localparam int LANE_BITS       = FIELDS * FIELD_BITS;  // the part of the row this tile reads
+    // a per-group ROW COUNT, not an element: it counts rows, so it keeps its
+    // own width whatever the summed values are
+    localparam int COUNT_BITS = 32;
+    // {sum3, sum2, sum1, sum0, count, key} -- the key is the only element in
+    // the slot, so the BRAM narrows with the type and the sums do not
+    localparam int SLOTW = FIELDS * 64 + COUNT_BITS + FIELD_BITS;
 
     if (CAPACITY < 1 || CAPACITY > 1024) begin : g_param_check
         $error("CAPACITY must be in [1, 1024]");
+    end
+    // The upper bound is the RECORD, not the lane: a sum word is 64 bits, so
+    // an element wider than 32 would need more sum bits than the record can
+    // express -- a versioned record, i.e. a different tile. Narrowing is free.
+    if (FIELD_BITS < 8 || FIELD_BITS > 32 || (ROW_BITS % FIELD_BITS) != 0) begin : g_field_width_check
+        $error("FIELD_WIDTH must divide 128 and lie in [8, 32]");
+    end
+    // A TYPE IS NOT A CAPABILITY. The drain ORDERS keys (signed-ascending
+    // min-extraction) and each field is sign-extended into a two's-complement
+    // INT64 accumulator: handed a float it would order exponent bits as
+    // magnitude, and handed an unsigned type it would read every high-bit-set
+    // value as negative.
+    if (FIELD_IS_FLOAT != 0) begin : g_field_float_check
+        $error("FIELD_WIDTH must not name a floating-point type: this tile orders and sums two's-complement integers");
+    end
+    if (FIELD_IS_SIGNED == 0) begin : g_field_signed_check
+        $error("FIELD_WIDTH must not name an unsigned type: this tile orders and sums two's-complement integers");
     end
 
     typedef enum logic [3:0] {
@@ -115,8 +155,12 @@ module dau_int32_hash_grouped_aggregation #(
     logic [63:0] batch_groups;
 
     logic [63:0] row_w0;
-    logic [31:0] cur_key;
-    logic [31:0] cur_fields [4];
+    // the row being completed: w0 was registered, w1 is on the input, and the
+    // lanes are read out of the assembled row rather than out of either word,
+    // because at a narrower type a lane no longer lines up with a word
+    logic [LANE_BITS-1:0] row_lanes;
+    logic [FIELD_BITS-1:0] cur_key;
+    logic [FIELD_BITS-1:0] cur_fields [FIELDS];
     logic        cur_last;
 
     logic [AW-1:0] probe_idx;
@@ -129,12 +173,12 @@ module dau_int32_hash_grouped_aggregation #(
     logic [AW-1:0] scan_idx;
     logic          scan_slot_valid;
     logic          min_found;
-    logic [31:0]   min_key;
+    logic [FIELD_BITS-1:0] min_key;
     logic [AW-1:0] min_idx;
 
     // emit registers
-    logic [31:0] emit_key;
-    logic [63:0] emit_sums [4];
+    logic [FIELD_BITS-1:0] emit_key;
+    logic [63:0] emit_sums [FIELDS];
     logic [63:0] emit_count;
     logic [2:0]  emit_phase;  // 0 = key word, 1..4 walk the fields, 5 = count
     logic        emit_final;
@@ -144,6 +188,7 @@ module dau_int32_hash_grouped_aggregation #(
     assign input_fire = input_valid && input_ready;
     assign output_fire = output_valid && output_ready;
     assign input_ready = (state == STATE_W0) || (state == STATE_W1) || (state == STATE_DISCARD);
+    assign row_lanes = LANE_BITS'({input_data, row_w0});
 
     // slot BRAM: dedicated reset-free process (BRAM inference). The read
     // presents in PROBE/DRAIN_ADDR and lands one cycle later for JUDGE.
@@ -162,7 +207,7 @@ module dau_int32_hash_grouped_aggregation #(
     logic valid_q;
     logic hit;
     logic empty;
-    assign hit = valid_q && (slot_q[31:0] == cur_key);
+    assign hit = valid_q && (slot_q[0 +: FIELD_BITS] == cur_key);
     assign empty = !valid_q;
 
     // The accumulate is split across two cycles, and the split is why this
@@ -171,22 +216,22 @@ module dau_int32_hash_grouped_aggregation #(
     // cycle; chained into the same one they do not, and the BRAM write data
     // arrives late enough to miss. JUDGE latches the base, ACCUM adds and
     // writes. The declared ingest rate carries the extra cycle.
-    logic [63:0] base_sums [4];
-    logic [31:0] base_count;
+    logic [63:0] base_sums [FIELDS];
+    logic [COUNT_BITS-1:0] base_count;
 
     // all four sums accumulate unconditionally: register -> add -> BRAM
-    logic [63:0] next_sums [4];
+    logic [63:0] next_sums [FIELDS];
     always_comb begin
-        for (int i = 0; i < 4; i++) begin
-            // sign-extend the int32 field before the INT64 accumulate
-            next_sums[i] = base_sums[i] + {{32{cur_fields[i][31]}}, cur_fields[i]};
+        for (int i = 0; i < FIELDS; i++) begin
+            // sign-extend the field before the INT64 accumulate
+            next_sums[i] = base_sums[i] + 64'(signed'(cur_fields[i]));
         end
     end
 
     assign slot_addr = (state == STATE_DRAIN_SCAN) ? scan_idx
                      : ((state == STATE_DRAIN_READ) || (state == STATE_DRAIN_ADDR)) ? min_idx
                      : probe_idx;
-    assign slot_wdata = {next_sums[3], next_sums[2], next_sums[1], next_sums[0], base_count + 32'd1, cur_key};
+    assign slot_wdata = {next_sums[3], next_sums[2], next_sums[1], next_sums[0], base_count + COUNT_BITS'(1), cur_key};
     assign slot_we = (state == STATE_ACCUM);
 
     task automatic reset_state();
@@ -206,7 +251,7 @@ module dau_int32_hash_grouped_aggregation #(
         err_pending <= 1'b0;
         err_code <= 8'd0;
         row_w0 <= 64'd0;
-        cur_key <= 32'd0;
+        cur_key <= '0;
         cur_last <= 1'b0;
         probe_idx <= '0;
         probes_done <= 32'd0;
@@ -214,15 +259,15 @@ module dau_int32_hash_grouped_aggregation #(
         scan_idx <= '0;
         scan_slot_valid <= 1'b0;
         min_found <= 1'b0;
-        min_key <= 32'd0;
+        min_key <= '0;
         min_idx <= '0;
-        emit_key <= 32'd0;
+        emit_key <= '0;
         emit_count <= 64'd0;
         emit_phase <= 3'd0;
         emit_final <= 1'b0;
-        base_count <= 32'd0;
-        for (int i = 0; i < 4; i++) begin
-            cur_fields[i] <= 32'd0;
+        base_count <= '0;
+        for (int i = 0; i < FIELDS; i++) begin
+            cur_fields[i] <= '0;
             emit_sums[i] <= 64'd0;
             base_sums[i] <= 64'd0;
         end
@@ -288,13 +333,15 @@ module dau_int32_hash_grouped_aggregation #(
                 end
                 STATE_W1: begin
                     if (input_fire) begin
-                        cur_key <= row_w0[31:0];
-                        cur_fields[0] <= row_w0[31:0];
-                        cur_fields[1] <= row_w0[63:32];
-                        cur_fields[2] <= input_data[31:0];
-                        cur_fields[3] <= input_data[63:32];
+                        cur_key <= row_lanes[0*FIELD_BITS +: FIELD_BITS];
+                        cur_fields[0] <= row_lanes[0*FIELD_BITS +: FIELD_BITS];
+                        cur_fields[1] <= row_lanes[1*FIELD_BITS +: FIELD_BITS];
+                        cur_fields[2] <= row_lanes[2*FIELD_BITS +: FIELD_BITS];
+                        cur_fields[3] <= row_lanes[3*FIELD_BITS +: FIELD_BITS];
                         cur_last <= input_last;
-                        probe_idx <= AW'(row_w0[31:0] % CAPACITY);
+                        // the hash: the key ZERO-EXTENDED to 32 bits, so the modulo runs at the
+                        // container's width and CAPACITY is never truncated into it
+                        probe_idx <= AW'(32'(row_lanes[0*FIELD_BITS +: FIELD_BITS]) % CAPACITY);
                         probes_done <= 32'd0;
                         state <= STATE_PROBE;
                     end
@@ -308,9 +355,9 @@ module dau_int32_hash_grouped_aggregation #(
                 STATE_JUDGE: begin
                     // latch the base this row accumulates onto; ACCUM adds it
                     // and writes. A miss into a free slot starts from zero.
-                    base_count <= hit ? slot_q[63:32] : 32'd0;
-                    for (int i = 0; i < 4; i++) begin
-                        base_sums[i] <= hit ? slot_q[64 + i * 64 +: 64] : 64'd0;
+                    base_count <= hit ? slot_q[FIELD_BITS +: COUNT_BITS] : '0;
+                    for (int i = 0; i < FIELDS; i++) begin
+                        base_sums[i] <= hit ? slot_q[FIELD_BITS + COUNT_BITS + i * 64 +: 64] : 64'd0;
                     end
                     if (hit) begin
                         state <= STATE_ACCUM;
@@ -357,9 +404,9 @@ module dau_int32_hash_grouped_aggregation #(
                     // cycle folds the PREVIOUS slot's {valid, key} pair
                     scan_slot_valid <= valid_bits[scan_idx];
                     if (scan_idx != '0) begin
-                        if (scan_slot_valid && (!min_found || ($signed(slot_q[31:0]) < $signed(min_key)))) begin
+                        if (scan_slot_valid && (!min_found || ($signed(slot_q[0 +: FIELD_BITS]) < $signed(min_key)))) begin
                             min_found <= 1'b1;
-                            min_key <= slot_q[31:0];
+                            min_key <= slot_q[0 +: FIELD_BITS];
                             min_idx <= scan_idx - 1'b1;
                         end
                     end
@@ -370,9 +417,9 @@ module dau_int32_hash_grouped_aggregation #(
                 end
                 STATE_DRAIN_READ: begin
                     // fold the final slot (registered on the last scan cycle)
-                    if (scan_slot_valid && (!min_found || ($signed(slot_q[31:0]) < $signed(min_key)))) begin
+                    if (scan_slot_valid && (!min_found || ($signed(slot_q[0 +: FIELD_BITS]) < $signed(min_key)))) begin
                         min_found <= 1'b1;
-                        min_key <= slot_q[31:0];
+                        min_key <= slot_q[0 +: FIELD_BITS];
                         min_idx <= AW'(CAPACITY - 1);
                         state <= STATE_DRAIN_ADDR;
                     end else begin
@@ -390,10 +437,10 @@ module dau_int32_hash_grouped_aggregation #(
                 end
                 STATE_DRAIN_JUDGE: begin
                     // slot_q now holds the winner (slot_addr = min_idx)
-                    emit_key <= slot_q[31:0];
-                    emit_count <= {32'd0, slot_q[63:32]};
-                    for (int i = 0; i < 4; i++) begin
-                        emit_sums[i] <= slot_q[64 + i * 64 +: 64];
+                    emit_key <= slot_q[0 +: FIELD_BITS];
+                    emit_count <= {32'd0, slot_q[FIELD_BITS +: COUNT_BITS]};
+                    for (int i = 0; i < FIELDS; i++) begin
+                        emit_sums[i] <= slot_q[FIELD_BITS + COUNT_BITS + i * 64 +: 64];
                     end
                     valid_bits[min_idx] <= 1'b0;  // extracted: never re-selected
                     live_count <= live_count - 32'd1;
@@ -405,7 +452,7 @@ module dau_int32_hash_grouped_aggregation #(
                     if (!output_valid || output_ready) begin
                         if (emit_phase == 3'd0) begin
                             output_valid <= 1'b1;
-                            output_data <= {{32{emit_key[31]}}, emit_key};
+                            output_data <= 64'(signed'(emit_key));
                             output_last <= 1'b0;
                             emit_phase <= 3'd1;
                         end else if (emit_phase < 3'd5) begin

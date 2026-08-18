@@ -28,7 +28,11 @@ def test_packaged_int32_stream_aggregation_exposes_descriptor_ports() -> None:
 def test_packaged_int32_stream_aggregation_names_stream_protocol_constants() -> None:
     source = DAU_INT32_STREAM_AGGREGATION_SV.read_text()
 
-    assert "localparam logic [15:0] LT_INT32  = 16'd12;" in source
+    # the INPUT column's logical type is now DERIVED from the element type the
+    # tile is built for (int8/16/32/64 are 10, 11, 12, 13), so the constant
+    # naming 12 is gone and the derivation is what has to be pinned; the RESULT
+    # type is INT64/UINT64 at every element and stays a literal
+    assert "localparam logic [15:0] LT_ELEMENT = 16'(10 + $clog2(VALUE_BYTES));" in source
     assert "localparam logic [15:0] LT_INT64  = 16'd13;" in source
     assert "localparam logic [15:0] LT_UINT64 = 16'd23;" in source
     assert "localparam logic [7:0] ERR_DESCRIPTOR = 8'd1;" in source
