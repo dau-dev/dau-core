@@ -2352,49 +2352,67 @@ row-unpack:
   # operator tiles read. The composition admits a core into that slot on this
   # declaration rather than on its name
   role: front-unpack
-  # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
+  # RE-MEASURED 2026-08-17, every point, via
+  # dau-build task=tasks/build/synthesize-cores. NINE OF THE ELEVEN RECORDED
+  # NUMBERS DID NOT REPRODUCE, and none of that is the element-type retype:
+  # the identical coordinates against the PRE-retype RTL report exactly what
+  # the retyped tile reports, at all eleven points, so the netlist is
+  # unchanged and the records were already stale.
+  #
+  # They were stale because the surface was never measured from one RTL. The
+  # 64/128/256/512 points were measured in #159 and #161, and #161 went on to
+  # add the pad-coverage config check (packed_bits_covered / pad_is_unreachable)
+  # WITHOUT re-measuring what it had already recorded. That check constant-folds
+  # away at SLOTS == 1 and does not at SLOTS > 1, which is exactly the shape of
+  # the corrections: +80 and -84 LUT at OUT_WIDTH 64 and 128, and +1036, +1038
+  # and +1043 at 256, 512 and the Kintex 1024 -- a real cost the wide packed
+  # designs were being priced without. The two points that DO reproduce (Artix
+  # 1024 at 8 ns, Kintex 1024 at 6.66667 ns) are the ones measured last.
+  #
+  # Every point here now comes from one run of today's sanctioned task, on the
+  # same RTL. BRAM and DSP are zero throughout and unchanged.
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
       params: {OUT_WIDTH: 64, FIELD_WIDTH: int32}
-      lut: 1443
+      lut: 1523
       ff: 197
-      bram36: 0.0
-      dsp: 0
-      timing: met
-      wns_ns: 1.529
-    - part: xc7k325tffg900-2
-      clock_ns: 8.0
-      params: {OUT_WIDTH: 64, FIELD_WIDTH: int32}
-      lut: 1443
-      ff: 197
-      bram36: 0.0
-      dsp: 0
-      timing: met
-      wns_ns: 3.441
-    - part: xc7a200tfbg484-2
-      clock_ns: 8.0
-      params: {OUT_WIDTH: 128, FIELD_WIDTH: int32}
-      lut: 1580
-      ff: 260
       bram36: 0.0
       dsp: 0
       timing: met
       wns_ns: 1.943
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {OUT_WIDTH: 128, FIELD_WIDTH: int32}
-      lut: 1580
-      ff: 260
+      params: {OUT_WIDTH: 64, FIELD_WIDTH: int32}
+      lut: 1523
+      ff: 197
       bram36: 0.0
       dsp: 0
       timing: met
       wns_ns: 3.866
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
+      params: {OUT_WIDTH: 128, FIELD_WIDTH: int32}
+      lut: 1496
+      ff: 260
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 1.778
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {OUT_WIDTH: 128, FIELD_WIDTH: int32}
+      lut: 1496
+      ff: 260
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.687
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
       params: {OUT_WIDTH: 256, FIELD_WIDTH: int32}
-      lut: 2290
-      ff: 449
+      lut: 3326
+      ff: 448
       bram36: 0.0
       dsp: 0
       timing: met
@@ -2402,17 +2420,17 @@ row-unpack:
     - part: xc7k325tffg900-2
       clock_ns: 8.0
       params: {OUT_WIDTH: 256, FIELD_WIDTH: int32}
-      lut: 2290
-      ff: 449
+      lut: 3326
+      ff: 448
       bram36: 0.0
       dsp: 0
       timing: met
-      wns_ns: 4.110
+      wns_ns: 4.109
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
       params: {OUT_WIDTH: 512, FIELD_WIDTH: int32}
-      lut: 4384
-      ff: 833
+      lut: 5422
+      ff: 834
       bram36: 0.0
       dsp: 0
       timing: met
@@ -2420,21 +2438,21 @@ row-unpack:
     - part: xc7k325tffg900-2
       clock_ns: 8.0
       params: {OUT_WIDTH: 512, FIELD_WIDTH: int32}
-      lut: 4384
-      ff: 833
+      lut: 5422
+      ff: 834
       bram36: 0.0
       dsp: 0
       timing: met
-      wns_ns: 4.119
+      wns_ns: 4.118
     - part: xc7k325tffg900-2
       clock_ns: 8.0
       params: {OUT_WIDTH: 1024, FIELD_WIDTH: int32}
-      lut: 8491
-      ff: 1599
+      lut: 9534
+      ff: 1604
       bram36: 0.0
       dsp: 0
       timing: met
-      wns_ns: 4.106
+      wns_ns: 4.107
     # Measured 2026-08-11 at 150 MHz via dau-build task=tasks/build/synthesize-cores.
     - part: xc7k325tffg900-2
       clock_ns: 6.66667
