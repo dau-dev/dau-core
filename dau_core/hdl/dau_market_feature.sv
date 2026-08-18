@@ -25,7 +25,7 @@
 //   o6 = dollar_volume[63:0]                   price * size (INT64)
 //
 // A row torn by input_last before its fourth word is ERR_STREAM.
-module dau_int32_market_feature (
+module dau_market_feature (
     input  wire logic        clk,
     input  wire logic        rst,
     input  wire logic        input_valid,

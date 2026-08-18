@@ -131,7 +131,7 @@ def q6_scan_spec(lanes: int = 4) -> ScanCompositionSpec:
     3-term tiles) and the revenue map, closed by the field-sum tile."""
     where_a = TileSpec(core="row-predicate-filter", config={"cfg_op0": "3'd1", "cfg_constant0": "32'd568"})
     where_b = TileSpec(core="row-predicate-filter", config={"cfg_op0": "3'd6", "cfg_constant0": "32'd5"})
-    revenue = TileSpec(core="int32-row-map-alu", config={"cfg_op": "3'd4", "cfg_shift": "5'd15"})
+    revenue = TileSpec(core="row-map-alu", config={"cfg_op": "3'd4", "cfg_shift": "5'd15"})
     reduce_tile = TileSpec(core="field-sum-aggregation", config={"cfg_field_mask": "4'b0010"})
     return ScanCompositionSpec(
         name=f"q6-scan-{lanes}",
@@ -143,7 +143,7 @@ def test_chain_lanes_validate_and_close_core_names() -> None:
     spec = q6_scan_spec()
     names = spec.core_names()
     assert "row-predicate-filter" in names
-    assert "int32-row-map-alu" in names
+    assert "row-map-alu" in names
     assert "field-sum-aggregation" in names
     assert len(names) == len(set(names))
 
@@ -154,11 +154,11 @@ def test_chain_stages_must_be_operators() -> None:
 
 
 def test_chain_stages_need_no_status_counter() -> None:
-    # int32-row-map-alu exposes no count port: legal mid-chain, illegal terminal
-    spec = ScanCompositionSpec(name="ok", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-row-map-alu"),)),))
-    assert "int32-row-map-alu" in spec.core_names()
+    # row-map-alu exposes no count port: legal mid-chain, illegal terminal
+    spec = ScanCompositionSpec(name="ok", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="row-map-alu"),)),))
+    assert "row-map-alu" in spec.core_names()
     with pytest.raises(CompositionError, match="status counter"):
-        ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=TileSpec(core="int32-row-map-alu")),))
+        ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=TileSpec(core="row-map-alu")),))
 
 
 def test_chain_resources_are_counted_per_lane() -> None:
@@ -166,10 +166,10 @@ def test_chain_resources_are_counted_per_lane() -> None:
     chained = _priced(
         ScanCompositionSpec(
             name="chained",
-            lanes=tuple(LaneSpec(tile=_BAR, partition=_partition(lane, 2), chain=(TileSpec(core="int32-row-map-alu"),)) for lane in range(2)),
+            lanes=tuple(LaneSpec(tile=_BAR, partition=_partition(lane, 2), chain=(TileSpec(core="row-map-alu"),)) for lane in range(2)),
         )
     )
-    stage = core("int32-row-map-alu").resource_measurement(part=_PART, clock_ns=_CLOCK_NS, params={}).usable_envelope()
+    stage = core("row-map-alu").resource_measurement(part=_PART, clock_ns=_CLOCK_NS, params={}).usable_envelope()
     assert chained.lut - plain.lut == 2 * stage.lut
     assert chained.dsp - plain.dsp == 2 * stage.dsp
     assert not chained.measured  # the axi infra tiles are still scalar
@@ -387,7 +387,7 @@ def test_load_phase_shape_rules() -> None:
                     tile=_BAR,
                     chain=(
                         TileSpec(
-                            core="int32-row-map-alu",
+                            core="row-map-alu",
                             config={
                                 "cfg_op": "3'd0",
                                 "cfg_dst_field": "2'd1",
@@ -443,7 +443,7 @@ def test_load_phase_shape_rules() -> None:
                     tile=_BAR,
                     chain=(
                         TileSpec(
-                            core="int32-row-map-alu",
+                            core="row-map-alu",
                             config={
                                 "cfg_load": "load_phase",
                                 "cfg_op": "3'd0",
@@ -640,7 +640,7 @@ def test_spec_from_canonical_revalidates() -> None:
     from dau_core.composition import canonical_spec_json, spec_from_canonical
 
     text = canonical_spec_json(bar_noc_spec())
-    tampered = text.replace("bar-aggregation", "int32-row-map-alu")  # silent-on-success: illegal terminal
+    tampered = text.replace("bar-aggregation", "row-map-alu")  # silent-on-success: illegal terminal
     with pytest.raises(CompositionError):
         spec_from_canonical(tampered)
 
@@ -764,7 +764,7 @@ def test_the_wide_lane_shape_composes_and_rate_matches():
 
     wide_sum = TileSpec(core="wide-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"})
     wide_pred = TileSpec(core="wide-row-predicate-filter", config={})
-    wide_map = TileSpec(core="int32-wide-row-map-alu", config={})
+    wide_map = TileSpec(core="wide-row-map-alu", config={})
 
     spec = ScanCompositionSpec(name="w", lanes=(LaneSpec(tile=wide_sum, chain=(wide_pred, wide_map)),), data_width=512)
     assert throughput_rows_per_cycle(spec) == Fraction(4)
@@ -790,7 +790,7 @@ def test_the_wide_lane_shape_composes_and_rate_matches():
 def test_wide_combinational_tile_pipeline_depth_bounds_are_enforced():
     wide_sum = TileSpec(core="wide-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"})
 
-    for core_name in ("wide-row-predicate-filter", "int32-wide-row-map-alu"):
+    for core_name in ("wide-row-predicate-filter", "wide-row-map-alu"):
         for depth in (1, 8):
             stage = TileSpec(core=core_name, config={}, params={"PIPELINE_DEPTH": depth})
             ScanCompositionSpec(name="ok", lanes=(LaneSpec(tile=wide_sum, chain=(stage,)),), data_width=512)
@@ -823,21 +823,21 @@ def test_the_wide_lane_shape_rules_are_enforced():
     with pytest.raises(CompositionError, match="mixed framings cannot wire"):
         ScanCompositionSpec(
             name="bad",
-            lanes=(LaneSpec(tile=wide_sum, chain=(TileSpec(core="int32-row-map-alu", config={}),)),),
+            lanes=(LaneSpec(tile=wide_sum, chain=(TileSpec(core="row-map-alu", config={}),)),),
             data_width=512,
         )
     # SLOTS must agree across the lane
     with pytest.raises(CompositionError, match="SLOTS disagree"):
         ScanCompositionSpec(
             name="bad",
-            lanes=(LaneSpec(tile=wide_sum, chain=(TileSpec(core="int32-wide-row-map-alu", config={}, params={"SLOTS": 2}),)),),
+            lanes=(LaneSpec(tile=wide_sum, chain=(TileSpec(core="wide-row-map-alu", config={}, params={"SLOTS": 2}),)),),
             data_width=512,
         )
     # a wide stage inside a NARROW lane is still a mixed framing
     with pytest.raises(CompositionError, match="wide-row-stream"):
         ScanCompositionSpec(
             name="bad",
-            lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-wide-row-map-alu", config={}),)),),
+            lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="wide-row-map-alu", config={}),)),),
         )
 
 
@@ -859,7 +859,7 @@ def test_the_fused_chain_shape_is_declared_not_inferred() -> None:
     lane = LaneSpec(
         tile=TileSpec(core="rolling-moments", params={"WINDOW": 3}),
         chain=(
-            TileSpec(core="int32-asof-backward"),
+            TileSpec(core="asof-backward"),
             TileSpec(core="time-bucket-key"),
             TileSpec(core="grouped-field-aggregation"),
         ),
@@ -881,8 +881,8 @@ def test_the_fused_chain_shape_is_declared_not_inferred() -> None:
 
 def _temporal_hero_spec(*, include_feature_gather: bool = True) -> ScanCompositionSpec:
     stages = [
-        TileSpec(core="int32-asof-backward"),
-        TileSpec(core="int32-market-feature"),
+        TileSpec(core="asof-backward"),
+        TileSpec(core="market-feature"),
     ]
     if include_feature_gather:
         stages.append(TileSpec(core="int32-record-gather", params={"IN_WORDS": 7, "OUT_WORDS": 3}))
@@ -906,14 +906,14 @@ def test_temporal_hero_gathers_reconcile_every_stream_shape() -> None:
 
 def test_stream_shape_mismatch_names_both_cores_and_shapes() -> None:
     assert stream_shape_mismatches(_temporal_hero_spec(include_feature_gather=False)) == (
-        ("lane 0: producer 'int32-market-feature' emits 7-word records, but consumer 'time-bucket-key' expects 3-word records"),
+        ("lane 0: producer 'market-feature' emits 7-word records, but consumer 'time-bucket-key' expects 3-word records"),
     )
 
 
 def test_stream_shape_mismatches_include_front_feed_and_partitioner() -> None:
     spec = ScanCompositionSpec(
         name="front-mismatch",
-        lanes=(LaneSpec(tile=TileSpec(core="int32-asof-backward")),),
+        lanes=(LaneSpec(tile=TileSpec(core="asof-backward")),),
         front_unpack=TileSpec(core="row-unpack"),
         partitioner=TileSpec(core="key-mask-dispatcher", params={"RECORD_WORDS": 3}),
     )
@@ -959,7 +959,7 @@ def test_selectivity_reconciles_the_model_with_q6_silicon() -> None:
         chain=(
             TileSpec(core="row-predicate-filter", config=predicate),
             TileSpec(core="row-predicate-filter", config=predicate),
-            TileSpec(core="int32-row-map-alu", config=row_map),
+            TileSpec(core="row-map-alu", config=row_map),
         ),
     )
     q6 = ScanCompositionSpec(name="q6-scan", lanes=(lane,) * 4)

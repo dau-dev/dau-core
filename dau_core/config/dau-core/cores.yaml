@@ -483,12 +483,12 @@ bar-aggregation:
       # only int32 is MEASURED; the RTL elaborates the whole declared range
       choices: [int32]
 
-int32-asof-backward:
+asof-backward:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-asof-backward
+  name: asof-backward
   kind: operator
-  module: dau_int32_asof_backward
-  source: dau_int32_asof_backward.sv
+  module: dau_asof_backward
+  source: dau_asof_backward.sv
   description: 'Generic keyed backward as-of join: over one host-merged (key, time)-sorted stream of BUILD and PROBE records
     (build-before-probe at equal key/time), attaches to each probe the most recent build for the same key with build_time
     <= probe_time, optionally within cfg_tolerance on the time axis. Each 3-word record is w0={rec_type, key} (rec_type
@@ -499,7 +499,7 @@ int32-asof-backward:
     is this join with quote=build {bid, ask}, trade=probe {price, size}, key=symbol — the finance vocabulary lives in the
     host merge, not the tile. A record torn by input_last before its third word is ERR_STREAM.'
   golden: dau_core.operators:keyed_asof_join_rows
-  bench: dau_core.tests.cocotb_benches.dau_int32_asof_backward_tb
+  bench: dau_core.tests.cocotb_benches.dau_asof_backward_tb
   # OOC xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +1.679)
   resources:
     - part: xc7a200tfbg484-2
@@ -764,12 +764,12 @@ rolling-extremum:
       timing: met
       wns_ns: 4.052
 
-int32-market-feature:
+market-feature:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-market-feature
+  name: market-feature
   kind: operator
-  module: dau_int32_market_feature
-  source: dau_int32_market_feature.sv
+  module: dau_market_feature
+  source: dau_market_feature.sv
   description: 'Market-feature map (the derive stage of the temporal workflow): a stateless per-row map from an aligned
     market row (as-of tile output, 4 words: time, {price, symbol}, {ask, bid}, {_, size}) to a 7-word feature record — midpoint
     = (bid+ask)>>1 (33-bit sum, no int32 overflow), spread = ask-bid (INT64, the int32 range can overflow), quote-rule trade_sign
@@ -778,7 +778,7 @@ int32-market-feature:
     is a chain stage between the as-of tile and the bar tile — its signed_volume is the value the bar tile accumulates.
     A row torn by input_last before its fourth word is ERR_STREAM.'
   golden: dau_core.temporal:market_features
-  bench: dau_core.tests.cocotb_benches.dau_int32_market_feature_tb
+  bench: dau_core.tests.cocotb_benches.dau_market_feature_tb
   # OOC xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +0.680)
   resources:
     - part: xc7a200tfbg484-2
@@ -2345,18 +2345,18 @@ fixed-point-sqrt:
       dsp: 0
       timing: met
       wns_ns: 7.591
-int32-row-map-alu:
+row-map-alu:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-row-map-alu
+  name: row-map-alu
   kind: operator
-  module: dau_int32_row_map_alu
-  source: dau_int32_row_map_alu.sv
+  module: dau_row_map_alu
+  source: dau_row_map_alu.sv
   description: 'Per-row field ALU over 16-byte quad rows: dst = src_a <op> src_b with two field operands (fixed-point q6
     revenue via MULSHR).'
   depends:
   - map-alu-pkg
   golden: dau_core.operators:map_row_fields
-  bench: dau_core.tests.cocotb_benches.dau_int32_row_map_alu_tb
+  bench: dau_core.tests.cocotb_benches.dau_row_map_alu_tb
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -3840,18 +3840,18 @@ wide-row-predicate-filter:
       # and widening this list is a measurement task, not an RTL one
       choices: [int32]
 
-int32-wide-row-map-alu:
+wide-row-map-alu:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-wide-row-map-alu
+  name: wide-row-map-alu
   kind: operator
-  module: dau_int32_wide_row_map_alu
-  source: dau_int32_wide_row_map_alu.sv
+  module: dau_wide_row_map_alu
+  source: dau_wide_row_map_alu.sv
   description: 'Wide-lane row map ALU: SLOTS whole quad rows per beat, one beat per cycle; the transform of
-    int32-row-map-alu applied independently to each non-pad slot, pads pass through untouched.'
+    row-map-alu applied independently to each non-pad slot, pads pass through untouched.'
   depends:
   - map-alu-pkg
   golden: dau_core.operators:map_row_fields
-  bench: dau_core.tests.cocotb_benches.dau_int32_wide_row_map_alu_tb
+  bench: dau_core.tests.cocotb_benches.dau_wide_row_map_alu_tb
   # Measured points only; a point is valid for the source it measured. The
   # xc7a200t point was taken BEFORE the multiply was registered and describes
   # HDL that no longer exists, so it is deliberately absent rather than

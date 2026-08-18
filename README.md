@@ -148,7 +148,7 @@ exactly that part and clock, and a coordinate nobody measured raises
 Most operator cores take one quad row per cycle. A `wide-row-stream` core
 takes the reader's WHOLE beat — `SLOTS = data_width / 128` quad rows every
 cycle, no dispatcher and no fan-out — and the three row operators have wide
-counterparts (`wide-row-predicate-filter`, `int32-wide-row-map-alu`,
+counterparts (`wide-row-predicate-filter`, `wide-row-map-alu`,
 `wide-field-sum-aggregation`). The substitution is 1:1: same configs,
 same order, only the core names change.
 
@@ -173,7 +173,7 @@ spec = ScanCompositionSpec(
                     "cfg_combine2": "2'd0",
                     "cfg_field2": "2'd0", "cfg_op2": "3'd0", "cfg_constant2": "32'd0"}),
                 # value = value * aux0 >> 15
-                TileSpec(core="int32-wide-row-map-alu", config={
+                TileSpec(core="wide-row-map-alu", config={
                     "cfg_op": "3'd4", "cfg_dst_field": "2'd1",
                     "cfg_src_a_field": "2'd1", "cfg_src_b_field": "2'd2",
                     "cfg_shift": "5'd15"}),

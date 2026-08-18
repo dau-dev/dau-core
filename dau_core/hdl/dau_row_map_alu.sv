@@ -20,7 +20,7 @@
 // config (cfg_op zero/unknown, checked at the first row of a batch and
 // latched for the batch: the batch drains, then ERR_CONFIG) and for a torn
 // final row (input_last on a w0: ERR_STREAM).
-module dau_int32_row_map_alu
+module dau_row_map_alu
     import dau_map_alu_pkg::*;
 #(
     // The ELEMENT TYPE of one field, as encoded by types.svh. The 128-bit

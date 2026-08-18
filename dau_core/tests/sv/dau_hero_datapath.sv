@@ -158,13 +158,13 @@ module dau_hero_datapath #(
     logic buck_sv, buck_se; logic [7:0] buck_sc;
     logic agg_sv, agg_se;   logic [7:0] agg_sc;  logic [63:0] agg_gc;
 
-    dau_int32_asof_backward u_asof (
+    dau_asof_backward u_asof (
         .clk(clk), .rst(rst), .cfg_has_tolerance(cfg_has_tolerance), .cfg_tolerance(cfg_tolerance),
         .input_valid(input_valid), .input_ready(input_ready), .input_data(input_data), .input_last(input_last),
         .output_valid(mkt_v), .output_ready(mkt_r), .output_data(mkt_d), .output_last(mkt_l),
         .status_valid(asof_sv), .status_ready(1'b1), .status_error(asof_se), .status_error_code(asof_sc), .match_count(asof_mc)
     );
-    dau_int32_market_feature u_feature (
+    dau_market_feature u_feature (
         .clk(clk), .rst(rst),
         .input_valid(mkt_v), .input_ready(mkt_r), .input_data(mkt_d), .input_last(mkt_l),
         .output_valid(fe_v), .output_ready(fe_r), .output_data(fe_d), .output_last(fe_l),

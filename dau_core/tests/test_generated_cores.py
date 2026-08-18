@@ -65,7 +65,7 @@ def test_rendering_writes_the_source_the_entry_names(tmp_path: Path) -> None:
 def test_a_checked_in_core_refuses_to_be_rendered() -> None:
     """The inverse mistake: rendering over a hand-written tile would replace
     reviewed HDL with generated text."""
-    core = _definition(source="dau_int32_row_map_alu.sv")
+    core = _definition(source="dau_row_map_alu.sv")
     with pytest.raises(ValueError, match="not generated"):
         core.render()
 

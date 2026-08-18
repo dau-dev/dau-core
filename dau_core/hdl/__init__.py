@@ -40,21 +40,21 @@ DAU_ROW_PREDICATE_FILTER_SV = files(__package__).joinpath("dau_row_predicate_fil
 DAU_FIXED_POINT_DIVIDE_SV = files(__package__).joinpath("dau_fixed_point_divide.sv")
 DAU_FIXED_POINT_SQRT_SV = files(__package__).joinpath("dau_fixed_point_sqrt.sv")
 DAU_DATETIME_FORMAT_SV = files(__package__).joinpath("dau_datetime_format.sv")
-DAU_INT32_ROW_MAP_ALU_SV = files(__package__).joinpath("dau_int32_row_map_alu.sv")
+DAU_ROW_MAP_ALU_SV = files(__package__).joinpath("dau_row_map_alu.sv")
 DAU_FIELD_SUM_AGGREGATION_SV = files(__package__).joinpath("dau_field_sum_aggregation.sv")
 DAU_GROUPED_FIELD_SUM_AGGREGATION_SV = files(__package__).joinpath("dau_grouped_field_sum_aggregation.sv")
 DAU_WIDE_FIELD_SUM_AGGREGATION_SV = files(__package__).joinpath("dau_wide_field_sum_aggregation.sv")
 DAU_RECORD_GEARBOX_SV = files(__package__).joinpath("dau_record_gearbox.sv")
-DAU_INT32_WIDE_ROW_MAP_ALU_SV = files(__package__).joinpath("dau_int32_wide_row_map_alu.sv")
+DAU_WIDE_ROW_MAP_ALU_SV = files(__package__).joinpath("dau_wide_row_map_alu.sv")
 DAU_WIDE_ROW_PREDICATE_FILTER_SV = files(__package__).joinpath("dau_wide_row_predicate_filter.sv")
 DAU_GROUPED_FIELD_AGGREGATION_SV = files(__package__).joinpath("dau_grouped_field_aggregation.sv")
 DAU_KEY_MEMBERSHIP_FILTER_SV = files(__package__).joinpath("dau_key_membership_filter.sv")
 DAU_BROADCAST_HASH_JOIN_SV = files(__package__).joinpath("dau_broadcast_hash_join.sv")
 DAU_ROW_UNPACK_SV = files(__package__).joinpath("dau_row_unpack.sv")
-DAU_INT32_ASOF_BACKWARD_SV = files(__package__).joinpath("dau_int32_asof_backward.sv")
+DAU_ASOF_BACKWARD_SV = files(__package__).joinpath("dau_asof_backward.sv")
 DAU_ROLLING_MOMENTS_SV = files(__package__).joinpath("dau_rolling_moments.sv")
 DAU_ROLLING_EXTREMUM_SV = files(__package__).joinpath("dau_rolling_extremum.sv")
-DAU_INT32_MARKET_FEATURE_SV = files(__package__).joinpath("dau_int32_market_feature.sv")
+DAU_MARKET_FEATURE_SV = files(__package__).joinpath("dau_market_feature.sv")
 DAU_INT32_RECORD_GATHER_SV = files(__package__).joinpath("dau_int32_record_gather.sv")
 DAU_TIME_BUCKET_KEY_SV = files(__package__).joinpath("dau_time_bucket_key.sv")
 DAU_KEYED_STATE_SV = files(__package__).joinpath("dau_keyed_state.sv")
@@ -67,6 +67,7 @@ DAU_STREAMING_DEDUP_SV = files(__package__).joinpath("dau_streaming_dedup.sv")
 __all__ = (
     "DAU_AGGREGATION_PKG_SV",
     "DAU_ARROW_LITE_STREAM_AGGREGATION_SV",
+    "DAU_ASOF_BACKWARD_SV",
     "DAU_AXI_BURST_READER_SV",
     "DAU_AXI_RAM_SIM_SV",
     "DAU_AXI_RECORD_WRITER_SV",
@@ -87,19 +88,16 @@ __all__ = (
     "DAU_HDL_INCLUDE_DIR",
     "DAU_IDENTITY_AXIL_V",
     "DAU_IDENTITY_REGISTERS_SV",
-    "DAU_INT32_ASOF_BACKWARD_SV",
     "DAU_INT32_KEYED_MAP_ALU_SV",
     "DAU_INT32_KEYED_PREDICATE_FILTER_SV",
     "DAU_INT32_MAP_ALU_SV",
-    "DAU_INT32_MARKET_FEATURE_SV",
     "DAU_INT32_PREDICATE_FILTER_SV",
     "DAU_INT32_RECORD_GATHER_SV",
-    "DAU_INT32_ROW_MAP_ALU_SV",
-    "DAU_INT32_WIDE_ROW_MAP_ALU_SV",
     "DAU_KEYED_STATE_SV",
     "DAU_KEY_MASK_DISPATCHER_SV",
     "DAU_KEY_MEMBERSHIP_FILTER_SV",
     "DAU_MAP_ALU_PKG_SV",
+    "DAU_MARKET_FEATURE_SV",
     "DAU_PAIR_KEY_FILTER_SV",
     "DAU_PREDICATE_PKG_SV",
     "DAU_RANGE_PARTITIONER_SV",
@@ -107,6 +105,7 @@ __all__ = (
     "DAU_RECORD_GEARBOX_SV",
     "DAU_ROLLING_EXTREMUM_SV",
     "DAU_ROLLING_MOMENTS_SV",
+    "DAU_ROW_MAP_ALU_SV",
     "DAU_ROW_PREDICATE_FILTER_SV",
     "DAU_ROW_UNPACK_SV",
     "DAU_SCRATCHPAD_SV",
@@ -119,5 +118,6 @@ __all__ = (
     "DAU_TIME_BUCKET_KEY_SV",
     "DAU_TYPES_SVH",
     "DAU_WIDE_FIELD_SUM_AGGREGATION_SV",
+    "DAU_WIDE_ROW_MAP_ALU_SV",
     "DAU_WIDE_ROW_PREDICATE_FILTER_SV",
 )

@@ -30,7 +30,7 @@
 // than cfg_tolerance (probe_time - build_time > tolerance) is a miss. Config is
 // read directly and must be held stable for the job. Matches
 // dau_core.operators.keyed_asof_join_rows bit-for-bit.
-module dau_int32_asof_backward (
+module dau_asof_backward (
     input  wire logic        clk,
     input  wire logic        rst,
     input  wire logic        cfg_has_tolerance,
