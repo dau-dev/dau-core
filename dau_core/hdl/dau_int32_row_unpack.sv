@@ -1,11 +1,13 @@
 `default_nettype none
 
+`include "types.svh"
+
 // Row-unpack front-end feed tile: widens a stream of PACKED rows into the
-// standard 16-byte int32 quad rows the operator tiles consume. Each input
+// standard 16-byte quad rows the operator tiles consume. Each input
 // word carries one complete packed row (<=64 bits of the 64-bit word); the
 // tile bit-extracts four configured fields, sign- or zero-extends each to
-// int32, and emits the 16-byte quad row as two 64-bit words
-// (w0 = {value, key}, w1 = {aux1, aux0}; field i is the i-th 32-bit lane in
+// FIELD_WIDTH, and emits the 16-byte quad row as two 64-bit words
+// (w0 = {value, key}, w1 = {aux1, aux0}; field i is the i-th FIELD_BITS lane in
 // (key, value, aux0, aux1) order — field 0 = key = w0.lo — byte-identical to
 // what the pair-key partition / row filters / row map / field-sum tiles
 // expect). One input word in, two output words out, order and count
@@ -18,13 +20,13 @@
 // up to 64 bits (q6 at 59 bits, q1 at 63 bits).
 //
 // Each output field i is bits packed[cfg_field{i}_offset +: cfg_field{i}_width]
-// (offset 0..63, width 1..32) sign-extended when cfg_field{i}_signed else
-// zero-extended. A field descriptor with width==0, width>32, or
+// (offset 0..63, width 1..FIELD_BITS) sign-extended when cfg_field{i}_signed
+// else zero-extended. A field descriptor with width==0, width>FIELD_BITS, or
 // offset+width>64 is invalid: config precedence (batch-latched at the first
 // row) drains the batch, then reports ERR_CONFIG.
 //
 // BYPASS mode (cfg_bypass, batch-latched at the first row like the field
-// descriptors): when set, the input is already the 16-byte int32 quad row —
+// descriptors): when set, the input is already the 16-byte quad row —
 // TWO 64-bit words per row, batch-last on the row's second word — and the tile
 // forwards each word to the output byte-identically with ZERO added latency
 // (a true input->output wire, not widen-then-renarrow), so the bypass baseline
@@ -97,7 +99,22 @@
 // reader, before the broadcast/partition fan-out, and (b) a flywheel
 // pack-schema deriving each field's offset/width from the column ranges.
 module dau_int32_row_unpack #(
-    parameter int unsigned OUT_WIDTH = 64
+    parameter int unsigned OUT_WIDTH = 64,
+    // The ELEMENT TYPE of the four widened fields, as encoded by types.svh.
+    // This tile is FAMILY-COUPLED: its output IS the quad row the operator
+    // tiles read, so it declares the same element they do or the front feeds
+    // them the wrong shape. Four lanes tile the 128-bit quad row, which stays
+    // the transport unit; a narrower type therefore leaves the rest of the
+    // row zero rather than shrinking the beat. A plain signed integer encodes
+    // as its own width, so `DAU_TYPE_INT32 is 32 and this emits exactly the
+    // four-lane row the tile has always emitted.
+    //
+    // THE PACKED WORD IS NOT THIS ELEMENT. Its 64 bits, the 6-bit offsets and
+    // the reserved all-ones pad are the on-DDR framing, not a value's type,
+    // and they stay as they are. The per-field cfg_signed is what decides
+    // sign against zero extension, so the type's own signedness says nothing
+    // here -- only a float, which no bit-extraction can produce, is refused.
+    parameter int FIELD_WIDTH = `DAU_TYPE_INT32
 ) (
     input  wire logic        clk,
     input  wire logic        rst,
@@ -129,6 +146,10 @@ module dau_int32_row_unpack #(
 );
     localparam logic [7:0] ERR_CONFIG = 8'd1;
     localparam logic [7:0] ERR_STREAM = 8'd2;
+    // the type, taken apart: the widened fields size off FIELD_BITS and the
+    // float fact is what the guard checks the type against
+    localparam int FIELD_BITS     = `DAU_TYPE_WIDTH(FIELD_WIDTH);
+    localparam int FIELD_IS_FLOAT = `DAU_TYPE_IS_FLOAT(FIELD_WIDTH);
 
     // rows/cycle axis: WIDE emits SLOTS whole quad rows per beat (EMIT_W0 is
     // the beat's only — and final — beat; EMIT_W1 is unreachable)
@@ -143,6 +164,18 @@ module dau_int32_row_unpack #(
     localparam logic [127:0] PAD_ROW    = {128{1'b1}};
     if (OUT_WIDTH != 64 && OUT_WIDTH != 128 && OUT_WIDTH != 256 && OUT_WIDTH != 512 && OUT_WIDTH != 1024) begin : g_bad_out_width
         $fatal(1, "dau_int32_row_unpack: OUT_WIDTH must be 64, 128, 256, 512, or 1024");
+    end
+    // FOUR widened fields tile the 128-bit quad row, so four of them must fit
+    // it and lie on its lane grid
+    if (FIELD_BITS < 8 || FIELD_BITS > 32 || (128 % FIELD_BITS) != 0) begin : g_field_width_check
+        $error("FIELD_WIDTH must divide 128 and lie in [8, 32]");
+    end
+    // A TYPE IS NOT A CAPABILITY. This tile builds a value by shifting,
+    // masking and replicating a sign bit -- it cannot produce an exponent and
+    // a mantissa, so a float type here would name something the datapath
+    // never emits. Refuse it at elaboration.
+    if (FIELD_IS_FLOAT != 0) begin : g_field_float_check
+        $error("FIELD_WIDTH must not name a floating-point type: this tile bit-extracts and sign-extends integers");
     end
 
     typedef enum logic [1:0] {
@@ -289,11 +322,11 @@ module dau_int32_row_unpack #(
     assign eff_width3 = first_row ? cfg_field3_width : active_width3;
     assign eff_signed3 = first_row ? cfg_field3_signed : active_signed3;
 
-    // config precedence: a descriptor with width 0, width > 32, or a field
-    // running past bit 64 is invalid (checked at the first row and latched)
+    // config precedence: a descriptor with width 0, width > FIELD_BITS, or a
+    // field running past bit 64 is invalid (checked at the first row and latched)
     function automatic logic field_cfg_ok(input logic [5:0] offset, input logic [5:0] width);
         begin
-            field_cfg_ok = (width >= 6'd1) && (width <= 6'd32) && (({1'b0, offset} + {1'b0, width}) <= 7'd64);
+            field_cfg_ok = (width >= 6'd1) && (width <= 6'(FIELD_BITS)) && (({1'b0, offset} + {1'b0, width}) <= 7'd64);
         end
     endfunction
 
@@ -332,22 +365,22 @@ module dau_int32_row_unpack #(
         && pad_is_unreachable;
 
     // barrel-extract one field to LSB, mask to width, then sign/zero-extend to
-    // int32 (the exact 32-bit pattern a downstream signed compare reads back)
-    function automatic logic [31:0] extract_field(
+    // the element type (the exact pattern a downstream signed compare reads back)
+    function automatic logic [FIELD_BITS-1:0] extract_field(
         input logic [63:0] packed_row,
         input logic [5:0]  offset,
         input logic [5:0]  width,
         input logic        signed_ext
     );
         logic [63:0] shifted;
-        logic [31:0] mask;
+        logic [FIELD_BITS-1:0] mask;
         logic        sign_bit;
-        logic [31:0] raw;
+        logic [FIELD_BITS-1:0] raw;
         begin
             shifted = packed_row >> offset;
-            // width low bits set (width in [1,32]; width==32 => all ones)
-            mask = (width >= 6'd32) ? 32'hFFFF_FFFF : ((32'd1 << width) - 32'd1);
-            raw = shifted[31:0] & mask;
+            // width low bits set (width in [1,FIELD_BITS]; width==FIELD_BITS => all ones)
+            mask = (width >= 6'(FIELD_BITS)) ? {FIELD_BITS{1'b1}} : FIELD_BITS'((FIELD_BITS'(1) << width) - FIELD_BITS'(1));
+            raw = shifted[FIELD_BITS-1:0] & mask;
             sign_bit = shifted[width - 6'd1];     // the field's top bit
             if (signed_ext && sign_bit) begin
                 extract_field = raw | ~mask;
@@ -365,12 +398,14 @@ module dau_int32_row_unpack #(
     for (genvar s = 0; s < SLOTS; s++) begin : g_slot
         wire [63:0] packed_s = input_data[64*s +: 64];
         wire        is_pad   = (SLOTS > 1) && (packed_s == PAD_PACKED);
-        assign row_out[s] = is_pad ? PAD_ROW : {
+        // the four lanes occupy the low 4*FIELD_BITS of the quad row; a type
+        // narrower than the row's quarter leaves the rest zero
+        assign row_out[s] = is_pad ? PAD_ROW : 128'({
             extract_field(packed_s, eff_offset3, eff_width3, eff_signed3),
             extract_field(packed_s, eff_offset2, eff_width2, eff_signed2),
             extract_field(packed_s, eff_offset1, eff_width1, eff_signed1),
             extract_field(packed_s, eff_offset0, eff_width0, eff_signed0)
-        };
+        });
     end
 
     always_ff @(posedge clk) begin

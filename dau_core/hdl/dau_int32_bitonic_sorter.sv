@@ -1,8 +1,10 @@
 `default_nettype none
 
+`include "types.svh"
+
 // Batch bitonic sorter for 16-byte pair rows (two 64-bit words,
 // w0 = {value, key}). Loads up to CAPACITY whole rows, sorts them ascending
-// by the signed 32-bit key with an iterative bitonic network (one
+// by the signed KEY_WIDTH key with an iterative bitonic network (one
 // compare-exchange stage per cycle, log2(C)*(log2(C)+1)/2 stages), then
 // drains the batch in key order. The sort is made STABLE by tie-breaking
 // equal keys on load order — rows with equal keys drain in input order, so
@@ -21,7 +23,16 @@
 // waits on a consumed producer status). Error close-outs report through
 // the same status stream.
 module dau_int32_bitonic_sorter #(
-    parameter int CAPACITY = 16  // power of two >= 2
+    parameter int CAPACITY = 16,  // power of two >= 2
+    // The ELEMENT TYPE of the sort key, as encoded by types.svh. The key and
+    // its companion value lane tile one 64-bit stream word, so a narrower
+    // type packs the pair into less of the word rather than changing the
+    // beat; the rows themselves are carried opaquely, two words wide. A plain
+    // signed integer encodes as its own width, so `DAU_TYPE_INT32 is 32 and
+    // this sorts by exactly the key the tile has always sorted by. The
+    // network ORDERS two's-complement magnitudes, so the type must be one it
+    // can order: signed and non-float.
+    parameter int KEY_WIDTH = `DAU_TYPE_INT32
 ) (
     input  wire logic        clk,
     input  wire logic        rst,
@@ -44,9 +55,31 @@ module dau_int32_bitonic_sorter #(
     localparam logic [7:0] ERR_STREAM = 8'd2;
     localparam logic [7:0] ERR_CAPACITY = 8'd3;
     localparam int IDXW = $clog2(CAPACITY);
+    // the type, taken apart: the key lane sizes off KEY_BITS and the other
+    // two facts are what the guards check the type against
+    localparam int KEY_BITS      = `DAU_TYPE_WIDTH(KEY_WIDTH);
+    localparam int KEY_IS_FLOAT  = `DAU_TYPE_IS_FLOAT(KEY_WIDTH);
+    localparam int KEY_IS_SIGNED = `DAU_TYPE_IS_SIGNED(KEY_WIDTH);
 
     if (CAPACITY < 2 || (CAPACITY & (CAPACITY - 1)) != 0) begin : g_param_check
         $error("CAPACITY must be a power of two >= 2");
+    end
+    // {value, key} tile one 64-bit stream word, so the pair must fit it and
+    // divide it evenly
+    if (KEY_BITS < 8 || KEY_BITS > 32 || (64 % KEY_BITS) != 0) begin : g_key_width_check
+        $error("KEY_WIDTH must divide 64 and lie in [8, 32]");
+    end
+    // A TYPE IS NOT A CAPABILITY. The compare-exchange orders two's-complement
+    // magnitudes: handed a float it would order exponent bits as though they
+    // were magnitude, and handed an unsigned type it would sort every
+    // high-bit-set key to the front. Both are silently wrong orders, so
+    // refuse them at elaboration. Fixed point is admissible unchanged --
+    // scaling by a constant 2**-F preserves order.
+    if (KEY_IS_FLOAT != 0) begin : g_key_float_check
+        $error("KEY_WIDTH must not name a floating-point type: this tile orders two's-complement integers");
+    end
+    if (KEY_IS_SIGNED == 0) begin : g_key_signed_check
+        $error("KEY_WIDTH must not name an unsigned type: this tile orders two's-complement integers");
     end
 
     typedef enum logic [2:0] {
@@ -86,7 +119,7 @@ module dau_int32_bitonic_sorter #(
 
     // ascending (key, load-index) order: index tie-break makes the sort
     // stable and orders the +max pad sentinels after every real row
-    function automatic logic entry_gt(input logic [31:0] a_key, input logic [IDXW-1:0] a_idx, input logic [31:0] b_key, input logic [IDXW-1:0] b_idx);
+    function automatic logic entry_gt(input logic [KEY_BITS-1:0] a_key, input logic [IDXW-1:0] a_idx, input logic [KEY_BITS-1:0] b_key, input logic [IDXW-1:0] b_idx);
         if ($signed(a_key) != $signed(b_key)) begin
             return $signed(a_key) > $signed(b_key);
         end
@@ -125,10 +158,10 @@ module dau_int32_bitonic_sorter #(
                 STATE_PAD: begin
                     // unused entries become +max sentinels; the index
                     // tie-break (pad indices >= count) sinks them below every
-                    // real row, including real INT32_MAX keys
+                    // real row, including real maximum-key rows
                     for (int i = 0; i < CAPACITY; i++) begin
                         if (i >= int'(count)) begin
-                            mem_w0[i] <= {32'd0, 32'h7FFF_FFFF};
+                            mem_w0[i] <= {{(64-KEY_BITS){1'b0}}, 1'b0, {(KEY_BITS-1){1'b1}}};
                             mem_idx[i] <= IDXW'(unsigned'(i));
                         end
                     end
@@ -150,7 +183,7 @@ module dau_int32_bitonic_sorter #(
                                 automatic int partner = i ^ (1 << jj);
                                 if (partner > i) begin
                                     automatic logic ascending = (i & int'(k_size)) == 0;
-                                    if (entry_gt(mem_w0[i][31:0], mem_idx[i], mem_w0[partner][31:0], mem_idx[partner]) == ascending) begin
+                                    if (entry_gt(mem_w0[i][KEY_BITS-1:0], mem_idx[i], mem_w0[partner][KEY_BITS-1:0], mem_idx[partner]) == ascending) begin
                                         mem_w0[i] <= mem_w0[partner];
                                         mem_w0[partner] <= mem_w0[i];
                                         mem_w1[i] <= mem_w1[partner];

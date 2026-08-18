@@ -1,9 +1,11 @@
 `default_nettype none
 
+`include "types.svh"
+
 // Key-set membership filter for 16-byte quad rows (two 64-bit words,
 // w0 = {value, key}, w1 = {aux1, aux0}). The entry to the join tier: whole
-// rows keep or drop by whether the row key (w0.lo, signed int32) is a member
-// of a build set held in an on-chip bitmap. The build set is loaded in a LOAD
+// rows keep or drop by whether the row key (w0.lo, the row's first KEY_WIDTH
+// lane) is a member of a build set held in an on-chip bitmap. The build set is loaded in a LOAD
 // phase BEFORE the PROBE stream (the two-phase membership job):
 //
 //   * cfg_load=1 (LOAD phase): the input stream is the KEY_SPACE-bit bitmap
@@ -52,7 +54,16 @@ module dau_int32_key_membership_filter #(
     // dictionary-id space (bitmap width in bits); a positive multiple of 64.
     // Sized to the build dictionary's cardinality — the memory stays
     // BRAM-resident and the image is KEY_SPACE/64 words.
-    parameter int KEY_SPACE = 4096
+    parameter int KEY_SPACE = 4096,
+    // The ELEMENT TYPE of the key lane, as encoded by types.svh. A plain
+    // signed integer encodes as its own width, so `DAU_TYPE_INT32 is 32 and
+    // this reads exactly the w0.lo key the tile has always read. The key is a
+    // DICTIONARY ID — an index, not a magnitude — so the range test is one
+    // unsigned compare against KEY_SPACE at either signedness, and it is a
+    // float that has no meaning here rather than an unsigned integer (the
+    // streaming dedup, this tile's read-write sibling, says the same).
+    // A narrower type does not shrink the bitmap: KEY_SPACE does that.
+    parameter int KEY_WIDTH = `DAU_TYPE_INT32
 ) (
     input  wire logic        clk,
     input  wire logic        rst,
@@ -77,6 +88,8 @@ module dau_int32_key_membership_filter #(
     localparam int AWIDTH = (WORDS <= 1) ? 1 : $clog2(WORDS);
     localparam logic [AWIDTH-1:0] LAST_WORD = AWIDTH'(WORDS - 1);
     localparam logic [31:0] KEY_SPACE_U = KEY_SPACE;
+    localparam int KEY_BITS     = `DAU_TYPE_WIDTH(KEY_WIDTH);
+    localparam int KEY_IS_FLOAT = `DAU_TYPE_IS_FLOAT(KEY_WIDTH);
 
     localparam logic [1:0] KIND_EXACT_BITMAP = 2'd1;
     localparam logic       MODE_ANTI = 1'b1;
@@ -84,6 +97,20 @@ module dau_int32_key_membership_filter #(
     localparam logic [7:0] ERR_CONFIG = 8'd1;
     localparam logic [7:0] ERR_STREAM = 8'd2;
     localparam logic [7:0] ERR_LOAD   = 8'd3;
+
+    // the key is one lane of the {value, key} word, so a pair of lanes tiles
+    // it; the id space itself tops out at 2**23, so a wider key would address
+    // nothing the bitmap can hold
+    if (KEY_BITS < 8 || KEY_BITS > 32 || (64 % KEY_BITS) != 0) begin : g_key_width_check
+        $error("KEY_WIDTH must divide 64 and lie in [8, 32]");
+    end
+    // A TYPE IS NOT A CAPABILITY. A float bit pattern is not an index into a
+    // bitmap: its exponent bits would select the word and its mantissa the
+    // bit within it, answering membership of a BIT PATTERN while claiming
+    // membership of a value. Refuse it at elaboration.
+    if (KEY_IS_FLOAT != 0) begin : g_key_float_check
+        $error("KEY_WIDTH must not name a floating-point type: the key is a dictionary id, an integer index");
+    end
 
     typedef enum logic [3:0] {
         S_ARM,        // batch idle: the first word decides load vs probe (cfg latches)
@@ -154,7 +181,11 @@ module dau_int32_key_membership_filter #(
     logic output_fire;
     logic emit_free;
 
-    logic [31:0] probe_key;
+    logic [KEY_BITS-1:0] probe_key;
+    // the key zero-extended to the id space's own width: KEY_SPACE reaches
+    // 2**23, so the range test and the bitmap address are 32-bit whatever the
+    // key lane's width is (the streaming dedup's idiom)
+    logic [31:0] probe_key_u;
     logic        probe_key_in_range;
     logic [AWIDTH-1:0] probe_raddr;
     logic        probe_w0_accept;
@@ -182,11 +213,12 @@ module dau_int32_key_membership_filter #(
 
     // membership read address: the row key (w0.lo). A key outside
     // [0, KEY_SPACE) fails the unsigned range compare (negatives read as
-    // >= 2**31 > KEY_SPACE_U) and is forced to a non-member; the address is
-    // clamped so an out-of-range key never indexes past the memory.
-    assign probe_key = input_data[31:0];
-    assign probe_key_in_range = (probe_key < KEY_SPACE_U);
-    assign probe_raddr = probe_key_in_range ? probe_key[6 +: AWIDTH] : '0;
+    // >= 2**(KEY_BITS-1) > KEY_SPACE_U) and is forced to a non-member; the
+    // address is clamped so an out-of-range key never indexes past the memory.
+    assign probe_key = input_data[KEY_BITS-1:0];
+    assign probe_key_u = 32'(probe_key);
+    assign probe_key_in_range = (probe_key_u < KEY_SPACE_U);
+    assign probe_raddr = probe_key_in_range ? probe_key_u[6 +: AWIDTH] : '0;
 
     // a probe w0 is being accepted this cycle (S_ARM's first word in probe
     // phase, or a subsequent S_W0); the read is issued here and lands in S_W1
@@ -246,7 +278,7 @@ module dau_int32_key_membership_filter #(
         end
         if (probe_w0_accept) begin
             read_word <= membership_mem[probe_raddr];
-            probe_bit <= probe_key[5:0];
+            probe_bit <= probe_key_u[5:0];
             probe_in_range <= probe_key_in_range;
         end
         if (stage1_valid) begin

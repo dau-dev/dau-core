@@ -1,6 +1,8 @@
 `default_nettype none
 
-// Key-mask dispatcher for 16-byte int32 quad rows: each whole row routes to
+`include "types.svh"
+
+// Key-mask dispatcher for 16-byte quad rows: each whole row routes to
 // exactly one of NUM_PARTITIONS output streams by its key's low bits —
 // dest = key & (NUM_PARTITIONS - 1), NUM_PARTITIONS a power of two. This is
 // the broadcast + per-lane pair-key-filter shape (key & mask == lane, the
@@ -202,6 +204,19 @@ endmodule
 // lane's two-beat drain. NUM_PARTITIONS needs no power-of-two in this mode.
 module dau_int32_key_mask_dispatcher #(
     parameter int NUM_PARTITIONS = 4,
+    // The ELEMENT TYPE of the key lane, as encoded by types.svh. Only word
+    // 0's first lane is read; everything else in a record is routed opaquely,
+    // so this is the one thing the router interprets. A plain signed integer
+    // encodes as its own width, so `DAU_TYPE_INT32 is 32 and this reads
+    // exactly the key the tile has always read.
+    //
+    // THE DECODE IS 32-BIT AT EVERY KEY WIDTH. The key is a dictionary id or
+    // a branch index -- an identity, not a magnitude -- so it is
+    // zero-extended to 32 bits and the mask select, the exact-branch range
+    // and the multiplicative hash all run there. That is CONTRACT, not
+    // convenience: dau_core.operators pins the hash multiplier and the
+    // bit-extraction, and a row's partition is part of the answer.
+    parameter int KEY_WIDTH = `DAU_TYPE_INT32,
     parameter int unsigned IN_WIDTH = 64,
     // dau_core.operators.DispatchMode: 0 MASK, 1 EXACT_BRANCH, 2 HASH.
     // One selector rather than a bool per mode, so no illegal combination
@@ -247,6 +262,10 @@ module dau_int32_key_mask_dispatcher #(
     localparam bit MULTI = (IN_WIDTH > 128) && !RECORD_INPUT;          // 256/512: R>1 rows per beat
     localparam int R = MULTI ? (IN_WIDTH / 128) : 1;  // whole quad rows per input beat
     localparam int PIDX_W = (NUM_PARTITIONS <= 1) ? 1 : $clog2(NUM_PARTITIONS);
+    // the type, taken apart: the key lane sizes off KEY_BITS and the float
+    // fact is what the guard checks the type against
+    localparam int KEY_BITS     = `DAU_TYPE_WIDTH(KEY_WIDTH);
+    localparam int KEY_IS_FLOAT = `DAU_TYPE_IS_FLOAT(KEY_WIDTH);
     // dau_core.operators.DispatchMode values (0 MASK is the case default)
     // and DISPATCH_HASH_MULTIPLIER
     localparam int unsigned MODE_EXACT_BRANCH = 1;
@@ -272,6 +291,18 @@ module dau_int32_key_mask_dispatcher #(
     end
     if (MODE > 2) begin : g_bad_mode
         $error("MODE must be 0 (MASK), 1 (EXACT_BRANCH) or 2 (HASH)");
+    end
+    // the key is one lane of the {value, key} word, so a pair of lanes tiles
+    // it; the decode is 32-bit whatever the lane holds
+    if (KEY_BITS < 8 || KEY_BITS > 32 || (64 % KEY_BITS) != 0) begin : g_key_width_check
+        $error("KEY_WIDTH must divide 64 and lie in [8, 32]");
+    end
+    // A TYPE IS NOT A CAPABILITY. Every decode here reads the key as an
+    // unsigned index: a float's exponent bits would pick the lane, and -0.0
+    // and +0.0 -- the same value -- would route to different partitions.
+    // Refuse it at elaboration.
+    if (KEY_IS_FLOAT != 0) begin : g_key_float_check
+        $error("KEY_WIDTH must not name a floating-point type: the key is a routing identity, an integer index");
     end
 
     if ((MODE != MODE_EXACT_BRANCH) && (NUM_PARTITIONS & (NUM_PARTITIONS - 1)) != 0) begin : g_bad_partitions
@@ -424,7 +455,7 @@ module dau_int32_key_mask_dispatcher #(
         // destination lane can take it, and a dropped row costs one cycle.
         // This is the proven R=1 datapath; MULTI just feeds it from the
         // serializer instead of directly from the input beat.
-        assign route_key = wrow_data[31:0];
+        assign route_key = 32'(wrow_data[KEY_BITS-1:0]);
         assign dest = decode_dest(route_key);
         assign push_words = wrow_data[RECORD_WORDS*64-1:0];
         assign wrow_ready = (fstate == F_W0) && (!route_hit || lane_push_ready[dest]);
@@ -448,7 +479,7 @@ module dau_int32_key_mask_dispatcher #(
         // cycle it is accepted — one record per cycle whenever the
         // destination lane can take it. Structurally the proven wide front,
         // with the record bus in place of the 128-bit quad row.
-        assign route_key = input_data[31:0];
+        assign route_key = 32'(input_data[KEY_BITS-1:0]);
         assign dest = decode_dest(route_key);
         assign push_words = input_data[RECORD_WORDS*64-1:0];
         always_comb begin
@@ -484,7 +515,7 @@ module dau_int32_key_mask_dispatcher #(
         logic                       last_word;
 
         assign last_word = (cur_index == NIDX_W'(RECORD_WORDS - 1));
-        assign route_key = cur_words[31:0];
+        assign route_key = 32'(cur_words[KEY_BITS-1:0]);
         assign dest = decode_dest(route_key);
         // the final word is not yet registered when it is routed, so present
         // it directly beside the words already collected

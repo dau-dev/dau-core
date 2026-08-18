@@ -1,5 +1,7 @@
 `default_nettype none
 
+`include "types.svh"
+
 // Row-atomic key partition filter for 16-byte bar rows (two 64-bit words,
 // w0 = {price, key}): rows pass when (key & cfg_key_mask) == cfg_key_match,
 // and whole rows pass or drop together. The newest passing row is held in
@@ -12,11 +14,25 @@
 // with a success status (the tile never started), and a torn final row
 // (input_last on a w0) reports ERR_STREAM. Otherwise the tile's status is
 // authoritative and the filter stays silent.
-module dau_int32_pair_key_filter (
+module dau_int32_pair_key_filter #(
+    // The ELEMENT TYPE of the key lane, as encoded by types.svh. The key and
+    // its companion payload lane tile one 64-bit stream word, so a narrower
+    // type packs the pair into less of the word rather than changing the
+    // beat. A plain signed integer encodes as its own width, so
+    // `DAU_TYPE_INT32 is 32 and this reads exactly the w0.lo key the tile has
+    // always read.
+    //
+    // THE DECODE IS A BITWISE MASK AND AN EQUALITY, not an ordering, so
+    // signedness and fractional bits are irrelevant here and every integer
+    // and fixed-point type is admissible -- the one refusal is float, whose
+    // bit patterns compare unequal for values that are equal (-0.0 against
+    // +0.0) and equal for values that are not.
+    parameter int KEY_WIDTH = `DAU_TYPE_INT32
+) (
     input  wire logic        clk,
     input  wire logic        rst,
-    input  wire logic [31:0] cfg_key_mask,
-    input  wire logic [31:0] cfg_key_match,
+    input  wire logic [KEY_BITS-1:0] cfg_key_mask,
+    input  wire logic [KEY_BITS-1:0] cfg_key_match,
     input  wire logic        input_valid,
     output logic             input_ready,
     input  wire logic [63:0] input_data,
@@ -31,6 +47,23 @@ module dau_int32_pair_key_filter (
     output logic [7:0]       status_error_code
 );
     localparam logic [7:0] ERR_STREAM = 8'd2;
+    // the type, taken apart: the key lane sizes off KEY_BITS and the float
+    // fact is what the guard checks the type against
+    localparam int KEY_BITS     = `DAU_TYPE_WIDTH(KEY_WIDTH);
+    localparam int KEY_IS_FLOAT = `DAU_TYPE_IS_FLOAT(KEY_WIDTH);
+
+    // {price, key} tile one 64-bit stream word, so the pair must fit it and
+    // divide it evenly
+    if (KEY_BITS < 8 || KEY_BITS > 32 || (64 % KEY_BITS) != 0) begin : g_key_width_check
+        $error("KEY_WIDTH must divide 64 and lie in [8, 32]");
+    end
+    // A TYPE IS NOT A CAPABILITY. Masking a float and comparing the result
+    // for equality selects on exponent and mantissa bits: -0.0 and +0.0 are
+    // the same value and different patterns, and NaN is neither. Refuse it at
+    // elaboration rather than partitioning on bit patterns.
+    if (KEY_IS_FLOAT != 0) begin : g_key_float_check
+        $error("KEY_WIDTH must not name a floating-point type: this tile masks and compares raw key bits");
+    end
 
     typedef enum logic [2:0] {
         STATE_W0,
@@ -66,7 +99,7 @@ module dau_int32_pair_key_filter (
 
     assign input_fire = input_valid && input_ready;
     assign output_fire = output_valid && output_ready;
-    assign keep_now = (input_data[31:0] & cfg_key_mask) == cfg_key_match;
+    assign keep_now = (input_data[KEY_BITS-1:0] & cfg_key_mask) == cfg_key_match;
     // the emit engine frees on the accepted final beat of a row
     assign emit_free = (emit_state == EMIT_IDLE) || ((emit_state == EMIT_W1) && output_fire);
 

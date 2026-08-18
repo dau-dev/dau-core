@@ -787,7 +787,7 @@ int32-time-bucket-key:
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {BUCKET_BITS: 16}
+      params: {BUCKET_BITS: 16, KEY_WIDTH: int32}
       lut: 245
       ff: 305
       bram36: 0.0
@@ -796,7 +796,7 @@ int32-time-bucket-key:
       wns_ns: 2.085
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {BUCKET_BITS: 16}
+      params: {BUCKET_BITS: 16, KEY_WIDTH: int32}
       lut: 245
       ff: 305
       bram36: 0.0
@@ -814,6 +814,21 @@ int32-time-bucket-key:
     BUCKET_BITS:
       default: 16
       maximum: 31
+    KEY_WIDTH:
+      # the ELEMENT TYPE of the partition id, the composite (partition,
+      # bucket) key it becomes, and the payload lanes beside them. THE TIME
+      # AXIS IS NOT THIS ELEMENT: it is a signed INT64 in its own word at
+      # every key width, because nanosecond timestamps need one. The key is a
+      # packed group identity rather than a magnitude, so only float is
+      # refused. int32 encodes as 32, so this declares exactly the tile it
+      # always built -- and BUCKET_BITS' maximum of 31 is that width's bound
+      # (the tile's own relation guard is BUCKET_BITS < KEY_WIDTH).
+      element_type: true
+      default: int32
+      minimum: 8
+      maximum: 32
+      # only int32 is MEASURED; the RTL elaborates the whole declared range
+      choices: [int32]
 
 int32-record-gather:
   _target_: dau_core.cores.CoreDefinition
@@ -1066,7 +1081,7 @@ int32-streaming-top-k:
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {K: 1}
+      params: {K: 1, FIELD_WIDTH: int32}
       lut: 109
       ff: 268
       bram36: 0.0
@@ -1075,7 +1090,7 @@ int32-streaming-top-k:
       wns_ns: 4.362
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {K: 5}
+      params: {K: 5, FIELD_WIDTH: int32}
       lut: 843
       ff: 800
       bram36: 0.0
@@ -1084,7 +1099,7 @@ int32-streaming-top-k:
       wns_ns: 4.350
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {K: 8}
+      params: {K: 8, FIELD_WIDTH: int32}
       lut: 1295
       ff: 1196
       bram36: 0.0
@@ -1093,7 +1108,7 @@ int32-streaming-top-k:
       wns_ns: 4.350
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {K: 16}
+      params: {K: 16, FIELD_WIDTH: int32}
       lut: 2447
       ff: 2235
       bram36: 0.0
@@ -1102,7 +1117,7 @@ int32-streaming-top-k:
       wns_ns: 3.329
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {K: 32}
+      params: {K: 32, FIELD_WIDTH: int32}
       lut: 4846
       ff: 4316
       bram36: 0.0
@@ -1111,7 +1126,7 @@ int32-streaming-top-k:
       wns_ns: 3.329
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {K: 64}
+      params: {K: 64, FIELD_WIDTH: int32}
       lut: 9701
       ff: 8466
       bram36: 0.0
@@ -1120,7 +1135,7 @@ int32-streaming-top-k:
       wns_ns: 2.821
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {K: 128}
+      params: {K: 128, FIELD_WIDTH: int32}
       lut: 19584
       ff: 16699
       bram36: 0.0
@@ -1129,7 +1144,7 @@ int32-streaming-top-k:
       wns_ns: 3.313
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {K: 1}
+      params: {K: 1, FIELD_WIDTH: int32}
       lut: 109
       ff: 268
       bram36: 0.0
@@ -1138,7 +1153,7 @@ int32-streaming-top-k:
       wns_ns: 5.422
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {K: 5}
+      params: {K: 5, FIELD_WIDTH: int32}
       lut: 843
       ff: 800
       bram36: 0.0
@@ -1147,7 +1162,7 @@ int32-streaming-top-k:
       wns_ns: 5.410
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {K: 8}
+      params: {K: 8, FIELD_WIDTH: int32}
       lut: 1295
       ff: 1196
       bram36: 0.0
@@ -1156,7 +1171,7 @@ int32-streaming-top-k:
       wns_ns: 5.410
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {K: 16}
+      params: {K: 16, FIELD_WIDTH: int32}
       lut: 2447
       ff: 2235
       bram36: 0.0
@@ -1165,7 +1180,7 @@ int32-streaming-top-k:
       wns_ns: 4.667
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {K: 32}
+      params: {K: 32, FIELD_WIDTH: int32}
       lut: 4846
       ff: 4316
       bram36: 0.0
@@ -1174,7 +1189,7 @@ int32-streaming-top-k:
       wns_ns: 4.656
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {K: 64}
+      params: {K: 64, FIELD_WIDTH: int32}
       lut: 9701
       ff: 8466
       bram36: 0.0
@@ -1183,7 +1198,7 @@ int32-streaming-top-k:
       wns_ns: 4.293
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {K: 128}
+      params: {K: 128, FIELD_WIDTH: int32}
       lut: 19594
       ff: 16699
       bram36: 0.0
@@ -1201,6 +1216,19 @@ int32-streaming-top-k:
     K:
       default: 8
       maximum: 128
+    FIELD_WIDTH:
+      # the ELEMENT TYPE of the row's lanes -- one type for the key and the
+      # three payload lanes, because two lanes tile each 64-bit word and the
+      # drained record mirrors the accepted one. The array ORDERS
+      # two's-complement magnitudes, so the tile refuses float and unsigned
+      # types. int32 encodes as 32, so this declares exactly the tile it
+      # always built.
+      element_type: true
+      default: int32
+      minimum: 8
+      maximum: 32
+      # only int32 is MEASURED; the RTL elaborates the whole declared range
+      choices: [int32]
 
 int32-pair-key-filter:
   _target_: dau_core.cores.CoreDefinition
@@ -1214,7 +1242,7 @@ int32-pair-key-filter:
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {}
+      params: {KEY_WIDTH: int32}
       lut: 178
       ff: 331
       bram36: 0.0
@@ -1223,7 +1251,7 @@ int32-pair-key-filter:
       wns_ns: 5.338
     - part: xc7a200tfbg484-2
       clock_ns: 10.0
-      params: {}
+      params: {KEY_WIDTH: int32}
       lut: 178
       ff: 331
       bram36: 0.0
@@ -1232,7 +1260,7 @@ int32-pair-key-filter:
       wns_ns: 7.338
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {}
+      params: {KEY_WIDTH: int32}
       lut: 178
       ff: 331
       bram36: 0.0
@@ -1241,7 +1269,7 @@ int32-pair-key-filter:
       wns_ns: 6.123
     - part: xc7k325tffg900-2
       clock_ns: 10.0
-      params: {}
+      params: {KEY_WIDTH: int32}
       lut: 178
       ff: 331
       bram36: 0.0
@@ -1253,6 +1281,19 @@ int32-pair-key-filter:
   ingest:
     rows: 1
     per_cycles: 2
+  parameters:
+    KEY_WIDTH:
+      # the ELEMENT TYPE of the key lane. The decode is a bitwise mask and an
+      # equality rather than an ordering, so signedness and fractional bits do
+      # not enter it and only float is refused. int32 encodes as 32, so this
+      # declares exactly the tile it always built.
+      element_type: true
+      default: int32
+      # {price, key} tile one 64-bit stream word
+      minimum: 8
+      maximum: 32
+      # only int32 is MEASURED; the RTL elaborates the whole declared range
+      choices: [int32]
 
 int32-range-partitioner:
   _target_: dau_core.cores.CoreDefinition
@@ -1267,7 +1308,7 @@ int32-range-partitioner:
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {}
+      params: {KEY_WIDTH: int32}
       lut: 375
       ff: 1124
       bram36: 0.0
@@ -1276,7 +1317,7 @@ int32-range-partitioner:
       wns_ns: 3.935
     - part: xc7a200tfbg484-2
       clock_ns: 10.0
-      params: {}
+      params: {KEY_WIDTH: int32}
       lut: 375
       ff: 1124
       bram36: 0.0
@@ -1285,7 +1326,7 @@ int32-range-partitioner:
       wns_ns: 5.935
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {}
+      params: {KEY_WIDTH: int32}
       lut: 375
       ff: 1124
       bram36: 0.0
@@ -1294,7 +1335,7 @@ int32-range-partitioner:
       wns_ns: 5.115
     - part: xc7k325tffg900-2
       clock_ns: 10.0
-      params: {}
+      params: {KEY_WIDTH: int32}
       lut: 375
       ff: 1124
       bram36: 0.0
@@ -1306,6 +1347,21 @@ int32-range-partitioner:
   ingest:
     rows: 1
     per_cycles: 2
+  parameters:
+    KEY_WIDTH:
+      # the ELEMENT TYPE of the key and the splitters it is compared against
+      # (cfg_splitters carries NUM_PARTITIONS-1 lanes of this width). The
+      # linear decode ORDERS two's-complement magnitudes, so the tile refuses
+      # float and unsigned types -- an unsigned key would break the
+      # key-ordering guarantee that makes a global sort a concatenation.
+      # int32 encodes as 32, so this declares exactly the tile it always built.
+      element_type: true
+      default: int32
+      # {value, key} tile one 64-bit stream word
+      minimum: 8
+      maximum: 32
+      # only int32 is MEASURED; the RTL elaborates the whole declared range
+      choices: [int32]
 
 record-gearbox:
   _target_: dau_core.cores.CoreDefinition
@@ -1394,7 +1450,7 @@ int32-key-mask-dispatcher:
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {NUM_PARTITIONS: 4, RECORD_WORDS: 2, IN_WIDTH: 64, RECORD_INPUT: 0, MODE: 0}
+      params: {NUM_PARTITIONS: 4, RECORD_WORDS: 2, IN_WIDTH: 64, RECORD_INPUT: 0, MODE: 0, KEY_WIDTH: int32}
       lut: 277
       ff: 1188
       bram36: 0.0
@@ -1403,7 +1459,7 @@ int32-key-mask-dispatcher:
       wns_ns: 4.738
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {NUM_PARTITIONS: 4, RECORD_WORDS: 2, IN_WIDTH: 64, RECORD_INPUT: 0, MODE: 0}
+      params: {NUM_PARTITIONS: 4, RECORD_WORDS: 2, IN_WIDTH: 64, RECORD_INPUT: 0, MODE: 0, KEY_WIDTH: int32}
       lut: 277
       ff: 1188
       bram36: 0.0
@@ -1413,7 +1469,7 @@ int32-key-mask-dispatcher:
     # the wide record-input point the front-gearbox compositions use
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {NUM_PARTITIONS: 4, RECORD_WORDS: 3, IN_WIDTH: 192, RECORD_INPUT: 1, MODE: 0}
+      params: {NUM_PARTITIONS: 4, RECORD_WORDS: 3, IN_WIDTH: 192, RECORD_INPUT: 1, MODE: 0, KEY_WIDTH: int32}
       lut: 309
       ff: 1565
       bram36: 0.0
@@ -1422,7 +1478,7 @@ int32-key-mask-dispatcher:
       wns_ns: 5.152
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {NUM_PARTITIONS: 4, RECORD_WORDS: 3, IN_WIDTH: 192, RECORD_INPUT: 1, MODE: 0}
+      params: {NUM_PARTITIONS: 4, RECORD_WORDS: 3, IN_WIDTH: 192, RECORD_INPUT: 1, MODE: 0, KEY_WIDTH: int32}
       lut: 309
       ff: 1565
       bram36: 0.0
@@ -1432,7 +1488,7 @@ int32-key-mask-dispatcher:
     # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {NUM_PARTITIONS: 4, RECORD_WORDS: 2, IN_WIDTH: 128, RECORD_INPUT: 0, MODE: 1}
+      params: {NUM_PARTITIONS: 4, RECORD_WORDS: 2, IN_WIDTH: 128, RECORD_INPUT: 0, MODE: 1, KEY_WIDTH: int32}
       lut: 180
       ff: 1049
       bram36: 0.0
@@ -1442,7 +1498,7 @@ int32-key-mask-dispatcher:
     # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {NUM_PARTITIONS: 4, RECORD_WORDS: 2, IN_WIDTH: 128, RECORD_INPUT: 0, MODE: 1}
+      params: {NUM_PARTITIONS: 4, RECORD_WORDS: 2, IN_WIDTH: 128, RECORD_INPUT: 0, MODE: 1, KEY_WIDTH: int32}
       lut: 180
       ff: 1049
       bram36: 0.0
@@ -1452,7 +1508,7 @@ int32-key-mask-dispatcher:
     # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {NUM_PARTITIONS: 4, RECORD_WORDS: 2, IN_WIDTH: 512, RECORD_INPUT: 0, MODE: 0}
+      params: {NUM_PARTITIONS: 4, RECORD_WORDS: 2, IN_WIDTH: 512, RECORD_INPUT: 0, MODE: 0, KEY_WIDTH: int32}
       lut: 555
       ff: 1557
       bram36: 0.0
@@ -1462,7 +1518,7 @@ int32-key-mask-dispatcher:
     # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {NUM_PARTITIONS: 4, RECORD_WORDS: 2, IN_WIDTH: 512, RECORD_INPUT: 0, MODE: 0}
+      params: {NUM_PARTITIONS: 4, RECORD_WORDS: 2, IN_WIDTH: 512, RECORD_INPUT: 0, MODE: 0, KEY_WIDTH: int32}
       lut: 555
       ff: 1557
       bram36: 0.0
@@ -1472,7 +1528,7 @@ int32-key-mask-dispatcher:
     # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {NUM_PARTITIONS: 4, RECORD_WORDS: 3, IN_WIDTH: 64, RECORD_INPUT: 0, MODE: 0}
+      params: {NUM_PARTITIONS: 4, RECORD_WORDS: 3, IN_WIDTH: 64, RECORD_INPUT: 0, MODE: 0, KEY_WIDTH: int32}
       lut: 469
       ff: 1771
       bram36: 0.0
@@ -1482,7 +1538,7 @@ int32-key-mask-dispatcher:
     # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {NUM_PARTITIONS: 4, RECORD_WORDS: 3, IN_WIDTH: 64, RECORD_INPUT: 0, MODE: 0}
+      params: {NUM_PARTITIONS: 4, RECORD_WORDS: 3, IN_WIDTH: 64, RECORD_INPUT: 0, MODE: 0, KEY_WIDTH: int32}
       lut: 469
       ff: 1771
       bram36: 0.0
@@ -1492,7 +1548,7 @@ int32-key-mask-dispatcher:
     # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {NUM_PARTITIONS: 4, RECORD_WORDS: 2, IN_WIDTH: 128, RECORD_INPUT: 0, MODE: 0}
+      params: {NUM_PARTITIONS: 4, RECORD_WORDS: 2, IN_WIDTH: 128, RECORD_INPUT: 0, MODE: 0, KEY_WIDTH: int32}
       lut: 176
       ff: 1049
       bram36: 0.0
@@ -1502,7 +1558,7 @@ int32-key-mask-dispatcher:
     # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {NUM_PARTITIONS: 4, RECORD_WORDS: 2, IN_WIDTH: 128, RECORD_INPUT: 0, MODE: 0}
+      params: {NUM_PARTITIONS: 4, RECORD_WORDS: 2, IN_WIDTH: 128, RECORD_INPUT: 0, MODE: 0, KEY_WIDTH: int32}
       lut: 176
       ff: 1049
       bram36: 0.0
@@ -1548,6 +1604,19 @@ int32-key-mask-dispatcher:
       - 0
       - 1
       - 2
+    KEY_WIDTH:
+      # the ELEMENT TYPE of the routed record's key lane -- the one thing this
+      # router interprets; everything else in a record is moved opaquely. The
+      # decode itself is 32-BIT AT EVERY KEY WIDTH (the key zero-extends into
+      # it) because the mask select, the exact-branch range and the
+      # multiplicative hash are CONTRACT, pinned in dau_core.operators. int32
+      # encodes as 32, so this declares exactly the tile it always built.
+      element_type: true
+      default: int32
+      minimum: 8
+      maximum: 32
+      # only int32 is MEASURED; the RTL elaborates the whole declared range
+      choices: [int32]
 
 stride-distributor:
   _target_: dau_core.cores.CoreDefinition
@@ -1618,7 +1687,7 @@ int32-bitonic-sorter:
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {}
+      params: {KEY_WIDTH: int32}
       lut: 5975
       ff: 2290
       bram36: 0.0
@@ -1627,7 +1696,7 @@ int32-bitonic-sorter:
       wns_ns: 2.857
     - part: xc7a200tfbg484-2
       clock_ns: 10.0
-      params: {}
+      params: {KEY_WIDTH: int32}
       lut: 5975
       ff: 2290
       bram36: 0.0
@@ -1636,7 +1705,7 @@ int32-bitonic-sorter:
       wns_ns: 4.857
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {}
+      params: {KEY_WIDTH: int32}
       lut: 5975
       ff: 2290
       bram36: 0.0
@@ -1645,7 +1714,7 @@ int32-bitonic-sorter:
       wns_ns: 4.439
     - part: xc7k325tffg900-2
       clock_ns: 10.0
-      params: {}
+      params: {KEY_WIDTH: int32}
       lut: 5975
       ff: 2290
       bram36: 0.0
@@ -1664,6 +1733,20 @@ int32-bitonic-sorter:
   row_capacity: 16
   unit_kind: sort
   success_close_out: true
+  parameters:
+    KEY_WIDTH:
+      # the ELEMENT TYPE of the sort key. The rows are carried opaquely two
+      # words wide; only this lane is compared, and the compare-exchange
+      # orders two's-complement magnitudes, so the tile refuses float and
+      # unsigned types. int32 encodes as 32, so this declares exactly the tile
+      # it always built.
+      element_type: true
+      default: int32
+      # {value, key} tile one 64-bit stream word
+      minimum: 8
+      maximum: 32
+      # only int32 is MEASURED; the RTL elaborates the whole declared range
+      choices: [int32]
 
 int32-row-predicate-filter:
   _target_: dau_core.cores.CoreDefinition
@@ -2265,7 +2348,7 @@ int32-row-unpack:
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {OUT_WIDTH: 64}
+      params: {OUT_WIDTH: 64, FIELD_WIDTH: int32}
       lut: 1443
       ff: 197
       bram36: 0.0
@@ -2274,7 +2357,7 @@ int32-row-unpack:
       wns_ns: 1.529
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {OUT_WIDTH: 64}
+      params: {OUT_WIDTH: 64, FIELD_WIDTH: int32}
       lut: 1443
       ff: 197
       bram36: 0.0
@@ -2283,7 +2366,7 @@ int32-row-unpack:
       wns_ns: 3.441
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {OUT_WIDTH: 128}
+      params: {OUT_WIDTH: 128, FIELD_WIDTH: int32}
       lut: 1580
       ff: 260
       bram36: 0.0
@@ -2292,7 +2375,7 @@ int32-row-unpack:
       wns_ns: 1.943
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {OUT_WIDTH: 128}
+      params: {OUT_WIDTH: 128, FIELD_WIDTH: int32}
       lut: 1580
       ff: 260
       bram36: 0.0
@@ -2301,7 +2384,7 @@ int32-row-unpack:
       wns_ns: 3.866
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {OUT_WIDTH: 256}
+      params: {OUT_WIDTH: 256, FIELD_WIDTH: int32}
       lut: 2290
       ff: 449
       bram36: 0.0
@@ -2310,7 +2393,7 @@ int32-row-unpack:
       wns_ns: 2.192
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {OUT_WIDTH: 256}
+      params: {OUT_WIDTH: 256, FIELD_WIDTH: int32}
       lut: 2290
       ff: 449
       bram36: 0.0
@@ -2319,7 +2402,7 @@ int32-row-unpack:
       wns_ns: 4.110
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {OUT_WIDTH: 512}
+      params: {OUT_WIDTH: 512, FIELD_WIDTH: int32}
       lut: 4384
       ff: 833
       bram36: 0.0
@@ -2328,7 +2411,7 @@ int32-row-unpack:
       wns_ns: 2.185
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {OUT_WIDTH: 512}
+      params: {OUT_WIDTH: 512, FIELD_WIDTH: int32}
       lut: 4384
       ff: 833
       bram36: 0.0
@@ -2337,7 +2420,7 @@ int32-row-unpack:
       wns_ns: 4.119
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {OUT_WIDTH: 1024}
+      params: {OUT_WIDTH: 1024, FIELD_WIDTH: int32}
       lut: 8491
       ff: 1599
       bram36: 0.0
@@ -2347,7 +2430,7 @@ int32-row-unpack:
     # Measured 2026-08-11 at 150 MHz via dau-build task=tasks/build/synthesize-cores.
     - part: xc7k325tffg900-2
       clock_ns: 6.66667
-      params: {OUT_WIDTH: 1024}
+      params: {OUT_WIDTH: 1024, FIELD_WIDTH: int32}
       lut: 9534
       ff: 1604
       bram36: 0.0
@@ -2357,7 +2440,7 @@ int32-row-unpack:
     # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {OUT_WIDTH: 1024}
+      params: {OUT_WIDTH: 1024, FIELD_WIDTH: int32}
       lut: 9534
       ff: 1604
       bram36: 0.0
@@ -2394,6 +2477,22 @@ int32-row-unpack:
       - 256
       - 512
       - 1024
+    FIELD_WIDTH:
+      # the ELEMENT TYPE of the four widened fields. FAMILY-COUPLED: this
+      # tile's output IS the quad row the operator tiles read, so it declares
+      # the same element they do or the front feeds them the wrong shape. The
+      # PACKED word, its 6-bit offsets and the reserved all-ones pad are DDR
+      # framing rather than a value's type and do not move with it; the
+      # per-field cfg_signed decides sign against zero extension, so only
+      # float is refused. int32 encodes as 32, so this declares exactly the
+      # tile it always built.
+      element_type: true
+      default: int32
+      # four widened lanes tile the 128-bit quad row
+      minimum: 8
+      maximum: 32
+      # only int32 is MEASURED; the RTL elaborates the whole declared range
+      choices: [int32]
 
 int32-field-sum-aggregation:
   _target_: dau_core.cores.CoreDefinition
@@ -2554,7 +2653,7 @@ int32-key-membership-filter:
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {KEY_SPACE: 4096}
+      params: {KEY_SPACE: 4096, KEY_WIDTH: int32}
       lut: 425
       ff: 552
       bram36: 1.0
@@ -2563,7 +2662,7 @@ int32-key-membership-filter:
       wns_ns: 2.132
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {KEY_SPACE: 4096}
+      params: {KEY_SPACE: 4096, KEY_WIDTH: int32}
       lut: 425
       ff: 552
       bram36: 1.0
@@ -2572,7 +2671,7 @@ int32-key-membership-filter:
       wns_ns: 3.788
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {KEY_SPACE: 131072}
+      params: {KEY_SPACE: 131072, KEY_WIDTH: int32}
       lut: 488
       ff: 558
       bram36: 4.0
@@ -2581,7 +2680,7 @@ int32-key-membership-filter:
       wns_ns: 1.579
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {KEY_SPACE: 131072}
+      params: {KEY_SPACE: 131072, KEY_WIDTH: int32}
       lut: 488
       ff: 558
       bram36: 4.0
@@ -2590,7 +2689,7 @@ int32-key-membership-filter:
       wns_ns: 3.312
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {KEY_SPACE: 524288}
+      params: {KEY_SPACE: 524288, KEY_WIDTH: int32}
       lut: 444
       ff: 560
       bram36: 16.0
@@ -2599,7 +2698,7 @@ int32-key-membership-filter:
       wns_ns: 2.280
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {KEY_SPACE: 524288}
+      params: {KEY_SPACE: 524288, KEY_WIDTH: int32}
       lut: 438
       ff: 560
       bram36: 16.0
@@ -2608,7 +2707,7 @@ int32-key-membership-filter:
       wns_ns: 3.838
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {KEY_SPACE: 2097152}
+      params: {KEY_SPACE: 2097152, KEY_WIDTH: int32}
       lut: 584
       ff: 570
       bram36: 64.0
@@ -2617,7 +2716,7 @@ int32-key-membership-filter:
       wns_ns: 2.064
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {KEY_SPACE: 2097152}
+      params: {KEY_SPACE: 2097152, KEY_WIDTH: int32}
       lut: 552
       ff: 562
       bram36: 64.0
@@ -2631,7 +2730,7 @@ int32-key-membership-filter:
     # it actually places -- 192 of the Artix's 335 budgeted BRAM36.
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {KEY_SPACE: 6000000}
+      params: {KEY_SPACE: 6000000, KEY_WIDTH: int32}
       lut: 848
       ff: 632
       bram36: 192.0
@@ -2640,7 +2739,7 @@ int32-key-membership-filter:
       wns_ns: 1.930
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {KEY_SPACE: 6000000}
+      params: {KEY_SPACE: 6000000, KEY_WIDTH: int32}
       lut: 824
       ff: 632
       bram36: 192.0
@@ -2659,6 +2758,20 @@ int32-key-membership-filter:
     KEY_SPACE:
       default: 4096
       multiple_of: 64
+    KEY_WIDTH:
+      # the ELEMENT TYPE of the probe key lane. The key is a DICTIONARY ID --
+      # an index, not a magnitude -- so the range test and the bitmap address
+      # run on it zero-extended to 32 bits whatever the lane's width, and it
+      # is float that is refused rather than unsigned. A narrower key does not
+      # shrink the bitmap: KEY_SPACE does that. int32 encodes as 32, so this
+      # declares exactly the tile it always built.
+      element_type: true
+      default: int32
+      # {value, key} tile one 64-bit stream word
+      minimum: 8
+      maximum: 32
+      # only int32 is MEASURED; the RTL elaborates the whole declared range
+      choices: [int32]
 
 streaming-dedup:
   _target_: dau_core.cores.CoreDefinition
@@ -3414,7 +3527,7 @@ int32-wide-row-predicate-filter:
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {SLOTS: 4, PIPELINE_DEPTH: 3}
+      params: {SLOTS: 4, PIPELINE_DEPTH: 3, FIELD_WIDTH: int32}
       lut: 3473
       ff: 1741
       bram36: 0.0
@@ -3423,7 +3536,7 @@ int32-wide-row-predicate-filter:
       wns_ns: 0.489
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {SLOTS: 4, PIPELINE_DEPTH: 3}
+      params: {SLOTS: 4, PIPELINE_DEPTH: 3, FIELD_WIDTH: int32}
       lut: 3473
       ff: 1741
       bram36: 0.0
@@ -3433,7 +3546,7 @@ int32-wide-row-predicate-filter:
     # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {SLOTS: 8, PIPELINE_DEPTH: 3}
+      params: {SLOTS: 8, PIPELINE_DEPTH: 3, FIELD_WIDTH: int32}
       lut: 5696
       ff: 3291
       bram36: 0.0
@@ -3443,7 +3556,7 @@ int32-wide-row-predicate-filter:
     # Measured 2026-08-11 at 150 MHz via dau-build task=tasks/build/synthesize-cores.
     - part: xc7k325tffg900-2
       clock_ns: 6.66667
-      params: {SLOTS: 8, PIPELINE_DEPTH: 3}
+      params: {SLOTS: 8, PIPELINE_DEPTH: 3, FIELD_WIDTH: int32}
       lut: 5696
       ff: 3291
       bram36: 0.0
@@ -3453,7 +3566,7 @@ int32-wide-row-predicate-filter:
     # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {SLOTS: 8, PIPELINE_DEPTH: 3}
+      params: {SLOTS: 8, PIPELINE_DEPTH: 3, FIELD_WIDTH: int32}
       lut: 5696
       ff: 3291
       bram36: 0.0
@@ -3477,6 +3590,20 @@ int32-wide-row-predicate-filter:
       default: 3
       minimum: 1
       maximum: 8
+    FIELD_WIDTH:
+      # the ELEMENT TYPE of one field, not a bit count -- the same declaration
+      # the 64-bit row filter carries, because this is that tile widened to
+      # SLOTS rows per beat. int32 encodes as 32, so this declares exactly the
+      # tile it always built.
+      element_type: true
+      default: int32
+      # the tile's own elaboration guard: a whole divisor of the 128-bit quad
+      # row, which stays the transport unit at every element width
+      minimum: 8
+      maximum: 64
+      # only int32 is MEASURED; the RTL elaborates the whole declared range,
+      # and widening this list is a measurement task, not an RTL one
+      choices: [int32]
 
 int32-wide-row-map-alu:
   _target_: dau_core.cores.CoreDefinition
