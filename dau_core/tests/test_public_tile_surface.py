@@ -138,6 +138,7 @@ _STDLIB = {
     "enum",
     "fractions",
     "functools",
+    "hashlib",
     "importlib",
     "itertools",
     "math",
