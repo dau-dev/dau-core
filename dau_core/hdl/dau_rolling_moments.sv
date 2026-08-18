@@ -67,7 +67,7 @@
 // when the stream ends on a warm-up or symbol-change row (the row-stream
 // contract). WINDOW >= 2 (a size-1 sample variance is undefined; the compiler
 // residues it).
-module dau_int32_rolling_moments #(
+module dau_rolling_moments #(
     parameter int WINDOW = 4,
     // The ELEMENT TYPE of the value lane, as encoded by types.svh -- what a
     // value IS, from which its width follows. The symbol id beside it is a

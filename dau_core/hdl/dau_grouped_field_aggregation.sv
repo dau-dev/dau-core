@@ -28,7 +28,7 @@
 //   r7  = {f2_last, f2_first}     r8  = {f2_max, f2_min}     r9  = f2_sum[63:0]
 //   r10 = count[63:0]
 // A row torn by input_last on w0 is ERR_STREAM.
-module dau_int32_grouped_field_aggregation #(
+module dau_grouped_field_aggregation #(
     // The ELEMENT TYPE of one lane, as encoded by types.svh. The 128-bit row
     // is the transport unit and stays fixed; lane i is its i-th FIELD_BITS
     // lane, the decode row-unpack packs and the quad-row filter family reads.

@@ -18,7 +18,7 @@
 // The mask is latched at the first row of a batch; a zero mask is an
 // unconfigured tile and drains the batch to report ERR_CONFIG. input_last
 // on a w0 is a torn row and reports ERR_STREAM.
-module dau_int32_field_sum_aggregation #(
+module dau_field_sum_aggregation #(
     // The ELEMENT TYPE of one field, as encoded by types.svh. The 128-bit row
     // is the transport unit and stays fixed, and field i is its i-th
     // FIELD_BITS lane -- the same decode row-unpack packs and the quad-row

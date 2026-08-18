@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 `default_nettype none
 
-module dau_int32_arrow_lite_stream_aggregation_tb;
+module dau_arrow_lite_stream_aggregation_tb;
     localparam logic [63:0] HEADER_WORD0 = 64'h0040010044415531;
     localparam logic [63:0] HEADER_COUNTS = 64'h0000000000010001;
     localparam logic [63:0] COLUMN_WORD0 = 64'h00000020000c0000;
@@ -27,7 +27,7 @@ module dau_int32_arrow_lite_stream_aggregation_tb;
     logic status_error;
     logic [7:0] status_error_code;
 
-    dau_int32_arrow_lite_stream_aggregation dut (
+    dau_arrow_lite_stream_aggregation dut (
         .clk(clk),
         .rst(rst),
         .input_valid(input_valid),
@@ -242,7 +242,7 @@ module dau_int32_arrow_lite_stream_aggregation_tb;
         send_bad_descriptor_stream();
         expect_error(8'd1);
 
-        $display("DAU_INT32_ARROW_LITE_STREAM_AGGREGATION_TB_OK");
+        $display("DAU_ARROW_LITE_STREAM_AGGREGATION_TB_OK");
         $finish;
     end
 endmodule

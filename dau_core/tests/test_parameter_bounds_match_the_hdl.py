@@ -39,7 +39,7 @@ _CHOICE_FORMS = (
 # constraint the tile enforces; it is simply not a range or a value list, so
 # the registry cannot be checked against it here.
 UNPARSED_GUARDS = {
-    ("int32-rolling-moments", "WINDOW"): "open-ended >= 2; the registry declares the same minimum and no maximum",
+    ("rolling-moments", "WINDOW"): "open-ended >= 2; the registry declares the same minimum and no maximum",
     ("stride-distributor", "NUM_PARTITIONS"): "positive multiple of IN_WIDTH/128 -- depends on another parameter",
     ("key-mask-dispatcher", "MODE"): "values carry mode names in the message, so the list is not machine-readable",
 }

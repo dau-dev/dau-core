@@ -25,7 +25,7 @@
 // partial-bar contract). cfg_row_count = N checks the stream length in
 // rows; 0 selects last-driven mode. Configuration latches at the first
 // beat; matches dau_core.operators.bar_aggregate_rows bit-for-bit.
-module dau_int32_bar_aggregation #(
+module dau_bar_aggregation #(
     // The ELEMENT TYPE of one lane, as encoded by types.svh. The 128-bit row
     // is the transport unit and stays fixed; lane i is its i-th FIELD_BITS
     // lane, the decode row-unpack packs and the quad-row filter family reads.

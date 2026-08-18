@@ -51,13 +51,13 @@ class _Mutation:
 # that decides, and a keyed tile that groups.
 _MUTATIONS = (
     _Mutation(
-        core_name="int32-hash-grouped-aggregation",
+        core_name="hash-grouped-aggregation",
         find="base_count + COUNT_BITS'(1)",
         replace="base_count + COUNT_BITS'(2)",
         what_it_breaks="every group's row count is doubled",
     ),
     _Mutation(
-        core_name="int32-field-sum-aggregation",
+        core_name="field-sum-aggregation",
         find="sums[0] <= sums[0] + 64'(signed'(row_lanes[0*FIELD_BITS +: FIELD_BITS]))",
         replace="sums[0] <= sums[0] - 64'(signed'(row_lanes[0*FIELD_BITS +: FIELD_BITS]))",
         what_it_breaks="field 0's sum is negated",

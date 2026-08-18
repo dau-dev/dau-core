@@ -3,7 +3,7 @@
 
 // One bar (570: prices 100,95 / shares 10,2 / frac 500000,250000) then a
 // second bar (571) -> two 6-word records; reserved mode -> config error.
-module dau_int32_bar_aggregation_tb;
+module dau_bar_aggregation_tb;
     logic clk = 1'b0;
     logic rst = 1'b1;
     logic [1:0] cfg_mode = 2'd0;
@@ -22,7 +22,7 @@ module dau_int32_bar_aggregation_tb;
     logic [7:0] status_error_code;
     logic [63:0] bar_count;
 
-    dau_int32_bar_aggregation dut (
+    dau_bar_aggregation dut (
         .clk(clk), .rst(rst), .cfg_mode(cfg_mode), .cfg_row_count(cfg_row_count),
         .input_valid(input_valid), .input_ready(input_ready), .input_data(input_data), .input_last(input_last),
         .output_valid(output_valid), .output_ready(output_ready), .output_data(output_data), .output_last(output_last),
@@ -143,7 +143,7 @@ module dau_int32_bar_aggregation_tb;
         send_word({32'd1, 32'd1}, 1'b1);
         expect_error(8'd1);
 
-        $display("DAU_INT32_BAR_AGGREGATION_TB_OK");
+        $display("DAU_BAR_AGGREGATION_TB_OK");
         $finish;
     end
 endmodule

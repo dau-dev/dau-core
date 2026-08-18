@@ -51,7 +51,7 @@
 // a following batch or raises a close-out until the emit engine has drained to
 // idle (no cross-batch status overtake). joined_count reports the rows emitted
 // by the current/last probe batch (0 after a load or an error close-out).
-module dau_int32_broadcast_hash_join #(
+module dau_broadcast_hash_join #(
     // key space (slot count); one payload slot per key. The build side is a
     // broadcast table sized to fit BRAM. KEY_SPACE (and the payload width) are
     // synthesis parameters — a rebuild-to-silicon that needs a different key

@@ -3,7 +3,7 @@
 
 // Two bars ((570: 100,105,95,102), (571: 102,99)) -> two 5-word group
 // records; then reserved mode must report the config error code.
-module dau_int32_grouped_aggregation_tb;
+module dau_grouped_aggregation_tb;
     logic clk = 1'b0;
     logic rst = 1'b1;
     logic [1:0] cfg_mode = 2'd0;
@@ -22,7 +22,7 @@ module dau_int32_grouped_aggregation_tb;
     logic [7:0] status_error_code;
     logic [63:0] group_count;
 
-    dau_int32_grouped_aggregation dut (
+    dau_grouped_aggregation dut (
         .clk(clk),
         .rst(rst),
         .cfg_mode(cfg_mode),
@@ -162,7 +162,7 @@ module dau_int32_grouped_aggregation_tb;
         send_row(32'd1, 32'd2, 1'b1);
         expect_error(8'd1);
 
-        $display("DAU_INT32_GROUPED_AGGREGATION_TB_OK");
+        $display("DAU_GROUPED_AGGREGATION_TB_OK");
         $finish;
     end
 endmodule

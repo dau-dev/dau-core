@@ -20,7 +20,7 @@
 // ERR_CONFIG. Torn rows cannot exist (a beat is whole rows), so the 64-bit
 // tile's ERR_STREAM path has no equivalent here. An all-pad beat (a
 // trailing pad-only tail) accumulates nothing and closes normally.
-module dau_int32_wide_field_sum_aggregation #(
+module dau_wide_field_sum_aggregation #(
     parameter int SLOTS = 4,  // quad rows per beat: 1, 2, 4, or 8
     // The ELEMENT TYPE of one field, as encoded by types.svh. A slot stays a
     // 128-bit row (the wide lane's transport unit, and what the PAD is a value

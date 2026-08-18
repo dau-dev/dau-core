@@ -32,7 +32,7 @@
 // error (earlier groups close as their key changes) must be discarded by
 // the consumer — group_count reads 0 and the record writer's done never
 // sees a success close-out for the batch.
-module dau_int32_grouped_field_sum_aggregation #(
+module dau_grouped_field_sum_aggregation #(
     // The ELEMENT TYPE of one field, as encoded by types.svh. The 128-bit row
     // is the transport unit and stays fixed; field i is its i-th FIELD_BITS
     // lane, the decode row-unpack packs and the quad-row filter family reads.

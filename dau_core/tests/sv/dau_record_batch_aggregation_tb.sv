@@ -5,7 +5,7 @@
 // column 1 (sum), proving descriptor-table walk, column select, and
 // payload skip. A second stream selects an out-of-range column and must
 // report a descriptor error.
-module dau_int32_record_batch_aggregation_tb;
+module dau_record_batch_aggregation_tb;
     localparam logic [63:0] HEADER_WORD0 = 64'h0040010044415531;
     localparam logic [63:0] HEADER_COUNTS_2COL = 64'h0000000000010002;
     localparam logic [63:0] COL0_WORD0 = 64'h00000020000c0000;
@@ -32,7 +32,7 @@ module dau_int32_record_batch_aggregation_tb;
     logic status_error;
     logic [7:0] status_error_code;
 
-    dau_int32_record_batch_aggregation dut (
+    dau_record_batch_aggregation dut (
         .clk(clk),
         .rst(rst),
         .input_valid(input_valid),
@@ -206,7 +206,7 @@ module dau_int32_record_batch_aggregation_tb;
         send_two_column_stream(OP_SUM_COL5_WORD0);
         expect_error(8'd1);
 
-        $display("DAU_INT32_RECORD_BATCH_AGGREGATION_TB_OK");
+        $display("DAU_RECORD_BATCH_AGGREGATION_TB_OK");
         $finish;
     end
 endmodule

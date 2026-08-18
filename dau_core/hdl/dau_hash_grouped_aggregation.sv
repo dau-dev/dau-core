@@ -10,7 +10,7 @@
 // close-out — matches dau_core.operators.hash_grouped_field_sum_rows
 // bit-for-bit.
 //
-// The difference from dau_int32_grouped_field_sum_aggregation is the whole
+// The difference from dau_grouped_field_sum_aggregation is the whole
 // point: the ordered tile groups CONSECUTIVE equal keys, so it needs the
 // staged table pre-sorted on the group key and a reappearing key opens a
 // second partial the host must merge. This tile holds per-key state, so
@@ -55,7 +55,7 @@
 // reset cannot leak one batch's keys into the next. A zero mask is an
 // unconfigured tile (ERR_CONFIG); input_last on a w0 is a torn row
 // (ERR_STREAM).
-module dau_int32_hash_grouped_aggregation #(
+module dau_hash_grouped_aggregation #(
     parameter int CAPACITY = 512,  // group slots; [1, 1024]
     // The ELEMENT TYPE of one field, as encoded by types.svh. The 128-bit row
     // is the transport unit and stays fixed; lane i is its i-th FIELD_BITS

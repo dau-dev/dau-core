@@ -5,7 +5,7 @@ import pytest
 from dau_core.composition import CompositionError, LaneSpec, ScanCompositionSpec, TileSpec, estimated_resources, stream_shape_mismatches
 from dau_core.registry import core
 
-_BAR = TileSpec(core="int32-bar-aggregation", config={"cfg_mode": "2'd0", "cfg_row_count": "64'd0"})
+_BAR = TileSpec(core="bar-aggregation", config={"cfg_mode": "2'd0", "cfg_row_count": "64'd0"})
 
 # Pricing a measured tile names a board and a clock. These tests price at one
 # coordinate every migrated tile carries a met point for; the Artix at 8 ns is
@@ -54,14 +54,14 @@ def test_spec_validates_lane_tiles() -> None:
 def test_core_names_cover_infrastructure_and_lanes() -> None:
     names = bar_noc_spec().core_names()
     assert "axi-burst-reader" in names and "axi-write-mux" in names
-    assert "pair-key-filter" in names and "int32-bar-aggregation" in names
+    assert "pair-key-filter" in names and "bar-aggregation" in names
     assert len(names) == len(set(names))
 
 
 def test_estimated_resources_scale_with_lanes() -> None:
     one = _priced(bar_noc_spec(lanes=1))
     four = _priced(bar_noc_spec(lanes=4))
-    per_lane = _tile_lut("axi-record-writer") + _tile_lut("pair-key-filter") + _tile_lut("int32-bar-aggregation")
+    per_lane = _tile_lut("axi-record-writer") + _tile_lut("pair-key-filter") + _tile_lut("bar-aggregation")
     assert four.lut - one.lut == 3 * per_lane
     # not fully measured while the axi infra tiles still carry scalar
     # envelopes -- this flips to True when they migrate, which is the point
@@ -132,7 +132,7 @@ def q6_scan_spec(lanes: int = 4) -> ScanCompositionSpec:
     where_a = TileSpec(core="row-predicate-filter", config={"cfg_op0": "3'd1", "cfg_constant0": "32'd568"})
     where_b = TileSpec(core="row-predicate-filter", config={"cfg_op0": "3'd6", "cfg_constant0": "32'd5"})
     revenue = TileSpec(core="int32-row-map-alu", config={"cfg_op": "3'd4", "cfg_shift": "5'd15"})
-    reduce_tile = TileSpec(core="int32-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"})
+    reduce_tile = TileSpec(core="field-sum-aggregation", config={"cfg_field_mask": "4'b0010"})
     return ScanCompositionSpec(
         name=f"q6-scan-{lanes}",
         lanes=tuple(LaneSpec(tile=reduce_tile, partition=_partition(lane, lanes), chain=(where_a, where_b, revenue)) for lane in range(lanes)),
@@ -144,7 +144,7 @@ def test_chain_lanes_validate_and_close_core_names() -> None:
     names = spec.core_names()
     assert "row-predicate-filter" in names
     assert "int32-row-map-alu" in names
-    assert "int32-field-sum-aggregation" in names
+    assert "field-sum-aggregation" in names
     assert len(names) == len(set(names))
 
 
@@ -240,9 +240,9 @@ def test_a_type_and_its_width_are_the_same_design() -> None:
 def test_minimum_constraint_mirrors_the_rolling_window_guard() -> None:
     # the rolling-moment window is >= 2 (a size-1 sample variance is undefined);
     # rejected at composition time, mirroring the tile's RTL elaboration guard
-    ScanCompositionSpec(name="ok", lanes=(LaneSpec(tile=TileSpec(core="int32-rolling-moments", params={"WINDOW": 2})),))
+    ScanCompositionSpec(name="ok", lanes=(LaneSpec(tile=TileSpec(core="rolling-moments", params={"WINDOW": 2})),))
     with pytest.raises(CompositionError, match="must be >= 2"):
-        ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=TileSpec(core="int32-rolling-moments", params={"WINDOW": 1})),))
+        ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=TileSpec(core="rolling-moments", params={"WINDOW": 1})),))
 
 
 def test_a_declared_zero_minimum_admits_zero() -> None:
@@ -464,9 +464,7 @@ def test_load_phase_shape_rules() -> None:
         lanes=(
             LaneSpec(
                 tile=_BAR,
-                chain=(
-                    TileSpec(core="int32-broadcast-hash-join", config={"cfg_load": "load_phase", "cfg_out_sel": "2'd0"}, params={"KEY_SPACE": 192}),
-                ),
+                chain=(TileSpec(core="broadcast-hash-join", config={"cfg_load": "load_phase", "cfg_out_sel": "2'd0"}, params={"KEY_SPACE": 192}),),
             ),
         ),
     )
@@ -474,10 +472,8 @@ def test_load_phase_shape_rules() -> None:
 
 def test_param_override_is_validated_on_the_lane_tile_and_partition_slots() -> None:
     # the lane-tile slot validates its params
-    with pytest.raises(CompositionError, match="lane tile 'int32-bar-aggregation' has no overridable parameter 'KEY_SPACE'"):
-        ScanCompositionSpec(
-            name="bad", lanes=(LaneSpec(tile=TileSpec(core="int32-bar-aggregation", config=dict(_BAR.config), params={"KEY_SPACE": 8})),)
-        )
+    with pytest.raises(CompositionError, match="lane tile 'bar-aggregation' has no overridable parameter 'KEY_SPACE'"):
+        ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=TileSpec(core="bar-aggregation", config=dict(_BAR.config), params={"KEY_SPACE": 8})),))
     # the partition slot validates its params too
     with pytest.raises(CompositionError, match="lane partition 'pair-key-filter' has no overridable parameter 'KEY_SPACE'"):
         ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR, partition=TileSpec(core="pair-key-filter", params={"KEY_SPACE": 8})),))
@@ -490,7 +486,7 @@ def test_key_space_override_must_match_the_declared_multiple() -> None:
     with pytest.raises(CompositionError, match="must be a positive multiple of 64"):
         ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="key-membership-filter", params={"KEY_SPACE": 65}),)),))
     # the hash join's slot table is clog2(KEY_SPACE)-addressed, so any positive KEY_SPACE is valid
-    ScanCompositionSpec(name="ok", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-broadcast-hash-join", params={"KEY_SPACE": 100}),)),))
+    ScanCompositionSpec(name="ok", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="broadcast-hash-join", params={"KEY_SPACE": 100}),)),))
 
 
 def test_shared_partitioner_params_are_validated() -> None:
@@ -600,7 +596,7 @@ def test_spec_hash_is_config_order_insensitive_and_content_sensitive() -> None:
     from dau_core.composition import spec_hash
 
     def build(config):
-        return ScanCompositionSpec(name="t", lanes=(LaneSpec(tile=TileSpec(core="int32-bar-aggregation", config=config)),))
+        return ScanCompositionSpec(name="t", lanes=(LaneSpec(tile=TileSpec(core="bar-aggregation", config=config)),))
 
     a = build({"cfg_mode": "2'd0", "cfg_row_count": "64'd0"})
     b = build({"cfg_row_count": "64'd0", "cfg_mode": "2'd0"})  # same content, other insertion order
@@ -621,7 +617,7 @@ def test_spec_hash_pinned_fixture() -> None:
         name="pinned",
         lanes=(
             LaneSpec(
-                tile=TileSpec(core="int32-bar-aggregation", config={"cfg_mode": "2'd0", "cfg_row_count": "64'd0"}),
+                tile=TileSpec(core="bar-aggregation", config={"cfg_mode": "2'd0", "cfg_row_count": "64'd0"}),
                 partition=TileSpec(core="pair-key-filter", config={"cfg_key_mask": "32'd3", "cfg_key_match": "32'd1"}),
             ),
         ),
@@ -633,8 +629,10 @@ def test_spec_hash_pinned_fixture() -> None:
     # the quad-row filter family was renamed: TileSpec.core is a plain string,
     # so a rename changes the canonical form's VALUES and not its FORM. That is
     # the distinction the prefix exists to draw — bumping it here would also
-    # invalidate every design containing none of the renamed tiles.
-    assert spec_hash(spec) == "6:96006851006948b98d534f73b669cfa7357875f2dd58b89aae00b7ac83053e9a"
+    # invalidate every design containing none of the renamed tiles. It moved
+    # again on 2026-08-18 for the same reason, when the aggregation family
+    # followed (this fixture names `bar-aggregation`).
+    assert spec_hash(spec) == "6:8ad964f74ebf680e83774747c8e601278e2fcd19eb50a6ff102b3c487d3e3c7f"
 
 
 def test_spec_from_canonical_revalidates() -> None:
@@ -642,7 +640,7 @@ def test_spec_from_canonical_revalidates() -> None:
     from dau_core.composition import canonical_spec_json, spec_from_canonical
 
     text = canonical_spec_json(bar_noc_spec())
-    tampered = text.replace("int32-bar-aggregation", "int32-row-map-alu")  # silent-on-success: illegal terminal
+    tampered = text.replace("bar-aggregation", "int32-row-map-alu")  # silent-on-success: illegal terminal
     with pytest.raises(CompositionError):
         spec_from_canonical(tampered)
 
@@ -650,10 +648,10 @@ def test_spec_from_canonical_revalidates() -> None:
 def test_spec_hash_stable_when_defaults_are_explicit() -> None:
     from dau_core.composition import spec_hash
 
-    implicit = ScanCompositionSpec(name="t", lanes=(LaneSpec(tile=TileSpec(core="int32-bar-aggregation")),))
+    implicit = ScanCompositionSpec(name="t", lanes=(LaneSpec(tile=TileSpec(core="bar-aggregation")),))
     explicit = ScanCompositionSpec(
         name="t",
-        lanes=(LaneSpec(tile=TileSpec(core="int32-bar-aggregation", config={}, params={}), partition=None, chain=()),),
+        lanes=(LaneSpec(tile=TileSpec(core="bar-aggregation", config={}, params={}), partition=None, chain=()),),
         burst_beats=32,
         addr_width=32,
         partitioner=None,
@@ -670,7 +668,7 @@ def test_handle_table_capacity_is_design_identity_and_inert_at_zero() -> None:
     today and round-trips unchanged."""
     from dau_core.composition import canonical_spec_json, spec_from_canonical, spec_hash
 
-    lane = LaneSpec(tile=TileSpec(core="int32-bar-aggregation"))
+    lane = LaneSpec(tile=TileSpec(core="bar-aggregation"))
     plain = ScanCompositionSpec(name="t", lanes=(lane,))
     tabled = ScanCompositionSpec(name="t", lanes=(lane,), handle_table_capacity=8)
     assert plain.handle_table_capacity == 0
@@ -692,7 +690,7 @@ def test_wide_data_width_composition_rules() -> None:
     """The canonical spec mirrors the walker's width rules: a wide feed
     needs a dispatcher (broadcast is 64-bit only), wide packed reads are a
     typed follow-up, and the tier set is closed."""
-    lane = LaneSpec(tile=TileSpec(core="int32-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}))
+    lane = LaneSpec(tile=TileSpec(core="field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}))
     with pytest.raises(CompositionError, match="broadcast is 64-bit only"):
         ScanCompositionSpec(name="bad", lanes=(lane,), data_width=256)
     with pytest.raises(CompositionError, match="must be 64/128/256/512"):
@@ -719,7 +717,7 @@ def test_throughput_reproduces_the_measured_rate_ladder():
 
     from dau_core.composition import LaneSpec, ScanCompositionSpec, TileSpec, throughput_rows_per_cycle
 
-    lane = LaneSpec(tile=TileSpec(core="int32-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}))
+    lane = LaneSpec(tile=TileSpec(core="field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}))
     dispatcher = TileSpec(core="key-mask-dispatcher", params={"NUM_PARTITIONS": 4})
     wide_dispatcher = TileSpec(core="key-mask-dispatcher", params={"NUM_PARTITIONS": 4, "IN_WIDTH": 512})
 
@@ -746,7 +744,7 @@ def test_throughput_packed_front_re_times_delivery():
 
     from dau_core.composition import LaneSpec, ScanCompositionSpec, TileSpec, throughput_rows_per_cycle
 
-    lane = LaneSpec(tile=TileSpec(core="int32-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}))
+    lane = LaneSpec(tile=TileSpec(core="field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}))
     dispatcher = TileSpec(core="key-mask-dispatcher", params={"NUM_PARTITIONS": 4})
     wide_dispatcher = TileSpec(core="key-mask-dispatcher", params={"NUM_PARTITIONS": 4, "IN_WIDTH": 128})
     narrow = TileSpec(core="row-unpack")
@@ -764,7 +762,7 @@ def test_the_wide_lane_shape_composes_and_rate_matches():
 
     from dau_core.composition import throughput_rows_per_cycle
 
-    wide_sum = TileSpec(core="int32-wide-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"})
+    wide_sum = TileSpec(core="wide-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"})
     wide_pred = TileSpec(core="wide-row-predicate-filter", config={})
     wide_map = TileSpec(core="int32-wide-row-map-alu", config={})
 
@@ -783,14 +781,14 @@ def test_the_wide_lane_shape_composes_and_rate_matches():
     # SLOTS=1 gives the 128-bit tier a full-rate lane with no dispatcher
     narrow = ScanCompositionSpec(
         name="w1",
-        lanes=(LaneSpec(tile=TileSpec(core="int32-wide-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}, params={"SLOTS": 1})),),
+        lanes=(LaneSpec(tile=TileSpec(core="wide-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}, params={"SLOTS": 1})),),
         data_width=128,
     )
     assert throughput_rows_per_cycle(narrow) == Fraction(1)
 
 
 def test_wide_combinational_tile_pipeline_depth_bounds_are_enforced():
-    wide_sum = TileSpec(core="int32-wide-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"})
+    wide_sum = TileSpec(core="wide-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"})
 
     for core_name in ("wide-row-predicate-filter", "int32-wide-row-map-alu"):
         for depth in (1, 8):
@@ -805,7 +803,7 @@ def test_wide_combinational_tile_pipeline_depth_bounds_are_enforced():
 
 
 def test_the_wide_lane_shape_rules_are_enforced():
-    wide_sum = TileSpec(core="int32-wide-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"})
+    wide_sum = TileSpec(core="wide-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"})
     wide_lane = LaneSpec(tile=wide_sum)
     # data_width must equal SLOTS x 128
     with pytest.raises(CompositionError, match="SLOTS x 128"):
@@ -859,11 +857,11 @@ def test_the_fused_chain_shape_is_declared_not_inferred() -> None:
     accident, while the declaration says the caller accepts that mid-stage
     close-outs are drained and only their errors reach the lane status."""
     lane = LaneSpec(
-        tile=TileSpec(core="int32-rolling-moments", params={"WINDOW": 3}),
+        tile=TileSpec(core="rolling-moments", params={"WINDOW": 3}),
         chain=(
             TileSpec(core="int32-asof-backward"),
             TileSpec(core="time-bucket-key"),
-            TileSpec(core="int32-grouped-field-aggregation"),
+            TileSpec(core="grouped-field-aggregation"),
         ),
     )
     with pytest.raises(CompositionError, match="fused_chain=True"):
@@ -875,7 +873,7 @@ def test_the_fused_chain_shape_is_declared_not_inferred() -> None:
     # status glue, so two otherwise-identical specs must not share a key
     from dau_core.composition import spec_hash
 
-    plain_lane = LaneSpec(tile=TileSpec(core="int32-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}))
+    plain_lane = LaneSpec(tile=TileSpec(core="field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}))
     a = ScanCompositionSpec(name="p", lanes=(plain_lane,))
     b = ScanCompositionSpec(name="p", lanes=(plain_lane,), fused_chain=True)
     assert spec_hash(a) != spec_hash(b)
@@ -891,13 +889,13 @@ def _temporal_hero_spec(*, include_feature_gather: bool = True) -> ScanCompositi
     stages.extend(
         (
             TileSpec(core="time-bucket-key"),
-            TileSpec(core="int32-grouped-field-aggregation"),
+            TileSpec(core="grouped-field-aggregation"),
             TileSpec(core="int32-record-gather", params={"IN_WORDS": 11, "OUT_WORDS": 1}),
         )
     )
     return ScanCompositionSpec(
         name="temporal-hero",
-        lanes=(LaneSpec(tile=TileSpec(core="int32-rolling-moments"), chain=tuple(stages)),),
+        lanes=(LaneSpec(tile=TileSpec(core="rolling-moments"), chain=tuple(stages)),),
         fused_chain=True,
     )
 
@@ -957,7 +955,7 @@ def test_selectivity_reconciles_the_model_with_q6_silicon() -> None:
         "cfg_shift": "5'd15",
     }
     lane = LaneSpec(
-        tile=TileSpec(core="int32-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}),
+        tile=TileSpec(core="field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}),
         chain=(
             TileSpec(core="row-predicate-filter", config=predicate),
             TileSpec(core="row-predicate-filter", config=predicate),
@@ -1056,7 +1054,7 @@ def test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front() -> None:
         )
 
 
-def _stream_job_spec(job: str = "bram-stream-job", tile: str = "int32-bar-aggregation") -> ScanCompositionSpec:
+def _stream_job_spec(job: str = "bram-stream-job", tile: str = "bar-aggregation") -> ScanCompositionSpec:
     return ScanCompositionSpec(name="stream", stream_job=job, lanes=(LaneSpec(tile=TileSpec(core=tile)),))
 
 
@@ -1066,7 +1064,7 @@ def test_a_stream_job_composition_declares_its_own_infrastructure() -> None:
     reached the build as a hand-copied list — so nothing checked that the
     list still matched what the top instantiates."""
     spec = _stream_job_spec()
-    assert spec.core_names() == ("bram-stream-job", "identity-registers", "int32-bar-aggregation")
+    assert spec.core_names() == ("bram-stream-job", "identity-registers", "bar-aggregation")
     assert _stream_job_spec("axi-stream-job").core_names()[0] == "axi-stream-job"
     # the scan shell's own infrastructure must not leak in
     assert "axi-burst-reader" not in spec.core_names()
@@ -1082,7 +1080,7 @@ def test_a_stream_job_composition_refuses_scan_shaped_fields() -> None:
     """The stream job has no fan-out and no burst feed, so accepting a
     partitioner or a front stage would let a spec describe hardware the
     shell cannot build."""
-    lanes = (LaneSpec(tile=TileSpec(core="int32-bar-aggregation")),)
+    lanes = (LaneSpec(tile=TileSpec(core="bar-aggregation")),)
     with pytest.raises(CompositionError, match="no fan-out or front stage"):
         ScanCompositionSpec(name="s", stream_job="bram-stream-job", lanes=lanes, partitioner=_record_dispatcher())
     with pytest.raises(CompositionError, match="exactly one lane"):
@@ -1100,7 +1098,7 @@ def test_a_stream_job_composition_refuses_scan_shaped_fields() -> None:
 def test_the_scan_shell_still_requires_a_lane_counter() -> None:
     """The count_port waiver is the STREAM job's, not a general relaxation:
     the scan shell's record writer sizes its write-out from that port."""
-    countless = (LaneSpec(tile=TileSpec(core="int32-record-batch-aggregation")),)
+    countless = (LaneSpec(tile=TileSpec(core="record-batch-aggregation")),)
     # fine in a stream job, which stages records through its job core
     assert ScanCompositionSpec(name="s", stream_job="bram-stream-job", lanes=countless).core_names()
     with pytest.raises(CompositionError, match="does not expose a status counter"):
@@ -1137,7 +1135,7 @@ def test_a_packed_front_can_feed_a_wide_lane() -> None:
     """
     chain = (TileSpec(core="wide-row-predicate-filter", params={"SLOTS": 8}),)
     lane = LaneSpec(
-        tile=TileSpec(core="int32-wide-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}, params={"SLOTS": 8}),
+        tile=TileSpec(core="wide-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}, params={"SLOTS": 8}),
         chain=chain,
     )
     front = TileSpec(core="row-unpack", params={"OUT_WIDTH": 1024})
@@ -1173,7 +1171,7 @@ def test_a_packed_wide_feed_rates_at_the_unpacker_not_at_one_row() -> None:
 
     chain = (TileSpec(core="wide-row-predicate-filter", params={"SLOTS": 8}),)
     lane = LaneSpec(
-        tile=TileSpec(core="int32-wide-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}, params={"SLOTS": 8}),
+        tile=TileSpec(core="wide-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}, params={"SLOTS": 8}),
         chain=chain,
     )
     spec = ScanCompositionSpec(
@@ -1185,7 +1183,7 @@ def test_a_packed_wide_feed_rates_at_the_unpacker_not_at_one_row() -> None:
     assert throughput_rows_per_cycle(spec) == Fraction(8)
 
     # the classic 64-bit packed path is unchanged: one packed row per beat
-    narrow_lane = LaneSpec(tile=TileSpec(core="int32-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}))
+    narrow_lane = LaneSpec(tile=TileSpec(core="field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}))
     narrow = ScanCompositionSpec(
         name="packed-narrow",
         lanes=(narrow_lane,) * 4,

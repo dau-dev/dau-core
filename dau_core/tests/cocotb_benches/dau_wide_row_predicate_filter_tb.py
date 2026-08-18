@@ -17,7 +17,7 @@ from dau_core.operators import (
     RowPredicateTerm,
     filter_rows_by_predicate,
 )
-from dau_core.tests.cocotb_benches.dau_int32_wide_field_sum_aggregation_tb import (
+from dau_core.tests.cocotb_benches.dau_wide_field_sum_aggregation_tb import (
     _PAD_ROW,
     _beats,
     _row_bits,

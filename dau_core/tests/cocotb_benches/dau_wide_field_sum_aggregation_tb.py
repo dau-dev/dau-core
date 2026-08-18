@@ -12,7 +12,7 @@ import cocotb
 from cocotb.triggers import ReadOnly, RisingEdge
 
 from dau_core.operators import field_sum_rows
-from dau_core.tests.cocotb_benches.dau_int32_field_sum_aggregation_tb import (
+from dau_core.tests.cocotb_benches.dau_field_sum_aggregation_tb import (
     _MASK64,
     _collect_output,
     _expect_status,
@@ -82,7 +82,7 @@ async def sustained_ingest_meets_registry_floor(dut):
     beats = _beats(rows, slots)
     await assert_sustained_ingest(
         dut,
-        "int32-wide-field-sum-aggregation",
+        "wide-field-sum-aggregation",
         send=lambda: _send_beats(dut, beats),
         input_beats=len(beats),
         rows_per_beat=slots,

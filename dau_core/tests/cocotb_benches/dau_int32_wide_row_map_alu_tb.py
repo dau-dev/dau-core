@@ -9,7 +9,7 @@ from cocotb.clock import Clock
 from cocotb.triggers import ReadOnly, RisingEdge
 
 from dau_core.operators import MapErrorCode, MapOp, RowField, RowMapConfig, map_row_fields
-from dau_core.tests.cocotb_benches.dau_int32_wide_field_sum_aggregation_tb import (
+from dau_core.tests.cocotb_benches.dau_wide_field_sum_aggregation_tb import (
     _PAD_ROW,
     _beats,
     _row_bits,

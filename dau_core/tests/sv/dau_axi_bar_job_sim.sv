@@ -125,7 +125,7 @@ module dau_axi_bar_job_sim #(
         .tile_status_error_code(tile_status_error_code)
     );
 
-    dau_int32_bar_aggregation tile (
+    dau_bar_aggregation tile (
         .clk(clk),
         .rst(rst),
         .cfg_mode(2'd0),

@@ -7,7 +7,7 @@
 // and this tile accepts exactly the one its VALUE_WIDTH parameter names. The
 // accumulator is INT64 and the result descriptor says INT64/UINT64 whatever
 // the input element is, which is why the type may narrow but not widen.
-module dau_int32_stream_aggregation #(
+module dau_stream_aggregation #(
     // The ELEMENT TYPE of the aggregated column, as encoded by types.svh.
     // `DAU_TYPE_INT32 is 32, so the default accepts exactly the INT32 column
     // the tile has always accepted, descriptor field for descriptor field.

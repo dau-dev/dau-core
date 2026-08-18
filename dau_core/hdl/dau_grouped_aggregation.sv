@@ -28,7 +28,7 @@
 // last-driven mode (stages downstream of a compaction trust the upstream
 // last marker). Configuration ports are latched at the first beat, matching
 // dau_core.operators.grouped_aggregate_rows bit-for-bit.
-module dau_int32_grouped_aggregation #(
+module dau_grouped_aggregation #(
     // The ELEMENT TYPE of the key and value lanes, as encoded by types.svh.
     // The 64-bit keyed word is the transport unit and stays fixed; lane i is
     // its i-th FIELD_BITS lane, so `DAU_TYPE_INT32 is 32 and the default

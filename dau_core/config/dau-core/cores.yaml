@@ -264,15 +264,15 @@ int32-keyed-map-alu:
     per_cycles: 2
   success_close_out: true
 
-int32-grouped-aggregation:
+grouped-aggregation:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-grouped-aggregation
+  name: grouped-aggregation
   kind: operator
-  module: dau_int32_grouped_aggregation
-  source: dau_int32_grouped_aggregation.sv
+  module: dau_grouped_aggregation
+  source: dau_grouped_aggregation.sv
   description: Ordered close-out grouped aggregation (first/last/min/max/sum/count).
   golden: dau_core.operators:grouped_aggregate_rows
-  bench: dau_core.tests.cocotb_benches.dau_int32_grouped_aggregation_tb
+  bench: dau_core.tests.cocotb_benches.dau_grouped_aggregation_tb
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -335,20 +335,20 @@ int32-grouped-aggregation:
       # only int32 is MEASURED; the RTL elaborates the whole declared range
       choices: [int32]
 
-int32-grouped-field-aggregation:
+grouped-field-aggregation:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-grouped-field-aggregation
+  name: grouped-field-aggregation
   kind: operator
-  module: dau_int32_grouped_field_aggregation
-  source: dau_int32_grouped_field_aggregation.sv
+  module: dau_grouped_field_aggregation
+  source: dau_grouped_field_aggregation.sv
   description: 'Generic multi-field ordered close-out grouped aggregation: over quad rows (key, v0, v1, v2) grouped by consecutive-equal
     key, computes first/last/min/max/sum (INT64) for EACH of the three data fields in one pass, plus the row count — the
-    N-field generalization of int32-grouped-aggregation. Workload-agnostic: OHLCV bars are a field/stat SELECTION over the
+    N-field generalization of grouped-aggregation. Workload-agnostic: OHLCV bars are a field/stat SELECTION over the
     11-word record (open/high/low/close = field0 first/max/min/last, volume = sum field1, ...) via dau_core.operators.bars_from_field_aggregate,
     so the finance column assignment lives in the host/select, not the tile. A reappearing key opens a new partial group
     (host-merged, the partial-group contract); a row torn by input_last on w0 is ERR_STREAM.'
   golden: dau_core.operators:grouped_field_aggregate_rows
-  bench: dau_core.tests.cocotb_benches.dau_int32_grouped_field_aggregation_tb
+  bench: dau_core.tests.cocotb_benches.dau_grouped_field_aggregation_tb
   # OOC xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +3.846)
   resources:
     - part: xc7a200tfbg484-2
@@ -412,15 +412,15 @@ int32-grouped-field-aggregation:
       # only int32 is MEASURED; the RTL elaborates the whole declared range
       choices: [int32]
 
-int32-bar-aggregation:
+bar-aggregation:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-bar-aggregation
+  name: bar-aggregation
   kind: operator
-  module: dau_int32_bar_aggregation
-  source: dau_int32_bar_aggregation.sv
+  module: dau_bar_aggregation
+  source: dau_bar_aggregation.sv
   description: Fused single-pass OHLCV bar aggregation over 16-byte rows.
   golden: dau_core.operators:bar_aggregate_rows
-  bench: dau_core.tests.cocotb_benches.dau_int32_bar_aggregation_tb
+  bench: dau_core.tests.cocotb_benches.dau_bar_aggregation_tb
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -548,12 +548,12 @@ int32-asof-backward:
     per_cycles: 8
   success_close_out: true
 
-int32-rolling-moments:
+rolling-moments:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-rolling-moments
+  name: rolling-moments
   kind: operator
-  module: dau_int32_rolling_moments
-  source: dau_int32_rolling_moments.sv
+  module: dau_rolling_moments
+  source: dau_rolling_moments.sv
   description: Per-symbol rolling-moment tile (the roll stage of the temporal workflow, over the reduced bar/feature stream).
     Over a count-based window of the last WINDOW values per symbol, emits the deferred-division moment record (count, sum,
     sum-of-squares) for every FULL window — one tile serving rolling sum (=sum), mean (=sum/count) and sample variance (=(count*sum_sq
@@ -564,7 +564,7 @@ int32-rolling-moments:
     keeping the 32x32 DSP products and the difference/accumulate off one path; one record is buffered so the final emitted
     record carries output_last. WINDOW >= 2 (a size-1 sample variance is undefined; the compiler residues it). ARITHMETIC PRECONDITION, binding INSIDE the int32 domain. sum_sq accumulates WINDOW squares, so the host must guarantee WINDOW * max(|value|)**2 <= 2**63 - 1. Full-range int32 does NOT satisfy it -- (2**31-1)**2 is already 2**61, so sum_sq needs 64 bits at WINDOW=3 and 68 at WINDOW=64, and it wraps SILENTLY into a wrong variance rather than erroring. The tile sees one row at a time and has no bound to check against, so the proof lives in the lowering -- dau-polars refuses a rolling scan whose value column declares no magnitude_bits, and checks WINDOW against the declared bound when it does.
   golden: dau_core.temporal:rolling_moments
-  bench: dau_core.tests.cocotb_benches.dau_int32_rolling_moments_tb
+  bench: dau_core.tests.cocotb_benches.dau_rolling_moments_tb
   # OOC WINDOW=4 xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +3.155)
   # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
   resources:
@@ -980,14 +980,14 @@ int32-record-gather:
       default: 1
       maximum: 8
 
-int32-hash-grouped-aggregation:
+hash-grouped-aggregation:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-hash-grouped-aggregation
+  name: hash-grouped-aggregation
   kind: operator
-  module: dau_int32_hash_grouped_aggregation
-  source: dau_int32_hash_grouped_aggregation.sv
+  module: dau_hash_grouped_aggregation
+  source: dau_hash_grouped_aggregation.sv
   description: 'Hash-mode grouped field-sum aggregation over quad rows: one INT64 accumulator set per DISTINCT key
-    in a CAPACITY-slot table, drained signed-key ASCENDING at close-out. Where int32-grouped-field-sum-aggregation
+    in a CAPACITY-slot table, drained signed-key ASCENDING at close-out. Where grouped-field-sum-aggregation
     groups CONSECUTIVE equal keys — needing the staged table pre-sorted on the group key, and opening a second
     partial whenever a key reappears — this tile holds per-key state, so input order does not matter and a key may
     reappear anywhere in the batch: one record per distinct key, always. That removes the sorted_by_key staging
@@ -1003,7 +1003,7 @@ int32-hash-grouped-aggregation:
     is BAD_FIELD_MASK; input_last on a quad row w0 is BAD_STREAM. Matches
     dau_core.operators.hash_grouped_field_sum_rows.'
   golden: dau_core.operators:hash_grouped_field_sum_rows
-  bench: dau_core.tests.cocotb_benches.dau_int32_hash_grouped_aggregation_tb
+  bench: dau_core.tests.cocotb_benches.dau_hash_grouped_aggregation_tb
   # Measured 2026-08-06 after the JUDGE/ACCUM retime, replacing the points
   # for the pre-ACCUM netlist -- those measured +0.410 out of context and
   # then MISSED composed timing at -0.348, and splitting the accumulate
@@ -2597,16 +2597,16 @@ row-unpack:
       # only int32 is MEASURED; the RTL elaborates the whole declared range
       choices: [int32]
 
-int32-field-sum-aggregation:
+field-sum-aggregation:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-field-sum-aggregation
+  name: field-sum-aggregation
   kind: operator
-  module: dau_int32_field_sum_aggregation
-  source: dau_int32_field_sum_aggregation.sv
+  module: dau_field_sum_aggregation
+  source: dau_field_sum_aggregation.sv
   description: 'Batch field-sum aggregation over 16-byte quad rows: one INT64 sum per mask-selected field plus the row count
     in a single close-out record (q6 = one-bit mask; q1''s multi-sum is a wider mask).'
   golden: dau_core.operators:field_sum_rows
-  bench: dau_core.tests.cocotb_benches.dau_int32_field_sum_aggregation_tb
+  bench: dau_core.tests.cocotb_benches.dau_field_sum_aggregation_tb
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -2675,17 +2675,17 @@ int32-field-sum-aggregation:
       # only int32 is MEASURED; the RTL elaborates the whole declared range
       choices: [int32]
 
-int32-grouped-field-sum-aggregation:
+grouped-field-sum-aggregation:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-grouped-field-sum-aggregation
+  name: grouped-field-sum-aggregation
   kind: operator
-  module: dau_int32_grouped_field_sum_aggregation
-  source: dau_int32_grouped_field_sum_aggregation.sv
+  module: dau_grouped_field_sum_aggregation
+  source: dau_grouped_field_sum_aggregation.sv
   description: 'Ordered grouped field-sum aggregation over 16-byte quad rows: consecutive-equal-key groups (key = w0.lo,
     sort-then-stream) each emit a record of the sign-extended group key, one INT64 sum per mask-selected field, and the
     row count; one success close-out per batch after the final group (q1''s grouped multi-sum shape).'
   golden: dau_core.operators:grouped_field_sum_rows
-  bench: dau_core.tests.cocotb_benches.dau_int32_grouped_field_sum_aggregation_tb
+  bench: dau_core.tests.cocotb_benches.dau_grouped_field_sum_aggregation_tb
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -3004,19 +3004,19 @@ streaming-dedup:
       maximum: 32
       choices: [int32]
 
-int32-broadcast-hash-join:
+broadcast-hash-join:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-broadcast-hash-join
+  name: broadcast-hash-join
   kind: operator
-  module: dau_int32_broadcast_hash_join
-  source: dau_int32_broadcast_hash_join.sv
+  module: dau_broadcast_hash_join
+  source: dau_broadcast_hash_join.sv
   description: 'Broadcast hash join over 16-byte quad rows: the join tier''s payload-emitting Joiner (the q3 join spine).
     A build side (key, b0, b1, b2) is broadcast into a direct-mapped payload table (BRAM) in a load phase (the two-phase
     join job), then probe rows (key, v0, v1, v2) inner-join against it — a hit emits one (key, out0, out1, out2) row whose
     data fields are chosen per cfg_out{0,1,2}_sel from the six sources {b0,b1,b2,v0,v1,v2}, a miss drops. Last-writer-wins
     on a duplicate build key; a build/probe key outside [0, KEY_SPACE) is ERR_RANGE.'
   golden: dau_core.operators:broadcast_hash_join_rows
-  bench: dau_core.tests.cocotb_benches.dau_int32_broadcast_hash_join_tb
+  bench: dau_core.tests.cocotb_benches.dau_broadcast_hash_join_tb
   # OOC KEY_SPACE=1024; payload table is 3 RAMB36, 8 ns met (WNS +3.421)
   # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
   #
@@ -3162,17 +3162,17 @@ int32-broadcast-hash-join:
       maximum: 32
       # only int32 is MEASURED; the RTL elaborates the whole declared range
       choices: [int32]
-int32-stream-aggregation:
+stream-aggregation:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-stream-aggregation
+  name: stream-aggregation
   kind: operator
-  module: dau_int32_stream_aggregation
-  source: dau_int32_stream_aggregation.sv
+  module: dau_stream_aggregation
+  source: dau_stream_aggregation.sv
   description: Arrow-lite scalar stream aggregation.
   depends:
   - aggregation-pkg
   golden: dau_core.operators:aggregate_values
-  bench: dau_core.tests.cocotb_benches.dau_int32_stream_aggregation_tb
+  bench: dau_core.tests.cocotb_benches.dau_stream_aggregation_tb
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -3241,17 +3241,17 @@ int32-stream-aggregation:
       # only int32 is MEASURED; the RTL elaborates the whole declared range
       choices: [int32]
 
-int32-arrow-lite-stream-aggregation:
+arrow-lite-stream-aggregation:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-arrow-lite-stream-aggregation
+  name: arrow-lite-stream-aggregation
   kind: operator
-  module: dau_int32_arrow_lite_stream_aggregation
-  source: dau_int32_arrow_lite_stream_aggregation.sv
+  module: dau_arrow_lite_stream_aggregation
+  source: dau_arrow_lite_stream_aggregation.sv
   description: Arrow-lite single-column aggregation core.
   depends:
   - aggregation-pkg
   golden: dau_core.operators:aggregate_values
-  bench: dau_core.tests.cocotb_benches.dau_int32_arrow_lite_stream_aggregation_tb
+  bench: dau_core.tests.cocotb_benches.dau_arrow_lite_stream_aggregation_tb
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -3321,17 +3321,17 @@ int32-arrow-lite-stream-aggregation:
       # only int32 is MEASURED; the RTL elaborates the whole declared range
       choices: [int32]
 
-int32-record-batch-aggregation:
+record-batch-aggregation:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-record-batch-aggregation
+  name: record-batch-aggregation
   kind: operator
-  module: dau_int32_record_batch_aggregation
-  source: dau_int32_record_batch_aggregation.sv
+  module: dau_record_batch_aggregation
+  source: dau_record_batch_aggregation.sv
   description: Record-batch column aggregation core.
   depends:
   - aggregation-pkg
   golden: dau_core.operators:aggregate_values
-  bench: dau_core.tests.cocotb_benches.dau_int32_record_batch_aggregation_tb
+  bench: dau_core.tests.cocotb_benches.dau_record_batch_aggregation_tb
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -3919,17 +3919,17 @@ int32-wide-row-map-alu:
       minimum: 1
       maximum: 8
 
-int32-wide-field-sum-aggregation:
+wide-field-sum-aggregation:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-wide-field-sum-aggregation
+  name: wide-field-sum-aggregation
   kind: operator
-  module: dau_int32_wide_field_sum_aggregation
-  source: dau_int32_wide_field_sum_aggregation.sv
+  module: dau_wide_field_sum_aggregation
+  source: dau_wide_field_sum_aggregation.sv
   description: 'Wide-lane batch field-sum aggregation: SLOTS whole quad rows per beat, one beat per cycle (the multi-row
     terminal of the wide lane); pads are neither summed nor counted; record and close-out protocol identical to
-    int32-field-sum-aggregation.'
+    field-sum-aggregation.'
   golden: dau_core.operators:field_sum_rows
-  bench: dau_core.tests.cocotb_benches.dau_int32_wide_field_sum_aggregation_tb
+  bench: dau_core.tests.cocotb_benches.dau_wide_field_sum_aggregation_tb
   # Measured points only. The pre-balanced-tree xc7a200t point is deliberately
   # absent: it measured different HDL.
   resources:
