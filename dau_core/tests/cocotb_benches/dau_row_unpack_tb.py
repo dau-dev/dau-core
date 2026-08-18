@@ -50,7 +50,7 @@ async def sustained_ingest_meets_registry_floor(dut):
     words = list(range(256))
     await assert_sustained_ingest(
         dut,
-        "int32-row-unpack",
+        "row-unpack",
         send=lambda: _send_words(dut, words),
         input_beats=len(words),
         params={"OUT_WIDTH": 64},

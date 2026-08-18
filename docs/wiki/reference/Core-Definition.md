@@ -60,6 +60,21 @@ is `VIOLATED`. It does not interpolate or extrapolate.
 | `success_close_out`            | `bool`                 | Whether this core raises the batch's single success close-out. Terminal tiles do; mid-chain tiles are silent on success.                                                        |
 | `supports_pipeline_depth`      | `bool`                 | The core accepts generic elastic register stages without changing framing semantics. Requires a declared `PIPELINE_DEPTH` parameter; no build or pricing consumer reads it yet. |
 
+## Composition role
+
+| Field  | Type               | Description                                                                                  |
+| ------ | ------------------ | -------------------------------------------------------------------------------------------- |
+| `role` | `CoreRole \| None` | The composition job this core fills, when a composition rule turns on it. Most cores: unset. |
+
+Two rules cannot be read off a tile's ports, so the registry states them.
+`front-unpack` marks a core admissible in the optional front-stage feed
+transform slot — it widens packed rows into the quad rows the lanes consume.
+`key-dispatch` marks a core that routes whole records to lanes by a decode
+over the record's key, and is a contract as well as a label: such a core
+carries `MODE` (a `DispatchMode`) and `NUM_PARTITIONS`, and the composition
+enforces a power-of-two lane count for every decode but `EXACT_BRANCH`. A
+range partitioner routes by ordered splitters and declares neither.
+
 ## Rate
 
 | Field    | Type                 | Description                                                 |
@@ -167,9 +182,9 @@ from dau_core.cores import CoreKind
 from dau_core.registry import loaded_cores, core, cores_of_kind, sources_for
 
 loaded_cores()                       # name -> CoreDefinition, registry order
-core("int32-streaming-top-k")        # one definition
+core("streaming-top-k")              # one definition
 cores_of_kind(CoreKind.OPERATOR)     # every operator tile
-sources_for("int32-streaming-top-k") # dependency-closed HDL paths, in order
+sources_for("streaming-top-k")       # dependency-closed HDL paths, in order
 ```
 
 Accessors are read-through views over the composed registry: a registry an

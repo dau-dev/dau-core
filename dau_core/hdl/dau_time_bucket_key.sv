@@ -1,5 +1,7 @@
 `default_nettype none
 
+`include "types.svh"
+
 // Generic time-bucket key tile: rewrites a row's partition key into a composite
 // (partition, time-bucket) group key so a downstream key-grouped aggregator (the
 // bar / grouped-sum tiles) produces fixed-width TIME-WINDOWED groups per
@@ -14,22 +16,35 @@
 // pre-sorted by (partition, time), so buckets are contiguous per partition).
 // The downstream recovers partition = key >>> BUCKET_BITS. Contract (a host
 // encoding-audit precondition, like the fixed-point-fit rules): the partition id
-// fits PART_BITS = 32 - BUCKET_BITS bits and the (host-rebased) bucket fits
-// BUCKET_BITS, so the two never collide.
+// fits PART_BITS = KEY_BITS - BUCKET_BITS bits and the (host-rebased) bucket
+// fits BUCKET_BITS, so the two never collide.
 //
 // A mid-lane transform: silent on success (the row count is 1:1, output_last
 // rides the last row; the terminal aggregator closes the lane out), status only
 // on a torn row. The payload words pass through opaquely.
 //
-// Input row (3 words, atomic; input_last only legal on w2):
-//   w0 = {payload_hi[31:0], partition[31:0]}
+// Input row (3 words, atomic; input_last only legal on w2), two KEY_WIDTH
+// lanes tiling each word except the time axis:
+//   w0 = {payload_hi, partition}
 //   w1 = time[63:0]                            (signed INT64)
-//   w2 = {payload3[31:0], payload2[31:0]}
+//   w2 = {payload3, payload2}
 // Output row (2 words — the aggregator's quad-row input):
-//   o0 = {payload_hi[31:0], key[31:0]}
-//   o1 = {payload3[31:0], payload2[31:0]}
-module dau_int32_time_bucket_key #(
-    parameter int BUCKET_BITS = 16
+//   o0 = {payload_hi, key}
+//   o1 = {payload3, payload2}
+module dau_time_bucket_key #(
+    parameter int BUCKET_BITS = 16,
+    // The ELEMENT TYPE of the partition id, the composite key it becomes and
+    // the payload lanes riding beside them, as encoded by types.svh. Two such
+    // lanes tile one 64-bit stream word, so a narrower type packs the row
+    // into less of the word rather than changing the beat. A plain signed
+    // integer encodes as its own width, so `DAU_TYPE_INT32 is 32 and this
+    // builds exactly the key the tile has always built.
+    //
+    // THE TIME AXIS IS NOT THIS ELEMENT. It is a signed INT64 in its own
+    // word, because nanosecond timestamps need one, and it stays 64 bits at
+    // every key width. cfg_bucket_shift shifts that axis and is a shift
+    // amount, not an element, so it keeps its own 6 bits.
+    parameter int KEY_WIDTH = `DAU_TYPE_INT32
 ) (
     input  wire logic        clk,
     input  wire logic        rst,
@@ -47,12 +62,38 @@ module dau_int32_time_bucket_key #(
     output logic             status_error,
     output logic [7:0]       status_error_code
 );
-    localparam int PART_BITS = 32 - BUCKET_BITS;
+    // the type, taken apart: the key and payload lanes size off KEY_BITS and
+    // the float fact is what the guard checks the type against
+    localparam int KEY_BITS     = `DAU_TYPE_WIDTH(KEY_WIDTH);
+    localparam int KEY_IS_FLOAT = `DAU_TYPE_IS_FLOAT(KEY_WIDTH);
+    localparam int PART_BITS = KEY_BITS - BUCKET_BITS;
     localparam logic [7:0] ERR_STREAM = 8'd2;
     localparam logic [7:0] ERR_RANGE = 8'd3;
 
+    // the registry offers int32 only, where the key is 32 bits and this is
+    // the whole bound; the relation guard below is what holds at any other
+    // width the RTL elaborates
     if (BUCKET_BITS < 1 || BUCKET_BITS > 31) begin : g_param_check
         $error("BUCKET_BITS must be in [1, 31]");
+    end
+    // {payload, key} tile one 64-bit stream word, so the pair must fit it and
+    // divide it evenly
+    if (KEY_BITS < 8 || KEY_BITS > 32 || (64 % KEY_BITS) != 0) begin : g_key_width_check
+        $error("KEY_WIDTH must divide 64 and lie in [8, 32]");
+    end
+    // the bucket rides BELOW the partition in one key, so the partition needs
+    // what is left; a bucket filling the key would leave no partition bits
+    // and alias every partition onto one group
+    if (BUCKET_BITS >= KEY_BITS) begin : g_bucket_fits_key
+        $error("BUCKET_BITS must not fill the whole key: the partition needs KEY_WIDTH - BUCKET_BITS bits above the bucket");
+    end
+    // A TYPE IS NOT A CAPABILITY. The key is a GROUP IDENTITY built by
+    // concatenation and taken apart by a shift: a float's exponent bits would
+    // become partition bits and its mantissa bucket bits, and the overflow
+    // checks would read a magnitude that is not there. Refuse it at
+    // elaboration.
+    if (KEY_IS_FLOAT != 0) begin : g_key_float_check
+        $error("KEY_WIDTH must not name a floating-point type: the key is a packed group identity, not a magnitude");
     end
 
     typedef enum logic [2:0] {
@@ -67,13 +108,13 @@ module dau_int32_time_bucket_key #(
 
     state_t state;
 
-    logic signed [31:0] row_partition;
-    logic [31:0]        row_payload_hi;
+    logic signed [KEY_BITS-1:0] row_partition;
+    logic [KEY_BITS-1:0]        row_payload_hi;
     logic signed [63:0] row_time;
-    logic [31:0]        row_payload2;
-    logic [31:0]        row_payload3;
+    logic [KEY_BITS-1:0]        row_payload2;
+    logic [KEY_BITS-1:0]        row_payload3;
     logic               row_last;
-    logic [31:0]        row_key;   // the composite (partition, bucket) key
+    logic [KEY_BITS-1:0]        row_key;   // the composite (partition, bucket) key
 
     logic               cfg_latched;   // the bucket shift is latched at batch start
     logic [5:0]         shift_reg;
@@ -97,7 +138,7 @@ module dau_int32_time_bucket_key #(
     // allotted width would alias two distinct groups into one key, so it is an
     // enforced range error rather than a silent truncation.
     assign bucket = row_time >>> shift_reg;
-    assign part_overflow = |row_partition[31:PART_BITS];
+    assign part_overflow = |row_partition[KEY_BITS-1:PART_BITS];
     assign bucket_overflow = |bucket[63:BUCKET_BITS];
 
     always_ff @(posedge clk) begin
@@ -117,8 +158,8 @@ module dau_int32_time_bucket_key #(
                         if (input_last) begin
                             start_error_status(ERR_STREAM);  // last on w0: a torn row
                         end else begin
-                            row_partition <= signed'(input_data[31:0]);
-                            row_payload_hi <= input_data[63:32];
+                            row_partition <= signed'(input_data[KEY_BITS-1:0]);
+                            row_payload_hi <= input_data[KEY_BITS +: KEY_BITS];
                             state <= STATE_W1;
                         end
                     end
@@ -135,8 +176,8 @@ module dau_int32_time_bucket_key #(
                 end
                 STATE_W2: begin
                     if (input_fire) begin
-                        row_payload2 <= input_data[31:0];
-                        row_payload3 <= input_data[63:32];
+                        row_payload2 <= input_data[KEY_BITS-1:0];
+                        row_payload3 <= input_data[KEY_BITS +: KEY_BITS];
                         row_last <= input_last;
                         state <= STATE_COMPUTE;
                     end
@@ -151,12 +192,14 @@ module dau_int32_time_bucket_key #(
                     end
                 end
                 STATE_EMIT_O0: begin
-                    if (!output_valid || output_ready) emit_word({row_payload_hi, row_key}, 1'b0, STATE_EMIT_O1);
+                    // the record occupies the low lanes of the stream word;
+                    // a lane narrower than half the word leaves the rest zero
+                    if (!output_valid || output_ready) emit_word(64'({row_payload_hi, row_key}), 1'b0, STATE_EMIT_O1);
                 end
                 STATE_EMIT_O1: begin
                     if (!output_valid || output_ready) begin
                         output_valid <= 1'b1;
-                        output_data <= {row_payload3, row_payload2};
+                        output_data <= 64'({row_payload3, row_payload2});
                         output_last <= row_last;   // silent on success; last rides the row
                         state <= row_last ? STATE_STATUS : STATE_W0;
                     end
@@ -212,13 +255,13 @@ module dau_int32_time_bucket_key #(
         begin
             reset_stream_state();
             shift_reg <= 6'd0;
-            row_partition <= 32'sd0;
-            row_payload_hi <= 32'd0;
+            row_partition <= '0;
+            row_payload_hi <= '0;
             row_time <= 64'sd0;
-            row_payload2 <= 32'd0;
-            row_payload3 <= 32'd0;
+            row_payload2 <= '0;
+            row_payload3 <= '0;
             row_last <= 1'b0;
-            row_key <= 32'd0;
+            row_key <= '0;
         end
     endtask
 endmodule

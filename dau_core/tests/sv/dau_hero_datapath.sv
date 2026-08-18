@@ -175,7 +175,7 @@ module dau_hero_datapath #(
         .input_valid(fe_v), .input_ready(fe_r), .input_data(fe_d), .input_last(fe_l),
         .output_valid(bk_v), .output_ready(bk_r), .output_data(bk_d), .output_last(bk_l)
     );
-    dau_int32_time_bucket_key #(.BUCKET_BITS(BUCKET_BITS)) u_bucket (
+    dau_time_bucket_key #(.BUCKET_BITS(BUCKET_BITS)) u_bucket (
         .clk(clk), .rst(rst), .cfg_bucket_shift(cfg_bucket_shift),
         .input_valid(bk_v), .input_ready(bk_r), .input_data(bk_d), .input_last(bk_l),
         .output_valid(ky_v), .output_ready(ky_r), .output_data(ky_d), .output_last(ky_l),

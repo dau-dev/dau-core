@@ -1,8 +1,10 @@
 `default_nettype none
 
+`include "types.svh"
+
 // Streaming range partitioner for 16-byte pair rows (two 64-bit words,
 // w0 = {value, key}). Each whole row is routed to exactly one of
-// NUM_PARTITIONS output streams by its signed 32-bit key: with k =
+// NUM_PARTITIONS output streams by its signed KEY_WIDTH key: with k =
 // NUM_PARTITIONS-1 monotonic non-decreasing splitters, partition p receives
 // keys in [splitter[p-1], splitter[p]) (p==0 is key < splitter[0], the last
 // partition is key >= splitter[k-1]). This generalizes the pair-key filter
@@ -173,16 +175,25 @@ module dau_range_partition_lane (
 endmodule
 
 
-module dau_int32_range_partitioner #(
-    parameter int NUM_PARTITIONS = 4
+module dau_range_partitioner #(
+    parameter int NUM_PARTITIONS = 4,
+    // The ELEMENT TYPE of the key and the splitters, as encoded by types.svh.
+    // The key and its companion value lane tile one 64-bit stream word, so a
+    // narrower type packs the pair into less of the word rather than changing
+    // the beat; the rows themselves are routed opaquely, two words wide. A
+    // plain signed integer encodes as its own width, so `DAU_TYPE_INT32 is 32
+    // and this routes by exactly the key the tile has always routed by. The
+    // decode ORDERS two's-complement magnitudes against the splitters, so the
+    // type must be one it can order: signed and non-float.
+    parameter int KEY_WIDTH = `DAU_TYPE_INT32
 ) (
     input  wire logic        clk,
     input  wire logic        rst,
-    // k = NUM_PARTITIONS-1 signed 32-bit splitters, monotonic non-decreasing.
-    // cfg_splitters[i*32 +: 32] is splitter i. Width is clamped to >=1 bit so a
-    // degenerate single-partition instance (no splitters) stays legal; the
-    // decode loop then never reads it.
-    input  wire logic [((NUM_PARTITIONS > 1) ? (NUM_PARTITIONS-1)*32 : 1)-1:0] cfg_splitters,
+    // k = NUM_PARTITIONS-1 signed KEY_WIDTH splitters, monotonic non-decreasing.
+    // cfg_splitters[i*KEY_BITS +: KEY_BITS] is splitter i. Width is clamped to
+    // >=1 bit so a degenerate single-partition instance (no splitters) stays
+    // legal; the decode loop then never reads it.
+    input  wire logic [((NUM_PARTITIONS > 1) ? (NUM_PARTITIONS-1)*KEY_BITS : 1)-1:0] cfg_splitters,
     // input row stream (w0 = {value, key}, key = w0[31:0])
     input  wire logic        input_valid,
     output logic             input_ready,
@@ -200,6 +211,30 @@ module dau_int32_range_partitioner #(
     output logic [NUM_PARTITIONS*8-1:0]      status_error_code
 );
     localparam int PIDX_W = (NUM_PARTITIONS <= 1) ? 1 : $clog2(NUM_PARTITIONS);
+    // the type, taken apart: the key and splitter lanes size off KEY_BITS and
+    // the other two facts are what the guards check the type against
+    localparam int KEY_BITS      = `DAU_TYPE_WIDTH(KEY_WIDTH);
+    localparam int KEY_IS_FLOAT  = `DAU_TYPE_IS_FLOAT(KEY_WIDTH);
+    localparam int KEY_IS_SIGNED = `DAU_TYPE_IS_SIGNED(KEY_WIDTH);
+
+    // {value, key} tile one 64-bit stream word, so the pair must fit it and
+    // divide it evenly
+    if (KEY_BITS < 8 || KEY_BITS > 32 || (64 % KEY_BITS) != 0) begin : g_key_width_check
+        $error("KEY_WIDTH must divide 64 and lie in [8, 32]");
+    end
+    // A TYPE IS NOT A CAPABILITY. The linear decode orders the key against
+    // two's-complement splitters: handed a float it would compare exponent
+    // bits as though they were magnitude, and handed an unsigned type it
+    // would route every high-bit-set key to the top partition. Both break the
+    // key-ordering guarantee the concatenation sort depends on, so refuse
+    // them at elaboration. Fixed point is admissible unchanged -- scaling by
+    // a constant 2**-F preserves order.
+    if (KEY_IS_FLOAT != 0) begin : g_key_float_check
+        $error("KEY_WIDTH must not name a floating-point type: this tile orders two's-complement integers");
+    end
+    if (KEY_IS_SIGNED == 0) begin : g_key_signed_check
+        $error("KEY_WIDTH must not name an unsigned type: this tile orders two's-complement integers");
+    end
 
     typedef enum logic [1:0] {
         F_W0,   // accept w0 of a row
@@ -219,7 +254,7 @@ module dau_int32_range_partitioner #(
     always_comb begin
         dest = '0;
         for (int i = 0; i < NUM_PARTITIONS - 1; i++) begin
-            if ($signed(cur_w0[31:0]) >= $signed(cfg_splitters[i*32 +: 32])) begin
+            if ($signed(cur_w0[KEY_BITS-1:0]) >= $signed(cfg_splitters[i*KEY_BITS +: KEY_BITS])) begin
                 dest = dest + 1'b1;
             end
         end

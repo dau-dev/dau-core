@@ -6,7 +6,7 @@ measured cost, and the HDL those things describe. By the end you will know
 where each kind of fact about a tile lives, which is what you need before
 adding or changing one.
 
-We will use `int32-streaming-top-k`, the tile that keeps the K largest rows
+We will use `streaming-top-k`, the tile that keeps the K largest rows
 by sort key.
 
 You need `dau-core` installed. Nothing here needs hardware or a simulator.
@@ -18,7 +18,7 @@ Open a Python prompt and ask the registry for it:
 ```python
 from dau_core.registry import core
 
-tile = core("int32-streaming-top-k")
+tile = core("streaming-top-k")
 print(tile.name)
 print(tile.kind.value)
 print(tile.module)
@@ -27,9 +27,9 @@ print(tile.module)
 You should see:
 
 ```
-int32-streaming-top-k
+streaming-top-k
 operator
-dau_int32_streaming_top_k
+dau_streaming_top_k
 ```
 
 The registry is not a Python list — it is a Hydra config tree loaded into
@@ -107,12 +107,12 @@ The registry knows which sources the tile needs, in compile order:
 ```python
 from dau_core.registry import sources_for
 
-for path in sources_for("int32-streaming-top-k"):
+for path in sources_for("streaming-top-k"):
     print(path.name)
 ```
 
 ```
-dau_int32_streaming_top_k.sv
+dau_streaming_top_k.sv
 ```
 
 This tile has no dependencies. A tile that used a shared package would list
@@ -131,7 +131,7 @@ print(tile.bench)
 ```
 
 ```
-dau_core.tests.cocotb_benches.dau_int32_streaming_top_k_tb
+dau_core.tests.cocotb_benches.dau_streaming_top_k_tb
 ```
 
 That bench drives the HDL and compares its output against

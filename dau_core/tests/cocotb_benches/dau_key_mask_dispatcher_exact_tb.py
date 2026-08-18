@@ -12,12 +12,12 @@ from dau_core.operators import DispatchMode, mask_dispatch_rows
 # cycles. Runner passes parameters={"MODE": 1, "NUM_PARTITIONS": 3}
 # (no power-of-two) at either IN_WIDTH; the width is detected from the dut so
 # the same module covers the wide and narrow fronts.
-from dau_core.tests.cocotb_benches.dau_int32_key_mask_dispatcher_tb import (
+from dau_core.tests.cocotb_benches.dau_key_mask_dispatcher_tb import (
     _drive_and_collect,
     _num_parts,
     _send_rows,
 )
-from dau_core.tests.cocotb_benches.dau_int32_key_mask_dispatcher_wide_tb import (
+from dau_core.tests.cocotb_benches.dau_key_mask_dispatcher_wide_tb import (
     _send_row_beats,
     _start,
 )

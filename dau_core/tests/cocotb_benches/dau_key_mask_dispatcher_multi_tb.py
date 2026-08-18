@@ -14,12 +14,12 @@ import cocotb
 from cocotb.triggers import ReadOnly, RisingEdge
 
 from dau_core.operators import mask_dispatch_rows
-from dau_core.tests.cocotb_benches.dau_int32_key_mask_dispatcher_tb import (
+from dau_core.tests.cocotb_benches.dau_key_mask_dispatcher_tb import (
     _drive_and_collect,
     _num_parts,
     _random_rows,
 )
-from dau_core.tests.cocotb_benches.dau_int32_key_mask_dispatcher_wide_tb import (
+from dau_core.tests.cocotb_benches.dau_key_mask_dispatcher_wide_tb import (
     _row_beat,
     _start,
 )

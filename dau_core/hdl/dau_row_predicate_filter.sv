@@ -24,7 +24,7 @@
 // ERR_CONFIG. Otherwise the downstream tile's status is authoritative and
 // the filter stays silent. selected_count reports the rows forwarded by the
 // current/last batch (0 after an error close-out).
-module dau_int32_row_predicate_filter
+module dau_row_predicate_filter
     import dau_predicate_pkg::*;
 #(
     // The ELEMENT TYPE of one field, as encoded by types.svh -- what a field

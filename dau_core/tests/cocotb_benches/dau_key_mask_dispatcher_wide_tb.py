@@ -12,7 +12,7 @@ from dau_core.operators import mask_dispatch_rows
 # whole quad row per input beat ({w1, w0}). Runner passes
 # parameters={"IN_WIDTH": 128}; the width-agnostic multi-lane collect harness
 # is shared with the 64-bit bench.
-from dau_core.tests.cocotb_benches.dau_int32_key_mask_dispatcher_tb import (
+from dau_core.tests.cocotb_benches.dau_key_mask_dispatcher_tb import (
     _MASK32,
     _MASK64,
     _ROWS,
@@ -75,7 +75,7 @@ async def sustained_ingest_meets_registry_floor(dut):
     rows = [(index % num_parts, index, index + 1, index + 2) for index in range(256)]
     await assert_sustained_ingest(
         dut,
-        "int32-key-mask-dispatcher",
+        "key-mask-dispatcher",
         send=lambda: _send_row_beats(dut, rows),
         input_beats=len(rows),
         params={"IN_WIDTH": 128},

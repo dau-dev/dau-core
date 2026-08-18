@@ -1,15 +1,18 @@
 `default_nettype none
 
+`include "types.svh"
+
 // Streaming top-k tile (ORDER BY <key> DESC LIMIT K): over quad rows
-// (key, v0, v1, v2) keeps the K rows with the largest signed-INT32 sort key
-// (field 0), breaking ties by arrival order (earliest wins), and at close-out
+// (key, v0, v1, v2) keeps the K rows with the largest signed FIELD_WIDTH sort
+// key (field 0), breaking ties by arrival order (earliest wins), and at close-out
 // drains them sorted key-descending (ties arrival-ascending). This is the
 // q3/q10 and TSBS group-by-order-by-limit shape. Matches
 // dau_core.operators.streaming_top_k bit-for-bit.
 //
-// Two 64-bit words per row (a row is atomic; input_last only legal on w1):
-//   w0 = {v0[31:0], key[31:0]}
-//   w1 = {v2[31:0], v1[31:0]}
+// Two 64-bit words per row (a row is atomic; input_last only legal on w1),
+// two FIELD_WIDTH lanes tiling each word:
+//   w0 = {v0, key}
+//   w1 = {v2, v1}
 // The retained set lives in a size-K systolic sorted register array: cell 0 is
 // the largest kept key, cell K-1 the smallest (the eviction target). On each
 // row every cell makes a LOCAL compare-and-shift decision — constant critical
@@ -25,8 +28,17 @@
 // K in [1, 128] (dau_core.operators.TOP_K_MAX; a request outside is BAD_K at
 // composition time), enforced here by an elaboration guard. A row torn by
 // input_last on w0 is ERR_STREAM.
-module dau_int32_streaming_top_k #(
-    parameter int K = 8
+module dau_streaming_top_k #(
+    parameter int K = 8,
+    // The ELEMENT TYPE of the row's lanes, as encoded by types.svh -- one
+    // type for the key and the three payload lanes, because two lanes tile
+    // each 64-bit word and the drained record mirrors the accepted one. A
+    // narrower type therefore packs the row into less of the two words rather
+    // than changing the beat. A plain signed integer encodes as its own
+    // width, so `DAU_TYPE_INT32 is 32 and this reproduces the quad row the
+    // tile has always had. The array ORDERS two's-complement magnitudes, so
+    // the type must be one it can order: signed and non-float.
+    parameter int FIELD_WIDTH = `DAU_TYPE_INT32
 ) (
     input  wire logic        clk,
     input  wire logic        rst,
@@ -46,9 +58,31 @@ module dau_int32_streaming_top_k #(
 );
     localparam logic [7:0] ERR_STREAM = 8'd2;
     localparam int CW = $clog2(K + 1);
+    // the type, taken apart: the row's lanes size off FIELD_BITS and the
+    // other two facts are what the guards check the type against
+    localparam int FIELD_BITS      = `DAU_TYPE_WIDTH(FIELD_WIDTH);
+    localparam int FIELD_IS_FLOAT  = `DAU_TYPE_IS_FLOAT(FIELD_WIDTH);
+    localparam int FIELD_IS_SIGNED = `DAU_TYPE_IS_SIGNED(FIELD_WIDTH);
 
     if (K < 1 || K > 128) begin : g_param_check
         $error("K must be in [1, 128]");
+    end
+    // two lanes tile each 64-bit stream word, so the pair must fit it and
+    // divide it evenly
+    if (FIELD_BITS < 8 || FIELD_BITS > 32 || (64 % FIELD_BITS) != 0) begin : g_field_width_check
+        $error("FIELD_WIDTH must divide 64 and lie in [8, 32]");
+    end
+    // A TYPE IS NOT A CAPABILITY. The cells order two's-complement magnitudes:
+    // handed a float the array would rank exponent bits as though they were
+    // magnitude, and handed an unsigned type it would rank every
+    // high-bit-set key as the largest. Both are silently wrong answers, so
+    // refuse them at elaboration. Fixed point is admissible unchanged --
+    // scaling by a constant 2**-F preserves order.
+    if (FIELD_IS_FLOAT != 0) begin : g_field_float_check
+        $error("FIELD_WIDTH must not name a floating-point type: this tile orders two's-complement integers");
+    end
+    if (FIELD_IS_SIGNED == 0) begin : g_field_signed_check
+        $error("FIELD_WIDTH must not name an unsigned type: this tile orders two's-complement integers");
     end
 
     typedef enum logic [2:0] {
@@ -63,15 +97,15 @@ module dau_int32_streaming_top_k #(
     state_t state;
 
     logic               cell_valid [K];
-    logic signed [31:0] cell_key   [K];
-    logic signed [31:0] cell_v0    [K];
-    logic signed [31:0] cell_v1    [K];
-    logic signed [31:0] cell_v2    [K];
+    logic signed [FIELD_BITS-1:0] cell_key   [K];
+    logic signed [FIELD_BITS-1:0] cell_v0    [K];
+    logic signed [FIELD_BITS-1:0] cell_v1    [K];
+    logic signed [FIELD_BITS-1:0] cell_v2    [K];
     logic [CW-1:0]      fill;   // number of retained rows (0..K)
     logic [CW-1:0]      rem;    // rows left to drain
 
-    logic signed [31:0] held_key;
-    logic signed [31:0] held_v0;
+    logic signed [FIELD_BITS-1:0] held_key;
+    logic signed [FIELD_BITS-1:0] held_v0;
 
     logic input_fire;
     logic output_fire;
@@ -97,8 +131,8 @@ module dau_int32_streaming_top_k #(
                             // a row is two words: last on w0 truncates the row
                             start_error_status(ERR_STREAM);
                         end else begin
-                            held_key <= signed'(input_data[31:0]);
-                            held_v0  <= signed'(input_data[63:32]);
+                            held_key <= signed'(input_data[FIELD_BITS-1:0]);
+                            held_v0  <= signed'(input_data[FIELD_BITS +: FIELD_BITS]);
                             state <= STATE_ROW_HIGH;
                         end
                     end
@@ -106,7 +140,7 @@ module dau_int32_streaming_top_k #(
                 STATE_ROW_HIGH: begin
                     if (input_fire) begin
                         insert_row(held_key, held_v0,
-                                   signed'(input_data[31:0]), signed'(input_data[63:32]));
+                                   signed'(input_data[FIELD_BITS-1:0]), signed'(input_data[FIELD_BITS +: FIELD_BITS]));
                         state <= input_last ? STATE_DRAIN_INIT : STATE_ROW_LOW;
                     end
                 end
@@ -119,7 +153,10 @@ module dau_int32_streaming_top_k #(
                 STATE_DRAIN_LOW: begin
                     if (!output_valid || output_ready) begin
                         output_valid <= 1'b1;
-                        output_data <= {cell_v0[0], cell_key[0]};  // w0 = {v0, key}
+                        // the record occupies the low lanes of the stream
+                        // word; a lane narrower than half the word leaves
+                        // the rest zero
+                        output_data <= 64'({cell_v0[0], cell_key[0]});  // w0 = {v0, key}
                         output_last <= 1'b0;
                         state <= STATE_DRAIN_HIGH;
                     end
@@ -127,7 +164,7 @@ module dau_int32_streaming_top_k #(
                 STATE_DRAIN_HIGH: begin
                     if (!output_valid || output_ready) begin
                         output_valid <= 1'b1;
-                        output_data <= {cell_v2[0], cell_v1[0]};  // w1 = {v2, v1}
+                        output_data <= 64'({cell_v2[0], cell_v1[0]});  // w1 = {v2, v1}
                         output_last <= (rem == 1);
                         shift_out();
                         rem <= rem - 1;
@@ -155,7 +192,7 @@ module dau_int32_streaming_top_k #(
     // (empties and strictly-smaller keys sit at the tail), so exactly one cell
     // takes the new row and everything from there shifts right, dropping the
     // tail when full.
-    task automatic insert_row(input logic signed [31:0] rk, rv0, rv1, rv2);
+    task automatic insert_row(input logic signed [FIELD_BITS-1:0] rk, rv0, rv1, rv2);
         logic qual [K];
         begin
             for (int i = 0; i < K; i++)
@@ -223,13 +260,13 @@ module dau_int32_streaming_top_k #(
     task automatic reset_state;
         begin
             reset_stream_state();
-            held_key <= 32'sd0;
-            held_v0 <= 32'sd0;
+            held_key <= '0;
+            held_v0 <= '0;
             for (int i = 0; i < K; i++) begin
-                cell_key[i] <= 32'sd0;
-                cell_v0[i] <= 32'sd0;
-                cell_v1[i] <= 32'sd0;
-                cell_v2[i] <= 32'sd0;
+                cell_key[i] <= '0;
+                cell_v0[i] <= '0;
+                cell_v1[i] <= '0;
+                cell_v2[i] <= '0;
             end
         end
     endtask

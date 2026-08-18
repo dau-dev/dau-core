@@ -39,7 +39,7 @@ async def sustained_ingest_meets_registry_floor(dut):
     beats = _beats(rows, slots)
     await assert_sustained_ingest(
         dut,
-        "int32-wide-row-predicate-filter",
+        "wide-row-predicate-filter",
         send=lambda: _send_beats(dut, beats),
         input_beats=len(beats),
         rows_per_beat=slots,

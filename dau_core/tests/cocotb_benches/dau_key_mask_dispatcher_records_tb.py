@@ -15,7 +15,7 @@ import cocotb
 from cocotb.triggers import ReadOnly, RisingEdge
 
 from dau_core.operators import mask_dispatch_records
-from dau_core.tests.cocotb_benches.dau_int32_key_mask_dispatcher_tb import _num_parts, _start
+from dau_core.tests.cocotb_benches.dau_key_mask_dispatcher_tb import _num_parts, _start
 
 _MASK64 = (1 << 64) - 1
 

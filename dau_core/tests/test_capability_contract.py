@@ -60,7 +60,7 @@ def test_registry_declares_hardware_opcodes_only_for_opcode_driven_tiles() -> No
 
 
 def test_registry_declares_sorter_capacity() -> None:
-    sorter = tile_capability("int32-bitonic-sorter")
+    sorter = tile_capability("bitonic-sorter")
     assert sorter.unit_kind == UnitKind.SORT
     assert sorter.row_capacity == 16
     assert sorter.opcodes == ()
@@ -78,7 +78,7 @@ def test_bar_noc_contract_advertises_no_scalar_aggregation_hardware() -> None:
     lane = contract.lanes[0]
     assert lane.tile.core == "int32-bar-aggregation"
     assert lane.tile.count_port == "bar_count"
-    assert lane.partition is not None and lane.partition.core == "int32-pair-key-filter"
+    assert lane.partition is not None and lane.partition.core == "pair-key-filter"
     assert dict(lane.partition.config)["cfg_key_match"] == "32'd0"
 
 
@@ -88,7 +88,7 @@ def test_sorted_scan_contract_carries_sorter_capacity_and_splitters() -> None:
     assert contract.sort_capacity == 16
     assert contract.operator_bitmap == 0
     assert contract.partitioner is not None
-    assert contract.partitioner.core == "int32-range-partitioner"
+    assert contract.partitioner.core == "range-partitioner"
     assert "cfg_splitters" in dict(contract.partitioner.config)
 
 
@@ -128,7 +128,7 @@ def test_contract_mapping_round_trips_and_is_json_able() -> None:
 
 def test_contract_to_design_counts_units_by_identical_tile() -> None:
     aggregation = tile_capability("int32-record-batch-aggregation")
-    sorter = tile_capability("int32-bitonic-sorter")
+    sorter = tile_capability("bitonic-sorter")
     contract = CapabilityContract(
         name="mixed",
         lanes=(
@@ -165,8 +165,8 @@ def test_chain_lanes_carry_chain_capabilities_and_opcode_truth() -> None:
     contract = capability_contract(q6_scan_spec(lanes=4))
     lane = contract.lanes[0]
     assert [stage.core for stage in lane.chain] == [
-        "int32-row-predicate-filter",
-        "int32-row-predicate-filter",
+        "row-predicate-filter",
+        "row-predicate-filter",
         "int32-row-map-alu",
     ]
     assert lane.tile.core == "int32-field-sum-aggregation"

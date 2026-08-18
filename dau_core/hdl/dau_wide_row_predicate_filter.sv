@@ -1,8 +1,11 @@
 `default_nettype none
 
+`include "types.svh"
+
 // Wide-lane row-atomic compound predicate filter: SLOTS whole 16-byte quad
 // rows per beat, slot s at [128*s +: 128], with each row laid out as
-// {aux1, aux0, value, key} (field i at bits [32*i +: 32]). The reserved
+// {aux1, aux0, value, key} (field i at bits [FIELD_BITS*i +: FIELD_BITS],
+// which at the default int32 is the four-lane row). The reserved
 // ALL-ONES 128-bit row is the PAD: pads pass unchanged and are neither
 // evaluated nor counted. A non-pad row that fails the three-term predicate
 // is dropped by replacing its slot with PAD — positions are preserved and
@@ -15,25 +18,34 @@
 // ERR_STREAM path. This composed-pipeline stage is silent on success; even
 // an all-dropped batch forwards its final beat as pads, leaving downstream
 // responsible for the success close-out.
-module dau_int32_wide_row_predicate_filter
+module dau_wide_row_predicate_filter
     import dau_predicate_pkg::*;
 #(
-    parameter int SLOTS = 4,          // quad rows per beat: 1, 2, 4, or 8
-    parameter int PIPELINE_DEPTH = 3  // elastic stages: 1 through 8
+    parameter int SLOTS = 4,           // quad rows per beat: 1, 2, 4, or 8
+    parameter int PIPELINE_DEPTH = 3,  // elastic stages: 1 through 8
+    // The ELEMENT TYPE of one field, as encoded by types.svh -- the same
+    // declaration the 64-bit row filter carries, because this is that tile
+    // widened to SLOTS rows per beat. The 128-bit quad row is the transport
+    // unit and stays fixed, so a narrower type packs MORE fields per row
+    // rather than shrinking the beat. A plain signed integer encodes as its
+    // own width, so `DAU_TYPE_INT32 is 32 and this reproduces the four-field
+    // row the tile has always had. The type must be one this comparator can
+    // order: signed, non-float, and a whole divisor of 128.
+    parameter int FIELD_WIDTH = `DAU_TYPE_INT32
 ) (
     input  wire logic                         clk,
     input  wire logic                         rst,
-    input  wire logic [1:0]                   cfg_field0,
+    input  wire logic [SEL_BITS-1:0]          cfg_field0,
     input  wire logic [2:0]                   cfg_op0,
-    input  wire logic [31:0]                  cfg_constant0,
+    input  wire logic [FIELD_BITS-1:0]        cfg_constant0,
     input  wire logic [1:0]                   cfg_combine01,
-    input  wire logic [1:0]                   cfg_field1,
+    input  wire logic [SEL_BITS-1:0]          cfg_field1,
     input  wire logic [2:0]                   cfg_op1,
-    input  wire logic [31:0]                  cfg_constant1,
+    input  wire logic [FIELD_BITS-1:0]        cfg_constant1,
     input  wire logic [1:0]                   cfg_combine2,
-    input  wire logic [1:0]                   cfg_field2,
+    input  wire logic [SEL_BITS-1:0]          cfg_field2,
     input  wire logic [2:0]                   cfg_op2,
-    input  wire logic [31:0]                  cfg_constant2,
+    input  wire logic [FIELD_BITS-1:0]        cfg_constant2,
     input  wire logic                         input_valid,
     output logic                              input_ready,
     input  wire logic [SLOTS*128-1:0]         input_data,
@@ -48,11 +60,42 @@ module dau_int32_wide_row_predicate_filter
     output logic [7:0]                        status_error_code,
     output logic [63:0]                       selected_count
 );
+    localparam int ROW_BITS = 128;                 // the transport unit, fixed
+    // the type, taken apart: the fields size off FIELD_BITS and the remaining
+    // three facts are what the guards check the type against
+    localparam int FIELD_BITS      = `DAU_TYPE_WIDTH(FIELD_WIDTH);
+    localparam int FIELD_FRAC_BITS = `DAU_TYPE_FRAC_BITS(FIELD_WIDTH);
+    localparam int FIELD_IS_FLOAT  = `DAU_TYPE_IS_FLOAT(FIELD_WIDTH);
+    localparam int FIELD_IS_SIGNED = `DAU_TYPE_IS_SIGNED(FIELD_WIDTH);
+    localparam int FIELDS   = ROW_BITS / FIELD_BITS;
+    localparam int SEL_BITS = (FIELDS <= 1) ? 1 : $clog2(FIELDS);
+
     if (!(SLOTS == 1 || SLOTS == 2 || SLOTS == 4 || SLOTS == 8)) begin : g_bad_slots
         $error("SLOTS must be 1, 2, 4, or 8");
     end
     if (PIPELINE_DEPTH < 1 || PIPELINE_DEPTH > 8) begin : g_bad_pipeline_depth
         $error("PIPELINE_DEPTH must be between 1 and 8");
+    end
+    if (FIELD_BITS < 8 || FIELD_BITS > 64 || (ROW_BITS % FIELD_BITS) != 0) begin : g_field_width_check
+        $error("FIELD_WIDTH must divide 128 and lie in [8, 64]");
+    end
+    // A TYPE IS NOT A CAPABILITY. This datapath orders two's-complement
+    // magnitudes: handed a float it would compare exponent bits as though
+    // they were magnitude (and get -0.0 > 0.0 wrong besides), and handed an
+    // unsigned type it would read every high-bit-set value as negative. Both
+    // are silently wrong answers, so refuse them at elaboration.
+    if (FIELD_IS_FLOAT != 0) begin : g_field_float_check
+        $error("FIELD_WIDTH must not name a floating-point type: this tile compares two's-complement integers");
+    end
+    if (FIELD_IS_SIGNED == 0) begin : g_field_signed_check
+        $error("FIELD_WIDTH must not name an unsigned type: this tile compares two's-complement integers");
+    end
+    // FIXED POINT IS ADMISSIBLE and needs no separate datapath: scaling by a
+    // constant 2**-F preserves order, so comparing qI.F values is comparing
+    // their raw integers, and the constant a caller configures is already in
+    // the same format as the field. The point must still fit inside the field.
+    if (FIELD_FRAC_BITS >= FIELD_BITS) begin : g_field_fraction_check
+        $error("FIELD_WIDTH names a fixed-point type whose fraction fills the whole field");
     end
 
     localparam logic [7:0] ERR_CONFIG = 8'd1;
@@ -68,17 +111,17 @@ module dau_int32_wide_row_predicate_filter
 
     logic        batch_open;
     logic        batch_input_closed;
-    logic [1:0]  active_field0;
+    logic [SEL_BITS-1:0]   active_field0;
     logic [2:0]  active_op0;
-    logic [31:0] active_constant0;
+    logic [FIELD_BITS-1:0] active_constant0;
     logic [1:0]  active_combine01;
-    logic [1:0]  active_field1;
+    logic [SEL_BITS-1:0]   active_field1;
     logic [2:0]  active_op1;
-    logic [31:0] active_constant1;
+    logic [FIELD_BITS-1:0] active_constant1;
     logic [1:0]  active_combine2;
-    logic [1:0]  active_field2;
+    logic [SEL_BITS-1:0]   active_field2;
     logic [2:0]  active_op2;
-    logic [31:0] active_constant2;
+    logic [FIELD_BITS-1:0] active_constant2;
 
     logic advance;
     logic input_fire;
@@ -114,30 +157,28 @@ module dau_int32_wide_row_predicate_filter
         && ((cfg_combine01 == COMBINE_SINGLE) || predicate_op_valid(cfg_op1))
         && ((cfg_combine2 == COMBINE_SINGLE) || predicate_op_valid(cfg_op2));
 
-    function automatic logic [31:0] field_select(input logic [1:0] sel, input logic [127:0] row);
+    // one indexed slice of the row, so the field count follows FIELD_BITS
+    // instead of being four names in a case statement (the 64-bit row
+    // filter's field_select, slot by slot)
+    function automatic logic [FIELD_BITS-1:0] field_select(input logic [SEL_BITS-1:0] sel, input logic [127:0] row);
         begin
-            unique case (sel)
-                2'd0: field_select = row[31:0];
-                2'd1: field_select = row[63:32];
-                2'd2: field_select = row[95:64];
-                default: field_select = row[127:96];
-            endcase
+            field_select = row[sel * FIELD_BITS +: FIELD_BITS];
         end
     endfunction
 
     function automatic logic configured_row_matches(
         input logic [127:0] row,
-        input logic [1:0] field0,
+        input logic [SEL_BITS-1:0] field0,
         input logic [2:0] op0,
-        input logic [31:0] constant0,
+        input logic [FIELD_BITS-1:0] constant0,
         input logic [1:0] combine01,
-        input logic [1:0] field1,
+        input logic [SEL_BITS-1:0] field1,
         input logic [2:0] op1,
-        input logic [31:0] constant1,
+        input logic [FIELD_BITS-1:0] constant1,
         input logic [1:0] combine2,
-        input logic [1:0] field2,
+        input logic [SEL_BITS-1:0] field2,
         input logic [2:0] op2,
-        input logic [31:0] constant2
+        input logic [FIELD_BITS-1:0] constant2
     );
         logic term0;
         logic term1;
@@ -296,17 +337,17 @@ module dau_int32_wide_row_predicate_filter
             state <= STATE_FILTER;
             batch_open <= 1'b0;
             batch_input_closed <= 1'b0;
-            active_field0 <= 2'd0;
+            active_field0 <= '0;
             active_op0 <= 3'd0;
-            active_constant0 <= 32'd0;
+            active_constant0 <= '0;
             active_combine01 <= 2'd0;
-            active_field1 <= 2'd0;
+            active_field1 <= '0;
             active_op1 <= 3'd0;
-            active_constant1 <= 32'd0;
+            active_constant1 <= '0;
             active_combine2 <= 2'd0;
-            active_field2 <= 2'd0;
+            active_field2 <= '0;
             active_op2 <= 3'd0;
-            active_constant2 <= 32'd0;
+            active_constant2 <= '0;
             pipeline_valid <= '0;
             pipeline_last <= '0;
             for (int stage = 0; stage < PIPELINE_DEPTH; stage++) begin
