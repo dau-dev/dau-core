@@ -373,10 +373,34 @@ class RollingMoment:
 
 def rolling_moments(values: Iterable[tuple[int, int]], *, window: int) -> list[RollingMoment | None]:
     """Per-symbol rolling ``(count, sum, sum_of_squares)`` over the last
-    ``window`` values — the deferred-division form of rolling mean/variance."""
+    ``window`` values — the deferred-division form of rolling mean/variance.
+
+    REFUSES a window whose sum of squares leaves a signed 64-bit accumulator.
+    That is the tile's arithmetic precondition, and it binds inside the int32
+    domain: ``(2**31-1)**2`` is already ``2**61``, so a full-range int32 column
+    overflows ``sum_sq`` from window 3. The tile cannot check it — it sees one
+    row at a time and has no bound to compare against — and it wraps silently
+    into a wrong variance rather than erroring. Python integers do not wrap, so
+    a golden that computed the exact value would DISAGREE with the hardware
+    over exactly the inputs the contract excludes, and the bench comparing the
+    two would be the only thing that ever noticed. Raising instead keeps the
+    reference and the datapath from ever quietly parting company: inside the
+    precondition they are equal, and outside it neither claims an answer.
+
+    The proof properly lives further upstream — dau-polars refuses to route a
+    rolling scan whose value column declares no ``magnitude_bits`` — so this is
+    a backstop for a direct caller, not the primary check."""
+
+    limit = 1 << 63
 
     def reduce(buf: list[int]) -> RollingMoment:
-        return RollingMoment(count=len(buf), total=sum(buf), total_sq=sum(v * v for v in buf))
+        total_sq = sum(v * v for v in buf)
+        if not -limit <= total_sq <= limit - 1:
+            raise ValueError(
+                f"rolling window of {len(buf)} values needs {total_sq.bit_length()} bits of sum_sq, "
+                f"more than the tile's INT64; reduce the window or rescale the column"
+            )
+        return RollingMoment(count=len(buf), total=sum(buf), total_sq=total_sq)
 
     return _rolling(values, window=window, reduce=reduce)
 

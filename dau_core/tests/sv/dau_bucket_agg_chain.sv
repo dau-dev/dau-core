@@ -56,7 +56,7 @@ module dau_bucket_agg_chain #(
         .status_error_code(bucket_status_error_code)
     );
 
-    dau_int32_grouped_field_aggregation u_agg (
+    dau_grouped_field_aggregation u_agg (
         .clk(clk),
         .rst(rst),
         .input_valid(keyed_valid),

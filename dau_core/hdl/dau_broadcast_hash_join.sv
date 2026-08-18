@@ -1,10 +1,13 @@
 `default_nettype none
 
+`include "types.svh"
+
 // Broadcast hash join for 16-byte quad rows (two 64-bit words,
-// w0 = {value, key}, w1 = {aux1, aux0}; field i is the i-th 32-bit lane in
-// (key, value, aux0, aux1) order). The join tier's payload-emitting Joiner:
+// w0 = {value, key}, w1 = {aux1, aux0}; field i is the i-th FIELD_WIDTH lane
+// of the row, which at the default int32 is (key, value, aux0, aux1) order).
+// The join tier's payload-emitting Joiner:
 // a build side is broadcast into an on-chip direct-mapped payload table, then
-// probe rows inner-join against it. A build/probe key is w0.lo (signed int32);
+// probe rows inner-join against it. A build/probe key is the row's lane 0;
 // the three data fields are (value, aux0, aux1). Symmetric to the membership
 // bitmap, but each table slot stores {valid, payload} where payload is the
 // build row's three data fields (b0, b1, b2). The job runs in two phases,
@@ -48,12 +51,24 @@
 // a following batch or raises a close-out until the emit engine has drained to
 // idle (no cross-batch status overtake). joined_count reports the rows emitted
 // by the current/last probe batch (0 after a load or an error close-out).
-module dau_int32_broadcast_hash_join #(
+module dau_broadcast_hash_join #(
     // key space (slot count); one payload slot per key. The build side is a
     // broadcast table sized to fit BRAM. KEY_SPACE (and the payload width) are
     // synthesis parameters — a rebuild-to-silicon that needs a different key
     // space overrides this default.
-    parameter int KEY_SPACE = 1024
+    parameter int KEY_SPACE = 1024,
+    // The ELEMENT TYPE of one lane, as encoded by types.svh. The 128-bit row
+    // is the transport unit and stays fixed; lane i is its i-th FIELD_BITS
+    // lane, both on the way in and in the joined row on the way out.
+    // `DAU_TYPE_INT32 is 32, so the default reproduces the (key, v0, v1, v2)
+    // row port for port.
+    //
+    // THE SLOT IS {valid, b2, b1, b0}, so unlike the tiles whose accumulators
+    // dominate, this tile's BRAM cost moves DIRECTLY with the element: the
+    // payload is 3*FIELD_BITS wide. Every offered type is therefore its own
+    // measured point at every KEY_SPACE rung, which is why only int32 is
+    // offered until a narrower one is measured.
+    parameter int FIELD_WIDTH = `DAU_TYPE_INT32
 ) (
     input  wire logic        clk,
     input  wire logic        rst,
@@ -79,8 +94,32 @@ module dau_int32_broadcast_hash_join #(
     localparam logic [AWIDTH-1:0] LAST_ADDR = AWIDTH'(KEY_SPACE - 1);
     localparam logic [31:0] KEY_SPACE_U = KEY_SPACE;
 
+    localparam int ROW_BITS = 128;  // the transport unit, fixed
+    localparam int FIELDS   = 4;    // key plus the three payload lanes
+    localparam int FIELD_BITS      = `DAU_TYPE_WIDTH(FIELD_WIDTH);
+    localparam int FIELD_IS_FLOAT  = `DAU_TYPE_IS_FLOAT(FIELD_WIDTH);
+    localparam int LANE_BITS       = FIELDS * FIELD_BITS;  // the part of the row this tile reads
+
     // table slot: {valid, b2, b1, b0}
-    localparam int SLOTW = 97;
+    localparam int SLOTW = 1 + 3 * FIELD_BITS;
+
+    // The key is an index into the table and the payload rides a lane, so the
+    // bound is the row: a lane must tile the 128-bit row, and 32 is where the
+    // quad row runs out.
+    if (FIELD_BITS < 8 || FIELD_BITS > 32 || (ROW_BITS % FIELD_BITS) != 0) begin : g_field_width_check
+        $error("FIELD_WIDTH must divide 128 and lie in [8, 32]");
+    end
+    // A TYPE IS NOT A CAPABILITY -- but this tile ORDERS NOTHING. The key is a
+    // dictionary id, tested by one unsigned range compare and then used as an
+    // address, and the payload lanes are carried opaquely from build row to
+    // joined row without ever being interpreted. So an unsigned type is
+    // legitimate here (the membership bitmap, this tile's sibling, says the
+    // same) and only a float is refused: a float bit pattern is not an index,
+    // and its exponent would select the slot while its mantissa selected
+    // nothing meaningful.
+    if (FIELD_IS_FLOAT != 0) begin : g_field_float_check
+        $error("FIELD_WIDTH must not name a floating-point type: the key is a dictionary id, an integer index");
+    end
 
     localparam logic [2:0] SRC_MAX = 3'd5;  // sources 6, 7 are reserved
 
@@ -134,6 +173,11 @@ module dau_int32_broadcast_hash_join #(
     logic [2:0] active_out2;
 
     logic [63:0] row_w0;  // registered w0 of the row in flight (key + b0/v0)
+    // the row being completed: w0 was registered, w1 is on the input, and the
+    // lanes are read out of the assembled row rather than out of either word,
+    // because at a narrower type a lane no longer lines up with a word
+    logic [LANE_BITS-1:0] row_lanes;
+    logic [ROW_BITS-1:0]  out_row;  // the joined row, lanes packed back to the transport unit
 
     logic        held_valid;
     logic [63:0] held_w0;
@@ -158,13 +202,14 @@ module dau_int32_broadcast_hash_join #(
     logic [SLOTW-1:0]  mem_wdata;
 
     logic        hit;
-    logic [31:0] join_out0;
-    logic [31:0] join_out1;
-    logic [31:0] join_out2;
+    logic [FIELD_BITS-1:0] join_out0;
+    logic [FIELD_BITS-1:0] join_out1;
+    logic [FIELD_BITS-1:0] join_out2;
 
     assign input_fire = input_valid && input_ready;
     assign output_fire = output_valid && output_ready;
     assign emit_free = (emit_state == EMIT_IDLE) || ((emit_state == EMIT_W1) && output_fire);
+    assign row_lanes = LANE_BITS'({input_data, row_w0});
 
     always_comb begin
         unique case (state)
@@ -182,12 +227,13 @@ module dau_int32_broadcast_hash_join #(
     // config validity: every output field-select must name a real source
     assign cfg_out_ok = (cfg_out0_sel <= SRC_MAX) && (cfg_out1_sel <= SRC_MAX) && (cfg_out2_sel <= SRC_MAX);
 
-    // key range: the row key (w0.lo). A key outside [0, KEY_SPACE) fails the
-    // unsigned range compare (negatives read as >= 2**31 > KEY_SPACE_U) and is
-    // rejected; the address is clamped so a rejected key never indexes past the
-    // table.
-    assign key_in_range = (input_data[31:0] < KEY_SPACE_U);
-    assign probe_raddr = key_in_range ? input_data[AWIDTH-1:0] : '0;
+    // key range: the row key (lane 0), ZERO-EXTENDED to 32 bits because it is
+    // an id and not a magnitude. A key outside [0, KEY_SPACE) fails the one
+    // unsigned range compare (a negative int32 reads as >= 2**31 > KEY_SPACE_U)
+    // and is rejected; the address is clamped so a rejected key never indexes
+    // past the table.
+    assign key_in_range = (32'(input_data[0 +: FIELD_BITS]) < KEY_SPACE_U);
+    assign probe_raddr = key_in_range ? AWIDTH'(32'(input_data[0 +: FIELD_BITS])) : '0;
 
     // a probe w0 is being accepted this cycle and will advance to S_PROBE_W1
     // (the table read is issued here and lands in S_PROBE_W1); never for a
@@ -207,18 +253,20 @@ module dau_int32_broadcast_hash_join #(
             mem_wdata = '0;  // valid = 0
         end else if (input_fire && (state == S_LOAD_W1)) begin
             mem_we = 1'b1;
-            mem_waddr = row_w0[AWIDTH-1:0];  // the build key (range-checked at S_LOAD_W0)
-            mem_wdata = {1'b1, input_data[63:32], input_data[31:0], row_w0[63:32]};
+            mem_waddr = AWIDTH'(32'(row_w0[0 +: FIELD_BITS]));  // the build key (range-checked at S_LOAD_W0)
+            mem_wdata = {1'b1, row_lanes[3*FIELD_BITS +: FIELD_BITS],
+                               row_lanes[2*FIELD_BITS +: FIELD_BITS],
+                               row_lanes[1*FIELD_BITS +: FIELD_BITS]};
         end
     end
 
     // the joined output row's data fields, selected from the build payload
-    // (read_slot) and the probe payload (row_w0.hi = v0, input_data = v1|v2)
-    assign hit = read_slot[96];
-    function automatic logic [31:0] join_select(
+    // (read_slot, lanes b0/b1/b2) and the probe payload (row lanes 1/2/3)
+    assign hit = read_slot[SLOTW-1];
+    function automatic logic [FIELD_BITS-1:0] join_select(
         input logic [2:0]  sel,
-        input logic [31:0] b0, input logic [31:0] b1, input logic [31:0] b2,
-        input logic [31:0] v0, input logic [31:0] v1, input logic [31:0] v2
+        input logic [FIELD_BITS-1:0] b0, input logic [FIELD_BITS-1:0] b1, input logic [FIELD_BITS-1:0] b2,
+        input logic [FIELD_BITS-1:0] v0, input logic [FIELD_BITS-1:0] v1, input logic [FIELD_BITS-1:0] v2
     );
         begin
             unique case (sel)
@@ -232,12 +280,18 @@ module dau_int32_broadcast_hash_join #(
         end
     endfunction
 
-    assign join_out0 = join_select(active_out0, read_slot[31:0], read_slot[63:32], read_slot[95:64],
-        row_w0[63:32], input_data[31:0], input_data[63:32]);
-    assign join_out1 = join_select(active_out1, read_slot[31:0], read_slot[63:32], read_slot[95:64],
-        row_w0[63:32], input_data[31:0], input_data[63:32]);
-    assign join_out2 = join_select(active_out2, read_slot[31:0], read_slot[63:32], read_slot[95:64],
-        row_w0[63:32], input_data[31:0], input_data[63:32]);
+    assign join_out0 = join_select(active_out0,
+        read_slot[0*FIELD_BITS +: FIELD_BITS], read_slot[1*FIELD_BITS +: FIELD_BITS], read_slot[2*FIELD_BITS +: FIELD_BITS],
+        row_lanes[1*FIELD_BITS +: FIELD_BITS], row_lanes[2*FIELD_BITS +: FIELD_BITS], row_lanes[3*FIELD_BITS +: FIELD_BITS]);
+    assign join_out1 = join_select(active_out1,
+        read_slot[0*FIELD_BITS +: FIELD_BITS], read_slot[1*FIELD_BITS +: FIELD_BITS], read_slot[2*FIELD_BITS +: FIELD_BITS],
+        row_lanes[1*FIELD_BITS +: FIELD_BITS], row_lanes[2*FIELD_BITS +: FIELD_BITS], row_lanes[3*FIELD_BITS +: FIELD_BITS]);
+    assign join_out2 = join_select(active_out2,
+        read_slot[0*FIELD_BITS +: FIELD_BITS], read_slot[1*FIELD_BITS +: FIELD_BITS], read_slot[2*FIELD_BITS +: FIELD_BITS],
+        row_lanes[1*FIELD_BITS +: FIELD_BITS], row_lanes[2*FIELD_BITS +: FIELD_BITS], row_lanes[3*FIELD_BITS +: FIELD_BITS]);
+    // the joined row is a ROW, so its lanes pack at the element's width and
+    // the two stream words are its halves; at int32 the lanes fill the row
+    assign out_row = ROW_BITS'({join_out2, join_out1, join_out0, row_lanes[0*FIELD_BITS +: FIELD_BITS]});
 
     // zero-init so a probe before any load is a well-defined empty table
     // (Vivado carries the INIT into the BRAM)
@@ -351,8 +405,8 @@ module dau_int32_broadcast_hash_join #(
                         if (hit) begin
                             if (held_valid) start_emit(held_w0, held_w1, 1'b0);
                             held_valid <= 1'b1;
-                            held_w0 <= {join_out0, row_w0[31:0]};  // {out0, key}
-                            held_w1 <= {join_out2, join_out1};     // {out2, out1}
+                            held_w0 <= out_row[63:0];    // {out0, key} at int32
+                            held_w1 <= out_row[127:64];  // {out2, out1} at int32
                             joined_count <= joined_count + 64'd1;
                         end
                         if (input_last) begin

@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 `default_nettype none
 
-module dau_int32_stream_aggregation_tb;
+module dau_stream_aggregation_tb;
     localparam logic [15:0] LT_INT32   = 16'd12;
     localparam logic [15:0] LT_INT64   = 16'd13;
     localparam logic [15:0] LT_UINT64  = 16'd23;
@@ -31,7 +31,7 @@ module dau_int32_stream_aggregation_tb;
     logic error;
     logic [7:0] error_code;
 
-    dau_int32_stream_aggregation dut (
+    dau_stream_aggregation dut (
         .clk(clk),
         .rst(rst),
         .descriptor_valid(descriptor_valid),
@@ -162,7 +162,7 @@ module dau_int32_stream_aggregation_tb;
             $fatal(1, "malformed descriptor was not rejected");
         end
 
-        $display("DAU_INT32_STREAM_AGGREGATION_TB_OK");
+        $display("DAU_STREAM_AGGREGATION_TB_OK");
         $finish;
     end
 endmodule

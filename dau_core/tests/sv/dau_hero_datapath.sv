@@ -181,7 +181,7 @@ module dau_hero_datapath #(
         .output_valid(ky_v), .output_ready(ky_r), .output_data(ky_d), .output_last(ky_l),
         .status_valid(buck_sv), .status_ready(1'b1), .status_error(buck_se), .status_error_code(buck_sc)
     );
-    dau_int32_grouped_field_aggregation u_agg (
+    dau_grouped_field_aggregation u_agg (
         .clk(clk), .rst(rst),
         .input_valid(ky_v), .input_ready(ky_r), .input_data(ky_d), .input_last(ky_l),
         .output_valid(ag_v), .output_ready(ag_r), .output_data(ag_d), .output_last(ag_l),
@@ -194,7 +194,7 @@ module dau_hero_datapath #(
     );
     logic roll_sv, roll_se; logic [7:0] roll_sc;
 
-    dau_int32_rolling_moments #(.WINDOW(WINDOW)) u_roll (
+    dau_rolling_moments #(.WINDOW(WINDOW)) u_roll (
         .clk(clk), .rst(rst),
         .input_valid(rl_v), .input_ready(rl_r), .input_data(rl_d), .input_last(rl_l),
         .output_valid(output_valid), .output_ready(output_ready), .output_data(output_data), .output_last(output_last),

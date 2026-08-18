@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from dau_core.hdl import DAU_INT32_ARROW_LITE_STREAM_AGGREGATION_SV, DAU_INT32_STREAM_AGGREGATION_SV
+from dau_core.hdl import DAU_ARROW_LITE_STREAM_AGGREGATION_SV, DAU_STREAM_AGGREGATION_SV
 
 
 def test_packaged_int32_stream_aggregation_exposes_descriptor_ports() -> None:
-    source = DAU_INT32_STREAM_AGGREGATION_SV.read_text()
+    source = DAU_STREAM_AGGREGATION_SV.read_text()
 
-    assert DAU_INT32_STREAM_AGGREGATION_SV.is_file()
-    assert "module dau_int32_stream_aggregation" in source
+    assert DAU_STREAM_AGGREGATION_SV.is_file()
+    assert "module dau_stream_aggregation" in source
     for port in (
         "input  wire logic              descriptor_valid",
         "output logic                   descriptor_ready",
@@ -26,9 +26,13 @@ def test_packaged_int32_stream_aggregation_exposes_descriptor_ports() -> None:
 
 
 def test_packaged_int32_stream_aggregation_names_stream_protocol_constants() -> None:
-    source = DAU_INT32_STREAM_AGGREGATION_SV.read_text()
+    source = DAU_STREAM_AGGREGATION_SV.read_text()
 
-    assert "localparam logic [15:0] LT_INT32  = 16'd12;" in source
+    # the INPUT column's logical type is now DERIVED from the element type the
+    # tile is built for (int8/16/32/64 are 10, 11, 12, 13), so the constant
+    # naming 12 is gone and the derivation is what has to be pinned; the RESULT
+    # type is INT64/UINT64 at every element and stays a literal
+    assert "localparam logic [15:0] LT_ELEMENT = 16'(10 + $clog2(VALUE_BYTES));" in source
     assert "localparam logic [15:0] LT_INT64  = 16'd13;" in source
     assert "localparam logic [15:0] LT_UINT64 = 16'd23;" in source
     assert "localparam logic [7:0] ERR_DESCRIPTOR = 8'd1;" in source
@@ -36,10 +40,10 @@ def test_packaged_int32_stream_aggregation_names_stream_protocol_constants() -> 
 
 
 def test_packaged_arrow_lite_stream_aggregation_exposes_packed_ready_valid_ports() -> None:
-    source = DAU_INT32_ARROW_LITE_STREAM_AGGREGATION_SV.read_text()
+    source = DAU_ARROW_LITE_STREAM_AGGREGATION_SV.read_text()
 
-    assert DAU_INT32_ARROW_LITE_STREAM_AGGREGATION_SV.is_file()
-    assert "module dau_int32_arrow_lite_stream_aggregation" in source
+    assert DAU_ARROW_LITE_STREAM_AGGREGATION_SV.is_file()
+    assert "module dau_arrow_lite_stream_aggregation" in source
     for port in (
         "input  wire logic        input_valid",
         "output logic             input_ready",
@@ -58,7 +62,7 @@ def test_packaged_arrow_lite_stream_aggregation_exposes_packed_ready_valid_ports
 
 
 def test_packaged_arrow_lite_stream_aggregation_names_protocol_layout_constants() -> None:
-    source = DAU_INT32_ARROW_LITE_STREAM_AGGREGATION_SV.read_text()
+    source = DAU_ARROW_LITE_STREAM_AGGREGATION_SV.read_text()
 
     assert "localparam logic [31:0] DAU_MAGIC = 32'h44415531;" in source
     assert "localparam logic [63:0] INPUT_PAYLOAD_OFFSET = 64'd192;" in source

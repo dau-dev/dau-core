@@ -73,7 +73,7 @@ print(tile.kind.value)                     # "operator"
 print(tile.golden)                         # "dau_core.operators:filter_values"
 print(tile.resources)                      # measured LUT/FF/BRAM/DSP envelope
 
-sources_for("int32-stream-aggregation")    # dependency-closed HDL paths, in order
+sources_for("stream-aggregation")    # dependency-closed HDL paths, in order
 ```
 
 The registered palette today: 45 operator tiles (filters, maps,
@@ -129,7 +129,7 @@ spec = ScanCompositionSpec(
     name="bar-noc-4",
     lanes=tuple(
         LaneSpec(
-            tile=TileSpec(core="int32-bar-aggregation", config={"cfg_mode": "2'd0"}),
+            tile=TileSpec(core="bar-aggregation", config={"cfg_mode": "2'd0"}),
             partition=TileSpec(core="pair-key-filter",
                                config={"cfg_key_mask": "32'd3", "cfg_key_match": f"32'd{lane}"}),
         )
@@ -149,7 +149,7 @@ Most operator cores take one quad row per cycle. A `wide-row-stream` core
 takes the reader's WHOLE beat — `SLOTS = data_width / 128` quad rows every
 cycle, no dispatcher and no fan-out — and the three row operators have wide
 counterparts (`wide-row-predicate-filter`, `int32-wide-row-map-alu`,
-`int32-wide-field-sum-aggregation`). The substitution is 1:1: same configs,
+`wide-field-sum-aggregation`). The substitution is 1:1: same configs,
 same order, only the core names change.
 
 `data_width` must equal `SLOTS * 128` or construction raises
@@ -162,7 +162,7 @@ spec = ScanCompositionSpec(
     data_width=512,   # SLOTS=4: four quad rows per cycle
     lanes=(
         LaneSpec(
-            tile=TileSpec(core="int32-wide-field-sum-aggregation",
+            tile=TileSpec(core="wide-field-sum-aggregation",
                           config={"cfg_field_mask": "4'b0010"}),
             chain=(
                 # shipdate >= 8766 AND shipdate < 9131

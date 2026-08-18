@@ -1,5 +1,7 @@
 `default_nettype none
 
+`include "types.svh"
+
 // Per-symbol rolling-moment tile (the roll stage of the temporal workflow,
 // over the reduced bar/feature stream). Over a count-based window of the last
 // WINDOW values per symbol, emits the deferred-division moment record
@@ -9,33 +11,43 @@
 // Matches dau_core.temporal.rolling_moments/rolling_sum (warm-up rows, where
 // the window is not yet full, are dropped — the None entries the golden emits).
 //
-// The input is one host-sorted, symbol-grouped stream, one 32-bit value per
-// row (w0 = {value[31:0], symbol_id[31:0]}, both signed INT32; input_last on
-// the word ends the stream). Because the stream is symbol-grouped, exactly one
+// The input is one host-sorted, symbol-grouped stream, one value per
+// row (w0 = {value, symbol_id[31:0]}, the value in the word's upper lane at
+// VALUE_WIDTH; input_last on
+// the word ends the stream). The SYMBOL ID is a 32-bit container, not an
+// element -- it identifies a series rather than measuring anything, and the
+// rolling extremum tile, which alternates with this one in a composition,
+// fixes it the same way. Because the stream is symbol-grouped, exactly one
 // symbol is live at a time, so the tile holds ONE window (a depth-WINDOW shift
 // register) reset on symbol change — the bar tile's key-change shape, no
-// per-symbol table. sum/sum_sq are INT64; a value column exceeding INT32 is a
-// host-side rescale (a wide variant is a follow-up).
+// per-symbol table. sum/sum_sq are INT64, which is what bounds VALUE_WIDTH
+// from above.
 //
-// ARITHMETIC PRECONDITION, and it binds INSIDE the int32 domain: sum_sq
-// accumulates WINDOW squares, so the host must guarantee
+// ARITHMETIC PRECONDITION, and at int32 it binds INSIDE the declared domain:
+// sum_sq accumulates WINDOW squares, so the host must guarantee
 //     WINDOW * max(|value|)**2 <= 2**63 - 1
 // Full-range int32 does NOT satisfy this. (2**31-1)**2 is already 2**61, so
 // the sum of squares needs 64 bits at WINDOW=3 and 68 at WINDOW=64 -- it
-// wraps SILENTLY and returns a wrong variance rather than an error. The
-// sentence above only ever addressed values LARGER than int32; values at the
-// top of the declared domain break it just as thoroughly.
+// wraps SILENTLY and returns a wrong variance rather than an error.
 //
-// The largest magnitude each window admits:
+// The largest magnitude each window admits at int32:
 //     WINDOW   2 -> |v| <= 2,147,483,647   (full int32, the only safe window)
 //     WINDOW   4 -> |v| <= 1,518,500,249
 //     WINDOW   8 -> |v| <= 1,073,741,823
 //     WINDOW  64 -> |v| <= 379,625,062
 //     WINDOW 256 -> |v| <= 189,812,531
 // The tile cannot check this -- it sees one row at a time and has no bound to
-// compare against -- so the proof lives in the LOWERING: dau-polars refuses to
-// route a rolling scan whose value column declares no `magnitude_bits`, and
-// checks WINDOW against the declared bound when it does.
+// compare against -- so the obligation is DECLARED in three places that can:
+// the registry entry states it, dau_core.temporal.rolling_moments REFUSES a
+// window whose sum of squares leaves INT64 (so the golden can never quietly
+// disagree with this datapath), and the lowering proves it ahead of time --
+// dau-polars refuses a rolling scan whose value column declares no
+// `magnitude_bits`, and checks WINDOW against the declared bound when it does.
+//
+// NARROWING THE ELEMENT WEAKENS THE PRECONDITION, which is the one direction
+// it can move: at int16 the whole declared domain is safe to WINDOW = 2**33,
+// so the obligation becomes vacuous. Widening would make it worse, and the
+// guard below refuses it.
 //
 // The moment update runs in four beats (READ -> MUL -> DIFF -> UPDATE) so no
 // register-to-register path carries more than one operation: READ latches the
@@ -55,14 +67,24 @@
 // when the stream ends on a warm-up or symbol-change row (the row-stream
 // contract). WINDOW >= 2 (a size-1 sample variance is undefined; the compiler
 // residues it).
-module dau_int32_rolling_moments #(
-    parameter int WINDOW = 4
+module dau_rolling_moments #(
+    parameter int WINDOW = 4,
+    // The ELEMENT TYPE of the value lane, as encoded by types.svh -- what a
+    // value IS, from which its width follows. The symbol id beside it is a
+    // 32-bit container and does not move. `DAU_TYPE_INT32 is 32, so the
+    // default reads exactly the {value, symbol} word the tile has always read.
+    parameter int VALUE_WIDTH = `DAU_TYPE_INT32
 ) (
     input  wire logic        clk,
     input  wire logic        rst,
     input  wire logic        input_valid,
     output logic             input_ready,
+    // the symbol id and, above it, the value. At the default int32 those fill
+    // the word; a narrower element leaves the bits above the value reserved
+    // and unread (the streaming dedup says the same about its row).
+    /* verilator lint_off UNUSEDSIGNAL */
     input  wire logic [63:0] input_data,
+    /* verilator lint_on UNUSEDSIGNAL */
     input  wire logic        input_last,
     output logic             output_valid,
     input  wire logic        output_ready,
@@ -75,9 +97,30 @@ module dau_int32_rolling_moments #(
     output logic [63:0]      moment_count
 );
     localparam int CW = $clog2(WINDOW + 1);
+    localparam int SYMBOL_BITS = 32;  // the series id: a container, not an element
+    localparam int VALUE_BITS      = `DAU_TYPE_WIDTH(VALUE_WIDTH);
+    localparam int VALUE_IS_FLOAT  = `DAU_TYPE_IS_FLOAT(VALUE_WIDTH);
+    localparam int VALUE_IS_SIGNED = `DAU_TYPE_IS_SIGNED(VALUE_WIDTH);
 
     if (WINDOW < 2) begin : g_param_check
         $error("WINDOW must be >= 2 (a size-1 sample variance is undefined)");
+    end
+    // The upper bound is sum_sq: 32 is where a squared value still leaves the
+    // INT64 accumulator any window at all (see the precondition above), and a
+    // wider element would need a wider record, i.e. a different tile. The
+    // lower bound is the palette's narrowest element.
+    if (VALUE_BITS < 8 || VALUE_BITS > 32) begin : g_value_width_check
+        $error("VALUE_WIDTH must be in [8, 32]");
+    end
+    // A TYPE IS NOT A CAPABILITY. The datapath sums the value and its square
+    // into two's-complement INT64 accumulators through a signed DSP multiply:
+    // handed a float it would multiply exponent bits, and handed an unsigned
+    // type it would read every high-bit-set value as negative.
+    if (VALUE_IS_FLOAT != 0) begin : g_value_float_check
+        $error("VALUE_WIDTH must not name a floating-point type: this tile sums two's-complement integers and their squares");
+    end
+    if (VALUE_IS_SIGNED == 0) begin : g_value_signed_check
+        $error("VALUE_WIDTH must not name an unsigned type: this tile sign-extends into signed accumulators");
     end
 
     typedef enum logic [2:0] {
@@ -94,8 +137,8 @@ module dau_int32_rolling_moments #(
     state_t state;
 
     logic               group_valid;
-    logic signed [31:0] cur_symbol;
-    logic signed [31:0] win [WINDOW];
+    logic signed [SYMBOL_BITS-1:0] cur_symbol;
+    logic signed [VALUE_BITS-1:0] win [WINDOW];
     logic [CW-1:0]      filled;
     logic signed [63:0] total;
     logic signed [63:0] total_sq;
@@ -103,16 +146,16 @@ module dau_int32_rolling_moments #(
     // control bits + values riding the four-beat pipeline (wide accumulators are
     // NOT carried — UPDATE reads the committed total)
     // stage 1 (READ)
-    logic signed [31:0] s_symbol;
+    logic signed [SYMBOL_BITS-1:0] s_symbol;
     logic               s_last;
     logic               s_new_group;
     logic               s_window_full;
     logic [CW-1:0]      s_eff_filled;
     logic signed [63:0] s_delta;
-    logic signed [31:0] s_value;
-    logic signed [31:0] s_departing;
+    logic signed [VALUE_BITS-1:0] s_value;
+    logic signed [VALUE_BITS-1:0] s_departing;
     // stage 2 (MUL)
-    logic signed [31:0] t_symbol;
+    logic signed [SYMBOL_BITS-1:0] t_symbol;
     logic               t_last;
     logic               t_new_group;
     logic               t_window_full;
@@ -121,7 +164,7 @@ module dau_int32_rolling_moments #(
     logic signed [63:0] t_val_sq;
     logic signed [63:0] t_dep_sq;
     // stage 3 (DIFF)
-    logic signed [31:0] u_symbol;
+    logic signed [SYMBOL_BITS-1:0] u_symbol;
     logic               u_last;
     logic               u_new_group;
     logic               u_window_full;
@@ -130,12 +173,12 @@ module dau_int32_rolling_moments #(
     logic signed [63:0] u_delta_sq;
 
     // the moment record being emitted, and the one-row look-ahead buffer
-    logic signed [31:0] emit_symbol;
+    logic signed [SYMBOL_BITS-1:0] emit_symbol;
     logic signed [63:0] emit_total;
     logic signed [63:0] emit_total_sq;
     logic               emit_final;
     logic               buf_valid;
-    logic signed [31:0] buf_symbol;
+    logic signed [SYMBOL_BITS-1:0] buf_symbol;
     logic signed [63:0] buf_total;
     logic signed [63:0] buf_total_sq;
     logic               post_emit_flush;
@@ -144,12 +187,12 @@ module dau_int32_rolling_moments #(
     logic output_fire;
     logic status_fire;
 
-    logic signed [31:0] row_symbol;
-    logic signed [31:0] row_value;
+    logic signed [SYMBOL_BITS-1:0] row_symbol;
+    logic signed [VALUE_BITS-1:0] row_value;
     logic               new_group;
     logic [CW-1:0]      eff_filled;
     logic               window_full;
-    logic signed [31:0] departing;
+    logic signed [VALUE_BITS-1:0] departing;
 
     // UPDATE-beat fold: effective prior accumulator (committed total, zeroed on a
     // symbol change) plus the registered increments
@@ -164,8 +207,8 @@ module dau_int32_rolling_moments #(
     assign output_fire = output_valid && output_ready;
     assign status_fire = status_valid && status_ready;
 
-    assign row_symbol = signed'(input_data[31:0]);
-    assign row_value = signed'(input_data[63:32]);
+    assign row_symbol = signed'(input_data[0 +: SYMBOL_BITS]);
+    assign row_value = signed'(input_data[SYMBOL_BITS +: VALUE_BITS]);
 
     // effective prior window at READ: empty when this row opens a new group
     assign new_group = !group_valid || (row_symbol != cur_symbol);
@@ -173,7 +216,7 @@ module dau_int32_rolling_moments #(
     assign window_full = (eff_filled == WINDOW[CW-1:0]);
     // the value leaving the window when it is already full; nothing departs
     // while the window is still filling
-    assign departing = window_full ? win[WINDOW-1] : 32'sd0;
+    assign departing = window_full ? win[WINDOW-1] : '0;
 
     assign eff_total = u_new_group ? 64'sd0 : total;
     assign eff_total_sq = u_new_group ? 64'sd0 : total_sq;
@@ -350,7 +393,7 @@ module dau_int32_rolling_moments #(
     endtask
 
     task automatic set_buffer(
-        input logic signed [31:0] symbol,
+        input logic signed [SYMBOL_BITS-1:0] symbol,
         input logic signed [63:0] sum,
         input logic signed [63:0] sum_sq
     );
@@ -401,19 +444,19 @@ module dau_int32_rolling_moments #(
     task automatic reset_state;
         begin
             reset_stream_state();
-            cur_symbol <= 32'sd0;
+            cur_symbol <= '0;
             for (int i = 0; i < WINDOW; i++) begin
-                win[i] <= 32'sd0;
+                win[i] <= '0;
             end
-            s_symbol <= 32'sd0;
+            s_symbol <= '0;
             s_last <= 1'b0;
             s_new_group <= 1'b0;
             s_window_full <= 1'b0;
             s_eff_filled <= '0;
             s_delta <= 64'sd0;
-            s_value <= 32'sd0;
-            s_departing <= 32'sd0;
-            t_symbol <= 32'sd0;
+            s_value <= '0;
+            s_departing <= '0;
+            t_symbol <= '0;
             t_last <= 1'b0;
             t_new_group <= 1'b0;
             t_window_full <= 1'b0;
@@ -421,17 +464,17 @@ module dau_int32_rolling_moments #(
             t_delta <= 64'sd0;
             t_val_sq <= 64'sd0;
             t_dep_sq <= 64'sd0;
-            u_symbol <= 32'sd0;
+            u_symbol <= '0;
             u_last <= 1'b0;
             u_new_group <= 1'b0;
             u_window_full <= 1'b0;
             u_eff_filled <= '0;
             u_delta <= 64'sd0;
             u_delta_sq <= 64'sd0;
-            emit_symbol <= 32'sd0;
+            emit_symbol <= '0;
             emit_total <= 64'sd0;
             emit_total_sq <= 64'sd0;
-            buf_symbol <= 32'sd0;
+            buf_symbol <= '0;
             buf_total <= 64'sd0;
             buf_total_sq <= 64'sd0;
         end

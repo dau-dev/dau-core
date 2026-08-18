@@ -9,7 +9,7 @@ would have dropped 11 of the 19 characters with nothing raised.
 
 The guard is deliberately narrow. `output_record_words` counts words in a
 logical RECORD, not bits in a beat, and 35 of the 36 literal-width tiles
-declare MORE words than one beat holds -- `int32-rolling-moments` declares 3
+declare MORE words than one beat holds -- `rolling-moments` declares 3
 on a 64-bit port and streams them as three consecutive beats. That is the
 convention and it is fine. The only thing that is never fine is a record
 declared too small to hold a single beat of itself, which is unsatisfiable

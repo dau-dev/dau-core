@@ -179,7 +179,7 @@ def test_every_selectable_operator_declares_its_ingest_rate() -> None:
         "stride-distributor",
         "wide-row-predicate-filter",
         "int32-wide-row-map-alu",
-        "int32-wide-field-sum-aggregation",
+        "wide-field-sum-aggregation",
         "record-gearbox",
     }
     # a rate that scales with a module parameter must name a declared one
@@ -208,7 +208,7 @@ def test_every_selectable_operator_declares_its_contract_kind() -> None:
     # pinned as a set: no Arrow-lite validator exists yet, so a newly
     # descriptor-tagged operator would skip conformance — confirm intent here
     descriptor = {d.name for d in own_cores() if d.kind is CoreKind.OPERATOR and d.contract_kind is ContractKind.ARROW_LITE_DESCRIPTOR}
-    assert descriptor == {"int32-stream-aggregation"}, "descriptor-tagged operator set changed — confirm intent"
+    assert descriptor == {"stream-aggregation"}, "descriptor-tagged operator set changed — confirm intent"
     # only operators declare a stream contract
     for definition in loaded_cores().values():
         if definition.kind is not CoreKind.OPERATOR:
@@ -239,12 +239,12 @@ def test_only_combinational_per_beat_cores_support_pipeline_depth() -> None:
 
 
 def test_sources_for_closes_dependencies_in_order() -> None:
-    sources = sources_for("int32-stream-aggregation")
+    sources = sources_for("stream-aggregation")
     names = [path.name for path in sources]
-    assert names == ["dau_aggregation_pkg.sv", "dau_int32_stream_aggregation.sv"]
+    assert names == ["dau_aggregation_pkg.sv", "dau_stream_aggregation.sv"]
 
     # composing the NoC lane set resolves every block once
-    lane = sources_for("axi-burst-reader", "stream-broadcast", "pair-key-filter", "int32-bar-aggregation", "axi-record-writer", "axi-write-mux")
+    lane = sources_for("axi-burst-reader", "stream-broadcast", "pair-key-filter", "bar-aggregation", "axi-record-writer", "axi-write-mux")
     assert len(lane) == len(set(lane)) == 6
 
 
@@ -253,7 +253,7 @@ def test_lookup_errors_are_typed() -> None:
         core("no-such-core")
     with pytest.raises(UnknownCoreError):
         core_for_module("no_such_module")
-    assert core_for_module("dau_int32_bar_aggregation").name == "int32-bar-aggregation"
+    assert core_for_module("dau_bar_aggregation").name == "bar-aggregation"
 
 
 def test_synthesizable_cores_carry_measured_envelopes() -> None:
@@ -342,8 +342,9 @@ def test_the_scalar_envelope_holdouts_are_exactly_the_declared_ones() -> None:
 # 43 as of 2026-08-16; 36 once the seven fixed-point and transcendental
 # tiles landed their rename, 31 once the five dau-core-only tiles
 # (scratchpad, keyed-state, session-gap, streaming-dedup and the stride
-# distributor) landed theirs, and 21 once the ten quad-row filter tiles
-# landed theirs. It ends at 5, NOT at 0: for the five REDESIGN
+# distributor) landed theirs, 21 once the ten quad-row filter tiles landed
+# theirs, and 9 once the twelve aggregation tiles landed theirs. It ends at
+# 5, NOT at 0: for the five REDESIGN
 # tiles below the width is a true statement about the contract, and
 # replacing a true name with a false one is the exact failure this rule
 # exists to prevent. Each of those five leaves when its redesign lands.
@@ -360,24 +361,10 @@ WIDTH_NAMED_TILES: frozenset[str] = frozenset(
         # package is not.
         "int32-row-map-alu",  # blocked on dau_map_alu_pkg, which is 32-bit throughout
         "int32-wide-row-map-alu",  # same block; generalize the package once and four tiles follow
-        # RETYPE-DOWN -- the emitted record's width is a function of the
-        # input width. int8/int16 ride free (the INT64 accumulator is ample
-        # and only framing changes); int64 CANNOT, because the sums need more
-        # than 64 bits and the record cannot express them -- that is a
-        # versioned stream-format change, i.e. a different tile. Removed by
-        # deciding the narrow-type record packing rule ONCE for the family.
-        "int32-field-sum-aggregation",
-        "int32-grouped-field-sum-aggregation",
-        "int32-grouped-field-aggregation",  # 11-word record packs pairs two-per-64-bit-word, host-decode-visible
-        "int32-grouped-aggregation",
-        "int32-bar-aggregation",  # 6-word record, same packing question
-        "int32-wide-field-sum-aggregation",
-        "int32-stream-aggregation",
-        "int32-arrow-lite-stream-aggregation",
-        "int32-record-batch-aggregation",
-        "int32-hash-grouped-aggregation",
-        "int32-rolling-moments",  # carries an undeclared sum_sq magnitude precondition; widening makes it worse, so declare or fix it first
-        "int32-broadcast-hash-join",  # slot is {valid, b0, b1, b2}, so BRAM cost moves with the type: every offered type is its own measured point
+        # The RETYPE-DOWN group (the twelve aggregation tiles) left here. The
+        # rule that freed them: the element type sizes LANES, never SLOTS, so
+        # the emitted record keeps its word count and its slot boundaries at
+        # every width and only the accumulators bound the type from above.
         # RENAME -- the name is already false and no RTL changes. Both are in
         # the built `hero-temporal` design, so they carry a cache and silicon
         # consequence the seven already-renamed tiles did not.
@@ -499,7 +486,7 @@ def test_registry_is_hydra_composition_not_a_python_literal() -> None:
     registry = load_config(overwrite=True)
     names = set(registry.models["dau-core"].models)
     assert names == set(loaded_cores()), "registry path view and accessor view drifted"
-    assert "int32-bar-aggregation" in names
+    assert "bar-aggregation" in names
 
 
 def test_accessors_defer_to_a_composed_registry() -> None:
@@ -509,11 +496,11 @@ def test_accessors_defer_to_a_composed_registry() -> None:
     from dau_core.config import load_config
 
     try:
-        load_config(["dau-core.int32-bar-aggregation.description=OVERRIDDEN"], overwrite=True)
-        assert core("int32-bar-aggregation").description == "OVERRIDDEN"
+        load_config(["dau-core.bar-aggregation.description=OVERRIDDEN"], overwrite=True)
+        assert core("bar-aggregation").description == "OVERRIDDEN"
     finally:
         load_config(overwrite=True)  # restore packaged defaults
-    assert core("int32-bar-aggregation").description != "OVERRIDDEN"
+    assert core("bar-aggregation").description != "OVERRIDDEN"
 
 
 def test_silent_on_success_operator_set_is_pinned() -> None:
@@ -539,7 +526,7 @@ def test_silent_on_success_operator_set_is_pinned() -> None:
         "fixed-point-exp-light",
         "fixed-point-ln",
         "key-membership-filter",
-        "int32-broadcast-hash-join",
+        "broadcast-hash-join",
         "row-unpack",
         "int32-record-gather",
         "time-bucket-key",
@@ -549,7 +536,7 @@ def test_silent_on_success_operator_set_is_pinned() -> None:
     }
     # the grouped multi-sum tile emits many group records but exactly ONE
     # success close-out per batch (after the final group) — terminal-legal
-    assert core("int32-grouped-field-sum-aggregation").success_close_out
+    assert core("grouped-field-sum-aggregation").success_close_out
 
 
 def test_dispatcher_rate_still_needs_record_aware_modeling() -> None:

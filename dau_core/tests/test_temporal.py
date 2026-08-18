@@ -174,6 +174,19 @@ def test_moment_var_is_exact_at_fixed_point_magnitudes() -> None:
     assert moment_var(m, ddof=1) == 1.0
 
 
+def test_rolling_moments_refuses_a_window_that_overflows_the_tiles_sum_of_squares() -> None:
+    """The tile's INT64 sum_sq wraps silently; Python's integers do not. If the
+    golden answered anyway the two would disagree over exactly the inputs the
+    contract excludes, so it refuses instead."""
+    big = 2**31 - 1  # the top of the int32 domain: big**2 is already 2**61
+    with pytest.raises(ValueError, match="more than the tile's INT64"):
+        rolling_moments([(0, big), (0, big), (0, big), (0, big)], window=4)
+
+    # and the window the header calls the only safe one at full range is fine
+    (_, moment) = rolling_moments([(0, big), (0, big)], window=2)
+    assert moment.total_sq == 2 * big * big
+
+
 def test_moment_var_rejects_underdetermined_window() -> None:
     (m,) = rolling_moments([(0, 5)], window=1)
     with pytest.raises(ValueError, match="count > ddof"):

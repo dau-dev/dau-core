@@ -34,20 +34,20 @@ def test_registry_declares_hardware_opcodes_only_for_opcode_driven_tiles() -> No
     protocol-level (host divide) and must never be declared as hardware."""
     declared = {d.name: d for d in cores_of_kind(CoreKind.OPERATOR) if d.opcodes}
     assert set(declared) == {
-        "int32-stream-aggregation",
-        "int32-arrow-lite-stream-aggregation",
-        "int32-record-batch-aggregation",
-        "int32-field-sum-aggregation",
-        "int32-grouped-field-sum-aggregation",
-        "int32-hash-grouped-aggregation",
-        "int32-wide-field-sum-aggregation",
+        "stream-aggregation",
+        "arrow-lite-stream-aggregation",
+        "record-batch-aggregation",
+        "field-sum-aggregation",
+        "grouped-field-sum-aggregation",
+        "hash-grouped-aggregation",
+        "wide-field-sum-aggregation",
     }
     for definition in declared.values():
         if definition.name in (
-            "int32-field-sum-aggregation",
-            "int32-grouped-field-sum-aggregation",
-            "int32-hash-grouped-aggregation",
-            "int32-wide-field-sum-aggregation",
+            "field-sum-aggregation",
+            "grouped-field-sum-aggregation",
+            "hash-grouped-aggregation",
+            "wide-field-sum-aggregation",
         ):
             # the field-sum tiles have a sum+count datapath only: they must
             # never over-declare MIN/MAX they cannot execute
@@ -76,7 +76,7 @@ def test_bar_noc_contract_advertises_no_scalar_aggregation_hardware() -> None:
     assert contract.sort_capacity == 0
     assert contract.register_map_version == CURRENT_REGISTER_MAP_VERSION
     lane = contract.lanes[0]
-    assert lane.tile.core == "int32-bar-aggregation"
+    assert lane.tile.core == "bar-aggregation"
     assert lane.tile.count_port == "bar_count"
     assert lane.partition is not None and lane.partition.core == "pair-key-filter"
     assert dict(lane.partition.config)["cfg_key_match"] == "32'd0"
@@ -95,7 +95,7 @@ def test_sorted_scan_contract_carries_sorter_capacity_and_splitters() -> None:
 def test_scalar_aggregation_tile_contract_advertises_hardware_and_host_truth() -> None:
     contract = CapabilityContract(
         name="mm-stream-job",
-        lanes=(LaneCapability(tile=tile_capability("int32-record-batch-aggregation")),),
+        lanes=(LaneCapability(tile=tile_capability("record-batch-aggregation")),),
     )
     assert contract.hardware_opcodes == _HW_AGGREGATION_OPCODES
     assert contract.operator_bitmap == 0x1E
@@ -127,7 +127,7 @@ def test_contract_mapping_round_trips_and_is_json_able() -> None:
 
 
 def test_contract_to_design_counts_units_by_identical_tile() -> None:
-    aggregation = tile_capability("int32-record-batch-aggregation")
+    aggregation = tile_capability("record-batch-aggregation")
     sorter = tile_capability("bitonic-sorter")
     contract = CapabilityContract(
         name="mixed",
@@ -135,7 +135,7 @@ def test_contract_to_design_counts_units_by_identical_tile() -> None:
             LaneCapability(tile=aggregation),
             LaneCapability(tile=aggregation),
             LaneCapability(tile=sorter),
-            LaneCapability(tile=tile_capability("int32-bar-aggregation")),  # no unit contribution
+            LaneCapability(tile=tile_capability("bar-aggregation")),  # no unit contribution
         ),
     )
     design = contract.to_design()
@@ -154,9 +154,9 @@ def test_bar_noc_contract_design_offers_no_aggregation_capacity() -> None:
 
 
 def test_composition_and_hand_built_contracts_share_one_tile_derivation() -> None:
-    spec = ScanCompositionSpec(name="bar-scan", lanes=(LaneSpec(tile=TileSpec(core="int32-bar-aggregation", config={"cfg_mode": "2'd0"})),))
+    spec = ScanCompositionSpec(name="bar-scan", lanes=(LaneSpec(tile=TileSpec(core="bar-aggregation", config={"cfg_mode": "2'd0"})),))
     contract = capability_contract(spec)
-    assert contract.lanes[0].tile == tile_capability(TileSpec(core="int32-bar-aggregation", config={"cfg_mode": "2'd0"}))
+    assert contract.lanes[0].tile == tile_capability(TileSpec(core="bar-aggregation", config={"cfg_mode": "2'd0"}))
 
 
 def test_chain_lanes_carry_chain_capabilities_and_opcode_truth() -> None:
@@ -169,7 +169,7 @@ def test_chain_lanes_carry_chain_capabilities_and_opcode_truth() -> None:
         "row-predicate-filter",
         "int32-row-map-alu",
     ]
-    assert lane.tile.core == "int32-field-sum-aggregation"
+    assert lane.tile.core == "field-sum-aggregation"
     assert lane.tile.count_port == "aggregated_count"
     # the field-sum tile's real HDL opcodes reach the bitmap; AVERAGE derives
     # host-side from SUM+COUNT and never appears as hardware

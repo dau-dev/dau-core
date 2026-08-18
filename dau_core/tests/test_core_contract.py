@@ -28,7 +28,7 @@ def test_every_operator_conforms_to_the_stream_tile_contract() -> None:
     failures = []
     for definition in cores_of_kind(CoreKind.OPERATOR):
         # validator selection is registry data: only row-stream tiles run this
-        # check (int32-stream-aggregation declares the descriptor-driven
+        # check (stream-aggregation declares the descriptor-driven
         # Arrow-lite contract, which has no slang validator yet)
         if definition.contract_kind is not ContractKind.ROW_STREAM:
             continue

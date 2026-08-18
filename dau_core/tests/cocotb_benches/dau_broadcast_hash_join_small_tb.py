@@ -8,7 +8,7 @@ from dau_core.operators import (
     JoinSource,
     broadcast_hash_join_rows,
 )
-from dau_core.tests.cocotb_benches.dau_int32_broadcast_hash_join_tb import (
+from dau_core.tests.cocotb_benches.dau_broadcast_hash_join_tb import (
     _assert_quiescent,
     _drive_cfg,
     _expect_status,

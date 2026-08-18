@@ -126,7 +126,7 @@ def run_hero_workflow(
     if roll_value not in ROLL_FIELDS:
         raise ValueError(f"roll_value must be one of {ROLL_FIELDS} (the int32 bar prices the tile can window), got {roll_value!r}")
     if roll_window < 2:
-        raise ValueError(f"roll_window must be >= 2 (int32-rolling-moments requires WINDOW >= 2), got {roll_window}")
+        raise ValueError(f"roll_window must be >= 2 (rolling-moments requires WINDOW >= 2), got {roll_window}")
     trades = list(trades)
     quotes = list(quotes)
     n_input = len(trades) + len(quotes)  # the merged stream the as-of tile reads
