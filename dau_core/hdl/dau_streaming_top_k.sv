@@ -28,7 +28,7 @@
 // K in [1, 128] (dau_core.operators.TOP_K_MAX; a request outside is BAD_K at
 // composition time), enforced here by an elaboration guard. A row torn by
 // input_last on w0 is ERR_STREAM.
-module dau_int32_streaming_top_k #(
+module dau_streaming_top_k #(
     parameter int K = 8,
     // The ELEMENT TYPE of the row's lanes, as encoded by types.svh -- one
     // type for the key and the three payload lanes, because two lanes tile

@@ -765,12 +765,12 @@ int32-market-feature:
     per_cycles: 7
   success_close_out: true
 
-int32-time-bucket-key:
+time-bucket-key:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-time-bucket-key
+  name: time-bucket-key
   kind: operator
-  module: dau_int32_time_bucket_key
-  source: dau_int32_time_bucket_key.sv
+  module: dau_time_bucket_key
+  source: dau_time_bucket_key.sv
   description: 'Generic time-bucket key rewrite: replaces a row''s partition key with a composite (partition, time-bucket)
     group key so a downstream key-grouped aggregator (bar / grouped-sum) produces fixed-width TIME-WINDOWED groups per partition
     — workload-agnostic (finance time bars, TSBS window shapes, ...); the aggregation and any per-row derivation stay in
@@ -781,7 +781,7 @@ int32-time-bucket-key:
     that overflows its width is ERR_RANGE, never a silent alias). A mid-lane transform: silent on success (1:1 rows, output_last
     rides the last row), status on a torn row (ERR_STREAM) or an out-of-range key (ERR_RANGE); payload passes through.'
   golden: dau_core.operators:time_bucket_key_rows
-  bench: dau_core.tests.cocotb_benches.dau_int32_time_bucket_key_tb
+  bench: dau_core.tests.cocotb_benches.dau_time_bucket_key_tb
   # OOC BUCKET_BITS=16 xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +2.175)
   # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
   resources:
@@ -1054,12 +1054,12 @@ int32-hash-grouped-aggregation:
       scale_parameter: CAPACITY
       tier_hint: bram
 
-int32-streaming-top-k:
+streaming-top-k:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-streaming-top-k
+  name: streaming-top-k
   kind: operator
-  module: dau_int32_streaming_top_k
-  source: dau_int32_streaming_top_k.sv
+  module: dau_streaming_top_k
+  source: dau_streaming_top_k.sv
   description: 'Streaming top-k tile (ORDER BY <key> DESC LIMIT K): over quad rows (key, v0, v1, v2) keeps the K rows with
     the largest signed-INT32 sort key (field 0), ties by arrival (earliest wins), and at close-out drains them sorted key-descending
     — the q3/q10 and TSBS group-by-order-by-limit shape. The retained set lives in a size-K systolic sorted register array
@@ -1070,7 +1070,7 @@ int32-streaming-top-k:
     K in [1, 128] = dau_core.operators.TOP_K_MAX, BAD_K at composition time), enforced by an elaboration guard. A row torn
     by input_last on w0 is ERR_STREAM.'
   golden: dau_core.operators:streaming_top_k
-  bench: dau_core.tests.cocotb_benches.dau_int32_streaming_top_k_tb
+  bench: dau_core.tests.cocotb_benches.dau_streaming_top_k_tb
   # Full K surface on one unchanged source, measured via synthesize-cores
   # (2026-08-04 sweep): K in {1, 5, 8, 16, 32, 64, 128} x both parts. LUT
   # scales linearly (~152/cell) and WNS is flat across K on both parts —
@@ -1230,15 +1230,15 @@ int32-streaming-top-k:
       # only int32 is MEASURED; the RTL elaborates the whole declared range
       choices: [int32]
 
-int32-pair-key-filter:
+pair-key-filter:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-pair-key-filter
+  name: pair-key-filter
   kind: operator
-  module: dau_int32_pair_key_filter
-  source: dau_int32_pair_key_filter.sv
+  module: dau_pair_key_filter
+  source: dau_pair_key_filter.sv
   description: Key partition filter for 16-byte pair rows (NoC lane splitter).
   golden: dau_core.operators:filter_bar_rows_by_key
-  bench: dau_core.tests.cocotb_benches.dau_int32_pair_key_filter_tb
+  bench: dau_core.tests.cocotb_benches.dau_pair_key_filter_tb
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -1295,15 +1295,15 @@ int32-pair-key-filter:
       # only int32 is MEASURED; the RTL elaborates the whole declared range
       choices: [int32]
 
-int32-range-partitioner:
+range-partitioner:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-range-partitioner
+  name: range-partitioner
   kind: operator
-  module: dau_int32_range_partitioner
-  source: dau_int32_range_partitioner.sv
+  module: dau_range_partitioner
+  source: dau_range_partitioner.sv
   description: 'HARP-style range partitioner: fans one scan of 16-byte pair rows to NUM_PARTITIONS key-ordered lanes.'
   golden: dau_core.operators:range_partition_bar_rows
-  bench: dau_core.tests.cocotb_benches.dau_int32_range_partitioner_tb
+  bench: dau_core.tests.cocotb_benches.dau_range_partitioner_tb
   # OOC N=4
   resources:
     - part: xc7a200tfbg484-2
@@ -1416,12 +1416,12 @@ record-gearbox:
       minimum: 1
       maximum: 16
 
-int32-key-mask-dispatcher:
+key-mask-dispatcher:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-key-mask-dispatcher
+  name: key-mask-dispatcher
   kind: operator
-  module: dau_int32_key_mask_dispatcher
-  source: dau_int32_key_mask_dispatcher.sv
+  module: dau_key_mask_dispatcher
+  source: dau_key_mask_dispatcher.sv
   description: 'Key-mask dispatcher: fans one scan of 16-byte quad rows to NUM_PARTITIONS lanes by the key''s low bits (dest
     = key & (NUM_PARTITIONS-1), a power of two) — the broadcast + per-lane pair-key-filter shape folded into one shared
     router, so each row is delivered once instead of N times. MODE selects the decode (dau_core.operators.DispatchMode):
@@ -1435,7 +1435,11 @@ int32-key-mask-dispatcher:
     operator widens). Same-lane runs throttle on the lane''s two-beat drain (single-row skid, head-of-line); mask-distributed
     keys sustain the full front rate.'
   golden: dau_core.operators:mask_dispatch_rows
-  bench: dau_core.tests.cocotb_benches.dau_int32_key_mask_dispatcher_tb
+  bench: dau_core.tests.cocotb_benches.dau_key_mask_dispatcher_tb
+  # routes whole records to lanes by a decode over the record's key, which is
+  # what the composition's power-of-two lane-count rule turns on -- it reads
+  # this rather than the tile's name
+  role: key-dispatch
   # Still a SCALAR envelope (this core's migration to (part, clock, params)
   # measured points is open debt). It must therefore report the WORST case
   # over the parameter space, because a scalar envelope ignores params:
@@ -1674,15 +1678,15 @@ stride-distributor:
       timing: met
       wns_ns: 4.549
 
-int32-bitonic-sorter:
+bitonic-sorter:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-bitonic-sorter
+  name: bitonic-sorter
   kind: operator
-  module: dau_int32_bitonic_sorter
-  source: dau_int32_bitonic_sorter.sv
+  module: dau_bitonic_sorter
+  source: dau_bitonic_sorter.sv
   description: 'Batch bitonic sorter: up to CAPACITY pair rows ascending by key, stable; overflow reports partition-first.'
   golden: dau_core.operators:sort_bar_rows_by_key
-  bench: dau_core.tests.cocotb_benches.dau_int32_bitonic_sorter_tb
+  bench: dau_core.tests.cocotb_benches.dau_bitonic_sorter_tb
   # OOC CAPACITY=16
   resources:
     - part: xc7a200tfbg484-2
@@ -1748,18 +1752,18 @@ int32-bitonic-sorter:
       # only int32 is MEASURED; the RTL elaborates the whole declared range
       choices: [int32]
 
-int32-row-predicate-filter:
+row-predicate-filter:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-row-predicate-filter
+  name: row-predicate-filter
   kind: operator
-  module: dau_int32_row_predicate_filter
-  source: dau_int32_row_predicate_filter.sv
+  module: dau_row_predicate_filter
+  source: dau_row_predicate_filter.sv
   description: 'Row-atomic compound predicate filter over 16-byte quad rows: up to three field/op/constant terms in a two-level
     AND/OR tree (the q6/q19 WHERE stage).'
   depends:
   - predicate-pkg
   golden: dau_core.operators:filter_rows_by_predicate
-  bench: dau_core.tests.cocotb_benches.dau_int32_row_predicate_filter_tb
+  bench: dau_core.tests.cocotb_benches.dau_row_predicate_filter_tb
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -2320,12 +2324,12 @@ int32-row-map-alu:
     rows: 1
     per_cycles: 7
 
-int32-row-unpack:
+row-unpack:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-row-unpack
+  name: row-unpack
   kind: operator
-  module: dau_int32_row_unpack
-  source: dau_int32_row_unpack.sv
+  module: dau_row_unpack
+  source: dau_row_unpack.sv
   description: 'Row-unpack front-end feed over <=64-bit packed rows: bit-extracts four configured fields (offset/width/signed)
     from one packed word and widens them into the standard 16-byte int32 quad row (field 0 = key = w0.lo) the operator tiles
     consume. The compact-row feed answer to the DDR-byte-bandwidth-bound scan (~2x rows/sec off DDR, half the host DMA,
@@ -2343,7 +2347,11 @@ int32-row-unpack:
     this after the burst reader before broadcast/partition. The flywheel pack-schema this asked for now exists
     (dau_polars.pack.pack_schema).'
   golden: dau_core.operators:unpack_rows
-  bench: dau_core.tests.cocotb_benches.dau_int32_row_unpack_tb
+  bench: dau_core.tests.cocotb_benches.dau_row_unpack_tb
+  # the front-stage feed transform: widens packed rows into the quad row the
+  # operator tiles read. The composition admits a core into that slot on this
+  # declaration rather than on its name
+  role: front-unpack
   # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
   resources:
     - part: xc7a200tfbg484-2
@@ -2619,18 +2627,18 @@ int32-grouped-field-sum-aggregation:
   unit_kind: aggregation
   success_close_out: true
 
-int32-key-membership-filter:
+key-membership-filter:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-key-membership-filter
+  name: key-membership-filter
   kind: operator
-  module: dau_int32_key_membership_filter
-  source: dau_int32_key_membership_filter.sv
+  module: dau_key_membership_filter
+  source: dau_key_membership_filter.sv
   description: 'Key-set membership filter over 16-byte quad rows: the join tier''s entry. A build set is loaded into an
     exact direct-mapped bitmap (BRAM) in a load phase (the two-phase membership job), then whole rows keep/drop by whether
     the row key (w0.lo) is a member; cfg_mode selects semi (keep members: IN / semi-join / distinct-probe) vs anti (keep
     non-members: NOT IN / anti-join). Exact — no false positives (bloom is a reserved future kind).'
   golden: dau_core.operators:filter_rows_by_membership
-  bench: dau_core.tests.cocotb_benches.dau_int32_key_membership_filter_tb
+  bench: dau_core.tests.cocotb_benches.dau_key_membership_filter_tb
   # OOC KEY_SPACE=4096; bitmap is one RAMB36, 8 ns met
   # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
   #
@@ -3509,19 +3517,19 @@ identity-registers:
     bram36: 0.0
     dsp: 0
 
-int32-wide-row-predicate-filter:
+wide-row-predicate-filter:
   _target_: dau_core.cores.CoreDefinition
-  name: int32-wide-row-predicate-filter
+  name: wide-row-predicate-filter
   kind: operator
-  module: dau_int32_wide_row_predicate_filter
-  source: dau_int32_wide_row_predicate_filter.sv
+  module: dau_wide_row_predicate_filter
+  source: dau_wide_row_predicate_filter.sv
   description: 'Wide-lane compound predicate filter: SLOTS whole quad rows per beat, one beat per cycle; a failing slot is
     replaced with the reserved all-ones PAD row (drop-by-pad, positions preserved, no compaction) and pads pass through
-    untouched. Same three-term config and semantics as int32-row-predicate-filter, evaluated per slot.'
+    untouched. Same three-term config and semantics as row-predicate-filter, evaluated per slot.'
   depends:
   - predicate-pkg
   golden: dau_core.operators:filter_rows_by_predicate
-  bench: dau_core.tests.cocotb_benches.dau_int32_wide_row_predicate_filter_tb
+  bench: dau_core.tests.cocotb_benches.dau_wide_row_predicate_filter_tb
   # Reference hand-split 3-stage OOC: SLOTS=4 xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +3.129)
   # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
   resources:

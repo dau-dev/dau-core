@@ -41,7 +41,7 @@ _CHOICE_FORMS = (
 UNPARSED_GUARDS = {
     ("int32-rolling-moments", "WINDOW"): "open-ended >= 2; the registry declares the same minimum and no maximum",
     ("stride-distributor", "NUM_PARTITIONS"): "positive multiple of IN_WIDTH/128 -- depends on another parameter",
-    ("int32-key-mask-dispatcher", "MODE"): "values carry mode names in the message, so the list is not machine-readable",
+    ("key-mask-dispatcher", "MODE"): "values carry mode names in the message, so the list is not machine-readable",
 }
 
 
@@ -139,5 +139,5 @@ def test_the_python_mirror_of_the_top_k_bound_matches_the_registry() -> None:
     and the tile refuses to elaborate outside its guard."""
     from dau_core.operators import TOP_K_MAX
 
-    parameter = loaded_cores()["int32-streaming-top-k"].parameters["K"]
+    parameter = loaded_cores()["streaming-top-k"].parameters["K"]
     assert TOP_K_MAX == parameter.maximum, f"TOP_K_MAX {TOP_K_MAX} != registry maximum {parameter.maximum}"

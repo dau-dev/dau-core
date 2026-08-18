@@ -50,7 +50,7 @@
 // completed row waits in a pending slot and the decision applies during the
 // next row's w0 cycle, so the steady-state probe rate stays one row per two
 // cycles.
-module dau_int32_key_membership_filter #(
+module dau_key_membership_filter #(
     // dictionary-id space (bitmap width in bits); a positive multiple of 64.
     // Sized to the build dictionary's cardinality — the memory stays
     // BRAM-resident and the image is KEY_SPACE/64 words.

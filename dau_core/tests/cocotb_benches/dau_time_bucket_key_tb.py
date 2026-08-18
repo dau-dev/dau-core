@@ -29,7 +29,7 @@ async def sustained_ingest_meets_registry_floor(dut):
     rows = [(index % 4, index, index << BUCKET_SHIFT, index + 1, index + 2) for index in range(256)]
     await assert_sustained_ingest(
         dut,
-        "int32-time-bucket-key",
+        "time-bucket-key",
         send=lambda: _send_rows(dut, rows),
         input_beats=3 * len(rows),
         beats_per_row=3,

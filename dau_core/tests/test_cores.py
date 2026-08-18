@@ -164,7 +164,7 @@ def test_every_selectable_operator_declares_its_ingest_rate() -> None:
     # measured upgrade, not a copy-paste default. The wide-lane cores are
     # 1/1 PER SLOT by construction (scales_with_param carries the multi-row
     # claim; their cocotb benches prove one beat per cycle).
-    # int32-row-unpack left this set when silicon proved its MULTI-row rate:
+    # row-unpack left this set when silicon proved its MULTI-row rate:
     # it declares 1/128 row per cycle scaled by OUT_WIDTH, which is 1/2 at the
     # 64-bit framing and 8 at 1024. The multi-row claim rides the scaling
     # parameter exactly as the wide-lane cores' does, so the declared figure is
@@ -175,9 +175,9 @@ def test_every_selectable_operator_declares_its_ingest_rate() -> None:
         # cocotb-free evidence is the tile's own verilator run -- 4096 rows in
         # 4128 cycles with the output always ready.
         "datetime-format",
-        "int32-key-mask-dispatcher",
+        "key-mask-dispatcher",
         "stride-distributor",
-        "int32-wide-row-predicate-filter",
+        "wide-row-predicate-filter",
         "int32-wide-row-map-alu",
         "int32-wide-field-sum-aggregation",
         "record-gearbox",
@@ -189,7 +189,7 @@ def test_every_selectable_operator_declares_its_ingest_rate() -> None:
 
 
 def test_wide_combinational_tiles_declare_pipeline_depth_without_changing_ingest() -> None:
-    for name in ("int32-wide-row-predicate-filter", "int32-wide-row-map-alu"):
+    for name in ("wide-row-predicate-filter", "int32-wide-row-map-alu"):
         definition = core(name)
         depth = definition.parameters["PIPELINE_DEPTH"]
         assert (depth.default, depth.minimum, depth.maximum) == (3, 1, 8)
@@ -228,14 +228,14 @@ def test_parameterized_record_words_resolve_from_defaults_and_overrides() -> Non
     assert gather.effective_record_words({"IN_WORDS": 7, "OUT_WORDS": 3}) == 7
     assert gather.effective_output_record_words({"IN_WORDS": 7, "OUT_WORDS": 3}) == 3
 
-    dispatcher = core("int32-key-mask-dispatcher")
+    dispatcher = core("key-mask-dispatcher")
     assert dispatcher.effective_record_words({}) == 2
     assert dispatcher.effective_output_record_words({"RECORD_WORDS": 3}) == 3
 
 
 def test_only_combinational_per_beat_cores_support_pipeline_depth() -> None:
     supported = {definition.name for definition in cores_of_kind(CoreKind.OPERATOR) if definition.supports_pipeline_depth}
-    assert supported == {"int32-wide-row-map-alu", "int32-wide-row-predicate-filter"}
+    assert supported == {"int32-wide-row-map-alu", "wide-row-predicate-filter"}
 
 
 def test_sources_for_closes_dependencies_in_order() -> None:
@@ -244,7 +244,7 @@ def test_sources_for_closes_dependencies_in_order() -> None:
     assert names == ["dau_aggregation_pkg.sv", "dau_int32_stream_aggregation.sv"]
 
     # composing the NoC lane set resolves every block once
-    lane = sources_for("axi-burst-reader", "stream-broadcast", "int32-pair-key-filter", "int32-bar-aggregation", "axi-record-writer", "axi-write-mux")
+    lane = sources_for("axi-burst-reader", "stream-broadcast", "pair-key-filter", "int32-bar-aggregation", "axi-record-writer", "axi-write-mux")
     assert len(lane) == len(set(lane)) == 6
 
 
@@ -340,9 +340,10 @@ def test_the_scalar_envelope_holdouts_are_exactly_the_declared_ones() -> None:
 # got, so "the migration is complete" cannot be said while thirty remain.
 #
 # 43 as of 2026-08-16; 36 once the seven fixed-point and transcendental
-# tiles landed their rename, and 31 once the five dau-core-only tiles
+# tiles landed their rename, 31 once the five dau-core-only tiles
 # (scratchpad, keyed-state, session-gap, streaming-dedup and the stride
-# distributor) landed theirs. It ends at 5, NOT at 0: for the five REDESIGN
+# distributor) landed theirs, and 21 once the ten quad-row filter tiles
+# landed theirs. It ends at 5, NOT at 0: for the five REDESIGN
 # tiles below the width is a true statement about the contract, and
 # replacing a true name with a false one is the exact failure this rule
 # exists to prevent. Each of those five leaves when its redesign lands.
@@ -353,19 +354,10 @@ WIDTH_NAMED_TILES: frozenset[str] = frozenset(
         # stays 128 bits, so a narrower element packs MORE fields per row
         # rather than shrinking the beat. Removed by giving each an
         # element-type parameter and substituting [31:0] -> [FIELD_BITS-1:0],
-        # exactly the edit `int32-row-predicate-filter` already proved.
-        # `predicate_compare` is already width-generic, so the filter family
-        # is the cheap half.
-        "int32-row-predicate-filter",  # parameter already landed; only the name remains
-        "int32-wide-row-predicate-filter",
-        "int32-pair-key-filter",
-        "int32-key-membership-filter",
-        "int32-bitonic-sorter",
-        "int32-streaming-top-k",
-        "int32-range-partitioner",
-        "int32-key-mask-dispatcher",
-        "int32-time-bucket-key",  # PART_BITS = 32 - BUCKET_BITS is already parametric in the width
-        "int32-row-unpack",  # FAMILY-COUPLED: its output IS the quad row, so it moves when the family's field width does
+        # exactly the edit `row-predicate-filter` already proved. The quad-row
+        # FILTER family left in one change, because `predicate_compare` was
+        # already width-generic; the two MAP tiles remain because their
+        # package is not.
         "int32-row-map-alu",  # blocked on dau_map_alu_pkg, which is 32-bit throughout
         "int32-wide-row-map-alu",  # same block; generalize the package once and four tiles follow
         # RETYPE-DOWN -- the emitted record's width is a function of the
@@ -534,11 +526,11 @@ def test_silent_on_success_operator_set_is_pinned() -> None:
         "datetime-format",
         "fixed-point-ln-light",
         "rolling-extremum",
-        "int32-pair-key-filter",
-        "int32-range-partitioner",
-        "int32-key-mask-dispatcher",
+        "pair-key-filter",
+        "range-partitioner",
+        "key-mask-dispatcher",
         "stride-distributor",
-        "int32-row-predicate-filter",
+        "row-predicate-filter",
         "int32-row-map-alu",
         "fixed-point-sqrt",
         "fixed-point-divide",
@@ -546,12 +538,12 @@ def test_silent_on_success_operator_set_is_pinned() -> None:
         "normal-cdf",
         "fixed-point-exp-light",
         "fixed-point-ln",
-        "int32-key-membership-filter",
+        "key-membership-filter",
         "int32-broadcast-hash-join",
-        "int32-row-unpack",
+        "row-unpack",
         "int32-record-gather",
-        "int32-time-bucket-key",
-        "int32-wide-row-predicate-filter",
+        "time-bucket-key",
+        "wide-row-predicate-filter",
         "int32-wide-row-map-alu",
         "record-gearbox",
     }
@@ -567,7 +559,7 @@ def test_dispatcher_rate_still_needs_record_aware_modeling() -> None:
     two rules the current rate shapes cannot express together. Record shape
     is now declared for detection, but this pins the remaining rate-model gap
     so RECORD_WORDS != 2 is not silently treated as resolved."""
-    definition = core("int32-key-mask-dispatcher")
+    definition = core("key-mask-dispatcher")
     assert definition.parameters["RECORD_WORDS"].default == 2
     assert definition.effective_record_words({"RECORD_WORDS": 3}) == 3
     assert definition.ingest is not None and definition.ingest.frames_on_param == "IN_WIDTH"
@@ -670,7 +662,7 @@ def test_a_measurement_coordinate_may_name_the_type_it_was_measured_at() -> None
     )
     assert spelled.params == {"FIELD_WIDTH": 32}
 
-    definition = core("int32-row-predicate-filter")
+    definition = core("row-predicate-filter")
     measured = definition.resource_measurement(part="xc7a200tfbg484-2", clock_ns=8.0, params={"FIELD_WIDTH": 32})
     assert measured.lut == 704
 
@@ -678,7 +670,7 @@ def test_a_measurement_coordinate_may_name_the_type_it_was_measured_at() -> None
 def test_storage_intent_prices_against_declared_parameters() -> None:
     definition = CoreDefinition.model_validate(
         {
-            **core("int32-row-predicate-filter").model_dump(),
+            **core("row-predicate-filter").model_dump(),
             "parameters": {"CAPACITY": {"default": 1024, "minimum": 1, "maximum": 16384}},
             # the borrowed tile's points are keyed by ITS parameters (none);
             # declaring one here would leave them describing a shape that no
@@ -699,7 +691,7 @@ def test_storage_intent_refuses_an_undeclared_scale_parameter() -> None:
     with pytest.raises(ValidationError, match="scale_parameter 'MISSING'"):
         CoreDefinition.model_validate(
             {
-                **core("int32-row-predicate-filter").model_dump(),
+                **core("row-predicate-filter").model_dump(),
                 "storage_intent": [
                     {"role": "arena", "access": "owned", "bytes_per_unit": 4, "scale_parameter": "MISSING"},
                 ],
@@ -710,7 +702,7 @@ def test_storage_intent_refuses_an_undeclared_scale_parameter() -> None:
 def test_storage_intent_without_scale_is_a_fixed_cost() -> None:
     definition = CoreDefinition.model_validate(
         {
-            **core("int32-row-predicate-filter").model_dump(),
+            **core("row-predicate-filter").model_dump(),
             "storage_intent": [{"role": "table", "access": "shared", "bytes_per_unit": 8192}],
         }
     )

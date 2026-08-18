@@ -202,7 +202,7 @@ endmodule
 // 32-bit image is out of range) is DROPPED at the front for zero lane
 // cycles — the dominant no-branch class never throttles the wide front on a
 // lane's two-beat drain. NUM_PARTITIONS needs no power-of-two in this mode.
-module dau_int32_key_mask_dispatcher #(
+module dau_key_mask_dispatcher #(
     parameter int NUM_PARTITIONS = 4,
     // The ELEMENT TYPE of the key lane, as encoded by types.svh. Only word
     // 0's first lane is read; everything else in a record is routed opaquely,
@@ -275,19 +275,19 @@ module dau_int32_key_mask_dispatcher #(
     // in whole-record framing the input bus IS one record (RECORD_WORDS*64),
     // which is not one of the row framings — 3-word records give 192
     if (!RECORD_INPUT && !(IN_WIDTH inside {64, 128, 256, 512})) begin : g_bad_in_width
-        $fatal(1, "dau_int32_key_mask_dispatcher: IN_WIDTH must be 64/128/256/512 in row framing");
+        $fatal(1, "dau_key_mask_dispatcher: IN_WIDTH must be 64/128/256/512 in row framing");
     end
     if (NUM_PARTITIONS < 1) begin : g_bad_partition_count
-        $fatal(1, "dau_int32_key_mask_dispatcher: NUM_PARTITIONS must be positive");
+        $fatal(1, "dau_key_mask_dispatcher: NUM_PARTITIONS must be positive");
     end
     if (RECORD_INPUT && IN_WIDTH != RECORD_WORDS * 64) begin : g_bad_record_input
-        $fatal(1, "dau_int32_key_mask_dispatcher: RECORD_INPUT needs IN_WIDTH == RECORD_WORDS*64 (one whole record per beat)");
+        $fatal(1, "dau_key_mask_dispatcher: RECORD_INPUT needs IN_WIDTH == RECORD_WORDS*64 (one whole record per beat)");
     end
     if (RECORD_WORDS < 1 || RECORD_WORDS > 16) begin : g_bad_record_words
-        $fatal(1, "dau_int32_key_mask_dispatcher: RECORD_WORDS must be in [1, 16]");
+        $fatal(1, "dau_key_mask_dispatcher: RECORD_WORDS must be in [1, 16]");
     end
     if (!RECORD_INPUT && IN_WIDTH != 64 && RECORD_WORDS != 2) begin : g_wide_needs_quad
-        $fatal(1, "dau_int32_key_mask_dispatcher: wide framings carry whole 128-bit quad rows (RECORD_WORDS must be 2)");
+        $fatal(1, "dau_key_mask_dispatcher: wide framings carry whole 128-bit quad rows (RECORD_WORDS must be 2)");
     end
     if (MODE > 2) begin : g_bad_mode
         $error("MODE must be 0 (MASK), 1 (EXACT_BRANCH) or 2 (HASH)");
@@ -306,7 +306,7 @@ module dau_int32_key_mask_dispatcher #(
     end
 
     if ((MODE != MODE_EXACT_BRANCH) && (NUM_PARTITIONS & (NUM_PARTITIONS - 1)) != 0) begin : g_bad_partitions
-        $fatal(1, "dau_int32_key_mask_dispatcher: NUM_PARTITIONS must be a power of two in mask mode");
+        $fatal(1, "dau_key_mask_dispatcher: NUM_PARTITIONS must be a power of two in mask mode");
     end
 
     typedef enum logic [1:0] {

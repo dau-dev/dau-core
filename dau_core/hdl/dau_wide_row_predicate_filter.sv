@@ -18,7 +18,7 @@
 // ERR_STREAM path. This composed-pipeline stage is silent on success; even
 // an all-dropped batch forwards its final beat as pads, leaving downstream
 // responsible for the success close-out.
-module dau_int32_wide_row_predicate_filter
+module dau_wide_row_predicate_filter
     import dau_predicate_pkg::*;
 #(
     parameter int SLOTS = 4,           // quad rows per beat: 1, 2, 4, or 8

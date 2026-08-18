@@ -12,7 +12,7 @@ from dau_core.operators import UnpackErrorCode, UnpackFieldSpec, unpack_rows
 # stream — one whole quad row per output beat ({w1, w0}), lifting the shared
 # 2-beat emit cap to 1 row/cycle. Runner passes parameters={"OUT_WIDTH": 128};
 # the width-agnostic helpers are shared with the 64-bit bench.
-from dau_core.tests.cocotb_benches.dau_int32_row_unpack_tb import (
+from dau_core.tests.cocotb_benches.dau_row_unpack_tb import (
     _BYTE_SPECS,
     _MASK32,
     _Q6_ROWS,
@@ -121,7 +121,7 @@ async def sustained_ingest_meets_registry_floor(dut):
     words = list(range(256))
     await assert_sustained_ingest(
         dut,
-        "int32-row-unpack",
+        "row-unpack",
         send=lambda: _send_words(dut, words),
         input_beats=len(words),
         params={"OUT_WIDTH": 128},

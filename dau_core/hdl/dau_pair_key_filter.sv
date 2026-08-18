@@ -14,7 +14,7 @@
 // with a success status (the tile never started), and a torn final row
 // (input_last on a w0) reports ERR_STREAM. Otherwise the tile's status is
 // authoritative and the filter stays silent.
-module dau_int32_pair_key_filter #(
+module dau_pair_key_filter #(
     // The ELEMENT TYPE of the key lane, as encoded by types.svh. The key and
     // its companion payload lane tile one 64-bit stream word, so a narrower
     // type packs the pair into less of the word rather than changing the

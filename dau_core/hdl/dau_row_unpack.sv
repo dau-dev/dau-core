@@ -98,7 +98,7 @@
 // composition to stage packed rows and place this unpacker after the burst
 // reader, before the broadcast/partition fan-out, and (b) a flywheel
 // pack-schema deriving each field's offset/width from the column ranges.
-module dau_int32_row_unpack #(
+module dau_row_unpack #(
     parameter int unsigned OUT_WIDTH = 64,
     // The ELEMENT TYPE of the four widened fields, as encoded by types.svh.
     // This tile is FAMILY-COUPLED: its output IS the quad row the operator
@@ -163,7 +163,7 @@ module dau_int32_row_unpack #(
     localparam logic [63:0]  PAD_PACKED = {64{1'b1}};
     localparam logic [127:0] PAD_ROW    = {128{1'b1}};
     if (OUT_WIDTH != 64 && OUT_WIDTH != 128 && OUT_WIDTH != 256 && OUT_WIDTH != 512 && OUT_WIDTH != 1024) begin : g_bad_out_width
-        $fatal(1, "dau_int32_row_unpack: OUT_WIDTH must be 64, 128, 256, 512, or 1024");
+        $fatal(1, "dau_row_unpack: OUT_WIDTH must be 64, 128, 256, 512, or 1024");
     end
     // FOUR widened fields tile the 128-bit quad row, so four of them must fit
     // it and lie on its lane grid

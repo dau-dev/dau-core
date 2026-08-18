@@ -31,7 +31,7 @@
 // Output row (2 words — the aggregator's quad-row input):
 //   o0 = {payload_hi, key}
 //   o1 = {payload3, payload2}
-module dau_int32_time_bucket_key #(
+module dau_time_bucket_key #(
     parameter int BUCKET_BITS = 16,
     // The ELEMENT TYPE of the partition id, the composite key it becomes and
     // the payload lanes riding beside them, as encoded by types.svh. Two such

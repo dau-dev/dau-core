@@ -8,7 +8,7 @@ from cocotb.clock import Clock
 from cocotb.triggers import ReadOnly, RisingEdge
 
 from dau_core.operators import UnpackErrorCode, UnpackFieldSpec, unpack_rows
-from dau_core.tests.cocotb_benches.dau_int32_row_unpack_tb import (
+from dau_core.tests.cocotb_benches.dau_row_unpack_tb import (
     _MASK32,
     _Q6_SPECS,
     _drive_config,
@@ -135,7 +135,7 @@ async def sustained_ingest_meets_the_slots_floor(dut):
     _drive_config(dut, _Q6_SPECS)
     measured = await assert_sustained_ingest(
         dut,
-        "int32-row-unpack",
+        "row-unpack",
         send=lambda: _send_beats(dut, beats),
         input_beats=len(beats),
         rows_per_beat=SLOTS,

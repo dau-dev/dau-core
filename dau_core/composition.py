@@ -22,7 +22,7 @@ from itertools import pairwise
 from ccflow import BaseModel
 from pydantic import ConfigDict, StrictInt, model_validator
 
-from .cores import ContractKind, CoreDefinition, CoreKind, LoadImageKind, ResourceEnvelope, UnmeasuredResourceError
+from .cores import ContractKind, CoreDefinition, CoreKind, CoreRole, LoadImageKind, ResourceEnvelope, UnmeasuredResourceError
 from .element_types import ElementTypeError, element_code
 from .operators import DispatchMode
 from .registry import core
@@ -43,10 +43,6 @@ STREAM_JOB_INFRASTRUCTURE_CORES = {
     "axi-stream-job": ("axi-stream-job", "identity-registers"),
 }
 
-# the only core allowed in the optional front-stage feed transform slot: the
-# row-unpack tile that widens packed rows into 16-byte quad rows after the
-# burst reader and before the broadcast/partition fan-out.
-FRONT_UNPACK_CORE = "int32-row-unpack"
 FRONT_GEARBOX_CORE = "record-gearbox"
 # the reserved config-binding symbol for the shell's LOAD_PHASE register
 # (RegisterOffset.LOAD_PHASE): a tile binding ``cfg_load`` to this symbol is
@@ -356,7 +352,7 @@ class ScanCompositionSpec(BaseModel):
                         f"partitioner {self.partitioner.core!r} IN_WIDTH={in_width} does not match the {feed_width}-bit feed framing "
                         "(data_width, or the front unpacker's OUT_WIDTH)"
                     )
-            if self.partitioner.core == "int32-key-mask-dispatcher":
+            if definition.role is CoreRole.KEY_DISPATCH:
                 # only the exact-branch decode indexes by key directly; MASK
                 # bit-selects and HASH shifts, so both need a power of two
                 mode = int(self.partitioner.params.get("MODE", 0))
@@ -407,10 +403,10 @@ class ScanCompositionSpec(BaseModel):
             if self.data_width <= 64:
                 raise CompositionError("front_gearbox requires data_width > 64: a 64-bit feed already delivers one word per cycle")
         if self.front_unpack is not None:
-            if self.front_unpack.core != FRONT_UNPACK_CORE:
+            if self.front_unpack.definition().role is not CoreRole.FRONT_UNPACK:
                 raise CompositionError(
-                    f"front unpacker {self.front_unpack.core!r} is not the {FRONT_UNPACK_CORE!r} feed transform; the front stage widens "
-                    "packed rows after the burst reader and before the fan-out, a role only the row-unpack core fills"
+                    f"front unpacker {self.front_unpack.core!r} does not declare the {CoreRole.FRONT_UNPACK.value!r} role; the front stage "
+                    "widens packed rows after the burst reader and before the fan-out, and only a core declaring that role fills it"
                 )
             _validate_tile_params(self.front_unpack, "front unpacker")
             # a WIDE lane consumes the unpacker's beats directly — there is no

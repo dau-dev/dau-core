@@ -9,7 +9,7 @@ from dau_core.operators import (
     MembershipMode,
     filter_rows_by_membership,
 )
-from dau_core.tests.cocotb_benches.dau_int32_key_membership_filter_tb import (
+from dau_core.tests.cocotb_benches.dau_key_membership_filter_tb import (
     _drive_cfg,
     _expect_status,
     _load,

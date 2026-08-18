@@ -50,6 +50,30 @@ class LoadImageKind(Enum):
     QUAD_ROWS = "quad-rows"  # 16-byte build rows (hash-join key + payload)
 
 
+class CoreRole(Enum):
+    """What a core is FOR where a composition has to know, declared by the
+    registry rather than recognized by its name.
+
+    Two composition rules cannot be read off a tile's ports: that the core in
+    the optional front-stage feed-transform slot is one that widens packed
+    rows, and that a key-routing partitioner's lane count satisfies the decode
+    its ``MODE`` selects. Both were exact-name comparisons, which is the one
+    thing "composition IS the registry" forbids -- a second unpacker or a
+    second router could not be written without editing this package, and a
+    tile rename silently turned the check into dead code. A core says here
+    what job it does; the composition asks.
+
+    ``KEY_DISPATCH`` is a contract as well as a label: a core declaring it
+    routes whole records to lanes by a decode over the record's key, and
+    carries ``MODE`` (a :class:`dau_core.operators.DispatchMode`) and
+    ``NUM_PARTITIONS`` parameters with those meanings. A range partitioner
+    routes by ordered splitters instead and is deliberately not one.
+    """
+
+    FRONT_UNPACK = "front-unpack"  # widens packed rows into the quad row the operator tiles read
+    KEY_DISPATCH = "key-dispatch"  # routes whole records to lanes by a decode over the key
+
+
 class ContractKind(Enum):
     """Which streaming interface contract an operator tile speaks. Contract
     tests select their validator from this tag; a new core declares its
@@ -394,6 +418,9 @@ class CoreDefinition(BaseModel):
     resources: ResourceEnvelope | tuple[ResourceMeasurement, ...] | None = None
     count_port: str | None = None  # the tile's trailing status counter, if any
     contract_kind: ContractKind | None = None  # required for operators; None elsewhere (no declared stream contract)
+    # the composition job this core fills, when a composition rule turns on it
+    # (None = no rule does; most cores)
+    role: CoreRole | None = None
     # the core's guaranteed sustained ingest rate — like contract_kind,
     # required for stream operators (registry-enforced): the
     # public fact the scheduler feeds an opaque core by

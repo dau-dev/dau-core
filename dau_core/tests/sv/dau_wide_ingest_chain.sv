@@ -47,7 +47,7 @@ module dau_wide_ingest_chain (
         .status_error_code(gearbox_status_error_code)
     );
 
-    dau_int32_key_mask_dispatcher #(
+    dau_key_mask_dispatcher #(
         .NUM_PARTITIONS(8),
         .IN_WIDTH(192),
         .RECORD_WORDS(3),

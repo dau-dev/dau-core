@@ -19,7 +19,7 @@ async def sustained_ingest_meets_registry_floor(dut):
     rows = [(index % num_parts, index, index + 1, index + 2) for index in range(256)]
     await assert_sustained_ingest(
         dut,
-        "int32-key-mask-dispatcher",
+        "key-mask-dispatcher",
         send=lambda: _send_rows(dut, rows),
         input_beats=2 * len(rows),
         beats_per_row=2,

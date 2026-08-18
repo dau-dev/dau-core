@@ -22,7 +22,7 @@
 // success close-out status (the tile convention: the record writer's done
 // waits on a consumed producer status). Error close-outs report through
 // the same status stream.
-module dau_int32_bitonic_sorter #(
+module dau_bitonic_sorter #(
     parameter int CAPACITY = 16,  // power of two >= 2
     // The ELEMENT TYPE of the sort key, as encoded by types.svh. The key and
     // its companion value lane tile one 64-bit stream word, so a narrower

@@ -175,7 +175,7 @@ module dau_range_partition_lane (
 endmodule
 
 
-module dau_int32_range_partitioner #(
+module dau_range_partitioner #(
     parameter int NUM_PARTITIONS = 4,
     // The ELEMENT TYPE of the key and the splitters, as encoded by types.svh.
     // The key and its companion value lane tile one 64-bit stream word, so a

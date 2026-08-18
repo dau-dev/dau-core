@@ -130,7 +130,7 @@ spec = ScanCompositionSpec(
     lanes=tuple(
         LaneSpec(
             tile=TileSpec(core="int32-bar-aggregation", config={"cfg_mode": "2'd0"}),
-            partition=TileSpec(core="int32-pair-key-filter",
+            partition=TileSpec(core="pair-key-filter",
                                config={"cfg_key_mask": "32'd3", "cfg_key_match": f"32'd{lane}"}),
         )
         for lane in range(4)
@@ -148,7 +148,7 @@ exactly that part and clock, and a coordinate nobody measured raises
 Most operator cores take one quad row per cycle. A `wide-row-stream` core
 takes the reader's WHOLE beat — `SLOTS = data_width / 128` quad rows every
 cycle, no dispatcher and no fan-out — and the three row operators have wide
-counterparts (`int32-wide-row-predicate-filter`, `int32-wide-row-map-alu`,
+counterparts (`wide-row-predicate-filter`, `int32-wide-row-map-alu`,
 `int32-wide-field-sum-aggregation`). The substitution is 1:1: same configs,
 same order, only the core names change.
 
@@ -166,7 +166,7 @@ spec = ScanCompositionSpec(
                           config={"cfg_field_mask": "4'b0010"}),
             chain=(
                 # shipdate >= 8766 AND shipdate < 9131
-                TileSpec(core="int32-wide-row-predicate-filter", config={
+                TileSpec(core="wide-row-predicate-filter", config={
                     "cfg_field0": "2'd0", "cfg_op0": "3'd6", "cfg_constant0": "32'd8766",
                     "cfg_combine01": "2'd1",
                     "cfg_field1": "2'd0", "cfg_op1": "3'd3", "cfg_constant1": "32'd9131",

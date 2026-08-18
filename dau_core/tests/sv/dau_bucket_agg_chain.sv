@@ -38,7 +38,7 @@ module dau_bucket_agg_chain #(
     logic       bucket_status_error;
     logic [7:0] bucket_status_error_code;
 
-    dau_int32_time_bucket_key #(.BUCKET_BITS(BUCKET_BITS)) u_bucket (
+    dau_time_bucket_key #(.BUCKET_BITS(BUCKET_BITS)) u_bucket (
         .clk(clk),
         .rst(rst),
         .cfg_bucket_shift(cfg_bucket_shift),
