@@ -186,7 +186,7 @@ def test_tile_params_validate_declared_names_and_positive_values() -> None:
         ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="key-membership-filter", params={"KEYSPACE": 6_000_000}),)),))
     # a core that declares no parameters rejects every override
     with pytest.raises(CompositionError, match="no overridable parameter 'KEY_SPACE' \\(declared: none\\)"):
-        ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="int32-row-map-alu", params={"KEY_SPACE": 8}),)),))
+        ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="datetime-format", params={"KEY_SPACE": 8}),)),))
     # type garbage is rejected at the field boundary, never coerced (True -> 1
     # would silently satisfy the positive-int contract)
     import pydantic

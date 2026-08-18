@@ -2360,7 +2360,7 @@ int32-row-map-alu:
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {}
+      params: {FIELD_WIDTH: int32}
       lut: 705
       ff: 315
       bram36: 0.0
@@ -2369,7 +2369,7 @@ int32-row-map-alu:
       wns_ns: 0.688
     - part: xc7a200tfbg484-2
       clock_ns: 10.0
-      params: {}
+      params: {FIELD_WIDTH: int32}
       lut: 705
       ff: 315
       bram36: 0.0
@@ -2378,7 +2378,7 @@ int32-row-map-alu:
       wns_ns: 2.688
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {}
+      params: {FIELD_WIDTH: int32}
       lut: 705
       ff: 315
       bram36: 0.0
@@ -2387,7 +2387,7 @@ int32-row-map-alu:
       wns_ns: 2.401
     - part: xc7k325tffg900-2
       clock_ns: 10.0
-      params: {}
+      params: {FIELD_WIDTH: int32}
       lut: 705
       ff: 315
       bram36: 0.0
@@ -2400,6 +2400,21 @@ int32-row-map-alu:
   ingest:
     rows: 1
     per_cycles: 7
+  parameters:
+    FIELD_WIDTH:
+      # an ELEMENT TYPE, not a bit count: the tile decodes width, signedness
+      # and fractional bits from it (dau_core/hdl/types.svh). int32 encodes as
+      # 32, so this declares exactly the tile it always built.
+      element_type: true
+      default: int32
+      # the tile's own elaboration guard is [8, 32] and must divide 128. The
+      # ceiling is dau_map_alu_pkg's MAP_ELEMENT_BITS, which the package
+      # derives from its product path rather than asserting.
+      minimum: 8
+      maximum: 32
+      # choices are the MEASURED types. The RTL elaborates at int8 and int16
+      # too; offering them is a measurement task, not a declaration.
+      choices: [int32]
 
 row-unpack:
   _target_: dau_core.cores.CoreDefinition
