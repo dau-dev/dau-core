@@ -165,6 +165,7 @@ int32-map-alu:
   - map-alu-pkg
   golden: dau_core.operators:map_values
   bench: dau_core.tests.cocotb_benches.dau_int32_map_alu_tb
+  measured_from: 1:cff8a0c3ca53585a9633a535fb4f2afa43169db3926fc76a218db05c6b8a9a93
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -220,6 +221,7 @@ int32-keyed-map-alu:
   - map-alu-pkg
   golden: dau_core.operators:map_rows
   bench: dau_core.tests.cocotb_benches.dau_int32_keyed_map_alu_tb
+  measured_from: 1:3e163ae3d2511e9e0ed5a1092782a46a03656c8cd12b81d0e1a0fe9f26200c32
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -501,6 +503,7 @@ asof-backward:
   golden: dau_core.operators:keyed_asof_join_rows
   bench: dau_core.tests.cocotb_benches.dau_asof_backward_tb
   # OOC xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +1.679)
+  measured_from: 1:855314c9008acd5b7f1f655074ce460805e690d4e1690d33f08b7d2b1a58ed5d
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -780,6 +783,7 @@ market-feature:
   golden: dau_core.temporal:market_features
   bench: dau_core.tests.cocotb_benches.dau_market_feature_tb
   # OOC xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +0.680)
+  measured_from: 1:c5a40aa7bf3bc2510f01c373310652a483c1adb7fd5f944c36129919827857d6
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -2357,6 +2361,7 @@ row-map-alu:
   - map-alu-pkg
   golden: dau_core.operators:map_row_fields
   bench: dau_core.tests.cocotb_benches.dau_row_map_alu_tb
+  measured_from: 1:1743e5884496e573fff5b911c5078ed9b03b77e6c0f65837f087f19d3ff0a0c9
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -3856,6 +3861,7 @@ wide-row-map-alu:
   # xc7a200t point was taken BEFORE the multiply was registered and describes
   # HDL that no longer exists, so it is deliberately absent rather than
   # carried forward -- that stale point is what hid a -1.383 ns violation.
+  measured_from: 1:c4a38cc1ec0b164ba93712640df3c495b7de7580d35635df4bdd123b5e7fd414
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -3902,15 +3908,19 @@ wide-row-map-alu:
       dsp: 16
       timing: met
       wns_ns: 0.348
+    # Re-measured 2026-08-18: recorded as 2763 LUT / +1.983 ns by #128 and
+    # reproducing at 2761 / +1.984 on unmodified main, so the record was
+    # already stale before this change touched anything. The Artix point at
+    # the same SLOTS was 2761 all along.
     - part: xc7k325tffg900-2
       clock_ns: 8.0
       params: {SLOTS: 4, PIPELINE_DEPTH: 3}
-      lut: 2763
+      lut: 2761
       ff: 2351
       bram36: 0.0
       dsp: 16
       timing: met
-      wns_ns: 1.983
+      wns_ns: 1.984
     # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
     - part: xc7k325tffg900-2
       clock_ns: 8.0
