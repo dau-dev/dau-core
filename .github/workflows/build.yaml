@@ -26,6 +26,9 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # this job is the required check, so it must fail rather than hang: the
+    # whole thing has never taken 3 minutes
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
@@ -41,6 +44,24 @@ jobs:
       - name: Install dependencies
         run: make develop
 
+      # for the ELABORATION tier only — `verilator --lint-only` over every
+      # declared parameterization, seconds of work, and the one thing in the
+      # suite that catches an RTL retype. `make coverage` deselects the
+      # compile tier, which stays in `hdl`.
+      #
+      # timeout-minutes is on the STEP, not just the job: this exact download
+      # wedged for 60 minutes once and took a whole bench run with it, which
+      # is the failure a required check must never be able to have.
+      - name: Install simulation tools (verilator)
+        timeout-minutes: 5
+        run: |
+          gh release download v0.0.14 --repo dau-dev/tools --pattern 'verilator_*.deb' --dir /tmp/tools
+          sudo apt-get update
+          sudo apt-get install -y /tmp/tools/verilator_*.deb
+          verilator --version
+        env:
+          GH_TOKEN: ${{ github.token }}
+
       - name: Lint
         run: make lint
 
@@ -50,8 +71,13 @@ jobs:
       - name: Build
         run: make build
 
+      # DAU_REQUIRE_VERILATOR turns "the elaboration tier skipped" into a
+      # failure. Without it a verilator install that quietly did not take
+      # leaves this job green having elaborated nothing.
       - name: Test
         run: make coverage
+        env:
+          DAU_REQUIRE_VERILATOR: "1"
 
       - name: Upload test results (Python)
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1

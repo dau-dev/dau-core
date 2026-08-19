@@ -15,6 +15,7 @@ authoritative but far too slow to run over every combination."""
 from __future__ import annotations
 
 import itertools
+import os
 import subprocess
 from shutil import which
 
@@ -91,8 +92,42 @@ def _sources_for(definition) -> list[str]:
     return paths
 
 
+_OPERATOR_CORES = sorted(d.name for d in cores_of_kind(CoreKind.OPERATOR))
+# Set wherever this tier is the subject of a required check. A local run may
+# legitimately have no verilator; a gate may not.
+_REQUIRED = os.environ.get("DAU_REQUIRE_VERILATOR", "") not in ("", "0")
+
+
+@pytest.mark.skipif(not _REQUIRED, reason="DAU_REQUIRE_VERILATOR unset")
+def test_this_gate_actually_ran() -> None:
+    """A required check that can silently carry no signal is worse than a
+    non-required one.
+
+    Every other test in this file skips on ``which("verilator") is None``, so
+    a tool install that quietly failed leaves the gate green having elaborated
+    nothing. That is not hypothetical: the bench job once spent 60 minutes
+    wedged installing verilator, was cancelled without reaching a single
+    bench, and reported nothing about the diff while appearing to run.
+
+    ``DAU_REQUIRE_VERILATOR`` turns that skip into a failure. Note what this
+    test does NOT skip on: verilator itself. A guard that steps aside for the
+    same reason as its subject guards nothing, so where the tier is required
+    this runs unconditionally and fails.
+
+    It lives here rather than in the workflow so the assertion travels with
+    the tests it guards.
+    """
+    assert which("verilator") is not None, (
+        "DAU_REQUIRE_VERILATOR is set and verilator is not on PATH: every elaboration "
+        "test would have skipped, reporting green while checking no RTL at all"
+    )
+    # the tier is one test parametrized 1:1 over the operator cores, so an
+    # empty registry would collect zero of them and still report success
+    assert _OPERATOR_CORES, "the elaboration tier is parametrized over no cores: it would collect nothing"
+
+
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
-@pytest.mark.parametrize("core_name", sorted(d.name for d in cores_of_kind(CoreKind.OPERATOR)))
+@pytest.mark.parametrize("core_name", _OPERATOR_CORES)
 def test_every_declared_parameterization_elaborates(core_name: str) -> None:
     from dau_core.registry import core as core_definition
 

@@ -112,6 +112,21 @@ the recognised forms — `X must be in [a, b]`, `X must be between a and b`,
 `X must be a, b, or c`. A message it cannot parse has to be added to the
 holdout list, and that list is itself asserted in both directions.
 
+This is the one bench tier that runs on **every** change. It is
+`verilator --lint-only`, with no compile and no simulation, so it costs
+seconds where the cocotb benches cost half an hour — and it is what an RTL
+retype breaks. `make coverage` runs it and deselects the compile tier;
+`make test-hdl` runs both.
+
+Because every test in that file skips when `verilator` is absent, a tool
+install that quietly failed would leave the tier green having elaborated
+nothing. Set `DAU_REQUIRE_VERILATOR=1` to turn that skip into a failure —
+CI does, and it is the only reason the tier can be trusted as a gate:
+
+```bash
+DAU_REQUIRE_VERILATOR=1 make coverage
+```
+
 ## 6. Run the registry-wide guards
 
 These walk the whole registry rather than your tile, and they are what
