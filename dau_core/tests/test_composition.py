@@ -1040,6 +1040,83 @@ def test_a_geared_design_does_not_share_a_hash_with_an_ungeared_one() -> None:
     )
 
 
+def test_the_gearbox_is_charged_as_the_front_delivery_it_is() -> None:
+    """A GUARANTEED floor has to charge the stage that produces the rows.
+
+    The gearbox was validated by five walkers and priced by none: absent
+    from this function, a geared composition took the quad-row delivery of
+    data_width/128 -- 24-byte records charged as 16-byte ones -- and the
+    gearbox's own one-record-per-cycle ceiling was never applied at all. At
+    data_width=512 that reports 4 rows/cycle for a front that sustains 1.
+    """
+    from fractions import Fraction
+
+    from dau_core.composition import throughput_rows_per_cycle
+
+    lanes = sorted_scan_spec().lanes
+    geared = ScanCompositionSpec(name="scan", lanes=lanes, data_width=512, partitioner=_record_dispatcher(), front_gearbox=_front_gearbox())
+
+    rate = throughput_rows_per_cycle(geared)
+
+    gearbox_rate = core("record-gearbox").ingest.effective(dict(_front_gearbox().params), core("record-gearbox").parameters)
+    assert rate <= gearbox_rate, "the front cannot deliver faster than the tile that frames it"
+    # and the reader's own record supply is charged at the RECORD size: 512
+    # bits per cycle over 3-word (24-byte) records is 8/3, not 512/128 = 4
+    assert rate <= Fraction(512, 64 * 3)
+
+
+def test_a_wider_record_lowers_the_geared_delivery() -> None:
+    """The record size is the DIVISOR of the reader's supply, so it has to
+    move the answer -- a delivery term that ignores it is the shape that
+    charged 24-byte records at the 16-byte quad-row rate."""
+    from fractions import Fraction
+
+    from dau_core.composition import throughput_rows_per_cycle
+
+    # fast lanes behind the dispatcher, so the FRONT is what binds and this
+    # measures delivery rather than consumption
+    lanes = (LaneSpec(tile=TileSpec(core="field-sum-aggregation")),) * 4
+
+    def geared(record_words: int) -> Fraction:
+        # 128 bits per cycle over records of this size: under the gearbox's
+        # own one-record-per-cycle ceiling, so the reader's supply binds
+        spec = ScanCompositionSpec(
+            name="scan",
+            lanes=lanes,
+            data_width=128,
+            partitioner=_record_dispatcher(record_words),
+            front_gearbox=TileSpec(core="record-gearbox", params={"IN_WIDTH": 128, "RECORD_WORDS": record_words}),
+        )
+        return throughput_rows_per_cycle(spec)
+
+    assert geared(3) == Fraction(128, 64 * 3)
+    assert geared(8) == Fraction(128, 64 * 8)
+    assert geared(8) < geared(3), "eight-word records take longer to deliver than three-word ones"
+
+
+def test_a_gearbox_record_mismatch_is_detected() -> None:
+    """`stream_shape_mismatches` exists to find exactly this, and the front
+    stage it never looked at was the gearbox: a 3-word gearbox feeding a
+    4-word dispatcher validated clean and the detector returned ()."""
+    lanes = sorted_scan_spec().lanes
+
+    def front_feed_notes(dispatcher_words: int) -> tuple[str, ...]:
+        spec = ScanCompositionSpec(
+            name="scan",
+            lanes=lanes,
+            data_width=512,
+            partitioner=_record_dispatcher(dispatcher_words),
+            front_gearbox=_front_gearbox(3),
+        )
+        return tuple(note for note in stream_shape_mismatches(spec) if note.startswith("front feed"))
+
+    assert front_feed_notes(3) == ()
+
+    notes = front_feed_notes(4)
+
+    assert len(notes) == 1 and "record-gearbox" in notes[0], notes
+
+
 def test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front() -> None:
     lanes = bar_noc_spec().lanes
     with pytest.raises(CompositionError, match="requires data_width > 64"):
