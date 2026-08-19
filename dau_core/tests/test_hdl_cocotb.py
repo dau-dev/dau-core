@@ -9,6 +9,7 @@ from dau_core.element_types import element_code
 from dau_core.hdl import (
     DAU_AGGREGATION_PKG_SV,
     DAU_ARROW_LITE_STREAM_AGGREGATION_SV,
+    DAU_ASOF_BACKWARD_SV,
     DAU_AXI_BURST_READER_SV,
     DAU_AXI_RAM_SIM_SV,
     DAU_AXI_RECORD_WRITER_SV,
@@ -26,19 +27,16 @@ from dau_core.hdl import (
     DAU_GROUPED_FIELD_SUM_AGGREGATION_SV,
     DAU_HASH_GROUPED_AGGREGATION_SV,
     DAU_HDL_INCLUDE_DIR,
-    DAU_INT32_ASOF_BACKWARD_SV,
     DAU_INT32_KEYED_MAP_ALU_SV,
     DAU_INT32_KEYED_PREDICATE_FILTER_SV,
     DAU_INT32_MAP_ALU_SV,
-    DAU_INT32_MARKET_FEATURE_SV,
     DAU_INT32_PREDICATE_FILTER_SV,
     DAU_INT32_RECORD_GATHER_SV,
-    DAU_INT32_ROW_MAP_ALU_SV,
-    DAU_INT32_WIDE_ROW_MAP_ALU_SV,
     DAU_KEY_MASK_DISPATCHER_SV,
     DAU_KEY_MEMBERSHIP_FILTER_SV,
     DAU_KEYED_STATE_SV,
     DAU_MAP_ALU_PKG_SV,
+    DAU_MARKET_FEATURE_SV,
     DAU_PAIR_KEY_FILTER_SV,
     DAU_PREDICATE_PKG_SV,
     DAU_RANGE_PARTITIONER_SV,
@@ -46,6 +44,7 @@ from dau_core.hdl import (
     DAU_RECORD_GEARBOX_SV,
     DAU_ROLLING_EXTREMUM_SV,
     DAU_ROLLING_MOMENTS_SV,
+    DAU_ROW_MAP_ALU_SV,
     DAU_ROW_PREDICATE_FILTER_SV,
     DAU_ROW_UNPACK_SV,
     DAU_SCRATCHPAD_SV,
@@ -57,6 +56,7 @@ from dau_core.hdl import (
     DAU_STRIDE_DISTRIBUTOR_SV,
     DAU_TIME_BUCKET_KEY_SV,
     DAU_WIDE_FIELD_SUM_AGGREGATION_SV,
+    DAU_WIDE_ROW_MAP_ALU_SV,
     DAU_WIDE_ROW_PREDICATE_FILTER_SV,
 )
 
@@ -181,9 +181,9 @@ def test_bar_aggregation_runs_real_cocotb_against_systemverilog(tmp_path: Path) 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_asof_backward_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
     _run_cocotb_verilator(
-        sources=(Path(str(DAU_INT32_ASOF_BACKWARD_SV)),),
-        hdl_toplevel="dau_int32_asof_backward",
-        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_asof_backward_tb",
+        sources=(Path(str(DAU_ASOF_BACKWARD_SV)),),
+        hdl_toplevel="dau_asof_backward",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_asof_backward_tb",
         tmp_path=tmp_path,
     )
 
@@ -218,8 +218,8 @@ def test_hero_datapath_runs_real_cocotb_against_systemverilog(tmp_path: Path) ->
     # aggregator -> rolling-moments, golden-equal end to end
     _run_cocotb_verilator(
         sources=(
-            Path(str(DAU_INT32_ASOF_BACKWARD_SV)),
-            Path(str(DAU_INT32_MARKET_FEATURE_SV)),
+            Path(str(DAU_ASOF_BACKWARD_SV)),
+            Path(str(DAU_MARKET_FEATURE_SV)),
             Path(str(DAU_TIME_BUCKET_KEY_SV)),
             Path(str(DAU_GROUPED_FIELD_AGGREGATION_SV)),
             Path(str(DAU_ROLLING_MOMENTS_SV)),
@@ -250,9 +250,9 @@ def test_bucket_agg_chain_runs_real_cocotb_against_systemverilog(tmp_path: Path)
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_market_feature_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
     _run_cocotb_verilator(
-        sources=(Path(str(DAU_INT32_MARKET_FEATURE_SV)),),
-        hdl_toplevel="dau_int32_market_feature",
-        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_market_feature_tb",
+        sources=(Path(str(DAU_MARKET_FEATURE_SV)),),
+        hdl_toplevel="dau_market_feature",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_market_feature_tb",
         tmp_path=tmp_path,
     )
 
@@ -263,8 +263,8 @@ def test_asof_feature_chain_runs_real_cocotb_against_systemverilog(tmp_path: Pat
     # straight into the feature tile (same 4-word record, no reformatting)
     _run_cocotb_verilator(
         sources=(
-            Path(str(DAU_INT32_ASOF_BACKWARD_SV)),
-            Path(str(DAU_INT32_MARKET_FEATURE_SV)),
+            Path(str(DAU_ASOF_BACKWARD_SV)),
+            Path(str(DAU_MARKET_FEATURE_SV)),
             _SV_TB_DIR / "dau_asof_feature_chain.sv",
         ),
         hdl_toplevel="dau_asof_feature_chain",
@@ -558,9 +558,9 @@ def test_fixed_point_sqrt_runs_real_cocotb_against_systemverilog(tmp_path: Path)
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_row_map_alu_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
     _run_cocotb_verilator(
-        sources=(Path(str(DAU_MAP_ALU_PKG_SV)), Path(str(DAU_INT32_ROW_MAP_ALU_SV))),
-        hdl_toplevel="dau_int32_row_map_alu",
-        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_row_map_alu_tb",
+        sources=(Path(str(DAU_MAP_ALU_PKG_SV)), Path(str(DAU_ROW_MAP_ALU_SV))),
+        hdl_toplevel="dau_row_map_alu",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_row_map_alu_tb",
         tmp_path=tmp_path,
     )
 
@@ -767,9 +767,9 @@ def test_wide_row_predicate_filter_runs_real_cocotb_against_systemverilog(tmp_pa
 @pytest.mark.parametrize("pipeline_depth", [1, 2, 3, 4])
 def test_wide_row_map_alu_runs_real_cocotb_against_systemverilog(tmp_path: Path, slots: int, pipeline_depth: int) -> None:
     _run_cocotb_verilator(
-        sources=(Path(str(DAU_MAP_ALU_PKG_SV)), Path(str(DAU_INT32_WIDE_ROW_MAP_ALU_SV))),
-        hdl_toplevel="dau_int32_wide_row_map_alu",
-        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_int32_wide_row_map_alu_tb",
+        sources=(Path(str(DAU_MAP_ALU_PKG_SV)), Path(str(DAU_WIDE_ROW_MAP_ALU_SV))),
+        hdl_toplevel="dau_wide_row_map_alu",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_wide_row_map_alu_tb",
         tmp_path=tmp_path,
         parameters={"SLOTS": slots, "PIPELINE_DEPTH": pipeline_depth},
     )

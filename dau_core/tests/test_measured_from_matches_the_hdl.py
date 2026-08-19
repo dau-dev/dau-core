@@ -65,7 +65,10 @@ def _resolve(name: str):
 # without adding a line here that a reviewer has to accept. The set can only
 # shrink, and the suite -- not whoever last read the yaml -- owns the count.
 #
-# 54 as of 2026-08-18, which is every measured core in the palette.
+# 54 as of 2026-08-18, which was every measured core in the palette; 48
+# once the map/ALU family re-measured its whole recorded surface -- all
+# nine of the wide tile's coordinates, all four of each other tile's --
+# and stamped what came back.
 UNSTAMPED_ENVELOPES: frozenset[str] = frozenset(
     {
         "arrow-lite-stream-aggregation",
@@ -91,15 +94,9 @@ UNSTAMPED_ENVELOPES: frozenset[str] = frozenset(
         "grouped-field-sum-aggregation",
         "hash-grouped-aggregation",
         "identity-registers",
-        "int32-asof-backward",
-        "int32-keyed-map-alu",
         "int32-keyed-predicate-filter",
-        "int32-map-alu",
-        "int32-market-feature",
         "int32-predicate-filter",
         "int32-record-gather",
-        "int32-row-map-alu",
-        "int32-wide-row-map-alu",
         "key-mask-dispatcher",
         "key-membership-filter",
         "keyed-state",

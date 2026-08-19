@@ -167,7 +167,7 @@ def test_chain_lanes_carry_chain_capabilities_and_opcode_truth() -> None:
     assert [stage.core for stage in lane.chain] == [
         "row-predicate-filter",
         "row-predicate-filter",
-        "int32-row-map-alu",
+        "row-map-alu",
     ]
     assert lane.tile.core == "field-sum-aggregation"
     assert lane.tile.count_port == "aggregated_count"

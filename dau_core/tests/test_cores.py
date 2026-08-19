@@ -178,7 +178,7 @@ def test_every_selectable_operator_declares_its_ingest_rate() -> None:
         "key-mask-dispatcher",
         "stride-distributor",
         "wide-row-predicate-filter",
-        "int32-wide-row-map-alu",
+        "wide-row-map-alu",
         "wide-field-sum-aggregation",
         "record-gearbox",
     }
@@ -189,7 +189,7 @@ def test_every_selectable_operator_declares_its_ingest_rate() -> None:
 
 
 def test_wide_combinational_tiles_declare_pipeline_depth_without_changing_ingest() -> None:
-    for name in ("wide-row-predicate-filter", "int32-wide-row-map-alu"):
+    for name in ("wide-row-predicate-filter", "wide-row-map-alu"):
         definition = core(name)
         depth = definition.parameters["PIPELINE_DEPTH"]
         assert (depth.default, depth.minimum, depth.maximum) == (3, 1, 8)
@@ -235,7 +235,7 @@ def test_parameterized_record_words_resolve_from_defaults_and_overrides() -> Non
 
 def test_only_combinational_per_beat_cores_support_pipeline_depth() -> None:
     supported = {definition.name for definition in cores_of_kind(CoreKind.OPERATOR) if definition.supports_pipeline_depth}
-    assert supported == {"int32-wide-row-map-alu", "wide-row-predicate-filter"}
+    assert supported == {"wide-row-map-alu", "wide-row-predicate-filter"}
 
 
 def test_sources_for_closes_dependencies_in_order() -> None:
@@ -343,33 +343,13 @@ def test_the_scalar_envelope_holdouts_are_exactly_the_declared_ones() -> None:
 # tiles landed their rename, 31 once the five dau-core-only tiles
 # (scratchpad, keyed-state, session-gap, streaming-dedup and the stride
 # distributor) landed theirs, 21 once the ten quad-row filter tiles landed
-# theirs, and 9 once the twelve aggregation tiles landed theirs. It ends at
-# 5, NOT at 0: for the five REDESIGN
-# tiles below the width is a true statement about the contract, and
-# replacing a true name with a false one is the exact failure this rule
+# theirs, 9 once the twelve aggregation tiles landed theirs, and 5 once the
+# map/ALU family landed its own. It ends HERE, at 5 and NOT at 0: for the
+# five REDESIGN tiles below the width is a true statement about the contract,
+# and replacing a true name with a false one is the exact failure this rule
 # exists to prevent. Each of those five leaves when its redesign lands.
 WIDTH_NAMED_TILES: frozenset[str] = frozenset(
     {
-        # RETYPE -- compare/select/mask/index datapaths over the 128-bit
-        # quad row. The width is already a container: the transport unit
-        # stays 128 bits, so a narrower element packs MORE fields per row
-        # rather than shrinking the beat. Removed by giving each an
-        # element-type parameter and substituting [31:0] -> [FIELD_BITS-1:0],
-        # exactly the edit `row-predicate-filter` already proved. The quad-row
-        # FILTER family left in one change, because `predicate_compare` was
-        # already width-generic; the two MAP tiles remain because their
-        # package is not.
-        "int32-row-map-alu",  # blocked on dau_map_alu_pkg, which is 32-bit throughout
-        "int32-wide-row-map-alu",  # same block; generalize the package once and four tiles follow
-        # The RETYPE-DOWN group (the twelve aggregation tiles) left here. The
-        # rule that freed them: the element type sizes LANES, never SLOTS, so
-        # the emitted record keeps its word count and its slot boundaries at
-        # every width and only the accumulators bound the type from above.
-        # RENAME -- the name is already false and no RTL changes. Both are in
-        # the built `hero-temporal` design, so they carry a cache and silicon
-        # consequence the seven already-renamed tiles did not.
-        "int32-market-feature",  # the record mixes int32 lanes with INT64 spread, signed volume and dollar volume
-        "int32-asof-backward",  # the MERGE AXIS is already int64 (time[63:0], a 65-bit tolerance difference); only key and payload lanes are 32-bit
         # REDESIGN -- these five KEEP their names. The width is genuinely part
         # of the contract, so renaming would replace a true name with a false
         # one. Four consume TWO SAMPLES PER 64-BIT WORD, hardcoded in five
@@ -423,7 +403,7 @@ def _measured(**overrides):
         "wns_ns": 1.983,
     }
     point.update(overrides)
-    return CoreDefinition.model_validate({**core("int32-wide-row-map-alu").model_dump(), "resources": [point]})
+    return CoreDefinition.model_validate({**core("wide-row-map-alu").model_dump(), "resources": [point]})
 
 
 def test_exact_resource_measurement_resolves_with_parameter_defaults() -> None:
@@ -464,7 +444,7 @@ def test_violated_measurement_is_retrievable_but_not_a_usable_envelope() -> None
     )
     definition = CoreDefinition.model_validate(
         {
-            **core("int32-wide-row-map-alu").model_dump(),
+            **core("wide-row-map-alu").model_dump(),
             "resources": [violated],
         }
     )
@@ -518,7 +498,7 @@ def test_silent_on_success_operator_set_is_pinned() -> None:
         "key-mask-dispatcher",
         "stride-distributor",
         "row-predicate-filter",
-        "int32-row-map-alu",
+        "row-map-alu",
         "fixed-point-sqrt",
         "fixed-point-divide",
         "fixed-point-exp",
@@ -531,7 +511,7 @@ def test_silent_on_success_operator_set_is_pinned() -> None:
         "int32-record-gather",
         "time-bucket-key",
         "wide-row-predicate-filter",
-        "int32-wide-row-map-alu",
+        "wide-row-map-alu",
         "record-gearbox",
     }
     # the grouped multi-sum tile emits many group records but exactly ONE

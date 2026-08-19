@@ -14,7 +14,7 @@
 // beats cannot tear, so there is no ERR_STREAM path. This composed-pipeline
 // stage is silent on success; the downstream tile's close-out is
 // authoritative.
-module dau_int32_wide_row_map_alu
+module dau_wide_row_map_alu
     import dau_map_alu_pkg::*;
 #(
     parameter int SLOTS = 4,          // quad rows per beat: 1, 2, 4, or 8

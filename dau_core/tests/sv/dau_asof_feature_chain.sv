@@ -70,7 +70,7 @@ module dau_asof_feature_chain (
 
     assign mkt_fire = mkt_valid && mkt_ready;
 
-    dau_int32_asof_backward u_asof (
+    dau_asof_backward u_asof (
         .clk(clk),
         .rst(rst),
         .cfg_has_tolerance(cfg_has_tolerance),
@@ -97,7 +97,7 @@ module dau_asof_feature_chain (
     logic feat_rst;
     assign feat_rst = rst || (asof_status_valid && asof_status_error);
 
-    dau_int32_market_feature u_feature (
+    dau_market_feature u_feature (
         .clk(clk),
         .rst(feat_rst),
         .input_valid(mkt_valid),
