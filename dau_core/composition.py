@@ -608,7 +608,12 @@ def stream_shape_mismatches(spec: ScanCompositionSpec) -> tuple[str, ...]:
                 f"{location}: producer {producer.core!r} emits {emitted}-word records, but consumer {consumer.core!r} expects {expected}-word records"
             )
 
-    front = spec.front_unpack
+    # the FEED position holds either front stage: the unpacker widens packed
+    # rows, the record gearbox reframes wide beats into whole records. The
+    # gearbox was invisible here, so a gearbox at RECORD_WORDS=3 feeding a
+    # dispatcher at RECORD_WORDS=4 validated clean and the detector whose
+    # whole job is finding record-width mismatches returned ().
+    front = spec.front_unpack if spec.front_unpack is not None else spec.front_gearbox
     if front is not None and spec.partitioner is not None:
         compare(front, spec.partitioner, "front feed")
 
@@ -675,7 +680,22 @@ def throughput_rows_per_cycle(spec: ScanCompositionSpec, *, stage_pass_fractions
         except ValueError as exc:
             raise CompositionError(f"{role} core {tile.core!r}: {exc}") from exc
 
-    if spec.front_unpack is not None:
+    if spec.front_gearbox is not None:
+        # the GEARED feed: a record is `RECORD_WORDS` 64-bit words, so the
+        # reader supplies data_width/(64*RECORD_WORDS) whole records per
+        # cycle and the gearbox re-times them at its own declared framing
+        # rate -- the slower of the two binds, exactly as for the packed feed.
+        #
+        # The gearbox used to be absent from this function entirely, so a
+        # geared composition was priced at the QUAD-ROW delivery of
+        # data_width/128 -- 24-byte records read as 16-byte ones, and the
+        # gearbox's own one-record-per-cycle ceiling never charged at all.
+        # For the 8-lane geared hero at data_width=512 that reads 4 rows/cycle
+        # where the front sustains 1, and this number is documented as a
+        # GUARANTEED floor.
+        record_words = spec.front_gearbox.definition().effective_record_words(spec.front_gearbox.params)
+        delivery = min(Fraction(spec.data_width, 64 * record_words), _tile_rate(spec.front_gearbox, "front gearbox"))
+    elif spec.front_unpack is not None:
         # the packed feed: the reader supplies data_width/64 packed rows per
         # beat (a packed row is 8 bytes), and the unpacker re-times them at its
         # own framing rate -- the slower of the two binds.
