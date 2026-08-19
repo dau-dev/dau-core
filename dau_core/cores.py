@@ -16,6 +16,8 @@ during migration.
 
 from __future__ import annotations
 
+import hashlib
+import re
 from collections.abc import Mapping
 from enum import Enum
 from fractions import Fraction
@@ -389,6 +391,18 @@ def _same_clock(a: float, b: float) -> bool:
     return abs(a - b) <= 1e-3
 
 
+# Prefix on every `measured_from` digest, for the reason
+# SPEC_CANONICAL_VERSION carries one: a deliberate change to HOW the closure
+# is digested must be distinguishable from a change to the RTL it digests.
+# Bumping it invalidates every stamp at once, which is correct -- no stamp
+# written under the old rule means what a reader of the new rule would think.
+HDL_CLOSURE_DIGEST_VERSION = "1"
+
+# `include "types.svh" -- the only include form the palette uses, and the only
+# one the toolchain is given a search path for.
+_HDL_INCLUDE = re.compile(r'^\s*`include\s+"([^"]+)"', re.MULTILINE)
+
+
 class CoreDefinition(BaseModel):
     """One HDL building block and its contract surround."""
 
@@ -416,6 +430,17 @@ class CoreDefinition(BaseModel):
     golden: str | None = None  # "module:callable" defining the semantics
     bench: str | None = None  # cocotb bench module
     resources: ResourceEnvelope | tuple[ResourceMeasurement, ...] | None = None
+    # The HDL closure digest (:meth:`hdl_closure_digest`) the numbers in
+    # `resources` describe. It is what makes a recorded envelope falsifiable
+    # without Vivado: the numbers cannot say which RTL produced them, so a
+    # commit that edits a tile and leaves its envelope alone is invisible
+    # until someone next runs synthesis. Stamping the RTL beside the numbers
+    # turns that into a test failure naming the tile.
+    #
+    # None means UNSTAMPED -- the state every point recorded before this field
+    # existed is in. It is permitted, and pinned as an exact set by
+    # `test_measured_from_matches_the_hdl` so the population can only shrink.
+    measured_from: str | None = None
     count_port: str | None = None  # the tile's trailing status counter, if any
     contract_kind: ContractKind | None = None  # required for operators; None elsewhere (no declared stream contract)
     # the composition job this core fills, when a composition rule turns on it
@@ -523,6 +548,11 @@ class CoreDefinition(BaseModel):
                     f"core {self.name!r} storage intent {intent.role!r} scales by "
                     f"scale_parameter {intent.scale_parameter!r}, which is not a declared parameter"
                 )
+        if self.measured_from is not None and self.resources is None:
+            raise ValueError(
+                f"core {self.name!r} stamps measured_from but records no resources; the stamp says which RTL a "
+                "measurement describes and there is no measurement"
+            )
         if isinstance(self.resources, tuple):
             expected_params = set(self.parameters)
             coordinates: set[tuple[str, float, tuple[tuple[str, int], ...]]] = set()
@@ -625,6 +655,94 @@ class CoreDefinition(BaseModel):
                 "beside the .sv files so importlib can traverse it"
             )
         return checked_in
+
+    def hdl_closure(self, resolve) -> tuple[tuple[str, str], ...]:
+        """Every HDL file this core synthesizes from, as ``(name, sha256)``
+        pairs sorted by name.
+
+        WHAT IS IN THE CLOSURE is the whole question, and the answer is: the
+        files a synthesis run of THIS core reads. That is its own source, the
+        source of every core reachable through ``depends`` (the packages it
+        imports), and every header those files `` `include ``, resolved the
+        way the toolchain resolves them -- beside the including file first,
+        then along the other source directories, which is exactly the
+        ``-include_dirs`` list the synthesis task builds. A header nothing
+        includes is NOT in the closure, so adding a second one to the palette
+        does not re-measure every tile that ignores it; and a package a tile
+        imports IS, so an edit there reaches every tile that reads it.
+
+        ``resolve`` maps a core name to its definition. It is a parameter
+        rather than a registry import because the build package reaches these
+        models through the composed ccflow registry and must not import this
+        one.
+
+        A GENERATED core is hashed from its RENDERED TEXT, not from a file on
+        disk: its RTL is a function of the generator and of the constants in
+        its registry entry, so an edit to either changes what synthesis reads
+        while every checked-in file stays byte-identical.
+        """
+        models: list[CoreDefinition] = []
+        seen: set[str] = set()
+
+        def visit(name: str) -> None:
+            if name in seen:
+                return
+            seen.add(name)
+            model = resolve(name)
+            if model is None:
+                raise UnknownCoreSourceError(
+                    f"core {self.name!r} depends on {name!r}, which the registry does not resolve; its HDL closure cannot be digested"
+                )
+            for dependency in model.depends:
+                visit(dependency)
+            models.append(model)
+
+        visit(self.name)
+
+        pending: list[tuple[str, str, Path, bytes]] = []
+        directories: dict[Path, str] = {}
+        for model in models:
+            if model.generator is not None:
+                directory = render_root(model.source_package)
+                data = model.generator.render().text.encode("utf-8")
+            else:
+                path = model.source_path()
+                directory = path.parent
+                data = path.read_bytes()
+            directories.setdefault(directory, model.source_package)
+            pending.append((model.source_package, model.source, directory, data))
+
+        entries: dict[str, str] = {}
+        while pending:
+            package, name, directory, data = pending.pop(0)
+            key = f"{package}/{name}"
+            if key in entries:
+                continue
+            entries[key] = hashlib.sha256(data).hexdigest()
+            for included in _HDL_INCLUDE.findall(data.decode("utf-8")):
+                for candidate_dir in (directory, *directories):
+                    candidate = candidate_dir / included
+                    if candidate.is_file():
+                        pending.append((directories.get(candidate_dir, package), included, candidate_dir, candidate.read_bytes()))
+                        break
+                else:
+                    raise UnknownCoreSourceError(
+                        f"core {self.name!r} reads {name!r}, which includes {included!r}; that header resolves in none of "
+                        f"{sorted(str(d) for d in directories)}, so the HDL closure is not closed"
+                    )
+        return tuple(sorted(entries.items()))
+
+    def hdl_closure_digest(self, resolve) -> str:
+        """The digest a measured envelope records as ``measured_from``.
+
+        Over BYTES, deliberately. A digest cannot tell a retimed adder from a
+        renamed module, and pretending otherwise would mean teaching it which
+        edits are allowed to be free -- which is the judgement the guard
+        exists to force someone to make and write down. So a rename moves the
+        digest too, and re-stamping it costs an argument in the pull request.
+        """
+        payload = "".join(f"{name}\0{digest}\n" for name, digest in self.hdl_closure(resolve))
+        return f"{HDL_CLOSURE_DIGEST_VERSION}:{hashlib.sha256(payload.encode('utf-8')).hexdigest()}"
 
     def render(self, *, into: Path | None = None) -> Path:
         """Render this core's HDL, returning the written path."""
