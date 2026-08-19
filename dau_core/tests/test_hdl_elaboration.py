@@ -93,8 +93,12 @@ def _sources_for(definition) -> list[str]:
 
 
 _OPERATOR_CORES = sorted(d.name for d in cores_of_kind(CoreKind.OPERATOR))
+# Set wherever this tier is the subject of a required check. A local run may
+# legitimately have no verilator; a gate may not.
+_REQUIRED = os.environ.get("DAU_REQUIRE_VERILATOR", "") not in ("", "0")
 
 
+@pytest.mark.skipif(not _REQUIRED, reason="DAU_REQUIRE_VERILATOR unset")
 def test_this_gate_actually_ran() -> None:
     """A required check that can silently carry no signal is worse than a
     non-required one.
@@ -105,14 +109,14 @@ def test_this_gate_actually_ran() -> None:
     wedged installing verilator, was cancelled without reaching a single
     bench, and reported nothing about the diff while appearing to run.
 
-    ``DAU_REQUIRE_VERILATOR`` is set wherever this tier is the subject of a
-    required check. It turns "skipped" into "failed", and it is checked here
-    rather than in CI so the assertion travels with the tests it guards.
-    Note this test carries no ``skipif`` of its own — a guard that skips for
-    the same reason as its subject guards nothing.
+    ``DAU_REQUIRE_VERILATOR`` turns that skip into a failure. Note what this
+    test does NOT skip on: verilator itself. A guard that steps aside for the
+    same reason as its subject guards nothing, so where the tier is required
+    this runs unconditionally and fails.
+
+    It lives here rather than in the workflow so the assertion travels with
+    the tests it guards.
     """
-    if os.environ.get("DAU_REQUIRE_VERILATOR", "") in ("", "0"):
-        pytest.skip("DAU_REQUIRE_VERILATOR unset: a local run may legitimately have no verilator")
     assert which("verilator") is not None, (
         "DAU_REQUIRE_VERILATOR is set and verilator is not on PATH: every elaboration "
         "test would have skipped, reporting green while checking no RTL at all"
