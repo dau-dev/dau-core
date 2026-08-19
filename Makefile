@@ -64,6 +64,22 @@ check: checks
 #########
 .PHONY: test test-hdl coverage tests
 
+# THE TWO HDL TIERS, split by what they cost and what they catch.
+#
+# Elaboration is `verilator --lint-only` over every declared parameterization:
+# 46 tests, ~11 seconds, no compile, no cocotb, no C++ toolchain. It is what
+# an RTL retype breaks, so it belongs in the gate every change passes.
+#
+# The compile tier builds and simulates: 135 cocotb benches, 8 raw
+# SystemVerilog testbenches and 2 mutation checks, ~34 minutes. It cannot be
+# on that gate at that price.
+#
+# One list each so `coverage` and `test-hdl` cannot disagree about which file
+# is in which tier. A NEW compile-tier bench file must be added to
+# HDL_COMPILE_TESTS or `coverage` will start running it.
+HDL_ELABORATION_TESTS := dau_core/tests/test_hdl_elaboration.py
+HDL_COMPILE_TESTS := dau_core/tests/test_hdl_cocotb.py dau_core/tests/test_hdl_verilator.py dau_core/tests/test_benches_can_fail.py
+
 test:  ## run python tests
 	python -m pytest -v dau_core/tests
 
@@ -71,10 +87,13 @@ test:  ## run python tests
 # absent: run them on their own so a skipped bench tier is visible as an empty
 # run rather than as noise inside the full suite
 test-hdl:  ## run the verilator benches (elaboration, cocotb, raw testbenches)
-	python -m pytest -v dau_core/tests/test_hdl_elaboration.py dau_core/tests/test_hdl_cocotb.py dau_core/tests/test_hdl_verilator.py dau_core/tests/test_benches_can_fail.py
+	python -m pytest -v $(HDL_ELABORATION_TESTS) $(HDL_COMPILE_TESTS)
 
-coverage:  ## run tests and collect test coverage
-	python -m pytest -v dau_core/tests --cov=dau_core --cov-report term-missing --cov-report xml
+# deselects the compile tier and NOT the elaboration tier: with verilator
+# present this is ~46 more real tests for ~11 more seconds, instead of the
+# ~34 minutes the whole testpath would cost
+coverage:  ## run tests and collect test coverage, without the RTL compile tier
+	python -m pytest -v dau_core/tests $(addprefix --deselect ,$(HDL_COMPILE_TESTS)) --cov=dau_core --cov-report term-missing --cov-report xml
 
 # Alias
 tests: test
