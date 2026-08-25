@@ -837,7 +837,27 @@ def estimated_resources(spec: ScanCompositionSpec, *, part: str | None = None, c
     return ResourceEnvelope(lut=lut, ff=ff, bram36=bram, dsp=dsp, measured=measured)
 
 
-SPEC_CANONICAL_VERSION = "6"  # 6: handle_table_capacity joined the canonical form (a table is hardware, so it is design identity, 2026-08-14)
+# The version of the canonical form, carried as a prefix on every spec hash.
+#
+# It moves for a change to HOW a spec is canonicalized -- and the REGISTRY'S
+# NAMES ARE PART OF THAT. `canonical_spec_json` serializes a spec against the
+# palette that resolves it, so the palette is the text's alphabet, not one of
+# its values: drop a name from the registry and every recorded text spelling
+# it stops being readable at all, which is a change to the form by the only
+# test that matters. A text tagged with a version that cannot read it is the
+# defect this prefix exists to prevent, in mirror image -- not two designs
+# colliding under one key, but one design losing the key it was filed under.
+#
+# Bumping invalidates designs containing none of the departed names. That is
+# the same trade `HDL_CLOSURE_DIGEST_VERSION` records for the same reason: no
+# text written under the old rule means what a reader of the new rule would
+# think, and the cheap side of the asymmetry is a cold cache entry.
+#
+#   7: the tile palette dropped its width-named entries, so a version-6 text
+#      can name a tile this registry cannot resolve (2026-08-24)
+#   6: handle_table_capacity joined the canonical form (a table is hardware,
+#      so it is design identity, 2026-08-14)
+SPEC_CANONICAL_VERSION = "7"
 
 
 def canonical_spec_json(spec: ScanCompositionSpec) -> str:
@@ -897,8 +917,34 @@ def build_id_from_spec_hash(value: str) -> int:
     return int(digest[:16], 16)
 
 
+def canonical_version(value: str) -> str:
+    """The canonical-form version a recorded spec hash was written under.
+
+    Ask this BEFORE reading the text recorded beside it. The canonical form
+    is written against the registry, so a text from an older version can
+    name a tile this palette no longer carries, and
+    :func:`spec_from_canonical` then raises ``UnknownCoreError`` — an error
+    that names the registry, which is not the thing at fault. The version is
+    the only place a reader can learn that the text predates the palette it
+    is being read against, so a version mismatch is a refusal to compare,
+    decided without a parse.
+    """
+    version, separator, _ = value.partition(":")
+    if not separator or not version:
+        raise ValueError(f"spec hash {value!r} carries no canonical-form version prefix")
+    return version
+
+
 def spec_from_canonical(text: str) -> ScanCompositionSpec:
     """Rebuild a spec from its canonical form. Construction re-validates
     against the registry (kinds, status roles, parameter bounds), so a
-    tampered or stale canonical form fails loudly, never builds."""
+    tampered or stale canonical form fails loudly, never builds.
+
+    Reads text canonicalized under the CURRENT ``SPEC_CANONICAL_VERSION``.
+    A caller holding a RECORDED text — one out of a build manifest — holds
+    the version it was written under too, in the spec hash beside it, and
+    must check :func:`canonical_version` first: an older text is refused by
+    version, not by whatever the registry happens to say about the first
+    departed name it meets.
+    """
     return ScanCompositionSpec.model_validate_json(text)
