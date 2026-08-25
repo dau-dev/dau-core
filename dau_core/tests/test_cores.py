@@ -387,6 +387,136 @@ def test_the_width_named_tiles_are_exactly_the_declared_ones() -> None:
     )
 
 
+# Every name a canonical composition spec may currently spell, and therefore
+# the ALPHABET of `canonical_spec_json`. Packages are excluded: they carry no
+# instance and no spec can name one.
+#
+# This is the set the rename above walks, and pinning it is what makes a
+# departure visible AT THE RENAME. A name that leaves the registry does not
+# merely change a value in the canonical text -- it makes every recorded text
+# spelling it unreadable, `spec_from_canonical` raising `UnknownCoreError` for
+# a tile nobody can look up. That surfaced months later, from the build
+# manifest of a design that was flashed, resident and answering bit-exactly:
+# a flywheel session handed that manifest would have scheduled a rebuild of
+# hardware it was already running. The rename is not the defect; the silence
+# is, and this is where the silence ends.
+#
+# ARRIVALS ARE FREE. A name that was never in the registry cannot appear in a
+# text recorded against it, so a new tile adds a line here and nothing else.
+# DEPARTURES ARE NOT: a rename or a removal must bump SPEC_CANONICAL_VERSION
+# in the SAME change, so recorded texts can be refused by version rather than
+# by whatever the registry says about the first departed name a reader meets.
+CANONICAL_PALETTE_VERSION = "7"
+CANONICAL_PALETTE: frozenset[str] = frozenset(
+    {
+        "arrow-lite-stream-aggregation",
+        "asof-backward",
+        "axi-burst-reader",
+        "axi-ram-sim",
+        "axi-random-probe",
+        "axi-record-writer",
+        "axi-stream-job",
+        "axi-write-mux",
+        "bar-aggregation",
+        "bitonic-sorter",
+        "bram-stream-job",
+        "broadcast-hash-join",
+        "datetime-format",
+        "field-sum-aggregation",
+        "fixed-point-divide",
+        "fixed-point-exp",
+        "fixed-point-exp-light",
+        "fixed-point-ln",
+        "fixed-point-ln-light",
+        "fixed-point-sqrt",
+        "grouped-aggregation",
+        "grouped-field-aggregation",
+        "grouped-field-sum-aggregation",
+        "hash-grouped-aggregation",
+        "identity-axil",
+        "identity-registers",
+        "int32-keyed-map-alu",
+        "int32-keyed-predicate-filter",
+        "int32-map-alu",
+        "int32-predicate-filter",
+        "int32-record-gather",
+        "key-mask-dispatcher",
+        "key-membership-filter",
+        "keyed-state",
+        "market-feature",
+        "normal-cdf",
+        "pair-key-filter",
+        "range-partitioner",
+        "record-batch-aggregation",
+        "record-gearbox",
+        "rolling-extremum",
+        "rolling-moments",
+        "row-map-alu",
+        "row-predicate-filter",
+        "row-unpack",
+        "scratchpad",
+        "session-gap",
+        "stream-aggregation",
+        "stream-broadcast",
+        "streaming-dedup",
+        "streaming-top-k",
+        "stride-distributor",
+        "time-bucket-key",
+        "wide-field-sum-aggregation",
+        "wide-row-map-alu",
+        "wide-row-predicate-filter",
+    }
+)
+
+
+def test_the_canonical_palette_is_exactly_the_registered_names() -> None:
+    """THE GUARD a rename has to pass. A name that leaves this set takes
+    every recorded canonical spec that spells it with it.
+
+    Scoped to `own_cores()` like every exact set here: a vendor's installed
+    tile is not in our canonical alphabet's history and cannot depart from
+    it.
+
+    There are exactly two honest ways past a DEPARTURE failure:
+
+    1. Keep the name. A rename that buys nothing is not worth an identity
+       boundary.
+    2. Bump ``SPEC_CANONICAL_VERSION`` and ``CANONICAL_PALETTE_VERSION`` in
+       the same change, so every text recorded under the old palette is
+       refused by version instead of read against a registry that cannot
+       resolve it. Designs already on silicon do not re-enter the design
+       cache across that boundary -- their hash is stamped in a bitstream
+       and the manifest recording it must not be rewritten -- so they are
+       rebuilt once, deliberately, rather than mis-recognized forever.
+    """
+    registered = {definition.name for definition in own_cores() if definition.kind is not CoreKind.PACKAGE}
+    departed = CANONICAL_PALETTE - registered
+    assert not departed, (
+        f"these names left the tile palette: {sorted(departed)}. Every canonical spec text recorded against them is now "
+        "unreadable, and the manifests carrying those texts are immutable records of built bitstreams. Bump "
+        "SPEC_CANONICAL_VERSION (and CANONICAL_PALETTE_VERSION beside this set) in THIS change so those texts are refused "
+        "by version rather than by an UnknownCoreError months from now"
+    )
+    arrived = registered - CANONICAL_PALETTE
+    assert not arrived, (
+        f"these names joined the tile palette: {sorted(arrived)}. Add them here -- an arrival needs no version bump "
+        "(a name the registry never carried cannot appear in a text recorded against it), but the set has to state the "
+        "alphabet in full or a later departure from an unlisted name goes unnoticed"
+    )
+
+
+def test_the_canonical_palette_is_pinned_to_the_canonical_form_it_spells() -> None:
+    """The other direction of the same coupling: a canonical-form bump that
+    leaves this set alone has not said which palette the new version reads,
+    and the departure message above would then name the wrong version."""
+    from dau_core.composition import SPEC_CANONICAL_VERSION
+
+    assert CANONICAL_PALETTE_VERSION == SPEC_CANONICAL_VERSION, (
+        f"the pinned palette is version {CANONICAL_PALETTE_VERSION!r} but the canonical form is now "
+        f"{SPEC_CANONICAL_VERSION!r}; restate the palette this version canonicalizes"
+    )
+
+
 def _measured(**overrides):
     """A core carrying one measurement point, built here rather than read from
     the registry: which cores are migrated is a migration detail, and a test

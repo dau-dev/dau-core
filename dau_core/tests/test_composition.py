@@ -623,16 +623,21 @@ def test_spec_hash_pinned_fixture() -> None:
         ),
         burst_beats=16,
     )
-    # canonical version 6: handle_table_capacity joined the canonical form (a
-    # handle table is hardware) — every v5 cache key misses cold, by design.
-    # The digest below moved on 2026-08-17 WITHOUT the version moving, because
-    # the quad-row filter family was renamed: TileSpec.core is a plain string,
-    # so a rename changes the canonical form's VALUES and not its FORM. That is
-    # the distinction the prefix exists to draw — bumping it here would also
-    # invalidate every design containing none of the renamed tiles. It moved
-    # again on 2026-08-18 for the same reason, when the aggregation family
-    # followed (this fixture names `bar-aggregation`).
-    assert spec_hash(spec) == "6:8ad964f74ebf680e83774747c8e601278e2fcd19eb50a6ff102b3c487d3e3c7f"
+    # canonical version 7: the palette dropped its width-named entries, so a
+    # version-6 text can spell a tile this registry cannot resolve. The digest
+    # below moved twice under an UNCHANGED 6 while that rename walked the
+    # families (2026-08-17, 2026-08-18) on the reading that a rename changes
+    # the canonical form's VALUES and not its FORM. It changes both: the
+    # palette is the text's alphabet, and a text nobody can read has not
+    # merely changed value.
+    #
+    # This fixture is also the honest price of the bump. Its digest is
+    # UNCHANGED across it — `bar-aggregation` and `pair-key-filter` both kept
+    # their names — so the design is filed under a new key for a spelling it
+    # never used. That cost is real, bounded, and the smaller half of the
+    # asymmetry: a design nobody can look up is rebuilt once, where a design
+    # read against the wrong palette is mis-recognized every time.
+    assert spec_hash(spec) == "7:8ad964f74ebf680e83774747c8e601278e2fcd19eb50a6ff102b3c487d3e3c7f"
 
 
 def test_spec_from_canonical_revalidates() -> None:
@@ -643,6 +648,39 @@ def test_spec_from_canonical_revalidates() -> None:
     tampered = text.replace("bar-aggregation", "row-map-alu")  # silent-on-success: illegal terminal
     with pytest.raises(CompositionError):
         spec_from_canonical(tampered)
+
+
+def test_canonical_version_reads_the_prefix_a_recorded_hash_carries() -> None:
+    """The prefix is what a reader has instead of the palette that wrote the
+    text beside it, so it has to be readable without one."""
+    from dau_core.composition import SPEC_CANONICAL_VERSION, canonical_version, spec_hash
+
+    assert canonical_version(spec_hash(bar_noc_spec())) == SPEC_CANONICAL_VERSION
+    assert canonical_version("6:8a4ccc7143cbc80f") == "6"
+    for malformed in ("8a4ccc7143cbc80f", ":8a4ccc7143cbc80f", ""):
+        with pytest.raises(ValueError, match="canonical-form version prefix"):
+            canonical_version(malformed)
+
+
+def test_a_text_recorded_under_an_older_palette_is_refused_by_version_not_by_parse() -> None:
+    """The defect this boundary closes, in one place.
+
+    A build manifest written before the width-named tiles were renamed
+    records a canonical text naming them. Reading it against today's
+    registry raises `UnknownCoreError` — an error about a missing tile, from
+    a design that is built, flashed and answering. The version prefix beside
+    the text is the fact that says the text predates this palette, and it
+    says so without a parse.
+    """
+    from dau_core.composition import SPEC_CANONICAL_VERSION, canonical_spec_json, canonical_version, spec_from_canonical
+    from dau_core.registry import UnknownCoreError
+
+    recorded_hash = "6:8a4ccc7143cbc80f7f60edc0c1c48f30cd7ba8e07dbb1ee9fbbb37f0c2a0f3a2"
+    recorded_text = canonical_spec_json(bar_noc_spec()).replace('"bar-aggregation"', '"int32-bar-aggregation"')
+
+    assert canonical_version(recorded_hash) != SPEC_CANONICAL_VERSION
+    with pytest.raises(UnknownCoreError, match="int32-bar-aggregation"):
+        spec_from_canonical(recorded_text)
 
 
 def test_spec_hash_stable_when_defaults_are_explicit() -> None:
