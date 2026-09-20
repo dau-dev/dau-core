@@ -25,14 +25,10 @@ permissions:
 
 jobs:
   build:
-<<<<<<< before updating
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # this job is the required check, so it must fail rather than hang: the
     # whole thing has never taken 3 minutes
     timeout-minutes: 20
-=======
-    runs-on: ubuntu-24.04
->>>>>>> after updating
 
     steps:
       - name: Checkout
@@ -123,7 +119,7 @@ jobs:
   # they live here so a python-only change keeps its fast signal and a bench
   # still runs on every pull request
   hdl:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
 
     steps:
