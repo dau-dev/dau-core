@@ -22,8 +22,10 @@ protocol level), never in ``opcodes``.
 from __future__ import annotations
 
 from collections.abc import Mapping
-from dataclasses import dataclass, field
 from typing import Any
+
+from ccflow import BaseModel
+from pydantic import ConfigDict, Field
 
 from .composition import ScanCompositionSpec, TileSpec
 from .cores import ContractKind
@@ -43,10 +45,11 @@ def opcode_bitmap(opcodes: tuple[OperationCode, ...]) -> int:
     return bitmap
 
 
-@dataclass(frozen=True)
-class TileCapability:
+class TileCapability(BaseModel):
     """One operator tile instance as the contract describes it: registry
     identity, stream contract, HDL opcode truth, and instance config."""
+
+    model_config = ConfigDict(frozen=True)
 
     core: str
     module: str
@@ -95,10 +98,11 @@ class TileCapability:
         )
 
 
-@dataclass(frozen=True)
-class LaneCapability:
+class LaneCapability(BaseModel):
     """One scan lane: the terminal operator tile, its optional partition
     filter, and the ordered mid-lane operator ``chain`` between them."""
+
+    model_config = ConfigDict(frozen=True)
 
     tile: TileCapability
     partition: TileCapability | None = None
@@ -121,14 +125,21 @@ class LaneCapability:
         )
 
 
-@dataclass(frozen=True)
-class CapabilityContract:
-    """The advertised capability truth of one composed design."""
+class CapabilityContract(BaseModel):
+    """The advertised capability truth of one composed design.
+
+    A config-data model (it is what the shell-build manifest carries and
+    what a planner matches against), so a ccflow model like the rest of the
+    registry's declarations; ``to_mapping``/``from_mapping`` remain the
+    manifest serialization, unchanged, because manifests already on disk
+    carry that form."""
+
+    model_config = ConfigDict(frozen=True)
 
     name: str
     lanes: tuple[LaneCapability, ...]
     partitioner: TileCapability | None = None
-    register_map_version: RegisterMapVersion = field(default_factory=lambda: CURRENT_REGISTER_MAP_VERSION)
+    register_map_version: RegisterMapVersion = Field(default_factory=lambda: CURRENT_REGISTER_MAP_VERSION)
 
     @property
     def lane_count(self) -> int:
