@@ -191,3 +191,27 @@ def test_chainless_lane_mapping_round_trips_without_chain_key() -> None:
     del mapping["lanes"][0]["chain"]
     restored = CapabilityContract.from_mapping(json.loads(json.dumps(mapping)))
     assert restored == contract
+
+
+def test_the_contract_models_are_ccflow_models_not_dataclasses() -> None:
+    """The contract is config data -- what a manifest carries and a planner
+    matches against -- so it is declared the way every other registry
+    declaration is. Pinned so it cannot drift back to a dataclass."""
+    import dataclasses
+
+    from ccflow import BaseModel
+
+    from dau_core.capability_contract import TileCapability
+
+    for model in (TileCapability, LaneCapability, CapabilityContract):
+        assert issubclass(model, BaseModel), model
+        assert not dataclasses.is_dataclass(model), model
+        assert model.model_config.get("frozen") is True, model
+
+
+def test_a_contract_copies_with_a_field_replaced_and_stays_hashable() -> None:
+    lane = LaneCapability(tile=tile_capability("record-batch-aggregation"))
+    contract = CapabilityContract(name="twin", lanes=(lane,), partitioner=tile_capability("key-mask-dispatcher"))
+    twin = contract.model_copy(update={"partitioner": None})
+    assert twin.partitioner is None and twin.lanes == contract.lanes
+    assert len({lane.tile, tile_capability("record-batch-aggregation")}) == 1, "frozen models hash by value"

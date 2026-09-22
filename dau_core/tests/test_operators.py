@@ -505,6 +505,60 @@ def test_field_sum_empty_batch_and_mask_validation() -> None:
         field_sum_rows(_QUAD_ROWS, field_mask=16)
 
 
+@pytest.mark.parametrize("field_mask", list(range(1, 16)))
+def test_field_sum_record_words_round_trip_at_every_mask(field_mask: int) -> None:
+    """Decoding a record returns the aggregate that emitted it, for every
+    mask -- so the word count, the field order and the sign convention are
+    stated once and read back the same way."""
+    original = field_sum_rows(_QUAD_ROWS, field_mask=field_mask)
+    assert FieldSumAggregate.from_record_words(original.record_words(), field_mask=field_mask) == original
+
+
+def test_field_sum_decode_reads_negative_sums_as_twos_complement() -> None:
+    """The sign convention is the half a hand-rolled unpack gets wrong: a
+    negative sum is a large unsigned word on the wire."""
+    original = field_sum_rows([(0, -1000, 0, 0), (0, -2000, 0, 0)], field_mask=0b0010)
+    words = original.record_words()
+    assert words[0] > 2**63  # unsigned on the wire
+    decoded = FieldSumAggregate.from_record_words(words, field_mask=0b0010)
+    assert decoded.sums == (-3000,)
+    assert decoded.count == 2
+
+
+@pytest.mark.parametrize("field_mask", list(range(1, 16)))
+def test_field_sum_record_word_count_is_what_the_encoder_emits(field_mask: int) -> None:
+    aggregate = field_sum_rows(_QUAD_ROWS, field_mask=field_mask)
+    assert FieldSumAggregate.record_word_count(field_mask) == len(aggregate.record_words())
+
+
+def test_field_sum_combine_of_a_partition_equals_one_lane_over_all_rows() -> None:
+    """The partition algebra: split the rows by key across four lanes, fold
+    the four records, get the record one lane over every row emits."""
+    whole = field_sum_rows(_QUAD_ROWS, field_mask=0b1011)
+    shares = [[row for row in _QUAD_ROWS if row[0] & 3 == lane] for lane in range(4)]
+    partials = [field_sum_rows(share, field_mask=0b1011) for share in shares]
+    assert FieldSumAggregate.combine(partials) == whole
+    assert FieldSumAggregate.combine([whole]) == whole
+
+
+def test_field_sum_combine_refuses_mismatched_masks_and_nothing() -> None:
+    with pytest.raises(ValueError, match="disagree on field_mask"):
+        FieldSumAggregate.combine([field_sum_rows(_QUAD_ROWS, field_mask=0b0001), field_sum_rows(_QUAD_ROWS, field_mask=0b0011)])
+    with pytest.raises(ValueError, match="at least one record"):
+        FieldSumAggregate.combine([])
+
+
+def test_field_sum_decode_refuses_a_record_the_mask_does_not_describe() -> None:
+    """A wrong-length record is a mask/design mismatch, and reading it
+    would silently attribute one field's sum to another."""
+    with pytest.raises(ValueError, match="3-word record, got 2"):
+        FieldSumAggregate.from_record_words([0, 0], field_mask=0b0011)
+    with pytest.raises(ValueError, match="field_mask"):
+        FieldSumAggregate.from_record_words([0, 0], field_mask=0)
+    with pytest.raises(ValueError, match="unsigned 64-bit"):
+        FieldSumAggregate.from_record_words([-1, 0], field_mask=0b0001)
+
+
 _GROUPED_ROWS = [
     (3, 1000, 5, 10),
     (3, 2000, 6, 30),
@@ -1282,3 +1336,22 @@ def test_divide_at_zero_fractional_bits_is_python_floor_division() -> None:
         if not -(1 << 31) <= quotient <= (1 << 31) - 1:
             continue  # the RANGE close-out covers these
         assert fixed_point_divide(numerator, denominator, fractional_bits=0) == quotient
+
+
+def test_field_sum_combine_refuses_a_malformed_record_and_an_overflowing_union() -> None:
+    """A record whose sums do not match its mask is not a record; a union
+    that leaves INT64 is not one any lane could have emitted, and
+    re-encoding it would truncate silently."""
+    with pytest.raises(ValueError, match="selects 2 fields, record carries 1"):
+        FieldSumAggregate.combine(
+            [FieldSumAggregate(field_mask=0b0011, sums=(1,), count=1), FieldSumAggregate(field_mask=0b0011, sums=(2, 99), count=1)]
+        )
+    near_max = FieldSumAggregate(field_mask=0b0001, sums=((1 << 63) - 1,), count=1)
+    with pytest.raises(ValueError, match="leaves the INT64"):
+        FieldSumAggregate.combine([near_max, FieldSumAggregate(field_mask=0b0001, sums=(1,), count=1)])
+    assert FieldSumAggregate.combine([near_max]).sums == ((1 << 63) - 1,)
+
+
+def test_field_sum_decode_refuses_non_integer_words() -> None:
+    with pytest.raises(ValueError, match="unsigned 64-bit integers"):
+        FieldSumAggregate.from_record_words([0, 2.5], field_mask=0b0001)

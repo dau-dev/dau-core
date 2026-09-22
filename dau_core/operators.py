@@ -562,6 +562,12 @@ class FieldSumErrorCode(IntEnum):
     STREAM = 2
 
 
+#: A record stream word is 64 bits wide. Stated once, here, so a host sizing
+#: a read and a golden encoding a record agree by construction.
+STREAM_WORD_BYTES = 8
+_STREAM_WORD_MASK = (1 << (8 * STREAM_WORD_BYTES)) - 1
+
+
 @dataclass(frozen=True)
 class FieldSumAggregate:
     """The one record the field-sum aggregation tile emits per batch: exact
@@ -577,7 +583,85 @@ class FieldSumAggregate:
     def record_words(self) -> list[int]:
         """The record as unsigned 64-bit stream words (sums re-encoded to
         two's complement), count last."""
-        return [sum_value & 0xFFFF_FFFF_FFFF_FFFF for sum_value in self.sums] + [self.count]
+        return [sum_value & _STREAM_WORD_MASK for sum_value in self.sums] + [self.count]
+
+    @staticmethod
+    def record_word_count(field_mask: int) -> int:
+        """Words in the record a lane with this mask emits: one per selected
+        field, plus the count word. The one statement of the record's
+        length, which the encoder, the decoder and any host sizing a read
+        all consult."""
+        if not 1 <= field_mask <= 15:
+            raise ValueError("field_mask must select at least one of the four fields")
+        return field_mask.bit_count() + 1
+
+    @classmethod
+    def from_record_words(cls, words: Sequence[int], *, field_mask: int) -> FieldSumAggregate:
+        """The inverse of :meth:`record_words`: read one lane's emitted
+        record back into the aggregate it describes.
+
+        A host reading results off a device has the same record and the
+        same mask, so the decode is not a second statement of the format
+        but this one run backwards -- which is why it lives here rather
+        than in whichever host layer happens to read the bytes. Every
+        caller that hand-rolled the unpack got to choose its own word
+        order and its own sign convention; this cannot.
+
+        ``words`` is one unsigned 64-bit word per mask-selected field in
+        ascending field order, then the count. Sums are two's complement
+        and come back signed; the count does not.
+        """
+        expected = cls.record_word_count(field_mask)
+        if len(words) != expected:
+            raise ValueError(f"field_mask {field_mask:#06b} describes a {expected}-word record, got {len(words)} words")
+        if any(not isinstance(word, int) or not 0 <= word <= _STREAM_WORD_MASK for word in words):
+            raise ValueError("record words must be unsigned 64-bit integers")
+        count = words[-1]
+        return cls(
+            field_mask=field_mask,
+            sums=tuple(_signed_int64(word) for word in words[:-1]),
+            count=count,
+        )
+
+    @classmethod
+    def combine(cls, records: Sequence[FieldSumAggregate]) -> FieldSumAggregate:
+        """The record one lane would have emitted over the union of the
+        rows several lanes each saw a DISJOINT share of: sums add, counts
+        add.
+
+        This is the partition algebra of the tile -- what makes a key-mask
+        dispatcher's replicas, or a complete pair-key partition group,
+        answer as one lane -- and it holds only under a partition. Folding
+        two lanes that each saw every row counts every row twice, which is
+        a fact about who fed the lanes and not about this fold; the caller
+        that knows the fan-out decides what is combined.
+        """
+        if not records:
+            raise ValueError("combine needs at least one record")
+        first = records[0]
+        width = cls.record_word_count(first.field_mask) - 1
+        for record in records:
+            if record.field_mask != first.field_mask:
+                raise ValueError(f"records disagree on field_mask: {first.field_mask:#06b} and {record.field_mask:#06b}")
+            if len(record.sums) != width:
+                raise ValueError(f"field_mask {first.field_mask:#06b} selects {width} fields, record carries {len(record.sums)} sums")
+        combined = cls(
+            field_mask=first.field_mask,
+            sums=tuple(sum(record.sums[slot] for record in records) for slot in range(width)),
+            count=sum(record.count for record in records),
+        )
+        # the record's domain is exact INT64 sums and an unsigned count word;
+        # a partition whose union leaves it is not a record any lane could
+        # have emitted, and re-encoding it would truncate silently
+        if any(not -(1 << 63) <= value < (1 << 63) for value in combined.sums) or not 0 <= combined.count <= _STREAM_WORD_MASK:
+            raise ValueError("combined record leaves the INT64 sum / unsigned count domain of the field-sum record")
+        return combined
+
+
+def _signed_int64(word: int) -> int:
+    """Two's-complement read of one unsigned stream word."""
+    bits = 8 * STREAM_WORD_BYTES
+    return word - (1 << bits) if word >> (bits - 1) else word
 
 
 def field_sum_rows(rows: Iterable[tuple[int, int, int, int]], *, field_mask: int) -> FieldSumAggregate:
