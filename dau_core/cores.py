@@ -346,7 +346,7 @@ class ParameterSpec(BaseModel):
         dau-build is public and the encoding lives here. Asking the spec that
         declared the parameter keeps the vocabulary in one place.
         """
-        return element_code(value) if self.element_type else value
+        return element_code(value) if self.element_type else int(value)
 
     def _violation(self, value: int, magnitude: int) -> str | None:
         """``value`` is what the RTL elaborates with; ``magnitude`` is what the

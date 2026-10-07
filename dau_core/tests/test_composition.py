@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 import pytest
 
 from dau_core.composition import CompositionError, LaneSpec, ScanCompositionSpec, TileSpec, estimated_resources, stream_shape_mismatches
@@ -20,15 +22,8 @@ def _priced(spec: ScanCompositionSpec):
 
 
 def _tile_lut(name: str) -> int:
-    """A tile's LUTs at the coordinate above.
-
-    Every operator and stream-infra tile carries measurement points as of
-    2026-08-11; the scalar branch remains for the one shell-adapter that
-    has no clock to characterize against."""
-    definition = core(name)
-    if isinstance(definition.resources, (list, tuple)):
-        return definition.resource_measurement(part=_PART, clock_ns=_CLOCK_NS, params={}).usable_envelope().lut
-    return definition.resources.lut
+    """A tile's LUTs at the coordinate above."""
+    return core(name).resource_measurement(part=_PART, clock_ns=_CLOCK_NS, params={}).usable_envelope().lut
 
 
 def _partition(lane: int, lanes: int) -> TileSpec:
@@ -223,7 +218,7 @@ def test_a_type_and_its_width_are_the_same_design() -> None:
     a design cache that missed on spelling would rebuild an identical shell."""
     from dau_core.composition import spec_hash
 
-    def spec(field: object) -> ScanCompositionSpec:
+    def spec(field: Any) -> ScanCompositionSpec:
         return ScanCompositionSpec(
             name="q6-where",
             lanes=(LaneSpec(tile=_BAR, chain=(TileSpec(core="row-predicate-filter", params={"FIELD_WIDTH": field}),)),),
@@ -1090,7 +1085,9 @@ def test_the_gearbox_is_charged_as_the_front_delivery_it_is() -> None:
 
     rate = throughput_rows_per_cycle(geared)
 
-    gearbox_rate = core("record-gearbox").ingest.effective(dict(_front_gearbox().params), core("record-gearbox").parameters)
+    gearbox = core("record-gearbox")
+    assert gearbox.ingest is not None
+    gearbox_rate = gearbox.ingest.effective(dict(_front_gearbox().params), gearbox.parameters)
     assert rate <= gearbox_rate, "the front cannot deliver faster than the tile that frames it"
     # and the reader's own record supply is charged at the RECORD size: 512
     # bits per cycle over 3-word (24-byte) records is 8/3, not 512/128 = 4

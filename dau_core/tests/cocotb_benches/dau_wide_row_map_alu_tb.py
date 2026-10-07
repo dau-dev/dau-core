@@ -43,7 +43,7 @@ async def sustained_ingest_meets_registry_floor(dut):
 async def random_ragged_rows_match_golden_under_backpressure(dut):
     await _start(dut)
     rng = random.Random(0xA111_2026)
-    rows = [tuple(rng.randint(-(1 << 31), (1 << 31) - 1) for _ in range(4)) for _ in range(4 * _slots(dut) + 1)]
+    rows = [_random_row(rng) for _ in range(4 * _slots(dut) + 1)]
     config = RowMapConfig(
         op=MapOp.MULSHR,
         dst=RowField.AUX0,
@@ -117,12 +117,17 @@ def _signed32(value: int) -> int:
     return value - (1 << 32) if value >= (1 << 31) else value
 
 
+def _random_row(rng: random.Random) -> tuple[int, int, int, int]:
+    low, high = -(1 << 31), (1 << 31) - 1
+    return (rng.randint(low, high), rng.randint(low, high), rng.randint(low, high), rng.randint(low, high))
+
+
 def _decode_row(bits: int) -> tuple[int, int, int, int]:
-    return tuple(_signed32(bits >> (32 * field)) for field in range(4))
+    return (_signed32(bits), _signed32(bits >> 32), _signed32(bits >> 64), _signed32(bits >> 96))
 
 
 def _decode_non_pad_rows(beats, slots: int) -> list[tuple[int, int, int, int]]:
-    rows = []
+    rows: list[tuple[int, int, int, int]] = []
     for beat in beats:
         for slot in range(slots):
             bits = (beat >> (128 * slot)) & _PAD_ROW

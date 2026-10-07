@@ -80,6 +80,8 @@ def test_the_identity_wrapper_forwards_every_capability_parameter() -> None:
     wrapper = (_HDL_DIR / "dau_identity_axil.v").read_text(encoding="utf-8")
     declared = _module_parameters()["dau_identity_registers"]
 
-    forwarded = set(_BINDING.findall(_INSTANTIATION.search(wrapper).group(2)))
+    instantiation = _INSTANTIATION.search(wrapper)
+    assert instantiation is not None, "the wrapper no longer instantiates dau_identity_registers"
+    forwarded = set(_BINDING.findall(instantiation.group(2)))
     missing = sorted(declared - forwarded)
     assert not missing, f"dau_identity_axil does not forward {missing}; a shell using the wrapper advertises them as zero"

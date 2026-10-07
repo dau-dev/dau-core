@@ -164,6 +164,7 @@ async def whole_record_input_routes_one_record_per_cycle(dut):
             break
     await send
     await collect
+    assert first is not None and last_tick is not None
     cycles = last_tick - first + 1
     assert accepted == len(records)
     # a small allowance for lane-drain collisions; the word-framed front

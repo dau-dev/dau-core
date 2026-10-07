@@ -25,7 +25,7 @@ def _beat_value(beat_index: int, data_width: int) -> int:
 async def burst_reader_streams_the_window_exactly(dut):
     data_width = len(dut.m_axi_rdata)
     bytes_per_beat = data_width // 8
-    cocotb.start_soon(Clock(dut.clk, 4, units="ns").start())
+    cocotb.start_soon(Clock(dut.clk, 4, unit="ns").start())
 
     total_beats = 53  # spans multiple bursts at BURST_BEATS=16, ragged tail
     base = 0x1000

@@ -249,10 +249,10 @@ async def constrained_random_batches_match_golden(dut):
     ops = list(PredicateOp)
     combines = list(PredicateCombine)
     for trial in range(40):
-        rows = []
+        rows: list[tuple[int, int]] = []
         for _ in range(rng.randint(1, 12)):
             row = tuple(rng.choice((_INT32_MIN, _INT32_MAX, 0, -1)) if rng.random() < 0.1 else rng.randint(-40, 40) for _ in range(2))
-            rows.append(row)
+            rows.append((row[0], row[1]))
 
         def constant():
             return rng.choice((_INT32_MIN, _INT32_MAX, 0)) if rng.random() < 0.15 else rng.randint(-40, 40)

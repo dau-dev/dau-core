@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from collections.abc import Awaitable, Callable, Mapping, Sequence
+from collections.abc import Callable, Coroutine, Mapping, Sequence
 from fractions import Fraction
+from typing import Any
 
 import cocotb
 from cocotb.triggers import ReadOnly, RisingEdge
@@ -15,7 +16,7 @@ async def assert_sustained_ingest(
     dut,
     core_name: str,
     *,
-    send: Callable[[], Awaitable[None]],
+    send: Callable[[], Coroutine[Any, Any, None]],
     input_beats: int,
     rows_per_beat: int = 1,
     beats_per_row: int = 1,

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any, cast
+
 import pytest
 
 from dau_core.operators import (
@@ -1165,7 +1167,7 @@ def test_keyed_state_keys_and_values_live_in_the_int32_domain() -> None:
 def test_keyed_state_rejects_an_unsupported_op() -> None:
     # every non-SET/ADD/MAX value previously fell through to MIN
     with pytest.raises(ValueError, match="unsupported keyed state op"):
-        keyed_state_scan([(1, 1)], op=99, capacity=4)  # type: ignore[arg-type]
+        keyed_state_scan([(1, 1)], op=cast(Any, 99), capacity=4)
 
 
 def test_scratchpad_emits_post_op_state_per_row() -> None:
@@ -1354,4 +1356,4 @@ def test_field_sum_combine_refuses_a_malformed_record_and_an_overflowing_union()
 
 def test_field_sum_decode_refuses_non_integer_words() -> None:
     with pytest.raises(ValueError, match="unsigned 64-bit integers"):
-        FieldSumAggregate.from_record_words([0, 2.5], field_mask=0b0001)
+        FieldSumAggregate.from_record_words(cast(Any, [0, 2.5]), field_mask=0b0001)

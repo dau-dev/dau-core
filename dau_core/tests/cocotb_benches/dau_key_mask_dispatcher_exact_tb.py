@@ -125,5 +125,6 @@ async def exact_branch_drop_dominant_sustains_front_rate(dut):
     dut.output_ready.value = 0
     dut.status_ready.value = 0
     assert accepts == len(rows), f"only {accepts}/{len(rows)} rows accepted"
+    assert first_accept is not None and last_accept is not None
     window = last_accept - first_accept + 1
     assert window <= len(rows) + 4, f"front took {window} cycles for {len(rows)} drop-dominant rows (not ~1 row/cycle)"

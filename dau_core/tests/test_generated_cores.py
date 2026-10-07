@@ -17,6 +17,7 @@ already use.
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 import pytest
 from hydra.utils import instantiate
@@ -25,7 +26,7 @@ from dau_core.cores import CoreDefinition, UnrenderedCoreError
 from dau_core.exp_generator import ExpTileGenerator
 from dau_core.fixed_point import ExpDatapath
 
-_BASE = {
+_BASE: dict[str, Any] = {
     "name": "generated-probe",
     "kind": "operator",
     "module": "dau_fixed_point_exp",
@@ -43,7 +44,7 @@ def _registered_point(name: str) -> ExpDatapath:
     from dau_core.registry import core
 
     generator = core(name).generator
-    assert generator is not None
+    assert isinstance(generator, ExpTileGenerator)
     return generator.datapath
 
 

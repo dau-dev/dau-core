@@ -14,6 +14,7 @@ import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import ReadOnly, RisingEdge
 
+from dau_core.exp_generator import ExpTileGenerator
 from dau_core.fixed_point import exp_domain
 from dau_core.registry import loaded_cores
 
@@ -22,7 +23,9 @@ _MASK32 = 0xFFFF_FFFF
 # bench cannot drift from the core it is benching
 # defaults to the exact point so the module imports standalone; the runner
 # names the core under test
-_POINT = loaded_cores()[os.environ.get("DAU_EXP_CORE", "fixed-point-exp")].generator.datapath
+_GENERATOR = loaded_cores()[os.environ.get("DAU_EXP_CORE", "fixed-point-exp")].generator
+assert isinstance(_GENERATOR, ExpTileGenerator)
+_POINT = _GENERATOR.datapath
 
 
 def _signed32(value: int) -> int:
