@@ -161,24 +161,16 @@ def _exp_constants(internal_bits: int, table_bits: int, degree: int, k_bits: int
     }
 
 
-# The registered operating points, chosen by exhaustive sweep (every one of
-# the 1,453,635 representable inputs), not by sampling. Their accuracy is
-# pinned by the dau-core suite and recorded in the registry beside the
-# resource envelope.
-#:
-# EXACT is correctly rounded: it agrees with :func:`exp_reference` on every
-# input, so for this point the algorithm and the mathematics coincide.
-EXP_EXACT = ExpDatapath(internal_bits=52, table_bits=8, degree=4)
-# LIGHT is FAITHFUL: never more than one ULP from the correctly rounded
-# answer, for roughly a third of the multiplier width. Q32 was measured too
-# and reaches 3 ULP, so 36 bits is the floor worth registering.
-EXP_LIGHT = ExpDatapath(internal_bits=36, table_bits=8, degree=3, round_steps=True)
-
-# Exhaustively measured deviation from :func:`exp_reference`, in ULP, for
-# each registered point. A bound that is asserted rather than swept is not
-# worth having: sampling declared a configuration flawless that an
-# exhaustive sweep showed wrong on three inputs.
-EXP_MEASURED_ULP: dict[str, int] = {"exact": 0, "light": 1}
+# The registered exp operating points are registry entries (``fixed-point-exp``
+# and ``fixed-point-exp-light``): each core's ``generator.datapath`` is its
+# ``ExpDatapath`` and its ``accuracy_ulp`` the exhaustively measured
+# deviation from :func:`exp_reference`. The exact point is correctly rounded
+# (0 ULP, agreeing with the reference on every input); the light point is
+# faithful (never more than 1 ULP) for roughly a third of the multiplier
+# width. Q32 was measured too and reaches 3 ULP, so 36 bits is the floor
+# worth registering. A bound that is asserted rather than swept is not worth
+# having: sampling once declared a configuration flawless that an exhaustive
+# sweep showed wrong on three inputs.
 
 LN_FRACTIONAL_BITS = 16
 

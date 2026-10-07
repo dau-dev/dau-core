@@ -28,7 +28,6 @@ from dau_core.cores import (
     HDL_CLOSURE_DIGEST_VERSION,
     CoreDefinition,
     CoreKind,
-    ResourceEnvelope,
     UnknownCoreSourceError,
 )
 from dau_core.registry import loaded_cores
@@ -93,7 +92,6 @@ UNSTAMPED_ENVELOPES: frozenset[str] = frozenset(
         "grouped-field-aggregation",
         "grouped-field-sum-aggregation",
         "hash-grouped-aggregation",
-        "identity-registers",
         "int32-keyed-predicate-filter",
         "int32-predicate-filter",
         "int32-record-gather",
@@ -272,10 +270,10 @@ def test_a_stamp_without_a_measurement_is_refused() -> None:
         )
 
 
-def test_a_stamp_beside_a_scalar_envelope_is_checked_like_any_other() -> None:
-    """`identity-registers` carries a scalar envelope rather than measurement
-    points; the stamp is about the RTL, not about the envelope's shape."""
+def test_the_shell_register_block_is_stamped_and_its_stamp_matches() -> None:
+    """`identity-registers` is a combinational shell adapter measured on both
+    parts (2026-10-06) with no clock; its stamp was written by the build
+    host's run and must match the RTL this checkout carries."""
     definition = loaded_cores()["identity-registers"]
-    assert isinstance(definition.resources, ResourceEnvelope)
-    stamped = definition.model_copy(update={"measured_from": definition.hdl_closure_digest(_resolve)})
-    assert stamped.measured_from == stamped.hdl_closure_digest(_resolve)
+    assert definition.resources is not None and all(point.clock_ns is None for point in definition.resources)
+    assert definition.measured_from == definition.hdl_closure_digest(_resolve)

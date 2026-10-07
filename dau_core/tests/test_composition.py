@@ -63,9 +63,6 @@ def test_estimated_resources_scale_with_lanes() -> None:
     four = _priced(bar_noc_spec(lanes=4))
     per_lane = _tile_lut("axi-record-writer") + _tile_lut("pair-key-filter") + _tile_lut("bar-aggregation")
     assert four.lut - one.lut == 3 * per_lane
-    # not fully measured while the axi infra tiles still carry scalar
-    # envelopes -- this flips to True when they migrate, which is the point
-    assert not four.measured
 
 
 def test_single_lane_filterless_scan_is_valid() -> None:
@@ -116,7 +113,6 @@ def test_shared_partitioner_must_be_operator() -> None:
 def test_sorted_scan_resources_use_partitioner_envelope() -> None:
     spec = sorted_scan_spec()
     envelope = _priced(spec)
-    assert not envelope.measured  # the axi infra tiles are still scalar
     partitioner = core("range-partitioner").resources
     broadcast = core("stream-broadcast").resources
     assert partitioner is not None and broadcast is not None
@@ -172,7 +168,6 @@ def test_chain_resources_are_counted_per_lane() -> None:
     stage = core("row-map-alu").resource_measurement(part=_PART, clock_ns=_CLOCK_NS, params={}).usable_envelope()
     assert chained.lut - plain.lut == 2 * stage.lut
     assert chained.dsp - plain.dsp == 2 * stage.dsp
-    assert not chained.measured  # the axi infra tiles are still scalar
 
 
 def test_tile_params_validate_declared_names_and_positive_values() -> None:
@@ -545,7 +540,6 @@ def test_front_unpack_validates_and_reaches_core_names_and_resources() -> None:
     priced = _priced(spec)
     without = _priced(bar_noc_spec())
     assert priced.lut - without.lut == _tile_lut("row-unpack")
-    assert not priced.measured  # the axi infra tiles are still scalar
     # it coexists with a shared partitioner too (still one clean-key row into the fan-out)
     partitioned = ScanCompositionSpec(
         name="sorted-scan-packed", lanes=sorted_scan_spec().lanes, partitioner=_range_partitioner(4), front_unpack=_front_unpack()
@@ -1159,7 +1153,7 @@ def test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front() -> None:
     lanes = bar_noc_spec().lanes
     with pytest.raises(CompositionError, match="requires data_width > 64"):
         ScanCompositionSpec(name="scan", lanes=lanes, front_gearbox=_front_gearbox())
-    with pytest.raises(CompositionError, match="is not the 'record-gearbox' reframing core"):
+    with pytest.raises(CompositionError, match="does not declare role 'front-gearbox'"):
         ScanCompositionSpec(
             name="scan",
             lanes=lanes,
@@ -1200,7 +1194,7 @@ def test_a_stream_job_composition_refuses_scan_shaped_fields() -> None:
         ScanCompositionSpec(name="s", stream_job="bram-stream-job", lanes=lanes, partitioner=_record_dispatcher())
     with pytest.raises(CompositionError, match="exactly one lane"):
         ScanCompositionSpec(name="s", stream_job="bram-stream-job", lanes=lanes * 2)
-    with pytest.raises(CompositionError, match="stream_job must be one of"):
+    with pytest.raises(CompositionError, match="stream_job must name a core with role"):
         ScanCompositionSpec(name="s", stream_job="not-a-job", lanes=lanes)
     # the handle table resolves an address for a burst reader the stream job
     # does not have, and its top decodes no handle aperture — a capacity here
@@ -1306,3 +1300,46 @@ def test_a_packed_wide_feed_rates_at_the_unpacker_not_at_one_row() -> None:
         front_unpack=TileSpec(core="row-unpack"),
     )
     assert throughput_rows_per_cycle(narrow) == Fraction(1, 2)
+
+
+def test_shell_infrastructure_is_selected_by_role_not_by_name() -> None:
+    """Composition IS the registry: the shell cores a composition places are
+    the ones declaring each infrastructure role, exactly one per role, and
+    ``composition.py`` names none of them. The order the scan roles are
+    placed in is pinned because ``core_names`` feeds the canonical hash."""
+    import inspect
+
+    from dau_core import composition
+    from dau_core.cores import CoreRole
+    from dau_core.registry import core_of_role
+
+    source = inspect.getsource(composition)
+    for name in (
+        "axi-burst-reader",
+        "stream-broadcast",
+        "axi-record-writer",
+        "axi-write-mux",
+        "identity-registers",
+        "record-gearbox",
+        "bram-stream-job",
+    ):
+        assert f'"{name}"' not in source, f"composition names {name!r} instead of asking the registry for its role"
+    singletons = (
+        CoreRole.SCAN_READER,
+        CoreRole.SCAN_BROADCAST,
+        CoreRole.SCAN_RECORD_WRITER,
+        CoreRole.SCAN_WRITE_MUX,
+        CoreRole.SHELL_REGISTERS,
+        CoreRole.FRONT_GEARBOX,
+    )
+    for role in singletons:
+        core_of_role(role)  # exactly one, or it raises
+    names = bar_noc_spec().core_names()
+    assert names[:5] == ("axi-burst-reader", "stream-broadcast", "axi-record-writer", "axi-write-mux", "identity-registers"), (
+        "the scan shell's cores must enter core_names in this order: the canonical spec hash reads it"
+    )
+
+
+def test_a_stream_job_must_name_a_stream_job_shell() -> None:
+    with pytest.raises(CompositionError, match="stream-job-shell"):
+        ScanCompositionSpec(name="bad", stream_job="axi-burst-reader", lanes=(LaneSpec(tile=_BAR),))

@@ -18,7 +18,8 @@ import os
 
 import pytest
 
-from dau_core.fixed_point import EXP_EXACT, EXP_LIGHT, EXP_MEASURED_ULP, ExpDatapath, exp_domain, exp_reference
+from dau_core.fixed_point import ExpDatapath, exp_domain, exp_reference
+from dau_core.registry import core
 
 _EXHAUSTIVE = os.environ.get("DAU_EXHAUSTIVE") == "1"
 _STRIDE = 1 if _EXHAUSTIVE else 149
@@ -60,15 +61,33 @@ def test_exp_overflowing_int32_is_refused_not_wrapped() -> None:
         exp_reference(high + 1)
 
 
-@pytest.mark.parametrize(("name", "point"), [("exact", EXP_EXACT), ("light", EXP_LIGHT)])
-def test_each_operating_point_meets_its_recorded_bound(name: str, point: ExpDatapath) -> None:
+EXP_CORES = ("fixed-point-exp", "fixed-point-exp-light")
+
+
+def _point(name: str) -> ExpDatapath:
+    """The registered operating point: the exp tile's generator datapath."""
+    generator = core(name).generator
+    assert generator is not None, f"{name} is a generated tile"
+    datapath = generator.datapath
+    assert isinstance(datapath, ExpDatapath)
+    return datapath
+
+
+def _recorded_ulp(name: str) -> int:
+    recorded = core(name).accuracy_ulp
+    assert recorded is not None, f"{name} records no accuracy_ulp"
+    return recorded
+
+
+@pytest.mark.parametrize("name", EXP_CORES)
+def test_each_operating_point_meets_its_recorded_bound(name: str) -> None:
     """The registered bound is what the registry and the docs quote. If a
     point drifts past it, that is a change to an advertised fact."""
-    worst, wrong, checked = _worst_deviation(point, stride=_STRIDE)
-    recorded = EXP_MEASURED_ULP[name]
+    worst, wrong, checked = _worst_deviation(_point(name), stride=_STRIDE)
+    recorded = _recorded_ulp(name)
     assert worst <= recorded, (
-        f"{name} point deviates by {worst} ULP over {checked:,} inputs ({wrong:,} wrong), "
-        f"but EXP_MEASURED_ULP records {recorded}. Re-measure exhaustively and update the record, "
+        f"{name} deviates by {worst} ULP over {checked:,} inputs ({wrong:,} wrong), "
+        f"but the registry records accuracy_ulp {recorded}. Re-measure exhaustively and update the record, "
         "or fix the datapath"
     )
 
@@ -76,16 +95,17 @@ def test_each_operating_point_meets_its_recorded_bound(name: str, point: ExpData
 def test_the_exact_point_is_correctly_rounded() -> None:
     """The stronger claim, kept separate because it is the one that makes the
     contract mathematical rather than a description of our polynomial."""
-    worst, wrong, checked = _worst_deviation(EXP_EXACT, stride=_STRIDE)
+    worst, wrong, checked = _worst_deviation(_point("fixed-point-exp"), stride=_STRIDE)
     assert (worst, wrong) == (0, 0), f"the exact point is not correctly rounded: {wrong:,} of {checked:,} inputs, worst {worst} ULP"
 
 
 def test_the_light_point_is_actually_lighter() -> None:
     """A second operating point only earns its place by costing less. Guard
     the reason it exists, not just its accuracy."""
-    assert EXP_LIGHT.internal_bits < EXP_EXACT.internal_bits
-    assert EXP_LIGHT.multiplies <= EXP_EXACT.multiplies
-    assert EXP_MEASURED_ULP["light"] > EXP_MEASURED_ULP["exact"], "a point that is no less accurate is not a trade-off"
+    exact, light = _point("fixed-point-exp"), _point("fixed-point-exp-light")
+    assert light.internal_bits < exact.internal_bits
+    assert light.multiplies <= exact.multiplies
+    assert _recorded_ulp("fixed-point-exp-light") > _recorded_ulp("fixed-point-exp"), "a point that is no less accurate is not a trade-off"
 
 
 def test_rounding_steps_only_help_where_precision_binds() -> None:
@@ -115,9 +135,10 @@ def test_the_range_reduction_index_is_deliberately_narrow() -> None:
     rather than the number: more precision here must not change a single
     result.
     """
-    assert EXP_EXACT.k_bits <= 32, "the reduction index does not need full internal precision"
+    exact = _point("fixed-point-exp")
+    assert exact.k_bits <= 32, "the reduction index does not need full internal precision"
 
-    wide = EXP_EXACT.model_copy(update={"k_bits": 52})
+    wide = exact.model_copy(update={"k_bits": 52})
     low, high = exp_domain()
     for x in range(low, high + 1, _STRIDE):
-        assert EXP_EXACT.evaluate(x) == wide.evaluate(x), f"widening k changed the result at x={x}"
+        assert exact.evaluate(x) == wide.evaluate(x), f"widening k changed the result at x={x}"

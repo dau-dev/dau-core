@@ -7,11 +7,9 @@ The registry itself lives in dau-core's hydra config tree
 core, composed into the ccflow ``ModelRegistry`` at ``/dau-core/<name>``
 and discoverable on the shared search path via the ``hydra.lernaplugins``
 entry point. Composition IS the registry — this module defines the models
-and thin cached accessors, never a core list. Resource envelopes are produced
-by the dau-build synthesize-cores task; ``measured=False`` marks estimates
-awaiting a synthesis pass. New entries record resource measurement points by
-part, clock, and module parameters; legacy unkeyed envelopes remain readable
-during migration.
+and thin cached accessors, never a core list. Resource measurements are
+produced by the dau-build synthesize-cores task and recorded per part, clock
+and module parameters; there is no other shape.
 """
 
 from __future__ import annotations
@@ -74,6 +72,20 @@ class CoreRole(Enum):
 
     FRONT_UNPACK = "front-unpack"  # widens packed rows into the quad row the operator tiles read
     KEY_DISPATCH = "key-dispatch"  # routes whole records to lanes by a decode over the key
+    # The shell infrastructure a composition sits in. Each of these is a job
+    # exactly one registered core fills, and the composition asks for the
+    # job rather than naming the core: the DDR scan shell's burst reader,
+    # its lane broadcast, its per-lane record writer and its write mux; the
+    # identity/capability register block every shell carries; the stream-job
+    # tops that hand one tile chain its rows from staging; and the front
+    # gearbox that reframes a wide feed into the 64-bit row stream.
+    SCAN_READER = "scan-reader"
+    SCAN_BROADCAST = "scan-broadcast"
+    SCAN_RECORD_WRITER = "scan-record-writer"
+    SCAN_WRITE_MUX = "scan-write-mux"
+    SHELL_REGISTERS = "shell-registers"
+    STREAM_JOB_SHELL = "stream-job-shell"
+    FRONT_GEARBOX = "front-gearbox"
 
 
 class ContractKind(Enum):
@@ -91,8 +103,10 @@ class ContractKind(Enum):
 
 
 class ResourceEnvelope(BaseModel):
-    """Legacy unkeyed post-synthesis footprint. ``measured=False`` marks an
-    engineering estimate. New measurements use ``ResourceMeasurement``."""
+    """Resource counts: one LUT/FF/BRAM/DSP tuple. The usable face of a
+    measurement point, or the sum a composition estimate adds up to. Never
+    a registry entry on its own: the registry records measurement points,
+    which carry the coordinates a count is meaningless without."""
 
     model_config = ConfigDict(frozen=True)
 
@@ -100,7 +114,6 @@ class ResourceEnvelope(BaseModel):
     ff: NonNegativeInt
     bram36: NonNegativeFloat
     dsp: NonNegativeInt
-    measured: bool = True
 
 
 class TimingStatus(Enum):
@@ -110,19 +123,24 @@ class TimingStatus(Enum):
 
 class ResourceMeasurement(BaseModel):
     """One exact OOC result. Coordinates are deliberately discrete: a
-    measurement says nothing about another part, clock, or parameter tuple."""
+    measurement says nothing about another part, clock, or parameter tuple.
+
+    A combinational core has no clock: ``clock_ns`` is ``None``, no timing
+    was reported and none is recorded, and the point answers for any clock
+    because the logic costs the same at every one. A clocked point carries
+    the clock it was constrained to, whether it met, and by how much."""
 
     model_config = ConfigDict(frozen=True)
 
     part: str = Field(min_length=1)
-    clock_ns: float = Field(gt=0)
+    clock_ns: float | None = None
     params: Mapping[str, StrictInt] = {}
     lut: NonNegativeInt
     ff: NonNegativeInt
     bram36: NonNegativeFloat
     dsp: NonNegativeInt
-    timing: TimingStatus
-    wns_ns: float
+    timing: TimingStatus | None = None
+    wns_ns: float | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -142,13 +160,27 @@ class ResourceMeasurement(BaseModel):
 
     @model_validator(mode="after")
     def _timing_matches_wns(self) -> ResourceMeasurement:
+        if self.clock_ns is None:
+            if self.timing is not None or self.wns_ns is not None:
+                raise ValueError("an unclocked (combinational) measurement records no timing status or slack")
+            return self
+        if self.clock_ns <= 0:
+            raise ValueError(f"clock_ns must be positive, got {self.clock_ns}")
+        if self.timing is None or self.wns_ns is None:
+            raise ValueError(f"a measurement at clock_ns={self.clock_ns:g} must record timing and wns_ns")
         met = self.wns_ns >= 0
         if met != (self.timing is TimingStatus.MET):
             raise ValueError(f"timing {self.timing.value!r} disagrees with WNS {self.wns_ns:+g} ns")
         return self
 
+    def answers_clock(self, clock_ns: float) -> bool:
+        """Whether this point prices a build at ``clock_ns``: an unclocked
+        point prices any clock, a clocked one only its own."""
+        return self.clock_ns is None or _same_clock(self.clock_ns, clock_ns)
+
     def usable_envelope(self) -> ResourceEnvelope:
-        """Return resource counts only when timing met its target."""
+        """Return resource counts only when timing met its target (or there
+        was no timing to meet)."""
         if self.timing is TimingStatus.VIOLATED:
             raise TimingViolationError(
                 f"resource measurement for part={self.part!r}, clock_ns={self.clock_ns:g}, "
@@ -429,7 +461,7 @@ class CoreDefinition(BaseModel):
     depends: tuple[str, ...] = ()
     golden: str | None = None  # "module:callable" defining the semantics
     bench: str | None = None  # cocotb bench module
-    resources: ResourceEnvelope | tuple[ResourceMeasurement, ...] | None = None
+    resources: tuple[ResourceMeasurement, ...] | None = None
     # The HDL closure digest (:meth:`hdl_closure_digest`) the numbers in
     # `resources` describe. It is what makes a recorded envelope falsifiable
     # without Vivado: the numbers cannot say which RTL produced them, so a
@@ -446,6 +478,14 @@ class CoreDefinition(BaseModel):
     # the composition job this core fills, when a composition rule turns on it
     # (None = no rule does; most cores)
     role: CoreRole | None = None
+    # For a tile whose golden is a mathematical reference rather than an
+    # integer identity (the transcendentals): the worst deviation from the
+    # correctly rounded answer, in ULP, over an exhaustive sweep of the
+    # domain. 0 means correctly rounded. A fact of the operating point,
+    # measured and recorded here beside the resources, and pinned by the
+    # suite so a datapath change that moves it is a change to an
+    # advertised fact.
+    accuracy_ulp: int | None = None
     # the core's guaranteed sustained ingest rate — like contract_kind,
     # required for stream operators (registry-enforced): the
     # public fact the scheduler feeds an opaque core by
@@ -553,9 +593,9 @@ class CoreDefinition(BaseModel):
                 f"core {self.name!r} stamps measured_from but records no resources; the stamp says which RTL a "
                 "measurement describes and there is no measurement"
             )
-        if isinstance(self.resources, tuple):
+        if self.resources is not None:
             expected_params = set(self.parameters)
-            coordinates: set[tuple[str, float, tuple[tuple[str, int], ...]]] = set()
+            coordinates: set[tuple[str, float | None, tuple[tuple[str, int], ...]]] = set()
             for point in self.resources:
                 if set(point.params) != expected_params:
                     raise ValueError(
@@ -595,8 +635,7 @@ class CoreDefinition(BaseModel):
         """Resolve one exact measurement, never a neighboring point.
 
         Composition overrides are expanded with declared defaults before
-        comparison. Legacy scalar envelopes have no coordinates and therefore
-        cannot answer this lookup safely.
+        comparison. An unclocked (combinational) point answers for any clock.
 
         Clock periods are DERIVED (1000 / job_clock_mhz), so they are compared
         to the picosecond rather than by float equality: 150 MHz yields
@@ -606,23 +645,25 @@ class CoreDefinition(BaseModel):
         """
         requested = {name: int(params.get(name, spec.default)) for name, spec in self.parameters.items()}
         requested.update({name: int(value) for name, value in params.items() if name not in requested})
-        if not isinstance(self.resources, tuple):
+        if not self.resources:
             raise UnmeasuredResourceError(
-                f"core {self.name!r} is unmeasured for part={part!r}, clock_ns={clock_ns:g}, params={requested!r}; "
-                "its legacy resource envelope has no measurement coordinates"
+                f"core {self.name!r} is unmeasured for part={part!r}, clock_ns={clock_ns:g}, params={requested!r}; it records no measurement points"
             )
 
         for point in self.resources:
-            if point.part == part and _same_clock(point.clock_ns, clock_ns) and dict(point.params) == requested:
+            if point.part == part and point.answers_clock(clock_ns) and dict(point.params) == requested:
                 return point
 
         part_points = [point for point in self.resources if point.part == part]
         if not part_points:
             gap = f"part {part!r}"
         else:
-            clock_points = [point for point in part_points if _same_clock(point.clock_ns, clock_ns)]
+            clock_points = [point for point in part_points if point.answers_clock(clock_ns)]
             gap = f"clock_ns {clock_ns:g} on part {part!r}" if not clock_points else f"params {requested!r} at part={part!r}, clock_ns={clock_ns:g}"
-        available = ", ".join(f"(part={point.part!r}, clock_ns={point.clock_ns:g}, params={dict(point.params)!r})" for point in self.resources)
+        available = ", ".join(
+            f"(part={point.part!r}, clock_ns={'unclocked' if point.clock_ns is None else format(point.clock_ns, 'g')}, params={dict(point.params)!r})"
+            for point in self.resources
+        )
         raise UnmeasuredResourceError(f"core {self.name!r} has unmeasured {gap}; measured points: {available or 'none'}")
 
     def source_path(self) -> Path:

@@ -1448,6 +1448,7 @@ record-gearbox:
   _target_: dau_core.cores.CoreDefinition
   name: record-gearbox
   kind: operator
+  role: front-gearbox
   module: dau_record_gearbox
   source: dau_record_gearbox.sv
   description: 'NoC framing adapter: reads IN_WIDTH-bit beats and emits ONE WHOLE RECORD per cycle on a RECORD_WORDS*64-bit
@@ -1962,6 +1963,8 @@ fixed-point-exp:
   _target_: dau_core.cores.CoreDefinition
   name: fixed-point-exp
   kind: operator
+  # worst deviation from exp_reference over every representable input (exhaustive sweep)
+  accuracy_ulp: 0
   module: dau_fixed_point_exp
   source: dau_fixed_point_exp.sv
   description: 'Fixed-point exp over 16-byte quad rows: the destination field is rewritten as exp of the source field in
@@ -2028,6 +2031,8 @@ fixed-point-exp-light:
   _target_: dau_core.cores.CoreDefinition
   name: fixed-point-exp-light
   kind: operator
+  # worst deviation from exp_reference over every representable input (exhaustive sweep)
+  accuracy_ulp: 1
   module: dau_fixed_point_exp_light
   source: dau_fixed_point_exp_light.sv
   description: 'Fixed-point exp at the DSP-light operating point: 36 internal bits, degree 3, rounded Horner steps.
@@ -3449,6 +3454,7 @@ stream-broadcast:
   _target_: dau_core.cores.CoreDefinition
   name: stream-broadcast
   kind: stream-infra
+  role: scan-broadcast
   module: dau_stream_broadcast
   source: dau_stream_broadcast.sv
   description: N-way stream fanout with taken-bit bookkeeping.
@@ -3533,6 +3539,7 @@ axi-burst-reader:
   _target_: dau_core.cores.CoreDefinition
   name: axi-burst-reader
   kind: stream-infra
+  role: scan-reader
   module: dau_axi_burst_reader
   source: dau_axi_burst_reader.sv
   description: Pipelined AXI4 burst read master streaming a memory window.
@@ -3587,6 +3594,7 @@ axi-record-writer:
   _target_: dau_core.cores.CoreDefinition
   name: axi-record-writer
   kind: stream-infra
+  role: scan-record-writer
   module: dau_axi_record_writer
   source: dau_axi_record_writer.sv
   description: AXI4 burst write master draining one record stream to a region.
@@ -3635,6 +3643,7 @@ axi-write-mux:
   _target_: dau_core.cores.CoreDefinition
   name: axi-write-mux
   kind: stream-infra
+  role: scan-write-mux
   module: dau_axi_write_mux
   source: dau_axi_write_mux.sv
   description: N:1 AXI write-channel mux, round-robin, locked AW to B.
@@ -3683,6 +3692,7 @@ bram-stream-job:
   _target_: dau_core.cores.CoreDefinition
   name: bram-stream-job
   kind: shell-adapter
+  role: stream-job-shell
   module: dau_bram_stream_job
   source: dau_bram_stream_job.sv
   description: BRAM-staged tile-agnostic job runner.
@@ -3711,6 +3721,7 @@ axi-stream-job:
   _target_: dau_core.cores.CoreDefinition
   name: axi-stream-job
   kind: shell-adapter
+  role: stream-job-shell
   module: dau_axi_stream_job
   source: dau_axi_stream_job.sv
   description: DDR-staged AXI4 master job runner (reader + writer halves fused).
@@ -3740,14 +3751,28 @@ identity-registers:
   _target_: dau_core.cores.CoreDefinition
   name: identity-registers
   kind: shell-adapter
+  role: shell-registers
   module: dau_identity_registers
   source: dau_identity_registers.sv
   description: Identity/capability register block.
+  measured_from: 1:9689f2428f2b0eb77988f5085bb92518d367c5c1bbfc93d04bb6f878082977a1
+  # Measured 2026-10-06 via dau-build task=tasks/build/synthesize-cores with
+  # clock_ports identity-registers "" -- a combinational parameter ROM with
+  # no clock, so no clock constraint and no timing report; the point answers
+  # for any clock.
   resources:
-    lut: 45
-    ff: 0
-    bram36: 0.0
-    dsp: 0
+    - part: xc7a200tfbg484-2
+      params: {}
+      lut: 46
+      ff: 0
+      bram36: 0.0
+      dsp: 0
+    - part: xc7k325tffg900-2
+      params: {}
+      lut: 46
+      ff: 0
+      bram36: 0.0
+      dsp: 0
 
 wide-row-predicate-filter:
   _target_: dau_core.cores.CoreDefinition

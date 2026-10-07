@@ -1,12 +1,12 @@
 # Why resource envelopes are measurements that refuse
 
-A `CoreDefinition` can carry its resource cost in two shapes. The older
-shape is a scalar envelope — one LUT/FF/BRAM/DSP tuple for the core. The
-newer shape is a list of *measurement points*, each keyed by the part it
-was synthesized for, the clock period it met, and the module parameters it
-was built with. Cores are migrating from the first shape to the second,
-and the reason is worth stating, because the migration looks like
-bookkeeping and is not.
+A `CoreDefinition` carries its resource cost as a list of *measurement
+points*, each keyed by the part it was synthesized for, the clock period it
+met (or none, for a combinational core), and the module parameters it was
+built with. The registry once allowed a second shape, a scalar envelope:
+one LUT/FF/BRAM/DSP tuple for the core with no coordinates. It is gone, and
+the reason is worth stating, because the change looked like bookkeeping
+and was not.
 
 ## A scalar envelope is a number without a question
 
@@ -70,8 +70,8 @@ numbers alone cannot carry it.
 
 ## The cost of the discipline
 
-Migrating a core means synthesizing it across its parameter space on every
-supported part, which is real machine time. Until a core is migrated its
-scalar envelope must state the *worst case* over its parameters —
-over-reporting is conservative and safe, under-reporting is the failure
-this whole discipline exists to prevent.
+Measuring a core means synthesizing it across its parameter space on every
+supported part, which is real machine time, and a core that has not been
+measured on a part cannot price a design for that part: the estimator
+raises rather than borrowing another part's number. That refusal is the
+cost of never again letting an Artix figure price a Kintex build.

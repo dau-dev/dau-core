@@ -23,7 +23,7 @@ from hydra.utils import instantiate
 
 from dau_core.cores import CoreDefinition, UnrenderedCoreError
 from dau_core.exp_generator import ExpTileGenerator
-from dau_core.fixed_point import EXP_EXACT, EXP_LIGHT
+from dau_core.fixed_point import ExpDatapath
 
 _BASE = {
     "name": "generated-probe",
@@ -35,6 +35,20 @@ _BASE = {
     "record_words": 2,
     "ingest": {"rows": 1, "per_cycles": 3},
 }
+
+
+# the registered operating points, read from the registry rather than
+# restated here (the registry is where they are measured and recorded)
+def _registered_point(name: str) -> ExpDatapath:
+    from dau_core.registry import core
+
+    generator = core(name).generator
+    assert generator is not None
+    return generator.datapath
+
+
+EXP_EXACT = _registered_point("fixed-point-exp")
+EXP_LIGHT = _registered_point("fixed-point-exp-light")
 
 
 def _definition(**overrides) -> CoreDefinition:

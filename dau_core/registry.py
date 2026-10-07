@@ -19,7 +19,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from pathlib import Path
 
-from .cores import CoreDefinition, CoreKind
+from .cores import CoreDefinition, CoreKind, CoreRole
 
 
 class UnknownCoreError(KeyError):
@@ -100,6 +100,27 @@ def core_for_module(module: str) -> CoreDefinition:
 
 def cores_of_kind(kind: CoreKind) -> tuple[CoreDefinition, ...]:
     return tuple(definition for definition in loaded_cores().values() if definition.kind == kind)
+
+
+def cores_of_role(role: CoreRole) -> tuple[CoreDefinition, ...]:
+    """Every composed core declaring ``role``, in registry order."""
+    return tuple(definition for definition in loaded_cores().values() if definition.role is role)
+
+
+def core_of_role(role: CoreRole) -> CoreDefinition:
+    """The one composed core declaring ``role``.
+
+    The shell-infrastructure roles are jobs exactly one core fills, and a
+    composition selects the core by asking for the job. Zero is a palette
+    with a hole in it; two is an ambiguity nothing here can resolve, and
+    silently taking the first would make the answer depend on registry
+    order, so both refuse.
+    """
+    found = cores_of_role(role)
+    if len(found) != 1:
+        names = [definition.name for definition in found]
+        raise UnknownCoreError(f"expected exactly one composed core with role {role.value!r}, found {len(found)}: {names}")
+    return found[0]
 
 
 def sources_for(*names: str) -> tuple[Path, ...]:
