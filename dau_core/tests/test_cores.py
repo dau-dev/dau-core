@@ -524,3 +524,16 @@ def test_every_registered_core_with_resources_carries_measurement_points() -> No
         CoreDefinition(
             name="x", kind="shell-adapter", module="m", source="m.sv", description="d", resources={"lut": 1, "ff": 0, "bram36": 0.0, "dsp": 0}
         )
+
+
+def test_normalize_follows_the_same_rule_as_violation() -> None:
+    """A type spelling is only for a parameter declared element_type; a plain
+    parameter takes an int and refuses a string the way violation() does."""
+    from dau_core.cores import ParameterSpec
+
+    plain = ParameterSpec(default=4)
+    assert plain.normalize(8) == 8
+    with pytest.raises(TypeError, match="only a parameter declared element_type"):
+        plain.normalize("8")
+    typed = ParameterSpec(default="int32", element_type=True)
+    assert typed.normalize("int32") == 32 == typed.normalize(32)
