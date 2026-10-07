@@ -32,11 +32,11 @@ Decide and encode these explicitly — they are the parts prose gets wrong:
   and the second never happens.
 
   That debt is being paid down tile by tile, and `WIDTH_NAMED_TILES` in
-  `dau_core/tests/test_cores.py` holds the remaining set EXACTLY — 9 of
-  them, each with a comment saying why the width is still in its identity
-  and what removes it. Five of the 21 keep their names on purpose, because
-  for those the width really is part of the contract. Your new tile is not
-  one of them: give it a width in its name and that guard fails.
+  `dau_core/tests/test_cores.py` holds the remaining set EXACTLY, each entry
+  with a comment saying why the width is still in its identity and what
+  removes it; the tiles that keep a width on purpose do so because for them
+  the width really is part of the contract. Your new tile is not one of
+  them: give it a width in its name and that guard fails.
 
 - **Emission order.** If your tile holds state, say exactly what order
   results leave in, and pick something implementation-independent.

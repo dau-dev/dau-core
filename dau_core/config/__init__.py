@@ -9,6 +9,7 @@ so dau-build / dau-sim compose it without importing dau-core code.
 
 from __future__ import annotations
 
+import warnings
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -52,7 +53,8 @@ def contributed_options(config_dir: str | None = None, *, version_base: str | No
     if instance.is_initialized():
         try:
             return options(instance.config_loader())
-        except Exception:  # noqa: BLE001  # discovery is best-effort; never fail a compose over it
+        except Exception as error:  # noqa: BLE001  # discovery is best-effort; never fail a compose over it
+            warnings.warn(f"contributed tile discovery failed; composing dau-core's own palette only: {error!r}", stacklevel=2)
             return ()
 
     # Initializing hydra runs the searchpath plugin, which LOADS provider
@@ -65,9 +67,11 @@ def contributed_options(config_dir: str | None = None, *, version_base: str | No
     try:
         with initialize_config_dir(config_dir=parent_dir, version_base=version_base):
             return options(instance.config_loader())
-    except Exception:  # noqa: BLE001
+    except Exception as error:  # noqa: BLE001
         # discovery is best-effort: a searchpath hydra cannot read must not
-        # take down composition that would otherwise have worked
+        # take down composition that would otherwise have worked, but a
+        # contributor whose tiles vanish deserves to be told why
+        warnings.warn(f"contributed tile discovery failed; composing dau-core's own palette only: {error!r}", stacklevel=2)
         return ()
     finally:
         for added in set(root.models) - before:

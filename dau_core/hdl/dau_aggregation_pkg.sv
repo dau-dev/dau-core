@@ -2,7 +2,7 @@
 
 // Shared aggregation step semantics. Single source of truth for the
 // accumulate step used by the aggregation tile and the stream modules;
-// matches dau_core.aggregations golden semantics for MIN/MAX/SUM/COUNT.
+// matches the dau_core.operators golden semantics for MIN/MAX/SUM/COUNT.
 //
 // THE SAMPLE ARRIVES ALREADY SIGN-EXTENDED to 64 bits. It used to arrive as a
 // bare 32-bit value that this function widened, which fixed every caller at

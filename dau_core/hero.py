@@ -26,7 +26,8 @@ Both paths are DMA-bound (compute overlapped), so the model computes each from
 the exact golden cardinalities and the measured per-tile record widths — a
 first-order estimate the silicon run validates, not a measured result.
 
-Zero-dependency: pure integer arithmetic over the temporal goldens.
+No dataframe or numerical-runtime dependency: pure integer arithmetic over
+the temporal goldens.
 """
 
 from __future__ import annotations

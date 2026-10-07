@@ -2055,7 +2055,7 @@ fixed-point-exp-light:
       round_steps: true
   # Measured 2026-08-09 via dau-build task=tasks/build/synthesize-cores.
   #
-  # 22 DSP48s against the exact point's 52, for 1 ULP instead of 0 -- the
+  # 20 DSP48s against the exact point's 50, for 1 ULP instead of 0 -- the
   # trade the second operating point exists to offer.
   #
   # MEETS 125 MHz at +0.682 ns, where the exact point does not -- a 20-DSP
@@ -2430,7 +2430,7 @@ row-unpack:
   description: 'Row-unpack front-end feed over <=64-bit packed rows: bit-extracts four configured fields (offset/width/signed)
     from one packed word and widens them into the standard 16-byte int32 quad row (field 0 = key = w0.lo) the operator tiles
     consume. The compact-row feed answer to the DDR-byte-bandwidth-bound scan (~2x rows/sec off DDR, half the host DMA,
-    operators unchanged). Covers q6 (59-bit) and q1 (63-bit) packings. The batch-latched cfg_bypass config port selects
+    operators unchanged). Covers the SF1 q6 (56-bit) and q1 (41-bit) packings. The batch-latched cfg_bypass config port selects
     the mode: 0 = unpack (packed word in, quad row out); 1 = a zero-added-latency passthrough of pre-widened 16-byte quad
     rows (two words per row, field descriptors unused), so ONE bitstream benchmarks packed vs unpacked rows on the same
     silicon and isolates the host packing overhead. OUT_WIDTH (the rows/cycle axis) selects the quad-stream framing: 64
@@ -2440,9 +2440,9 @@ row-unpack:
     and widen the input to IN_WIDTH = SLOTS*64 (packed row s at [64*s +: 64], quad row s at [128*s +: 128]), which is what lets a
     packed feed drive a SLOTS-wide lane: at 128 the tile emits one row per beat and starves a four-slot wide-row chain. At SLOTS > 1
     a ragged tail is padded by the host with the reserved all-ones packed word and passes through as the reserved all-ones PAD quad
-    row the wide-row tiles already drop, so positions are preserved; a field layout whose COVERAGE spans all 64 bits could forge that sentinel from real data and is refused as ERR_CONFIG at SLOTS > 1, which also keeps the answer independent of OUT_WIDTH. In bypass at SLOTS > 1 an input beat is whole quad rows, so input_last on the first phase is a legitimate short final beat (emitted PAD-filled), not a torn row. FOLLOW-UP: the scan composition must stage packed rows + place
-    this after the burst reader before broadcast/partition. The flywheel pack-schema this asked for now exists
-    (dau_polars.pack.pack_schema).'
+    row the wide-row tiles already drop, so positions are preserved; a field layout whose COVERAGE spans all 64 bits could forge that sentinel from real data and is refused as ERR_CONFIG at SLOTS > 1, which also keeps the answer independent of OUT_WIDTH. In bypass at SLOTS > 1 an input beat is whole quad rows, so input_last on the first phase is a legitimate short final beat (emitted PAD-filled), not a torn row. In a composition this is the front_unpack of a ScanCompositionSpec, placed after the burst
+    reader and before broadcast/partition, fed by rows packed with the schema dau_polars.pack.pack_schema derives
+    from the column ranges.'
   golden: dau_core.operators:unpack_rows
   bench: dau_core.tests.cocotb_benches.dau_row_unpack_tb
   # the front-stage feed transform: widens packed rows into the quad row the

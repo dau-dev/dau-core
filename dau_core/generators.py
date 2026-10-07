@@ -52,9 +52,18 @@ class RenderedCore(ResultBase):
     parameters: Mapping[str, int] = {}
 
     def write(self, into: Path) -> Path:
-        """Materialize under ``into``, returning the written path."""
+        """Materialize under ``into``, returning the written path.
+
+        ``source_name`` is a file name, not a path: a registry entry that
+        named ``../x.sv`` or an absolute path would otherwise write outside
+        the render root, and the render root is the only place a generated
+        source is read back from.
+        """
+        name = Path(self.source_name)
+        if name.is_absolute() or len(name.parts) != 1 or name.name in {"", ".", ".."}:
+            raise ValueError(f"a rendered core's source_name must be a bare file name, got {self.source_name!r}")
         into.mkdir(parents=True, exist_ok=True)
-        path = into / self.source_name
+        path = into / name
         path.write_text(self.text, encoding="utf-8")
         return path
 
