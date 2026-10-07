@@ -22,28 +22,39 @@ from itertools import pairwise
 from ccflow import BaseModel
 from pydantic import ConfigDict, StrictInt, model_validator
 
-from .cores import ContractKind, CoreDefinition, CoreKind, CoreRole, LoadImageKind, ResourceEnvelope, UnmeasuredResourceError
+from .cores import ContractKind, CoreDefinition, CoreKind, CoreRole, LoadImageKind, ResourceEnvelope
 from .element_types import ElementTypeError, element_code
 from .operators import DispatchMode
-from .registry import core
+from .registry import core, core_of_role, cores_of_role
 
-SCAN_INFRASTRUCTURE_CORES = ("axi-burst-reader", "stream-broadcast", "axi-record-writer", "axi-write-mux", "identity-registers")
+# THE SHELL INFRASTRUCTURE a composition sits in is selected by ROLE, not by
+# name (see ``CoreRole``): the DDR scan shell reads bursts and fans out to
+# lanes; the stream-job shells hand a single tile chain its rows from
+# staging BRAM (or straight off AXI) and take the records back the same way.
+# They are different infrastructure, not different tile graphs, so the shape
+# is one field (``stream_job``) rather than a second composition hierarchy,
+# and it is what lets a stream job be composition-declared at all, which is
+# what makes its cores reach ``core_names`` (and therefore the staged HDL),
+# the resource estimate, and the canonical hash. The order the scan roles
+# are listed in is the order their cores enter ``core_names``, which the
+# canonical spec hash reads; it is a fact of this module, not of the
+# registry's file order.
+_SCAN_SHELL_ROLES = (CoreRole.SCAN_READER, CoreRole.SCAN_BROADCAST, CoreRole.SCAN_RECORD_WRITER, CoreRole.SCAN_WRITE_MUX, CoreRole.SHELL_REGISTERS)
 
-# THE SHELL INFRASTRUCTURE a composition sits in. The DDR scan shell reads
-# bursts and fans out to lanes; the stream-job shells hand a single tile
-# chain its rows from staging BRAM (or straight off AXI) and take the
-# records back the same way. They are different infrastructure, not
-# different tile graphs, so the shape is one field rather than a second
-# composition hierarchy — and it is what lets a stream job be
-# composition-declared at all, which is what makes its cores reach
-# ``core_names`` (and therefore the staged HDL), the resource estimate,
-# and the canonical hash.
-STREAM_JOB_INFRASTRUCTURE_CORES = {
-    "bram-stream-job": ("bram-stream-job", "identity-registers"),
-    "axi-stream-job": ("axi-stream-job", "identity-registers"),
-}
 
-FRONT_GEARBOX_CORE = "record-gearbox"
+def _stream_job_shell(name: str) -> CoreDefinition:
+    """The stream-job top ``name`` names, refused unless the registry says
+    that core fills that job."""
+    options = [candidate.name for candidate in cores_of_role(CoreRole.STREAM_JOB_SHELL)]
+    if name not in options:
+        raise CompositionError(f"stream_job must name a core with role {CoreRole.STREAM_JOB_SHELL.value!r}, one of {options}, got {name!r}")
+    return core(name)
+
+
+def _stream_job_cores(name: str) -> tuple[str, ...]:
+    return (_stream_job_shell(name).name, core_of_role(CoreRole.SHELL_REGISTERS).name)
+
+
 # the reserved config-binding symbol for the shell's LOAD_PHASE register
 # (RegisterOffset.LOAD_PHASE): a tile binding ``cfg_load`` to this symbol is
 # phase-switched by the host instead of baked, making the composition
@@ -364,8 +375,7 @@ class ScanCompositionSpec(BaseModel):
                             f"{DispatchMode(mode).name} mode, got {partitions!r}"
                         )
         if self.stream_job is not None:
-            if self.stream_job not in STREAM_JOB_INFRASTRUCTURE_CORES:
-                raise CompositionError(f"stream_job must be one of {tuple(STREAM_JOB_INFRASTRUCTURE_CORES)}, got {self.stream_job!r}")
+            _stream_job_shell(self.stream_job)
             # a stream job stages one tile chain: there is no fan-out to
             # partition and no burst feed to re-time
             if len(self.lanes) != 1:
@@ -397,8 +407,11 @@ class ScanCompositionSpec(BaseModel):
                 if LOAD_PHASE_BINDING in stage.config.values():
                     raise CompositionError(f"{stage.core!r} binds {LOAD_PHASE_BINDING}; the {self.stream_job} top has no load-phase register")
         if self.front_gearbox is not None:
-            if self.front_gearbox.core != FRONT_GEARBOX_CORE:
-                raise CompositionError(f"front gearbox {self.front_gearbox.core!r} is not the {FRONT_GEARBOX_CORE!r} reframing core")
+            if self.front_gearbox.definition().role is not CoreRole.FRONT_GEARBOX:
+                options = [candidate.name for candidate in cores_of_role(CoreRole.FRONT_GEARBOX)]
+                raise CompositionError(
+                    f"front gearbox {self.front_gearbox.core!r} does not declare role {CoreRole.FRONT_GEARBOX.value!r} ({options})"
+                )
             _validate_tile_params(self.front_gearbox, "front gearbox")
             if self.data_width <= 64:
                 raise CompositionError("front_gearbox requires data_width > 64: a 64-bit feed already delivers one word per cycle")
@@ -568,14 +581,14 @@ class ScanCompositionSpec(BaseModel):
         replaces the broadcast."""
         names: dict[str, None] = {}
         if self.stream_job is not None:
-            for name in STREAM_JOB_INFRASTRUCTURE_CORES[self.stream_job]:
+            for name in _stream_job_cores(self.stream_job):
                 names.setdefault(name)
         else:
             no_broadcast = self.partitioner is not None or self.is_wide_lane()
-            for name in SCAN_INFRASTRUCTURE_CORES:
-                if no_broadcast and name == "stream-broadcast":
+            for role in _SCAN_SHELL_ROLES:
+                if no_broadcast and role is CoreRole.SCAN_BROADCAST:
                     continue
-                names.setdefault(name)
+                names.setdefault(core_of_role(role).name)
         if self.front_gearbox is not None:
             names.setdefault(self.front_gearbox.core)
         if self.front_unpack is not None:
@@ -758,61 +771,33 @@ def throughput_rows_per_cycle(spec: ScanCompositionSpec, *, stage_pass_fractions
     return min(delivery, consumption)
 
 
-def estimated_resources(spec: ScanCompositionSpec, *, part: str | None = None, clock_ns: float | None = None) -> ResourceEnvelope:
-    """Sum resource envelopes for every instance the composition places.
+def estimated_resources(spec: ScanCompositionSpec, *, part: str, clock_ns: float) -> ResourceEnvelope:
+    """Sum the measured resources of every instance the composition places.
 
-    Cores carry resources in one of two shapes, and the difference is
-    visible in the result rather than hidden:
-
-    * **Measurement points** are keyed by ``part``, ``clock_ns`` and module
-      parameters. Pricing one requires all three, and an absent coordinate,
-      an unmeasured tuple, or a timing violation RAISES rather than
-      returning a plausible-looking number. Refusal is intentional: a
-      marker could be dropped by a numeric consumer, recreating the silent
-      cross-part fallback this API exists to prevent.
-    * **Scalar envelopes** describe one shape and are not keyed at all.
-      They stay priceable, but a composition that includes one cannot claim
-      to be measured for a requested part, so ``measured`` on the result is
-      ``False`` whenever a ``part`` or ``clock_ns`` was asked for. Read
-      that flag before treating an estimate as a board-specific budget.
+    Every core prices from a measurement point keyed by ``part``,
+    ``clock_ns`` and module parameters, so both coordinates are required.
+    An unmeasured tuple or a timing violation RAISES rather than returning a
+    plausible-looking number: a marker could be dropped by a numeric
+    consumer, recreating the silent cross-part fallback this API exists to
+    prevent. A combinational core's point answers for any clock.
     """
     lut = ff = dsp = 0
     bram = 0.0
-    measured = True
 
     def add(name: str, params: Mapping[str, int] = {}) -> None:
-        nonlocal lut, ff, bram, dsp, measured
-        definition = core(name)
-        resources = definition.resources
-        if resources is None:
-            measured = False
-            return
-        if isinstance(resources, ResourceEnvelope):
-            # a scalar envelope is not keyed by part, clock or parameters, so
-            # it cannot answer "what does this cost on THIS board". Pricing
-            # against it is still useful, but the result must not claim to be
-            # measured for the requested part -- that claim is what let an
-            # Artix number price a Kintex build while reporting measured=True.
-            envelope = resources
-            if part is not None or clock_ns is not None:
-                measured = False
-        else:
-            if part is None or clock_ns is None:
-                missing = ", ".join(name for name, value in (("part", part), ("clock_ns", clock_ns)) if value is None)
-                raise UnmeasuredResourceError(f"pricing core {name!r} requires {missing} for exact resource measurement lookup")
-            envelope = definition.resource_measurement(part=part, clock_ns=clock_ns, params=params).usable_envelope()
+        nonlocal lut, ff, bram, dsp
+        envelope = core(name).resource_measurement(part=part, clock_ns=clock_ns, params=params).usable_envelope()
         lut += envelope.lut
         ff += envelope.ff
         bram += envelope.bram36
         dsp += envelope.dsp
-        measured = measured and envelope.measured
 
     if spec.stream_job is not None:
-        for name in STREAM_JOB_INFRASTRUCTURE_CORES[spec.stream_job]:
+        for name in _stream_job_cores(spec.stream_job):
             add(name)
     else:
-        for name in ("axi-burst-reader", "axi-write-mux", "identity-registers"):
-            add(name)
+        for role in (CoreRole.SCAN_READER, CoreRole.SCAN_WRITE_MUX, CoreRole.SHELL_REGISTERS):
+            add(core_of_role(role).name)
     if spec.front_gearbox is not None:
         add(spec.front_gearbox.core, spec.front_gearbox.params)
     if spec.front_unpack is not None:
@@ -821,20 +806,20 @@ def estimated_resources(spec: ScanCompositionSpec, *, part: str | None = None, c
         add(spec.partitioner.core, spec.partitioner.params)
     elif spec.stream_job is None and not spec.is_wide_lane():
         # the wide lane feeds the single lane directly: no broadcast placed
-        add("stream-broadcast")
+        add(core_of_role(CoreRole.SCAN_BROADCAST).name)
     for lane in spec.lanes:
         # a stream job's records leave through its job core, so there is no
         # per-lane record writer to price. Pricing one anyway inflated every
         # stream job by a writer plus a broadcast and could fail the fit gate
         # on a design that fits.
         if spec.stream_job is None:
-            add("axi-record-writer")
+            add(core_of_role(CoreRole.SCAN_RECORD_WRITER).name)
         if lane.partition is not None:
             add(lane.partition.core, lane.partition.params)
         for stage in lane.chain:
             add(stage.core, stage.params)
         add(lane.tile.core, lane.tile.params)
-    return ResourceEnvelope(lut=lut, ff=ff, bram36=bram, dsp=dsp, measured=measured)
+    return ResourceEnvelope(lut=lut, ff=ff, bram36=bram, dsp=dsp)
 
 
 # The version of the canonical form, carried as a prefix on every spec hash.

@@ -32,11 +32,11 @@ refused.
 
 ## Resources
 
-| Field       | Type                                                          | Description                                                                             |
-| ----------- | ------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| `resources` | `ResourceEnvelope \| tuple[ResourceMeasurement, ...] \| None` | Either one scalar envelope, or measurement points keyed by part, clock, and parameters. |
+| Field       | Type                                      | Description                                                                                                             |
+| ----------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `resources` | `tuple[ResourceMeasurement, ...] \| None` | Measurement points keyed by part, clock, and parameters. A combinational core's point has no clock and answers for any. |
 
-`ResourceEnvelope` carries `lut`, `ff`, `bram36`, `dsp`, `measured`.
+`ResourceEnvelope` is a count (`lut`, `ff`, `bram36`, `dsp`): a measurement point's usable face, or the sum a composition estimate adds up to. It is not a registry shape.
 
 `ResourceMeasurement` carries `part`, `clock_ns`, `params`, `lut`, `ff`,
 `bram36`, `dsp`, `timing`, `wns_ns`, and exposes `usable_envelope()`.
