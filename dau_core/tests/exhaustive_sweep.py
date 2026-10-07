@@ -9,15 +9,16 @@ not from a stratified sample.
 THE COST IS THE REFERENCE, NOT THE DATAPATH. `ln_reference` and its
 siblings compute in 80 decimal digits so that half-way cases double cannot
 decide are decided correctly. Calling that for every input puts a full
-2**31 sweep at ~26 core-hours. Deciding in double and re-deciding only the
-inputs that sit too close to a rounding boundary puts it at ~5 minutes on
-17 workers, because only a few thousand inputs are actually close. Both
-answers are identical; only one is affordable enough to run on every
+2**31 sweep in the tens of core-hours (an estimate from the per-input cost
+when this was written, not a timed run). Deciding in double and re-deciding
+only the inputs that sit too close to a rounding boundary brings it down to
+minutes on a workstation, because only a few thousand inputs are close.
+Both answers are identical; only one is affordable enough to run on every
 candidate operating point.
 
-This module was written after that 60x estimate error sent a candidate
-light point to the bottom of a roadmap as a multi-session task. It is
-committed so the capability is not rediscovered a third time.
+This module was written after the slow estimate had sent a candidate light
+point to the back of the queue as a multi-session task. It is committed so
+the capability is not rediscovered a third time.
 """
 
 from __future__ import annotations

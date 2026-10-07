@@ -10,7 +10,7 @@ bookkeeping and is not.
 
 ## A scalar envelope is a number without a question
 
-"This core costs 733 LUTs" is only meaningful as an answer to "on which
+Take a made-up figure: "this core costs 733 LUTs" is only meaningful as an answer to "on which
 part, at which clock, with which parameters?" A scalar envelope answers a
 question nobody asked, and it answers it identically no matter what is
 asked.

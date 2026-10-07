@@ -20,16 +20,17 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Programming Language :: Python",
     "Programming Language :: Python :: Implementation :: CPython",
-    "Programming Language :: Python :: Implementation :: PyPy",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-    "Programming Language :: Python :: 3.14",
 ]
 
 dependencies = [
     "ccflow>=0.9",
+    # imported directly (config discovery and every model), so declared
+    # directly rather than relied on through ccflow
+    "hydra-core",
+    "pydantic>=2",
 ]
 
 [project.optional-dependencies]
@@ -49,6 +50,8 @@ develop = [
     "hatchling",
     "mdformat",
     "mdformat-tables>=1",
+    # the tests import it directly
+    "omegaconf",
     "pytest",
     "pytest-cov",
     "ruff",

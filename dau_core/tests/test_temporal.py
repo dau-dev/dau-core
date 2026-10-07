@@ -3,7 +3,6 @@ from __future__ import annotations
 import pytest
 
 from dau_core.temporal import (
-    WORKFLOW_PLAN,
     MarketStream,
     asof_backward,
     deltas,
@@ -238,8 +237,3 @@ def test_generated_stream_feeds_the_full_fused_pipeline() -> None:
     # every bar's volume equals the summed sizes of its constituent trades
     total_bar_volume = sum(b.volume for b in bars)
     assert total_bar_volume == sum(r[3] for r in rows)
-
-
-def test_workflow_plan_names_a_golden_for_every_stage() -> None:
-    assert [entry["stage"] for entry in WORKFLOW_PLAN] == ["align", "derive", "bar", "roll"]
-    assert all(entry["golden"] for entry in WORKFLOW_PLAN)

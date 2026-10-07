@@ -11,8 +11,9 @@ compute it.
 
 The datapath is PIPELINED, one multiply per stage, chosen after measuring
 what a multiply costs rather than from the estimate this docstring used to
-quote. Measured on the dpv1 Artix: 52 DSP48s at the exact point and 22 at
-the light one, against 740 on the part. Folding onto a shared multiplier
+quote. Measured on the dpv1 Artix (2026-08-09, the registry's points): 50
+DSP48s at the exact point and 20 at the light one, against 740 on the part.
+Folding onto a shared multiplier
 would cut that to roughly a ninth, but at one row per nine cycles against
 sqrt's and divide's one per three -- the tile would become the bottleneck of
 any chain it joined.

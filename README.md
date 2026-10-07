@@ -24,8 +24,12 @@ packages agree on lives here, in three forms:
   constraints, capability advertisement, and composition specs, versioned
   and explicit.
 
-The package also ships the canonical SystemVerilog for every registered
-core as importable resources, verified by cocotb benches under Verilator.
+The package also ships the SystemVerilog for every registered core as
+importable resources. Every operator tile has a golden, a cocotb bench
+under Verilator and measured resource points; the stream-infrastructure
+blocks and shell adapters ship their HDL and are verified in the composed
+shells rather than tile by tile. Five tiles' sources are generated from
+their parameters at render time rather than checked in.
 
 ## Documentation
 
@@ -76,19 +80,20 @@ print(tile.resources)                      # measured LUT/FF/BRAM/DSP envelope
 sources_for("stream-aggregation")    # dependency-closed HDL paths, in order
 ```
 
-The registered palette today: 45 operator tiles (filters, maps,
+The registered palette today: 46 operator tiles (filters, maps,
 aggregations both ordered and hash-mode, joins, membership, sorters,
 partitioners, dispatchers, temporal operators, top-k, fixed-point
-transcendentals, and the stateful group), 4 stream-infrastructure blocks
-(AXI burst reader, broadcast, record writer, write mux), 4 shell adapters,
-3 shared SV packages, and 1 simulation model — 57 entries in all.
+transcendentals, and the stateful group), 5 stream-infrastructure blocks
+(AXI burst reader, broadcast, record writer, write mux, row unpacker),
+4 shell adapters, 3 shared SV packages, and 1 simulation model: 59 entries
+in all. `loaded_cores()` is the count that is never stale.
 Accessors are read-through views: a registry an application has already
 composed (including overrides) is the source of truth.
 
 ## Golden semantics
 
 Each operator tile's behavior is defined by a pure function or small model
-in `dau_core.operators`, `dau_core.temporal`, or `dau_core.aggregations`.
+in `dau_core.operators` or `dau_core.temporal`.
 Configuration objects are frozen [pydantic](https://docs.pydantic.dev)
 models mirroring the tile's config ports, so the same object drives the
 golden, the testbench, and design emission:
@@ -145,9 +150,10 @@ exactly that part and clock, and a coordinate nobody measured raises
 
 ### Wide lanes
 
-Most operator cores take one quad row per cycle. A `wide-row-stream` core
-takes the reader's WHOLE beat — `SLOTS = data_width / 128` quad rows every
-cycle, no dispatcher and no fan-out — and the three row operators have wide
+A quad-row operator core takes one row per beat at the rate its `ingest`
+contract declares (one row per cycle or per two cycles, depending on the
+tile). A `wide-row-stream` core takes the reader's WHOLE beat, `SLOTS = data_width / 128` quad rows every cycle with no dispatcher and no fan-out,
+and the three row operators have wide
 counterparts (`wide-row-predicate-filter`, `wide-row-map-alu`,
 `wide-field-sum-aggregation`). The substitution is 1:1: same configs,
 same order, only the core names change.
@@ -157,6 +163,8 @@ same order, only the core names change.
 packing trades DMA bytes for job time, and a wide lane wants whole rows.
 
 ```python
+from dau_core.composition import LaneSpec, ScanCompositionSpec, TileSpec, estimated_resources
+
 spec = ScanCompositionSpec(
     name="q6-wide",
     data_width=512,   # SLOTS=4: four quad rows per cycle
@@ -224,8 +232,8 @@ print(result.funnel)   # input -> matched -> bars -> rolling row counts
 
 ## HDL and verification
 
-`dau_core/hdl/` holds the canonical SystemVerilog for every registered
-core. Tiles speak a common 64-bit valid/ready stream + status contract
+`dau_core/hdl/` holds the SystemVerilog for every registered core (five
+generated at render time). Tiles speak a common 64-bit valid/ready stream + status contract
 (`input_last` frames a batch; a terminal tile closes out with a status
 word and count, mid-lane stages are silent on success). Verification runs
 three ways, all from `pytest`:
@@ -237,9 +245,13 @@ three ways, all from `pytest`:
 
 ## Installation
 
+Python 3.11 or newer.
+
 ```bash
-pip install dau-core
+pip install git+https://github.com/dau-dev/dau-core
 ```
+
+The `dau-core` name on PyPI is a placeholder until the first release.
 
 Development install and checks:
 

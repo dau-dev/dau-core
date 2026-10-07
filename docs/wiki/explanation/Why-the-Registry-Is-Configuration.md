@@ -56,7 +56,7 @@ surface if it were extracted or published.
 Facts that would be one Python expression become a yaml entry plus a model
 field, and a typo lands as a composition failure rather than an
 `AttributeError` at the call site. Reading the palette means reading a
-3,600-line yaml file rather than skimming a module.
+long yaml file rather than skimming a module.
 
 The trade is deliberate. A palette that can only be changed by editing the
 library is a palette with exactly one author, and the whole point of a

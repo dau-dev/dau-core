@@ -10,8 +10,6 @@ from pydantic import ConfigDict
 
 from .stream import LogicalType, OperationCode
 
-FILTER_CONFIG_VERSION = "0.1"
-
 
 class PredicateOp(IntEnum):
     """Comparison opcodes for the predicate filter tile. Zero is reserved so an
@@ -84,8 +82,6 @@ def _compare(op: PredicateOp, value: int, constant: int) -> bool:
         return value >= constant
     raise ValueError(f"unsupported predicate op {op!r}")
 
-
-MAP_CONFIG_VERSION = "0.1"
 
 _INT32_MASK = 0xFFFF_FFFF
 
@@ -490,9 +486,6 @@ def divide_row_fields(rows: Iterable[tuple[int, int, int, int]], config: RowDivi
     return out
 
 
-UNPACK_CONFIG_VERSION = "0.1"
-
-
 class UnpackErrorCode(IntEnum):
     CONFIG = 1
     # bypass mode consumes 16-byte quad rows (two words each); input_last on a
@@ -743,9 +736,6 @@ def grouped_field_sum_rows(rows: Iterable[tuple[int, int, int, int]], *, field_m
     if current_key is not None:
         results.append(GroupedFieldSumAggregate(key=current_key, field_mask=field_mask, sums=tuple(sums), count=count))
     return results
-
-
-MEMBERSHIP_CONFIG_VERSION = "0.1"
 
 
 class MembershipKind(IntEnum):
@@ -1070,9 +1060,6 @@ def broadcast_hash_join_rows(
             out0, out1, out2 = out_sel.select((b0, b1, b2, v0, v1, v2))
             out.append((key, out0, out1, out2))
     return out
-
-
-GROUPED_AGGREGATION_CONFIG_VERSION = "0.1"
 
 
 class GroupedAggregationErrorCode(IntEnum):

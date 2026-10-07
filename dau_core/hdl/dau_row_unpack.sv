@@ -16,8 +16,8 @@
 // Why this tile exists: the dpv1 scan feed is DDR-BYTE-bandwidth-bound
 // (~970 MB/s profiled). Staging rows PACKED to DDR (fewer bytes/row) and
 // widening them on-chip here ~doubles rows/sec off DDR AND halves the host
-// DMA, with the operators downstream unchanged. This MVP covers packed rows
-// up to 64 bits (q6 at 59 bits, q1 at 63 bits).
+// DMA, with the operators downstream unchanged. It covers packed rows up to
+// 64 bits (the SF1 q6 layout is 56 bits, q1 is 41).
 //
 // Each output field i is bits packed[cfg_field{i}_offset +: cfg_field{i}_width]
 // (offset 0..63, width 1..FIELD_BITS) sign-extended when cfg_field{i}_signed
@@ -94,10 +94,10 @@
 // a batch with an odd row count ends exactly there. That is a legitimate SHORT
 // FINAL BEAT, emitted with its unfilled upper half as PAD — not an error.
 //
-// FOLLOW-UP (not wired here): realizing the feed win requires (a) the scan
-// composition to stage packed rows and place this unpacker after the burst
-// reader, before the broadcast/partition fan-out, and (b) a flywheel
-// pack-schema deriving each field's offset/width from the column ranges.
+// In a composition this tile is the `front_unpack` of a ScanCompositionSpec:
+// placed after the burst reader and before the broadcast/partition fan-out,
+// fed by rows the host staged packed with a pack schema derived from the
+// column ranges (dau_polars.pack.pack_schema).
 module dau_row_unpack #(
     parameter int unsigned OUT_WIDTH = 64,
     // The ELEMENT TYPE of the four widened fields, as encoded by types.svh.

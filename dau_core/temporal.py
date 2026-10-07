@@ -37,8 +37,6 @@ from typing import TypeVar
 
 _T = TypeVar("_T")
 
-TEMPORAL_CONTRACT_VERSION = "0.1"
-
 # Row conventions in the encoded domain (all fields int; symbol_id int32):
 #   quote row  = (symbol_id, time, bid, ask)
 #   trade row  = (symbol_id, time, price, size)
@@ -46,26 +44,6 @@ TEMPORAL_CONTRACT_VERSION = "0.1"
 QuoteRow = tuple[int, int, int, int]
 TradeRow = tuple[int, int, int, int]
 MarketRow = tuple[int, int, int, int, int, int]
-
-
-# The workflow logical plan, written down (publishable even when the raw market
-# data stays private): an ordered list of (stage, semantic op, golden). A
-# capture/planner pass matches a user's Polars plan against these
-# stage semantics; the tile compositions realize them.
-WORKFLOW_PLAN: tuple[dict[str, str], ...] = (
-    {"stage": "align", "op": "join_asof(strategy=backward, by=symbol, tolerance=T)", "golden": "asof_backward"},
-    {"stage": "derive", "op": "midpoint, spread, trade_sign, signed_volume, dollar_volume, vwap_numerator", "golden": "market_features"},
-    {
-        "stage": "bar",
-        "op": "time | volume | dollar | imbalance bars (OHLCV + $ + signed + vwap-num)",
-        "golden": "time_bars / volume_bars / dollar_bars / imbalance_bars",
-    },
-    {
-        "stage": "roll",
-        "op": "rolling sum/mean/min/max/var + EWMA over the reduced bar stream",
-        "golden": "rolling_sum / rolling_min / rolling_max / rolling_moments / ewma",
-    },
-)
 
 
 def asof_backward(

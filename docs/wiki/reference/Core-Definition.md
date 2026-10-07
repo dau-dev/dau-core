@@ -42,9 +42,11 @@ refused.
 `bram36`, `dsp`, `timing`, `wns_ns`, and exposes `usable_envelope()`.
 
 `CoreDefinition.resource_measurement(part=, clock_ns=, params=)` returns the
-point for an exact coordinate. It raises `UnmeasuredResourceError` when no
-point matches and `TimingViolationError` when the matching point's `timing`
-is `VIOLATED`. It does not interpolate or extrapolate.
+point for an exact coordinate and raises `UnmeasuredResourceError` when no
+point matches. It does not interpolate or extrapolate. The point's
+`usable_envelope()` is what raises `TimingViolationError` when its `timing`
+is `VIOLATED`, so a caller can inspect a violated point and still be refused
+its numbers.
 
 ## Stream contract
 
