@@ -68,57 +68,11 @@ def _resolve(name: str):
 # once the map/ALU family re-measured its whole recorded surface -- all
 # nine of the wide tile's coordinates, all four of each other tile's --
 # and stamped what came back.
-UNSTAMPED_ENVELOPES: frozenset[str] = frozenset(
-    {
-        "arrow-lite-stream-aggregation",
-        "axi-burst-reader",
-        "axi-random-probe",
-        "axi-record-writer",
-        "axi-stream-job",
-        "axi-write-mux",
-        "bar-aggregation",
-        "bitonic-sorter",
-        "bram-stream-job",
-        "broadcast-hash-join",
-        "datetime-format",
-        "field-sum-aggregation",
-        "fixed-point-divide",
-        "fixed-point-exp",
-        "fixed-point-exp-light",
-        "fixed-point-ln",
-        "fixed-point-ln-light",
-        "fixed-point-sqrt",
-        "grouped-aggregation",
-        "grouped-field-aggregation",
-        "grouped-field-sum-aggregation",
-        "hash-grouped-aggregation",
-        "int32-keyed-predicate-filter",
-        "int32-predicate-filter",
-        "int32-record-gather",
-        "key-mask-dispatcher",
-        "key-membership-filter",
-        "keyed-state",
-        "normal-cdf",
-        "pair-key-filter",
-        "range-partitioner",
-        "record-batch-aggregation",
-        "record-gearbox",
-        "rolling-extremum",
-        "rolling-moments",
-        "row-predicate-filter",
-        "row-unpack",
-        "scratchpad",
-        "session-gap",
-        "stream-aggregation",
-        "stream-broadcast",
-        "streaming-dedup",
-        "streaming-top-k",
-        "stride-distributor",
-        "time-bucket-key",
-        "wide-field-sum-aggregation",
-        "wide-row-predicate-filter",
-    }
-)
+# Empty as of 2026-10-07: the remaining 47 were re-synthesized at their
+# default coordinate on both parts (and the drifted ones at 10 ns too),
+# every digest matched the tree, and the registry was stamped and corrected
+# from what came back.
+UNSTAMPED_ENVELOPES: frozenset[str] = frozenset()
 
 
 def _measured_own_cores() -> tuple[CoreDefinition, ...]:
