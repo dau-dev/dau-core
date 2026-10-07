@@ -18,6 +18,7 @@ import os
 
 import pytest
 
+from dau_core.exp_generator import ExpTileGenerator
 from dau_core.fixed_point import ExpDatapath, exp_domain, exp_reference
 from dau_core.registry import core
 
@@ -67,7 +68,7 @@ EXP_CORES = ("fixed-point-exp", "fixed-point-exp-light")
 def _point(name: str) -> ExpDatapath:
     """The registered operating point: the exp tile's generator datapath."""
     generator = core(name).generator
-    assert generator is not None, f"{name} is a generated tile"
+    assert isinstance(generator, ExpTileGenerator), f"{name} is a generated tile"
     datapath = generator.datapath
     assert isinstance(datapath, ExpDatapath)
     return datapath

@@ -190,9 +190,11 @@ class CapabilityContract(BaseModel):
                 row_capacity=lane.tile.row_capacity,
             )
             counts[key] = counts.get(key, 0) + 1
-        units = tuple(
-            OperatorUnit(kind=tile.unit_kind, count=count, opcodes=tile.opcodes, input_types=tile.input_types) for tile, count in counts.items()
-        )
+        unit_list: list[OperatorUnit] = []
+        for tile, count in counts.items():
+            if tile.unit_kind is not None:
+                unit_list.append(OperatorUnit(kind=tile.unit_kind, count=count, opcodes=tile.opcodes, input_types=tile.input_types))
+        units = tuple(unit_list)
         return DauDesign(name=self.name, units=units)
 
     def to_mapping(self) -> dict[str, Any]:

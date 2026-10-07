@@ -49,7 +49,7 @@ def _decode(beat: int) -> str:
 
 
 async def _start(dut):
-    cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
+    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
     dut.rst.value = 1
     dut.input_valid.value = 0
     dut.input_data.value = 0

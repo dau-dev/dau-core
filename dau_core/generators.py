@@ -44,7 +44,7 @@ class RenderedCore(ResultBase):
     inputs is the thing this design exists to avoid.
     """
 
-    model_config: ConfigDict = ConfigDict(frozen=True)
+    model_config = ConfigDict(frozen=True)
 
     module: str
     source_name: str
@@ -76,7 +76,7 @@ class CoreGenerator(CallableModel):
     config, resolved by hydra, with no Python-literal alternative.
     """
 
-    model_config: ConfigDict = ConfigDict(frozen=True)
+    model_config = ConfigDict(frozen=True)
 
     @Flow.call
     def __call__(self, context: RenderContext) -> RenderedCore:

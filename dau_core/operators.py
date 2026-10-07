@@ -4,6 +4,7 @@ import math
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from enum import IntEnum
+from typing import cast
 
 from ccflow import BaseModel
 from pydantic import ConfigDict
@@ -230,9 +231,13 @@ class RowPredicateConfig(BaseModel):
     def matches(self, row: tuple[int, int, int, int]) -> bool:
         result = self.term0.matches(row)
         if self.combine01 != PredicateCombine.SINGLE:
+            if self.term1 is None:
+                raise ValueError("combine01 requires term1")
             second = self.term1.matches(row)
             result = (result and second) if self.combine01 == PredicateCombine.AND else (result or second)
         if self.combine2 != PredicateCombine.SINGLE:
+            if self.term2 is None:
+                raise ValueError("combine2 requires term2")
             third = self.term2.matches(row)
             result = (result and third) if self.combine2 == PredicateCombine.AND else (result or third)
         return result
@@ -270,6 +275,12 @@ class RowMapConfig(BaseModel):
         return _apply_map_op(self.op, a, b, self.shift)
 
 
+def _quad(values: Iterable[int]) -> tuple[int, int, int, int]:
+    """Four ints as the quad-row tuple, from any four-element iterable."""
+    key, value, aux0, aux1 = values
+    return (key, value, aux0, aux1)
+
+
 def map_row_fields(rows: Iterable[tuple[int, int, int, int]], config: RowMapConfig) -> list[tuple[int, int, int, int]]:
     """Golden semantics for the row map/ALU tile: the configured destination
     field is rewritten from the two source-field operands; the other fields
@@ -278,7 +289,7 @@ def map_row_fields(rows: Iterable[tuple[int, int, int, int]], config: RowMapConf
     for row in rows:
         mapped = list(row)
         mapped[config.dst] = config.apply(tuple(row))
-        out.append(tuple(mapped))
+        out.append(_quad(mapped))
     return out
 
 
@@ -344,7 +355,7 @@ def sqrt_row_fields(rows: Iterable[tuple[int, int, int, int]], config: RowSqrtCo
     for row in rows:
         rooted = list(row)
         rooted[config.dst] = fixed_point_sqrt(_wrap_int32(row[config.src]), fractional_bits=config.fractional_bits)
-        out.append(tuple(rooted))
+        out.append(_quad(rooted))
     return out
 
 
@@ -482,7 +493,7 @@ def divide_row_fields(rows: Iterable[tuple[int, int, int, int]], config: RowDivi
             _wrap_int32(row[config.denominator]),
             fractional_bits=config.fractional_bits,
         )
-        out.append(tuple(divided))
+        out.append(_quad(divided))
     return out
 
 
@@ -543,11 +554,11 @@ def unpack_rows(
     forwards them byte-identically, so the golden is the identity. Field
     descriptors are unused in this mode (not required, not validated)."""
     if bypass:
-        return [tuple(row) for row in rows]
+        return [_quad(cast("tuple[int, int, int, int]", row)) for row in rows]
     specs = tuple(field_specs)
     if len(specs) != 4:
         raise ValueError("row-unpack needs exactly four field specs (key, value, aux0, aux1)")
-    return [tuple(spec.extract(word) for spec in specs) for word in rows]
+    return [_quad(spec.extract(cast(int, word)) for spec in specs) for word in rows]
 
 
 class FieldSumErrorCode(IntEnum):
@@ -1429,14 +1440,16 @@ def grouped_field_aggregate_rows(rows: Iterable[tuple[int, int, int, int]]) -> l
     the partial-group contract) — workload-agnostic; OHLCV bars are a selection
     over it (see :func:`bars_from_field_aggregate`)."""
     results: list[GroupedFieldAggregate] = []
-    key0: int | None = None
+    key0 = 0  # the open group's key; meaningful only while stats is not None
     stats: list[list[int]] | None = None  # per field: [first, last, min, max, total]
     count = 0
     for key, v0, v1, v2 in rows:
         values = (v0, v1, v2)
         if stats is None or key != key0:
             if stats is not None:
-                results.append(GroupedFieldAggregate(key=key0, fields=tuple(FieldStats(*s) for s in stats), count=count))
+                results.append(
+                    GroupedFieldAggregate(key=key0, fields=(FieldStats(*stats[0]), FieldStats(*stats[1]), FieldStats(*stats[2])), count=count)
+                )
             stats = [[v, v, v, v, v] for v in values]
             count = 1
             key0 = key
@@ -1448,7 +1461,7 @@ def grouped_field_aggregate_rows(rows: Iterable[tuple[int, int, int, int]]) -> l
                 field[4] += value  # total
             count += 1
     if stats is not None:
-        results.append(GroupedFieldAggregate(key=key0, fields=tuple(FieldStats(*s) for s in stats), count=count))
+        results.append(GroupedFieldAggregate(key=key0, fields=(FieldStats(*stats[0]), FieldStats(*stats[1]), FieldStats(*stats[2])), count=count))
     return results
 
 

@@ -30,7 +30,7 @@ def _record_words(dut) -> int:
 
 
 async def _start(dut) -> None:
-    cocotb.start_soon(Clock(dut.clk, 4, units="ns").start())
+    cocotb.start_soon(Clock(dut.clk, 4, unit="ns").start())
     dut.rst.value = 1
     dut.cfg_input_records.value = 0
     dut.input_valid.value = 0

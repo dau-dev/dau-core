@@ -17,6 +17,7 @@ from __future__ import annotations
 import itertools
 import os
 import subprocess
+from collections.abc import Callable
 from shutil import which
 
 import pytest
@@ -36,7 +37,7 @@ _MAX_COMBINATIONS = 24  # keep the gate seconds-fast; sample beyond this
 # yet (the tile-ABI follow-up), so the couplings live here — deliberately
 # visible, because an entry is an admission that the registry over-advertises
 # and the composition layer is carrying the constraint instead.
-_COUPLED: dict[str, object] = {
+_COUPLED: dict[str, Callable[[dict[str, int]], bool]] = {
     # row framings carry whole 128-bit quad rows, so a wider input pins the
     # record at 2 words; only the 64-bit and whole-record framings are free
     # two couplings: whole-record framing pins IN_WIDTH to the record bus,

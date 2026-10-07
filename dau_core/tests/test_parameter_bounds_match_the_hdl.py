@@ -18,6 +18,7 @@ import re
 from pathlib import Path
 
 from dau_core import hdl
+from dau_core.cores import CoreDefinition
 from dau_core.element_types import decode_element_type
 from dau_core.registry import loaded_cores
 
@@ -65,7 +66,7 @@ def _guard_bounds(source: str) -> tuple[dict[str, tuple[int, int]], dict[str, tu
     return ranges, choices
 
 
-def _parameterized_cores() -> list[tuple[str, object]]:
+def _parameterized_cores() -> list[tuple[str, CoreDefinition]]:
     return [(name, definition) for name, definition in loaded_cores().items() if getattr(definition, "parameters", None)]
 
 

@@ -158,6 +158,7 @@ def test_rolling_moments_and_derived_mean_variance() -> None:
     moments = rolling_moments(vals, window=3)
     assert moments[:2] == [None, None]
     m = moments[2]
+    assert m is not None
     assert (m.count, m.total, m.total_sq) == (3, 6, 14)
     assert moment_mean(m) == 2.0
     assert moment_var(m, ddof=1) == 1.0
@@ -183,11 +184,13 @@ def test_rolling_moments_refuses_a_window_that_overflows_the_tiles_sum_of_square
 
     # and the window the header calls the only safe one at full range is fine
     (_, moment) = rolling_moments([(0, big), (0, big)], window=2)
+    assert moment is not None
     assert moment.total_sq == 2 * big * big
 
 
 def test_moment_var_rejects_underdetermined_window() -> None:
     (m,) = rolling_moments([(0, 5)], window=1)
+    assert m is not None
     with pytest.raises(ValueError, match="count > ddof"):
         moment_var(m, ddof=1)
 

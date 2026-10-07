@@ -19,6 +19,7 @@ import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import ReadOnly, RisingEdge
 
+from dau_core.ln_generator import LnTileGenerator
 from dau_core.registry import loaded_cores
 from dau_core.tests.cocotb_benches.rate_probe import assert_sustained_ingest
 
@@ -28,7 +29,9 @@ _ONE = 1 << 16  # 1.0 in Q16.16
 _CORE = "fixed-point-ln"
 # the datapath under test is the one the registry entry configures, so the
 # bench cannot drift from the core it is benching
-_POINT = loaded_cores()[_CORE].generator.datapath
+_GENERATOR = loaded_cores()[_CORE].generator
+assert isinstance(_GENERATOR, LnTileGenerator)
+_POINT = _GENERATOR.datapath
 
 # The row-stream family's status codes. A non-positive input has no
 # logarithm, so the tile takes the position the sqrt tile takes for a

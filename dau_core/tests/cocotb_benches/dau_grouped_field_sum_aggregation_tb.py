@@ -335,7 +335,7 @@ async def constrained_random_batches_match_golden(dut):
     await _start(dut)
     rng = random.Random(0x51E1D2)
     for trial in range(40):
-        rows = []
+        rows: list[tuple[int, int, int, int]] = []
         keys = [rng.randint(-4, 4) for _ in range(rng.randint(1, 5))]
         for key in keys:
             for _ in range(rng.randint(1, 5)):
@@ -345,7 +345,7 @@ async def constrained_random_batches_match_golden(dut):
                         row.append(rng.choice((_INT32_MIN, _INT32_MAX, 0, -1)))
                     else:
                         row.append(rng.randint(-100000, 100000))
-                rows.append(tuple(row))
+                rows.append((row[0], row[1], row[2], row[3]))
         mask = rng.randint(1, 15)
         pattern = tuple(rng.choice((0, 1)) for _ in range(rng.randint(1, 6)))
         if not any(pattern):  # a ready pattern must let data through eventually

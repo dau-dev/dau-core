@@ -32,7 +32,7 @@ WINDOW_MASK = 0x0000_7FF8  # 4096 64-bit words, 8-byte aligned
 
 async def _run(dut) -> tuple[int, int, int]:
     """Drive one run; return (elapsed cycles, peak outstanding, checksum)."""
-    cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
+    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
     dut.rst.value = 1
     dut.start.value = 0
     dut.window_base.value = 0

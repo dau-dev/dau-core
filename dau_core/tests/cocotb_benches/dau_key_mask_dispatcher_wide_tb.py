@@ -139,6 +139,7 @@ async def wide_front_sustains_one_row_per_cycle_on_rotating_keys(dut):
     assert accepts == len(rows), f"only {accepts}/{len(rows)} rows accepted"
     assert all(done), f"lanes never completed: {done}"
     assert [_unpack_rows(words[p]) for p in range(num_parts)] == golden
+    assert first_accept is not None and last_accept is not None
     window = last_accept - first_accept + 1
     assert window <= len(rows) + 4, f"wide front took {window} cycles to accept {len(rows)} rotating-key rows (not 1 row/cycle)"
 

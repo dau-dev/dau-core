@@ -85,7 +85,7 @@ class ExpDatapath(BaseModel):
     degree binds instead and rounding changes nothing.
     """
 
-    model_config: ConfigDict = ConfigDict(frozen=True)
+    model_config = ConfigDict(frozen=True)
 
     internal_bits: int = 52
     table_bits: int = 8

@@ -30,6 +30,7 @@ from dau_core.cores import (
     CoreKind,
     UnknownCoreSourceError,
 )
+from dau_core.exp_generator import ExpTileGenerator
 from dau_core.registry import loaded_cores
 from dau_core.tests.test_cores import OWN_PACKAGE, own_cores
 
@@ -205,7 +206,7 @@ def test_a_generated_core_is_digested_from_its_rendered_text() -> None:
     live in the generator and in the registry entry's generator config; move
     either and the digest must move."""
     definition = loaded_cores()["fixed-point-exp"]
-    assert definition.generator is not None
+    assert isinstance(definition.generator, ExpTileGenerator)
     before = definition.hdl_closure_digest(_resolve)
     datapath = definition.generator.datapath
     moved = definition.model_copy(
