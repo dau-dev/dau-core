@@ -140,6 +140,12 @@ class CapabilityContract(BaseModel):
     lanes: tuple[LaneCapability, ...]
     partitioner: TileCapability | None = None
     register_map_version: RegisterMapVersion = Field(default_factory=lambda: CURRENT_REGISTER_MAP_VERSION)
+    # whether the lanes' chain config ports are runtime registers the host
+    # rewrites per job, so a planner matches this design structurally
+    # (enough stages of the right kinds) instead of config for config. A
+    # fact about the bitstream, carried in its manifest; never a caller's
+    # declaration.
+    reconfigurable: bool = False
 
     @property
     def lane_count(self) -> int:
@@ -210,6 +216,7 @@ class CapabilityContract(BaseModel):
             "sort_capacity": self.sort_capacity,
             "lanes": [lane.to_mapping() for lane in self.lanes],
             "partitioner": self.partitioner.to_mapping() if self.partitioner is not None else None,
+            "reconfigurable": self.reconfigurable,
         }
 
     @classmethod
@@ -226,6 +233,9 @@ class CapabilityContract(BaseModel):
             lanes=tuple(LaneCapability.from_mapping(lane) for lane in mapping.get("lanes", ())),
             partitioner=TileCapability.from_mapping(partitioner) if partitioner else None,
             register_map_version=RegisterMapVersion(int(major), int(minor)),
+            # absent in manifests written before the fact was advertised:
+            # every one of those designs binds its configs as literals
+            reconfigurable=bool(mapping.get("reconfigurable", False)),
         )
 
 
@@ -248,7 +258,13 @@ def tile_capability(tile: TileSpec | str) -> TileCapability:
 
 def capability_contract(spec: ScanCompositionSpec) -> CapabilityContract:
     """Derive the capability contract from the composition that generates
-    the shell top — same spec, same registry, one source of truth."""
+    the shell top — same spec, same registry, one source of truth.
+
+    ``reconfigurable`` stays false: the generated walker binds every config
+    port to the literal the composition names, so no composed design has
+    runtime config registers yet. When the generator can bind them to
+    registers, the composition will say so and this is where the contract
+    reads it."""
     return CapabilityContract(
         name=spec.name,
         lanes=tuple(

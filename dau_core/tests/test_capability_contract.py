@@ -119,6 +119,9 @@ def test_contract_mapping_round_trips_and_is_json_able() -> None:
     assert mapping["sort_capacity"] == 16
     restored = CapabilityContract.from_mapping(json.loads(json.dumps(mapping)))
     assert restored == contract
+    # a composed design binds its configs as literals: not reconfigurable,
+    # and the manifest says so rather than leaving a reader to assume
+    assert mapping["reconfigurable"] is False
 
     with pytest.raises(ValueError, match="not a dau capability contract"):
         CapabilityContract.from_mapping({"contract": "other"})
@@ -215,3 +218,18 @@ def test_a_contract_copies_with_a_field_replaced_and_stays_hashable() -> None:
     twin = contract.model_copy(update={"partitioner": None})
     assert twin.partitioner is None and twin.lanes == contract.lanes
     assert len({lane.tile, tile_capability("record-batch-aggregation")}) == 1, "frozen models hash by value"
+
+
+def test_reconfigurable_is_a_manifest_fact() -> None:
+    """The fact rides the contract (and so the manifest), never a caller
+    flag: a design whose chain configs are runtime registers advertises it,
+    and a manifest written before the key existed reads as baked."""
+    baked = capability_contract(sorted_scan_spec(lanes=2))
+    assert baked.reconfigurable is False
+    registers = baked.model_copy(update={"reconfigurable": True})
+    mapping = registers.to_mapping()
+    assert mapping["reconfigurable"] is True
+    assert CapabilityContract.from_mapping(json.loads(json.dumps(mapping))) == registers
+    legacy = baked.to_mapping()
+    del legacy["reconfigurable"]
+    assert CapabilityContract.from_mapping(legacy).reconfigurable is False
