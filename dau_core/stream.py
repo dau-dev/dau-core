@@ -4,9 +4,7 @@ import struct
 from dataclasses import dataclass
 from enum import IntEnum, IntFlag
 
-from ccflow import BaseModel
-from pydantic import ConfigDict
-
+from .models import CheckedModel
 from .registers import DAU_MAGIC_WORD
 
 
@@ -279,14 +277,12 @@ class OperationDescriptor:
         )
 
 
-class RecordBatchLimits(BaseModel):
+class RecordBatchLimits(CheckedModel):
     """Caps for multi-column record batches (see dau-docs record-batch contract).
 
     Defaults are sized to the 1 MiB stream-job staging buffers: header +
     descriptor table + payload must fit one staging region.
     """
-
-    model_config = ConfigDict(frozen=True)
 
     max_columns: int = 16
     max_rows: int = 1 << 20
@@ -312,6 +308,7 @@ def validate_record_batch(
     header: BatchHeader, columns: tuple[ColumnDescriptor, ...], *, limits: RecordBatchLimits = DEFAULT_RECORD_BATCH_LIMITS
 ) -> None:
     """Validate the multi-column batch shape shared by host codecs and HDL models."""
+    limits = limits.check()  # a limit copied past its validators would admit a batch the HDL cannot hold
     if header.column_count != len(columns):
         raise InvalidStreamError(f"header column_count {header.column_count} does not match {len(columns)} descriptors")
     if not columns:

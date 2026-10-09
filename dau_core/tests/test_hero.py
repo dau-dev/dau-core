@@ -26,9 +26,11 @@ def test_stages_match_the_individual_goldens() -> None:
     market = matched_rows(asof_backward(list(_STREAM.trades), list(_STREAM.quotes)))
     bars = time_bars(market, bar_width=8)
     moments = [m for m in rolling_moments([(b.symbol_id, b.close) for b in bars], window=3) if m is not None]
-    assert result.market_rows == market
-    assert result.bars == bars
-    assert result.moments == moments
+    # the result's stage outputs are tuples: it is a frozen model, and a list
+    # on one is a hole in the freeze
+    assert result.market_rows == tuple(market)
+    assert result.bars == tuple(bars)
+    assert result.moments == tuple(moments)
     # the per-row feature branch runs and is returned (not discarded), one per
     # market row
     assert len(result.features) == len(market)
@@ -77,7 +79,7 @@ def test_avoided_bytes_are_dominated_by_the_market_intermediate() -> None:
 def test_empty_after_alignment_still_prices() -> None:
     # no trades -> nothing aligns, the whole funnel below the input is empty
     result = run_hero_workflow([], list(_STREAM.quotes), bar_width=8, roll_window=3)
-    assert (result.market_rows, result.bars, result.moments) == ([], [], [])
+    assert (result.market_rows, result.bars, result.moments) == ((), (), ())
     assert result.funnel == (len(_STREAM.quotes), 0, 0, 0)
     cost = materialization_cost(result)
     assert cost.fused_bytes == cost.input_bytes + cost.final_bytes

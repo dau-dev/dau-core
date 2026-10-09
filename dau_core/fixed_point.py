@@ -25,10 +25,8 @@ from __future__ import annotations
 import math
 from decimal import Decimal, getcontext
 from functools import cache, lru_cache
-from typing import ClassVar
 
-from ccflow import BaseModel
-from pydantic import ConfigDict
+from .models import CheckedModel
 
 # enough digits to decide a rounding boundary that double cannot
 _ORACLE_PRECISION = 80
@@ -71,7 +69,7 @@ def exp_domain(*, fractional_bits: int = EXP_FRACTIONAL_BITS) -> tuple[int, int]
     return low, high
 
 
-class ExpDatapath(BaseModel):
+class ExpDatapath(CheckedModel):
     """One operating point of the exp datapath.
 
     ``x`` is reduced as ``k/2**table_bits`` units of ln2 plus a residue, the
@@ -84,8 +82,6 @@ class ExpDatapath(BaseModel):
     internal precision is the binding constraint; past that the polynomial
     degree binds instead and rounding changes nothing.
     """
-
-    model_config = ConfigDict(frozen=True)
 
     internal_bits: int = 52
     table_bits: int = 8
@@ -194,7 +190,7 @@ def ln_reference(x: int, *, fractional_bits: int = LN_FRACTIONAL_BITS) -> int:
     return int((value + Decimal("0.5")).to_integral_value(rounding="ROUND_FLOOR"))
 
 
-class LnDatapath(BaseModel):
+class LnDatapath(CheckedModel):
     """One operating point of the ln datapath.
 
     ``x`` is normalised to ``m * 2**e`` with ``m`` in [1, 2), so
@@ -207,8 +203,6 @@ class LnDatapath(BaseModel):
     The exponent term is EXACT integer work: ``e`` is a small signed integer
     and ``ln2`` a constant, so the only approximation is the mantissa series.
     """
-
-    model_config: ClassVar = ConfigDict(frozen=True)
 
     internal_bits: int = 52
     table_bits: int = 8
@@ -362,7 +356,7 @@ def normal_cdf_domain(*, fractional_bits: int = NORMAL_CDF_FRACTIONAL_BITS) -> t
     return -limit, limit
 
 
-class NormalCdfDatapath(BaseModel):
+class NormalCdfDatapath(CheckedModel):
     """One operating point of the normal-CDF datapath.
 
     Folds on symmetry (the CDF of -x is one minus the CDF of x), so only the
@@ -376,8 +370,6 @@ class NormalCdfDatapath(BaseModel):
     rounded answer IS 0 or 1, so this tile is TOTAL and needs no error path
     -- the one transcendental here that does not.
     """
-
-    model_config: ClassVar = ConfigDict(frozen=True)
 
     internal_bits: int = 52
     # 512 segments at degree 3 is the CHEAPEST correctly-rounded point on the

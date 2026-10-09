@@ -25,9 +25,12 @@ produced the file sitting on disk, and that file is what gets synthesized.
 
 from collections.abc import Mapping
 from pathlib import Path
+from typing import Annotated
 
 from ccflow import CallableModel, Flow, GenericContext, ResultBase
-from pydantic import ConfigDict
+from pydantic import ConfigDict, Field
+
+from .models import CheckedMixin, FrozenMapping, ReadOnly
 
 __all__ = ("CoreGenerator", "RenderContext", "RenderedCore")
 
@@ -36,7 +39,7 @@ __all__ = ("CoreGenerator", "RenderContext", "RenderedCore")
 RenderContext = GenericContext[str]
 
 
-class RenderedCore(ResultBase):
+class RenderedCore(CheckedMixin, ResultBase):
     """One rendered SystemVerilog source and the parameters behind it.
 
     ``parameters`` is carried so the rendered text can be traced back to the
@@ -44,12 +47,12 @@ class RenderedCore(ResultBase):
     inputs is the thing this design exists to avoid.
     """
 
-    model_config = ConfigDict(frozen=True)
+    model_config = ConfigDict(frozen=True, revalidate_instances="always")
 
     module: str
     source_name: str
     text: str
-    parameters: Mapping[str, int] = {}
+    parameters: Annotated[Mapping[str, int], *ReadOnly] = Field(default_factory=FrozenMapping)
 
     def write(self, into: Path) -> Path:
         """Materialize under ``into``, returning the written path.
@@ -68,7 +71,7 @@ class RenderedCore(ResultBase):
         return path
 
 
-class CoreGenerator(CallableModel):
+class CoreGenerator(CheckedMixin, CallableModel):
     """Base for anything that renders a core's HDL from configuration.
 
     Subclasses carry their parameters as model fields, so an operating point
@@ -76,6 +79,10 @@ class CoreGenerator(CallableModel):
     config, resolved by hydra, with no Python-literal alternative.
     """
 
+    # no revalidate_instances: this base is a FIELD TYPE
+    # (``CoreDefinition.generator``), and revalidating a subclass instance
+    # against it would reject the subclass's own fields. ``check()`` on the
+    # concrete subclass is what validates one.
     model_config = ConfigDict(frozen=True)
 
     @Flow.call
@@ -87,5 +94,12 @@ class CoreGenerator(CallableModel):
 
         The context carries nothing -- a generator's inputs are all
         configuration -- so callers should not have to invent one.
+
+        This is the generator's validation boundary. Nothing revalidates the
+        instance on the way in (a generator is a field type: see
+        :class:`dau_core.models.CheckedModel`), so a generator copied past its
+        validators would otherwise render HDL from an operating point
+        construction would have refused -- and that HDL's digest would then
+        identify it.
         """
-        return self(RenderContext(value=""))
+        return self.check()(RenderContext(value=""))

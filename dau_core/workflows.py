@@ -15,12 +15,13 @@ from typing import ClassVar
 from ccflow import CallableModel, Flow, GenericContext
 
 from .hero import HeroResult, run_hero_workflow
+from .models import CheckedMixin
 from .temporal import MarketStream
 
 __all__ = ("HeroWorkflow",)
 
 
-class HeroWorkflow(CallableModel):
+class HeroWorkflow(CheckedMixin, CallableModel):
     """The predeclared align -> derive -> bar -> roll pipeline over the
     temporal goldens, recording the cardinality funnel and stage outputs."""
 
