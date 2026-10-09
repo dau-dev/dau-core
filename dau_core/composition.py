@@ -18,12 +18,13 @@ import json
 from collections.abc import Mapping, Sequence
 from fractions import Fraction
 from itertools import pairwise
+from typing import Annotated
 
-from ccflow import BaseModel
-from pydantic import ConfigDict, StrictInt, model_validator
+from pydantic import Field, StrictInt, model_validator
 
 from .cores import ContractKind, CoreDefinition, CoreKind, CoreRole, LoadImageKind, ResourceEnvelope
 from .element_types import ElementTypeError, element_code
+from .models import CheckedModel, FrozenMapping, ReadOnly
 from .operators import DispatchMode
 from .registry import core, core_of_role, cores_of_role
 
@@ -92,7 +93,7 @@ def _validate_tile_params(tile: TileSpec, role: str) -> None:
             raise CompositionError(f"{role} {tile.core!r} parameter {name!r} {reason}")
 
 
-class TileSpec(BaseModel):
+class TileSpec(CheckedModel):
     """One registry core plus its config-port bindings (SystemVerilog
     literals or expressions in terms of the top's signals) and any
     module-parameter overrides (``params``: SystemVerilog PARAMETERs, e.g.
@@ -104,13 +105,11 @@ class TileSpec(BaseModel):
     a spec means the same design however it was written and hashes to one
     cache key."""
 
-    model_config = ConfigDict(frozen=True)
-
     core: str
-    config: Mapping[str, str] = {}
+    config: Annotated[Mapping[str, str], *ReadOnly] = Field(default_factory=FrozenMapping)
     # StrictInt: lax coercion (True -> 1, "4" -> 4) would silently satisfy the
     # positive-int parameter contract before _validate_tile_params ever ran
-    params: Mapping[str, StrictInt] = {}
+    params: Annotated[Mapping[str, StrictInt], *ReadOnly] = Field(default_factory=FrozenMapping)
 
     @model_validator(mode="before")
     @classmethod
@@ -148,21 +147,19 @@ class TileSpec(BaseModel):
         return core(self.core)
 
 
-class LaneSpec(BaseModel):
+class LaneSpec(CheckedModel):
     """One lane of the scan: an optional row-atomic partition filter, an
     optional ordered ``chain`` of mid-lane operator stages
     (filter -> map -> ...), and the terminal operator tile. Chain stages
     speak the stream+status contract but need no status counter; the
     terminal tile's count port backs the lane register block."""
 
-    model_config = ConfigDict(frozen=True)
-
     tile: TileSpec
     partition: TileSpec | None = None
     chain: tuple[TileSpec, ...] = ()
 
 
-class ScanCompositionSpec(BaseModel):
+class ScanCompositionSpec(CheckedModel):
     """One scan fanned to ``len(lanes)`` lanes with per-lane output
     regions and the NoC lane register block.
 
@@ -181,8 +178,6 @@ class ScanCompositionSpec(BaseModel):
     reframes rather than widens: it turns wide beats into ONE WHOLE
     RECORD per cycle, so the fan-out behind it routes records instead
     of rows. Its bus is therefore a record size, not a row width."""
-
-    model_config = ConfigDict(frozen=True)
 
     name: str
     lanes: tuple[LaneSpec, ...]
@@ -578,7 +573,12 @@ class ScanCompositionSpec(BaseModel):
     def core_names(self) -> tuple[str, ...]:
         """Every registry core the composition instantiates, infrastructure
         included, deduplicated in first-use order. A shared partitioner
-        replaces the broadcast."""
+        replaces the broadcast.
+
+        This is what stages the HDL a build compiles, so the spec is
+        re-validated first: a composition copied past its validators must not
+        decide which sources reach the synthesis tool."""
+        self.check()
         names: dict[str, None] = {}
         if self.stream_job is not None:
             for name in _stream_job_cores(self.stream_job):
@@ -611,6 +611,7 @@ def stream_shape_mismatches(spec: ScanCompositionSpec) -> tuple[str, ...]:
     adapters. Runtime-variable producer widths cannot be compared and are
     intentionally omitted until a concrete output shape exists.
     """
+    spec = spec.check()
     mismatches: list[str] = []
 
     def compare(producer: TileSpec, consumer: TileSpec, location: str) -> None:
@@ -682,6 +683,7 @@ def throughput_rows_per_cycle(spec: ScanCompositionSpec, *, stage_pass_fractions
     against the rows it actually sees. Selectivity is data-dependent, so
     the composition never guesses it — that is the planner's to supply.
     """
+    spec = spec.check()
 
     def _tile_rate(tile: TileSpec, role: str) -> Fraction:
         definition = tile.definition()
@@ -781,6 +783,7 @@ def estimated_resources(spec: ScanCompositionSpec, *, part: str, clock_ns: float
     consumer, recreating the silent cross-part fallback this API exists to
     prevent. A combinational core's point answers for any clock.
     """
+    spec = spec.check()
     lut = ff = dsp = 0
     bram = 0.0
 
@@ -853,6 +856,7 @@ def canonical_spec_json(spec: ScanCompositionSpec) -> str:
     produce different text rather than silently sharing a cache key. The
     cost is that growing the spec model changes hashes (a safe cache miss);
     that evolution is the explicit job of SPEC_CANONICAL_VERSION."""
+    spec = spec.check()
     payload = spec.model_dump(mode="json")
     return json.dumps(payload, sort_keys=True, separators=(",", ":"))
 

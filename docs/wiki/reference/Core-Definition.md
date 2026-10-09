@@ -18,6 +18,18 @@ loaded into the ccflow `ModelRegistry` at `/dau-core/<name>`.
 | `description`    | `str`                   | What the core does and what its contracts are.                                                                                                                                               |
 | `depends`        | `tuple[str, ...]`       | Registry names this core's HDL requires. `sources_for()` resolves the closure in compile order.                                                                                              |
 
+Every model in dau-core is frozen and validates at construction. Two things
+would otherwise get past that, and both are closed. `model_copy(update=...)`
+runs no validator, so each model carries `replace(**update)` (the validated
+copy) and `check()` (re-validate this model, return it); a model built by
+`model_copy` is refused by the next model that holds it and by every
+composition entry point that reads it. And a frozen model holding a `dict`
+is not frozen, so mapping fields (`parameters`, `config`, `params`) are
+read-only: reading, comparison and serialization are unchanged, mutation
+raises `TypeError`. `CoreGenerator` is the one exception to instance
+revalidation, because it is a field type and a subclass validated against
+the base would lose its own fields.
+
 `CoreDefinition.render(into=)` writes a generated core's source;
 `render_root()` is the default destination, overridable with the
 `DAU_CORE_RENDER_ROOT` environment variable. Rendering a checked-in core is

@@ -21,14 +21,14 @@ from enum import Enum
 from fractions import Fraction
 from importlib import import_module
 from pathlib import Path
-from typing import Literal
+from typing import Annotated, Literal
 
-from ccflow import BaseModel
-from pydantic import ConfigDict, Field, NonNegativeFloat, NonNegativeInt, StrictInt, field_validator, model_validator
+from pydantic import Field, NonNegativeFloat, NonNegativeInt, StrictInt, field_validator, model_validator
 
 from .design import UnitKind
 from .element_types import ElementTypeError, decode_element_type, element_code, element_type
 from .generators import CoreGenerator
+from .models import CheckedModel, FrozenMapping, ReadOnly
 from .stream import LogicalType, OperationCode
 
 
@@ -102,13 +102,11 @@ class ContractKind(Enum):
     WIDE_ROW_STREAM = "wide-row-stream"
 
 
-class ResourceEnvelope(BaseModel):
+class ResourceEnvelope(CheckedModel):
     """Resource counts: one LUT/FF/BRAM/DSP tuple. The usable face of a
     measurement point, or the sum a composition estimate adds up to. Never
     a registry entry on its own: the registry records measurement points,
     which carry the coordinates a count is meaningless without."""
-
-    model_config = ConfigDict(frozen=True)
 
     lut: NonNegativeInt
     ff: NonNegativeInt
@@ -121,7 +119,7 @@ class TimingStatus(Enum):
     VIOLATED = "violated"
 
 
-class ResourceMeasurement(BaseModel):
+class ResourceMeasurement(CheckedModel):
     """One exact OOC result. Coordinates are deliberately discrete: a
     measurement says nothing about another part, clock, or parameter tuple.
 
@@ -130,11 +128,9 @@ class ResourceMeasurement(BaseModel):
     because the logic costs the same at every one. A clocked point carries
     the clock it was constrained to, whether it met, and by how much."""
 
-    model_config = ConfigDict(frozen=True)
-
     part: str = Field(min_length=1)
     clock_ns: float | None = None
-    params: Mapping[str, StrictInt] = {}
+    params: Annotated[Mapping[str, StrictInt], *ReadOnly] = Field(default_factory=FrozenMapping)
     lut: NonNegativeInt
     ff: NonNegativeInt
     bram36: NonNegativeFloat
@@ -189,7 +185,7 @@ class ResourceMeasurement(BaseModel):
         return ResourceEnvelope(lut=self.lut, ff=self.ff, bram36=self.bram36, dsp=self.dsp)
 
 
-class IngestRate(BaseModel):
+class IngestRate(CheckedModel):
     """A stream core's guaranteed sustained ingest rate: ``rows`` rows per
     ``per_cycles`` clock cycles, an exact rational (1 row per 2 cycles is
     the composed lane rate the silicon proved; the key-mask dispatcher
@@ -209,8 +205,6 @@ class IngestRate(BaseModel):
     retime, a wider port) lands here the same release the RTL proves it.
     Compositions over these floors yield the sustained rate the scheduler
     plans on UNDER those stated assumptions."""
-
-    model_config = ConfigDict(frozen=True)
 
     rows: StrictInt
     per_cycles: StrictInt
@@ -262,7 +256,7 @@ class IngestRate(BaseModel):
         return self.rows_per_cycle
 
 
-class ParameterSpec(BaseModel):
+class ParameterSpec(CheckedModel):
     """An overridable SystemVerilog module parameter: its HDL default and the
     constraint a composition override must satisfy — mirroring the RTL's own
     elaboration guards so an invalid override is rejected at composition time,
@@ -294,8 +288,6 @@ class ParameterSpec(BaseModel):
     and beat widths (``IN_WIDTH``, ``OUT_WIDTH``, ``DATA_WIDTH``) count bits
     per handshake and are not types; declaring one here would let a design ask
     for a fixed-point AXI bus."""
-
-    model_config = ConfigDict(frozen=True)
 
     default: int
     multiple_of: int = Field(default=1, gt=0)
@@ -402,13 +394,11 @@ class ParameterSpec(BaseModel):
         return self
 
 
-class StorageIntent(BaseModel):
+class StorageIntent(CheckedModel):
     """A core's declared storage need (STORAGE_AND_NOC.md). ``owned`` = a
     private single-cycle arena; ``shared`` = handle-based tier transactions.
     Capacity prices against a declared module parameter so the planner can
     refuse what no tier serves — never discovered at synthesis."""
-
-    model_config = ConfigDict(frozen=True)
 
     role: str = Field(min_length=1)
     access: Literal["owned", "shared"]
@@ -440,10 +430,8 @@ HDL_CLOSURE_DIGEST_VERSION = "1"
 _HDL_INCLUDE = re.compile(r'^\s*`include\s+"([^"]+)"', re.MULTILINE)
 
 
-class CoreDefinition(BaseModel):
+class CoreDefinition(CheckedModel):
     """One HDL building block and its contract surround."""
-
-    model_config = ConfigDict(frozen=True)
 
     name: str
     kind: CoreKind
@@ -537,7 +525,7 @@ class CoreDefinition(BaseModel):
     # name is rejected. The values here mirror the .sv parameter defaults —
     # the HDL is the source of truth, this is the machine-readable declaration
     # the composition validates against.
-    parameters: Mapping[str, ParameterSpec] = {}
+    parameters: Annotated[Mapping[str, ParameterSpec], *ReadOnly] = Field(default_factory=FrozenMapping)
     # declared storage needs; the walker wires them, contracts advertise them
     storage_intent: tuple[StorageIntent, ...] = ()
 

@@ -32,9 +32,10 @@ the temporal goldens.
 
 from __future__ import annotations
 
-from ccflow import BaseModel, ResultBase
+from ccflow import ResultBase
 from pydantic import ConfigDict
 
+from .models import CheckedMixin, CheckedModel
 from .temporal import (
     MarketFeatures,
     MarketRow,
@@ -66,13 +67,11 @@ ROLL_BYTES = 3 * 8  # rolling-moment record: {count, symbol}, total, total_sq
 ROLL_FIELDS = ("open", "high", "low", "close")
 
 
-class WorkflowStage(BaseModel):
+class WorkflowStage(CheckedModel):
     """One materializing stage and its cardinality: ``in_rows`` records of
     ``in_bytes`` in, ``out_rows`` records of ``out_bytes`` out (the tile's own
     input/output record widths). A staged run DMAs both; a fused run DMAs
     neither (except the pipeline endpoints)."""
-
-    model_config = ConfigDict(frozen=True)
 
     name: str
     op: str
@@ -90,18 +89,18 @@ class WorkflowStage(BaseModel):
         return self.out_rows * self.out_bytes
 
 
-class HeroResult(ResultBase):
+class HeroResult(CheckedMixin, ResultBase):
     """The executed workflow: the materializing-stage cardinalities (the funnel),
     the per-row feature branch, and the stage outputs (for a bit-exact
     comparison against a CPU reference)."""
 
-    model_config = ConfigDict(frozen=True)
+    model_config = ConfigDict(frozen=True, revalidate_instances="always")
 
     stages: tuple[WorkflowStage, ...]
-    market_rows: list[MarketRow]
-    features: list[MarketFeatures]
-    bars: list[TemporalBar]
-    moments: list[RollingMoment]
+    market_rows: tuple[MarketRow, ...]
+    features: tuple[MarketFeatures, ...]
+    bars: tuple[TemporalBar, ...]
+    moments: tuple[RollingMoment, ...]
 
     @property
     def funnel(self) -> tuple[int, ...]:
@@ -148,14 +147,14 @@ def run_hero_workflow(
     return HeroResult(stages=stages, market_rows=market, features=features, bars=bars, moments=moments)
 
 
-class MaterializationCost(ResultBase):
+class MaterializationCost(CheckedMixin, ResultBase):
     """The avoided-materialization accounting for one workflow run. ``staged``
     DMAs every stage's read and write; ``fused`` DMAs only the pipeline endpoints
     (the input stream in, the final rolling output out). ``avoided`` is the
     intermediate materialization the fusion removes; ``dma_ratio`` is the
     DMA-bound speedup (both paths are DMA-bound with compute overlapped)."""
 
-    model_config = ConfigDict(frozen=True)
+    model_config = ConfigDict(frozen=True, revalidate_instances="always")
 
     staged_bytes: int
     fused_bytes: int

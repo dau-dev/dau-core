@@ -96,7 +96,11 @@ Each operator tile's behavior is defined by a pure function or small model
 in `dau_core.operators` or `dau_core.temporal`.
 Configuration objects are frozen [pydantic](https://docs.pydantic.dev)
 models mirroring the tile's config ports, so the same object drives the
-golden, the testbench, and design emission:
+golden, the testbench, and design emission. Frozen here means more than
+"no assignment": a mapping field is read-only, `model_copy` is backed by
+`replace()` which validates the result, and `check()` re-validates a model
+on demand, so a copy that skipped the validators is refused at the next
+boundary rather than priced or hashed.
 
 ```python
 from dau_core.operators import (

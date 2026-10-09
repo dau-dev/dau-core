@@ -24,12 +24,12 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
-from ccflow import BaseModel
-from pydantic import ConfigDict, Field
+from pydantic import Field
 
 from .composition import ScanCompositionSpec, TileSpec
 from .cores import ContractKind
 from .design import DauDesign, OperatorUnit, UnitKind
+from .models import CheckedModel
 from .registers import CURRENT_REGISTER_MAP_VERSION, RegisterMapVersion
 from .registry import core
 from .stream import LogicalType, OperationCode
@@ -45,11 +45,9 @@ def opcode_bitmap(opcodes: tuple[OperationCode, ...]) -> int:
     return bitmap
 
 
-class TileCapability(BaseModel):
+class TileCapability(CheckedModel):
     """One operator tile instance as the contract describes it: registry
     identity, stream contract, HDL opcode truth, and instance config."""
-
-    model_config = ConfigDict(frozen=True)
 
     core: str
     module: str
@@ -98,11 +96,9 @@ class TileCapability(BaseModel):
         )
 
 
-class LaneCapability(BaseModel):
+class LaneCapability(CheckedModel):
     """One scan lane: the terminal operator tile, its optional partition
     filter, and the ordered mid-lane operator ``chain`` between them."""
-
-    model_config = ConfigDict(frozen=True)
 
     tile: TileCapability
     partition: TileCapability | None = None
@@ -125,7 +121,7 @@ class LaneCapability(BaseModel):
         )
 
 
-class CapabilityContract(BaseModel):
+class CapabilityContract(CheckedModel):
     """The advertised capability truth of one composed design.
 
     A config-data model (it is what the shell-build manifest carries and
@@ -133,8 +129,6 @@ class CapabilityContract(BaseModel):
     registry's declarations; ``to_mapping``/``from_mapping`` remain the
     manifest serialization, unchanged, because manifests already on disk
     carry that form."""
-
-    model_config = ConfigDict(frozen=True)
 
     name: str
     lanes: tuple[LaneCapability, ...]
@@ -265,6 +259,7 @@ def capability_contract(spec: ScanCompositionSpec) -> CapabilityContract:
     runtime config registers yet. When the generator can bind them to
     registers, the composition will say so and this is where the contract
     reads it."""
+    spec = spec.check()
     return CapabilityContract(
         name=spec.name,
         lanes=tuple(

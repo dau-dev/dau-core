@@ -2,7 +2,7 @@
 
 A tile contributed from outside this package declares a ``CoreDefinition``,
 speaks the row-stream ABI, names the element types its parameters take, and
-may render its HDL through a ``CoreGenerator``. Those five modules are
+may render its HDL through a ``CoreGenerator``. Those modules are
 therefore the *authoring surface* -- the part that has to be reachable by
 someone who will never have this repository, whether that eventually means
 extracting them into a public distribution or publishing dau-core itself.
@@ -33,7 +33,11 @@ import dau_core
 # dau_core/hdl/types.svh. A private copy of that vocabulary would be a
 # second encoding, which is the failure this whole mechanism exists to
 # prevent.
-SURFACE_MODULES = ("cores", "design", "element_types", "generators", "stream")
+# `models` is here because it IS the declaration language: a CoreDefinition
+# is a CheckedModel and a CoreGenerator carries CheckedMixin, so an author
+# declaring either already has it. It depends on nothing but ccflow and
+# pydantic, which the surface may use anyway.
+SURFACE_MODULES = ("cores", "design", "element_types", "generators", "models", "stream")
 
 # Third-party runtime dependencies the surface may use. ccflow and pydantic
 # ARE the declaration language -- a CoreDefinition is a ccflow BaseModel, so

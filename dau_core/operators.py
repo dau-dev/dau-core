@@ -6,9 +6,7 @@ from dataclasses import dataclass
 from enum import IntEnum
 from typing import cast
 
-from ccflow import BaseModel
-from pydantic import ConfigDict
-
+from .models import CheckedModel
 from .stream import LogicalType, OperationCode
 
 
@@ -35,11 +33,9 @@ class FilterErrorCode(IntEnum):
     STREAM = 2
 
 
-class FilterPredicate(BaseModel):
+class FilterPredicate(CheckedModel):
     """Predicate configuration: ``value <op0> constant0`` optionally combined
     with ``value <op1> constant1`` by AND/OR. Matches the tile's config ports."""
-
-    model_config = ConfigDict(frozen=True)
 
     op0: PredicateOp
     constant0: int
@@ -65,6 +61,7 @@ class FilterPredicate(BaseModel):
 def filter_values(values: Iterable[int], predicate: FilterPredicate) -> list[int]:
     """Golden semantics for the compacting predicate filter tile: emit the
     matching values in input order."""
+    predicate = predicate.check()  # the config is read once; a copy past its validators is refused here
     return [value for value in values if predicate.matches(value)]
 
 
@@ -126,12 +123,10 @@ def _apply_map_op(op: MapOp, value: int, constant: int, shift: int) -> int:
     raise ValueError(f"unsupported map op {op!r}")
 
 
-class MapConfig(BaseModel):
+class MapConfig(CheckedModel):
     """Per-row ALU configuration: ``value <op> constant`` (MULSHR/SHL also use
     ``shift``). All arithmetic is INT32 two's-complement wraparound — the
     golden and the tile agree bit-for-bit. Matches the tile's config ports."""
-
-    model_config = ConfigDict(frozen=True)
 
     op: MapOp
     constant: int = 0
@@ -151,6 +146,7 @@ class MapConfig(BaseModel):
 def map_values(values: Iterable[int], config: MapConfig) -> list[int]:
     """Golden semantics for the map/ALU tile: apply the configured ALU
     operation to every value, preserving order and count."""
+    config = config.check()  # the config is read once; a copy past its validators is refused here
     return [config.apply(value) for value in values]
 
 
@@ -164,6 +160,7 @@ def filter_rows(rows: Iterable[tuple[int, int]], predicate: FilterPredicate, *, 
     evaluated on the value lane (or the key lane with ``on_key``) and whole
     ``(key, value)`` rows pass or drop together — compaction never misaligns
     the lanes."""
+    predicate = predicate.check()  # the config is read once; a copy past its validators is refused here
     return [(key, value) for key, value in rows if predicate.matches(key if on_key else value)]
 
 
@@ -172,6 +169,7 @@ def map_rows(rows: Iterable[tuple[int, int]], config: MapConfig, *, on_key: bool
     to the value lane (or the key lane with ``on_key`` — e.g. time→bucket
     derivation); the other lane passes through unchanged, order and count
     preserved."""
+    config = config.check()  # the config is read once; a copy past its validators is refused here
     if on_key:
         return [(config.apply(key), value) for key, value in rows]
     return [(key, config.apply(value)) for key, value in rows]
@@ -188,11 +186,9 @@ class RowField(IntEnum):
     AUX1 = 3
 
 
-class RowPredicateTerm(BaseModel):
+class RowPredicateTerm(CheckedModel):
     """One comparison term of a row predicate: ``field <op> constant``
     (signed 32-bit). Matches one term's config-port triple on the tile."""
-
-    model_config = ConfigDict(frozen=True)
 
     field: RowField
     op: PredicateOp
@@ -207,13 +203,11 @@ class RowPredicateTerm(BaseModel):
         return _compare(self.op, _wrap_int32(row[self.field]), self.constant)
 
 
-class RowPredicateConfig(BaseModel):
+class RowPredicateConfig(CheckedModel):
     """Compound row predicate: up to three terms combined by the two-level
     tree ``(term0 <combine01> term1) <combine2> term2``. ``SINGLE`` at a
     level ignores the right-hand term (the 2-term filter's combine,
     extended to three terms). Matches the tile's config ports."""
-
-    model_config = ConfigDict(frozen=True)
 
     term0: RowPredicateTerm
     combine01: PredicateCombine = PredicateCombine.SINGLE
@@ -247,16 +241,15 @@ def filter_rows_by_predicate(rows: Iterable[tuple[int, int, int, int]], config: 
     """Golden semantics for the row predicate filter tile: whole
     (key, value, aux0, aux1) rows pass when the compound predicate over the
     selected fields matches (signed 32-bit compares), order preserved."""
+    config = config.check()  # the config is read once; a copy past its validators is refused here
     return [tuple(row) for row in rows if config.matches(tuple(row))]
 
 
-class RowMapConfig(BaseModel):
+class RowMapConfig(CheckedModel):
     """Per-row field ALU configuration: ``dst = src_a <op> src_b`` over the
     four row fields (MULSHR/SHL also use ``shift``; SHL ignores ``src_b``).
     All arithmetic is INT32 two's-complement wraparound — the golden and the
     tile agree bit-for-bit. Matches the tile's config ports."""
-
-    model_config = ConfigDict(frozen=True)
 
     op: MapOp
     dst: RowField
@@ -285,6 +278,7 @@ def map_row_fields(rows: Iterable[tuple[int, int, int, int]], config: RowMapConf
     """Golden semantics for the row map/ALU tile: the configured destination
     field is rewritten from the two source-field operands; the other fields
     pass through unchanged, order and count preserved."""
+    config = config.check()  # the config is read once; a copy past its validators is refused here
     out: list[tuple[int, int, int, int]] = []
     for row in rows:
         mapped = list(row)
@@ -327,10 +321,8 @@ def fixed_point_sqrt(value: int, *, fractional_bits: int = SQRT_FRACTIONAL_BITS)
     return math.isqrt(value << fractional_bits)
 
 
-class RowSqrtConfig(BaseModel):
+class RowSqrtConfig(CheckedModel):
     """Which field the root is taken from and which one receives it."""
-
-    model_config = ConfigDict(frozen=True)
 
     dst: RowField
     src: RowField
@@ -351,6 +343,7 @@ def sqrt_row_fields(rows: Iterable[tuple[int, int, int, int]], config: RowSqrtCo
     ``DOMAIN`` on the tile — the row is not emitted with a substituted value,
     because a wrong number that looks right is the failure this avoids.
     """
+    config = config.check()  # the config is read once; a copy past its validators is refused here
     out: list[tuple[int, int, int, int]] = []
     for row in rows:
         rooted = list(row)
@@ -459,10 +452,8 @@ def fixed_point_divide(numerator: int, denominator: int, *, fractional_bits: int
     return result
 
 
-class RowDivideConfig(BaseModel):
+class RowDivideConfig(CheckedModel):
     """Which fields the quotient is formed from and which receives it."""
-
-    model_config = ConfigDict(frozen=True)
 
     dst: RowField
     numerator: RowField
@@ -485,6 +476,7 @@ def divide_row_fields(rows: Iterable[tuple[int, int, int, int]], config: RowDivi
     divided on the host because there was no divider; with one, the divide
     stays on the device.
     """
+    config = config.check()  # the config is read once; a copy past its validators is refused here
     out: list[tuple[int, int, int, int]] = []
     for row in rows:
         divided = list(row)
@@ -504,13 +496,11 @@ class UnpackErrorCode(IntEnum):
     STREAM = 2
 
 
-class UnpackFieldSpec(BaseModel):
+class UnpackFieldSpec(CheckedModel):
     """One output field's slice of a packed row: the ``width``-bit field at bit
     ``offset`` of the (<=64-bit) packed word, sign-extended (``signed``) or
     zero-extended to int32. Matches the tile's
     ``cfg_field{i}_{offset,width,signed}`` config ports."""
-
-    model_config = ConfigDict(frozen=True)
 
     offset: int
     width: int
@@ -782,7 +772,7 @@ class MembershipErrorCode(IntEnum):
     LOAD = 3  # build-set image length != key_space // 64
 
 
-class MembershipBuildSet(BaseModel):
+class MembershipBuildSet(CheckedModel):
     """The membership memory: a direct-mapped EXACT bitmap over the configured
     dictionary-id key space ``[0, key_space)``. Key ``k`` is a member iff
     ``0 <= k < key_space`` and bit ``k`` is set.
@@ -802,8 +792,6 @@ class MembershipBuildSet(BaseModel):
 
     The bitmap loads as ``key_space // 64`` little-endian 64-bit image words:
     word ``w`` bit ``b`` is id ``64*w + b``."""
-
-    model_config = ConfigDict(frozen=True)
 
     key_space: int
     members: frozenset[int]
@@ -975,13 +963,11 @@ class JoinErrorCode(IntEnum):
     RANGE = 3  # a build or probe key is outside [0, key_space)
 
 
-class BroadcastJoinConfig(BaseModel):
+class BroadcastJoinConfig(CheckedModel):
     """Output field-select for the broadcast hash join: each of the emitted
     row's three data fields (``out0``, ``out1``, ``out2``) is chosen from the
     six join sources. The emitted key is always the matched probe key. Matches
     the tile's ``cfg_out{0,1,2}_sel`` config ports."""
-
-    model_config = ConfigDict(frozen=True)
 
     out0: JoinSource
     out1: JoinSource
