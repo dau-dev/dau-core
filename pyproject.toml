@@ -97,15 +97,11 @@ replace = 'version = "{new_version}"'
 [tool.coverage.run]
 branch = true
 omit = [
-<<<<<<< before updating
-    "dau_core/tests/integration/",
+    "dau_core/tests/integration/*",
     # cocotb benches execute inside the Verilator/cocotb subprocess (and not
     # at all where verilator is absent): pytest-process coverage over them is
     # structurally meaningless
     "dau_core/tests/cocotb_benches/*",
-=======
-    "dau_core/tests/integration/*",
->>>>>>> after updating
 ]
 
 [tool.coverage.report]
