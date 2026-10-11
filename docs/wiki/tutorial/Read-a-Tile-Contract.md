@@ -1,10 +1,10 @@
 # Tutorial: read a tile's contract end to end
 
 In this tutorial you will take one operator tile and follow it through
-every layer that defines it — its registry entry, its golden model, its
-measured cost, and the HDL those things describe. By the end you will know
-where each kind of fact about a tile lives, which is what you need before
-adding or changing one.
+every layer that defines it: its registry entry, its golden model, its
+measured cost, and the HDL those describe. By the end you will know where
+each kind of fact about a tile lives, which you need before adding or
+changing one.
 
 We will use `streaming-top-k`, the tile that keeps the K largest rows
 by sort key.
@@ -32,9 +32,9 @@ operator
 dau_streaming_top_k
 ```
 
-The registry is not a Python list — it is a Hydra config tree loaded into
-the ccflow `ModelRegistry`. `core()` is a read-through view over whatever
-registry your application has composed.
+The registry is a Hydra config tree loaded into the ccflow
+`ModelRegistry`, and `core()` reads whatever registry your application has
+composed.
 
 ## Step 2: find its meaning
 
@@ -61,10 +61,9 @@ print(streaming_top_k(rows, k=2))
 [(9, 2, 0, 0), (9, 4, 0, 0)]
 ```
 
-Look closely at that result. Both rows with key `9` survived, and they came
-out in **arrival order** — the row that arrived first is first. That is not
-an accident of the implementation; it is the contract. The golden's
-docstring states it, and the HDL must reproduce it exactly.
+Both rows with key `9` were kept, and they came out in **arrival order**:
+the row that arrived first is first. That ordering is part of the contract.
+The golden's docstring states it, and the HDL has to reproduce it exactly.
 
 ## Step 3: see what it costs
 
@@ -84,7 +83,7 @@ print(measurement.timing.value, measurement.wns_ns)
 met 4.35
 ```
 
-Now ask for a coordinate nobody has measured:
+Now ask for a coordinate that has not been measured:
 
 ```python
 from dau_core.cores import UnmeasuredResourceError
@@ -95,10 +94,10 @@ except UnmeasuredResourceError as error:
     print("refused:", error)
 ```
 
-You should see a refusal naming the missing coordinate. The registry does
-not interpolate between K=1 and K=5 to invent a number for K=3. Refusing is
-the feature: a plausible-looking number that nobody measured is how a
-design gets priced against the wrong hardware.
+You should see an error naming the missing coordinate. The registry does
+not interpolate between K=1 and K=5 to invent a number for K=3, because an
+unmeasured number that looks plausible is how a design gets priced against
+the wrong hardware.
 
 ## Step 4: find the HDL those facts describe
 
@@ -115,9 +114,9 @@ for path in sources_for("streaming-top-k"):
 dau_streaming_top_k.sv
 ```
 
-This tile has no dependencies. A tile that used a shared package would list
-that package first — `sources_for` resolves the dependency closure so a
-build never has to.
+This tile has no dependencies. A tile that used a shared package would
+list that package first; `sources_for` resolves the dependencies so a build
+does not have to.
 
 Open that file and read its header comment. It describes the same contract
 you saw in step 2, in the language of the hardware: a size-K systolic
@@ -135,9 +134,9 @@ dau_core.tests.cocotb_benches.dau_streaming_top_k_tb
 ```
 
 That bench drives the HDL and compares its output against
-`streaming_top_k` — the same function you ran in step 2 — over generated
-inputs. It does not compare against hand-written expected values, so the
-test author's beliefs about the tile cannot quietly replace the contract.
+`streaming_top_k`, the same function you ran in step 2, over generated
+inputs. It does not use hand-written expected values, so the test author's
+assumptions about the tile cannot take the place of the contract.
 
 Run it if you have `verilator` installed:
 
@@ -147,7 +146,7 @@ python -m pytest dau_core/tests/test_hdl_cocotb.py -q -k streaming_top_k
 
 ## What you now know
 
-Five facts about a tile live in five places, and each has one owner:
+Five facts about a tile live in five places:
 
 | Fact                          | Lives in                                 |
 | ----------------------------- | ---------------------------------------- |

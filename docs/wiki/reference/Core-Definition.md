@@ -9,7 +9,7 @@ loaded into the ccflow `ModelRegistry` at `/dau-core/<name>`.
 
 | Field            | Type                    | Description                                                                                                                                                                                  |
 | ---------------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`           | `str`                   | Registry key. Operator tiles are conventionally `int32-<operation>`.                                                                                                                         |
+| `name`           | `str`                   | Registry key, named for what the tile computes. A width belongs in the parameters, not the name; see [Add an operator tile](Add-an-Operator-Tile).                                           |
 | `kind`           | `CoreKind`              | `operator`, `stream-infra`, `shell-adapter`, `package`, or `sim-model`.                                                                                                                      |
 | `module`         | `str`                   | The SystemVerilog module name.                                                                                                                                                               |
 | `source`         | `str`                   | The HDL filename within `source_package`.                                                                                                                                                    |
@@ -18,22 +18,21 @@ loaded into the ccflow `ModelRegistry` at `/dau-core/<name>`.
 | `description`    | `str`                   | What the core does and what its contracts are.                                                                                                                                               |
 | `depends`        | `tuple[str, ...]`       | Registry names this core's HDL requires. `sources_for()` resolves the closure in compile order.                                                                                              |
 
-Every model in dau-core is frozen and validates at construction. Two things
-would otherwise get past that, and both are closed. `model_copy(update=...)`
-runs no validator, so each model carries `replace(**update)` (the validated
-copy) and `check()` (re-validate this model, return it); a model built by
-`model_copy` is refused by the next model that holds it and by every
-composition entry point that reads it. And a frozen model holding a `dict`
-is not frozen, so mapping fields (`parameters`, `config`, `params`) are
-read-only: reading, comparison and serialization are unchanged, mutation
-raises `TypeError`. `CoreGenerator` is the one exception to instance
-revalidation, because it is a field type and a subclass validated against
-the base would lose its own fields.
+Every model in dau-core is frozen and validated at construction. Because
+`model_copy(update=...)` skips validation, each model also has
+`replace(**update)`, which validates the copy, and `check()`, which
+validates the model again and returns it. A model built with `model_copy`
+is rejected by the next model that holds it and by every composition
+function that reads it. Mapping fields (`parameters`, `config`, `params`)
+are read-only: reading, comparing and serializing them works as before, and
+mutating them raises an error. `CoreGenerator` is not revalidated when
+another model holds it, because it is a field type and validating a
+subclass against the base would drop the subclass's own fields.
 
 `CoreDefinition.render(into=)` writes a generated core's source;
 `render_root()` is the default destination, overridable with the
-`DAU_CORE_RENDER_ROOT` environment variable. Rendering a checked-in core is
-refused.
+`DAU_CORE_RENDER_ROOT` environment variable. Rendering a checked-in core
+raises an error.
 
 ## Semantics and verification
 
@@ -50,15 +49,15 @@ refused.
 
 `ResourceEnvelope` is a count (`lut`, `ff`, `bram36`, `dsp`): a measurement point's usable face, or the sum a composition estimate adds up to. It is not a registry shape.
 
-`ResourceMeasurement` carries `part`, `clock_ns`, `params`, `lut`, `ff`,
+`ResourceMeasurement` has `part`, `clock_ns`, `params`, `lut`, `ff`,
 `bram36`, `dsp`, `timing`, `wns_ns`, and exposes `usable_envelope()`.
 
 `CoreDefinition.resource_measurement(part=, clock_ns=, params=)` returns the
 point for an exact coordinate and raises `UnmeasuredResourceError` when no
 point matches. It does not interpolate or extrapolate. The point's
 `usable_envelope()` is what raises `TimingViolationError` when its `timing`
-is `VIOLATED`, so a caller can inspect a violated point and still be refused
-its numbers.
+is `VIOLATED`, so a caller can inspect a violated point but cannot use its
+numbers as a budget.
 
 ## Stream contract
 
@@ -85,7 +84,7 @@ Two rules cannot be read off a tile's ports, so the registry states them.
 transform slot — it widens packed rows into the quad rows the lanes consume.
 `key-dispatch` marks a core that routes whole records to lanes by a decode
 over the record's key, and is a contract as well as a label: such a core
-carries `MODE` (a `DispatchMode`) and `NUM_PARTITIONS`, and the composition
+has `MODE` (a `DispatchMode`) and `NUM_PARTITIONS`, and the composition
 enforces a power-of-two lane count for every decode but `EXACT_BRANCH`. A
 range partitioner routes by ordered splitters and declares neither.
 
@@ -95,7 +94,7 @@ range partitioner routes by ordered splitters and declares neither.
 | -------- | -------------------- | ----------------------------------------------------------- |
 | `ingest` | `IngestRate \| None` | The declared acceptance rate. Required on every `operator`. |
 
-An `IngestRate` carries `rows` per `per_cycles` and takes one of three
+An `IngestRate` holds `rows` per `per_cycles` and takes one of three
 shapes. At most one scaling shape may be set.
 
 | Shape    | Declaration          | Effective rate                        |
@@ -148,7 +147,7 @@ a parameter set, validating overrides against the declared parameter specs.
 | ------------ | ----------------------------- | ------------------------------------------------------ |
 | `parameters` | `Mapping[str, ParameterSpec]` | Module parameters that may be overridden per instance. |
 
-A `ParameterSpec` carries `default`, and optionally `minimum`, `maximum`,
+A `ParameterSpec` has a `default`, and optionally `minimum`, `maximum`,
 `multiple_of`, `choices`, `power_of_two`, and `element_type`. These mirror
 the RTL's elaboration guards, and `ParameterSpec.violation()` is the single
 statement of the override rule — composition validation, the build layer,

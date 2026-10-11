@@ -1,9 +1,9 @@
 # How to test a core
 
-This guide shows you how to prove a tile means what its registry entry
-says. It assumes the tile already has a golden, HDL, and an entry — see
+This guide shows you how to check that a tile does what its registry entry
+says. It assumes the tile already has a golden, HDL, and an entry; see
 [how to add an operator tile](Add-an-Operator-Tile) for the order those
-arrive in.
+come in.
 
 Nothing here needs Vivado. The bench steps need `verilator` on `PATH` and
 the develop extras, which bring in the cocotb integration:
@@ -12,21 +12,20 @@ the develop extras, which bring in the cocotb integration:
 pip install -e .[develop]
 ```
 
-The layers below are ordered by what they can catch. Run them in order:
-each one is cheap relative to the next and rules out a class of failure the
-next one would otherwise report confusingly.
+Run the steps below in order. Each is cheaper than the next and rules out
+a kind of failure the next one would report in a more confusing way.
 
 ## 1. Prove the golden against itself
 
-The golden is the definition of the tile, so it cannot be checked against
-the hardware — the hardware is checked against *it*. Check it against
-properties instead, in `dau_core/tests/test_<name>.py`:
+The golden defines the tile, so it cannot be checked against the hardware;
+the hardware is checked against it. Test the golden against properties
+instead, in `dau_core/tests/test_<name>.py`:
 
 - permutation invariance where order should not matter;
 - agreement with an existing golden wherever the two overlap;
 - boundary values, including the int32 wire identity (`-1` and
   `0xFFFFFFFF` are the same key);
-- the algebra, if the tile has a host-side counterpart —
+- the algebra, if the tile has a host-side counterpart:
   `merge(split(rows)) == one_shot(rows)`.
 
 ```bash
@@ -36,9 +35,9 @@ python -m pytest dau_core/tests/test_<name>.py -q
 ## 2. Prove the HDL equal to the golden
 
 The cocotb bench in `dau_core/tests/cocotb_benches/dau_<name>_tb.py`
-drives the DUT and compares against the golden — never against hand-written
+drives the DUT and compares against the golden, never against hand-written
 expected values. Build the tile's config object once and pass the same
-object to both sides, so a config misreading cannot cancel out:
+object to both sides, so a misread config cannot cancel itself out:
 
 ```python
 predicate = FilterPredicate(op0=PredicateOp.GT, constant0=4)
@@ -48,8 +47,8 @@ assert kept == filter_values(_VALUES, predicate)
 
 Cover the nominal case, backpressure (a stalled beat stays asserted and
 byte-stable), reset, repeated batches back to back, malformed input, and
-every error path — asserting `status_error_code` against the golden's
-`IntEnum` value rather than a literal.
+every error path, asserting `status_error_code` against the golden's
+`IntEnum` value instead of a literal.
 
 Wire the bench into `dau_core/tests/test_hdl_cocotb.py` with one runner per
 parameter value, then:
@@ -66,10 +65,10 @@ differently elaborated DUT.
 
 ## 3. Prove the bench can fail
 
-A bench that compares nothing passes forever. Add your tile's failure mode
-to the mutation list in `dau_core/tests/test_benches_can_fail.py`: each
-entry edits a copy of the HDL, runs the bench, and asserts it fails — and
-that it failed in the *run* rather than at compile time.
+A bench that compares nothing always passes. Add your tile's failure mode
+to the mutation list in `dau_core/tests/test_benches_can_fail.py`. Each
+entry edits a copy of the HDL, runs the bench, and asserts that it fails,
+and that it failed while running rather than at compile time.
 
 ```bash
 python -m pytest dau_core/tests/test_benches_can_fail.py -q
@@ -77,9 +76,9 @@ python -m pytest dau_core/tests/test_benches_can_fail.py -q
 
 ## 4. Prove the declared ingest floor
 
-`ingest` is public interface: a scheduler rate-matches a core it cannot
-inspect from that declaration alone. Assert it in the bench rather than
-trusting it, using the rate probe:
+`ingest` is part of the public interface, because a scheduler matches
+rates using only that declaration. Check it in the bench with the rate
+probe instead of trusting it:
 
 ```python
 from .rate_probe import assert_sustained_ingest
@@ -87,12 +86,12 @@ from .rate_probe import assert_sustained_ingest
 await assert_sustained_ingest(dut, "<name>", send=send, input_beats=256)
 ```
 
-It reads the floor out of the registry, holds every sink ready, forbids
-input-valid gaps, and fails when the measured rate falls more than one
-percent short — with a message naming both remedies, lowering the
-declaration or fixing the RTL. It measures *input acceptance*, ending at
-the last accepted beat, so a tile that buffers a whole batch and works
-afterwards needs a measurement spanning its drain instead.
+It reads the declared rate from the registry, holds every sink ready,
+forbids gaps in input valid, and fails when the measured rate is more than
+one percent short, with a message suggesting either lowering the
+declaration or fixing the RTL. It measures *input acceptance*, ending at the
+last accepted beat, so a tile that buffers a whole batch and does its work
+afterwards needs a measurement that covers its drain instead.
 
 ## 5. Prove the declared parameter space elaborates
 
@@ -107,21 +106,21 @@ python -m pytest dau_core/tests/test_parameter_bounds_match_the_hdl.py -q
 ```
 
 The second one *parses* the `$error` text, so write the message in one of
-the recognised forms — `X must be in [a, b]`, `X must be between a and b`,
+the recognized forms: `X must be in [a, b]`, `X must be between a and b`,
 `X must divide N and lie in [a, b]`, `X must be a/b/c`, or
 `X must be a, b, or c`. A message it cannot parse has to be added to the
 holdout list, and that list is itself asserted in both directions.
 
 This is the one bench tier that runs on **every** change. It is
-`verilator --lint-only`, with no compile and no simulation, so it costs
-seconds where the cocotb benches cost half an hour — and it is what an RTL
-retype breaks. `make coverage` runs it and deselects the compile tier;
+`verilator --lint-only`, with no compile and no simulation, so it takes
+seconds where the cocotb benches take half an hour, and it is what an RTL
+retype breaks. `make coverage` runs it and skips the compile tier;
 `make test-hdl` runs both.
 
-Because every test in that file skips when `verilator` is absent, a tool
-install that quietly failed would leave the tier green having elaborated
-nothing. Set `DAU_REQUIRE_VERILATOR=1` to turn that skip into a failure —
-CI does, and it is the only reason the tier can be trusted as a gate:
+Because every test in that file skips when `verilator` is missing, a
+failed tool install would leave the tier green without elaborating
+anything. Set `DAU_REQUIRE_VERILATOR=1` to turn that skip into a failure.
+CI sets it, which is what makes the tier usable as a gate:
 
 ```bash
 DAU_REQUIRE_VERILATOR=1 make coverage
@@ -129,19 +128,18 @@ DAU_REQUIRE_VERILATOR=1 make coverage
 
 ## 6. Run the registry-wide guards
 
-These walk the whole registry rather than your tile, and they are what
-catches a declaration that is well-formed but wrong — an entry with no
-envelope, a golden that does not import, a source file nothing claims.
+These walk the whole registry instead of your tile, and they catch
+declarations that are well formed but wrong: an entry with no envelope, a
+golden that does not import, a source file no entry claims.
 
 ```bash
 python -m pytest dau_core/tests/test_cores.py -q
 ```
 
 See the [registry guard reference](Registry-Guards) for what each one
-refuses. Four of them compare exact sets rather than predicates: if your
-tile legitimately belongs in one — a new silent-on-success stage, say —
-adding it to the pinned set is part of the change, and the diff is the
-place where that intent gets reviewed.
+checks. Four of them compare exact sets instead of predicates. If your tile
+belongs in one, a new silent-on-success stage for example, adding it to the
+pinned set is part of the change, so a reviewer sees it in the diff.
 
 ## 7. Run everything
 
@@ -152,9 +150,9 @@ python -m ruff check dau_core && python -m ruff format --check dau_core
 
 ## Next
 
-- [Measure a resource envelope](Measure-a-Resource-Envelope) — the one
-  step that needs a synthesis host.
-- [Registry-wide guards](Registry-Guards) — the full list, and what each
-  refuses.
-- [Why a golden model rather than a specification](Why-Goldens-Define-Meaning) —
-  why step 1 comes first.
+- [Measure a resource envelope](Measure-a-Resource-Envelope): the one step
+  that needs a synthesis host.
+- [Registry-wide guards](Registry-Guards): the full list, and what each one
+  checks.
+- [Why each tile has a golden model](Why-Each-Tile-Has-a-Golden-Model): why
+  step 1 comes first.

@@ -1,14 +1,12 @@
 ## Pre-requisites
 
-You need Python 3.11 or newer to install `dau-core`.
+You need Python >=3.11 on your machine to install `dau-core`.
 
 ## Install with `pip`
 
 ```bash
-pip install git+https://github.com/dau-dev/dau-core
+pip install dau-core
 ```
-
-The `dau-core` name on PyPI is a placeholder until the first release.
 
 ## Source installation
 

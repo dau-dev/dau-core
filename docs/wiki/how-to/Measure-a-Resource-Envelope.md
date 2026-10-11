@@ -1,12 +1,12 @@
 # How to measure a resource envelope
 
 This guide shows you how to produce the `resources:` measurement points a
-registry entry carries, and how to get them into `cores.yaml`.
+registry entry holds, and how to get them into `cores.yaml`.
 
-Envelopes come from the `dau-build` `synthesize-cores` task. **Synthesis is
-never hand-run.** A number nobody can reproduce through the task is not a
-number the registry will carry, because the coordinate it was measured at —
-part, clock, parameters — is exactly what a hand-run number loses.
+Envelopes come from the `dau-build` `synthesize-cores` task. **Never run
+synthesis by hand.** The registry only takes numbers the task can
+reproduce, because a hand-run number loses the coordinate it was measured
+at: the part, the clock, and the parameters.
 
 You need a host with Vivado and the part's device support installed.
 
@@ -15,7 +15,7 @@ You need a host with Vivado and the part's device support installed.
 The task resolves `/dau-core/<name>` entries through the registry, closes
 their dependencies, and plans one out-of-context synthesis per core.
 Without `model.execute=true` it writes the plan and stops, which is the
-form to check into review or hand to whoever has the toolchain:
+form to put up for review or pass to someone who has the toolchain:
 
 ```bash
 dau-build task=tasks/build/synthesize-cores \
@@ -43,9 +43,9 @@ dau-build task=tasks/build/synthesize-cores \
 
 ## Sweep the parameters
 
-A parameterized core costs different amounts at different parameter values,
-and an envelope with no place to record that is an envelope that will
-mis-price a build. Pass the overrides explicitly:
+A parameterized core costs different amounts at different parameter
+values, and an envelope that cannot record that will misprice a build. Pass
+the overrides explicitly:
 
 ```bash
 dau-build task=tasks/build/synthesize-cores \
@@ -55,7 +55,7 @@ dau-build task=tasks/build/synthesize-cores \
   model.execute=true
 ```
 
-An override that violates the entry's `ParameterSpec` is refused before
+An override that violates the entry's `ParameterSpec` is rejected before
 Vivado is invoked. Run the sweep for every value the catalog can request,
 on every supported part, and at every clock the board can run the job at.
 
@@ -77,9 +77,10 @@ timing, and reports one line per core with `lut`, `ff`, `bram36`, `dsp`,
 the worst negative slack, and whether timing was met. It also compares
 against whatever the registry already declares, and flags drift.
 
-Drift comparison requires *every* axis to match. A coordinate the registry
-has never been measured at reports as no comparison rather than as a
-mismatch, so an unmeasured part cannot masquerade as a regression.
+Drift comparison requires *every* axis to match. A coordinate the
+registry has never been measured at is reported as having nothing to
+compare against, not as a mismatch, so an unmeasured part does not look
+like a regression.
 
 ## Record the points
 
@@ -104,7 +105,7 @@ at, with a comment recording where it came from:
 Every point's `params` must name exactly the parameters the entry declares
 — no more and no fewer — and no two points may share a
 `(part, clock_ns, params)` coordinate. A point whose `timing` disagrees
-with the sign of its `wns_ns` is refused at load.
+with the sign of its `wns_ns` is rejected at load.
 
 Confirm the entry loads and resolves at the coordinate you measured:
 
@@ -116,18 +117,19 @@ python -c "from dau_core.registry import core; print(core('<name>').resource_mea
 
 An out-of-context margin is measured with the core alone. Composed into a
 shell it shares routing and placement pressure with everything else, and
-the margin moves — one tile measured +0.410 ns standalone and −0.348 ns
-composed. Treat anything under roughly half a nanosecond as a composed-build
-risk rather than headroom, and budget a retime before composing it.
+the margin moves: one tile measured +0.410 ns standalone and −0.348 ns
+composed. Treat anything under about half a nanosecond as a risk for the
+composed build, not headroom, and budget a retime before composing it.
 
-A point whose `timing` is `violated` is data about a failure. It is
-retrievable, and `usable_envelope()` refuses to hand it back as a budget.
+A point whose `timing` is `violated` records a failed build. You can still
+read it, but `usable_envelope()` raises instead of returning it as a
+budget.
 
 ## Next
 
-- [Why resource envelopes are measurements that refuse](Why-Resources-Are-Measured) —
-  why an unmeasured coordinate raises instead of interpolating.
-- [`CoreDefinition` fields](Core-Definition) — the `resources` field and
-  the lookup it backs.
-- [Registry-wide guards](Registry-Guards) — the guards that refuse a
+- [Why resource costs are measured](Why-Resources-Are-Measured): why an
+  unmeasured coordinate raises instead of interpolating.
+- [`CoreDefinition` fields](Core-Definition): the `resources` field and
+  the lookup that reads it.
+- [Registry-wide guards](Registry-Guards): the guards that fail a
   synthesizable core with no envelope.
