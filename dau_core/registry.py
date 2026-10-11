@@ -18,8 +18,12 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from .cores import CoreDefinition, CoreKind, CoreRole
+
+if TYPE_CHECKING:
+    from ccflow import ModelRegistry
 
 
 class UnknownCoreError(KeyError):
@@ -28,6 +32,74 @@ class UnknownCoreError(KeyError):
 
 class DuplicateCoreError(ValueError):
     """Two composed groups declare the same core name."""
+
+
+def _groups() -> tuple[tuple[str, ModelRegistry], ...]:
+    """The composed registry groups, dau-core's own first.
+
+    Composing the packaged defaults when ``/dau-core`` is absent is what
+    makes every accessor here work from a bare interpreter; a ``/dau-core``
+    a consumer already composed (possibly with overrides) is never reloaded.
+    """
+    from ccflow import ModelRegistry
+
+    root = ModelRegistry.root()
+    if root.models.get("dau-core") is None:
+        from dau_core.config import load_config
+
+        load_config()
+    own = root.models.get("dau-core")
+    groups: list[tuple[str, ModelRegistry]] = [("dau-core", own)] if own is not None else []
+    groups.extend((name, group) for name, group in root.models.items() if name != "dau-core" and hasattr(group, "models"))
+    return tuple(groups)
+
+
+def _entry(group: ModelRegistry, name: str) -> CoreDefinition | None:
+    """``name`` in ``group``, building only that one model.
+
+    A keyed lookup is the whole point: the groups are ccflow
+    ``LazyRegistry`` instances, so this materializes one ``CoreDefinition``
+    where reading the group's items would materialize all of them.
+    """
+    try:
+        model = group[name]
+    except KeyError:
+        return None
+    return model if isinstance(model, CoreDefinition) else None
+
+
+def _declared_names(group: ModelRegistry) -> tuple[str, ...]:
+    """Every entry name in ``group``, without building any of its models."""
+    return tuple(group.models)
+
+
+def core(name: str) -> CoreDefinition:
+    """The composed core called ``name``.
+
+    A keyed lookup per group, so asking for one tile builds one model. The
+    duplicate check still runs: a name declared by two composed groups is
+    refused here exactly as :func:`loaded_cores` refuses it, because a core
+    name is how every design, spec hash and cached manifest refers to it.
+    """
+    found: CoreDefinition | None = None
+    found_in = ""
+    for group_name, group in _groups():
+        model = _entry(group, name)
+        if model is None or model is found:
+            continue
+        if found is not None:
+            raise DuplicateCoreError(
+                f"core {name!r} is declared by more than one composed group: "
+                f"{found.source_package!r} (under {found_in!r}) and {model.source_package!r} "
+                f"(under {group_name!r}). Rename one; a core name is how every design, spec hash "
+                "and cached manifest refers to it, so resolving this silently would let a design "
+                "mean two different things."
+            )
+        found, found_in = model, group_name
+    if found is None:
+        known = sorted({entry for _name, group in _groups() for entry in _declared_names(group)})
+        raise UnknownCoreError(f"unknown core {name!r}; known: {known}")
+    return found
 
 
 def loaded_cores() -> Mapping[str, CoreDefinition]:
@@ -55,19 +127,8 @@ def loaded_cores() -> Mapping[str, CoreDefinition]:
     theirs. A name collision is raised rather than resolved, because
     silently preferring one definition is the failure this fixes.
     """
-    from ccflow import ModelRegistry
-
-    root = ModelRegistry.root()
-    subregistry = root.models.get("dau-core")
-    if subregistry is None:
-        from dau_core.config import load_config
-
-        subregistry = load_config().models["dau-core"]
-    cores = {name: model for name, model in subregistry.models.items() if isinstance(model, CoreDefinition)}
-
-    for group_name, group in root.models.items():
-        if group_name == "dau-core" or not hasattr(group, "models"):
-            continue
+    cores: dict[str, CoreDefinition] = {}
+    for group_name, group in _groups():
         for name, model in group.models.items():
             if not isinstance(model, CoreDefinition):
                 continue
@@ -82,13 +143,6 @@ def loaded_cores() -> Mapping[str, CoreDefinition]:
                 )
             cores[name] = model
     return cores
-
-
-def core(name: str) -> CoreDefinition:
-    try:
-        return loaded_cores()[name]
-    except KeyError:
-        raise UnknownCoreError(f"unknown core {name!r}; known: {sorted(loaded_cores())}") from None
 
 
 def core_for_module(module: str) -> CoreDefinition:
