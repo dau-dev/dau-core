@@ -78,3 +78,35 @@ def test_a_name_collision_is_raised_not_resolved(registry_group) -> None:
 def test_an_absent_core_still_reports_unknown() -> None:
     with pytest.raises(UnknownCoreError):
         core("no-such-core-anywhere")
+
+
+def test_a_single_core_lookup_builds_a_single_model() -> None:
+    """The point of loading the palette lazily: asking for one tile builds
+    one ``CoreDefinition``. Reading the group's items builds all of them, so
+    ``core()`` must not go through ``loaded_cores()``, which is what it used
+    to do."""
+    import subprocess
+    import sys
+
+    probe = (
+        "from dau_core.registry import core\n"
+        "from ccflow import ModelRegistry\n"
+        "core('row-map-alu')\n"
+        "group = ModelRegistry.root().models['dau-core']\n"
+        "built = sum(group.is_loaded(name) for name in group.models)\n"
+        "print(built, len(list(group.models)))\n"
+    )
+    result = subprocess.run([sys.executable, "-c", probe], capture_output=True, text=True, check=True)
+    built, declared = (int(value) for value in result.stdout.split())
+    assert built == 1, f"one lookup built {built} of {declared} models"
+    assert declared > 1
+
+
+def test_the_whole_palette_is_still_available_to_the_consumers_that_need_it() -> None:
+    """``loaded_cores`` is the whole-palette path -- the guards, source
+    staging, the role scans -- and pays for it."""
+    from dau_core.registry import core, loaded_cores
+
+    palette = loaded_cores()
+    assert len(palette) > 1
+    assert core("row-map-alu") is palette["row-map-alu"]

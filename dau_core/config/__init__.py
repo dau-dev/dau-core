@@ -12,9 +12,15 @@ from __future__ import annotations
 import warnings
 from collections.abc import Sequence
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from ccflow import ModelRegistry
-from ccflow.utils.hydra import ConfigLoadResult, load_config as base_load_config
+if TYPE_CHECKING:
+    from ccflow import ModelRegistry
+    from ccflow.utils.hydra import ConfigLoadResult
+
+# ccflow is imported inside the functions below, not here. Hydra's searchpath
+# plugin imports this package to discover what is installed, and importing
+# ccflow pulls in its whole stack (~0.9 s) for names discovery never reads.
 
 __all__ = ("CONTRIB_GROUP", "compose_config", "contributed_options", "load_config")
 
@@ -35,6 +41,7 @@ def contributed_options(config_dir: str | None = None, *, version_base: str | No
     and a package being usable. Hydra can enumerate a group's options across
     the whole searchpath, so ask it.
     """
+    from ccflow import ModelRegistry
     from hydra import initialize_config_dir
     from hydra.core.global_hydra import GlobalHydra
 
@@ -101,6 +108,8 @@ def compose_config(
     options cannot be listed without a searchpath, and the searchpath is what
     the composition is about to be built from.
     """
+    from ccflow.utils.hydra import load_config as base_load_config
+
     parent_dir = str(Path(__file__).resolve().parent)
     resolved = list(overrides or ())
     if not any(override.lstrip("+~").startswith(f"{CONTRIB_GROUP}=") for override in resolved):
@@ -125,8 +134,22 @@ def load_config(
     config_dir: str | None = None,
     version_base: str | None = None,
 ) -> ModelRegistry:
-    """Compose and load the core registry into the root ``ModelRegistry``."""
+    """Compose and load the core registry into the root ``ModelRegistry``.
+
+    The composed groups are loaded as ccflow ``LazyRegistry`` children, so a
+    ``CoreDefinition`` is built when something asks for that core rather than
+    all 59 at load. Loading the palette eagerly cost 164 ms and every
+    consumer paid it to reach one tile; lazily it is 10 ms plus about 4 ms
+    per core actually used (:func:`dau_core.registry.core`). A consumer that
+    does need the whole palette -- the guards, source staging -- asks for it
+    through :func:`dau_core.registry.loaded_cores` and pays for it there.
+    """
+    from ccflow import LazyRegistry, ModelRegistry
+
     result = compose_config(overrides, config_dir=config_dir, version_base=version_base)
     registry = ModelRegistry.root()
-    registry.load_config(result.cfg, overwrite=overwrite)
+    composed = LazyRegistry()
+    composed.load_config(cfg=result.cfg, overwrite=True)
+    for name, group in composed.models.items():
+        registry.add(name, group, overwrite=overwrite)
     return registry
