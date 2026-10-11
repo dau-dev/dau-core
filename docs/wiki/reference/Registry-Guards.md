@@ -13,7 +13,7 @@ third-party tile does not read as drift in this package's palette.
 Registry shape, declaration completeness, and the resource-pricing
 contract.
 
-| Guard                                                                          | Refuses                                                                                                                                           |
+| Guard                                                                          | Fails on                                                                                                                                          |
 | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `test_every_hdl_file_belongs_to_exactly_one_core`                              | An `.sv`/`.v` file in `dau_core/hdl/` with no entry, an entry with no file, a duplicated `source`, or rendered output shadowing a generated core. |
 | `test_all_source_paths_exist`                                                  | An entry whose `source_path()` does not resolve. Generated cores are skipped.                                                                     |
@@ -53,7 +53,7 @@ contract.
 
 ## `test_core_contract.py`
 
-| Guard                                                      | Refuses                                                                                                                                                      |
+| Guard                                                      | Fails on                                                                                                                                                     |
 | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `test_every_operator_conforms_to_the_stream_tile_contract` | A `row-stream` operator whose real SystemVerilog port list drifts from the stream and status contract. Ports are parsed from the source rather than assumed. |
 
@@ -62,40 +62,40 @@ missing `dau_build` fails the guard rather than skipping it.
 
 ## `test_hdl_elaboration.py`
 
-| Guard                                             | Refuses                                                                                                                                                                                                         |
+| Guard                                             | Fails on                                                                                                                                                                                                        |
 | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `test_every_declared_parameterization_elaborates` | The registry advertising a parameter value the RTL's own elaboration guard rejects. Parametrized per operator; a lint-only Verilator run over the declared parameter space, capped at 24 combinations per core. |
 
 ## `test_parameter_bounds_match_the_hdl.py`
 
-| Guard                                                            | Refuses                                                                                                             |
+| Guard                                                            | Fails on                                                                                                            |
 | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
 | `test_declared_bounds_match_the_tiles_elaboration_guard`         | A registry `minimum`, `maximum`, or `choices` that disagrees with the bound stated in the tile's own `$error` text. |
 | `test_unparsed_guards_are_declared_and_still_exist`              | The unparsed-guard holdout list outliving its holdouts, in either direction.                                        |
 | `test_the_python_mirror_of_the_top_k_bound_matches_the_registry` | `dau_core.operators.TOP_K_MAX` drifting from the registry's declared `K` maximum.                                   |
 
 Because the bound is parsed out of the `$error` string, that string is
-machine-readable text, not a comment. The recognised forms are
+machine-readable text, not a comment. The recognized forms are
 `X must be in [a, b]`, `X must be between a and b`,
 `X must divide N and lie in [a, b]`, `X must be a/b/c`, and
 `X must be a, b, or c`.
 
 ## `test_hdl_parameter_bindings_resolve.py`
 
-| Guard                                                           | Refuses                                                                                                 |
+| Guard                                                           | Fails on                                                                                                |
 | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | `test_every_parameter_binding_names_a_declared_parameter`       | A `.NAME()` binding in a `dau_*` instantiation naming a parameter the target module no longer declares. |
 | `test_the_identity_wrapper_forwards_every_capability_parameter` | The identity wrapper failing to forward a capability parameter, which would advertise it as zero.       |
 
 ## `test_capability_contract.py`
 
-| Guard                                                                  | Refuses                                                                                           |
+| Guard                                                                  | Fails on                                                                                          |
 | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | `test_registry_declares_hardware_opcodes_only_for_opcode_driven_tiles` | A tile declaring an opcode it cannot execute, or declaring a host-computed operation as hardware. |
 
 ## `test_public_tile_surface.py`
 
-| Guard                                                    | Refuses                                                                                          |
+| Guard                                                    | Fails on                                                                                         |
 | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
 | `test_the_authoring_surface_stays_extractable`           | `cores`, `design`, `generators`, or `stream` growing an import into this package's private side. |
 | `test_the_surface_declares_its_third_party_dependencies` | The declaration surface acquiring a runtime dependency beyond `ccflow` and `pydantic`.           |
@@ -106,13 +106,13 @@ an import-time check passes on a dependency reached only inside a function.
 
 ## `test_benches_can_fail.py`
 
-| Guard                                            | Refuses                                                                                                                                                     |
+| Guard                                            | Fails on                                                                                                                                                    |
 | ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `test_a_bench_fails_when_its_tile_is_made_wrong` | A bench that always passes. Each mutation edits a copy of the HDL and asserts the bench fails, and that it failed in the *run* rather than at compile time. |
 
 ## `test_generated_cores.py`
 
-| Guard                                                          | Refuses                                                                   |
+| Guard                                                          | Fails on                                                                  |
 | -------------------------------------------------------------- | ------------------------------------------------------------------------- |
 | `test_a_generated_core_refuses_its_source_until_rendered`      | A generated core silently resolving to a stale or absent file.            |
 | `test_rendering_writes_the_source_the_entry_names`             | Rendered output landing somewhere the registry entry does not name.       |
@@ -126,9 +126,9 @@ in an autouse fixture, so registry-walking guards see real files.
 
 ## See also
 
-- [How to test a core](Test-a-Core) — the order to run these in while
+- [How to test a core](Test-a-Core): the order to run these in while
   developing a tile.
-- [How to add an operator tile](Add-an-Operator-Tile) — the sequence the
-  guards backstop.
-- [`CoreDefinition` fields](Core-Definition) — the declarations most of
-  these guards read.
+- [How to add an operator tile](Add-an-Operator-Tile): the steps these
+  guards check.
+- [`CoreDefinition` fields](Core-Definition): the declarations most of these
+  guards read.

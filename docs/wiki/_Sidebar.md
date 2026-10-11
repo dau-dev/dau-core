@@ -32,6 +32,6 @@ Notes for editors:
 
 **Explanation**
 
-- [Why the Registry Is Configuration](Why-the-Registry-Is-Configuration)
-- [Why Goldens Define Meaning](Why-Goldens-Define-Meaning)
+- [Why Cores Are Declared in Config](Why-Cores-Are-Declared-in-Config)
+- [Why Each Tile Has a Golden Model](Why-Each-Tile-Has-a-Golden-Model)
 - [Why Resources Are Measured](Why-Resources-Are-Measured)
