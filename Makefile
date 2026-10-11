@@ -25,16 +25,16 @@ lint-py:  ## lint python with ruff
 	python -m ruff format --check dau_core
 
 lint-docs:  ## lint docs with mdformat and codespell
-	python -m mdformat --check README.md docs/wiki/
-	python -m codespell_lib README.md docs/wiki/
+	python -m mdformat --check README.md $(wildcard docs/src) docs/wiki/
+	python -m codespell_lib README.md $(wildcard docs/src) docs/wiki/
 
 fix-py:  ## autoformat python code with ruff
 	python -m ruff check --fix dau_core
 	python -m ruff format dau_core
 
 fix-docs:  ## autoformat docs with mdformat and codespell
-	python -m mdformat README.md docs/wiki/
-	python -m codespell_lib --write README.md docs/wiki/
+	python -m mdformat README.md $(wildcard docs/src) docs/wiki/
+	python -m codespell_lib --write README.md $(wildcard docs/src) docs/wiki/
 
 lint: lint-py lint-docs  ## run all linters
 lints: lint
