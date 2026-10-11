@@ -52,6 +52,7 @@ develop = [
     "dau-sim",
     "hatchling",
     "mdformat",
+    "mdformat-frontmatter",
     "mdformat-tables>=1",
     # the tests import it directly
     "omegaconf",
@@ -96,7 +97,7 @@ replace = 'version = "{new_version}"'
 [tool.coverage.run]
 branch = true
 omit = [
-    "dau_core/tests/integration/",
+    "dau_core/tests/integration/*",
     # cocotb benches execute inside the Verilator/cocotb subprocess (and not
     # at all where verilator is absent): pytest-process coverage over them is
     # structurally meaningless
