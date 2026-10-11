@@ -76,3 +76,13 @@ def test_a_name_reached_through_the_package_is_the_submodule_object() -> None:
     from dau_core.registers import RegisterOffset
 
     assert dau_core.RegisterOffset is RegisterOffset
+
+
+def test_two_submodules_cannot_export_one_name() -> None:
+    """The declaration is the single source for ``__all__`` and the
+    resolver, so a name claimed twice would make which module provides it
+    depend on dict order. It is refused where the declaration is read."""
+    from dau_core._lazy import lazy_exports
+
+    with pytest.raises(ValueError, match="exported by both"):
+        lazy_exports("dau_core", {"first": ("Shared",), "second": ("Shared",)})
