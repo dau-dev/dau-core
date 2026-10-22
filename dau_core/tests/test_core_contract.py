@@ -9,7 +9,7 @@ from dau_core.registry import cores_of_kind
 
 
 def test_every_operator_conforms_to_the_stream_tile_contract() -> None:
-    """Slang-parsed conformance: each non-legacy operator's real port
+    """Slang-parsed conformance: each row-stream operator's real port
     interface matches the stream+status contract its registry entry promises
     (drift fails here, not at Vivado elaboration)."""
     # runtime installs may skip (dau-build is a develop extra), but CI runs
