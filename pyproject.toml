@@ -44,11 +44,9 @@ develop = [
     "codespell",
     "cocotb",
     # the cross-repo guards here check dau-core's register contract against the
-    # generator that decodes it, so they need the dau-build the contract was
-    # written against, not the last release: the handle aperture landed after
-    # 0.14.0, and a version floor no release satisfies would skip the guard
-    # rather than run it
-    "dau-build @ git+https://github.com/dau-dev/dau-build.git",
+    # generator that decodes it; 0.15.0 is the first release with the handle
+    # aperture they check
+    "dau-build>=0.15",
     "dau-sim",
     "hatchling",
     "mdformat",
@@ -112,11 +110,6 @@ exclude_also = [
 ]
 ignore_errors = true
 fail_under = 50
-
-[tool.hatch.metadata]
-# the develop extra installs dau-build from GitHub (the handle aperture it is
-# checked against is not in any release)
-allow-direct-references = true
 
 [tool.hatch.build]
 artifacts = []
