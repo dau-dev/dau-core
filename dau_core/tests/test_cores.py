@@ -10,8 +10,11 @@ from dau_core.cores import (
     ContractKind,
     CoreDefinition,
     CoreKind,
+    ParameterSpec,
+    ResourceEnvelope,
     ResourceMeasurement,
     TimingStatus,
+    TimingViolationError,
     UnmeasuredResourceError,
     render_root,
 )
@@ -537,3 +540,467 @@ def test_normalize_follows_the_same_rule_as_violation() -> None:
         plain.normalize("8")
     typed = ParameterSpec(default="int32", element_type=True)
     assert typed.normalize("int32") == 32 == typed.normalize(32)
+
+
+def test_violated_measurement_is_retrievable_but_not_a_usable_envelope() -> None:
+    violated = ResourceMeasurement(
+        part="xc7k325tffg900-2",
+        clock_ns=8.0,
+        params={"SLOTS": 4, "PIPELINE_DEPTH": 3},
+        lut=3226,
+        ff=1563,
+        bram36=0.0,
+        dsp=16,
+        timing=TimingStatus.VIOLATED,
+        wns_ns=-1.383,
+    )
+    definition = CoreDefinition.model_validate(
+        {
+            **core("wide-row-map-alu").model_dump(),
+            "resources": [violated],
+        }
+    )
+    resolved = definition.resource_measurement(part="xc7k325tffg900-2", clock_ns=8.0, params={})
+    assert resolved.timing is TimingStatus.VIOLATED
+    assert resolved.wns_ns == -1.383
+    with pytest.raises(TimingViolationError, match=r"violated timing \(WNS -1.383 ns\)"):
+        resolved.usable_envelope()
+
+
+def test_registry_is_hydra_composition_not_a_python_literal() -> None:
+    """Composition IS the registry: cores load from dau-core's hydra config
+    tree into the ccflow ModelRegistry at /dau-core/<name>. A parallel
+    Python-literal core list is the anti-pattern this guards against."""
+    import dau_core.cores as cores_module
+    from dau_core.config import load_config
+
+    assert not hasattr(cores_module, "CORES"), "parallel Python-literal registry reappeared"
+    registry = load_config(overwrite=True)
+    names = set(registry.models["dau-core"].models)
+    assert names == set(loaded_cores()), "registry path view and accessor view drifted"
+    assert "bar-aggregation" in names
+
+
+def test_accessors_defer_to_a_composed_registry() -> None:
+    """The composed registry is the source of truth: accessors read through
+    to /dau-core (no snapshot cache), so a consumer's hydra overrides are
+    visible and never clobbered by a default reload."""
+    from dau_core.config import load_config
+
+    try:
+        load_config(["dau-core.bar-aggregation.description=OVERRIDDEN"], overwrite=True)
+        assert core("bar-aggregation").description == "OVERRIDDEN"
+    finally:
+        load_config(overwrite=True)  # restore packaged defaults
+    assert core("bar-aggregation").description != "OVERRIDDEN"
+
+
+def test_silent_on_success_operator_set_is_pinned() -> None:
+    """The status contract's two classes are registry truth: silent-on-success
+    cores (chain-stage/partition legal) versus per-batch success close-out
+    cores (terminal-tile legal). Changing a core's class changes lane status
+    semantics — confirm intent here."""
+    silent = {d.name for d in cores_of_kind(CoreKind.OPERATOR) if not d.success_close_out}
+    assert silent == {
+        "datetime-format",
+        "fixed-point-ln-light",
+        "rolling-extremum",
+        "pair-key-filter",
+        "range-partitioner",
+        "key-mask-dispatcher",
+        "stride-distributor",
+        "row-predicate-filter",
+        "row-map-alu",
+        "fixed-point-sqrt",
+        "fixed-point-divide",
+        "fixed-point-exp",
+        "normal-cdf",
+        "fixed-point-exp-light",
+        "fixed-point-ln",
+        "key-membership-filter",
+        "broadcast-hash-join",
+        "row-unpack",
+        "int32-record-gather",
+        "time-bucket-key",
+        "wide-row-predicate-filter",
+        "wide-row-map-alu",
+        "record-gearbox",
+    }
+    # the grouped multi-sum tile emits many group records but exactly ONE
+    # success close-out per batch (after the final group) — terminal-legal
+    assert core("grouped-field-sum-aggregation").success_close_out
+
+
+def test_dispatcher_rate_still_needs_record_aware_modeling() -> None:
+    """The dispatcher's framing-shaped rate describes a 2-word record. Its
+    64-bit front ingests one WORD per cycle, so an N-word record costs N
+    cycles, while a wide framing delivers a whole record per beat-slot —
+    two rules the current rate shapes cannot express together. Record shape
+    is now declared for detection, but this pins the remaining rate-model gap
+    so RECORD_WORDS != 2 is not silently treated as resolved."""
+    definition = core("key-mask-dispatcher")
+    assert definition.parameters["RECORD_WORDS"].default == 2
+    assert definition.effective_record_words({"RECORD_WORDS": 3}) == 3
+    assert definition.ingest is not None and definition.ingest.frames_on_param == "IN_WIDTH"
+    # the rate declaration still ignores RECORD_WORDS — that is the gap
+    narrow = definition.ingest.effective({"IN_WIDTH": 64}, definition.parameters)
+    assert narrow == definition.ingest.effective({"IN_WIDTH": 64, "RECORD_WORDS": 3}, definition.parameters)
+
+
+def test_authoritative_models_reject_impossible_values() -> None:
+    # these models back the registry yaml and pricing; a negative LUT count or
+    # a zero-length part string is a data-entry bug that must fail at load
+    with pytest.raises(ValidationError):
+        ResourceEnvelope(lut=-1, ff=0, bram36=0.0, dsp=0)
+    with pytest.raises(ValidationError):
+        ResourceMeasurement(part="", clock_ns=8.0, lut=1, ff=1, bram36=0.0, dsp=0, timing="met", wns_ns=0.1)
+    with pytest.raises(ValidationError):
+        ResourceMeasurement(part="xc7k325tffg900-2", clock_ns=0, lut=1, ff=1, bram36=0.0, dsp=0, timing="met", wns_ns=0.1)
+
+
+def test_parameter_spec_rejects_incoherent_constraints() -> None:
+    # the spec mirrors RTL elaboration guards; an incoherent spec would
+    # reject every override, so it fails at registration instead
+    with pytest.raises(ValidationError, match="minimum 8 exceeds maximum 4"):
+        ParameterSpec(default=8, minimum=8, maximum=4)
+    with pytest.raises(ValidationError, match="non-empty"):
+        ParameterSpec(default=1, choices=())
+    with pytest.raises(ValidationError, match="default 3 violates"):
+        ParameterSpec(default=3, power_of_two=True)
+    with pytest.raises(ValidationError, match="default 5 violates"):
+        ParameterSpec(default=5, multiple_of=2)
+
+
+def test_parameter_spec_violation_is_the_single_constraint_source() -> None:
+    # composition wraps this with tile context; the model owns the rule
+    spec = ParameterSpec(default=64, multiple_of=64, maximum=4096)
+    assert spec.violation(128) is None
+    assert "multiple of 64" in (spec.violation(65) or "")
+    assert ">= 2" in (ParameterSpec(default=2, minimum=2).violation(1) or "")
+    choice = ParameterSpec(default=64, choices=(64, 128))
+    assert choice.violation(64) is None
+    assert "one of 64, 128" in (choice.violation(96) or "")
+
+
+def test_an_element_type_parameter_accepts_a_width_or_a_spelling() -> None:
+    """The two forms are the same declaration where they overlap, and the
+    spelling reaches types a width never could."""
+    spec = ParameterSpec(element_type=True, default="int32", choices=["int16", "int32", "int64"], minimum=8, maximum=64)
+
+    # stored as the encoding, which for a plain signed integer IS the width --
+    # so this declares exactly what `default: 32` always declared
+    assert spec.default == 32
+    assert spec.choices == (16, 32, 64)
+    assert ParameterSpec(element_type=True, default=32).default == spec.default
+
+    assert spec.violation("int16") is None
+    assert spec.violation(16) is None  # the integer form still means int16
+    assert spec.violation(64) is None
+
+    # a type is matched WHOLE: q16.16 is 32 bits wide and is still not int32
+    assert "got q16.16" in (spec.violation("q16.16") or "")
+    assert "got float32" in (spec.violation("float32") or "")
+    # and the message names types rather than printing their encodings
+    assert "one of int16, int32, int64" in (spec.violation("float32") or "")
+
+
+def test_an_element_type_parameter_bounds_the_width_not_the_encoding() -> None:
+    """A registry bound mirrors an RTL guard about BITS. q16.16 encodes as
+    4128 and is a 32-bit type; bounding the encoding would reject it for being
+    a large number, which is a statement about nothing."""
+    spec = ParameterSpec(element_type=True, default="int32", minimum=8, maximum=64)
+
+    assert spec.violation("q16.16") is None
+    assert spec.violation("float64") is None
+    assert "must be <= 64" in (spec.violation("int128") or "")
+    assert "must be >= 8" in (spec.violation(4) or "")
+
+
+def test_an_element_type_spelling_is_refused_where_no_type_is_declared() -> None:
+    """A size parameter takes a size. Silently reading "int32" as 32 on a
+    capacity is the misreading the whole mechanism exists to prevent."""
+    sized = ParameterSpec(default=1024)
+    assert "only a parameter declared element_type" in (sized.violation("int32") or "")
+    with pytest.raises(ValidationError):
+        ParameterSpec(default="int32")
+
+
+def test_an_element_type_default_must_name_a_type_the_spec_admits() -> None:
+    with pytest.raises(ValidationError, match="names no element type"):
+        ParameterSpec(element_type=True, default="int33x")
+    with pytest.raises(ValidationError, match="default float32 violates"):
+        ParameterSpec(element_type=True, default="float32", choices=["int32"])
+
+
+def test_a_measurement_coordinate_may_name_the_type_it_was_measured_at() -> None:
+    """The same point, written either way, is one point -- so migrating a
+    registry entry to spellings cannot orphan an envelope that was measured
+    before types existed."""
+    spelled = ResourceMeasurement(
+        part="xc7a200tfbg484-2", clock_ns=8.0, params={"FIELD_WIDTH": "int32"}, lut=704, ff=514, bram36=0.0, dsp=0, timing="met", wns_ns=0.873
+    )
+    assert spelled.params == {"FIELD_WIDTH": 32}
+
+    definition = core("row-predicate-filter")
+    measured = definition.resource_measurement(part="xc7a200tfbg484-2", clock_ns=8.0, params={"FIELD_WIDTH": 32})
+    assert measured.lut == 704
+
+
+def test_storage_intent_prices_against_declared_parameters() -> None:
+    definition = CoreDefinition.model_validate(
+        {
+            **core("row-predicate-filter").model_dump(),
+            "parameters": {"CAPACITY": {"default": 1024, "minimum": 1, "maximum": 16384}},
+            # the borrowed tile's points are keyed by ITS parameters (none);
+            # declaring one here would leave them describing a shape that no
+            # longer exists, which the model rightly refuses
+            "resources": [],
+            "storage_intent": [
+                {"role": "arena", "access": "owned", "bytes_per_unit": 4, "scale_parameter": "CAPACITY", "tier_hint": "bram"},
+            ],
+        }
+    )
+    [(intent, cost)] = definition.storage_bytes({})
+    assert (intent.role, cost) == ("arena", 4 * 1024)  # default CAPACITY
+    [(_, cost)] = definition.storage_bytes({"CAPACITY": 4096})
+    assert cost == 4 * 4096  # override prices
+
+
+def test_storage_intent_refuses_an_undeclared_scale_parameter() -> None:
+    with pytest.raises(ValidationError, match="scale_parameter 'MISSING'"):
+        CoreDefinition.model_validate(
+            {
+                **core("row-predicate-filter").model_dump(),
+                "storage_intent": [
+                    {"role": "arena", "access": "owned", "bytes_per_unit": 4, "scale_parameter": "MISSING"},
+                ],
+            }
+        )
+
+
+def test_storage_intent_without_scale_is_a_fixed_cost() -> None:
+    definition = CoreDefinition.model_validate(
+        {
+            **core("row-predicate-filter").model_dump(),
+            "storage_intent": [{"role": "table", "access": "shared", "bytes_per_unit": 8192}],
+        }
+    )
+    [(_, cost)] = definition.storage_bytes({})
+    assert cost == 8192
+
+
+def test_storage_bytes_refuses_illegal_scale_overrides() -> None:
+    definition = core("scratchpad")
+    with pytest.raises(ValueError, match="not an int"):
+        definition.storage_bytes({"CAPACITY": "4096"})  # ty: ignore[invalid-argument-type]
+    with pytest.raises(ValueError, match="not an int"):
+        definition.storage_bytes({"CAPACITY": True})
+    with pytest.raises(ValueError, match="CAPACITY"):
+        definition.storage_bytes({"CAPACITY": -2})
+    with pytest.raises(ValueError, match="<= 16384"):
+        definition.storage_bytes({"CAPACITY": 32768})
+
+
+def test_a_core_resolves_hdl_from_the_package_that_declares_it(tmp_path, monkeypatch) -> None:
+    """A tile contributed by another distribution finds its own HDL.
+
+    The registry is a hydra search path, so any package joining it through
+    the `hydra.lernaplugins` entry point can contribute cores. Their HDL
+    used to be resolved under dau_core.hdl regardless, so a third-party
+    tile could be registered from anywhere but had to vendor its Verilog
+    into this package. `source_package` is the seam.
+    """
+    import sys
+
+    from dau_core.cores import CoreDefinition, CoreKind, IngestRate
+
+    foreign = tmp_path / "vendor_tiles" / "hdl"
+    foreign.mkdir(parents=True)
+    (foreign / "__init__.py").write_text("")
+    (foreign / "vendor_widget.sv").write_text("module vendor_widget; endmodule\n")
+    (tmp_path / "vendor_tiles" / "__init__.py").write_text("")
+    monkeypatch.syspath_prepend(str(tmp_path))
+
+    definition = CoreDefinition(
+        name="vendor-widget",
+        kind=CoreKind.OPERATOR,
+        module="vendor_widget",
+        source="vendor_widget.sv",
+        source_package="vendor_tiles.hdl",
+        description="A tile from outside this package.",
+        record_words=1,
+        ingest=IngestRate(rows=1, per_cycles=2),
+    )
+    resolved = definition.source_path()
+    assert resolved == foreign / "vendor_widget.sv"
+    assert resolved.is_file()
+    # and it is NOT resolved under dau_core's own tree
+    from dau_core import hdl as dau_core_hdl
+
+    assert Path(str(dau_core_hdl.__path__[0])) not in resolved.parents
+
+    for module in [name for name in sys.modules if name.startswith("vendor_tiles")]:
+        del sys.modules[module]
+
+
+def test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards(monkeypatch) -> None:
+    """Installing a third-party tile must not fail THIS suite.
+
+    Four guards here assert an exact set over the whole registry -- the HDL
+    directory listing, the descriptor-tagged operators, the envelope-free
+    tiles, and the scalar-envelope holdouts. Each is a statement about
+    dau-core's own palette, and each read `loaded_cores()`, so a vendor tile
+    registered through the entry point showed up as drift in all four. A
+    contributor's first experience of the platform was our test suite
+    failing on their correct tile.
+
+    The line drawn is between those four and the universal-property guards
+    (every operator has a golden, a contract kind, record words, a measured
+    envelope). Those are contract requirements a well-formed tile satisfies,
+    so they stay registry-wide on purpose -- which is why the tile below is
+    built well-formed rather than minimal. It is the exact-set guards that
+    fail even a perfect vendor tile, and only those are scoped.
+    """
+    from dau_core.cores import IngestRate
+
+    vendor = CoreDefinition(
+        name="vendor-widget",
+        kind=CoreKind.OPERATOR,
+        module="vendor_widget",
+        source="vendor_widget.sv",
+        source_package="vendor_tiles.hdl",
+        description="A well-formed tile from outside this package.",
+        record_words=1,
+        ingest=IngestRate(rows=1, per_cycles=2),
+        contract_kind=ContractKind.ROW_STREAM,
+        golden="dau_core.operators:filter_values",
+        resources=[
+            ResourceMeasurement(
+                part="xc7k325t",
+                clock_ns=8.0,
+                lut=100,
+                ff=100,
+                bram36=0,
+                dsp=0,
+                timing=TimingStatus.MET,
+                wns_ns=1.0,
+            )
+        ],
+    )
+    # Both bindings: this module imported the accessor by name, and
+    # `cores_of_kind` reads the registry's own. Patching only one would leave
+    # the vendor tile invisible to half the guards and prove nothing.
+    #
+    # The module target is `sys.modules[__name__]` rather than a dotted
+    # string. There is no `__init__.py` here, so pytest imports this file as
+    # top-level `test_cores` while `"dau_core.tests.test_cores"` resolves
+    # through the implicit namespace package to a SECOND copy -- patching
+    # that one succeeds, changes nothing, and the test passes against
+    # unscoped guards.
+    import sys
+
+    with_vendor = {**loaded_cores(), vendor.name: vendor}
+    monkeypatch.setattr("dau_core.registry.loaded_cores", lambda: with_vendor)
+    monkeypatch.setattr(sys.modules[__name__], "loaded_cores", lambda: with_vendor)
+
+    assert vendor in cores_of_kind(CoreKind.OPERATOR), "the tile must be visible to the guards"
+
+    # The exact-set guards a vendor tile reaches, which is the regression.
+    # Each fails against an unscoped `own_cores()`: the vendor source is not
+    # in our HDL directory, and its name is in neither the descriptor set nor
+    # the envelope-free set.
+    test_every_hdl_file_belongs_to_exactly_one_core()
+    test_every_selectable_operator_declares_its_contract_kind()
+    test_synthesizable_cores_carry_measured_envelopes()
+
+    assert vendor not in own_cores(), "a vendor tile must not count as ours"
+
+
+def test_a_core_naming_an_uninstalled_hdl_package_refuses_clearly() -> None:
+    """The failure names the missing distribution rather than surfacing an
+    ImportError from inside a path resolution."""
+    import pytest
+
+    from dau_core.cores import CoreDefinition, CoreKind, IngestRate, UnknownCoreSourceError
+
+    definition = CoreDefinition(
+        name="absent-widget",
+        kind=CoreKind.OPERATOR,
+        module="absent_widget",
+        source="absent_widget.sv",
+        source_package="no_such_vendor.hdl",
+        description="Declares a package nobody installed.",
+        record_words=1,
+        ingest=IngestRate(rows=1, per_cycles=2),
+    )
+    with pytest.raises(UnknownCoreSourceError, match="no_such_vendor.hdl"):
+        definition.source_path()
+
+
+def test_a_measured_point_matches_a_derived_clock_period() -> None:
+    """A clock period is DERIVED (1000 / job_clock_mhz), so exact float
+    equality is the wrong test.
+
+    150 MHz gives 6.666666666666667 while a registry writes 6.66667: the same
+    physical clock, and the lookup refused it as unmeasured while printing the
+    point it had just rejected. Real clock tiers differ by more than a
+    nanosecond, so a picosecond tolerance keeps the "never a neighboring
+    point" guarantee intact while tolerating representation.
+    """
+    from dau_core.cores import CoreDefinition, IngestRate, ResourceMeasurement, TimingStatus, UnmeasuredResourceError
+
+    definition = CoreDefinition(
+        name="probe",
+        kind=CoreKind.OPERATOR,
+        module="dau_probe",
+        source="dau_probe.sv",
+        description="probe",
+        golden="dau_core.operators:unpack_rows",
+        ingest=IngestRate(rows=1, per_cycles=1),
+        record_words=1,
+        resources=(
+            ResourceMeasurement(
+                part="xc7k325tffg900-2",
+                clock_ns=6.66667,
+                params={},
+                lut=1,
+                ff=1,
+                bram36=0.0,
+                dsp=0,
+                timing=TimingStatus.MET,
+                wns_ns=0.1,
+            ),
+        ),
+    )
+    point = definition.resource_measurement(part="xc7k325tffg900-2", clock_ns=1000 / 150, params={})
+    assert point.lut == 1
+
+    # and a genuinely different tier still misses
+    with pytest.raises(UnmeasuredResourceError):
+        definition.resource_measurement(part="xc7k325tffg900-2", clock_ns=8.0, params={})
+
+
+def test_an_unresolvable_hdl_source_says_so() -> None:
+    """A declared source that does not resolve is a DECLARATION error.
+
+    An out-of-tree tile whose HDL directory is not an importable package
+    resolves to a MultiplexedPath that prints the right path and does not
+    exist, so the first symptom used to be a synthesis run against a missing
+    file. The requirement -- an __init__.py beside the .sv files, so importlib
+    can traverse the directory -- is stated in the error rather than left to
+    be discovered.
+    """
+    from dau_core.cores import CoreDefinition, IngestRate, UnknownCoreSourceError
+
+    definition = CoreDefinition(
+        name="probe-missing-source",
+        kind=CoreKind.OPERATOR,
+        module="dau_probe_missing",
+        source="dau_probe_missing.sv",
+        description="probe",
+        golden="dau_core.operators:unpack_rows",
+        ingest=IngestRate(rows=1, per_cycles=1),
+        record_words=1,
+    )
+    with pytest.raises(UnknownCoreSourceError, match="importable package"):
+        definition.source_path()
