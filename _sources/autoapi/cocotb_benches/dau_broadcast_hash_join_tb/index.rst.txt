@@ -1,0 +1,281 @@
+cocotb_benches.dau_broadcast_hash_join_tb
+=========================================
+
+.. py:module:: cocotb_benches.dau_broadcast_hash_join_tb
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_broadcast_hash_join_tb._MASK32
+   cocotb_benches.dau_broadcast_hash_join_tb._MASK64
+   cocotb_benches.dau_broadcast_hash_join_tb._INT32_MIN
+   cocotb_benches.dau_broadcast_hash_join_tb._INT32_MAX
+   cocotb_benches.dau_broadcast_hash_join_tb._KEY_SPACE
+   cocotb_benches.dau_broadcast_hash_join_tb._BUILD
+   cocotb_benches.dau_broadcast_hash_join_tb._PROBE
+   cocotb_benches.dau_broadcast_hash_join_tb._CARRY_BUILD
+   cocotb_benches.dau_broadcast_hash_join_tb._CARRY_PROBE
+   cocotb_benches.dau_broadcast_hash_join_tb._Q3_MIX
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_broadcast_hash_join_tb.probe_before_any_load_misses
+   cocotb_benches.dau_broadcast_hash_join_tb.load_then_probe_inner_join
+   cocotb_benches.dau_broadcast_hash_join_tb.carry_build_columns_exact_hits
+   cocotb_benches.dau_broadcast_hash_join_tb.q3_style_mix_carries_build_and_probe_columns
+   cocotb_benches.dau_broadcast_hash_join_tb.all_probe_rows_miss_emits_nothing
+   cocotb_benches.dau_broadcast_hash_join_tb.last_writer_wins_on_duplicate_build_key
+   cocotb_benches.dau_broadcast_hash_join_tb.boundary_keys_join
+   cocotb_benches.dau_broadcast_hash_join_tb.second_load_replaces_the_table
+   cocotb_benches.dau_broadcast_hash_join_tb.repeated_probe_batches_reuse_the_table
+   cocotb_benches.dau_broadcast_hash_join_tb.joined_count_reports_emitted_rows
+   cocotb_benches.dau_broadcast_hash_join_tb.last_lands_on_final_emitted_row
+   cocotb_benches.dau_broadcast_hash_join_tb.output_backpressure_holds_stable
+   cocotb_benches.dau_broadcast_hash_join_tb.reset_mid_probe_recovers
+   cocotb_benches.dau_broadcast_hash_join_tb.out_of_range_probe_key_reports_range_error
+   cocotb_benches.dau_broadcast_hash_join_tb.negative_probe_key_reports_range_error
+   cocotb_benches.dau_broadcast_hash_join_tb.out_of_range_build_key_reports_range_error
+   cocotb_benches.dau_broadcast_hash_join_tb.range_error_mid_batch_after_hits
+   cocotb_benches.dau_broadcast_hash_join_tb.torn_probe_row_reports_stream_error
+   cocotb_benches.dau_broadcast_hash_join_tb.torn_build_row_reports_stream_error
+   cocotb_benches.dau_broadcast_hash_join_tb.torn_probe_row_mid_batch_reports_stream_error
+   cocotb_benches.dau_broadcast_hash_join_tb.reserved_out_select_drains_batch_then_reports_config_error
+   cocotb_benches.dau_broadcast_hash_join_tb.out_select_seven_reports_config_error
+   cocotb_benches.dau_broadcast_hash_join_tb.config_precedence_over_torn_and_out_of_range_first_row
+   cocotb_benches.dau_broadcast_hash_join_tb.field_select_latches_at_first_row
+   cocotb_benches.dau_broadcast_hash_join_tb.error_status_survives_backpressure
+   cocotb_benches.dau_broadcast_hash_join_tb.success_status_survives_backpressure
+   cocotb_benches.dau_broadcast_hash_join_tb.load_done_status_survives_backpressure
+   cocotb_benches.dau_broadcast_hash_join_tb.status_close_out_waits_for_backpressured_tail
+   cocotb_benches.dau_broadcast_hash_join_tb.error_close_out_waits_for_backpressured_tail
+   cocotb_benches.dau_broadcast_hash_join_tb.constrained_random_batches_match_golden
+   cocotb_benches.dau_broadcast_hash_join_tb._signed32
+   cocotb_benches.dau_broadcast_hash_join_tb._drive_cfg
+   cocotb_benches.dau_broadcast_hash_join_tb._start
+   cocotb_benches.dau_broadcast_hash_join_tb._pack_rows
+   cocotb_benches.dau_broadcast_hash_join_tb._send_words
+   cocotb_benches.dau_broadcast_hash_join_tb._send_rows
+   cocotb_benches.dau_broadcast_hash_join_tb._send_words_flip_cfg
+   cocotb_benches.dau_broadcast_hash_join_tb._send_batches
+   cocotb_benches.dau_broadcast_hash_join_tb._drain_words
+   cocotb_benches.dau_broadcast_hash_join_tb._load
+   cocotb_benches.dau_broadcast_hash_join_tb._probe
+   cocotb_benches.dau_broadcast_hash_join_tb._collect_probe_output
+   cocotb_benches.dau_broadcast_hash_join_tb._assert_quiescent
+   cocotb_benches.dau_broadcast_hash_join_tb._expect_status
+
+
+Module Contents
+---------------
+
+.. py:data:: _MASK32
+   :value: 4294967295
+
+
+.. py:data:: _MASK64
+   :value: 18446744073709551615
+
+
+.. py:data:: _INT32_MIN
+   :value: -2147483648
+
+
+.. py:data:: _INT32_MAX
+   :value: 2147483647
+
+
+.. py:data:: _KEY_SPACE
+   :value: 1024
+
+
+.. py:data:: _BUILD
+   :value: [(7, 100, 101, 102), (100, 200, 201, 202), (63, 300, 301, 302), (1023, 400, 401, 402), (5, 500,...
+
+
+.. py:data:: _PROBE
+   :value: [(7, 1000, 1001, 1002), (999, 2000, 2001, 2002), (63, 3000, 3001, 3002), (100, 4000, 4001,...
+
+
+.. py:data:: _CARRY_BUILD
+
+.. py:data:: _CARRY_PROBE
+
+.. py:data:: _Q3_MIX
+
+.. py:function:: probe_before_any_load_misses(dut)
+   :async:
+
+
+.. py:function:: load_then_probe_inner_join(dut)
+   :async:
+
+
+.. py:function:: carry_build_columns_exact_hits(dut)
+   :async:
+
+
+.. py:function:: q3_style_mix_carries_build_and_probe_columns(dut)
+   :async:
+
+
+.. py:function:: all_probe_rows_miss_emits_nothing(dut)
+   :async:
+
+
+.. py:function:: last_writer_wins_on_duplicate_build_key(dut)
+   :async:
+
+
+.. py:function:: boundary_keys_join(dut)
+   :async:
+
+
+.. py:function:: second_load_replaces_the_table(dut)
+   :async:
+
+
+.. py:function:: repeated_probe_batches_reuse_the_table(dut)
+   :async:
+
+
+.. py:function:: joined_count_reports_emitted_rows(dut)
+   :async:
+
+
+.. py:function:: last_lands_on_final_emitted_row(dut)
+   :async:
+
+
+.. py:function:: output_backpressure_holds_stable(dut)
+   :async:
+
+
+.. py:function:: reset_mid_probe_recovers(dut)
+   :async:
+
+
+.. py:function:: out_of_range_probe_key_reports_range_error(dut)
+   :async:
+
+
+.. py:function:: negative_probe_key_reports_range_error(dut)
+   :async:
+
+
+.. py:function:: out_of_range_build_key_reports_range_error(dut)
+   :async:
+
+
+.. py:function:: range_error_mid_batch_after_hits(dut)
+   :async:
+
+
+.. py:function:: torn_probe_row_reports_stream_error(dut)
+   :async:
+
+
+.. py:function:: torn_build_row_reports_stream_error(dut)
+   :async:
+
+
+.. py:function:: torn_probe_row_mid_batch_reports_stream_error(dut)
+   :async:
+
+
+.. py:function:: reserved_out_select_drains_batch_then_reports_config_error(dut)
+   :async:
+
+
+.. py:function:: out_select_seven_reports_config_error(dut)
+   :async:
+
+
+.. py:function:: config_precedence_over_torn_and_out_of_range_first_row(dut)
+   :async:
+
+
+.. py:function:: field_select_latches_at_first_row(dut)
+   :async:
+
+
+.. py:function:: error_status_survives_backpressure(dut)
+   :async:
+
+
+.. py:function:: success_status_survives_backpressure(dut)
+   :async:
+
+
+.. py:function:: load_done_status_survives_backpressure(dut)
+   :async:
+
+
+.. py:function:: status_close_out_waits_for_backpressured_tail(dut)
+   :async:
+
+
+.. py:function:: error_close_out_waits_for_backpressured_tail(dut)
+   :async:
+
+
+.. py:function:: constrained_random_batches_match_golden(dut)
+   :async:
+
+
+.. py:function:: _signed32(value: int) -> int
+
+.. py:function:: _drive_cfg(dut, *, load: int, cfg: dau_core.operators.BroadcastJoinConfig) -> None
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _pack_rows(rows) -> list[int]
+
+.. py:function:: _send_words(dut, words) -> None
+   :async:
+
+
+.. py:function:: _send_rows(dut, rows) -> None
+   :async:
+
+
+.. py:function:: _send_words_flip_cfg(dut, words, *, flip_after: int, new_cfg: dau_core.operators.BroadcastJoinConfig) -> None
+   :async:
+
+
+.. py:function:: _send_batches(dut, batches) -> None
+   :async:
+
+
+.. py:function:: _drain_words(dut) -> None
+   :async:
+
+
+.. py:function:: _load(dut, build_rows) -> None
+   :async:
+
+
+.. py:function:: _probe(dut, rows, cfg: dau_core.operators.BroadcastJoinConfig, *, ready_pattern=(1, ))
+   :async:
+
+
+.. py:function:: _collect_probe_output(dut, ready_pattern) -> list[int]
+   :async:
+
+
+.. py:function:: _assert_quiescent(dut) -> None
+   :async:
+
+
+.. py:function:: _expect_status(dut, *, error: bool, code: int = 0) -> None
+   :async:
+
+

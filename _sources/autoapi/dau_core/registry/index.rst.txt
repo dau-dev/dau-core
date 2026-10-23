@@ -1,0 +1,159 @@
+dau_core.registry
+=================
+
+.. py:module:: dau_core.registry
+
+.. autoapi-nested-parse::
+
+   Read-through access to THIS package's registry of tiles.
+
+   Composition IS the registry: the definitions live in dau-core's hydra
+   config tree (``dau-core/cores.yaml``) composed into the ccflow
+   ``ModelRegistry`` at ``/dau-core/<core-name>``, and there is no
+   Python-literal core list anywhere. These accessors are thin views for
+   in-process consumers -- tests, shell walking, source staging.
+
+   They are deliberately NOT part of the tile authoring surface. A third
+   party declaring a tile needs the models in :mod:`dau_core.cores`; it must
+   never need this module, which knows only about the tiles dau-core itself
+   ships. Keeping the two apart is what lets the surface be reachable by an
+   author who does not have this repository -- see
+   ``tests/test_public_tile_surface.py``, which enforces the direction.
+
+
+
+Exceptions
+----------
+
+.. autoapisummary::
+
+   dau_core.registry.UnknownCoreError
+   dau_core.registry.DuplicateCoreError
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   dau_core.registry._groups
+   dau_core.registry._entry
+   dau_core.registry._declared_names
+   dau_core.registry.core
+   dau_core.registry.loaded_cores
+   dau_core.registry.core_for_module
+   dau_core.registry.cores_of_kind
+   dau_core.registry.cores_of_role
+   dau_core.registry.core_of_role
+   dau_core.registry.sources_for
+
+
+Module Contents
+---------------
+
+.. py:exception:: UnknownCoreError
+
+   Bases: :py:obj:`KeyError`
+
+
+   Mapping key not found.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+.. py:exception:: DuplicateCoreError
+
+   Bases: :py:obj:`ValueError`
+
+
+   Two composed groups declare the same core name.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+.. py:function:: _groups() -> tuple[tuple[str, ccflow.ModelRegistry], ...]
+
+   The composed registry groups, dau-core's own first.
+
+   Composing the packaged defaults when ``/dau-core`` is absent is what
+   makes every accessor here work from a bare interpreter; a ``/dau-core``
+   a consumer already composed (possibly with overrides) is never reloaded.
+
+
+.. py:function:: _entry(group: ccflow.ModelRegistry, name: str) -> dau_core.cores.CoreDefinition | None
+
+   ``name`` in ``group``, building only that one model.
+
+   A keyed lookup is the whole point: the groups are ccflow
+   ``LazyRegistry`` instances, so this materializes one ``CoreDefinition``
+   where reading the group's items would materialize all of them.
+
+
+.. py:function:: _declared_names(group: ccflow.ModelRegistry) -> tuple[str, ...]
+
+   Every entry name in ``group``, without building any of its models.
+
+
+.. py:function:: core(name: str) -> dau_core.cores.CoreDefinition
+
+   The composed core called ``name``.
+
+   A keyed lookup per group, so asking for one tile builds one model. The
+   duplicate check still runs: a name declared by two composed groups is
+   refused here exactly as :func:`loaded_cores` refuses it, because a core
+   name is how every design, spec hash and cached manifest refers to it.
+
+
+.. py:function:: loaded_cores() -> collections.abc.Mapping[str, dau_core.cores.CoreDefinition]
+
+   Every composed core, name -> definition, dau-core's own first.
+
+   dau-core's tiles come from its hydra config tree
+   (``dau-core/cores.yaml``) composed into the ccflow ``ModelRegistry`` at
+   ``/dau-core/<core-name>``. Composition IS the registry — there is no
+   Python-literal core list; these accessors are thin read-through views
+   for in-process consumers (tests, dau shell walking). A ``/dau-core``
+   subregistry a consumer already composed (possibly with overrides) is the
+   source of truth and is never reloaded or overwritten here; the packaged
+   defaults load only when it is absent.
+
+   **A CONTRIBUTED core is a core.** A third party composing a
+   ``CoreDefinition`` under its own group used to compose successfully,
+   register, and then be invisible to every consumer, because this only
+   ever read ``/dau-core``: the author did everything right and their tile
+   silently vanished, with no error to explain it. Any ``CoreDefinition``
+   the application composed is returned, whichever group holds it.
+
+   This does not blur the packages. ``source_package`` is the seam that
+   tells a foreign tile from one of ours, and dau-core's own guards already
+   scope themselves by it rather than assuming every registered core is
+   theirs. A name collision is raised rather than resolved, because
+   silently preferring one definition is the failure this fixes.
+
+
+.. py:function:: core_for_module(module: str) -> dau_core.cores.CoreDefinition
+
+.. py:function:: cores_of_kind(kind: dau_core.cores.CoreKind) -> tuple[dau_core.cores.CoreDefinition, ...]
+
+.. py:function:: cores_of_role(role: dau_core.cores.CoreRole) -> tuple[dau_core.cores.CoreDefinition, ...]
+
+   Every composed core declaring ``role``, in registry order.
+
+
+.. py:function:: core_of_role(role: dau_core.cores.CoreRole) -> dau_core.cores.CoreDefinition
+
+   The one composed core declaring ``role``.
+
+   The shell-infrastructure roles are jobs exactly one core fills, and a
+   composition selects the core by asking for the job. Zero is a palette
+   with a hole in it; two is an ambiguity nothing here can resolve, and
+   silently taking the first would make the answer depend on registry
+   order, so both refuse.
+
+
+.. py:function:: sources_for(*names: str) -> tuple[pathlib.Path, ...]
+
+   Dependency-closed, deduplicated source paths for a set of cores —
+   packages and dependencies first, in registry order.
+
+

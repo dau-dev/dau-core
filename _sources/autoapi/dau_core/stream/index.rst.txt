@@ -1,0 +1,545 @@
+dau_core.stream
+===============
+
+.. py:module:: dau_core.stream
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   dau_core.stream.DEFAULT_RECORD_BATCH_LIMITS
+
+
+Exceptions
+----------
+
+.. autoapisummary::
+
+   dau_core.stream.InvalidStreamError
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   dau_core.stream.LogicalType
+   dau_core.stream.OperationCode
+   dau_core.stream.StreamAggregationErrorCode
+   dau_core.stream.GroupRole
+   dau_core.stream.PolicyFlag
+   dau_core.stream.StreamFlag
+   dau_core.stream.BatchHeader
+   dau_core.stream.ColumnDescriptor
+   dau_core.stream.OperationDescriptor
+   dau_core.stream.RecordBatchLimits
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   dau_core.stream.output_type_for
+   dau_core.stream.validate_record_batch
+   dau_core.stream._validate_u8
+   dau_core.stream._validate_u16
+   dau_core.stream._validate_u32
+   dau_core.stream._validate_u64
+
+
+Module Contents
+---------------
+
+.. py:exception:: InvalidStreamError
+
+   Bases: :py:obj:`ValueError`
+
+
+   Inappropriate argument value (of correct type).
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+.. py:class:: LogicalType
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   Enum where members are also (and must be) ints
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: BOOL
+      :value: 1
+
+
+
+   .. py:attribute:: INT8
+      :value: 10
+
+
+
+   .. py:attribute:: INT16
+      :value: 11
+
+
+
+   .. py:attribute:: INT32
+      :value: 12
+
+
+
+   .. py:attribute:: INT64
+      :value: 13
+
+
+
+   .. py:attribute:: UINT8
+      :value: 20
+
+
+
+   .. py:attribute:: UINT16
+      :value: 21
+
+
+
+   .. py:attribute:: UINT32
+      :value: 22
+
+
+
+   .. py:attribute:: UINT64
+      :value: 23
+
+
+
+   .. py:attribute:: FLOAT32
+      :value: 30
+
+
+
+   .. py:attribute:: FLOAT64
+      :value: 31
+
+
+
+.. py:class:: OperationCode
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   Enum where members are also (and must be) ints
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: MIN
+      :value: 1
+
+
+
+   .. py:attribute:: MAX
+      :value: 2
+
+
+
+   .. py:attribute:: SUM
+      :value: 3
+
+
+
+   .. py:attribute:: COUNT
+      :value: 4
+
+
+
+   .. py:attribute:: AVERAGE
+      :value: 5
+
+
+
+   .. py:method:: from_name(name: str) -> OperationCode
+      :classmethod:
+
+
+
+.. py:function:: output_type_for(opcode: OperationCode) -> LogicalType
+
+   The wire type an aggregation opcode produces (single source of truth
+   for every backend, API layer, and example).
+
+
+.. py:class:: StreamAggregationErrorCode
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   Enum where members are also (and must be) ints
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: DESCRIPTOR
+      :value: 1
+
+
+
+   .. py:attribute:: OPCODE
+      :value: 2
+
+
+
+   .. py:attribute:: TILE
+      :value: 3
+
+
+
+.. py:class:: GroupRole
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   Enum where members are also (and must be) ints
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: VALUE
+      :value: 0
+
+
+
+   .. py:attribute:: KEY
+      :value: 1
+
+
+
+   .. py:attribute:: OUTPUT
+      :value: 2
+
+
+
+.. py:class:: PolicyFlag
+
+   Bases: :py:obj:`enum.IntFlag`
+
+
+   Support for integer-based Flags
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: NONE
+      :value: 0
+
+
+
+   .. py:attribute:: SATURATING_SUM
+      :value: 1
+
+
+
+   .. py:attribute:: IEEE_FLOAT_NAN
+      :value: 2
+
+
+
+   .. py:attribute:: FLOAT64_AVERAGE
+      :value: 4
+
+
+
+.. py:class:: StreamFlag
+
+   Bases: :py:obj:`enum.IntFlag`
+
+
+   Support for integer-based Flags
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: NONE
+      :value: 0
+
+
+
+   .. py:attribute:: HAS_GROUP_FIELDS
+      :value: 1
+
+
+
+.. py:class:: BatchHeader
+
+   .. py:attribute:: schema_hash
+      :type:  int
+
+
+   .. py:attribute:: batch_id
+      :type:  int
+
+
+   .. py:attribute:: row_count
+      :type:  int
+
+
+   .. py:attribute:: column_count
+      :type:  int
+
+
+   .. py:attribute:: operation_count
+      :type:  int
+
+
+   .. py:attribute:: group_key_count
+      :type:  int
+
+
+   .. py:attribute:: descriptor_table_offset
+      :type:  int
+
+
+   .. py:attribute:: payload_offset
+      :type:  int
+
+
+   .. py:attribute:: payload_length
+      :type:  int
+
+
+   .. py:attribute:: version_major
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: version_minor
+      :type:  int
+      :value: 1
+
+
+
+   .. py:attribute:: header_length
+      :type:  int
+      :value: 64
+
+
+
+   .. py:attribute:: flags
+      :type:  StreamFlag
+
+
+   .. py:attribute:: SIZE_BYTES
+      :value: 64
+
+
+
+   .. py:attribute:: _STRUCT
+
+
+   .. py:method:: __post_init__() -> None
+
+
+   .. py:method:: pack() -> bytes
+
+
+   .. py:method:: unpack(data: bytes) -> BatchHeader
+      :classmethod:
+
+
+
+.. py:class:: ColumnDescriptor
+
+   .. py:attribute:: field_id
+      :type:  int
+
+
+   .. py:attribute:: logical_type
+      :type:  LogicalType
+
+
+   .. py:attribute:: physical_width_bits
+      :type:  int
+
+
+   .. py:attribute:: row_count
+      :type:  int
+
+
+   .. py:attribute:: null_count
+      :type:  int
+
+
+   .. py:attribute:: payload_offset
+      :type:  int
+
+
+   .. py:attribute:: payload_length
+      :type:  int
+
+
+   .. py:attribute:: validity_offset
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: validity_length
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: group_role
+      :type:  GroupRole
+
+
+   .. py:attribute:: flags
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: SIZE_BYTES
+      :value: 64
+
+
+
+   .. py:attribute:: _STRUCT
+
+
+   .. py:method:: __post_init__() -> None
+
+
+   .. py:method:: pack() -> bytes
+
+
+   .. py:method:: unpack(data: bytes) -> ColumnDescriptor
+      :classmethod:
+
+
+
+.. py:class:: OperationDescriptor
+
+   .. py:attribute:: operation_id
+      :type:  int
+
+
+   .. py:attribute:: opcode
+      :type:  OperationCode
+
+
+   .. py:attribute:: input_column_id
+      :type:  int
+
+
+   .. py:attribute:: output_field_id
+      :type:  int
+
+
+   .. py:attribute:: output_type
+      :type:  LogicalType
+
+
+   .. py:attribute:: accumulator_width_bits
+      :type:  int
+
+
+   .. py:attribute:: policy_flags
+      :type:  PolicyFlag
+
+
+   .. py:attribute:: group_key_set_id
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: SIZE_BYTES
+      :value: 64
+
+
+
+   .. py:attribute:: _STRUCT
+
+
+   .. py:method:: __post_init__() -> None
+
+
+   .. py:method:: pack() -> bytes
+
+
+   .. py:method:: unpack(data: bytes) -> OperationDescriptor
+      :classmethod:
+
+
+
+.. py:class:: RecordBatchLimits(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   Caps for multi-column record batches (see dau-docs record-batch contract).
+
+   Defaults are sized to the 1 MiB stream-job staging buffers: header +
+   descriptor table + payload must fit one staging region.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: max_columns
+      :type:  int
+      :value: 16
+
+
+
+   .. py:attribute:: max_rows
+      :type:  int
+      :value: 1048576
+
+
+
+   .. py:attribute:: max_batch_bytes
+      :type:  int
+      :value: 1048576
+
+
+
+   .. py:attribute:: alignment_bytes
+      :type:  int
+      :value: 64
+
+
+
+   .. py:method:: model_post_init(context) -> None
+
+      Override this method to perform additional initialization after `__init__` and `model_construct`.
+      This is useful if you want to do some validation that requires the entire model to be initialized.
+
+
+
+.. py:data:: DEFAULT_RECORD_BATCH_LIMITS
+
+.. py:function:: validate_record_batch(header: BatchHeader, columns: tuple[ColumnDescriptor, ...], *, limits: RecordBatchLimits = DEFAULT_RECORD_BATCH_LIMITS) -> None
+
+   Validate the multi-column batch shape shared by host codecs and HDL models.
+
+
+.. py:function:: _validate_u8(name: str, value: int) -> None
+
+.. py:function:: _validate_u16(name: str, value: int) -> None
+
+.. py:function:: _validate_u32(name: str, value: int) -> None
+
+.. py:function:: _validate_u64(name: str, value: int) -> None
+

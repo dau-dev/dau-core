@@ -1,0 +1,112 @@
+cocotb_benches.dau_int32_map_alu_tb
+===================================
+
+.. py:module:: cocotb_benches.dau_int32_map_alu_tb
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_int32_map_alu_tb._VALUES
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_int32_map_alu_tb.map_add_matches_golden_with_backpressure
+   cocotb_benches.dau_int32_map_alu_tb.map_sub_and_wraparound
+   cocotb_benches.dau_int32_map_alu_tb.map_mul_matches_golden
+   cocotb_benches.dau_int32_map_alu_tb.map_mulshr_derives_minute_buckets
+   cocotb_benches.dau_int32_map_alu_tb.map_mulshr_arithmetic_shift_negative
+   cocotb_benches.dau_int32_map_alu_tb.map_shl_and_bitwise_ops
+   cocotb_benches.dau_int32_map_alu_tb.map_odd_row_count
+   cocotb_benches.dau_int32_map_alu_tb.map_repeated_batches_relatch_config
+   cocotb_benches.dau_int32_map_alu_tb.map_reserved_opcode_reports_config_error
+   cocotb_benches.dau_int32_map_alu_tb.map_truncated_stream_reports_stream_error
+   cocotb_benches.dau_int32_map_alu_tb._start
+   cocotb_benches.dau_int32_map_alu_tb._apply_config
+   cocotb_benches.dau_int32_map_alu_tb._run_map
+   cocotb_benches.dau_int32_map_alu_tb._send_values
+   cocotb_benches.dau_int32_map_alu_tb._collect_output
+   cocotb_benches.dau_int32_map_alu_tb._accept_success_status
+   cocotb_benches.dau_int32_map_alu_tb._expect_error
+   cocotb_benches.dau_int32_map_alu_tb._signed
+
+
+Module Contents
+---------------
+
+.. py:data:: _VALUES
+
+.. py:function:: map_add_matches_golden_with_backpressure(dut)
+   :async:
+
+
+.. py:function:: map_sub_and_wraparound(dut)
+   :async:
+
+
+.. py:function:: map_mul_matches_golden(dut)
+   :async:
+
+
+.. py:function:: map_mulshr_derives_minute_buckets(dut)
+   :async:
+
+
+.. py:function:: map_mulshr_arithmetic_shift_negative(dut)
+   :async:
+
+
+.. py:function:: map_shl_and_bitwise_ops(dut)
+   :async:
+
+
+.. py:function:: map_odd_row_count(dut)
+   :async:
+
+
+.. py:function:: map_repeated_batches_relatch_config(dut)
+   :async:
+
+
+.. py:function:: map_reserved_opcode_reports_config_error(dut)
+   :async:
+
+
+.. py:function:: map_truncated_stream_reports_stream_error(dut)
+   :async:
+
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _apply_config(dut, config: dau_core.operators.MapConfig, *, row_count: int) -> None
+
+.. py:function:: _run_map(dut, values, config, *, ready_pattern=(1, ))
+   :async:
+
+
+.. py:function:: _send_values(dut, values) -> None
+   :async:
+
+
+.. py:function:: _collect_output(dut, ready_pattern) -> list[int]
+   :async:
+
+
+.. py:function:: _accept_success_status(dut) -> None
+   :async:
+
+
+.. py:function:: _expect_error(dut, code: dau_core.operators.MapErrorCode) -> None
+   :async:
+
+
+.. py:function:: _signed(value: int) -> int
+

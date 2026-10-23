@@ -1,0 +1,109 @@
+cocotb_benches.dau_pair_key_filter_tb
+=====================================
+
+.. py:module:: cocotb_benches.dau_pair_key_filter_tb
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_pair_key_filter_tb.ERR_STREAM
+   cocotb_benches.dau_pair_key_filter_tb._ROWS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_pair_key_filter_tb.filter_partitions_rows
+   cocotb_benches.dau_pair_key_filter_tb.filter_last_lands_on_final_kept_row
+   cocotb_benches.dau_pair_key_filter_tb.filter_passes_everything_with_zero_mask
+   cocotb_benches.dau_pair_key_filter_tb.filter_backpressure_both_sides
+   cocotb_benches.dau_pair_key_filter_tb.filter_empty_partition_closes_out
+   cocotb_benches.dau_pair_key_filter_tb.filter_torn_row_reports_stream_error
+   cocotb_benches.dau_pair_key_filter_tb.status_close_out_waits_for_backpressured_tail
+   cocotb_benches.dau_pair_key_filter_tb.error_close_out_waits_for_backpressured_tail
+   cocotb_benches.dau_pair_key_filter_tb._start
+   cocotb_benches.dau_pair_key_filter_tb._run
+   cocotb_benches.dau_pair_key_filter_tb._pack_rows
+   cocotb_benches.dau_pair_key_filter_tb._send_batches
+   cocotb_benches.dau_pair_key_filter_tb._send_rows
+   cocotb_benches.dau_pair_key_filter_tb._collect_output
+   cocotb_benches.dau_pair_key_filter_tb._expect_status
+   cocotb_benches.dau_pair_key_filter_tb._signed32
+
+
+Module Contents
+---------------
+
+.. py:data:: ERR_STREAM
+   :value: 2
+
+
+.. py:data:: _ROWS
+   :value: [(568, 100, 10, 500000), (569, 105, 3, 0), (570, 95, 2, 250000), (568, 102, 1, 999999), (571,...
+
+
+.. py:function:: filter_partitions_rows(dut)
+   :async:
+
+
+.. py:function:: filter_last_lands_on_final_kept_row(dut)
+   :async:
+
+
+.. py:function:: filter_passes_everything_with_zero_mask(dut)
+   :async:
+
+
+.. py:function:: filter_backpressure_both_sides(dut)
+   :async:
+
+
+.. py:function:: filter_empty_partition_closes_out(dut)
+   :async:
+
+
+.. py:function:: filter_torn_row_reports_stream_error(dut)
+   :async:
+
+
+.. py:function:: status_close_out_waits_for_backpressured_tail(dut)
+   :async:
+
+
+.. py:function:: error_close_out_waits_for_backpressured_tail(dut)
+   :async:
+
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _run(dut, rows, *, mask: int, match: int, ready_pattern=(1, ))
+   :async:
+
+
+.. py:function:: _pack_rows(rows) -> list[int]
+
+.. py:function:: _send_batches(dut, batches) -> None
+   :async:
+
+
+.. py:function:: _send_rows(dut, rows) -> None
+   :async:
+
+
+.. py:function:: _collect_output(dut, ready_pattern, *, expect_words: int) -> list[int]
+   :async:
+
+
+.. py:function:: _expect_status(dut, *, error: bool, code: int = 0) -> None
+   :async:
+
+
+.. py:function:: _signed32(value: int) -> int
+

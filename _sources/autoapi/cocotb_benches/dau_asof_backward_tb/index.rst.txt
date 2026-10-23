@@ -1,0 +1,138 @@
+cocotb_benches.dau_asof_backward_tb
+===================================
+
+.. py:module:: cocotb_benches.dau_asof_backward_tb
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_asof_backward_tb._QUOTES
+   cocotb_benches.dau_asof_backward_tb._TRADES
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_asof_backward_tb._merge
+   cocotb_benches.dau_asof_backward_tb._expected
+   cocotb_benches.dau_asof_backward_tb.asof_tile_matches_golden
+   cocotb_benches.dau_asof_backward_tb.asof_tile_backpressure_both_sides
+   cocotb_benches.dau_asof_backward_tb.asof_tile_tolerance_drops_stale_quotes
+   cocotb_benches.dau_asof_backward_tb.asof_tile_all_misses_emit_nothing
+   cocotb_benches.dau_asof_backward_tb.asof_tile_int64_time_axis
+   cocotb_benches.dau_asof_backward_tb.asof_tile_reappearing_symbol_resets_quote
+   cocotb_benches.dau_asof_backward_tb.asof_tile_marks_output_last_on_final_row_after_trailing_miss
+   cocotb_benches.dau_asof_backward_tb.asof_tile_extreme_timestamp_age_misses
+   cocotb_benches.dau_asof_backward_tb.asof_tile_truncated_record_reports_stream_error
+   cocotb_benches.dau_asof_backward_tb._start
+   cocotb_benches.dau_asof_backward_tb._run
+   cocotb_benches.dau_asof_backward_tb._decode_row
+   cocotb_benches.dau_asof_backward_tb._send_records
+   cocotb_benches.dau_asof_backward_tb._collect_output
+   cocotb_benches.dau_asof_backward_tb._collect_with_last
+   cocotb_benches.dau_asof_backward_tb._accept_success_status
+   cocotb_benches.dau_asof_backward_tb._expect_error
+   cocotb_benches.dau_asof_backward_tb._signed32
+   cocotb_benches.dau_asof_backward_tb._signed64
+
+
+Module Contents
+---------------
+
+.. py:data:: _QUOTES
+   :value: [(570, 100, 10, 12), (570, 105, 11, 13), (570, 120, 9, 11), (571, 100, 50, 52), (571, 110, 51, 54)]
+
+
+.. py:data:: _TRADES
+   :value: [(570, 99, 11, 5), (570, 100, 12, 3), (570, 107, 13, 2), (570, 130, 8, 1), (571, 105, 53, 7),...
+
+
+.. py:function:: _merge(quotes, trades)
+
+   Host pre-merge: one (symbol, time)-sorted stream, quote-before-trade at
+   equal (symbol, time). Records are (is_trade, symbol, time, a, b).
+
+
+.. py:function:: _expected(quotes, trades, *, tolerance=None)
+
+   The tile's golden is the generic keyed as-of join over the merged stream
+   (quote = build {bid, ask}, trade = probe {price, size}) — the joined row
+   (key, time, probe_a, probe_b, build_a, build_b) is the market row the bench
+   decodes.
+
+
+.. py:function:: asof_tile_matches_golden(dut)
+   :async:
+
+
+.. py:function:: asof_tile_backpressure_both_sides(dut)
+   :async:
+
+
+.. py:function:: asof_tile_tolerance_drops_stale_quotes(dut)
+   :async:
+
+
+.. py:function:: asof_tile_all_misses_emit_nothing(dut)
+   :async:
+
+
+.. py:function:: asof_tile_int64_time_axis(dut)
+   :async:
+
+
+.. py:function:: asof_tile_reappearing_symbol_resets_quote(dut)
+   :async:
+
+
+.. py:function:: asof_tile_marks_output_last_on_final_row_after_trailing_miss(dut)
+   :async:
+
+
+.. py:function:: asof_tile_extreme_timestamp_age_misses(dut)
+   :async:
+
+
+.. py:function:: asof_tile_truncated_record_reports_stream_error(dut)
+   :async:
+
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _run(dut, records, *, ready_pattern=(1, ), tolerance=None)
+   :async:
+
+
+.. py:function:: _decode_row(words)
+
+.. py:function:: _send_records(dut, records) -> None
+   :async:
+
+
+.. py:function:: _collect_output(dut, ready_pattern)
+   :async:
+
+
+.. py:function:: _collect_with_last(dut)
+   :async:
+
+
+.. py:function:: _accept_success_status(dut) -> int
+   :async:
+
+
+.. py:function:: _expect_error(dut) -> None
+   :async:
+
+
+.. py:function:: _signed32(value: int) -> int
+
+.. py:function:: _signed64(value: int) -> int
+

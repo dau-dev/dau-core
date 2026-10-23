@@ -1,0 +1,109 @@
+cocotb_benches.dau_wide_row_predicate_filter_tb
+===============================================
+
+.. py:module:: cocotb_benches.dau_wide_row_predicate_filter_tb
+
+.. autoapi-nested-parse::
+
+   Wide-lane row predicate filter, golden-equal to ``filter_rows_by_predicate``.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_wide_row_predicate_filter_tb._MASK32
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_wide_row_predicate_filter_tb.sustained_ingest_meets_registry_floor
+   cocotb_benches.dau_wide_row_predicate_filter_tb.random_ragged_rows_match_golden_under_backpressure
+   cocotb_benches.dau_wide_row_predicate_filter_tb.pads_pass_untouched_and_are_not_evaluated
+   cocotb_benches.dau_wide_row_predicate_filter_tb.minus_one_predicate_fields_in_a_real_row_are_evaluated
+   cocotb_benches.dau_wide_row_predicate_filter_tb.invalid_config_drains_and_reports_error
+   cocotb_benches.dau_wide_row_predicate_filter_tb.back_to_back_batches_relatch_config
+   cocotb_benches.dau_wide_row_predicate_filter_tb._signed32
+   cocotb_benches.dau_wide_row_predicate_filter_tb._random_row
+   cocotb_benches.dau_wide_row_predicate_filter_tb._decode_row
+   cocotb_benches.dau_wide_row_predicate_filter_tb._decode_non_pad_rows
+   cocotb_benches.dau_wide_row_predicate_filter_tb._expected_beats
+   cocotb_benches.dau_wide_row_predicate_filter_tb._all_pad_beat
+   cocotb_benches.dau_wide_row_predicate_filter_tb._drive_config
+   cocotb_benches.dau_wide_row_predicate_filter_tb._start
+   cocotb_benches.dau_wide_row_predicate_filter_tb._run
+   cocotb_benches.dau_wide_row_predicate_filter_tb._collect_output
+   cocotb_benches.dau_wide_row_predicate_filter_tb._assert_quiescent
+   cocotb_benches.dau_wide_row_predicate_filter_tb._expect_error
+
+
+Module Contents
+---------------
+
+.. py:data:: _MASK32
+   :value: 4294967295
+
+
+.. py:function:: sustained_ingest_meets_registry_floor(dut)
+   :async:
+
+
+.. py:function:: random_ragged_rows_match_golden_under_backpressure(dut)
+   :async:
+
+
+.. py:function:: pads_pass_untouched_and_are_not_evaluated(dut)
+   :async:
+
+
+.. py:function:: minus_one_predicate_fields_in_a_real_row_are_evaluated(dut)
+   :async:
+
+
+.. py:function:: invalid_config_drains_and_reports_error(dut)
+   :async:
+
+
+.. py:function:: back_to_back_batches_relatch_config(dut)
+   :async:
+
+
+.. py:function:: _signed32(value: int) -> int
+
+.. py:function:: _random_row(rng: random.Random) -> tuple[int, int, int, int]
+
+.. py:function:: _decode_row(bits: int) -> tuple[int, int, int, int]
+
+.. py:function:: _decode_non_pad_rows(beats, slots: int) -> list[tuple[int, int, int, int]]
+
+.. py:function:: _expected_beats(input_beats, slots: int, config: dau_core.operators.RowPredicateConfig) -> list[int]
+
+.. py:function:: _all_pad_beat(slots: int) -> int
+
+.. py:function:: _drive_config(dut, config: dau_core.operators.RowPredicateConfig) -> None
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _run(dut, rows, config: dau_core.operators.RowPredicateConfig, *, ready_pattern=(1, ), input_beats=None)
+   :async:
+
+
+.. py:function:: _collect_output(dut, ready_pattern, *, expect_beats: int) -> list[int]
+   :async:
+
+
+.. py:function:: _assert_quiescent(dut) -> None
+   :async:
+
+
+.. py:function:: _expect_error(dut, code: int) -> None
+   :async:
+
+

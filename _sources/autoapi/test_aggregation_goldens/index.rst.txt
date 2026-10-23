@@ -1,0 +1,31 @@
+test_aggregation_goldens
+========================
+
+.. py:module:: test_aggregation_goldens
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_aggregation_goldens.test_integer_aggregations_use_saturating_sum_policy
+   test_aggregation_goldens.test_average_returns_float64_for_integer_and_float_inputs
+   test_aggregation_goldens.test_float_nan_policy_returns_nan_for_value_aggregations
+   test_aggregation_goldens.test_empty_inputs_have_explicit_semantics
+   test_aggregation_goldens.test_synthetic_fixture_values_cover_core_shapes
+
+
+Module Contents
+---------------
+
+.. py:function:: test_integer_aggregations_use_saturating_sum_policy()
+
+.. py:function:: test_average_returns_float64_for_integer_and_float_inputs()
+
+.. py:function:: test_float_nan_policy_returns_nan_for_value_aggregations()
+
+.. py:function:: test_empty_inputs_have_explicit_semantics()
+
+.. py:function:: test_synthetic_fixture_values_cover_core_shapes()
+

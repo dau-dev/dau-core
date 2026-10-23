@@ -1,0 +1,102 @@
+cocotb_benches.dau_int32_predicate_filter_tb
+============================================
+
+.. py:module:: cocotb_benches.dau_int32_predicate_filter_tb
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_int32_predicate_filter_tb._VALUES
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_int32_predicate_filter_tb.filter_gt_matches_golden_with_backpressure
+   cocotb_benches.dau_int32_predicate_filter_tb.filter_and_is_range
+   cocotb_benches.dau_int32_predicate_filter_tb.filter_or_is_union
+   cocotb_benches.dau_int32_predicate_filter_tb.filter_empty_selection_emits_no_output
+   cocotb_benches.dau_int32_predicate_filter_tb.filter_all_match_passes_through
+   cocotb_benches.dau_int32_predicate_filter_tb.filter_repeated_batches_relatch_config
+   cocotb_benches.dau_int32_predicate_filter_tb.filter_invalid_op_reports_config_error
+   cocotb_benches.dau_int32_predicate_filter_tb.filter_truncated_stream_reports_stream_error
+   cocotb_benches.dau_int32_predicate_filter_tb._start
+   cocotb_benches.dau_int32_predicate_filter_tb._apply_config
+   cocotb_benches.dau_int32_predicate_filter_tb._run_filter
+   cocotb_benches.dau_int32_predicate_filter_tb._send_values
+   cocotb_benches.dau_int32_predicate_filter_tb._collect_output
+   cocotb_benches.dau_int32_predicate_filter_tb._accept_success_status
+   cocotb_benches.dau_int32_predicate_filter_tb._expect_error
+   cocotb_benches.dau_int32_predicate_filter_tb._signed
+
+
+Module Contents
+---------------
+
+.. py:data:: _VALUES
+
+.. py:function:: filter_gt_matches_golden_with_backpressure(dut)
+   :async:
+
+
+.. py:function:: filter_and_is_range(dut)
+   :async:
+
+
+.. py:function:: filter_or_is_union(dut)
+   :async:
+
+
+.. py:function:: filter_empty_selection_emits_no_output(dut)
+   :async:
+
+
+.. py:function:: filter_all_match_passes_through(dut)
+   :async:
+
+
+.. py:function:: filter_repeated_batches_relatch_config(dut)
+   :async:
+
+
+.. py:function:: filter_invalid_op_reports_config_error(dut)
+   :async:
+
+
+.. py:function:: filter_truncated_stream_reports_stream_error(dut)
+   :async:
+
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _apply_config(dut, predicate: dau_core.operators.FilterPredicate, *, row_count: int) -> None
+
+.. py:function:: _run_filter(dut, values, predicate, *, ready_pattern=(1, ), expect_output=True)
+   :async:
+
+
+.. py:function:: _send_values(dut, values) -> None
+   :async:
+
+
+.. py:function:: _collect_output(dut, ready_pattern) -> list[int]
+   :async:
+
+
+.. py:function:: _accept_success_status(dut) -> int
+   :async:
+
+
+.. py:function:: _expect_error(dut, code: dau_core.operators.FilterErrorCode) -> None
+   :async:
+
+
+.. py:function:: _signed(value: int) -> int
+

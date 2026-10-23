@@ -1,0 +1,65 @@
+test_datetime_format
+====================
+
+.. py:module:: test_datetime_format
+
+.. autoapi-nested-parse::
+
+   The datetime formatter's golden, and the constants the tile divides by.
+
+   The tile has no divider: every division in it is a multiply-shift by a
+   compile-time constant, and a multiply-shift identity is only valid over a
+   bounded input range. Those bounds are the whole correctness argument for the
+   arithmetic, and they live in the HDL as bare magic numbers -- so this reads
+   them back out of the .sv and proves each one against real floor division at
+   BOTH ENDS of every quotient block, which is where such an identity fails
+   first. A constant edited in the HDL without its range being re-derived fails
+   here rather than in a rendered date.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_datetime_format.EPOCH
+   test_datetime_format.MULTIPLY_SHIFT_SITES
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_datetime_format._hdl_constants
+   test_datetime_format.test_the_tiles_multiply_shift_constants_are_exact_over_their_declared_range
+   test_datetime_format.test_the_golden_agrees_with_the_standard_library_at_the_boundaries
+   test_datetime_format.test_the_golden_agrees_with_the_standard_library_over_a_random_sweep
+   test_datetime_format.test_every_day_of_one_leap_year_and_one_common_year_renders
+   test_datetime_format.test_out_of_range_epochs_have_no_rendering
+
+
+Module Contents
+---------------
+
+.. py:data:: EPOCH
+
+.. py:data:: MULTIPLY_SHIFT_SITES
+
+.. py:function:: _hdl_constants() -> dict[str, int]
+
+.. py:function:: test_the_tiles_multiply_shift_constants_are_exact_over_their_declared_range(site: str, pre_shift: int, divisor: int, max_input: int) -> None
+
+.. py:function:: test_the_golden_agrees_with_the_standard_library_at_the_boundaries() -> None
+
+.. py:function:: test_the_golden_agrees_with_the_standard_library_over_a_random_sweep() -> None
+
+.. py:function:: test_every_day_of_one_leap_year_and_one_common_year_renders() -> None
+
+   Leap handling is not special-cased anywhere -- it falls out of the
+   400-year era arithmetic -- so the way to check it is to walk the days.
+
+
+.. py:function:: test_out_of_range_epochs_have_no_rendering() -> None
+

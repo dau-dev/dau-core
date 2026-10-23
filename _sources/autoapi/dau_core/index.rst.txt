@@ -1,0 +1,82 @@
+dau_core
+========
+
+.. py:module:: dau_core
+
+.. autoapi-nested-parse::
+
+   dau-core: the tile palette, the device contracts and the goldens.
+
+   Exports load on first use (:mod:`dau_core._lazy`). Importing this package
+   must not import ccflow and its stack, because hydra's searchpath plugin
+   imports ``dau_core.config`` to discover what is installed, and discovery
+   wants none of these names.
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/dau_core/_lazy/index
+   /autoapi/dau_core/capabilities/index
+   /autoapi/dau_core/capability_contract/index
+   /autoapi/dau_core/composition/index
+   /autoapi/dau_core/config/index
+   /autoapi/dau_core/cores/index
+   /autoapi/dau_core/design/index
+   /autoapi/dau_core/element_types/index
+   /autoapi/dau_core/exp_generator/index
+   /autoapi/dau_core/fixed_point/index
+   /autoapi/dau_core/generators/index
+   /autoapi/dau_core/hdl/index
+   /autoapi/dau_core/hero/index
+   /autoapi/dau_core/ln_generator/index
+   /autoapi/dau_core/models/index
+   /autoapi/dau_core/normal_cdf_generator/index
+   /autoapi/dau_core/operators/index
+   /autoapi/dau_core/registers/index
+   /autoapi/dau_core/registry/index
+   /autoapi/dau_core/stream/index
+   /autoapi/dau_core/temporal/index
+   /autoapi/dau_core/workflows/index
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   dau_core.__version__
+   dau_core._EXPORTS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   dau_core.lazy_exports
+
+
+Package Contents
+----------------
+
+.. py:function:: lazy_exports(package: str, exports: dict[str, tuple[str, ...]]) -> tuple[collections.abc.Callable[[str], object], list[str]]
+
+   A module ``__getattr__`` and ``__all__`` for ``{submodule: names}``.
+
+   Returns both so the two cannot disagree: a name exported by nothing is
+   not reachable, and a name declared here and missing from its submodule
+   raises on first access rather than at import, which a guard test is what
+   turns back into an import-time error.
+
+
+.. py:data:: __version__
+   :value: '0.1.0'
+
+
+.. py:data:: _EXPORTS
+

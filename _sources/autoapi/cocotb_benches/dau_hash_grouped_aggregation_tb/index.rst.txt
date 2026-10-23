@@ -1,0 +1,184 @@
+cocotb_benches.dau_hash_grouped_aggregation_tb
+==============================================
+
+.. py:module:: cocotb_benches.dau_hash_grouped_aggregation_tb
+
+.. autoapi-nested-parse::
+
+   Hash-mode grouped field-sum aggregation tile against its golden: one
+   record per DISTINCT key with input in any order, a signed-key-ascending
+   drain, overflow as a defined close-out, and fresh state per batch — plus
+   the randomized-delay patience harness that binds every stateful tile.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_hash_grouped_aggregation_tb.CAPACITY
+   cocotb_benches.dau_hash_grouped_aggregation_tb._MASK32
+   cocotb_benches.dau_hash_grouped_aggregation_tb._ROWS
+   cocotb_benches.dau_hash_grouped_aggregation_tb._MASK
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_hash_grouped_aggregation_tb._needs_slots
+   cocotb_benches.dau_hash_grouped_aggregation_tb.hash_grouped_matches_golden
+   cocotb_benches.dau_hash_grouped_aggregation_tb.hash_grouped_is_permutation_invariant
+   cocotb_benches.dau_hash_grouped_aggregation_tb.hash_grouped_drain_is_signed_key_ascending
+   cocotb_benches.dau_hash_grouped_aggregation_tb.hash_grouped_all_four_fields
+   cocotb_benches.dau_hash_grouped_aggregation_tb.hash_grouped_colliding_keys_probe_correctly
+   cocotb_benches.dau_hash_grouped_aggregation_tb.hash_grouped_overflow_is_a_defined_close_out
+   cocotb_benches.dau_hash_grouped_aggregation_tb.hash_grouped_overflow_mid_batch_drains_and_recovers
+   cocotb_benches.dau_hash_grouped_aggregation_tb.hash_grouped_reports_group_count_and_one_close_out
+   cocotb_benches.dau_hash_grouped_aggregation_tb.hash_grouped_full_table_without_a_new_key_succeeds
+   cocotb_benches.dau_hash_grouped_aggregation_tb.hash_grouped_state_is_fresh_per_batch
+   cocotb_benches.dau_hash_grouped_aggregation_tb.hash_grouped_bad_configuration_is_refused
+   cocotb_benches.dau_hash_grouped_aggregation_tb.hash_grouped_torn_row_is_refused
+   cocotb_benches.dau_hash_grouped_aggregation_tb.hash_grouped_is_patient
+   cocotb_benches.dau_hash_grouped_aggregation_tb._record_words
+   cocotb_benches.dau_hash_grouped_aggregation_tb._start
+   cocotb_benches.dau_hash_grouped_aggregation_tb._run
+   cocotb_benches.dau_hash_grouped_aggregation_tb._pack_rows
+   cocotb_benches.dau_hash_grouped_aggregation_tb._send_words
+   cocotb_benches.dau_hash_grouped_aggregation_tb._collect_output
+   cocotb_benches.dau_hash_grouped_aggregation_tb._accept_status
+
+
+Module Contents
+---------------
+
+.. py:data:: CAPACITY
+
+.. py:data:: _MASK32
+   :value: 4294967295
+
+
+.. py:data:: _ROWS
+
+.. py:data:: _MASK
+   :value: 10
+
+
+.. py:function:: _needs_slots(count: int) -> bool
+
+   Skip predicate for cases whose POINT is holding several groups at
+   once: at a table too small for them the case would test the overflow
+   path instead, which its own case already covers. Weakening the fixture
+   to fit would weaken it at the default capacity too.
+
+
+.. py:function:: hash_grouped_matches_golden(dut)
+   :async:
+
+
+.. py:function:: hash_grouped_is_permutation_invariant(dut)
+   :async:
+
+
+   The property the ordered tile cannot have: the answer does not
+   depend on arrival order.
+
+
+.. py:function:: hash_grouped_drain_is_signed_key_ascending(dut)
+   :async:
+
+
+.. py:function:: hash_grouped_all_four_fields(dut)
+   :async:
+
+
+.. py:function:: hash_grouped_colliding_keys_probe_correctly(dut)
+   :async:
+
+
+   Keys congruent modulo CAPACITY share a hash slot; the linear probe
+   must keep them distinct.
+
+
+.. py:function:: hash_grouped_overflow_is_a_defined_close_out(dut)
+   :async:
+
+
+   A new key with the table full invalidates the batch — never an
+   eviction, never a silent drop, and never a partial the host could
+   double-count against its own re-run.
+
+
+.. py:function:: hash_grouped_overflow_mid_batch_drains_and_recovers(dut)
+   :async:
+
+
+   Overflow NOT on the final row exercises the DISCARD path: the rest
+   of the batch is consumed, one error close-out is raised, and the NEXT
+   batch starts from clean state.
+
+
+.. py:function:: hash_grouped_reports_group_count_and_one_close_out(dut)
+   :async:
+
+
+   group_count reads the batch's emitted groups, and exactly one
+   close-out is raised — checked by stalling status_ready first, so a
+   tile that dropped or repeated it would fail here.
+
+
+.. py:function:: hash_grouped_full_table_without_a_new_key_succeeds(dut)
+   :async:
+
+
+.. py:function:: hash_grouped_state_is_fresh_per_batch(dut)
+   :async:
+
+
+.. py:function:: hash_grouped_bad_configuration_is_refused(dut)
+   :async:
+
+
+.. py:function:: hash_grouped_torn_row_is_refused(dut)
+   :async:
+
+
+.. py:function:: hash_grouped_is_patient(dut)
+   :async:
+
+
+   The binding LID requirement: randomized relay-station delays on
+   every channel change NOTHING about the emitted records.
+
+
+.. py:function:: _record_words(groups) -> list[int]
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _run(dut, rows, *, field_mask: int, delay_seed=None, expect_error: bool = False, hold_status: int = 0)
+   :async:
+
+
+.. py:function:: _pack_rows(rows) -> list[int]
+
+.. py:function:: _send_words(dut, words, *, gap=None) -> None
+   :async:
+
+
+.. py:function:: _collect_output(dut, *, stall=None, expect_error: bool = False) -> list[int]
+   :async:
+
+
+.. py:function:: _accept_status(dut, *, hold: int = 0)
+   :async:
+
+
+   Accept the close-out. ``hold`` keeps status_ready low for N cycles
+   once status_valid asserts, checking the status channel obeys the same
+   hold rule as the data channel.
+
+

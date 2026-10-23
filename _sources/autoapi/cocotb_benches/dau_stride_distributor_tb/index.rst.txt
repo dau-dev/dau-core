@@ -1,0 +1,86 @@
+cocotb_benches.dau_stride_distributor_tb
+========================================
+
+.. py:module:: cocotb_benches.dau_stride_distributor_tb
+
+.. autoapi-nested-parse::
+
+   Positional wide-beat distribution onto narrow stateful lanes.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_stride_distributor_tb._PAD_ROW_BITS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_stride_distributor_tb._rows_per_beat
+   cocotb_benches.dau_stride_distributor_tb._pack_beat
+   cocotb_benches.dau_stride_distributor_tb._send_rows
+   cocotb_benches.dau_stride_distributor_tb._run
+   cocotb_benches.dau_stride_distributor_tb.random_rows_match_static_slot_golden
+   cocotb_benches.dau_stride_distributor_tb.ragged_tail_pads_are_dropped_under_per_lane_backpressure
+   cocotb_benches.dau_stride_distributor_tb.trailing_all_pad_last_beat_flushes_every_lane
+   cocotb_benches.dau_stride_distributor_tb.a_batch_smaller_than_the_lane_count_still_closes_every_lane
+   cocotb_benches.dau_stride_distributor_tb.load_is_even_by_construction_no_lane_runs_hot
+
+
+Module Contents
+---------------
+
+.. py:data:: _PAD_ROW_BITS
+   :value: 340282366920938463463374607431768211455
+
+
+.. py:function:: _rows_per_beat(dut) -> int
+
+.. py:function:: _pack_beat(rows, rows_per_beat: int) -> int
+
+.. py:function:: _send_rows(dut, rows, *, trailing_pad_beat: bool = False) -> None
+   :async:
+
+
+.. py:function:: _run(dut, rows, *, ready_pattern=(1, ), trailing_pad_beat: bool = False)
+   :async:
+
+
+.. py:function:: random_rows_match_static_slot_golden(dut)
+   :async:
+
+
+.. py:function:: ragged_tail_pads_are_dropped_under_per_lane_backpressure(dut)
+   :async:
+
+
+.. py:function:: trailing_all_pad_last_beat_flushes_every_lane(dut)
+   :async:
+
+
+.. py:function:: a_batch_smaller_than_the_lane_count_still_closes_every_lane(dut)
+   :async:
+
+
+   A real shell gives every lane a record writer whose done waits on
+   the batch closing, so lanes that receive ZERO rows must still see the
+   batch end — the single-row batch is the extreme case (one lane gets
+   the row, all the others get nothing).
+
+
+.. py:function:: load_is_even_by_construction_no_lane_runs_hot(dut)
+   :async:
+
+
+   The stride distributor's reason to exist: routing by SLOT POSITION
+   rather than by key means no key distribution can make one lane hot.
+   The key-mask dispatcher loses ~20% to exactly that (same-lane key
+   runs); here an adversarial all-equal-key stream still spreads evenly.
+
+

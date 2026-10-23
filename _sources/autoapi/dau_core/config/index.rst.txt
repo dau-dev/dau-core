@@ -1,0 +1,82 @@
+dau_core.config
+===============
+
+.. py:module:: dau_core.config
+
+.. autoapi-nested-parse::
+
+   dau-core's hydra config tree — the core registry.
+
+   Hydra composition + the ccflow ``ModelRegistry`` ARE the registry: every
+   HDL building block is a ``CoreDefinition`` entry in ``dau-core/cores.yaml``,
+   loaded at registry path ``/dau-core/<core-name>``. This package is exposed
+   on the shared hydra searchpath via the ``hydra.lernaplugins`` entry point,
+   so dau-build / dau-sim compose it without importing dau-core code.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   dau_core.config.CONTRIB_GROUP
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   dau_core.config.contributed_options
+   dau_core.config.compose_config
+   dau_core.config.load_config
+
+
+Package Contents
+----------------
+
+.. py:data:: CONTRIB_GROUP
+   :value: 'dau-core-contrib'
+
+
+.. py:function:: contributed_options(config_dir: str | None = None, *, version_base: str | None = None) -> tuple[str, ...]
+
+   Contributed tile options installed on the searchpath, discovered.
+
+   A consumer should not have to name the vendors it happens to have
+   installed -- that is the difference between a package being installable
+   and a package being usable. Hydra can enumerate a group's options across
+   the whole searchpath, so ask it.
+
+
+.. py:function:: compose_config(overrides: collections.abc.Sequence[str] | None = None, *, config_dir: str | None = None, version_base: str | None = None) -> ccflow.utils.hydra.ConfigLoadResult
+
+   Compose dau-core's own config tree (group ``dau-core``, option
+   ``cores``) with raw overrides.
+
+   Contributed tiles are composed too, without the caller naming them: the
+   options of :data:`CONTRIB_GROUP` are discovered across the searchpath and
+   selected together as a list, which is the form that admits more than one
+   (a bare ``+group=option`` selects exactly one, so two installed vendors
+   would silently mean one). A contributor therefore never edits
+   ``cores.yaml``, which is the whole point of contribution.
+
+   Two-phase -- initialize to discover, then compose -- because a group's
+   options cannot be listed without a searchpath, and the searchpath is what
+   the composition is about to be built from.
+
+
+.. py:function:: load_config(overrides: collections.abc.Sequence[str] | None = None, *, overwrite: bool = False, config_dir: str | None = None, version_base: str | None = None) -> ccflow.ModelRegistry
+
+   Compose and load the core registry into the root ``ModelRegistry``.
+
+   The composed groups are loaded as ccflow ``LazyRegistry`` children, so a
+   ``CoreDefinition`` is built when something asks for that core rather than
+   all 59 at load. Loading the palette eagerly cost 164 ms and every
+   consumer paid it to reach one tile; lazily it is 10 ms plus about 4 ms
+   per core actually used (:func:`dau_core.registry.core`). A consumer that
+   does need the whole palette -- the guards, source staging -- asks for it
+   through :func:`dau_core.registry.loaded_cores` and pays for it there.
+
+

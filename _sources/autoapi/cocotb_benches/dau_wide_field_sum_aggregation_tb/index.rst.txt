@@ -1,0 +1,99 @@
+cocotb_benches.dau_wide_field_sum_aggregation_tb
+================================================
+
+.. py:module:: cocotb_benches.dau_wide_field_sum_aggregation_tb
+
+.. autoapi-nested-parse::
+
+   Wide-lane field-sum terminal: SLOTS whole quad rows per beat, one beat
+   per cycle, golden-equal to ``field_sum_rows``. The all-ones 128-bit PAD
+   row (ragged tails, upstream drop-by-pad) is neither summed nor counted;
+   the record/close-out protocol is byte-identical to the 64-bit tile. The
+   width-agnostic collect/status harness is shared with the 64-bit bench.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_wide_field_sum_aggregation_tb._PAD_ROW
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_wide_field_sum_aggregation_tb._slots
+   cocotb_benches.dau_wide_field_sum_aggregation_tb._row_bits
+   cocotb_benches.dau_wide_field_sum_aggregation_tb._beats
+   cocotb_benches.dau_wide_field_sum_aggregation_tb._send_beats
+   cocotb_benches.dau_wide_field_sum_aggregation_tb._run
+   cocotb_benches.dau_wide_field_sum_aggregation_tb._random_rows
+   cocotb_benches.dau_wide_field_sum_aggregation_tb.sustained_ingest_meets_registry_floor
+   cocotb_benches.dau_wide_field_sum_aggregation_tb.wide_sums_match_the_64_bit_golden
+   cocotb_benches.dau_wide_field_sum_aggregation_tb.pad_rows_are_neither_summed_nor_counted
+   cocotb_benches.dau_wide_field_sum_aggregation_tb.all_ones_fields_still_sum_when_the_row_is_not_pad
+   cocotb_benches.dau_wide_field_sum_aggregation_tb.a_trailing_all_pad_beat_closes_the_batch
+   cocotb_benches.dau_wide_field_sum_aggregation_tb.backpressured_record_drain_is_stable
+   cocotb_benches.dau_wide_field_sum_aggregation_tb.zero_mask_drains_and_reports_config_error
+   cocotb_benches.dau_wide_field_sum_aggregation_tb.back_to_back_batches_relatch_the_mask
+
+
+Module Contents
+---------------
+
+.. py:data:: _PAD_ROW
+   :value: 340282366920938463463374607431768211455
+
+
+.. py:function:: _slots(dut) -> int
+
+.. py:function:: _row_bits(row) -> int
+
+.. py:function:: _beats(rows, slots: int) -> list[int]
+
+.. py:function:: _send_beats(dut, beats) -> None
+   :async:
+
+
+.. py:function:: _run(dut, rows, *, field_mask: int, ready_pattern=(1, ), beats=None)
+   :async:
+
+
+.. py:function:: _random_rows(rng: random.Random, count: int)
+
+.. py:function:: sustained_ingest_meets_registry_floor(dut)
+   :async:
+
+
+.. py:function:: wide_sums_match_the_64_bit_golden(dut)
+   :async:
+
+
+.. py:function:: pad_rows_are_neither_summed_nor_counted(dut)
+   :async:
+
+
+.. py:function:: all_ones_fields_still_sum_when_the_row_is_not_pad(dut)
+   :async:
+
+
+.. py:function:: a_trailing_all_pad_beat_closes_the_batch(dut)
+   :async:
+
+
+.. py:function:: backpressured_record_drain_is_stable(dut)
+   :async:
+
+
+.. py:function:: zero_mask_drains_and_reports_config_error(dut)
+   :async:
+
+
+.. py:function:: back_to_back_batches_relatch_the_mask(dut)
+   :async:
+
+

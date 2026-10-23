@@ -1,0 +1,44 @@
+test_design
+===========
+
+.. py:module:: test_design
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_design._AGG_UNIT
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_design.test_operator_unit_rejects_negative_count
+   test_design.test_aggregation_capacity_counts_matching_units_only
+   test_design.test_units_grammar_round_trips
+   test_design.test_parse_units_empty_is_empty_tuple
+   test_design.test_parse_units_rejects_malformed_entry
+   test_design.test_from_manifest_reads_units_line
+
+
+Module Contents
+---------------
+
+.. py:data:: _AGG_UNIT
+
+.. py:function:: test_operator_unit_rejects_negative_count() -> None
+
+.. py:function:: test_aggregation_capacity_counts_matching_units_only() -> None
+
+.. py:function:: test_units_grammar_round_trips() -> None
+
+.. py:function:: test_parse_units_empty_is_empty_tuple() -> None
+
+.. py:function:: test_parse_units_rejects_malformed_entry() -> None
+
+.. py:function:: test_from_manifest_reads_units_line(tmp_path: pathlib.Path) -> None
+

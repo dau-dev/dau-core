@@ -1,0 +1,105 @@
+cocotb_benches.dau_key_mask_dispatcher_records_tb
+=================================================
+
+.. py:module:: cocotb_benches.dau_key_mask_dispatcher_records_tb
+
+.. autoapi-nested-parse::
+
+   RECORD_WORDS != 2: the dispatcher routes N-word records whole.
+
+   The quad-row form carries two 64-bit words; a fused chain whose head reads
+   wider records (the as-of join's three-word {tag/key, time, payload}) must be
+   replicable across lanes WITHOUT reshaping the stream, so the router forwards
+   whole records keyed on word 0's low half. Golden-equal to
+   ``mask_dispatch_records``; ordering within a lane is what makes a
+   sequential per-key tile correct behind the router.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_key_mask_dispatcher_records_tb._MASK64
+   cocotb_benches.dau_key_mask_dispatcher_records_tb._RECORD_WORDS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_key_mask_dispatcher_records_tb._record_input
+   cocotb_benches.dau_key_mask_dispatcher_records_tb._send
+   cocotb_benches.dau_key_mask_dispatcher_records_tb._collect
+   cocotb_benches.dau_key_mask_dispatcher_records_tb._run
+   cocotb_benches.dau_key_mask_dispatcher_records_tb._record
+   cocotb_benches.dau_key_mask_dispatcher_records_tb.three_word_records_route_whole_and_in_order
+   cocotb_benches.dau_key_mask_dispatcher_records_tb.per_key_order_is_preserved_within_a_lane
+   cocotb_benches.dau_key_mask_dispatcher_records_tb.a_lane_receiving_nothing_still_closes
+   cocotb_benches.dau_key_mask_dispatcher_records_tb.backpressured_lanes_stay_golden_equal
+   cocotb_benches.dau_key_mask_dispatcher_records_tb.whole_record_input_routes_one_record_per_cycle
+
+
+Module Contents
+---------------
+
+.. py:data:: _MASK64
+   :value: 18446744073709551615
+
+
+.. py:data:: _RECORD_WORDS
+   :value: [3]
+
+
+.. py:function:: _record_input(dut) -> bool
+
+   Whole-record framing: the input bus is one record wide.
+
+
+.. py:function:: _send(dut, records) -> None
+   :async:
+
+
+.. py:function:: _collect(dut, expected, ready_pattern=(1, ))
+   :async:
+
+
+.. py:function:: _run(dut, records, ready_pattern=(1, ))
+   :async:
+
+
+.. py:function:: _record(symbol: int, rng: random.Random) -> tuple[int, ...]
+
+.. py:function:: three_word_records_route_whole_and_in_order(dut)
+   :async:
+
+
+.. py:function:: per_key_order_is_preserved_within_a_lane(dut)
+   :async:
+
+
+   A sequential per-key tile (an as-of join holding one quote per
+   symbol) is only correct behind this router if a key's records reach
+   its lane in arrival order.
+
+
+.. py:function:: a_lane_receiving_nothing_still_closes(dut)
+   :async:
+
+
+.. py:function:: backpressured_lanes_stay_golden_equal(dut)
+   :async:
+
+
+.. py:function:: whole_record_input_routes_one_record_per_cycle(dut)
+   :async:
+
+
+   The rate the gearbox pairing exists for. With the record arriving
+   whole, the router must accept one per cycle — a word-at-a-time front
+   costs RECORD_WORDS cycles each and starves the replicated lanes it
+   feeds. Skipped when the bench is elaborated in word framing.
+
+

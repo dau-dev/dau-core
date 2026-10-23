@@ -1,0 +1,44 @@
+test_readme
+===========
+
+.. py:module:: test_readme
+
+.. autoapi-nested-parse::
+
+   Every python block in the README runs as written, each on its own.
+
+   A README that shows code that does not run is a claim the repository cannot
+   back. Blocks are independent (each carries its imports), so each runs in a
+   fresh namespace and a block that leans on an earlier one fails here.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_readme.README
+   test_readme.BLOCK
+   test_readme.BLOCKS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_readme.test_the_readme_block_runs_on_its_own
+
+
+Module Contents
+---------------
+
+.. py:data:: README
+
+.. py:data:: BLOCK
+
+.. py:data:: BLOCKS
+
+.. py:function:: test_the_readme_block_runs_on_its_own(index: int) -> None
+

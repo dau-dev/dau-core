@@ -1,0 +1,112 @@
+test_fixed_point_ln
+===================
+
+.. py:module:: test_fixed_point_ln
+
+.. autoapi-nested-parse::
+
+   The ln datapath's accuracy is a measured fact, like exp's.
+
+   ln's domain is 2,147,483,647 inputs -- exhaustive in this model but not in
+   simulation, so the default sweep is strided and DAU_EXHAUSTIVE=1 runs the
+   whole thing. The strided sweep always includes every power-of-two boundary,
+   because those are the exponent transitions where a normalizing datapath
+   fails if it fails anywhere.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_fixed_point_ln._EXHAUSTIVE
+   test_fixed_point_ln.LN_EXACT
+   test_fixed_point_ln.LN_MEASURED_ULP
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_fixed_point_ln._boundary_inputs
+   test_fixed_point_ln._sweep
+   test_fixed_point_ln.test_the_reference_is_the_mathematics_not_an_algorithm
+   test_fixed_point_ln.test_ln_of_a_non_positive_value_is_refused
+   test_fixed_point_ln.test_ln_is_faithful_not_correctly_rounded
+   test_fixed_point_ln.test_the_exponent_boundaries_are_exact
+   test_fixed_point_ln.test_the_operating_point_meets_its_recorded_bound
+   test_fixed_point_ln.test_the_two_tier_sweep_agrees_with_the_exact_reference
+   test_fixed_point_ln.test_the_light_point_is_faithful_at_the_full_points_known_deviation
+
+
+Module Contents
+---------------
+
+.. py:data:: _EXHAUSTIVE
+
+.. py:data:: LN_EXACT
+
+.. py:data:: LN_MEASURED_ULP
+   :value: 1
+
+
+.. py:function:: _boundary_inputs() -> list[int]
+
+   Every 2**k and its neighbours: the exponent transitions.
+
+
+.. py:function:: _sweep(point: dau_core.fixed_point.LnDatapath, values) -> tuple[int, int, int]
+
+.. py:function:: test_the_reference_is_the_mathematics_not_an_algorithm() -> None
+
+   Values a human can check, so the reference cannot drift into being a
+   description of whatever the datapath does.
+
+
+.. py:function:: test_ln_of_a_non_positive_value_is_refused() -> None
+
+   Same position the sqrt tile takes: no value exists, and substituting
+   one would be a wrong number that looks right.
+
+
+.. py:function:: test_ln_is_faithful_not_correctly_rounded() -> None
+
+   Records the class honestly. exp-light and the normal CDF reach their
+   registered contracts; ln does not at this operating point, and a caller
+   choosing between them should see that rather than infer it.
+
+   Whether a correctly-rounded ln is worth having is a separate question:
+   the exp arc showed the fix is either more internal precision or more
+   polynomial degree, and which one binds is not predictable without
+   measuring both.
+
+
+.. py:function:: test_the_exponent_boundaries_are_exact() -> None
+
+   Normalisation is the part that can be off by one power of two, and it
+   shows up here or nowhere.
+
+
+.. py:function:: test_the_operating_point_meets_its_recorded_bound() -> None
+
+.. py:function:: test_the_two_tier_sweep_agrees_with_the_exact_reference() -> None
+
+   The affordable sweep must answer what the expensive one answers.
+
+   The harness decides in double and re-decides only near-boundary inputs
+   against the 80-digit reference. That is only sound if it never differs
+   from an all-exact sweep, so this checks both over a window containing a
+   KNOWN deviation -- a harness that agreed everywhere except where the
+   datapath is wrong would be worse than useless.
+
+
+.. py:function:: test_the_light_point_is_faithful_at_the_full_points_known_deviation() -> None
+
+   The registered light point carries the SAME 1-ULP contract, measured
+   by an exhaustive sweep (3,544 of 2,147,483,647 off by one, against the
+   full point's 459). Pin the shared boundary case here; the full-domain
+   number lives in the registry entry and BENCHMARKS.
+
+

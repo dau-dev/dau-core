@@ -1,0 +1,46 @@
+cocotb_benches.dau_stream_aggregation_tb
+========================================
+
+.. py:module:: cocotb_benches.dau_stream_aggregation_tb
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_stream_aggregation_tb.stream_wrapper_emits_sum_metadata
+   cocotb_benches.dau_stream_aggregation_tb.stream_wrapper_rejects_malformed_descriptor
+   cocotb_benches.dau_stream_aggregation_tb._reset
+   cocotb_benches.dau_stream_aggregation_tb._send_descriptor
+   cocotb_benches.dau_stream_aggregation_tb._send_value
+   cocotb_benches.dau_stream_aggregation_tb._wait_for_result
+
+
+Module Contents
+---------------
+
+.. py:function:: stream_wrapper_emits_sum_metadata(dut)
+   :async:
+
+
+.. py:function:: stream_wrapper_rejects_malformed_descriptor(dut)
+   :async:
+
+
+.. py:function:: _reset(dut) -> None
+   :async:
+
+
+.. py:function:: _send_descriptor(dut, opcode: dau_core.stream.OperationCode, *, row_count: int, payload_length: int, logical_type: dau_core.stream.LogicalType = LogicalType.INT32) -> None
+   :async:
+
+
+.. py:function:: _send_value(dut, value: int) -> None
+   :async:
+
+
+.. py:function:: _wait_for_result(dut) -> None
+   :async:
+
+

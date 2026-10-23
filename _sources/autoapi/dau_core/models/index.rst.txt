@@ -1,0 +1,163 @@
+dau_core.models
+===============
+
+.. py:module:: dau_core.models
+
+.. autoapi-nested-parse::
+
+   Frozen models that validate at use.
+
+   Every dau-core model is frozen, and construction validates it. Two things
+   get past that. ``model_copy(update=...)`` builds a new instance without
+   running a single validator, so a copy can carry a value construction would
+   have refused. And a frozen model can still hold a ``dict``, which anyone
+   holding the model can change in place.
+
+   :class:`CheckedModel` closes both. Its instances re-validate whenever they
+   are handed back to pydantic (``revalidate_instances="always"``), so a parent
+   built from a copied child refuses a bad child, and :meth:`check` is that
+   re-validation on demand: a validated copy, or the error. :meth:`replace` is
+   the validated form of ``model_copy``. A mapping field annotated
+   :data:`ReadOnly` is stored as a :class:`FrozenMapping`, which compares,
+   hashes and serializes as the dict it was built from and refuses every
+   mutation.
+
+   The ccflow result and callable models cannot change base; they take
+   :class:`CheckedMixin` and the same config entries by hand.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   dau_core.models.ReadOnly
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   dau_core.models.FrozenMapping
+   dau_core.models.CheckedMixin
+   dau_core.models.CheckedModel
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   dau_core.models.freeze_mapping
+
+
+Module Contents
+---------------
+
+.. py:class:: FrozenMapping(data: collections.abc.Mapping[Any, Any] | collections.abc.Iterable[tuple[Any, Any]] = ())
+
+   Bases: :py:obj:`collections.abc.Mapping`\ [\ :py:obj:`Any`\ , :py:obj:`Any`\ ]
+
+
+   A read-only mapping a frozen model can hold.
+
+   A ``Mapping`` rather than a ``dict`` subclass: a subclass only overrides
+   the mutating methods, and ``dict.__setitem__(m, k, v)`` reaches past any
+   override, so the design that LOOKS safer is the one with a hole in it.
+   Nothing here can write, there is no inherited method that can, and the
+   mapping hashes by content so a frozen model holding one stays hashable.
+
+   It reads as the dict it was built from -- equality, membership, iteration
+   order, ``dict(...)`` -- and the ``ReadOnly`` annotation carries the
+   serializer that puts a plain dict back on the wire, so the canonical
+   composition JSON (the design-cache key) is unchanged.
+
+
+   .. py:attribute:: __slots__
+      :value: ('_data',)
+
+
+
+   .. py:method:: __getitem__(key: Any) -> Any
+
+
+   .. py:method:: __iter__() -> collections.abc.Iterator[Any]
+
+
+   .. py:method:: __len__() -> int
+
+
+   .. py:method:: __or__(other: collections.abc.Mapping[Any, Any]) -> FrozenMapping
+
+      A NEW mapping with ``other`` merged in; this one is unchanged.
+
+
+
+   .. py:method:: __repr__() -> str
+
+
+   .. py:method:: __hash__() -> int
+
+
+   .. py:method:: __reduce__() -> tuple[Any, ...]
+
+
+.. py:function:: freeze_mapping(value: collections.abc.Mapping[Any, Any]) -> FrozenMapping
+
+.. py:data:: ReadOnly
+
+.. py:class:: CheckedMixin
+
+   ``check`` and ``replace`` for a frozen pydantic model.
+
+
+   .. py:method:: check() -> Self
+
+      This model, re-validated: every field constraint and validator
+      runs again, which is what ``model_copy`` skipped.
+
+      Validation goes through the field VALUES rather than through the
+      instance, because an instance is only revalidated when its own config
+      says so, and a polymorphic base cannot say so (see
+      :class:`CheckedModel`). Values, not a ``model_dump``: a nested model
+      stays a model, so nothing round-trips through JSON to be checked.
+
+
+
+   .. py:method:: replace(**update: Any) -> Self
+
+      ``model_copy(update=...)`` that validates the result.
+
+
+
+.. py:class:: CheckedModel(/, **data: Any)
+
+   Bases: :py:obj:`CheckedMixin`, :py:obj:`ccflow.BaseModel`
+
+
+   The base of every dau-core data model: frozen, and re-validated at
+   every boundary it crosses.
+
+   ``revalidate_instances`` is what makes a copied model refuse at the next
+   boundary: a parent built from a ``model_copy``-mutated child validates
+   the child again and rejects it. It is deliberately NOT on a polymorphic
+   base such as :class:`dau_core.generators.CoreGenerator`, because a field
+   annotated with the base would revalidate a subclass instance against the
+   base and reject the subclass's own fields as extra. Those models get
+   :class:`CheckedMixin` and are checked explicitly.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: model_config
+
+      Configuration for the model, should be a dictionary conforming to [`ConfigDict`][pydantic.config.ConfigDict].
+
+

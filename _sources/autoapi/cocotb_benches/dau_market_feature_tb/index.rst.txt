@@ -1,0 +1,95 @@
+cocotb_benches.dau_market_feature_tb
+====================================
+
+.. py:module:: cocotb_benches.dau_market_feature_tb
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_market_feature_tb._ROWS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_market_feature_tb.feature_tile_matches_golden
+   cocotb_benches.dau_market_feature_tb.feature_tile_backpressure_both_sides
+   cocotb_benches.dau_market_feature_tb.feature_tile_int64_dollar_volume
+   cocotb_benches.dau_market_feature_tb.feature_tile_wide_spread_and_midpoint_do_not_overflow
+   cocotb_benches.dau_market_feature_tb.feature_tile_single_row
+   cocotb_benches.dau_market_feature_tb.feature_tile_truncated_row_reports_stream_error
+   cocotb_benches.dau_market_feature_tb._start
+   cocotb_benches.dau_market_feature_tb._run
+   cocotb_benches.dau_market_feature_tb._decode
+   cocotb_benches.dau_market_feature_tb._send_rows
+   cocotb_benches.dau_market_feature_tb._collect_output
+   cocotb_benches.dau_market_feature_tb._accept_success_status
+   cocotb_benches.dau_market_feature_tb._expect_error
+   cocotb_benches.dau_market_feature_tb._s32
+   cocotb_benches.dau_market_feature_tb._s64
+
+
+Module Contents
+---------------
+
+.. py:data:: _ROWS
+
+.. py:function:: feature_tile_matches_golden(dut)
+   :async:
+
+
+.. py:function:: feature_tile_backpressure_both_sides(dut)
+   :async:
+
+
+.. py:function:: feature_tile_int64_dollar_volume(dut)
+   :async:
+
+
+.. py:function:: feature_tile_wide_spread_and_midpoint_do_not_overflow(dut)
+   :async:
+
+
+.. py:function:: feature_tile_single_row(dut)
+   :async:
+
+
+.. py:function:: feature_tile_truncated_row_reports_stream_error(dut)
+   :async:
+
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _run(dut, rows, *, ready_pattern=(1, ))
+   :async:
+
+
+.. py:function:: _decode(words) -> dau_core.temporal.MarketFeatures
+
+.. py:function:: _send_rows(dut, rows) -> None
+   :async:
+
+
+.. py:function:: _collect_output(dut, ready_pattern)
+   :async:
+
+
+.. py:function:: _accept_success_status(dut) -> int
+   :async:
+
+
+.. py:function:: _expect_error(dut) -> None
+   :async:
+
+
+.. py:function:: _s32(value: int) -> int
+
+.. py:function:: _s64(value: int) -> int
+

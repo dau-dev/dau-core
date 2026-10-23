@@ -1,0 +1,63 @@
+cocotb_benches.dau_arrow_lite_stream_aggregation_tb
+===================================================
+
+.. py:module:: cocotb_benches.dau_arrow_lite_stream_aggregation_tb
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_arrow_lite_stream_aggregation_tb.arrow_lite_sum_round_trips_through_result_stream
+   cocotb_benches.dau_arrow_lite_stream_aggregation_tb.arrow_lite_count_outputs_uint64_result
+   cocotb_benches.dau_arrow_lite_stream_aggregation_tb.arrow_lite_malformed_descriptor_reports_error
+   cocotb_benches.dau_arrow_lite_stream_aggregation_tb._encode_int32_column
+   cocotb_benches.dau_arrow_lite_stream_aggregation_tb._words_from_bytes
+   cocotb_benches.dau_arrow_lite_stream_aggregation_tb._reset
+   cocotb_benches.dau_arrow_lite_stream_aggregation_tb._send_words
+   cocotb_benches.dau_arrow_lite_stream_aggregation_tb._collect_output_words
+   cocotb_benches.dau_arrow_lite_stream_aggregation_tb._accept_success_status
+   cocotb_benches.dau_arrow_lite_stream_aggregation_tb._result_logical_type
+   cocotb_benches.dau_arrow_lite_stream_aggregation_tb._result_payload
+
+
+Module Contents
+---------------
+
+.. py:function:: arrow_lite_sum_round_trips_through_result_stream(dut)
+   :async:
+
+
+.. py:function:: arrow_lite_count_outputs_uint64_result(dut)
+   :async:
+
+
+.. py:function:: arrow_lite_malformed_descriptor_reports_error(dut)
+   :async:
+
+
+.. py:function:: _encode_int32_column(values: list[int], opcode: dau_core.stream.OperationCode) -> bytes
+
+.. py:function:: _words_from_bytes(data: bytes) -> list[int]
+
+.. py:function:: _reset(dut) -> None
+   :async:
+
+
+.. py:function:: _send_words(dut, words: list[int]) -> None
+   :async:
+
+
+.. py:function:: _collect_output_words(dut) -> list[int]
+   :async:
+
+
+.. py:function:: _accept_success_status(dut) -> None
+   :async:
+
+
+.. py:function:: _result_logical_type(words: list[int]) -> int
+
+.. py:function:: _result_payload(words: list[int]) -> int
+

@@ -1,0 +1,130 @@
+cocotb_benches.dau_row_unpack_wide_tb
+=====================================
+
+.. py:module:: cocotb_benches.dau_row_unpack_wide_tb
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_row_unpack_wide_tb._decode_beat
+   cocotb_benches.dau_row_unpack_wide_tb._start
+   cocotb_benches.dau_row_unpack_wide_tb._collect_beats
+   cocotb_benches.dau_row_unpack_wide_tb._assert_quiescent
+   cocotb_benches.dau_row_unpack_wide_tb._run
+   cocotb_benches.dau_row_unpack_wide_tb._run_bypass
+   cocotb_benches.dau_row_unpack_wide_tb.sustained_ingest_meets_registry_floor
+   cocotb_benches.dau_row_unpack_wide_tb.wide_unpack_emits_one_quad_row_per_beat
+   cocotb_benches.dau_row_unpack_wide_tb.wide_sustains_one_row_per_cycle
+   cocotb_benches.dau_row_unpack_wide_tb.wide_backpressure_holds_stable
+   cocotb_benches.dau_row_unpack_wide_tb.wide_bypass_gearboxes_two_words_into_one_beat
+   cocotb_benches.dau_row_unpack_wide_tb.wide_bypass_backpressure_holds_stable
+   cocotb_benches.dau_row_unpack_wide_tb.wide_bypass_torn_row_reports_stream_error
+   cocotb_benches.dau_row_unpack_wide_tb.wide_bad_config_drains_then_config_error
+   cocotb_benches.dau_row_unpack_wide_tb.wide_bypass_torn_row_reports_error_under_backpressure
+   cocotb_benches.dau_row_unpack_wide_tb._send_one_unpack_row
+   cocotb_benches.dau_row_unpack_wide_tb.wide_bypass_waits_for_backpressured_unpack_tail
+   cocotb_benches.dau_row_unpack_wide_tb.wide_error_close_out_waits_for_backpressured_tail
+   cocotb_benches.dau_row_unpack_wide_tb.wide_mode_switches_between_batches_on_one_dut
+   cocotb_benches.dau_row_unpack_wide_tb.wide_random_batches_match_golden
+
+
+Module Contents
+---------------
+
+.. py:function:: _decode_beat(beat: int) -> tuple[int, int, int, int]
+
+   One 128-bit output beat back into the (key, value, aux0, aux1) quad
+   row: bits [63:0] = w0 = {value, key}, [127:64] = w1 = {aux1, aux0}.
+
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _collect_beats(dut, ready_pattern, *, expect_beats: int) -> list[int]
+   :async:
+
+
+   Collect whole-row beats with the valid/ready hold rule asserted and the
+   silent-success quiescence check after the batch's last beat.
+
+
+.. py:function:: _assert_quiescent(dut) -> None
+   :async:
+
+
+.. py:function:: _run(dut, words, specs, *, ready_pattern=(1, ))
+   :async:
+
+
+.. py:function:: _run_bypass(dut, words, *, ready_pattern=(1, ))
+   :async:
+
+
+   Drive a bypass batch (two words per row) and collect the gearboxed
+   whole-row beats: len(words)/2 beats out.
+
+
+.. py:function:: sustained_ingest_meets_registry_floor(dut)
+   :async:
+
+
+.. py:function:: wide_unpack_emits_one_quad_row_per_beat(dut)
+   :async:
+
+
+.. py:function:: wide_sustains_one_row_per_cycle(dut)
+   :async:
+
+
+.. py:function:: wide_backpressure_holds_stable(dut)
+   :async:
+
+
+.. py:function:: wide_bypass_gearboxes_two_words_into_one_beat(dut)
+   :async:
+
+
+.. py:function:: wide_bypass_backpressure_holds_stable(dut)
+   :async:
+
+
+.. py:function:: wide_bypass_torn_row_reports_stream_error(dut)
+   :async:
+
+
+.. py:function:: wide_bad_config_drains_then_config_error(dut)
+   :async:
+
+
+.. py:function:: wide_bypass_torn_row_reports_error_under_backpressure(dut)
+   :async:
+
+
+.. py:function:: _send_one_unpack_row(dut, word) -> None
+   :async:
+
+
+   Present one complete unpack batch (a single packed word carrying last)
+   and wait for it to be accepted.
+
+
+.. py:function:: wide_bypass_waits_for_backpressured_unpack_tail(dut)
+   :async:
+
+
+.. py:function:: wide_error_close_out_waits_for_backpressured_tail(dut)
+   :async:
+
+
+.. py:function:: wide_mode_switches_between_batches_on_one_dut(dut)
+   :async:
+
+
+.. py:function:: wide_random_batches_match_golden(dut)
+   :async:
+
+

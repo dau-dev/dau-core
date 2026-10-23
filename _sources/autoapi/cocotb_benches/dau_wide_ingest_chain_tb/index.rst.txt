@@ -1,0 +1,64 @@
+cocotb_benches.dau_wide_ingest_chain_tb
+=======================================
+
+.. py:module:: cocotb_benches.dau_wide_ingest_chain_tb
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_wide_ingest_chain_tb._BEAT_WORDS
+   cocotb_benches.dau_wide_ingest_chain_tb._RECORD_WORDS
+   cocotb_benches.dau_wide_ingest_chain_tb._NUM_PARTITIONS
+   cocotb_benches.dau_wide_ingest_chain_tb._MASK64
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_wide_ingest_chain_tb._records
+   cocotb_benches.dau_wide_ingest_chain_tb._pack_beats
+   cocotb_benches.dau_wide_ingest_chain_tb._start
+   cocotb_benches.dau_wide_ingest_chain_tb._send
+   cocotb_benches.dau_wide_ingest_chain_tb.wide_ingest_chain_routes_at_one_record_per_cycle
+
+
+Module Contents
+---------------
+
+.. py:data:: _BEAT_WORDS
+   :value: 8
+
+
+.. py:data:: _RECORD_WORDS
+   :value: 3
+
+
+.. py:data:: _NUM_PARTITIONS
+   :value: 8
+
+
+.. py:data:: _MASK64
+   :value: 18446744073709551615
+
+
+.. py:function:: _records(count: int) -> list[tuple[int, int, int]]
+
+.. py:function:: _pack_beats(words: list[int]) -> list[int]
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _send(dut, beats: list[int]) -> None
+   :async:
+
+
+.. py:function:: wide_ingest_chain_routes_at_one_record_per_cycle(dut) -> None
+   :async:
+
+

@@ -1,0 +1,190 @@
+cocotb_benches.dau_row_unpack_slots_tb
+======================================
+
+.. py:module:: cocotb_benches.dau_row_unpack_slots_tb
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_row_unpack_slots_tb.SLOTS
+   cocotb_benches.dau_row_unpack_slots_tb.OUT_WIDTH
+   cocotb_benches.dau_row_unpack_slots_tb.IN_WIDTH
+   cocotb_benches.dau_row_unpack_slots_tb.PAD_PACKED
+   cocotb_benches.dau_row_unpack_slots_tb.PAD_ROW
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_row_unpack_slots_tb.multi_slot_unpack_matches_golden
+   cocotb_benches.dau_row_unpack_slots_tb.every_slot_reads_its_own_packed_row
+   cocotb_benches.dau_row_unpack_slots_tb.random_field_maps_match_golden
+   cocotb_benches.dau_row_unpack_slots_tb.ragged_tail_pads_pass_through_unsliced
+   cocotb_benches.dau_row_unpack_slots_tb.backpressure_preserves_rows_and_order
+   cocotb_benches.dau_row_unpack_slots_tb.output_last_lands_on_the_final_beat
+   cocotb_benches.dau_row_unpack_slots_tb.sustained_ingest_meets_the_slots_floor
+   cocotb_benches.dau_row_unpack_slots_tb._packable_specs
+   cocotb_benches.dau_row_unpack_slots_tb._beats
+   cocotb_benches.dau_row_unpack_slots_tb._decode_row
+   cocotb_benches.dau_row_unpack_slots_tb._split_beat
+   cocotb_benches.dau_row_unpack_slots_tb._start
+   cocotb_benches.dau_row_unpack_slots_tb._run_raw
+   cocotb_benches.dau_row_unpack_slots_tb._run
+   cocotb_benches.dau_row_unpack_slots_tb._send_beats
+   cocotb_benches.dau_row_unpack_slots_tb._collect_output
+   cocotb_benches.dau_row_unpack_slots_tb._collect_with_last
+   cocotb_benches.dau_row_unpack_slots_tb.bypass_short_final_beat_is_not_torn
+   cocotb_benches.dau_row_unpack_slots_tb.a_layout_that_could_forge_the_pad_is_rejected
+
+
+Module Contents
+---------------
+
+.. py:data:: SLOTS
+
+.. py:data:: OUT_WIDTH
+
+.. py:data:: IN_WIDTH
+
+.. py:data:: PAD_PACKED
+   :value: 18446744073709551615
+
+
+.. py:data:: PAD_ROW
+   :value: 340282366920938463463374607431768211455
+
+
+.. py:function:: multi_slot_unpack_matches_golden(dut)
+   :async:
+
+
+.. py:function:: every_slot_reads_its_own_packed_row(dut)
+   :async:
+
+
+   The stride test, stated directly.
+
+   One beat, every slot carrying a different key. A tile whose slice stride
+   is hardcoded emits SLOTS copies of slot 0 and passes any test built on a
+   uniform batch; here the keys are all distinct, so it cannot.
+
+
+.. py:function:: random_field_maps_match_golden(dut)
+   :async:
+
+
+   Sweep field maps, not just the q6 one: an offset/width/sign combination
+   is what a hardcoded slice gets wrong at a width other than the one it was
+   written against.
+
+
+.. py:function:: ragged_tail_pads_pass_through_unsliced(dut)
+   :async:
+
+
+   A row count that is not a multiple of SLOTS is padded by the host with
+   the reserved all-ones packed word. It must emerge as the reserved all-ones
+   PAD quad row -- NOT as whatever the field descriptors would slice out of
+   it -- so the wide-row tiles downstream drop it by the convention they
+   already implement.
+
+
+.. py:function:: backpressure_preserves_rows_and_order(dut)
+   :async:
+
+
+.. py:function:: output_last_lands_on_the_final_beat(dut)
+   :async:
+
+
+.. py:function:: sustained_ingest_meets_the_slots_floor(dut)
+   :async:
+
+
+   SLOTS rows per beat is the whole point of the parameter, so the rate is
+   asserted against the registry declaration rather than assumed.
+
+
+.. py:function:: _packable_specs(rng)
+
+   A random field map this tile will accept at the configured SLOTS.
+
+   ``_random_specs`` happily fills all 64 bits, and at SLOTS > 1 a layout
+   with no spare bit is refused as a bad config precisely because it could
+   forge the all-ones PAD. Draw again until there is headroom rather than
+   weakening the constraint -- the rejection is the point.
+
+
+.. py:function:: _beats(words: list[int]) -> list[int]
+
+   Pack SLOTS packed rows into one input beat, row s at [64*s +: 64].
+
+
+.. py:function:: _decode_row(row: int) -> tuple[int, int, int, int]
+
+   One 128-bit quad row: [63:0] = w0 = {value, key}, [127:64] = w1 = {aux1, aux0}.
+
+
+.. py:function:: _split_beat(beat: int) -> list[int]
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _run_raw(dut, beats, specs, *, ready_pattern=(1, )) -> list[int]
+   :async:
+
+
+   The emitted quad rows, still undecoded, so a pad stays visible.
+
+
+.. py:function:: _run(dut, words, specs, *, ready_pattern=(1, ))
+   :async:
+
+
+.. py:function:: _send_beats(dut, beats) -> None
+   :async:
+
+
+.. py:function:: _collect_output(dut, ready_pattern, *, expect_beats: int) -> list[int]
+   :async:
+
+
+.. py:function:: _collect_with_last(dut) -> tuple[list[int], int | None]
+   :async:
+
+
+.. py:function:: bypass_short_final_beat_is_not_torn(dut)
+   :async:
+
+
+   REGRESSION. At SLOTS == 1 an input beat is half a quad row, so
+   input_last on phase 0 really is a torn row. At SLOTS > 1 the beat holds
+   SLOTS/2 WHOLE quad rows, and a batch with an odd number of rows ends
+   exactly there -- rejecting it as torn refuses a well-formed stream.
+
+   The generalization inherited the SLOTS == 1 rule unchanged, so this
+   passed review and simulation until an independent reader asked what
+   phase 0 MEANS when a beat carries whole rows.
+
+
+.. py:function:: a_layout_that_could_forge_the_pad_is_rejected(dut)
+   :async:
+
+
+   REGRESSION. The all-ones packed word is the ragged-tail PAD at
+   SLOTS > 1. A field layout covering all 64 bits can PRODUCE all-ones from
+   real data -- four unsigned 16-bit fields at max -- and that row would be
+   dropped by the wide tiles. The same input unpacks normally at SLOTS == 1,
+   so the ANSWER WOULD DEPEND ON OUT_WIDTH.
+
+   Rejecting the layout makes the sentinel unreachable by construction
+   rather than by convention. Every real packing has room: SF1 q6 is 56
+   bits, q1 is 41.
+
+

@@ -1,0 +1,99 @@
+cocotb_benches.dau_row_predicate_filter_width_tb
+================================================
+
+.. py:module:: cocotb_benches.dau_row_predicate_filter_width_tb
+
+.. autoapi-nested-parse::
+
+   The row predicate filter at element types other than int32.
+
+   The tile's row is a fixed 128-bit transport unit; the field TYPE says how
+   many fields that row carries. So int16 packs eight values per row where
+   int32 packs four, which is the reason to support narrow types at all -- more
+   values per beat, not a smaller beat.
+
+   This bench is separate from the 32-bit one on purpose. That one pins the
+   q6/q19 field map and its directed vectors; this one is generic over the
+   field type and proves the parameter actually works rather than merely
+   elaborating. It compares against a golden computed here from Python ints,
+   with sign interpretation at the field width under test -- the case a
+   zero-extending implementation gets wrong.
+
+   The type is passed by SPELLING and resolved through the same
+   dau_core.element_types the registry uses, so what the bench drives and what
+   a composition would ask for are the same value. q16.16 is exercised
+   alongside the integers because it is the case a width cannot express: 32
+   bits wide like int32 but a different type, ordered by the identical
+   comparator (scaling by 2**-F preserves order), which is exactly the claim
+   the tile's fixed-point guard makes.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_row_predicate_filter_width_tb.ROW_BITS
+   cocotb_benches.dau_row_predicate_filter_width_tb._OP_LT
+   cocotb_benches.dau_row_predicate_filter_width_tb._OP_GE
+   cocotb_benches.dau_row_predicate_filter_width_tb._COMBINE_SINGLE
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_row_predicate_filter_width_tb._field_width
+   cocotb_benches.dau_row_predicate_filter_width_tb._signed
+   cocotb_benches.dau_row_predicate_filter_width_tb._pack
+   cocotb_benches.dau_row_predicate_filter_width_tb._random_rows
+   cocotb_benches.dau_row_predicate_filter_width_tb._drive
+   cocotb_benches.dau_row_predicate_filter_width_tb.width_parameterized_filter_matches_golden
+
+
+Module Contents
+---------------
+
+.. py:data:: ROW_BITS
+   :value: 128
+
+
+.. py:data:: _OP_LT
+   :value: 3
+
+
+.. py:data:: _OP_GE
+   :value: 5
+
+
+.. py:data:: _COMBINE_SINGLE
+   :value: 0
+
+
+.. py:function:: _field_width() -> int
+
+   The field's width in bits, decoded from the type under test.
+
+
+.. py:function:: _signed(value: int, width: int) -> int
+
+   Interpret a width-bit two's complement field as a Python int.
+
+
+.. py:function:: _pack(fields: list[int], width: int) -> tuple[int, int]
+
+   Fields little-endian into the 128-bit row, low word first.
+
+
+.. py:function:: _random_rows(count: int, fields_per_row: int, width: int, rng: random.Random) -> list[list[int]]
+
+.. py:function:: _drive(dut, rows: list[list[int]], width: int) -> list[list[int]]
+   :async:
+
+
+.. py:function:: width_parameterized_filter_matches_golden(dut) -> None
+   :async:
+
+

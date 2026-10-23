@@ -1,0 +1,85 @@
+test_capability_contract
+========================
+
+.. py:module:: test_capability_contract
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_capability_contract._HW_AGGREGATION_OPCODES
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_capability_contract.test_opcode_bitmap_encoding_matches_the_register_word
+   test_capability_contract.test_registry_declares_hardware_opcodes_only_for_opcode_driven_tiles
+   test_capability_contract.test_registry_declares_sorter_capacity
+   test_capability_contract.test_bar_noc_contract_advertises_no_scalar_aggregation_hardware
+   test_capability_contract.test_sorted_scan_contract_carries_sorter_capacity_and_splitters
+   test_capability_contract.test_scalar_aggregation_tile_contract_advertises_hardware_and_host_truth
+   test_capability_contract.test_contract_mapping_round_trips_and_is_json_able
+   test_capability_contract.test_contract_to_design_counts_units_by_identical_tile
+   test_capability_contract.test_bar_noc_contract_design_offers_no_aggregation_capacity
+   test_capability_contract.test_composition_and_hand_built_contracts_share_one_tile_derivation
+   test_capability_contract.test_chain_lanes_carry_chain_capabilities_and_opcode_truth
+   test_capability_contract.test_chainless_lane_mapping_round_trips_without_chain_key
+   test_capability_contract.test_the_contract_models_are_ccflow_models_not_dataclasses
+   test_capability_contract.test_a_contract_copies_with_a_field_replaced_and_stays_hashable
+   test_capability_contract.test_reconfigurable_is_a_manifest_fact
+
+
+Module Contents
+---------------
+
+.. py:data:: _HW_AGGREGATION_OPCODES
+
+.. py:function:: test_opcode_bitmap_encoding_matches_the_register_word() -> None
+
+.. py:function:: test_registry_declares_hardware_opcodes_only_for_opcode_driven_tiles() -> None
+
+   MIN/MAX/SUM/COUNT are the implemented HDL opcodes; AVERAGE is
+   protocol-level (host divide) and must never be declared as hardware.
+
+
+.. py:function:: test_registry_declares_sorter_capacity() -> None
+
+.. py:function:: test_bar_noc_contract_advertises_no_scalar_aggregation_hardware() -> None
+
+.. py:function:: test_sorted_scan_contract_carries_sorter_capacity_and_splitters() -> None
+
+.. py:function:: test_scalar_aggregation_tile_contract_advertises_hardware_and_host_truth() -> None
+
+.. py:function:: test_contract_mapping_round_trips_and_is_json_able() -> None
+
+.. py:function:: test_contract_to_design_counts_units_by_identical_tile() -> None
+
+.. py:function:: test_bar_noc_contract_design_offers_no_aggregation_capacity() -> None
+
+.. py:function:: test_composition_and_hand_built_contracts_share_one_tile_derivation() -> None
+
+.. py:function:: test_chain_lanes_carry_chain_capabilities_and_opcode_truth() -> None
+
+.. py:function:: test_chainless_lane_mapping_round_trips_without_chain_key() -> None
+
+.. py:function:: test_the_contract_models_are_ccflow_models_not_dataclasses() -> None
+
+   The contract is config data -- what a manifest carries and a planner
+   matches against -- so it is declared the way every other registry
+   declaration is. Pinned so it cannot drift back to a dataclass.
+
+
+.. py:function:: test_a_contract_copies_with_a_field_replaced_and_stays_hashable() -> None
+
+.. py:function:: test_reconfigurable_is_a_manifest_fact() -> None
+
+   The fact rides the contract (and so the manifest), never a caller
+   flag: a design whose chain configs are runtime registers advertises it,
+   and a manifest written before the key existed reads as baked.
+
+

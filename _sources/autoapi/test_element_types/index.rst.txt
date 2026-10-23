@@ -1,0 +1,133 @@
+test_element_types
+==================
+
+.. py:module:: test_element_types
+
+.. autoapi-nested-parse::
+
+   The element type vocabulary, and the two places it is written down.
+
+   An encoding stated in Python and again in SystemVerilog is an encoding that
+   can disagree with itself -- the same failure mode ``test_parameter_bounds
+   _match_the_hdl`` exists for. Verilog cannot read ``element_types.py`` and the
+   registry cannot read ``types.svh``, so both are necessary and something has to
+   hold them to the same numbers. That is what the last test here does.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_element_types._TYPES_SVH
+   test_element_types._DEFINE
+   test_element_types._INVOCATION
+   test_element_types._SIZED_LITERAL
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_element_types.test_a_plain_signed_integer_encodes_as_its_own_width
+   test_element_types.test_the_three_type_classes_round_trip_through_their_spellings
+   test_element_types.test_a_type_carries_what_a_width_cannot
+   test_element_types.test_q_notation_counts_the_sign_bit_in_the_integer_part
+   test_element_types.test_an_integer_is_read_as_an_encoding_never_re_interpreted
+   test_element_types.test_spellings_that_name_no_type_are_refused
+   test_element_types.test_float_widths_are_the_ieee_interchange_formats
+   test_element_types.test_a_fraction_that_fills_the_field_leaves_no_integer_part
+   test_element_types.test_a_code_that_names_nothing_coherent_is_refused
+   test_element_types._header_macros
+   test_element_types._evaluate
+   test_element_types.test_the_header_and_this_module_encode_the_same_types
+   test_element_types.test_the_header_accessors_extract_what_python_stores
+
+
+Module Contents
+---------------
+
+.. py:data:: _TYPES_SVH
+
+.. py:function:: test_a_plain_signed_integer_encodes_as_its_own_width() -> None
+
+   The hinge the whole migration rests on.
+
+   Every measured envelope, staged design and ``-generic FIELD_WIDTH=32``
+   predates element types. They keep their meaning only because int32 IS 32,
+   so converting a parameter from a width to a type changes no synthesized
+   bit. If this ever stops holding, every coordinate in the registry silently
+   names a different design.
+
+
+.. py:function:: test_the_three_type_classes_round_trip_through_their_spellings() -> None
+
+.. py:function:: test_a_type_carries_what_a_width_cannot() -> None
+
+   int32, q16.16 and float32 are all 32 bits and all different.
+
+
+.. py:function:: test_q_notation_counts_the_sign_bit_in_the_integer_part() -> None
+
+   Q notation is ambiguous in the wild, so the convention is pinned: qI.F
+   occupies I+F bits. q16.16 is the 32-bit format the fixed-point tiles
+   compute in, which they spell today as FRACTIONAL_BITS=16.
+
+
+.. py:function:: test_an_integer_is_read_as_an_encoding_never_re_interpreted() -> None
+
+   One interpretation of an integer, and it is the RTL's.
+
+   A Python side that read 4128 as "4128 bits wide" while the tile it
+   configures read it as q16.16 would be precisely the confusion this module
+   exists to end.
+
+
+.. py:function:: test_spellings_that_name_no_type_are_refused() -> None
+
+.. py:function:: test_float_widths_are_the_ieee_interchange_formats() -> None
+
+   "float24" would name a format with no defined exponent split; refusing
+   it is better than inventing one a tile would then have to guess at.
+
+
+.. py:function:: test_a_fraction_that_fills_the_field_leaves_no_integer_part() -> None
+
+.. py:function:: test_a_code_that_names_nothing_coherent_is_refused() -> None
+
+.. py:data:: _DEFINE
+
+.. py:data:: _INVOCATION
+
+.. py:data:: _SIZED_LITERAL
+
+.. py:function:: _header_macros() -> dict[str, tuple[tuple[str, ...], str]]
+
+   Every macro in types.svh, as (parameter names, body).
+
+
+.. py:function:: _evaluate(expression: str) -> int
+
+   The value the preprocessor and then the elaborator would arrive at.
+
+   The macros are deliberately plain integer arithmetic, which is what makes
+   it possible to check them from here at all -- expand them the way the
+   preprocessor does, translate Verilog's sized literals, and evaluate. Doing
+   it any other way (recomputing the intended value in Python) would compare
+   this module against itself and pass through any drift, which is the one
+   thing this must not do.
+
+
+.. py:function:: test_the_header_and_this_module_encode_the_same_types() -> None
+
+   The one test that keeps two statements of an encoding honest.
+
+
+.. py:function:: test_the_header_accessors_extract_what_python_stores() -> None
+
+   The accessor macros are bit arithmetic; run that arithmetic against
+   every spelling and check it recovers the four facts a tile decodes.
+
+

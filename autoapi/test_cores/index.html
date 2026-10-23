@@ -1,0 +1,1780 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>test_cores &#8212; dau core v0.1.0</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/fuma.css?v=f6f6878e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/fuma-code.css?v=a950e949" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/fonts/fuma-fonts.css?v=c2892c73" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/custom.css?v=88c24c6a" />
+    <script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-searchlite-index="searchlite-index.json" defer="defer" src="../../_static/searchlite.js?v=a5320898"></script>
+    <script defer="defer" src="../../_static/fuma.js?v=b46bb53d"></script>
+    <script src="../../_static/js/custom.js?v=956e5d78"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="test_design" href="../test_design/index.html" />
+    <link rel="prev" title="test_hero" href="../test_hero/index.html" />
+    <script>
+      (function () {
+        var root = document.documentElement;
+        try {
+          var stored = localStorage.getItem("fuma-theme");
+          if (stored) {
+            root.classList.add(stored === "dark" ? "dark" : "light");
+            root.style.colorScheme = stored === "dark" ? "dark" : "light";
+          }
+          if (localStorage.getItem("fuma-sidebar") === "collapsed") root.dataset.sidebarCollapsed = "true";
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+<body class="fd-body" data-layout="docs" data-toc-style="normal" data-open-level="1">
+<div id="fd-layout"><header id="fd-subnav">
+  <div class="fd-subnav-inner">
+    <button type="button" class="fd-icon-button fd-sidebar-toggle" aria-controls="fd-sidebar" aria-expanded="false" aria-label="Toggle navigation">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
+    </button><a class="fd-brand" href="../../index.html"><span class="fd-brand-name">dau core v0.1.0</span>
+</a>
+
+    <div class="fd-nav-actions">
+      <button type="button" class="fd-icon-button" data-fd-search-open aria-label="Search"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+      <a class="fd-icon-button" href="https://github.com/dau-dev/dau-core" target="_blank" rel="noopener" aria-label="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <button type="button" class="fd-icon-button fd-theme-toggle" aria-label="Toggle theme">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-light"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-dark"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<aside id="fd-sidebar" aria-label="Documentation">
+  <div class="fd-sidebar-header">
+    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../index.html"><span class="fd-brand-name">dau core v0.1.0</span>
+</a>
+      <button type="button" class="fd-icon-button fd-sidebar-collapse" aria-label="Collapse sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+    </div>
+    <button type="button" class="fd-search-trigger" data-fd-search-open>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><span>Search</span><kbd class="fd-kbd">/</kbd>
+    </button>
+  </div>
+
+  <nav class="fd-sidebar-nav">
+    <div class="fd-sidebar-group">
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/tutorial/read-a-tile-contract.html">
+      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-tile.html">
+      <span class="fd-link-text">How to add an operator tile</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/test-a-core.html">
+      <span class="fd-link-text">How to test a core</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/measure-a-resource-envelope.html">
+      <span class="fd-link-text">How to measure a resource envelope</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/develop.html">
+      <span class="fd-link-text">Develop and contribute</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/reference/core-definition.html">
+      <span class="fd-link-text">CoreDefinition fields</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/reference/registry-guards.html">
+      <span class="fd-link-text">Registry-wide guards</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/explanation/why-cores-are-declared-in-config.html">
+      <span class="fd-link-text">Why cores are declared in config</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
+      <span class="fd-link-text">Why each tile has a golden model</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/explanation/why-resources-are-measured.html">
+      <span class="fd-link-text">Why resource costs are measured</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder" open>
+      <summary class="fd-folder-summary">
+        <a class="fd-link" href="../index.html">
+          <span class="fd-link-text">API Reference</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <details class="fd-folder">
+      <summary class="fd-folder-summary">
+        <a class="fd-link" href="../dau_core/index.html">
+          <span class="fd-link-text">dau_core</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/_lazy/index.html">
+      <span class="fd-link-text">dau_core._lazy</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/capabilities/index.html">
+      <span class="fd-link-text">dau_core.capabilities</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/capability_contract/index.html">
+      <span class="fd-link-text">dau_core.capability_contract</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/composition/index.html">
+      <span class="fd-link-text">dau_core.composition</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/config/index.html">
+      <span class="fd-link-text">dau_core.config</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/cores/index.html">
+      <span class="fd-link-text">dau_core.cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/design/index.html">
+      <span class="fd-link-text">dau_core.design</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/element_types/index.html">
+      <span class="fd-link-text">dau_core.element_types</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/exp_generator/index.html">
+      <span class="fd-link-text">dau_core.exp_generator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/fixed_point/index.html">
+      <span class="fd-link-text">dau_core.fixed_point</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/generators/index.html">
+      <span class="fd-link-text">dau_core.generators</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/hdl/index.html">
+      <span class="fd-link-text">dau_core.hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/hero/index.html">
+      <span class="fd-link-text">dau_core.hero</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/ln_generator/index.html">
+      <span class="fd-link-text">dau_core.ln_generator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/models/index.html">
+      <span class="fd-link-text">dau_core.models</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/normal_cdf_generator/index.html">
+      <span class="fd-link-text">dau_core.normal_cdf_generator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/operators/index.html">
+      <span class="fd-link-text">dau_core.operators</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/registers/index.html">
+      <span class="fd-link-text">dau_core.registers</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/registry/index.html">
+      <span class="fd-link-text">dau_core.registry</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/stream/index.html">
+      <span class="fd-link-text">dau_core.stream</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/temporal/index.html">
+      <span class="fd-link-text">dau_core.temporal</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/workflows/index.html">
+      <span class="fd-link-text">dau_core.workflows</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../conftest/index.html">
+      <span class="fd-link-text">conftest</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_docs/index.html">
+      <span class="fd-link-text">test_docs</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_hero/index.html">
+      <span class="fd-link-text">test_hero</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link fd-current" href="#">
+      <span class="fd-link-text">test_cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_design/index.html">
+      <span class="fd-link-text">test_design</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_stream/index.html">
+      <span class="fd-link-text">test_stream</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_readme/index.html">
+      <span class="fd-link-text">test_readme</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_temporal/index.html">
+      <span class="fd-link-text">test_temporal</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_operators/index.html">
+      <span class="fd-link-text">test_operators</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder">
+      <summary class="fd-folder-summary">
+        <a class="fd-link" href="../cocotb_benches/index.html">
+          <span class="fd-link-text">cocotb_benches</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_arrow_lite_stream_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_arrow_lite_stream_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_asof_backward_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_asof_backward_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_asof_feature_chain_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_asof_feature_chain_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_axi_bar_job_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_bar_job_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_axi_bar_noc_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_bar_noc_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_axi_burst_reader_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_burst_reader_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_axi_random_probe_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_random_probe_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_axi_sort_noc_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_sort_noc_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_bar_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_bar_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_bitonic_sorter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_bitonic_sorter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_broadcast_hash_join_small_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_broadcast_hash_join_small_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_broadcast_hash_join_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_broadcast_hash_join_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_bucket_agg_chain_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_bucket_agg_chain_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_datetime_format_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_datetime_format_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_field_sum_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_field_sum_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_fixed_point_divide_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_divide_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_fixed_point_exp_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_exp_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_fixed_point_ln_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_ln_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_fixed_point_sqrt_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_sqrt_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_grouped_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_grouped_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_grouped_field_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_grouped_field_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_grouped_field_sum_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_grouped_field_sum_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_hash_grouped_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_hash_grouped_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_hero_datapath_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_hero_datapath_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_int32_keyed_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_keyed_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_int32_keyed_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_keyed_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_int32_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_int32_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_int32_record_gather_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_record_gather_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_key_mask_dispatcher_exact_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_exact_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_key_mask_dispatcher_hash_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_hash_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_key_mask_dispatcher_multi_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_multi_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_key_mask_dispatcher_records_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_records_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_key_mask_dispatcher_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_key_mask_dispatcher_wide_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_wide_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_key_membership_filter_single_word_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_membership_filter_single_word_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_key_membership_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_membership_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_keyed_state_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_keyed_state_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_market_feature_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_market_feature_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_normal_cdf_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_normal_cdf_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_pair_key_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_pair_key_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_range_partitioner_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_range_partitioner_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_record_batch_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_record_batch_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_record_gearbox_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_record_gearbox_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_rolling_extremum_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_rolling_extremum_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_rolling_moments_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_rolling_moments_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_row_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_row_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_row_predicate_filter_width_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_predicate_filter_width_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_row_unpack_slots_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_unpack_slots_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_row_unpack_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_unpack_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_row_unpack_wide_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_unpack_wide_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_scratchpad_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_scratchpad_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_session_gap_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_session_gap_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_stream_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_stream_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_streaming_dedup_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_streaming_dedup_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_streaming_top_k_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_streaming_top_k_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_stride_distributor_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_stride_distributor_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_time_bucket_key_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_time_bucket_key_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_wide_field_sum_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_field_sum_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_wide_ingest_chain_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_ingest_chain_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_wide_row_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_row_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_wide_row_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_row_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/rate_probe/index.html">
+      <span class="fd-link-text">cocotb_benches.rate_probe</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_hdl_cocotb/index.html">
+      <span class="fd-link-text">test_hdl_cocotb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_composition/index.html">
+      <span class="fd-link-text">test_composition</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_hdl_sources/index.html">
+      <span class="fd-link-text">test_hdl_sources</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../exhaustive_sweep/index.html">
+      <span class="fd-link-text">exhaustive_sweep</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_hash_grouped/index.html">
+      <span class="fd-link-text">test_hash_grouped</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_record_batch/index.html">
+      <span class="fd-link-text">test_record_batch</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_lazy_exports/index.html">
+      <span class="fd-link-text">test_lazy_exports</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_element_types/index.html">
+      <span class="fd-link-text">test_element_types</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_core_contract/index.html">
+      <span class="fd-link-text">test_core_contract</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_hdl_verilator/index.html">
+      <span class="fd-link-text">test_hdl_verilator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_fixed_point_ln/index.html">
+      <span class="fd-link-text">test_fixed_point_ln</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_ohlcv_fixtures/index.html">
+      <span class="fd-link-text">test_ohlcv_fixtures</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_hdl_elaboration/index.html">
+      <span class="fd-link-text">test_hdl_elaboration</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_datetime_format/index.html">
+      <span class="fd-link-text">test_datetime_format</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_fixed_point_exp/index.html">
+      <span class="fd-link-text">test_fixed_point_exp</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_generated_cores/index.html">
+      <span class="fd-link-text">test_generated_cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_benches_can_fail/index.html">
+      <span class="fd-link-text">test_benches_can_fail</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_contributed_cores/index.html">
+      <span class="fd-link-text">test_contributed_cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_validation_at_use/index.html">
+      <span class="fd-link-text">test_validation_at_use</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_aggregation_goldens/index.html">
+      <span class="fd-link-text">test_aggregation_goldens</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_capability_contract/index.html">
+      <span class="fd-link-text">test_capability_contract</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_public_tile_surface/index.html">
+      <span class="fd-link-text">test_public_tile_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_aggregation_tile_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_contributed_discovery/index.html">
+      <span class="fd-link-text">test_contributed_discovery</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_fixed_point_normal_cdf/index.html">
+      <span class="fd-link-text">test_fixed_point_normal_cdf</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_output_beat_declarations/index.html">
+      <span class="fd-link-text">test_output_beat_declarations</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_registers_and_capabilities/index.html">
+      <span class="fd-link-text">test_registers_and_capabilities</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_measured_from_matches_the_hdl/index.html">
+      <span class="fd-link-text">test_measured_from_matches_the_hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_parameter_bounds_match_the_hdl/index.html">
+      <span class="fd-link-text">test_parameter_bounds_match_the_hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_hdl_parameter_bindings_resolve/index.html">
+      <span class="fd-link-text">test_hdl_parameter_bindings_resolve</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+</ul>
+    </div>
+  </nav>
+
+  <div class="fd-sidebar-footer">
+    <div class="fd-toolbar">
+      <a class="fd-toolbar-item" href="https://github.com/dau-dev/dau-core" target="_blank" rel="noopener" aria-label="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <div class="fd-theme-switch" role="group" aria-label="Theme">
+        <button type="button" class="fd-theme-option" data-fd-theme="light" aria-label="Light theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></button>
+        <button type="button" class="fd-theme-option" data-fd-theme="dark" aria-label="Dark theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg></button>
+      </div>
+    </div>
+  </div>
+</aside>
+<button type="button" id="fd-sidebar-restore" class="fd-icon-button" aria-label="Expand sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+<div class="fd-sidebar-scrim" hidden></div>
+  <div id="fd-toc-popover">
+    <button type="button" class="fd-toc-trigger" aria-expanded="false" aria-controls="fd-toc-mobile">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg><span>On this page</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <div id="fd-toc-mobile" hidden><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#attributes">Attributes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#functions">Functions</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#module-contents">Module Contents</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.OWN_PACKAGE">OWN_PACKAGE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.HDL_SUFFIXES">HDL_SUFFIXES</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.own_cores">own_cores()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.committed_hdl">committed_hdl()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_every_hdl_file_belongs_to_exactly_one_core">test_every_hdl_file_belongs_to_exactly_one_core()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_all_source_paths_exist">test_all_source_paths_exist()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_goldens_resolve_to_callables">test_goldens_resolve_to_callables()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_benches_are_importable_modules">test_benches_are_importable_modules()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_every_operator_has_a_golden">test_every_operator_has_a_golden()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_every_selectable_operator_declares_its_ingest_rate">test_every_selectable_operator_declares_its_ingest_rate()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_wide_combinational_tiles_declare_pipeline_depth_without_changing_ingest">test_wide_combinational_tiles_declare_pipeline_depth_without_changing_ingest()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_every_selectable_operator_declares_its_contract_kind">test_every_selectable_operator_declares_its_contract_kind()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_every_selectable_operator_declares_its_record_words">test_every_selectable_operator_declares_its_record_words()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_parameterized_record_words_resolve_from_defaults_and_overrides">test_parameterized_record_words_resolve_from_defaults_and_overrides()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_only_combinational_per_beat_cores_support_pipeline_depth">test_only_combinational_per_beat_cores_support_pipeline_depth()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_sources_for_closes_dependencies_in_order">test_sources_for_closes_dependencies_in_order()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_lookup_errors_are_typed">test_lookup_errors_are_typed()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_synthesizable_cores_carry_measured_envelopes">test_synthesizable_cores_carry_measured_envelopes()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.WIDTH_NAMED_TILES">WIDTH_NAMED_TILES</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_the_width_named_tiles_are_exactly_the_declared_ones">test_the_width_named_tiles_are_exactly_the_declared_ones()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.CANONICAL_PALETTE_VERSION">CANONICAL_PALETTE_VERSION</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.CANONICAL_PALETTE">CANONICAL_PALETTE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_the_canonical_palette_is_exactly_the_registered_names">test_the_canonical_palette_is_exactly_the_registered_names()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_the_canonical_palette_is_pinned_to_the_canonical_form_it_spells">test_the_canonical_palette_is_pinned_to_the_canonical_form_it_spells()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores._measured">_measured()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_exact_resource_measurement_resolves_with_parameter_defaults">test_exact_resource_measurement_resolves_with_parameter_defaults()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_resource_measurement_refuses_an_unmeasured_part">test_resource_measurement_refuses_an_unmeasured_part()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_an_unclocked_measurement_answers_for_any_clock_and_records_no_timing">test_an_unclocked_measurement_answers_for_any_clock_and_records_no_timing()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_every_registered_core_with_resources_carries_measurement_points">test_every_registered_core_with_resources_carries_measurement_points()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_normalize_follows_the_same_rule_as_violation">test_normalize_follows_the_same_rule_as_violation()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_violated_measurement_is_retrievable_but_not_a_usable_envelope">test_violated_measurement_is_retrievable_but_not_a_usable_envelope()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_registry_is_hydra_composition_not_a_python_literal">test_registry_is_hydra_composition_not_a_python_literal()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_accessors_defer_to_a_composed_registry">test_accessors_defer_to_a_composed_registry()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_silent_on_success_operator_set_is_pinned">test_silent_on_success_operator_set_is_pinned()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_dispatcher_rate_still_needs_record_aware_modeling">test_dispatcher_rate_still_needs_record_aware_modeling()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_authoritative_models_reject_impossible_values">test_authoritative_models_reject_impossible_values()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_parameter_spec_rejects_incoherent_constraints">test_parameter_spec_rejects_incoherent_constraints()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_parameter_spec_violation_is_the_single_constraint_source">test_parameter_spec_violation_is_the_single_constraint_source()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_an_element_type_parameter_accepts_a_width_or_a_spelling">test_an_element_type_parameter_accepts_a_width_or_a_spelling()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_an_element_type_parameter_bounds_the_width_not_the_encoding">test_an_element_type_parameter_bounds_the_width_not_the_encoding()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_an_element_type_spelling_is_refused_where_no_type_is_declared">test_an_element_type_spelling_is_refused_where_no_type_is_declared()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_an_element_type_default_must_name_a_type_the_spec_admits">test_an_element_type_default_must_name_a_type_the_spec_admits()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_a_measurement_coordinate_may_name_the_type_it_was_measured_at">test_a_measurement_coordinate_may_name_the_type_it_was_measured_at()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_storage_intent_prices_against_declared_parameters">test_storage_intent_prices_against_declared_parameters()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_storage_intent_refuses_an_undeclared_scale_parameter">test_storage_intent_refuses_an_undeclared_scale_parameter()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_storage_intent_without_scale_is_a_fixed_cost">test_storage_intent_without_scale_is_a_fixed_cost()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_storage_bytes_refuses_illegal_scale_overrides">test_storage_bytes_refuses_illegal_scale_overrides()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_a_core_resolves_hdl_from_the_package_that_declares_it">test_a_core_resolves_hdl_from_the_package_that_declares_it()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards">test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_a_core_naming_an_uninstalled_hdl_package_refuses_clearly">test_a_core_naming_an_uninstalled_hdl_package_refuses_clearly()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_a_measured_point_matches_a_derived_clock_period">test_a_measured_point_matches_a_derived_clock_period()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_an_unresolvable_hdl_source_says_so">test_an_unresolvable_hdl_source_says_so()</a>
+  </li>
+</ul>
+</div>
+  </div>
+
+  <main id="fd-main">
+    <article class="fd-page">
+<nav class="fd-breadcrumbs" aria-label="Breadcrumbs">
+  <ol>
+    <li>
+      <a href="../index.html">API Reference</a>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+    </li>
+    <li aria-current="page">test_cores</li>
+  </ol>
+</nav>
+      <div class="fd-prose">
+  <section id="module-test_cores">
+<span id="test-cores"></span><h1>test_cores<a class="headerlink" href="#module-test_cores" title="Link to this heading">¶</a></h1>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.OWN_PACKAGE" title="test_cores.OWN_PACKAGE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OWN_PACKAGE</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_cores.HDL_SUFFIXES" title="test_cores.HDL_SUFFIXES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HDL_SUFFIXES</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.WIDTH_NAMED_TILES" title="test_cores.WIDTH_NAMED_TILES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WIDTH_NAMED_TILES</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_cores.CANONICAL_PALETTE_VERSION" title="test_cores.CANONICAL_PALETTE_VERSION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CANONICAL_PALETTE_VERSION</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.CANONICAL_PALETTE" title="test_cores.CANONICAL_PALETTE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CANONICAL_PALETTE</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.own_cores" title="test_cores.own_cores"><code class="xref py py-obj docutils literal notranslate"><span class="pre">own_cores</span></code></a>(→ tuple)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_cores.committed_hdl" title="test_cores.committed_hdl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">committed_hdl</span></code></a>(→ set[str] | None)</p></td>
+<td><p>The HDL git CARRIES under <code class="docutils literal notranslate"><span class="pre">hdl_dir</span></code>, as paths relative to it, or</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.test_every_hdl_file_belongs_to_exactly_one_core" title="test_cores.test_every_hdl_file_belongs_to_exactly_one_core"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_every_hdl_file_belongs_to_exactly_one_core</span></code></a>(→ None)</p></td>
+<td><p>Checked-in HDL and registry entries match exactly, in both directions.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_cores.test_all_source_paths_exist" title="test_cores.test_all_source_paths_exist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_all_source_paths_exist</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.test_goldens_resolve_to_callables" title="test_cores.test_goldens_resolve_to_callables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_goldens_resolve_to_callables</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_cores.test_benches_are_importable_modules" title="test_cores.test_benches_are_importable_modules"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_benches_are_importable_modules</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.test_every_operator_has_a_golden" title="test_cores.test_every_operator_has_a_golden"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_every_operator_has_a_golden</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_cores.test_every_selectable_operator_declares_its_ingest_rate" title="test_cores.test_every_selectable_operator_declares_its_ingest_rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_every_selectable_operator_declares_its_ingest_rate</span></code></a>(→ None)</p></td>
+<td><p>Ingest rate is core PUBLIC INTERFACE (the scheduler rate-matches</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.test_wide_combinational_tiles_declare_pipeline_depth_without_changing_ingest" title="test_cores.test_wide_combinational_tiles_declare_pipeline_depth_without_changing_ingest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_wide_combinational_tiles_declare_pipeline_depth_without_changing_ingest</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_cores.test_every_selectable_operator_declares_its_contract_kind" title="test_cores.test_every_selectable_operator_declares_its_contract_kind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_every_selectable_operator_declares_its_contract_kind</span></code></a>(→ None)</p></td>
+<td><p>A new core declares its stream contract in the registry — contract</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.test_every_selectable_operator_declares_its_record_words" title="test_cores.test_every_selectable_operator_declares_its_record_words"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_every_selectable_operator_declares_its_record_words</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_cores.test_parameterized_record_words_resolve_from_defaults_and_overrides" title="test_cores.test_parameterized_record_words_resolve_from_defaults_and_overrides"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_parameterized_record_words_resolve_from_defaults_and_overrides</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.test_only_combinational_per_beat_cores_support_pipeline_depth" title="test_cores.test_only_combinational_per_beat_cores_support_pipeline_depth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_only_combinational_per_beat_cores_support_pipeline_depth</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_cores.test_sources_for_closes_dependencies_in_order" title="test_cores.test_sources_for_closes_dependencies_in_order"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_sources_for_closes_dependencies_in_order</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.test_lookup_errors_are_typed" title="test_cores.test_lookup_errors_are_typed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_lookup_errors_are_typed</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_cores.test_synthesizable_cores_carry_measured_envelopes" title="test_cores.test_synthesizable_cores_carry_measured_envelopes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_synthesizable_cores_carry_measured_envelopes</span></code></a>(→ None)</p></td>
+<td><p>Recorded operator/stream-infra envelopes are measured OOC values.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.test_the_width_named_tiles_are_exactly_the_declared_ones" title="test_cores.test_the_width_named_tiles_are_exactly_the_declared_ones"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_width_named_tiles_are_exactly_the_declared_ones</span></code></a>(→ None)</p></td>
+<td><p>The naming rule is that a width is a parameter, not an identity; this</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_cores.test_the_canonical_palette_is_exactly_the_registered_names" title="test_cores.test_the_canonical_palette_is_exactly_the_registered_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_canonical_palette_is_exactly_the_registered_names</span></code></a>(→ None)</p></td>
+<td><p>THE GUARD a rename has to pass. A name that leaves this set takes</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.test_the_canonical_palette_is_pinned_to_the_canonical_form_it_spells" title="test_cores.test_the_canonical_palette_is_pinned_to_the_canonical_form_it_spells"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_canonical_palette_is_pinned_to_the_canonical_form_it_spells</span></code></a>(→ None)</p></td>
+<td><p>The other direction of the same coupling: a canonical-form bump that</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_cores._measured" title="test_cores._measured"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_measured</span></code></a>(**overrides)</p></td>
+<td><p>A core carrying one measurement point, built here rather than read from</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.test_exact_resource_measurement_resolves_with_parameter_defaults" title="test_cores.test_exact_resource_measurement_resolves_with_parameter_defaults"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_exact_resource_measurement_resolves_with_parameter_defaults</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_cores.test_resource_measurement_refuses_an_unmeasured_part" title="test_cores.test_resource_measurement_refuses_an_unmeasured_part"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_resource_measurement_refuses_an_unmeasured_part</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.test_an_unclocked_measurement_answers_for_any_clock_and_records_no_timing" title="test_cores.test_an_unclocked_measurement_answers_for_any_clock_and_records_no_timing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_an_unclocked_measurement_answers_for_any_clock_and_records_no_timing</span></code></a>(→ None)</p></td>
+<td><p>A combinational core (identity-registers is one: a parameter ROM with</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_cores.test_every_registered_core_with_resources_carries_measurement_points" title="test_cores.test_every_registered_core_with_resources_carries_measurement_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_every_registered_core_with_resources_carries_measurement_points</span></code></a>(→ None)</p></td>
+<td><p>There is one shape for a resource record. A scalar count with no</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.test_normalize_follows_the_same_rule_as_violation" title="test_cores.test_normalize_follows_the_same_rule_as_violation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_normalize_follows_the_same_rule_as_violation</span></code></a>(→ None)</p></td>
+<td><p>A type spelling is only for a parameter declared element_type; a plain</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_cores.test_violated_measurement_is_retrievable_but_not_a_usable_envelope" title="test_cores.test_violated_measurement_is_retrievable_but_not_a_usable_envelope"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_violated_measurement_is_retrievable_but_not_a_usable_envelope</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.test_registry_is_hydra_composition_not_a_python_literal" title="test_cores.test_registry_is_hydra_composition_not_a_python_literal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_registry_is_hydra_composition_not_a_python_literal</span></code></a>(→ None)</p></td>
+<td><p>Composition IS the registry: cores load from dau-core's hydra config</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_cores.test_accessors_defer_to_a_composed_registry" title="test_cores.test_accessors_defer_to_a_composed_registry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_accessors_defer_to_a_composed_registry</span></code></a>(→ None)</p></td>
+<td><p>The composed registry is the source of truth: accessors read through</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.test_silent_on_success_operator_set_is_pinned" title="test_cores.test_silent_on_success_operator_set_is_pinned"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_silent_on_success_operator_set_is_pinned</span></code></a>(→ None)</p></td>
+<td><p>The status contract's two classes are registry truth: silent-on-success</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_cores.test_dispatcher_rate_still_needs_record_aware_modeling" title="test_cores.test_dispatcher_rate_still_needs_record_aware_modeling"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_dispatcher_rate_still_needs_record_aware_modeling</span></code></a>(→ None)</p></td>
+<td><p>The dispatcher's framing-shaped rate describes a 2-word record. Its</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.test_authoritative_models_reject_impossible_values" title="test_cores.test_authoritative_models_reject_impossible_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_authoritative_models_reject_impossible_values</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_cores.test_parameter_spec_rejects_incoherent_constraints" title="test_cores.test_parameter_spec_rejects_incoherent_constraints"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_parameter_spec_rejects_incoherent_constraints</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.test_parameter_spec_violation_is_the_single_constraint_source" title="test_cores.test_parameter_spec_violation_is_the_single_constraint_source"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_parameter_spec_violation_is_the_single_constraint_source</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_cores.test_an_element_type_parameter_accepts_a_width_or_a_spelling" title="test_cores.test_an_element_type_parameter_accepts_a_width_or_a_spelling"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_an_element_type_parameter_accepts_a_width_or_a_spelling</span></code></a>(→ None)</p></td>
+<td><p>The two forms are the same declaration where they overlap, and the</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.test_an_element_type_parameter_bounds_the_width_not_the_encoding" title="test_cores.test_an_element_type_parameter_bounds_the_width_not_the_encoding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_an_element_type_parameter_bounds_the_width_not_the_encoding</span></code></a>(→ None)</p></td>
+<td><p>A registry bound mirrors an RTL guard about BITS. q16.16 encodes as</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_cores.test_an_element_type_spelling_is_refused_where_no_type_is_declared" title="test_cores.test_an_element_type_spelling_is_refused_where_no_type_is_declared"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_an_element_type_spelling_is_refused_where_no_type_is_declared</span></code></a>(→ None)</p></td>
+<td><p>A size parameter takes a size. Silently reading &quot;int32&quot; as 32 on a</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.test_an_element_type_default_must_name_a_type_the_spec_admits" title="test_cores.test_an_element_type_default_must_name_a_type_the_spec_admits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_an_element_type_default_must_name_a_type_the_spec_admits</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_cores.test_a_measurement_coordinate_may_name_the_type_it_was_measured_at" title="test_cores.test_a_measurement_coordinate_may_name_the_type_it_was_measured_at"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_measurement_coordinate_may_name_the_type_it_was_measured_at</span></code></a>(→ None)</p></td>
+<td><p>The same point, written either way, is one point -- so migrating a</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.test_storage_intent_prices_against_declared_parameters" title="test_cores.test_storage_intent_prices_against_declared_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_storage_intent_prices_against_declared_parameters</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_cores.test_storage_intent_refuses_an_undeclared_scale_parameter" title="test_cores.test_storage_intent_refuses_an_undeclared_scale_parameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_storage_intent_refuses_an_undeclared_scale_parameter</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.test_storage_intent_without_scale_is_a_fixed_cost" title="test_cores.test_storage_intent_without_scale_is_a_fixed_cost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_storage_intent_without_scale_is_a_fixed_cost</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_cores.test_storage_bytes_refuses_illegal_scale_overrides" title="test_cores.test_storage_bytes_refuses_illegal_scale_overrides"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_storage_bytes_refuses_illegal_scale_overrides</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.test_a_core_resolves_hdl_from_the_package_that_declares_it" title="test_cores.test_a_core_resolves_hdl_from_the_package_that_declares_it"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_core_resolves_hdl_from_the_package_that_declares_it</span></code></a>(→ None)</p></td>
+<td><p>A tile contributed by another distribution finds its own HDL.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_cores.test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards" title="test_cores.test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards</span></code></a>(→ None)</p></td>
+<td><p>Installing a third-party tile must not fail THIS suite.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.test_a_core_naming_an_uninstalled_hdl_package_refuses_clearly" title="test_cores.test_a_core_naming_an_uninstalled_hdl_package_refuses_clearly"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_core_naming_an_uninstalled_hdl_package_refuses_clearly</span></code></a>(→ None)</p></td>
+<td><p>The failure names the missing distribution rather than surfacing an</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_cores.test_a_measured_point_matches_a_derived_clock_period" title="test_cores.test_a_measured_point_matches_a_derived_clock_period"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_measured_point_matches_a_derived_clock_period</span></code></a>(→ None)</p></td>
+<td><p>A clock period is DERIVED (1000 / job_clock_mhz), so exact float</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.test_an_unresolvable_hdl_source_says_so" title="test_cores.test_an_unresolvable_hdl_source_says_so"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_an_unresolvable_hdl_source_says_so</span></code></a>(→ None)</p></td>
+<td><p>A declared source that does not resolve is a DECLARATION error.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="test_cores.OWN_PACKAGE">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">OWN_PACKAGE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'dau_core.hdl'</span></em><a class="headerlink" href="#test_cores.OWN_PACKAGE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="test_cores.HDL_SUFFIXES">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">HDL_SUFFIXES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('.sv',</span> <span class="pre">'.v')</span></em><a class="headerlink" href="#test_cores.HDL_SUFFIXES" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.own_cores">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">own_cores</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="headerlink" href="#test_cores.own_cores" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.committed_hdl">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">committed_hdl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hdl_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.committed_hdl" title="Link to this definition">¶</a></dt>
+<dd><p>The HDL git CARRIES under <code class="docutils literal notranslate"><span class="pre">hdl_dir</span></code>, as paths relative to it, or
+None when there is no repository to ask.</p>
+<p>Committedness is a git fact, and only git can answer it. A directory
+listing cannot: the suite renders every generated core into the render
+root on each run (<code class="docutils literal notranslate"><span class="pre">conftest._render_generated_cores</span></code>), so a rendered
+file being PRESENT there is the normal state and says nothing about
+whether someone checked it in. Absent a repository – an installed
+distribution – nothing is committed and there is nothing to check.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_every_hdl_file_belongs_to_exactly_one_core">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_every_hdl_file_belongs_to_exactly_one_core</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_every_hdl_file_belongs_to_exactly_one_core" title="Link to this definition">¶</a></dt>
+<dd><p>Checked-in HDL and registry entries match exactly, in both directions.</p>
+<p>A GENERATED core is excluded because it has no checked-in file by
+definition – and asserted to have none, which is the same guard from the
+other side: a generated core with a file beside the entry means someone
+committed rendered output, and whichever of the two is stale will be the
+one that gets synthesized.</p>
+<p>The reach is the whole package, not one directory listing. Listing
+<code class="docutils literal notranslate"><span class="pre">hdl/</span></code> alone left the render root – a SUBDIRECTORY of it – outside
+this guard entirely, and three rendered tiles sat committed there until a
+rename made their filenames disagree with their contents. So the walk
+descends, and the committed set comes from git: a rendered file being
+present in the render root is the normal working state (the suite renders
+there on every run), and what distinguishes that from the mistake is
+whether it was checked in.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_all_source_paths_exist">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_all_source_paths_exist</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_all_source_paths_exist" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_goldens_resolve_to_callables">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_goldens_resolve_to_callables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_goldens_resolve_to_callables" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_benches_are_importable_modules">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_benches_are_importable_modules</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_benches_are_importable_modules" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_every_operator_has_a_golden">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_every_operator_has_a_golden</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_every_operator_has_a_golden" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_every_selectable_operator_declares_its_ingest_rate">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_every_selectable_operator_declares_its_ingest_rate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_every_selectable_operator_declares_its_ingest_rate" title="Link to this definition">¶</a></dt>
+<dd><p>Ingest rate is core PUBLIC INTERFACE (the scheduler rate-matches
+opaque cores from the registry declaration alone): every stream operator
+declares it. The floor is the composed 1-row/2-cycle
+lane rate; only silicon-proven faster cores declare 1/1.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_wide_combinational_tiles_declare_pipeline_depth_without_changing_ingest">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_wide_combinational_tiles_declare_pipeline_depth_without_changing_ingest</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_wide_combinational_tiles_declare_pipeline_depth_without_changing_ingest" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_every_selectable_operator_declares_its_contract_kind">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_every_selectable_operator_declares_its_contract_kind</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_every_selectable_operator_declares_its_contract_kind" title="Link to this definition">¶</a></dt>
+<dd><p>A new core declares its stream contract in the registry — contract
+tests select validators from this tag, never from test-local exemption
+sets.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_every_selectable_operator_declares_its_record_words">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_every_selectable_operator_declares_its_record_words</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_every_selectable_operator_declares_its_record_words" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_parameterized_record_words_resolve_from_defaults_and_overrides">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_parameterized_record_words_resolve_from_defaults_and_overrides</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_parameterized_record_words_resolve_from_defaults_and_overrides" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_only_combinational_per_beat_cores_support_pipeline_depth">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_only_combinational_per_beat_cores_support_pipeline_depth</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_only_combinational_per_beat_cores_support_pipeline_depth" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_sources_for_closes_dependencies_in_order">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_sources_for_closes_dependencies_in_order</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_sources_for_closes_dependencies_in_order" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_lookup_errors_are_typed">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_lookup_errors_are_typed</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_lookup_errors_are_typed" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_synthesizable_cores_carry_measured_envelopes">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_synthesizable_cores_carry_measured_envelopes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_synthesizable_cores_carry_measured_envelopes" title="Link to this definition">¶</a></dt>
+<dd><p>Recorded operator/stream-infra envelopes are measured OOC values.</p>
+<p>EMPTY as of 2026-08-16: the stride distributor was the last operator
+carrying no envelope at all, and no design containing it could be
+priced. Asserted exactly, so a tile shipped without a measurement fails
+here rather than surfacing as an unpriceable design later.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="test_cores.WIDTH_NAMED_TILES">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">WIDTH_NAMED_TILES</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">frozenset</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#test_cores.WIDTH_NAMED_TILES" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_the_width_named_tiles_are_exactly_the_declared_ones">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_the_width_named_tiles_are_exactly_the_declared_ones</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_the_width_named_tiles_are_exactly_the_declared_ones" title="Link to this definition">¶</a></dt>
+<dd><p>The naming rule is that a width is a parameter, not an identity; this
+pins how much of the palette still contradicts it.</p>
+<p>Scoped to <cite>own_cores()</cite> for the same reason every exact-set guard here
+is: an installed third-party tile with a width in its name is that
+vendor’s business, not drift in our palette.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="test_cores.CANONICAL_PALETTE_VERSION">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">CANONICAL_PALETTE_VERSION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'7'</span></em><a class="headerlink" href="#test_cores.CANONICAL_PALETTE_VERSION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="test_cores.CANONICAL_PALETTE">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">CANONICAL_PALETTE</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">frozenset</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#test_cores.CANONICAL_PALETTE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_the_canonical_palette_is_exactly_the_registered_names">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_the_canonical_palette_is_exactly_the_registered_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_the_canonical_palette_is_exactly_the_registered_names" title="Link to this definition">¶</a></dt>
+<dd><p>THE GUARD a rename has to pass. A name that leaves this set takes
+every recorded canonical spec that spells it with it.</p>
+<p>Scoped to <cite>own_cores()</cite> like every exact set here: a vendor’s installed
+tile is not in our canonical alphabet’s history and cannot depart from
+it.</p>
+<p>There are exactly two honest ways past a DEPARTURE failure:</p>
+<ol class="arabic simple">
+<li><p>Keep the name. A rename that buys nothing is not worth an identity
+boundary.</p></li>
+<li><p>Bump <code class="docutils literal notranslate"><span class="pre">SPEC_CANONICAL_VERSION</span></code> and <code class="docutils literal notranslate"><span class="pre">CANONICAL_PALETTE_VERSION</span></code> in
+the same change, so every text recorded under the old palette is
+refused by version instead of read against a registry that cannot
+resolve it. Designs already on silicon do not re-enter the design
+cache across that boundary – their hash is stamped in a bitstream
+and the manifest recording it must not be rewritten – so they are
+rebuilt once, deliberately, rather than mis-recognized forever.</p></li>
+</ol>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_the_canonical_palette_is_pinned_to_the_canonical_form_it_spells">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_the_canonical_palette_is_pinned_to_the_canonical_form_it_spells</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_the_canonical_palette_is_pinned_to_the_canonical_form_it_spells" title="Link to this definition">¶</a></dt>
+<dd><p>The other direction of the same coupling: a canonical-form bump that
+leaves this set alone has not said which palette the new version reads,
+and the departure message above would then name the wrong version.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores._measured">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">_measured</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">overrides</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#test_cores._measured" title="Link to this definition">¶</a></dt>
+<dd><p>A core carrying one measurement point, built here rather than read from
+the registry: which cores are migrated is a migration detail, and a test
+of the lookup should not move when that changes.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_exact_resource_measurement_resolves_with_parameter_defaults">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_exact_resource_measurement_resolves_with_parameter_defaults</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_exact_resource_measurement_resolves_with_parameter_defaults" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_resource_measurement_refuses_an_unmeasured_part">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_resource_measurement_refuses_an_unmeasured_part</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_resource_measurement_refuses_an_unmeasured_part" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_an_unclocked_measurement_answers_for_any_clock_and_records_no_timing">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_an_unclocked_measurement_answers_for_any_clock_and_records_no_timing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_an_unclocked_measurement_answers_for_any_clock_and_records_no_timing" title="Link to this definition">¶</a></dt>
+<dd><p>A combinational core (identity-registers is one: a parameter ROM with
+no clock) has no timing to meet, so its point carries no timing status
+and prices a build at every clock.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_every_registered_core_with_resources_carries_measurement_points">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_every_registered_core_with_resources_carries_measurement_points</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_every_registered_core_with_resources_carries_measurement_points" title="Link to this definition">¶</a></dt>
+<dd><p>There is one shape for a resource record. A scalar count with no
+part, clock or parameters cannot say which board it was measured on
+and no longer parses.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_normalize_follows_the_same_rule_as_violation">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_normalize_follows_the_same_rule_as_violation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_normalize_follows_the_same_rule_as_violation" title="Link to this definition">¶</a></dt>
+<dd><p>A type spelling is only for a parameter declared element_type; a plain
+parameter takes an int and refuses a string the way violation() does.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_violated_measurement_is_retrievable_but_not_a_usable_envelope">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_violated_measurement_is_retrievable_but_not_a_usable_envelope</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_violated_measurement_is_retrievable_but_not_a_usable_envelope" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_registry_is_hydra_composition_not_a_python_literal">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_registry_is_hydra_composition_not_a_python_literal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_registry_is_hydra_composition_not_a_python_literal" title="Link to this definition">¶</a></dt>
+<dd><p>Composition IS the registry: cores load from dau-core’s hydra config
+tree into the ccflow ModelRegistry at /dau-core/&lt;name&gt;. A parallel
+Python-literal core list is the anti-pattern this guards against.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_accessors_defer_to_a_composed_registry">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_accessors_defer_to_a_composed_registry</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_accessors_defer_to_a_composed_registry" title="Link to this definition">¶</a></dt>
+<dd><p>The composed registry is the source of truth: accessors read through
+to /dau-core (no snapshot cache), so a consumer’s hydra overrides are
+visible and never clobbered by a default reload.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_silent_on_success_operator_set_is_pinned">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_silent_on_success_operator_set_is_pinned</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_silent_on_success_operator_set_is_pinned" title="Link to this definition">¶</a></dt>
+<dd><p>The status contract’s two classes are registry truth: silent-on-success
+cores (chain-stage/partition legal) versus per-batch success close-out
+cores (terminal-tile legal). Changing a core’s class changes lane status
+semantics — confirm intent here.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_dispatcher_rate_still_needs_record_aware_modeling">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_dispatcher_rate_still_needs_record_aware_modeling</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_dispatcher_rate_still_needs_record_aware_modeling" title="Link to this definition">¶</a></dt>
+<dd><p>The dispatcher’s framing-shaped rate describes a 2-word record. Its
+64-bit front ingests one WORD per cycle, so an N-word record costs N
+cycles, while a wide framing delivers a whole record per beat-slot —
+two rules the current rate shapes cannot express together. Record shape
+is now declared for detection, but this pins the remaining rate-model gap
+so RECORD_WORDS != 2 is not silently treated as resolved.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_authoritative_models_reject_impossible_values">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_authoritative_models_reject_impossible_values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_authoritative_models_reject_impossible_values" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_parameter_spec_rejects_incoherent_constraints">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_parameter_spec_rejects_incoherent_constraints</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_parameter_spec_rejects_incoherent_constraints" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_parameter_spec_violation_is_the_single_constraint_source">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_parameter_spec_violation_is_the_single_constraint_source</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_parameter_spec_violation_is_the_single_constraint_source" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_an_element_type_parameter_accepts_a_width_or_a_spelling">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_an_element_type_parameter_accepts_a_width_or_a_spelling</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_an_element_type_parameter_accepts_a_width_or_a_spelling" title="Link to this definition">¶</a></dt>
+<dd><p>The two forms are the same declaration where they overlap, and the
+spelling reaches types a width never could.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_an_element_type_parameter_bounds_the_width_not_the_encoding">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_an_element_type_parameter_bounds_the_width_not_the_encoding</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_an_element_type_parameter_bounds_the_width_not_the_encoding" title="Link to this definition">¶</a></dt>
+<dd><p>A registry bound mirrors an RTL guard about BITS. q16.16 encodes as
+4128 and is a 32-bit type; bounding the encoding would reject it for being
+a large number, which is a statement about nothing.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_an_element_type_spelling_is_refused_where_no_type_is_declared">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_an_element_type_spelling_is_refused_where_no_type_is_declared</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_an_element_type_spelling_is_refused_where_no_type_is_declared" title="Link to this definition">¶</a></dt>
+<dd><p>A size parameter takes a size. Silently reading “int32” as 32 on a
+capacity is the misreading the whole mechanism exists to prevent.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_an_element_type_default_must_name_a_type_the_spec_admits">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_an_element_type_default_must_name_a_type_the_spec_admits</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_an_element_type_default_must_name_a_type_the_spec_admits" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_a_measurement_coordinate_may_name_the_type_it_was_measured_at">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_a_measurement_coordinate_may_name_the_type_it_was_measured_at</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_a_measurement_coordinate_may_name_the_type_it_was_measured_at" title="Link to this definition">¶</a></dt>
+<dd><p>The same point, written either way, is one point – so migrating a
+registry entry to spellings cannot orphan an envelope that was measured
+before types existed.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_storage_intent_prices_against_declared_parameters">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_storage_intent_prices_against_declared_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_storage_intent_prices_against_declared_parameters" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_storage_intent_refuses_an_undeclared_scale_parameter">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_storage_intent_refuses_an_undeclared_scale_parameter</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_storage_intent_refuses_an_undeclared_scale_parameter" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_storage_intent_without_scale_is_a_fixed_cost">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_storage_intent_without_scale_is_a_fixed_cost</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_storage_intent_without_scale_is_a_fixed_cost" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_storage_bytes_refuses_illegal_scale_overrides">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_storage_bytes_refuses_illegal_scale_overrides</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_storage_bytes_refuses_illegal_scale_overrides" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_a_core_resolves_hdl_from_the_package_that_declares_it">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_a_core_resolves_hdl_from_the_package_that_declares_it</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monkeypatch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_a_core_resolves_hdl_from_the_package_that_declares_it" title="Link to this definition">¶</a></dt>
+<dd><p>A tile contributed by another distribution finds its own HDL.</p>
+<p>The registry is a hydra search path, so any package joining it through
+the <cite>hydra.lernaplugins</cite> entry point can contribute cores. Their HDL
+used to be resolved under dau_core.hdl regardless, so a third-party
+tile could be registered from anywhere but had to vendor its Verilog
+into this package. <cite>source_package</cite> is the seam.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">monkeypatch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards" title="Link to this definition">¶</a></dt>
+<dd><p>Installing a third-party tile must not fail THIS suite.</p>
+<p>Four guards here assert an exact set over the whole registry – the HDL
+directory listing, the descriptor-tagged operators, the envelope-free
+tiles, and the scalar-envelope holdouts. Each is a statement about
+dau-core’s own palette, and each read <cite>loaded_cores()</cite>, so a vendor tile
+registered through the entry point showed up as drift in all four. A
+contributor’s first experience of the platform was our test suite
+failing on their correct tile.</p>
+<p>The line drawn is between those four and the universal-property guards
+(every operator has a golden, a contract kind, record words, a measured
+envelope). Those are contract requirements a well-formed tile satisfies,
+so they stay registry-wide on purpose – which is why the tile below is
+built well-formed rather than minimal. It is the exact-set guards that
+fail even a perfect vendor tile, and only those are scoped.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_a_core_naming_an_uninstalled_hdl_package_refuses_clearly">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_a_core_naming_an_uninstalled_hdl_package_refuses_clearly</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_a_core_naming_an_uninstalled_hdl_package_refuses_clearly" title="Link to this definition">¶</a></dt>
+<dd><p>The failure names the missing distribution rather than surfacing an
+ImportError from inside a path resolution.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_a_measured_point_matches_a_derived_clock_period">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_a_measured_point_matches_a_derived_clock_period</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_a_measured_point_matches_a_derived_clock_period" title="Link to this definition">¶</a></dt>
+<dd><p>A clock period is DERIVED (1000 / job_clock_mhz), so exact float
+equality is the wrong test.</p>
+<p>150 MHz gives 6.666666666666667 while a registry writes 6.66667: the same
+physical clock, and the lookup refused it as unmeasured while printing the
+point it had just rejected. Real clock tiers differ by more than a
+nanosecond, so a picosecond tolerance keeps the “never a neighboring
+point” guarantee intact while tolerating representation.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_cores.test_an_unresolvable_hdl_source_says_so">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_an_unresolvable_hdl_source_says_so</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_an_unresolvable_hdl_source_says_so" title="Link to this definition">¶</a></dt>
+<dd><p>A declared source that does not resolve is a DECLARATION error.</p>
+<p>An out-of-tree tile whose HDL directory is not an importable package
+resolves to a MultiplexedPath that prints the right path and does not
+exist, so the first symptom used to be a synthesis run against a missing
+file. The requirement – an __init__.py beside the .sv files, so importlib
+can traverse the directory – is stated in the error rather than left to
+be discovered.</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+      </div>
+<nav class="fd-pagination" aria-label="Pagination">
+  <a class="fd-pagination-card fd-pagination-prev" href="../test_hero/index.html">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m15 18-6-6 6-6"/></svg>
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Previous</span>
+      <span class="fd-pagination-title">test_hero</span>
+    </span>
+  </a>
+  <a class="fd-pagination-card fd-pagination-next" href="../test_design/index.html">
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Next</span>
+      <span class="fd-pagination-title">test_design</span>
+    </span>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+  </a>
+</nav>
+<footer id="fd-footer">
+  <p class="fd-footer-meta"><span>&#169; the dau-core authors</span><span>Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.</span>
+  </p>
+</footer>
+    </article>
+  </main>
+<nav id="fd-toc" aria-label="On this page">
+  <p class="fd-toc-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>On this page</p>
+  <div class="fd-toc-body"><svg class="fd-toc-rail" aria-hidden="true" preserveAspectRatio="none">
+      <path class="fd-toc-track" fill="none" />
+      <path class="fd-toc-thumb" fill="none" />
+    </svg><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#attributes">Attributes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#functions">Functions</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#module-contents">Module Contents</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.OWN_PACKAGE">OWN_PACKAGE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.HDL_SUFFIXES">HDL_SUFFIXES</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.own_cores">own_cores()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.committed_hdl">committed_hdl()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_every_hdl_file_belongs_to_exactly_one_core">test_every_hdl_file_belongs_to_exactly_one_core()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_all_source_paths_exist">test_all_source_paths_exist()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_goldens_resolve_to_callables">test_goldens_resolve_to_callables()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_benches_are_importable_modules">test_benches_are_importable_modules()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_every_operator_has_a_golden">test_every_operator_has_a_golden()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_every_selectable_operator_declares_its_ingest_rate">test_every_selectable_operator_declares_its_ingest_rate()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_wide_combinational_tiles_declare_pipeline_depth_without_changing_ingest">test_wide_combinational_tiles_declare_pipeline_depth_without_changing_ingest()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_every_selectable_operator_declares_its_contract_kind">test_every_selectable_operator_declares_its_contract_kind()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_every_selectable_operator_declares_its_record_words">test_every_selectable_operator_declares_its_record_words()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_parameterized_record_words_resolve_from_defaults_and_overrides">test_parameterized_record_words_resolve_from_defaults_and_overrides()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_only_combinational_per_beat_cores_support_pipeline_depth">test_only_combinational_per_beat_cores_support_pipeline_depth()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_sources_for_closes_dependencies_in_order">test_sources_for_closes_dependencies_in_order()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_lookup_errors_are_typed">test_lookup_errors_are_typed()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_synthesizable_cores_carry_measured_envelopes">test_synthesizable_cores_carry_measured_envelopes()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.WIDTH_NAMED_TILES">WIDTH_NAMED_TILES</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_the_width_named_tiles_are_exactly_the_declared_ones">test_the_width_named_tiles_are_exactly_the_declared_ones()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.CANONICAL_PALETTE_VERSION">CANONICAL_PALETTE_VERSION</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.CANONICAL_PALETTE">CANONICAL_PALETTE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_the_canonical_palette_is_exactly_the_registered_names">test_the_canonical_palette_is_exactly_the_registered_names()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_the_canonical_palette_is_pinned_to_the_canonical_form_it_spells">test_the_canonical_palette_is_pinned_to_the_canonical_form_it_spells()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores._measured">_measured()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_exact_resource_measurement_resolves_with_parameter_defaults">test_exact_resource_measurement_resolves_with_parameter_defaults()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_resource_measurement_refuses_an_unmeasured_part">test_resource_measurement_refuses_an_unmeasured_part()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_an_unclocked_measurement_answers_for_any_clock_and_records_no_timing">test_an_unclocked_measurement_answers_for_any_clock_and_records_no_timing()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_every_registered_core_with_resources_carries_measurement_points">test_every_registered_core_with_resources_carries_measurement_points()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_normalize_follows_the_same_rule_as_violation">test_normalize_follows_the_same_rule_as_violation()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_violated_measurement_is_retrievable_but_not_a_usable_envelope">test_violated_measurement_is_retrievable_but_not_a_usable_envelope()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_registry_is_hydra_composition_not_a_python_literal">test_registry_is_hydra_composition_not_a_python_literal()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_accessors_defer_to_a_composed_registry">test_accessors_defer_to_a_composed_registry()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_silent_on_success_operator_set_is_pinned">test_silent_on_success_operator_set_is_pinned()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_dispatcher_rate_still_needs_record_aware_modeling">test_dispatcher_rate_still_needs_record_aware_modeling()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_authoritative_models_reject_impossible_values">test_authoritative_models_reject_impossible_values()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_parameter_spec_rejects_incoherent_constraints">test_parameter_spec_rejects_incoherent_constraints()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_parameter_spec_violation_is_the_single_constraint_source">test_parameter_spec_violation_is_the_single_constraint_source()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_an_element_type_parameter_accepts_a_width_or_a_spelling">test_an_element_type_parameter_accepts_a_width_or_a_spelling()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_an_element_type_parameter_bounds_the_width_not_the_encoding">test_an_element_type_parameter_bounds_the_width_not_the_encoding()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_an_element_type_spelling_is_refused_where_no_type_is_declared">test_an_element_type_spelling_is_refused_where_no_type_is_declared()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_an_element_type_default_must_name_a_type_the_spec_admits">test_an_element_type_default_must_name_a_type_the_spec_admits()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_a_measurement_coordinate_may_name_the_type_it_was_measured_at">test_a_measurement_coordinate_may_name_the_type_it_was_measured_at()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_storage_intent_prices_against_declared_parameters">test_storage_intent_prices_against_declared_parameters()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_storage_intent_refuses_an_undeclared_scale_parameter">test_storage_intent_refuses_an_undeclared_scale_parameter()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_storage_intent_without_scale_is_a_fixed_cost">test_storage_intent_without_scale_is_a_fixed_cost()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_storage_bytes_refuses_illegal_scale_overrides">test_storage_bytes_refuses_illegal_scale_overrides()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_a_core_resolves_hdl_from_the_package_that_declares_it">test_a_core_resolves_hdl_from_the_package_that_declares_it()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards">test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_a_core_naming_an_uninstalled_hdl_package_refuses_clearly">test_a_core_naming_an_uninstalled_hdl_package_refuses_clearly()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_a_measured_point_matches_a_derived_clock_period">test_a_measured_point_matches_a_derived_clock_period()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_cores.test_an_unresolvable_hdl_source_says_so">test_an_unresolvable_hdl_source_says_so()</a>
+  </li>
+</ul>
+
+  </div>
+  <div class="fd-toc-actions">
+    <a class="fd-toc-action" href="https://github.com/dau-dev/dau-core/edit/HEAD/autoapi/test_cores/index.rst" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span>Edit this page</span></a>
+    <a class="fd-toc-action" href="../../_sources/autoapi/test_cores/index.rst.txt" rel="nofollow"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><span>View source</span></a>
+  </div>
+</nav>
+</div>
+<dialog id="fd-search-dialog" aria-label="Search">
+  <form class="fd-search-panel" method="dialog" role="search">
+    <div class="fd-search-field">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="search" id="fd-search-input" autocomplete="off" spellcheck="false" placeholder="Search documentation..." aria-label="Search" />
+      <kbd class="fd-kbd">Esc</kbd>
+    </div>
+    <div id="fd-search-results" role="listbox" aria-label="Search results"></div>
+    <p id="fd-search-empty" class="fd-search-empty" hidden>No results found.</p>
+  </form>
+</dialog>
+  </body>
+</html>

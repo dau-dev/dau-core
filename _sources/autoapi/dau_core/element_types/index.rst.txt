@@ -1,0 +1,208 @@
+dau_core.element_types
+======================
+
+.. py:module:: dau_core.element_types
+
+.. autoapi-nested-parse::
+
+   Element types: what a value IS, not how wide it is.
+
+   A registry parameter that says ``32`` says a field is 32 bits. It does not say
+   whether those bits are a signed integer, a Q16.16 fixed-point number or an
+   IEEE-754 binary32 -- three things a tile must treat differently and which a
+   width cannot distinguish. This module gives the palette's element types names
+   ("int32", "q16.16", "float64") and turns them into the single integer a
+   SystemVerilog parameter can carry.
+
+   THE ENCODING is stated in ``dau_core/hdl/types.svh`` and mirrored here,
+   because Verilog cannot read Python and the registry cannot read a header.
+   ``test_element_types.py`` holds the two to the same numbers.
+
+       [7:0]   total width in bits (1..255)
+       [15:8]  fractional bits (0 for integers and for floats)
+       [16]    1 = IEEE-754 binary floating point
+       [17]    1 = unsigned
+
+   A PLAIN SIGNED INTEGER ENCODES AS ITS OWN WIDTH, so ``int32`` is 32 -- the
+   number the palette already carried. Migrating a parameter from a width to a
+   type therefore changes no synthesized bit, no measured envelope, and no
+   staged design; only the types a width could never express encode to anything
+   new. It is also why a bare integer stays a legal spelling: a caller who means
+   "a signed integer this many bits wide", or who wants a width the palette has
+   no name for, writes the number.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   dau_core.element_types.WIDTH_MASK
+   dau_core.element_types.FRACTIONAL_SHIFT
+   dau_core.element_types.FRACTIONAL_MASK
+   dau_core.element_types.FLOAT_BIT
+   dau_core.element_types.UNSIGNED_BIT
+   dau_core.element_types.MAX_WIDTH
+   dau_core.element_types.FLOAT_WIDTHS
+   dau_core.element_types._INTEGER
+   dau_core.element_types._FLOAT
+   dau_core.element_types._FIXED_POINT
+
+
+Exceptions
+----------
+
+.. autoapisummary::
+
+   dau_core.element_types.ElementTypeError
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   dau_core.element_types.ElementType
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   dau_core.element_types._checked
+   dau_core.element_types.parse_element_type
+   dau_core.element_types.decode_element_type
+   dau_core.element_types.element_type
+   dau_core.element_types.element_code
+
+
+Module Contents
+---------------
+
+.. py:data:: WIDTH_MASK
+   :value: 255
+
+
+.. py:data:: FRACTIONAL_SHIFT
+   :value: 8
+
+
+.. py:data:: FRACTIONAL_MASK
+   :value: 255
+
+
+.. py:data:: FLOAT_BIT
+   :value: 65536
+
+
+.. py:data:: UNSIGNED_BIT
+   :value: 131072
+
+
+.. py:data:: MAX_WIDTH
+   :value: 255
+
+
+.. py:data:: FLOAT_WIDTHS
+   :value: (32, 64)
+
+
+.. py:data:: _INTEGER
+
+.. py:data:: _FLOAT
+
+.. py:data:: _FIXED_POINT
+
+.. py:exception:: ElementTypeError
+
+   Bases: :py:obj:`ValueError`
+
+
+   A spelling that names no element type.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+.. py:class:: ElementType
+
+   One element type: the four facts a tile needs, plus its encoding.
+
+   Constructed by :func:`element_type` rather than directly, so that every
+   instance has been through the same validity rules.
+
+
+   .. py:attribute:: width
+      :type:  int
+
+
+   .. py:attribute:: fractional_bits
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: signed
+      :type:  bool
+      :value: True
+
+
+
+   .. py:attribute:: is_float
+      :type:  bool
+      :value: False
+
+
+
+   .. py:property:: code
+      :type: int
+
+
+      The integer a SystemVerilog parameter carries for this type.
+
+
+   .. py:property:: name
+      :type: str
+
+
+      The canonical spelling, which parses back to this same type.
+
+
+   .. py:method:: __str__() -> str
+
+
+.. py:function:: _checked(element: ElementType, source: object) -> ElementType
+
+.. py:function:: parse_element_type(spelling: str) -> ElementType
+
+   The element type a registry/composition spelling names.
+
+   ``int8``/``int16``/``int32``/``int64`` and their ``uint`` counterparts,
+   ``float32``/``float64``, and the general fixed-point form ``qI.F`` (I
+   integer bits including the sign, F fractional bits, I+F total).
+
+
+.. py:function:: decode_element_type(code: int) -> ElementType
+
+   The element type an encoded parameter value carries.
+
+
+.. py:function:: element_type(value: int | str) -> ElementType
+
+   The element type a declared value names, in either accepted form.
+
+   A STRING is a type spelling. An INTEGER is the encoding -- which, for a
+   plain signed integer, IS its width, so ``16`` still means ``int16`` and
+   is the only integer form worth hand-writing. There is deliberately ONE
+   interpretation of an integer here, and it is the same one the RTL applies
+   to the parameter it receives: a Python side that read ``16`` as a width
+   while Verilog read it as a code would be the exact confusion this module
+   exists to end.
+
+
+.. py:function:: element_code(value: int | str) -> int
+
+   The encoded parameter value for a declared element type.
+
+

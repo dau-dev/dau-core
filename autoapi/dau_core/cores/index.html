@@ -1,0 +1,2716 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>dau_core.cores &#8212; dau core v0.1.0</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fuma.css?v=f6f6878e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fuma-code.css?v=a950e949" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fonts/fuma-fonts.css?v=c2892c73" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/custom.css?v=88c24c6a" />
+    <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-searchlite-index="searchlite-index.json" defer="defer" src="../../../_static/searchlite.js?v=a5320898"></script>
+    <script defer="defer" src="../../../_static/fuma.js?v=b46bb53d"></script>
+    <script src="../../../_static/js/custom.js?v=956e5d78"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="dau_core.design" href="../design/index.html" />
+    <link rel="prev" title="dau_core.config" href="../config/index.html" />
+    <script>
+      (function () {
+        var root = document.documentElement;
+        try {
+          var stored = localStorage.getItem("fuma-theme");
+          if (stored) {
+            root.classList.add(stored === "dark" ? "dark" : "light");
+            root.style.colorScheme = stored === "dark" ? "dark" : "light";
+          }
+          if (localStorage.getItem("fuma-sidebar") === "collapsed") root.dataset.sidebarCollapsed = "true";
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+<body class="fd-body" data-layout="docs" data-toc-style="normal" data-open-level="1">
+<div id="fd-layout"><header id="fd-subnav">
+  <div class="fd-subnav-inner">
+    <button type="button" class="fd-icon-button fd-sidebar-toggle" aria-controls="fd-sidebar" aria-expanded="false" aria-label="Toggle navigation">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
+    </button><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau core v0.1.0</span>
+</a>
+
+    <div class="fd-nav-actions">
+      <button type="button" class="fd-icon-button" data-fd-search-open aria-label="Search"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+      <a class="fd-icon-button" href="https://github.com/dau-dev/dau-core" target="_blank" rel="noopener" aria-label="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <button type="button" class="fd-icon-button fd-theme-toggle" aria-label="Toggle theme">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-light"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-dark"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<aside id="fd-sidebar" aria-label="Documentation">
+  <div class="fd-sidebar-header">
+    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau core v0.1.0</span>
+</a>
+      <button type="button" class="fd-icon-button fd-sidebar-collapse" aria-label="Collapse sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+    </div>
+    <button type="button" class="fd-search-trigger" data-fd-search-open>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><span>Search</span><kbd class="fd-kbd">/</kbd>
+    </button>
+  </div>
+
+  <nav class="fd-sidebar-nav">
+    <div class="fd-sidebar-group">
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/tutorial/read-a-tile-contract.html">
+      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-tile.html">
+      <span class="fd-link-text">How to add an operator tile</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/how-to/test-a-core.html">
+      <span class="fd-link-text">How to test a core</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/how-to/measure-a-resource-envelope.html">
+      <span class="fd-link-text">How to measure a resource envelope</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/how-to/develop.html">
+      <span class="fd-link-text">Develop and contribute</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/reference/core-definition.html">
+      <span class="fd-link-text">CoreDefinition fields</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/reference/registry-guards.html">
+      <span class="fd-link-text">Registry-wide guards</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/explanation/why-cores-are-declared-in-config.html">
+      <span class="fd-link-text">Why cores are declared in config</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
+      <span class="fd-link-text">Why each tile has a golden model</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/explanation/why-resources-are-measured.html">
+      <span class="fd-link-text">Why resource costs are measured</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder" open>
+      <summary class="fd-folder-summary">
+        <a class="fd-link" href="../../index.html">
+          <span class="fd-link-text">API Reference</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <details class="fd-folder" open>
+      <summary class="fd-folder-summary">
+        <a class="fd-link" href="../index.html">
+          <span class="fd-link-text">dau_core</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../_lazy/index.html">
+      <span class="fd-link-text">dau_core._lazy</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../capabilities/index.html">
+      <span class="fd-link-text">dau_core.capabilities</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../capability_contract/index.html">
+      <span class="fd-link-text">dau_core.capability_contract</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../composition/index.html">
+      <span class="fd-link-text">dau_core.composition</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../config/index.html">
+      <span class="fd-link-text">dau_core.config</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link fd-current" href="#">
+      <span class="fd-link-text">dau_core.cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../design/index.html">
+      <span class="fd-link-text">dau_core.design</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../element_types/index.html">
+      <span class="fd-link-text">dau_core.element_types</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../exp_generator/index.html">
+      <span class="fd-link-text">dau_core.exp_generator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../fixed_point/index.html">
+      <span class="fd-link-text">dau_core.fixed_point</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../generators/index.html">
+      <span class="fd-link-text">dau_core.generators</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../hdl/index.html">
+      <span class="fd-link-text">dau_core.hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../hero/index.html">
+      <span class="fd-link-text">dau_core.hero</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../ln_generator/index.html">
+      <span class="fd-link-text">dau_core.ln_generator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../models/index.html">
+      <span class="fd-link-text">dau_core.models</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../normal_cdf_generator/index.html">
+      <span class="fd-link-text">dau_core.normal_cdf_generator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../operators/index.html">
+      <span class="fd-link-text">dau_core.operators</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../registers/index.html">
+      <span class="fd-link-text">dau_core.registers</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../registry/index.html">
+      <span class="fd-link-text">dau_core.registry</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../stream/index.html">
+      <span class="fd-link-text">dau_core.stream</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../temporal/index.html">
+      <span class="fd-link-text">dau_core.temporal</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../workflows/index.html">
+      <span class="fd-link-text">dau_core.workflows</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../conftest/index.html">
+      <span class="fd-link-text">conftest</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_docs/index.html">
+      <span class="fd-link-text">test_docs</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hero/index.html">
+      <span class="fd-link-text">test_hero</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_cores/index.html">
+      <span class="fd-link-text">test_cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_design/index.html">
+      <span class="fd-link-text">test_design</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_stream/index.html">
+      <span class="fd-link-text">test_stream</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_readme/index.html">
+      <span class="fd-link-text">test_readme</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_temporal/index.html">
+      <span class="fd-link-text">test_temporal</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_operators/index.html">
+      <span class="fd-link-text">test_operators</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder">
+      <summary class="fd-folder-summary">
+        <a class="fd-link" href="../../cocotb_benches/index.html">
+          <span class="fd-link-text">cocotb_benches</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_arrow_lite_stream_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_arrow_lite_stream_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_asof_backward_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_asof_backward_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_asof_feature_chain_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_asof_feature_chain_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_axi_bar_job_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_bar_job_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_axi_bar_noc_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_bar_noc_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_axi_burst_reader_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_burst_reader_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_axi_random_probe_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_random_probe_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_axi_sort_noc_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_sort_noc_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_bar_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_bar_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_bitonic_sorter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_bitonic_sorter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_broadcast_hash_join_small_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_broadcast_hash_join_small_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_broadcast_hash_join_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_broadcast_hash_join_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_bucket_agg_chain_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_bucket_agg_chain_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_datetime_format_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_datetime_format_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_field_sum_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_field_sum_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_fixed_point_divide_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_divide_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_fixed_point_exp_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_exp_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_fixed_point_ln_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_ln_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_fixed_point_sqrt_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_sqrt_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_grouped_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_grouped_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_grouped_field_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_grouped_field_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_grouped_field_sum_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_grouped_field_sum_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_hash_grouped_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_hash_grouped_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_hero_datapath_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_hero_datapath_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_int32_keyed_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_keyed_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_int32_keyed_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_keyed_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_int32_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_int32_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_int32_record_gather_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_record_gather_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_mask_dispatcher_exact_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_exact_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_mask_dispatcher_hash_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_hash_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_mask_dispatcher_multi_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_multi_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_mask_dispatcher_records_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_records_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_mask_dispatcher_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_mask_dispatcher_wide_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_wide_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_membership_filter_single_word_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_membership_filter_single_word_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_membership_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_membership_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_keyed_state_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_keyed_state_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_market_feature_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_market_feature_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_normal_cdf_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_normal_cdf_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_pair_key_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_pair_key_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_range_partitioner_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_range_partitioner_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_record_batch_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_record_batch_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_record_gearbox_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_record_gearbox_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_rolling_extremum_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_rolling_extremum_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_rolling_moments_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_rolling_moments_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_row_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_row_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_row_predicate_filter_width_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_predicate_filter_width_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_row_unpack_slots_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_unpack_slots_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_row_unpack_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_unpack_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_row_unpack_wide_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_unpack_wide_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_scratchpad_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_scratchpad_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_session_gap_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_session_gap_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_stream_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_stream_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_streaming_dedup_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_streaming_dedup_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_streaming_top_k_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_streaming_top_k_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_stride_distributor_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_stride_distributor_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_time_bucket_key_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_time_bucket_key_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_wide_field_sum_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_field_sum_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_wide_ingest_chain_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_ingest_chain_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_wide_row_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_row_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_wide_row_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_row_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/rate_probe/index.html">
+      <span class="fd-link-text">cocotb_benches.rate_probe</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hdl_cocotb/index.html">
+      <span class="fd-link-text">test_hdl_cocotb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_composition/index.html">
+      <span class="fd-link-text">test_composition</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hdl_sources/index.html">
+      <span class="fd-link-text">test_hdl_sources</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../exhaustive_sweep/index.html">
+      <span class="fd-link-text">exhaustive_sweep</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hash_grouped/index.html">
+      <span class="fd-link-text">test_hash_grouped</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_record_batch/index.html">
+      <span class="fd-link-text">test_record_batch</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_lazy_exports/index.html">
+      <span class="fd-link-text">test_lazy_exports</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_element_types/index.html">
+      <span class="fd-link-text">test_element_types</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_core_contract/index.html">
+      <span class="fd-link-text">test_core_contract</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hdl_verilator/index.html">
+      <span class="fd-link-text">test_hdl_verilator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_fixed_point_ln/index.html">
+      <span class="fd-link-text">test_fixed_point_ln</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_ohlcv_fixtures/index.html">
+      <span class="fd-link-text">test_ohlcv_fixtures</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hdl_elaboration/index.html">
+      <span class="fd-link-text">test_hdl_elaboration</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_datetime_format/index.html">
+      <span class="fd-link-text">test_datetime_format</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_fixed_point_exp/index.html">
+      <span class="fd-link-text">test_fixed_point_exp</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_generated_cores/index.html">
+      <span class="fd-link-text">test_generated_cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_benches_can_fail/index.html">
+      <span class="fd-link-text">test_benches_can_fail</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_contributed_cores/index.html">
+      <span class="fd-link-text">test_contributed_cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_validation_at_use/index.html">
+      <span class="fd-link-text">test_validation_at_use</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_aggregation_goldens/index.html">
+      <span class="fd-link-text">test_aggregation_goldens</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_capability_contract/index.html">
+      <span class="fd-link-text">test_capability_contract</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_public_tile_surface/index.html">
+      <span class="fd-link-text">test_public_tile_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_aggregation_tile_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_contributed_discovery/index.html">
+      <span class="fd-link-text">test_contributed_discovery</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_fixed_point_normal_cdf/index.html">
+      <span class="fd-link-text">test_fixed_point_normal_cdf</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_output_beat_declarations/index.html">
+      <span class="fd-link-text">test_output_beat_declarations</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_registers_and_capabilities/index.html">
+      <span class="fd-link-text">test_registers_and_capabilities</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_measured_from_matches_the_hdl/index.html">
+      <span class="fd-link-text">test_measured_from_matches_the_hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_parameter_bounds_match_the_hdl/index.html">
+      <span class="fd-link-text">test_parameter_bounds_match_the_hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hdl_parameter_bindings_resolve/index.html">
+      <span class="fd-link-text">test_hdl_parameter_bindings_resolve</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+</ul>
+    </div>
+  </nav>
+
+  <div class="fd-sidebar-footer">
+    <div class="fd-toolbar">
+      <a class="fd-toolbar-item" href="https://github.com/dau-dev/dau-core" target="_blank" rel="noopener" aria-label="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <div class="fd-theme-switch" role="group" aria-label="Theme">
+        <button type="button" class="fd-theme-option" data-fd-theme="light" aria-label="Light theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></button>
+        <button type="button" class="fd-theme-option" data-fd-theme="dark" aria-label="Dark theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg></button>
+      </div>
+    </div>
+  </div>
+</aside>
+<button type="button" id="fd-sidebar-restore" class="fd-icon-button" aria-label="Expand sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+<div class="fd-sidebar-scrim" hidden></div>
+  <div id="fd-toc-popover">
+    <button type="button" class="fd-toc-trigger" aria-expanded="false" aria-controls="fd-toc-mobile">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg><span>On this page</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <div id="fd-toc-mobile" hidden><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#attributes">Attributes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#exceptions">Exceptions</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#classes">Classes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#functions">Functions</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#module-contents">Module Contents</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.CoreKind">CoreKind</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreKind.OPERATOR">CoreKind.OPERATOR</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreKind.STREAM_INFRA">CoreKind.STREAM_INFRA</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreKind.SHELL_ADAPTER">CoreKind.SHELL_ADAPTER</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreKind.PACKAGE">CoreKind.PACKAGE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreKind.SIM_MODEL">CoreKind.SIM_MODEL</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.LoadImageKind">LoadImageKind</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.LoadImageKind.BITMAP_64">LoadImageKind.BITMAP_64</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.LoadImageKind.QUAD_ROWS">LoadImageKind.QUAD_ROWS</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.CoreRole">CoreRole</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreRole.FRONT_UNPACK">CoreRole.FRONT_UNPACK</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreRole.KEY_DISPATCH">CoreRole.KEY_DISPATCH</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreRole.SCAN_READER">CoreRole.SCAN_READER</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreRole.SCAN_BROADCAST">CoreRole.SCAN_BROADCAST</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreRole.SCAN_RECORD_WRITER">CoreRole.SCAN_RECORD_WRITER</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreRole.SCAN_WRITE_MUX">CoreRole.SCAN_WRITE_MUX</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreRole.SHELL_REGISTERS">CoreRole.SHELL_REGISTERS</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreRole.STREAM_JOB_SHELL">CoreRole.STREAM_JOB_SHELL</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreRole.FRONT_GEARBOX">CoreRole.FRONT_GEARBOX</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.ContractKind">ContractKind</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ContractKind.ROW_STREAM">ContractKind.ROW_STREAM</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ContractKind.ARROW_LITE_DESCRIPTOR">ContractKind.ARROW_LITE_DESCRIPTOR</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ContractKind.WIDE_ROW_STREAM">ContractKind.WIDE_ROW_STREAM</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.ResourceEnvelope">ResourceEnvelope</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceEnvelope.lut">ResourceEnvelope.lut</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceEnvelope.ff">ResourceEnvelope.ff</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceEnvelope.bram36">ResourceEnvelope.bram36</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceEnvelope.dsp">ResourceEnvelope.dsp</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.TimingStatus">TimingStatus</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.TimingStatus.MET">TimingStatus.MET</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.TimingStatus.VIOLATED">TimingStatus.VIOLATED</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.ResourceMeasurement">ResourceMeasurement</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceMeasurement.part">ResourceMeasurement.part</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceMeasurement.clock_ns">ResourceMeasurement.clock_ns</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceMeasurement.params">ResourceMeasurement.params</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceMeasurement.lut">ResourceMeasurement.lut</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceMeasurement.ff">ResourceMeasurement.ff</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceMeasurement.bram36">ResourceMeasurement.bram36</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceMeasurement.dsp">ResourceMeasurement.dsp</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceMeasurement.timing">ResourceMeasurement.timing</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceMeasurement.wns_ns">ResourceMeasurement.wns_ns</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceMeasurement._accept_type_spellings">ResourceMeasurement._accept_type_spellings()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceMeasurement._timing_matches_wns">ResourceMeasurement._timing_matches_wns()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceMeasurement.answers_clock">ResourceMeasurement.answers_clock()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceMeasurement.usable_envelope">ResourceMeasurement.usable_envelope()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.IngestRate">IngestRate</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.IngestRate.rows">IngestRate.rows</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.IngestRate.per_cycles">IngestRate.per_cycles</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.IngestRate.scales_with_param">IngestRate.scales_with_param</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.IngestRate.frames_on_param">IngestRate.frames_on_param</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.IngestRate._positive">IngestRate._positive()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.IngestRate._one_scaling_shape">IngestRate._one_scaling_shape()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.IngestRate.rows_per_cycle">IngestRate.rows_per_cycle</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.IngestRate.effective">IngestRate.effective()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.ParameterSpec">ParameterSpec</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ParameterSpec.default">ParameterSpec.default</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ParameterSpec.multiple_of">ParameterSpec.multiple_of</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ParameterSpec.choices">ParameterSpec.choices</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ParameterSpec.power_of_two">ParameterSpec.power_of_two</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ParameterSpec.minimum">ParameterSpec.minimum</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ParameterSpec.maximum">ParameterSpec.maximum</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ParameterSpec.element_type">ParameterSpec.element_type</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ParameterSpec._accept_type_spellings">ParameterSpec._accept_type_spellings()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ParameterSpec.violation">ParameterSpec.violation()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ParameterSpec.normalize">ParameterSpec.normalize()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ParameterSpec._violation">ParameterSpec._violation()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ParameterSpec._spell">ParameterSpec._spell()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ParameterSpec._constraints_cohere">ParameterSpec._constraints_cohere()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.StorageIntent">StorageIntent</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.StorageIntent.role">StorageIntent.role</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.StorageIntent.access">StorageIntent.access</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.StorageIntent.bytes_per_unit">StorageIntent.bytes_per_unit</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.StorageIntent.scale_parameter">StorageIntent.scale_parameter</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.StorageIntent.tier_hint">StorageIntent.tier_hint</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores._same_clock">_same_clock()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.HDL_CLOSURE_DIGEST_VERSION">HDL_CLOSURE_DIGEST_VERSION</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores._HDL_INCLUDE">_HDL_INCLUDE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.CoreDefinition">CoreDefinition</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.name">CoreDefinition.name</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.kind">CoreDefinition.kind</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.module">CoreDefinition.module</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.source">CoreDefinition.source</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.source_package">CoreDefinition.source_package</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.generator">CoreDefinition.generator</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.description">CoreDefinition.description</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.depends">CoreDefinition.depends</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.golden">CoreDefinition.golden</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.bench">CoreDefinition.bench</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.resources">CoreDefinition.resources</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.measured_from">CoreDefinition.measured_from</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.count_port">CoreDefinition.count_port</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.contract_kind">CoreDefinition.contract_kind</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.role">CoreDefinition.role</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.accuracy_ulp">CoreDefinition.accuracy_ulp</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.ingest">CoreDefinition.ingest</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.record_words">CoreDefinition.record_words</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.record_words_param">CoreDefinition.record_words_param</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.output_record_words">CoreDefinition.output_record_words</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.output_record_words_param">CoreDefinition.output_record_words_param</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.output_record_words_variable">CoreDefinition.output_record_words_variable</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.supports_pipeline_depth">CoreDefinition.supports_pipeline_depth</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.opcodes">CoreDefinition.opcodes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.opcode_input_types">CoreDefinition.opcode_input_types</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.row_capacity">CoreDefinition.row_capacity</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.unit_kind">CoreDefinition.unit_kind</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.success_close_out">CoreDefinition.success_close_out</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.load_image">CoreDefinition.load_image</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.parameters">CoreDefinition.parameters</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.storage_intent">CoreDefinition.storage_intent</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.storage_bytes">CoreDefinition.storage_bytes()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.model_post_init">CoreDefinition.model_post_init()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition._parameter_value">CoreDefinition._parameter_value()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.effective_record_words">CoreDefinition.effective_record_words()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.effective_output_record_words">CoreDefinition.effective_output_record_words()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.resource_measurement">CoreDefinition.resource_measurement()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.source_path">CoreDefinition.source_path()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.hdl_closure">CoreDefinition.hdl_closure()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.hdl_closure_digest">CoreDefinition.hdl_closure_digest()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.render">CoreDefinition.render()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.golden_callable">CoreDefinition.golden_callable()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.UnknownCoreSourceError">UnknownCoreSourceError</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.UnrenderedCoreError">UnrenderedCoreError</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.UnmeasuredResourceError">UnmeasuredResourceError</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.TimingViolationError">TimingViolationError</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.package_root">package_root()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.render_root">render_root()</a>
+  </li>
+</ul>
+</div>
+  </div>
+
+  <main id="fd-main">
+    <article class="fd-page">
+<nav class="fd-breadcrumbs" aria-label="Breadcrumbs">
+  <ol>
+    <li>
+      <a href="../../index.html">API Reference</a>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+    </li>
+    <li>
+      <a href="../index.html">dau_core</a>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+    </li>
+    <li aria-current="page">dau_core.cores</li>
+  </ol>
+</nav>
+      <div class="fd-prose">
+  <section id="module-dau_core.cores">
+<span id="dau-core-cores"></span><h1>dau_core.cores<a class="headerlink" href="#module-dau_core.cores" title="Link to this heading">¶</a></h1>
+<p>Core registry models and accessors: every HDL building block, what it
+is, what it depends on, which golden defines its semantics, and what it
+costs.</p>
+<p>The registry itself lives in dau-core’s hydra config tree
+(<code class="docutils literal notranslate"><span class="pre">dau_core/config/dau-core/cores.yaml</span></code>): one <code class="docutils literal notranslate"><span class="pre">CoreDefinition</span></code> entry per
+core, composed into the ccflow <code class="docutils literal notranslate"><span class="pre">ModelRegistry</span></code> at <code class="docutils literal notranslate"><span class="pre">/dau-core/&lt;name&gt;</span></code>
+and discoverable on the shared search path via the <code class="docutils literal notranslate"><span class="pre">hydra.lernaplugins</span></code>
+entry point. Composition IS the registry — this module defines the models
+and thin cached accessors, never a core list. Resource measurements are
+produced by the dau-build synthesize-cores task and recorded per part, clock
+and module parameters; there is no other shape.</p>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.cores.HDL_CLOSURE_DIGEST_VERSION" title="dau_core.cores.HDL_CLOSURE_DIGEST_VERSION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HDL_CLOSURE_DIGEST_VERSION</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.cores._HDL_INCLUDE" title="dau_core.cores._HDL_INCLUDE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_HDL_INCLUDE</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="exceptions">
+<h2>Exceptions<a class="headerlink" href="#exceptions" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.cores.UnknownCoreSourceError" title="dau_core.cores.UnknownCoreSourceError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UnknownCoreSourceError</span></code></a></p></td>
+<td><p>A core names an HDL package that is not installed.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.cores.UnrenderedCoreError" title="dau_core.cores.UnrenderedCoreError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UnrenderedCoreError</span></code></a></p></td>
+<td><p>A generated core was asked for its source before it was rendered.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.cores.UnmeasuredResourceError" title="dau_core.cores.UnmeasuredResourceError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UnmeasuredResourceError</span></code></a></p></td>
+<td><p>Base class for lookup errors.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.cores.TimingViolationError" title="dau_core.cores.TimingViolationError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TimingViolationError</span></code></a></p></td>
+<td><p>Inappropriate argument value (of correct type).</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.cores.CoreKind" title="dau_core.cores.CoreKind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CoreKind</span></code></a></p></td>
+<td><p>Create a collection of name/value pairs.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.cores.LoadImageKind" title="dau_core.cores.LoadImageKind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LoadImageKind</span></code></a></p></td>
+<td><p>What a load-capable tile's LOAD-phase input stream is (the two-phase</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.cores.CoreRole" title="dau_core.cores.CoreRole"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CoreRole</span></code></a></p></td>
+<td><p>What a core is FOR where a composition has to know, declared by the</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.cores.ContractKind" title="dau_core.cores.ContractKind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ContractKind</span></code></a></p></td>
+<td><p>Which streaming interface contract an operator tile speaks. Contract</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.cores.ResourceEnvelope" title="dau_core.cores.ResourceEnvelope"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ResourceEnvelope</span></code></a></p></td>
+<td><p>Resource counts: one LUT/FF/BRAM/DSP tuple. The usable face of a</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.cores.TimingStatus" title="dau_core.cores.TimingStatus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TimingStatus</span></code></a></p></td>
+<td><p>Create a collection of name/value pairs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.cores.ResourceMeasurement" title="dau_core.cores.ResourceMeasurement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ResourceMeasurement</span></code></a></p></td>
+<td><p>One exact OOC result. Coordinates are deliberately discrete: a</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.cores.IngestRate" title="dau_core.cores.IngestRate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IngestRate</span></code></a></p></td>
+<td><p>A stream core's guaranteed sustained ingest rate: <code class="docutils literal notranslate"><span class="pre">rows</span></code> rows per</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.cores.ParameterSpec" title="dau_core.cores.ParameterSpec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ParameterSpec</span></code></a></p></td>
+<td><p>An overridable SystemVerilog module parameter: its HDL default and the</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.cores.StorageIntent" title="dau_core.cores.StorageIntent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StorageIntent</span></code></a></p></td>
+<td><p>A core's declared storage need (STORAGE_AND_NOC.md). <code class="docutils literal notranslate"><span class="pre">owned</span></code> = a</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.cores.CoreDefinition" title="dau_core.cores.CoreDefinition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CoreDefinition</span></code></a></p></td>
+<td><p>One HDL building block and its contract surround.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.cores._same_clock" title="dau_core.cores._same_clock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_same_clock</span></code></a>(→ bool)</p></td>
+<td><p>Two clock periods naming the same physical clock.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.cores.package_root" title="dau_core.cores.package_root"><code class="xref py py-obj docutils literal notranslate"><span class="pre">package_root</span></code></a>(→ pathlib.Path)</p></td>
+<td><p>The on-disk directory of an HDL package.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.cores.render_root" title="dau_core.cores.render_root"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_root</span></code></a>(→ pathlib.Path)</p></td>
+<td><p>Where generated cores are materialized.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.cores.CoreKind">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.cores.</span></span><span class="sig-name descname"><span class="pre">CoreKind</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dau_core.cores.CoreKind" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>Create a collection of name/value pairs.</p>
+<p>Example enumeration:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span><span class="w"> </span><span class="nc">Color</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">RED</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="gp">... </span>    <span class="n">BLUE</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="gp">... </span>    <span class="n">GREEN</span> <span class="o">=</span> <span class="mi">3</span>
+</pre></div>
+</div>
+<p>Access them by:</p>
+<ul class="simple">
+<li><p>attribute access:</p></li>
+</ul>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="o">.</span><span class="n">RED</span>
+<span class="go">&lt;Color.RED: 1&gt;</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>value lookup:</p></li>
+</ul>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">&lt;Color.RED: 1&gt;</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>name lookup:</p></li>
+</ul>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="p">[</span><span class="s1">'RED'</span><span class="p">]</span>
+<span class="go">&lt;Color.RED: 1&gt;</span>
+</pre></div>
+</div>
+<p>Enumerations can be iterated over, and know how many members they have:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">Color</span><span class="p">)</span>
+<span class="go">3</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">Color</span><span class="p">)</span>
+<span class="go">[&lt;Color.RED: 1&gt;, &lt;Color.BLUE: 2&gt;, &lt;Color.GREEN: 3&gt;]</span>
+</pre></div>
+</div>
+<p>Methods can be added to enumerations, and members can have their own
+attributes – see the documentation for details.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreKind.OPERATOR">
+<span class="sig-name descname"><span class="pre">OPERATOR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'operator'</span></em><a class="headerlink" href="#dau_core.cores.CoreKind.OPERATOR" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreKind.STREAM_INFRA">
+<span class="sig-name descname"><span class="pre">STREAM_INFRA</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'stream-infra'</span></em><a class="headerlink" href="#dau_core.cores.CoreKind.STREAM_INFRA" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreKind.SHELL_ADAPTER">
+<span class="sig-name descname"><span class="pre">SHELL_ADAPTER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'shell-adapter'</span></em><a class="headerlink" href="#dau_core.cores.CoreKind.SHELL_ADAPTER" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreKind.PACKAGE">
+<span class="sig-name descname"><span class="pre">PACKAGE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'package'</span></em><a class="headerlink" href="#dau_core.cores.CoreKind.PACKAGE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreKind.SIM_MODEL">
+<span class="sig-name descname"><span class="pre">SIM_MODEL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sim-model'</span></em><a class="headerlink" href="#dau_core.cores.CoreKind.SIM_MODEL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.cores.LoadImageKind">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.cores.</span></span><span class="sig-name descname"><span class="pre">LoadImageKind</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dau_core.cores.LoadImageKind" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>What a load-capable tile’s LOAD-phase input stream is (the two-phase
+load: cfg_load=1 streams the build image, cfg_load=0 probes). The
+composition validates image/length-grid rules per kind; a core without
+this marker has no cfg_load port and can never be phase-bound.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.LoadImageKind.BITMAP_64">
+<span class="sig-name descname"><span class="pre">BITMAP_64</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'bitmap-64'</span></em><a class="headerlink" href="#dau_core.cores.LoadImageKind.BITMAP_64" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.LoadImageKind.QUAD_ROWS">
+<span class="sig-name descname"><span class="pre">QUAD_ROWS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'quad-rows'</span></em><a class="headerlink" href="#dau_core.cores.LoadImageKind.QUAD_ROWS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.cores.CoreRole">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.cores.</span></span><span class="sig-name descname"><span class="pre">CoreRole</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dau_core.cores.CoreRole" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>What a core is FOR where a composition has to know, declared by the
+registry rather than recognized by its name.</p>
+<p>Two composition rules cannot be read off a tile’s ports: that the core in
+the optional front-stage feed-transform slot is one that widens packed
+rows, and that a key-routing partitioner’s lane count satisfies the decode
+its <code class="docutils literal notranslate"><span class="pre">MODE</span></code> selects. Both were exact-name comparisons, which is the one
+thing “composition IS the registry” forbids – a second unpacker or a
+second router could not be written without editing this package, and a
+tile rename silently turned the check into dead code. A core says here
+what job it does; the composition asks.</p>
+<p><code class="docutils literal notranslate"><span class="pre">KEY_DISPATCH</span></code> is a contract as well as a label: a core declaring it
+routes whole records to lanes by a decode over the record’s key, and
+carries <code class="docutils literal notranslate"><span class="pre">MODE</span></code> (a <a class="reference internal" href="../operators/index.html#dau_core.operators.DispatchMode" title="dau_core.operators.DispatchMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">dau_core.operators.DispatchMode</span></code></a>) and
+<code class="docutils literal notranslate"><span class="pre">NUM_PARTITIONS</span></code> parameters with those meanings. A range partitioner
+routes by ordered splitters instead and is deliberately not one.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreRole.FRONT_UNPACK">
+<span class="sig-name descname"><span class="pre">FRONT_UNPACK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'front-unpack'</span></em><a class="headerlink" href="#dau_core.cores.CoreRole.FRONT_UNPACK" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreRole.KEY_DISPATCH">
+<span class="sig-name descname"><span class="pre">KEY_DISPATCH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'key-dispatch'</span></em><a class="headerlink" href="#dau_core.cores.CoreRole.KEY_DISPATCH" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreRole.SCAN_READER">
+<span class="sig-name descname"><span class="pre">SCAN_READER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'scan-reader'</span></em><a class="headerlink" href="#dau_core.cores.CoreRole.SCAN_READER" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreRole.SCAN_BROADCAST">
+<span class="sig-name descname"><span class="pre">SCAN_BROADCAST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'scan-broadcast'</span></em><a class="headerlink" href="#dau_core.cores.CoreRole.SCAN_BROADCAST" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreRole.SCAN_RECORD_WRITER">
+<span class="sig-name descname"><span class="pre">SCAN_RECORD_WRITER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'scan-record-writer'</span></em><a class="headerlink" href="#dau_core.cores.CoreRole.SCAN_RECORD_WRITER" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreRole.SCAN_WRITE_MUX">
+<span class="sig-name descname"><span class="pre">SCAN_WRITE_MUX</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'scan-write-mux'</span></em><a class="headerlink" href="#dau_core.cores.CoreRole.SCAN_WRITE_MUX" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreRole.SHELL_REGISTERS">
+<span class="sig-name descname"><span class="pre">SHELL_REGISTERS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'shell-registers'</span></em><a class="headerlink" href="#dau_core.cores.CoreRole.SHELL_REGISTERS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreRole.STREAM_JOB_SHELL">
+<span class="sig-name descname"><span class="pre">STREAM_JOB_SHELL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'stream-job-shell'</span></em><a class="headerlink" href="#dau_core.cores.CoreRole.STREAM_JOB_SHELL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreRole.FRONT_GEARBOX">
+<span class="sig-name descname"><span class="pre">FRONT_GEARBOX</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'front-gearbox'</span></em><a class="headerlink" href="#dau_core.cores.CoreRole.FRONT_GEARBOX" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.cores.ContractKind">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.cores.</span></span><span class="sig-name descname"><span class="pre">ContractKind</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dau_core.cores.ContractKind" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>Which streaming interface contract an operator tile speaks. Contract
+tests select their validator from this tag; a new core declares its
+contract here rather than being special-cased in test code.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.ContractKind.ROW_STREAM">
+<span class="sig-name descname"><span class="pre">ROW_STREAM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'row-stream'</span></em><a class="headerlink" href="#dau_core.cores.ContractKind.ROW_STREAM" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.ContractKind.ARROW_LITE_DESCRIPTOR">
+<span class="sig-name descname"><span class="pre">ARROW_LITE_DESCRIPTOR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'arrow-lite-descriptor'</span></em><a class="headerlink" href="#dau_core.cores.ContractKind.ARROW_LITE_DESCRIPTOR" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.ContractKind.WIDE_ROW_STREAM">
+<span class="sig-name descname"><span class="pre">WIDE_ROW_STREAM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'wide-row-stream'</span></em><a class="headerlink" href="#dau_core.cores.ContractKind.WIDE_ROW_STREAM" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.cores.ResourceEnvelope">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.cores.</span></span><span class="sig-name descname"><span class="pre">ResourceEnvelope</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data:</span> <span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dau_core.cores.ResourceEnvelope" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../models/index.html#dau_core.models.CheckedModel" title="dau_core.models.CheckedModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dau_core.models.CheckedModel</span></code></a></p>
+<p>Resource counts: one LUT/FF/BRAM/DSP tuple. The usable face of a
+measurement point, or the sum a composition estimate adds up to. Never
+a registry entry on its own: the registry records measurement points,
+which carry the coordinates a count is meaningless without.</p>
+<p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
+validated to form a valid model.</p>
+<p><cite>self</cite> is explicitly positional-only to allow <cite>self</cite> as a field name.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.ResourceEnvelope.lut">
+<span class="sig-name descname"><span class="pre">lut</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pydantic.NonNegativeInt</span></em><a class="headerlink" href="#dau_core.cores.ResourceEnvelope.lut" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.ResourceEnvelope.ff">
+<span class="sig-name descname"><span class="pre">ff</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pydantic.NonNegativeInt</span></em><a class="headerlink" href="#dau_core.cores.ResourceEnvelope.ff" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.ResourceEnvelope.bram36">
+<span class="sig-name descname"><span class="pre">bram36</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pydantic.NonNegativeFloat</span></em><a class="headerlink" href="#dau_core.cores.ResourceEnvelope.bram36" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.ResourceEnvelope.dsp">
+<span class="sig-name descname"><span class="pre">dsp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pydantic.NonNegativeInt</span></em><a class="headerlink" href="#dau_core.cores.ResourceEnvelope.dsp" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.cores.TimingStatus">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.cores.</span></span><span class="sig-name descname"><span class="pre">TimingStatus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dau_core.cores.TimingStatus" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>Create a collection of name/value pairs.</p>
+<p>Example enumeration:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span><span class="w"> </span><span class="nc">Color</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">RED</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="gp">... </span>    <span class="n">BLUE</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="gp">... </span>    <span class="n">GREEN</span> <span class="o">=</span> <span class="mi">3</span>
+</pre></div>
+</div>
+<p>Access them by:</p>
+<ul class="simple">
+<li><p>attribute access:</p></li>
+</ul>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="o">.</span><span class="n">RED</span>
+<span class="go">&lt;Color.RED: 1&gt;</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>value lookup:</p></li>
+</ul>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">&lt;Color.RED: 1&gt;</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>name lookup:</p></li>
+</ul>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="p">[</span><span class="s1">'RED'</span><span class="p">]</span>
+<span class="go">&lt;Color.RED: 1&gt;</span>
+</pre></div>
+</div>
+<p>Enumerations can be iterated over, and know how many members they have:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">Color</span><span class="p">)</span>
+<span class="go">3</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">Color</span><span class="p">)</span>
+<span class="go">[&lt;Color.RED: 1&gt;, &lt;Color.BLUE: 2&gt;, &lt;Color.GREEN: 3&gt;]</span>
+</pre></div>
+</div>
+<p>Methods can be added to enumerations, and members can have their own
+attributes – see the documentation for details.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.TimingStatus.MET">
+<span class="sig-name descname"><span class="pre">MET</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'met'</span></em><a class="headerlink" href="#dau_core.cores.TimingStatus.MET" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.TimingStatus.VIOLATED">
+<span class="sig-name descname"><span class="pre">VIOLATED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'violated'</span></em><a class="headerlink" href="#dau_core.cores.TimingStatus.VIOLATED" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.cores.ResourceMeasurement">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.cores.</span></span><span class="sig-name descname"><span class="pre">ResourceMeasurement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data:</span> <span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dau_core.cores.ResourceMeasurement" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../models/index.html#dau_core.models.CheckedModel" title="dau_core.models.CheckedModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dau_core.models.CheckedModel</span></code></a></p>
+<p>One exact OOC result. Coordinates are deliberately discrete: a
+measurement says nothing about another part, clock, or parameter tuple.</p>
+<p>A combinational core has no clock: <code class="docutils literal notranslate"><span class="pre">clock_ns</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>, no timing
+was reported and none is recorded, and the point answers for any clock
+because the logic costs the same at every one. A clocked point carries
+the clock it was constrained to, whether it met, and by how much.</p>
+<p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
+validated to form a valid model.</p>
+<p><cite>self</cite> is explicitly positional-only to allow <cite>self</cite> as a field name.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.ResourceMeasurement.part">
+<span class="sig-name descname"><span class="pre">part</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#dau_core.cores.ResourceMeasurement.part" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.ResourceMeasurement.clock_ns">
+<span class="sig-name descname"><span class="pre">clock_ns</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.cores.ResourceMeasurement.clock_ns" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.ResourceMeasurement.params">
+<span class="sig-name descname"><span class="pre">params</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Annotated[collections.abc.Mapping[str,</span> <span class="pre">pydantic.StrictInt],</span> <span class="pre">*ReadOnly]</span></em><a class="headerlink" href="#dau_core.cores.ResourceMeasurement.params" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.ResourceMeasurement.lut">
+<span class="sig-name descname"><span class="pre">lut</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pydantic.NonNegativeInt</span></em><a class="headerlink" href="#dau_core.cores.ResourceMeasurement.lut" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.ResourceMeasurement.ff">
+<span class="sig-name descname"><span class="pre">ff</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pydantic.NonNegativeInt</span></em><a class="headerlink" href="#dau_core.cores.ResourceMeasurement.ff" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.ResourceMeasurement.bram36">
+<span class="sig-name descname"><span class="pre">bram36</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pydantic.NonNegativeFloat</span></em><a class="headerlink" href="#dau_core.cores.ResourceMeasurement.bram36" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.ResourceMeasurement.dsp">
+<span class="sig-name descname"><span class="pre">dsp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pydantic.NonNegativeInt</span></em><a class="headerlink" href="#dau_core.cores.ResourceMeasurement.dsp" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.ResourceMeasurement.timing">
+<span class="sig-name descname"><span class="pre">timing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#dau_core.cores.TimingStatus" title="dau_core.cores.TimingStatus"><span class="pre">TimingStatus</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.cores.ResourceMeasurement.timing" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.ResourceMeasurement.wns_ns">
+<span class="sig-name descname"><span class="pre">wns_ns</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.cores.ResourceMeasurement.wns_ns" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.cores.ResourceMeasurement._accept_type_spellings">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_accept_type_spellings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dau_core.cores.ResourceMeasurement._accept_type_spellings" title="Link to this definition">¶</a></dt>
+<dd><p>A coordinate may name an element type where the synthesis run took
+one (“FIELD_WIDTH: int32”), and is stored as the encoding, so it
+compares equal to the same point written as a number. No parameter of
+an SV module has a legal non-numeric value other than a type, so a
+string here needs no further disambiguation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.cores.ResourceMeasurement._timing_matches_wns">
+<span class="sig-name descname"><span class="pre">_timing_matches_wns</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_core.cores.ResourceMeasurement" title="dau_core.cores.ResourceMeasurement"><span class="pre">ResourceMeasurement</span></a></span></span><a class="headerlink" href="#dau_core.cores.ResourceMeasurement._timing_matches_wns" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.cores.ResourceMeasurement.answers_clock">
+<span class="sig-name descname"><span class="pre">answers_clock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clock_ns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#dau_core.cores.ResourceMeasurement.answers_clock" title="Link to this definition">¶</a></dt>
+<dd><p>Whether this point prices a build at <code class="docutils literal notranslate"><span class="pre">clock_ns</span></code>: an unclocked
+point prices any clock, a clocked one only its own.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.cores.ResourceMeasurement.usable_envelope">
+<span class="sig-name descname"><span class="pre">usable_envelope</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_core.cores.ResourceEnvelope" title="dau_core.cores.ResourceEnvelope"><span class="pre">ResourceEnvelope</span></a></span></span><a class="headerlink" href="#dau_core.cores.ResourceMeasurement.usable_envelope" title="Link to this definition">¶</a></dt>
+<dd><p>Return resource counts only when timing met its target (or there
+was no timing to meet).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.cores.IngestRate">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.cores.</span></span><span class="sig-name descname"><span class="pre">IngestRate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data:</span> <span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dau_core.cores.IngestRate" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../models/index.html#dau_core.models.CheckedModel" title="dau_core.models.CheckedModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dau_core.models.CheckedModel</span></code></a></p>
+<p>A stream core’s guaranteed sustained ingest rate: <code class="docutils literal notranslate"><span class="pre">rows</span></code> rows per
+<code class="docutils literal notranslate"><span class="pre">per_cycles</span></code> clock cycles, an exact rational (1 row per 2 cycles is
+the composed lane rate the silicon proved; the key-mask dispatcher
+ingests 1 per 1). This is PUBLIC INTERFACE, not a heuristic: the
+scheduler/pricing software rate-matches a core it cannot inspect — a
+user-provided custom core tied to a custom operator is opaque except
+for its registry declaration, so the declaration carries the rate.
+Declare the FLOOR a core sustains under continuous valid input,
+with RECORD/DRAIN EMISSION AMORTIZED over the batch: close-out
+records, top-k drains, and per-group records are batch-tail or
+per-group costs, not per-row costs, so the declaration describes the
+streaming regime (groups much smaller than rows, drains at close).
+Data-dependent worst cases — every group key distinct, adversarial
+key runs into one dispatcher lane — are planner-regime concerns the
+planner sees in the plan (group keys, sortedness), not floor
+violations. A core may burst faster, and a measured improvement (a
+retime, a wider port) lands here the same release the RTL proves it.
+Compositions over these floors yield the sustained rate the scheduler
+plans on UNDER those stated assumptions.</p>
+<p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
+validated to form a valid model.</p>
+<p><cite>self</cite> is explicitly positional-only to allow <cite>self</cite> as a field name.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.IngestRate.rows">
+<span class="sig-name descname"><span class="pre">rows</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pydantic.StrictInt</span></em><a class="headerlink" href="#dau_core.cores.IngestRate.rows" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.IngestRate.per_cycles">
+<span class="sig-name descname"><span class="pre">per_cycles</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pydantic.StrictInt</span></em><a class="headerlink" href="#dau_core.cores.IngestRate.per_cycles" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.IngestRate.scales_with_param">
+<span class="sig-name descname"><span class="pre">scales_with_param</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.cores.IngestRate.scales_with_param" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.IngestRate.frames_on_param">
+<span class="sig-name descname"><span class="pre">frames_on_param</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.cores.IngestRate.frames_on_param" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.cores.IngestRate._positive">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_positive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#dau_core.cores.IngestRate._positive" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.cores.IngestRate._one_scaling_shape">
+<span class="sig-name descname"><span class="pre">_one_scaling_shape</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_core.cores.IngestRate" title="dau_core.cores.IngestRate"><span class="pre">IngestRate</span></a></span></span><a class="headerlink" href="#dau_core.cores.IngestRate._one_scaling_shape" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dau_core.cores.IngestRate.rows_per_cycle">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rows_per_cycle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">fractions.Fraction</span></em><a class="headerlink" href="#dau_core.cores.IngestRate.rows_per_cycle" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.cores.IngestRate.effective">
+<span class="sig-name descname"><span class="pre">effective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">declared</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#dau_core.cores.ParameterSpec" title="dau_core.cores.ParameterSpec"><span class="pre">ParameterSpec</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">fractions.Fraction</span></span></span><a class="headerlink" href="#dau_core.cores.IngestRate.effective" title="Link to this definition">¶</a></dt>
+<dd><p>The rate at concrete parameter values — what the scheduler uses.
+<code class="docutils literal notranslate"><span class="pre">params</span></code> are the composition’s overrides; <code class="docutils literal notranslate"><span class="pre">declared</span></code> the core’s
+parameter specs (defaults fill unset overrides).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.cores.ParameterSpec">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.cores.</span></span><span class="sig-name descname"><span class="pre">ParameterSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data:</span> <span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dau_core.cores.ParameterSpec" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../models/index.html#dau_core.models.CheckedModel" title="dau_core.models.CheckedModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dau_core.models.CheckedModel</span></code></a></p>
+<p>An overridable SystemVerilog module parameter: its HDL default and the
+constraint a composition override must satisfy — mirroring the RTL’s own
+elaboration guards so an invalid override is rejected at composition time,
+never later as an HDL elaboration failure. <code class="docutils literal notranslate"><span class="pre">multiple_of</span></code> mirrors sizing
+(the membership bitmap is <code class="docutils literal notranslate"><span class="pre">KEY_SPACE/64</span></code> words); <code class="docutils literal notranslate"><span class="pre">choices</span></code> pins an
+exact legal set (the quad-stream widths are 64 or 128, nothing else);
+<code class="docutils literal notranslate"><span class="pre">power_of_two</span></code> mirrors mask/bit-select decodes (the key-mask dispatcher’s
+<code class="docutils literal notranslate"><span class="pre">NUM_PARTITIONS</span></code>); <code class="docutils literal notranslate"><span class="pre">minimum</span></code> mirrors a lower bound (the rolling-moment
+window is <code class="docutils literal notranslate"><span class="pre">&gt;=</span> <span class="pre">2</span></code> — a size-1 sample variance is undefined). The HDL is the
+source of truth; this mirrors it.</p>
+<p><code class="docutils literal notranslate"><span class="pre">element_type</span></code> marks the parameter as naming WHAT AN ELEMENT IS rather
+than how big something is, and changes three things:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">default</span></code> and <code class="docutils literal notranslate"><span class="pre">choices</span></code> may be written as type spellings
+(<code class="docutils literal notranslate"><span class="pre">int32</span></code>, <code class="docutils literal notranslate"><span class="pre">q16.16</span></code>, <code class="docutils literal notranslate"><span class="pre">float64</span></code>) as well as integers, and are stored
+as the <a class="reference internal" href="../element_types/index.html#module-dau_core.element_types" title="dau_core.element_types"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dau_core.element_types</span></code></a> encoding either way. A plain signed
+integer encodes as its own width, so <code class="docutils literal notranslate"><span class="pre">32</span></code> and <code class="docutils literal notranslate"><span class="pre">int32</span></code> are the same
+declaration and no existing entry changes meaning.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">choices</span></code> are matched on the whole type. <code class="docutils literal notranslate"><span class="pre">int32</span></code> and <code class="docutils literal notranslate"><span class="pre">q16.16</span></code> are
+both 32 bits wide and are NOT interchangeable, which is the distinction
+a width could not draw.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">minimum</span></code>/<code class="docutils literal notranslate"><span class="pre">maximum</span></code>/<code class="docutils literal notranslate"><span class="pre">multiple_of</span></code>/<code class="docutils literal notranslate"><span class="pre">power_of_two</span></code> constrain the
+type’s WIDTH, because that is what the RTL guard they mirror is about
+(“FIELD_WIDTH must divide 128 and lie in [8, 64]” is a statement about
+the field’s bits, not about the number that names its type).</p></li>
+</ul>
+<p>Set it only for a parameter that genuinely selects an element type. Bus
+and beat widths (<code class="docutils literal notranslate"><span class="pre">IN_WIDTH</span></code>, <code class="docutils literal notranslate"><span class="pre">OUT_WIDTH</span></code>, <code class="docutils literal notranslate"><span class="pre">DATA_WIDTH</span></code>) count bits
+per handshake and are not types; declaring one here would let a design ask
+for a fixed-point AXI bus.</p>
+<p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
+validated to form a valid model.</p>
+<p><cite>self</cite> is explicitly positional-only to allow <cite>self</cite> as a field name.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.ParameterSpec.default">
+<span class="sig-name descname"><span class="pre">default</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.cores.ParameterSpec.default" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.ParameterSpec.multiple_of">
+<span class="sig-name descname"><span class="pre">multiple_of</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.cores.ParameterSpec.multiple_of" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.ParameterSpec.choices">
+<span class="sig-name descname"><span class="pre">choices</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.cores.ParameterSpec.choices" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.ParameterSpec.power_of_two">
+<span class="sig-name descname"><span class="pre">power_of_two</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#dau_core.cores.ParameterSpec.power_of_two" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.ParameterSpec.minimum">
+<span class="sig-name descname"><span class="pre">minimum</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#dau_core.cores.ParameterSpec.minimum" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.ParameterSpec.maximum">
+<span class="sig-name descname"><span class="pre">maximum</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.cores.ParameterSpec.maximum" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.ParameterSpec.element_type">
+<span class="sig-name descname"><span class="pre">element_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#dau_core.cores.ParameterSpec.element_type" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.cores.ParameterSpec._accept_type_spellings">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_accept_type_spellings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dau_core.cores.ParameterSpec._accept_type_spellings" title="Link to this definition">¶</a></dt>
+<dd><p>Resolve declared type spellings to their encoding before the int
+fields see them, so everything downstream – the constraint checks,
+the <code class="docutils literal notranslate"><span class="pre">-generic</span></code> a synthesis run passes, the canonical spec hash –
+works on one integer form and never has to know how it was written.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.cores.ParameterSpec.violation">
+<span class="sig-name descname"><span class="pre">violation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#dau_core.cores.ParameterSpec.violation" title="Link to this definition">¶</a></dt>
+<dd><p>Why <code class="docutils literal notranslate"><span class="pre">value</span></code> is not a legal override, or <code class="docutils literal notranslate"><span class="pre">None</span></code> when it is.
+This is the ONE statement of the constraint – composition wraps it
+with tile context, and the model’s own coherence check runs the
+default through it, so the rule cannot drift between the two.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.cores.ParameterSpec.normalize">
+<span class="sig-name descname"><span class="pre">normalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#dau_core.cores.ParameterSpec.normalize" title="Link to this definition">¶</a></dt>
+<dd><p>The integer the RTL elaborates with, however the value was written.</p>
+<p>A consumer holding a raw override – a build task assembling
+<code class="docutils literal notranslate"><span class="pre">-generic</span></code> arguments, say – has to turn a spelling into its code
+before it reaches a tool, and cannot import this package to do it:
+dau-build is public and the encoding lives here. Asking the spec that
+declared the parameter keeps the vocabulary in one place.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.cores.ParameterSpec._violation">
+<span class="sig-name descname"><span class="pre">_violation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">magnitude</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#dau_core.cores.ParameterSpec._violation" title="Link to this definition">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">value</span></code> is what the RTL elaborates with; <code class="docutils literal notranslate"><span class="pre">magnitude</span></code> is what the
+bounds constrain – the same number for a size parameter, and the
+element type’s width for a type parameter.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.cores.ParameterSpec._spell">
+<span class="sig-name descname"><span class="pre">_spell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#dau_core.cores.ParameterSpec._spell" title="Link to this definition">¶</a></dt>
+<dd><p>How a value appears in a message: a type parameter’s values are
+named, because ‘4128’ tells a reader nothing and ‘q16.16’ does.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.cores.ParameterSpec._constraints_cohere">
+<span class="sig-name descname"><span class="pre">_constraints_cohere</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_core.cores.ParameterSpec" title="dau_core.cores.ParameterSpec"><span class="pre">ParameterSpec</span></a></span></span><a class="headerlink" href="#dau_core.cores.ParameterSpec._constraints_cohere" title="Link to this definition">¶</a></dt>
+<dd><p>The spec mirrors RTL elaboration guards, so an incoherent spec is a
+registry bug that would reject every override – catch it at
+registration, not at the first composition.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.cores.StorageIntent">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.cores.</span></span><span class="sig-name descname"><span class="pre">StorageIntent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data:</span> <span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dau_core.cores.StorageIntent" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../models/index.html#dau_core.models.CheckedModel" title="dau_core.models.CheckedModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dau_core.models.CheckedModel</span></code></a></p>
+<p>A core’s declared storage need (STORAGE_AND_NOC.md). <code class="docutils literal notranslate"><span class="pre">owned</span></code> = a
+private single-cycle arena; <code class="docutils literal notranslate"><span class="pre">shared</span></code> = handle-based tier transactions.
+Capacity prices against a declared module parameter so the planner can
+refuse what no tier serves — never discovered at synthesis.</p>
+<p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
+validated to form a valid model.</p>
+<p><cite>self</cite> is explicitly positional-only to allow <cite>self</cite> as a field name.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.StorageIntent.role">
+<span class="sig-name descname"><span class="pre">role</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#dau_core.cores.StorageIntent.role" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.StorageIntent.access">
+<span class="sig-name descname"><span class="pre">access</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'owned'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'shared'</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#dau_core.cores.StorageIntent.access" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.StorageIntent.bytes_per_unit">
+<span class="sig-name descname"><span class="pre">bytes_per_unit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.cores.StorageIntent.bytes_per_unit" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.StorageIntent.scale_parameter">
+<span class="sig-name descname"><span class="pre">scale_parameter</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.cores.StorageIntent.scale_parameter" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.StorageIntent.tier_hint">
+<span class="sig-name descname"><span class="pre">tier_hint</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.cores.StorageIntent.tier_hint" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.cores._same_clock">
+<span class="sig-prename descclassname"><span class="pre">dau_core.cores.</span></span><span class="sig-name descname"><span class="pre">_same_clock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#dau_core.cores._same_clock" title="Link to this definition">¶</a></dt>
+<dd><p>Two clock periods naming the same physical clock.</p>
+<p>The unit is NANOSECONDS, so the tolerance is a picosecond: 6.66667 against
+a derived 6.666666666666667 differs by 3.3e-6 ns. Clock tiers in this
+registry are more than a nanosecond apart (8.0 vs 6.667 vs 10.0), so a
+picosecond is a thousand times too small to reach a neighbour.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_core.cores.HDL_CLOSURE_DIGEST_VERSION">
+<span class="sig-prename descclassname"><span class="pre">dau_core.cores.</span></span><span class="sig-name descname"><span class="pre">HDL_CLOSURE_DIGEST_VERSION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'1'</span></em><a class="headerlink" href="#dau_core.cores.HDL_CLOSURE_DIGEST_VERSION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_core.cores._HDL_INCLUDE">
+<span class="sig-prename descclassname"><span class="pre">dau_core.cores.</span></span><span class="sig-name descname"><span class="pre">_HDL_INCLUDE</span></span><a class="headerlink" href="#dau_core.cores._HDL_INCLUDE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.cores.</span></span><span class="sig-name descname"><span class="pre">CoreDefinition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data:</span> <span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dau_core.cores.CoreDefinition" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../models/index.html#dau_core.models.CheckedModel" title="dau_core.models.CheckedModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dau_core.models.CheckedModel</span></code></a></p>
+<p>One HDL building block and its contract surround.</p>
+<p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
+validated to form a valid model.</p>
+<p><cite>self</cite> is explicitly positional-only to allow <cite>self</cite> as a field name.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#dau_core.cores.CoreDefinition.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.kind">
+<span class="sig-name descname"><span class="pre">kind</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#dau_core.cores.CoreKind" title="dau_core.cores.CoreKind"><span class="pre">CoreKind</span></a></em><a class="headerlink" href="#dau_core.cores.CoreDefinition.kind" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.module">
+<span class="sig-name descname"><span class="pre">module</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#dau_core.cores.CoreDefinition.module" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.source">
+<span class="sig-name descname"><span class="pre">source</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#dau_core.cores.CoreDefinition.source" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.source_package">
+<span class="sig-name descname"><span class="pre">source_package</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'dau_core.hdl'</span></em><a class="headerlink" href="#dau_core.cores.CoreDefinition.source_package" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.generator">
+<span class="sig-name descname"><span class="pre">generator</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../generators/index.html#dau_core.generators.CoreGenerator" title="dau_core.generators.CoreGenerator"><span class="pre">dau_core.generators.CoreGenerator</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.cores.CoreDefinition.generator" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.description">
+<span class="sig-name descname"><span class="pre">description</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#dau_core.cores.CoreDefinition.description" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.depends">
+<span class="sig-name descname"><span class="pre">depends</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">()</span></em><a class="headerlink" href="#dau_core.cores.CoreDefinition.depends" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.golden">
+<span class="sig-name descname"><span class="pre">golden</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.cores.CoreDefinition.golden" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.bench">
+<span class="sig-name descname"><span class="pre">bench</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.cores.CoreDefinition.bench" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.resources">
+<span class="sig-name descname"><span class="pre">resources</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#dau_core.cores.ResourceMeasurement" title="dau_core.cores.ResourceMeasurement"><span class="pre">ResourceMeasurement</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.cores.CoreDefinition.resources" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.measured_from">
+<span class="sig-name descname"><span class="pre">measured_from</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.cores.CoreDefinition.measured_from" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.count_port">
+<span class="sig-name descname"><span class="pre">count_port</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.cores.CoreDefinition.count_port" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.contract_kind">
+<span class="sig-name descname"><span class="pre">contract_kind</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#dau_core.cores.ContractKind" title="dau_core.cores.ContractKind"><span class="pre">ContractKind</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.cores.CoreDefinition.contract_kind" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.role">
+<span class="sig-name descname"><span class="pre">role</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#dau_core.cores.CoreRole" title="dau_core.cores.CoreRole"><span class="pre">CoreRole</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.cores.CoreDefinition.role" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.accuracy_ulp">
+<span class="sig-name descname"><span class="pre">accuracy_ulp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.cores.CoreDefinition.accuracy_ulp" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.ingest">
+<span class="sig-name descname"><span class="pre">ingest</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#dau_core.cores.IngestRate" title="dau_core.cores.IngestRate"><span class="pre">IngestRate</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.cores.CoreDefinition.ingest" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.record_words">
+<span class="sig-name descname"><span class="pre">record_words</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pydantic.StrictInt</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.cores.CoreDefinition.record_words" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.record_words_param">
+<span class="sig-name descname"><span class="pre">record_words_param</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.cores.CoreDefinition.record_words_param" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.output_record_words">
+<span class="sig-name descname"><span class="pre">output_record_words</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pydantic.StrictInt</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.cores.CoreDefinition.output_record_words" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.output_record_words_param">
+<span class="sig-name descname"><span class="pre">output_record_words_param</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.cores.CoreDefinition.output_record_words_param" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.output_record_words_variable">
+<span class="sig-name descname"><span class="pre">output_record_words_variable</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#dau_core.cores.CoreDefinition.output_record_words_variable" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.supports_pipeline_depth">
+<span class="sig-name descname"><span class="pre">supports_pipeline_depth</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#dau_core.cores.CoreDefinition.supports_pipeline_depth" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.opcodes">
+<span class="sig-name descname"><span class="pre">opcodes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../stream/index.html#dau_core.stream.OperationCode" title="dau_core.stream.OperationCode"><span class="pre">dau_core.stream.OperationCode</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">()</span></em><a class="headerlink" href="#dau_core.cores.CoreDefinition.opcodes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.opcode_input_types">
+<span class="sig-name descname"><span class="pre">opcode_input_types</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../stream/index.html#dau_core.stream.LogicalType" title="dau_core.stream.LogicalType"><span class="pre">dau_core.stream.LogicalType</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">()</span></em><a class="headerlink" href="#dau_core.cores.CoreDefinition.opcode_input_types" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.row_capacity">
+<span class="sig-name descname"><span class="pre">row_capacity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.cores.CoreDefinition.row_capacity" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.unit_kind">
+<span class="sig-name descname"><span class="pre">unit_kind</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../design/index.html#dau_core.design.UnitKind" title="dau_core.design.UnitKind"><span class="pre">dau_core.design.UnitKind</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.cores.CoreDefinition.unit_kind" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.success_close_out">
+<span class="sig-name descname"><span class="pre">success_close_out</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#dau_core.cores.CoreDefinition.success_close_out" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.load_image">
+<span class="sig-name descname"><span class="pre">load_image</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#dau_core.cores.LoadImageKind" title="dau_core.cores.LoadImageKind"><span class="pre">LoadImageKind</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.cores.CoreDefinition.load_image" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.parameters">
+<span class="sig-name descname"><span class="pre">parameters</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Annotated[collections.abc.Mapping[str,</span> <span class="pre">ParameterSpec],</span> <span class="pre">*ReadOnly]</span></em><a class="headerlink" href="#dau_core.cores.CoreDefinition.parameters" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.storage_intent">
+<span class="sig-name descname"><span class="pre">storage_intent</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#dau_core.cores.StorageIntent" title="dau_core.cores.StorageIntent"><span class="pre">StorageIntent</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">()</span></em><a class="headerlink" href="#dau_core.cores.CoreDefinition.storage_intent" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.storage_bytes">
+<span class="sig-name descname"><span class="pre">storage_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#dau_core.cores.StorageIntent" title="dau_core.cores.StorageIntent"><span class="pre">StorageIntent</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dau_core.cores.CoreDefinition.storage_bytes" title="Link to this definition">¶</a></dt>
+<dd><p>Each intent with its byte cost at the effective parameters
+(overrides win, declared defaults otherwise).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.model_post_init">
+<span class="sig-name descname"><span class="pre">model_post_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dau_core.cores.CoreDefinition.model_post_init" title="Link to this definition">¶</a></dt>
+<dd><p>Override this method to perform additional initialization after <cite>__init__</cite> and <cite>model_construct</cite>.
+This is useful if you want to do some validation that requires the entire model to be initialized.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition._parameter_value">
+<span class="sig-name descname"><span class="pre">_parameter_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#dau_core.cores.CoreDefinition._parameter_value" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.effective_record_words">
+<span class="sig-name descname"><span class="pre">effective_record_words</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#dau_core.cores.CoreDefinition.effective_record_words" title="Link to this definition">¶</a></dt>
+<dd><p>Concrete input-record width after applying parameter overrides.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.effective_output_record_words">
+<span class="sig-name descname"><span class="pre">effective_output_record_words</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#dau_core.cores.CoreDefinition.effective_output_record_words" title="Link to this definition">¶</a></dt>
+<dd><p>Concrete emitted width, or <code class="docutils literal notranslate"><span class="pre">None</span></code> for runtime-variable output.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.resource_measurement">
+<span class="sig-name descname"><span class="pre">resource_measurement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">part</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clock_ns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_core.cores.ResourceMeasurement" title="dau_core.cores.ResourceMeasurement"><span class="pre">ResourceMeasurement</span></a></span></span><a class="headerlink" href="#dau_core.cores.CoreDefinition.resource_measurement" title="Link to this definition">¶</a></dt>
+<dd><p>Resolve one exact measurement, never a neighboring point.</p>
+<p>Composition overrides are expanded with declared defaults before
+comparison. An unclocked (combinational) point answers for any clock.</p>
+<p>Clock periods are DERIVED (1000 / job_clock_mhz), so they are compared
+to the picosecond rather than by float equality: 150 MHz yields
+6.666666666666667 while a registry writes 6.66667, and exact equality
+rejected a point while printing it in the same breath. Real clock tiers
+are more than a nanosecond apart, so this cannot reach a neighbour.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.source_path">
+<span class="sig-name descname"><span class="pre">source_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pathlib.Path</span></span></span><a class="headerlink" href="#dau_core.cores.CoreDefinition.source_path" title="Link to this definition">¶</a></dt>
+<dd><p>The HDL this core synthesizes from.</p>
+<p>A GENERATED core (one declaring a <code class="docutils literal notranslate"><span class="pre">generator</span></code>) has no checked-in
+file, so it refuses until it has been rendered rather than rendering
+implicitly on first read. What sits on disk is what gets synthesized;
+rendering behind a read would hide which parameters produced it, and
+the whole reason this core is generated is that its constants are a
+function of those parameters.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.hdl_closure">
+<span class="sig-name descname"><span class="pre">hdl_closure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resolve</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dau_core.cores.CoreDefinition.hdl_closure" title="Link to this definition">¶</a></dt>
+<dd><p>Every HDL file this core synthesizes from, as <code class="docutils literal notranslate"><span class="pre">(name,</span> <span class="pre">sha256)</span></code>
+pairs sorted by name.</p>
+<p>WHAT IS IN THE CLOSURE is the whole question, and the answer is: the
+files a synthesis run of THIS core reads. That is its own source, the
+source of every core reachable through <code class="docutils literal notranslate"><span class="pre">depends</span></code> (the packages it
+imports), and every header those files `` <cite>include `</cite>, resolved the
+way the toolchain resolves them – beside the including file first,
+then along the other source directories, which is exactly the
+<code class="docutils literal notranslate"><span class="pre">-include_dirs</span></code> list the synthesis task builds. A header nothing
+includes is NOT in the closure, so adding a second one to the palette
+does not re-measure every tile that ignores it; and a package a tile
+imports IS, so an edit there reaches every tile that reads it.</p>
+<p><code class="docutils literal notranslate"><span class="pre">resolve</span></code> maps a core name to its definition. It is a parameter
+rather than a registry import because the build package reaches these
+models through the composed ccflow registry and must not import this
+one.</p>
+<p>A GENERATED core is hashed from its RENDERED TEXT, not from a file on
+disk: its RTL is a function of the generator and of the constants in
+its registry entry, so an edit to either changes what synthesis reads
+while every checked-in file stays byte-identical.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.hdl_closure_digest">
+<span class="sig-name descname"><span class="pre">hdl_closure_digest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resolve</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#dau_core.cores.CoreDefinition.hdl_closure_digest" title="Link to this definition">¶</a></dt>
+<dd><p>The digest a measured envelope records as <code class="docutils literal notranslate"><span class="pre">measured_from</span></code>.</p>
+<p>Over BYTES, deliberately. A digest cannot tell a retimed adder from a
+renamed module, and pretending otherwise would mean teaching it which
+edits are allowed to be free – which is the judgement the guard
+exists to force someone to make and write down. So a rename moves the
+digest too, and re-stamping it costs an argument in the pull request.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.render">
+<span class="sig-name descname"><span class="pre">render</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">into</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pathlib.Path</span></span></span><a class="headerlink" href="#dau_core.cores.CoreDefinition.render" title="Link to this definition">¶</a></dt>
+<dd><p>Render this core’s HDL, returning the written path.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.golden_callable">
+<span class="sig-name descname"><span class="pre">golden_callable</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dau_core.cores.CoreDefinition.golden_callable" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="dau_core.cores.UnknownCoreSourceError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.cores.</span></span><span class="sig-name descname"><span class="pre">UnknownCoreSourceError</span></span><a class="headerlink" href="#dau_core.cores.UnknownCoreSourceError" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">RuntimeError</span></code></p>
+<p>A core names an HDL package that is not installed.</p>
+<p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="dau_core.cores.UnrenderedCoreError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.cores.</span></span><span class="sig-name descname"><span class="pre">UnrenderedCoreError</span></span><a class="headerlink" href="#dau_core.cores.UnrenderedCoreError" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">RuntimeError</span></code></p>
+<p>A generated core was asked for its source before it was rendered.</p>
+<p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="dau_core.cores.UnmeasuredResourceError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.cores.</span></span><span class="sig-name descname"><span class="pre">UnmeasuredResourceError</span></span><a class="headerlink" href="#dau_core.cores.UnmeasuredResourceError" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">LookupError</span></code></p>
+<p>Base class for lookup errors.</p>
+<p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="dau_core.cores.TimingViolationError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.cores.</span></span><span class="sig-name descname"><span class="pre">TimingViolationError</span></span><a class="headerlink" href="#dau_core.cores.TimingViolationError" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">ValueError</span></code></p>
+<p>Inappropriate argument value (of correct type).</p>
+<p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.cores.package_root">
+<span class="sig-prename descclassname"><span class="pre">dau_core.cores.</span></span><span class="sig-name descname"><span class="pre">package_root</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">package</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pathlib.Path</span></span></span><a class="headerlink" href="#dau_core.cores.package_root" title="Link to this definition">¶</a></dt>
+<dd><p>The on-disk directory of an HDL package.</p>
+<p>Resolved through importlib rather than a relative path from this file,
+so a core contributed by another distribution finds its own tree.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.cores.render_root">
+<span class="sig-prename descclassname"><span class="pre">dau_core.cores.</span></span><span class="sig-name descname"><span class="pre">render_root</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">package</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'dau_core.hdl'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pathlib.Path</span></span></span><a class="headerlink" href="#dau_core.cores.render_root" title="Link to this definition">¶</a></dt>
+<dd><p>Where generated cores are materialized.</p>
+<p>Defaults beside the declaring package so a checkout behaves like one
+with the files committed; a build tree points DAU_CORE_RENDER_ROOT at
+its own directory so two builds cannot race on one file.</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+      </div>
+<nav class="fd-pagination" aria-label="Pagination">
+  <a class="fd-pagination-card fd-pagination-prev" href="../config/index.html">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m15 18-6-6 6-6"/></svg>
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Previous</span>
+      <span class="fd-pagination-title">dau_core.config</span>
+    </span>
+  </a>
+  <a class="fd-pagination-card fd-pagination-next" href="../design/index.html">
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Next</span>
+      <span class="fd-pagination-title">dau_core.design</span>
+    </span>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+  </a>
+</nav>
+<footer id="fd-footer">
+  <p class="fd-footer-meta"><span>&#169; the dau-core authors</span><span>Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.</span>
+  </p>
+</footer>
+    </article>
+  </main>
+<nav id="fd-toc" aria-label="On this page">
+  <p class="fd-toc-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>On this page</p>
+  <div class="fd-toc-body"><svg class="fd-toc-rail" aria-hidden="true" preserveAspectRatio="none">
+      <path class="fd-toc-track" fill="none" />
+      <path class="fd-toc-thumb" fill="none" />
+    </svg><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#attributes">Attributes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#exceptions">Exceptions</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#classes">Classes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#functions">Functions</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#module-contents">Module Contents</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.CoreKind">CoreKind</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreKind.OPERATOR">CoreKind.OPERATOR</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreKind.STREAM_INFRA">CoreKind.STREAM_INFRA</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreKind.SHELL_ADAPTER">CoreKind.SHELL_ADAPTER</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreKind.PACKAGE">CoreKind.PACKAGE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreKind.SIM_MODEL">CoreKind.SIM_MODEL</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.LoadImageKind">LoadImageKind</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.LoadImageKind.BITMAP_64">LoadImageKind.BITMAP_64</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.LoadImageKind.QUAD_ROWS">LoadImageKind.QUAD_ROWS</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.CoreRole">CoreRole</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreRole.FRONT_UNPACK">CoreRole.FRONT_UNPACK</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreRole.KEY_DISPATCH">CoreRole.KEY_DISPATCH</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreRole.SCAN_READER">CoreRole.SCAN_READER</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreRole.SCAN_BROADCAST">CoreRole.SCAN_BROADCAST</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreRole.SCAN_RECORD_WRITER">CoreRole.SCAN_RECORD_WRITER</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreRole.SCAN_WRITE_MUX">CoreRole.SCAN_WRITE_MUX</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreRole.SHELL_REGISTERS">CoreRole.SHELL_REGISTERS</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreRole.STREAM_JOB_SHELL">CoreRole.STREAM_JOB_SHELL</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreRole.FRONT_GEARBOX">CoreRole.FRONT_GEARBOX</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.ContractKind">ContractKind</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ContractKind.ROW_STREAM">ContractKind.ROW_STREAM</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ContractKind.ARROW_LITE_DESCRIPTOR">ContractKind.ARROW_LITE_DESCRIPTOR</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ContractKind.WIDE_ROW_STREAM">ContractKind.WIDE_ROW_STREAM</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.ResourceEnvelope">ResourceEnvelope</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceEnvelope.lut">ResourceEnvelope.lut</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceEnvelope.ff">ResourceEnvelope.ff</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceEnvelope.bram36">ResourceEnvelope.bram36</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceEnvelope.dsp">ResourceEnvelope.dsp</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.TimingStatus">TimingStatus</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.TimingStatus.MET">TimingStatus.MET</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.TimingStatus.VIOLATED">TimingStatus.VIOLATED</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.ResourceMeasurement">ResourceMeasurement</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceMeasurement.part">ResourceMeasurement.part</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceMeasurement.clock_ns">ResourceMeasurement.clock_ns</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceMeasurement.params">ResourceMeasurement.params</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceMeasurement.lut">ResourceMeasurement.lut</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceMeasurement.ff">ResourceMeasurement.ff</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceMeasurement.bram36">ResourceMeasurement.bram36</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceMeasurement.dsp">ResourceMeasurement.dsp</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceMeasurement.timing">ResourceMeasurement.timing</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceMeasurement.wns_ns">ResourceMeasurement.wns_ns</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceMeasurement._accept_type_spellings">ResourceMeasurement._accept_type_spellings()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceMeasurement._timing_matches_wns">ResourceMeasurement._timing_matches_wns()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceMeasurement.answers_clock">ResourceMeasurement.answers_clock()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ResourceMeasurement.usable_envelope">ResourceMeasurement.usable_envelope()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.IngestRate">IngestRate</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.IngestRate.rows">IngestRate.rows</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.IngestRate.per_cycles">IngestRate.per_cycles</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.IngestRate.scales_with_param">IngestRate.scales_with_param</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.IngestRate.frames_on_param">IngestRate.frames_on_param</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.IngestRate._positive">IngestRate._positive()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.IngestRate._one_scaling_shape">IngestRate._one_scaling_shape()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.IngestRate.rows_per_cycle">IngestRate.rows_per_cycle</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.IngestRate.effective">IngestRate.effective()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.ParameterSpec">ParameterSpec</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ParameterSpec.default">ParameterSpec.default</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ParameterSpec.multiple_of">ParameterSpec.multiple_of</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ParameterSpec.choices">ParameterSpec.choices</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ParameterSpec.power_of_two">ParameterSpec.power_of_two</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ParameterSpec.minimum">ParameterSpec.minimum</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ParameterSpec.maximum">ParameterSpec.maximum</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ParameterSpec.element_type">ParameterSpec.element_type</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ParameterSpec._accept_type_spellings">ParameterSpec._accept_type_spellings()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ParameterSpec.violation">ParameterSpec.violation()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ParameterSpec.normalize">ParameterSpec.normalize()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ParameterSpec._violation">ParameterSpec._violation()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ParameterSpec._spell">ParameterSpec._spell()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ParameterSpec._constraints_cohere">ParameterSpec._constraints_cohere()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.StorageIntent">StorageIntent</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.StorageIntent.role">StorageIntent.role</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.StorageIntent.access">StorageIntent.access</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.StorageIntent.bytes_per_unit">StorageIntent.bytes_per_unit</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.StorageIntent.scale_parameter">StorageIntent.scale_parameter</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.StorageIntent.tier_hint">StorageIntent.tier_hint</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores._same_clock">_same_clock()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.HDL_CLOSURE_DIGEST_VERSION">HDL_CLOSURE_DIGEST_VERSION</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores._HDL_INCLUDE">_HDL_INCLUDE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.CoreDefinition">CoreDefinition</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.name">CoreDefinition.name</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.kind">CoreDefinition.kind</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.module">CoreDefinition.module</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.source">CoreDefinition.source</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.source_package">CoreDefinition.source_package</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.generator">CoreDefinition.generator</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.description">CoreDefinition.description</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.depends">CoreDefinition.depends</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.golden">CoreDefinition.golden</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.bench">CoreDefinition.bench</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.resources">CoreDefinition.resources</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.measured_from">CoreDefinition.measured_from</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.count_port">CoreDefinition.count_port</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.contract_kind">CoreDefinition.contract_kind</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.role">CoreDefinition.role</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.accuracy_ulp">CoreDefinition.accuracy_ulp</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.ingest">CoreDefinition.ingest</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.record_words">CoreDefinition.record_words</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.record_words_param">CoreDefinition.record_words_param</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.output_record_words">CoreDefinition.output_record_words</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.output_record_words_param">CoreDefinition.output_record_words_param</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.output_record_words_variable">CoreDefinition.output_record_words_variable</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.supports_pipeline_depth">CoreDefinition.supports_pipeline_depth</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.opcodes">CoreDefinition.opcodes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.opcode_input_types">CoreDefinition.opcode_input_types</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.row_capacity">CoreDefinition.row_capacity</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.unit_kind">CoreDefinition.unit_kind</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.success_close_out">CoreDefinition.success_close_out</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.load_image">CoreDefinition.load_image</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.parameters">CoreDefinition.parameters</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.storage_intent">CoreDefinition.storage_intent</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.storage_bytes">CoreDefinition.storage_bytes()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.model_post_init">CoreDefinition.model_post_init()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition._parameter_value">CoreDefinition._parameter_value()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.effective_record_words">CoreDefinition.effective_record_words()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.effective_output_record_words">CoreDefinition.effective_output_record_words()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.resource_measurement">CoreDefinition.resource_measurement()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.source_path">CoreDefinition.source_path()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.hdl_closure">CoreDefinition.hdl_closure()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.hdl_closure_digest">CoreDefinition.hdl_closure_digest()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.render">CoreDefinition.render()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.CoreDefinition.golden_callable">CoreDefinition.golden_callable()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.UnknownCoreSourceError">UnknownCoreSourceError</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.UnrenderedCoreError">UnrenderedCoreError</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.UnmeasuredResourceError">UnmeasuredResourceError</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.TimingViolationError">TimingViolationError</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.package_root">package_root()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.cores.render_root">render_root()</a>
+  </li>
+</ul>
+
+  </div>
+  <div class="fd-toc-actions">
+    <a class="fd-toc-action" href="https://github.com/dau-dev/dau-core/edit/HEAD/autoapi/dau_core/cores/index.rst" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span>Edit this page</span></a>
+    <a class="fd-toc-action" href="../../../_sources/autoapi/dau_core/cores/index.rst.txt" rel="nofollow"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><span>View source</span></a>
+  </div>
+</nav>
+</div>
+<dialog id="fd-search-dialog" aria-label="Search">
+  <form class="fd-search-panel" method="dialog" role="search">
+    <div class="fd-search-field">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="search" id="fd-search-input" autocomplete="off" spellcheck="false" placeholder="Search documentation..." aria-label="Search" />
+      <kbd class="fd-kbd">Esc</kbd>
+    </div>
+    <div id="fd-search-results" role="listbox" aria-label="Search results"></div>
+    <p id="fd-search-empty" class="fd-search-empty" hidden>No results found.</p>
+  </form>
+</dialog>
+  </body>
+</html>

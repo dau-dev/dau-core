@@ -1,0 +1,33 @@
+conftest
+========
+
+.. py:module:: conftest
+
+.. autoapi-nested-parse::
+
+   Session setup shared by the dau-core suites.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   conftest._render_generated_cores
+
+
+Module Contents
+---------------
+
+.. py:function:: _render_generated_cores()
+
+   Materialize generated cores once for the whole session.
+
+   A generated core refuses its source path until rendered, which is the
+   point -- but every suite that walks the registry (contract conformance,
+   elaboration) needs the sources present. Rendering here keeps that refusal
+   strict in production while letting the suites see a complete palette, and
+   it exercises the render path on every run.
+
+

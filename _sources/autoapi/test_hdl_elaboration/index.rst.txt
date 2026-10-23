@@ -1,0 +1,104 @@
+test_hdl_elaboration
+====================
+
+.. py:module:: test_hdl_elaboration
+
+.. autoapi-nested-parse::
+
+   Every LEGAL parameterization must elaborate.
+
+   The registry advertises which parameter values a composition may choose.
+   Nothing checked that the RTL agrees. It did not: the key-mask dispatcher
+   advertised a 192-bit input (the 3-word record bus) while its own
+   elaboration guard rejected anything but 64/128/256/512, and the
+   dispatcher had never been elaborated at 64-bit at all — Vivado failed the
+   build on a part-select the benches never exercised.
+
+   This gate is cheap (lint-only, no simulation) and covers the whole
+   declared parameter space rather than the handful of values benches happen
+   to use. It is the counterpart to the OOC synthesis task, which is
+   authoritative but far too slow to run over every combination.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_hdl_elaboration._FATAL_CLASSES
+   test_hdl_elaboration._MAX_COMBINATIONS
+   test_hdl_elaboration._COUPLED
+   test_hdl_elaboration._OPERATOR_CORES
+   test_hdl_elaboration._REQUIRED
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_hdl_elaboration._is_coupled_out
+   test_hdl_elaboration._candidate_values
+   test_hdl_elaboration._parameterizations
+   test_hdl_elaboration._sources_for
+   test_hdl_elaboration.test_this_gate_actually_ran
+   test_hdl_elaboration.test_every_declared_parameterization_elaborates
+
+
+Module Contents
+---------------
+
+.. py:data:: _FATAL_CLASSES
+   :value: ('-Werror-USERFATAL', '-Werror-SELRANGE')
+
+
+.. py:data:: _MAX_COMBINATIONS
+   :value: 24
+
+
+.. py:data:: _COUPLED
+   :type:  dict[str, collections.abc.Callable[[dict[str, int]], bool]]
+
+.. py:function:: _is_coupled_out(core_name: str, params: dict[str, int]) -> bool
+
+.. py:function:: _candidate_values(spec) -> list[int]
+
+   The values a composition may legally choose for one parameter.
+
+
+.. py:function:: _parameterizations(definition) -> list[dict[str, int]]
+
+.. py:function:: _sources_for(definition) -> list[str]
+
+   The core's own source plus every dependency's, resolved through the
+   REGISTRY rather than guessed from the dependency name — package files
+   do not follow the core naming.
+
+
+.. py:data:: _OPERATOR_CORES
+
+.. py:data:: _REQUIRED
+
+.. py:function:: test_this_gate_actually_ran() -> None
+
+   A required check that can silently carry no signal is worse than a
+   non-required one.
+
+   Every other test in this file skips on ``which("verilator") is None``, so
+   a tool install that quietly failed leaves the gate green having elaborated
+   nothing. That is not hypothetical: the bench job once spent 60 minutes
+   wedged installing verilator, was cancelled without reaching a single
+   bench, and reported nothing about the diff while appearing to run.
+
+   ``DAU_REQUIRE_VERILATOR`` turns that skip into a failure. Note what this
+   test does NOT skip on: verilator itself. A guard that steps aside for the
+   same reason as its subject guards nothing, so where the tier is required
+   this runs unconditionally and fails.
+
+   It lives here rather than in the workflow so the assertion travels with
+   the tests it guards.
+
+
+.. py:function:: test_every_declared_parameterization_elaborates(core_name: str) -> None
+

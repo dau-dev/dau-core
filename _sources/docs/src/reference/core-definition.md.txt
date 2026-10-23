@@ -1,0 +1,206 @@
+# `CoreDefinition` fields
+
+Every entry in the core registry is a `CoreDefinition`. Entries are
+declared in `dau_core/config/dau-core/cores.yaml`, one
+`_target_: dau_core.cores.CoreDefinition` per HDL building block, and
+loaded into the ccflow `ModelRegistry` at `/dau-core/<name>`.
+
+## Identity
+
+| Field            | Type                    | Description                                                                                                                                                                                  |
+| ---------------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`           | `str`                   | Registry key, named for what the tile computes. A width belongs in the parameters, not the name; see [Add an operator tile](../how-to/add-an-operator-tile.md).                              |
+| `kind`           | `CoreKind`              | `operator`, `stream-infra`, `shell-adapter`, `package`, or `sim-model`.                                                                                                                      |
+| `module`         | `str`                   | The SystemVerilog module name.                                                                                                                                                               |
+| `source`         | `str`                   | The HDL filename within `source_package`.                                                                                                                                                    |
+| `source_package` | `str`                   | The importable package the `source` is resolved inside. Defaults to `dau_core.hdl`; a core registered from another distribution names its own package, so its HDL need not be vendored here. |
+| `generator`      | `CoreGenerator \| None` | Set when the HDL is rendered rather than checked in. `source` then names the file it renders *to*, and `source_path()` raises `UnrenderedCoreError` until it exists.                         |
+| `description`    | `str`                   | What the core does and what its contracts are.                                                                                                                                               |
+| `depends`        | `tuple[str, ...]`       | Registry names this core's HDL requires. `sources_for()` resolves the closure in compile order.                                                                                              |
+
+Every model in dau-core is frozen and validated at construction. Because
+`model_copy(update=...)` skips validation, each model also has
+`replace(**update)`, which validates the copy, and `check()`, which
+validates the model again and returns it. A model built with `model_copy`
+is rejected by the next model that holds it and by every composition
+function that reads it. Mapping fields (`parameters`, `config`, `params`)
+are read-only: reading, comparing and serializing them works as before, and
+mutating them raises an error. `CoreGenerator` is not revalidated when
+another model holds it, because it is a field type and validating a
+subclass against the base would drop the subclass's own fields.
+
+`CoreDefinition.render(into=)` writes a generated core's source;
+`render_root()` is the default destination, overridable with the
+`DAU_CORE_RENDER_ROOT` environment variable. Rendering a checked-in core
+raises an error.
+
+## Semantics and verification
+
+| Field    | Type          | Description                                                                                   |
+| -------- | ------------- | --------------------------------------------------------------------------------------------- |
+| `golden` | `str \| None` | The reference implementation, as `module:function`. Hardware results byte-compare against it. |
+| `bench`  | `str \| None` | The cocotb bench module that proves the HDL equal to the golden.                              |
+
+## Resources
+
+| Field           | Type                                      | Description                                                                                                                                                                                        |
+| --------------- | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `resources`     | `tuple[ResourceMeasurement, ...] \| None` | Measurement points keyed by part, clock, and parameters. A combinational core's point has no clock and answers for any.                                                                            |
+| `measured_from` | `str \| None`                             | Digest of the HDL closure the points were measured from (`hdl_closure_digest()`): the tile's source, the packages it imports and the headers it includes. A stamp with no `resources` is rejected. |
+| `accuracy_ulp`  | `int \| None`                             | For a tile whose golden is a mathematical reference (the transcendentals): the worst deviation from the correctly rounded answer, in ULP, over an exhaustive sweep. `0` means correctly rounded.   |
+
+`ResourceEnvelope` is a count (`lut`, `ff`, `bram36`, `dsp`): a measurement point's usable face, or the sum a composition estimate adds up to. It is not a registry shape.
+
+`ResourceMeasurement` has `part`, `clock_ns`, `params`, `lut`, `ff`,
+`bram36`, `dsp`, `timing`, `wns_ns`, and exposes `usable_envelope()`.
+
+`CoreDefinition.resource_measurement(part=, clock_ns=, params=)` returns the
+point for an exact coordinate and raises `UnmeasuredResourceError` when no
+point matches. It does not interpolate or extrapolate. The point's
+`usable_envelope()` is what raises `TimingViolationError` when its `timing`
+is `VIOLATED`, so a caller can inspect a violated point but cannot use its
+numbers as a budget.
+
+## Stream contract
+
+| Field                          | Type                   | Description                                                                                                                                                                     |
+| ------------------------------ | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `contract_kind`                | `ContractKind \| None` | `row-stream`, `wide-row-stream`, or the other declared framings.                                                                                                                |
+| `record_words`                 | `int \| None`          | 64-bit words per input record.                                                                                                                                                  |
+| `record_words_param`           | `str \| None`          | Module parameter that sets `record_words` when it is not fixed.                                                                                                                 |
+| `output_record_words`          | `int \| None`          | Words per output record when it differs from the input.                                                                                                                         |
+| `output_record_words_param`    | `str \| None`          | Module parameter that sets the output width.                                                                                                                                    |
+| `output_record_words_variable` | `bool`                 | The output record's width depends on configuration (for example a field mask selecting how many sum words ride each record).                                                    |
+| `count_port`                   | `str \| None`          | The port reporting how many records the core emitted.                                                                                                                           |
+| `success_close_out`            | `bool`                 | Whether this core raises the batch's single success close-out. Terminal tiles do; mid-chain tiles are silent on success.                                                        |
+| `supports_pipeline_depth`      | `bool`                 | The core accepts generic elastic register stages without changing framing semantics. Requires a declared `PIPELINE_DEPTH` parameter; no build or pricing consumer reads it yet. |
+
+## Composition role
+
+| Field  | Type               | Description                                                                                  |
+| ------ | ------------------ | -------------------------------------------------------------------------------------------- |
+| `role` | `CoreRole \| None` | The composition job this core fills, when a composition rule turns on it. Most cores: unset. |
+
+Two rules cannot be read off a tile's ports, so the registry states them.
+`front-unpack` marks a core admissible in the optional front-stage feed
+transform slot, which widens packed rows into the quad rows the lanes consume.
+`key-dispatch` marks a core that routes whole records to lanes by a decode
+over the record's key, and is a contract as well as a label: such a core
+has `MODE` (a `DispatchMode`) and `NUM_PARTITIONS`, and the composition
+enforces a power-of-two lane count for every decode but `EXACT_BRANCH`. A
+range partitioner routes by ordered splitters and declares neither.
+
+## Rate
+
+| Field    | Type                 | Description                                                 |
+| -------- | -------------------- | ----------------------------------------------------------- |
+| `ingest` | `IngestRate \| None` | The declared acceptance rate. Required on every `operator`. |
+
+An `IngestRate` holds `rows` per `per_cycles` and takes one of three
+shapes. At most one scaling shape may be set.
+
+| Shape    | Declaration          | Effective rate                        |
+| -------- | -------------------- | ------------------------------------- |
+| Plain    | `rows`, `per_cycles` | `rows / per_cycles`                   |
+| Per slot | `scales_with_param`  | `rows / per_cycles × param`           |
+| Framed   | `frames_on_param`    | `min(rows / per_cycles, param / 128)` |
+
+`IngestRate.effective(params, declared)` resolves the rate against a
+parameter set as an exact `Fraction`.
+
+The declaration is **public interface**: pricing and scheduling rate-match
+a core from it alone, without inspecting the core. It states the *floor* a
+core sustains under continuous valid input, with record and drain emission
+**amortized over the batch**. Close-out records, top-k drains and per-group
+records are batch-tail or per-group costs, not per-row costs.
+
+Data-dependent worst cases, such as every group key being distinct or
+adversarial key runs landing on one dispatcher lane, are visible in the plan
+and handled by the planner; they do not violate the floor. A core whose rate depends on data declares the
+amortized cadence and names the adversarial case in its registry comment
+rather than padding the number.
+
+## Capability advertisement
+
+| Field                | Type                        | Description                                             |
+| -------------------- | --------------------------- | ------------------------------------------------------- |
+| `opcodes`            | `tuple[OperationCode, ...]` | Operations this core executes in hardware.              |
+| `opcode_input_types` | `tuple[LogicalType, ...]`   | Logical input types it accepts.                         |
+| `unit_kind`          | `UnitKind \| None`          | `aggregation`, `sort`, `join`, `membership`, and so on. |
+| `row_capacity`       | `int \| None`               | Bounded row capacity, for cores that hold a fixed set.  |
+
+A composition built only from cores that declare none of these advertises
+an empty opcode bitmap and is invisible to a planner matching capabilities.
+
+## Storage and loading
+
+| Field            | Type                        | Description                                                                                                                     |
+| ---------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `storage_intent` | `tuple[StorageIntent, ...]` | Declared on-chip or off-chip storage: `role`, `access` (`owned` or `shared`), `bytes_per_unit`, `scale_parameter`, `tier_hint`. |
+| `load_image`     | `LoadImageKind \| None`     | The image format a two-phase LOAD accepts (`bitmap-64`, `quad-rows`).                                                           |
+
+`CoreDefinition.storage_bytes(params)` prices the declared intents against
+a parameter set, validating overrides against the declared parameter specs.
+
+## Parameters
+
+| Field        | Type                          | Description                                            |
+| ------------ | ----------------------------- | ------------------------------------------------------ |
+| `parameters` | `Mapping[str, ParameterSpec]` | Module parameters that may be overridden per instance. |
+
+A `ParameterSpec` has a `default`, and optionally `minimum`, `maximum`,
+`multiple_of`, `choices`, `power_of_two`, and `element_type`. These mirror
+the RTL's elaboration guards, and `ParameterSpec.violation()` is the single
+statement of the override rule: composition validation, the build layer,
+and the pricing path all call it instead of re-implementing the checks.
+
+### Element types
+
+`element_type: true` marks a parameter that names what an element is,
+rather than how big something is. Its `default` and `choices` may then be written
+as type spellings, and a composition may override it the same way:
+
+```yaml
+FIELD_WIDTH:
+  element_type: true
+  default: int32
+  choices: [int16, int32, int64]
+  minimum: 8
+  maximum: 64
+```
+
+The spellings are `intN`/`uintN`, `float32`/`float64`, and the fixed-point
+form `qI.F` (I integer bits including the sign, F fractional, I+F total, so
+`q16.16` is 32 bits). They resolve to the encoding in
+`dau_core/hdl/types.svh`, which tiles include to decode a type's width,
+signedness, fractional bits and float-ness. A plain signed integer encodes
+as its own width, so `int32` and `32` are the same declaration and an entry
+migrated from a width names exactly the tile it always did.
+
+Bounds on such a parameter constrain the type's width, because that is what
+the RTL guard they mirror checks; `choices` match the whole type, so
+`int32` and `q16.16` are not interchangeable despite both being 32 bits.
+
+Bus and beat widths (`IN_WIDTH`, `OUT_WIDTH`, `DATA_WIDTH`) count bits per
+handshake and are **not** element types. Leave `element_type` unset for them.
+
+A tile that includes `types.svh` needs its directory on the include path;
+`dau_core.hdl.DAU_HDL_INCLUDE_DIR` is that directory. Verilator does not
+search the including file's own directory, so a bench or lint run that omits
+`-I` fails on the include rather than on anything to do with the tile.
+
+## Accessors
+
+```python
+from dau_core.cores import CoreKind
+from dau_core.registry import loaded_cores, core, cores_of_kind, sources_for
+
+loaded_cores()                       # name -> CoreDefinition, registry order
+core("streaming-top-k")              # one definition
+cores_of_kind(CoreKind.OPERATOR)     # every operator tile
+sources_for("streaming-top-k")       # dependency-closed HDL paths, in order
+```
+
+Accessors are read-through views over the composed registry: a registry an
+application has already composed, including overrides, is the source of
+truth.

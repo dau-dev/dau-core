@@ -1,0 +1,77 @@
+test_hdl_parameter_bindings_resolve
+===================================
+
+.. py:module:: test_hdl_parameter_bindings_resolve
+
+.. autoapi-nested-parse::
+
+   A named parameter binding must name a parameter the module declares.
+
+   `dau_identity_axil` passed `.SHELL_VERSION(...)` and `.DMA_CONSTRAINTS(...)`
+   to `dau_identity_registers` for some time after those two parameters were
+   deleted from it. The wrapper is packaged HDL that no cocotb bench
+   instantiates, so nothing elaborated it and nothing failed — the break would
+   have surfaced as a Vivado elaboration error in a synthesis run, which is the
+   slowest and most expensive place to find it.
+
+   Python-side guards caught neither half: the deletion was checked against the
+   generators that STAMP parameters, and this wrapper only forwards them.
+
+   Every named binding in a `dau_*` instantiation of another `dau_*` module,
+   checked against that module's declared parameter list. Cheap, and it runs in
+   the unit suite rather than after forty minutes of synthesis.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_hdl_parameter_bindings_resolve._HDL_DIR
+   test_hdl_parameter_bindings_resolve._MODULE
+   test_hdl_parameter_bindings_resolve._PARAMETER
+   test_hdl_parameter_bindings_resolve._PORT_LIST
+   test_hdl_parameter_bindings_resolve._INSTANTIATION
+   test_hdl_parameter_bindings_resolve._BINDING
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_hdl_parameter_bindings_resolve._module_parameters
+   test_hdl_parameter_bindings_resolve.test_every_parameter_binding_names_a_declared_parameter
+   test_hdl_parameter_bindings_resolve.test_the_identity_wrapper_forwards_every_capability_parameter
+
+
+Module Contents
+---------------
+
+.. py:data:: _HDL_DIR
+
+.. py:data:: _MODULE
+
+.. py:data:: _PARAMETER
+
+.. py:data:: _PORT_LIST
+
+.. py:data:: _INSTANTIATION
+
+.. py:data:: _BINDING
+
+.. py:function:: _module_parameters() -> dict[str, set[str]]
+
+   Declared parameter names for every dau module, by module name.
+
+
+.. py:function:: test_every_parameter_binding_names_a_declared_parameter() -> None
+
+.. py:function:: test_the_identity_wrapper_forwards_every_capability_parameter() -> None
+
+   The specific regression, from the other direction: the wrapper is the
+   only path some shells have to the identity block, so a capability it
+   fails to forward is advertised as zero no matter what the shell stamps.
+
+

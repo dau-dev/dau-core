@@ -1,0 +1,101 @@
+cocotb_benches.dau_normal_cdf_tb
+================================
+
+.. py:module:: cocotb_benches.dau_normal_cdf_tb
+
+.. autoapi-nested-parse::
+
+   The rendered normal-CDF tile against the model it was rendered from.
+
+   Zero tolerance. That model is correctly rounded over every representable
+   input, so a mismatch here is a defect in the HDL, not an accuracy question.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_normal_cdf_tb._MASK32
+   cocotb_benches.dau_normal_cdf_tb._POINT
+   cocotb_benches.dau_normal_cdf_tb._ONE
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_normal_cdf_tb.matches_the_model_on_directed_inputs
+   cocotb_benches.dau_normal_cdf_tb.saturation_is_exact_and_needs_no_error_path
+   cocotb_benches.dau_normal_cdf_tb.matches_the_model_across_the_domain
+   cocotb_benches.dau_normal_cdf_tb.symmetry_holds_on_device
+   cocotb_benches.dau_normal_cdf_tb._start
+   cocotb_benches.dau_normal_cdf_tb._run
+   cocotb_benches.dau_normal_cdf_tb._signed32
+   cocotb_benches.dau_normal_cdf_tb._send
+   cocotb_benches.dau_normal_cdf_tb._collect
+
+
+Module Contents
+---------------
+
+.. py:data:: _MASK32
+   :value: 4294967295
+
+
+.. py:data:: _POINT
+
+.. py:data:: _ONE
+   :value: 65536
+
+
+.. py:function:: matches_the_model_on_directed_inputs(dut)
+   :async:
+
+
+.. py:function:: saturation_is_exact_and_needs_no_error_path(dut)
+   :async:
+
+
+   Beyond the domain the answer IS 0 or 1.0; the tile must emit it and
+   stay silent rather than raising anything.
+
+
+.. py:function:: matches_the_model_across_the_domain(dut)
+   :async:
+
+
+.. py:function:: symmetry_holds_on_device(dut)
+   :async:
+
+
+   The datapath folds on it, so a break is a wrong answer for every
+   negative input at once.
+
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _run(dut, rows, *, ready_pattern=(1, ))
+   :async:
+
+
+.. py:function:: _signed32(value: int) -> int
+
+.. py:function:: _send(dut, words) -> None
+   :async:
+
+
+.. py:function:: _collect(dut, *, expect: int, ready_pattern=(1, ))
+   :async:
+
+
+   The proven quad-row collector: drive ready, sample in ReadOnly, and
+   only count a beat that actually fired. Sampling without checking the
+   handshake is what made this harness report zeros against a tile the
+   waveform showed was correct.
+
+

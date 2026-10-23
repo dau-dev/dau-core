@@ -1,0 +1,82 @@
+cocotb_benches.dau_fixed_point_exp_tb
+=====================================
+
+.. py:module:: cocotb_benches.dau_fixed_point_exp_tb
+
+.. autoapi-nested-parse::
+
+   The rendered exp tile against the model it was rendered from.
+
+   Zero tolerance: the HDL mirrors ExpDatapath.evaluate step for step, so any
+   difference is a defect in one of them. Deviation from correctly rounded exp
+   is a separate, measured question answered in test_fixed_point_exp.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_fixed_point_exp_tb._MASK32
+   cocotb_benches.dau_fixed_point_exp_tb._GENERATOR
+   cocotb_benches.dau_fixed_point_exp_tb._POINT
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_fixed_point_exp_tb._signed32
+   cocotb_benches.dau_fixed_point_exp_tb.matches_the_model_on_directed_inputs
+   cocotb_benches.dau_fixed_point_exp_tb.matches_the_model_across_the_domain
+   cocotb_benches.dau_fixed_point_exp_tb._start
+   cocotb_benches.dau_fixed_point_exp_tb._run
+   cocotb_benches.dau_fixed_point_exp_tb._send
+   cocotb_benches.dau_fixed_point_exp_tb._collect
+
+
+Module Contents
+---------------
+
+.. py:data:: _MASK32
+   :value: 4294967295
+
+
+.. py:data:: _GENERATOR
+
+.. py:data:: _POINT
+
+.. py:function:: _signed32(value: int) -> int
+
+.. py:function:: matches_the_model_on_directed_inputs(dut)
+   :async:
+
+
+.. py:function:: matches_the_model_across_the_domain(dut)
+   :async:
+
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _run(dut, rows, *, ready_pattern=(1, ))
+   :async:
+
+
+.. py:function:: _send(dut, words) -> None
+   :async:
+
+
+.. py:function:: _collect(dut, *, expect: int, ready_pattern=(1, ))
+   :async:
+
+
+   The proven quad-row collector: drive ready, sample in ReadOnly, and
+   only count a beat that actually fired. Sampling without checking the
+   handshake is what made this harness report zeros against a tile the
+   waveform showed was correct.
+
+

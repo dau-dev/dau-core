@@ -1,0 +1,74 @@
+cocotb_benches.dau_key_mask_dispatcher_wide_tb
+==============================================
+
+.. py:module:: cocotb_benches.dau_key_mask_dispatcher_wide_tb
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_key_mask_dispatcher_wide_tb._start
+   cocotb_benches.dau_key_mask_dispatcher_wide_tb._row_beat
+   cocotb_benches.dau_key_mask_dispatcher_wide_tb._send_row_beats
+   cocotb_benches.dau_key_mask_dispatcher_wide_tb._run
+   cocotb_benches.dau_key_mask_dispatcher_wide_tb.sustained_ingest_meets_registry_floor
+   cocotb_benches.dau_key_mask_dispatcher_wide_tb.wide_dispatch_routes_one_row_per_beat
+   cocotb_benches.dau_key_mask_dispatcher_wide_tb.wide_front_sustains_one_row_per_cycle_on_rotating_keys
+   cocotb_benches.dau_key_mask_dispatcher_wide_tb.wide_same_lane_run_throttles_but_stays_correct
+   cocotb_benches.dau_key_mask_dispatcher_wide_tb.wide_backpressure_holds_rows_stable
+   cocotb_benches.dau_key_mask_dispatcher_wide_tb.wide_single_row_batch_lands_with_last
+   cocotb_benches.dau_key_mask_dispatcher_wide_tb.wide_repeated_batches_back_to_back
+   cocotb_benches.dau_key_mask_dispatcher_wide_tb.wide_constrained_random_batches_match_golden
+
+
+Module Contents
+---------------
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _row_beat(row) -> int
+
+.. py:function:: _send_row_beats(dut, rows) -> None
+   :async:
+
+
+.. py:function:: _run(dut, rows, *, ready_pattern=(1, ))
+   :async:
+
+
+.. py:function:: sustained_ingest_meets_registry_floor(dut)
+   :async:
+
+
+.. py:function:: wide_dispatch_routes_one_row_per_beat(dut)
+   :async:
+
+
+.. py:function:: wide_front_sustains_one_row_per_cycle_on_rotating_keys(dut)
+   :async:
+
+
+.. py:function:: wide_same_lane_run_throttles_but_stays_correct(dut)
+   :async:
+
+
+.. py:function:: wide_backpressure_holds_rows_stable(dut)
+   :async:
+
+
+.. py:function:: wide_single_row_batch_lands_with_last(dut)
+   :async:
+
+
+.. py:function:: wide_repeated_batches_back_to_back(dut)
+   :async:
+
+
+.. py:function:: wide_constrained_random_batches_match_golden(dut)
+   :async:
+
+

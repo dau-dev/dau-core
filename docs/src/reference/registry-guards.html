@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Registry-wide guards &#8212; dau core v0.1.0</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fuma.css?v=f6f6878e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fuma-code.css?v=a950e949" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fonts/fuma-fonts.css?v=c2892c73" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/custom.css?v=88c24c6a" />
+    <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-searchlite-index="searchlite-index.json" defer="defer" src="../../../_static/searchlite.js?v=a5320898"></script>
+    <script defer="defer" src="../../../_static/fuma.js?v=b46bb53d"></script>
+    <script src="../../../_static/js/custom.js?v=956e5d78"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Why cores are declared in config" href="../explanation/why-cores-are-declared-in-config.html" />
+    <link rel="prev" title="CoreDefinition fields" href="core-definition.html" />
+    <script>
+      (function () {
+        var root = document.documentElement;
+        try {
+          var stored = localStorage.getItem("fuma-theme");
+          if (stored) {
+            root.classList.add(stored === "dark" ? "dark" : "light");
+            root.style.colorScheme = stored === "dark" ? "dark" : "light";
+          }
+          if (localStorage.getItem("fuma-sidebar") === "collapsed") root.dataset.sidebarCollapsed = "true";
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+<body class="fd-body" data-layout="docs" data-toc-style="normal" data-open-level="1">
+<div id="fd-layout"><header id="fd-subnav">
+  <div class="fd-subnav-inner">
+    <button type="button" class="fd-icon-button fd-sidebar-toggle" aria-controls="fd-sidebar" aria-expanded="false" aria-label="Toggle navigation">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
+    </button><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau core v0.1.0</span>
+</a>
+
+    <div class="fd-nav-actions">
+      <button type="button" class="fd-icon-button" data-fd-search-open aria-label="Search"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+      <a class="fd-icon-button" href="https://github.com/dau-dev/dau-core" target="_blank" rel="noopener" aria-label="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <button type="button" class="fd-icon-button fd-theme-toggle" aria-label="Toggle theme">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-light"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-dark"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<aside id="fd-sidebar" aria-label="Documentation">
+  <div class="fd-sidebar-header">
+    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau core v0.1.0</span>
+</a>
+      <button type="button" class="fd-icon-button fd-sidebar-collapse" aria-label="Collapse sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+    </div>
+    <button type="button" class="fd-search-trigger" data-fd-search-open>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><span>Search</span><kbd class="fd-kbd">/</kbd>
+    </button>
+  </div>
+
+  <nav class="fd-sidebar-nav">
+    <div class="fd-sidebar-group">
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../tutorial/read-a-tile-contract.html">
+      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../how-to/add-an-operator-tile.html">
+      <span class="fd-link-text">How to add an operator tile</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../how-to/test-a-core.html">
+      <span class="fd-link-text">How to test a core</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../how-to/measure-a-resource-envelope.html">
+      <span class="fd-link-text">How to measure a resource envelope</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../how-to/develop.html">
+      <span class="fd-link-text">Develop and contribute</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="core-definition.html">
+      <span class="fd-link-text">CoreDefinition fields</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link fd-current" href="#">
+      <span class="fd-link-text">Registry-wide guards</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../explanation/why-cores-are-declared-in-config.html">
+      <span class="fd-link-text">Why cores are declared in config</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../explanation/why-each-tile-has-a-golden-model.html">
+      <span class="fd-link-text">Why each tile has a golden model</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../explanation/why-resources-are-measured.html">
+      <span class="fd-link-text">Why resource costs are measured</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder" open>
+      <summary class="fd-folder-summary">
+        <a class="fd-link" href="../../../autoapi/index.html">
+          <span class="fd-link-text">API Reference</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <details class="fd-folder">
+      <summary class="fd-folder-summary">
+        <a class="fd-link" href="../../../autoapi/dau_core/index.html">
+          <span class="fd-link-text">dau_core</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_core/_lazy/index.html">
+      <span class="fd-link-text">dau_core._lazy</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_core/capabilities/index.html">
+      <span class="fd-link-text">dau_core.capabilities</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_core/capability_contract/index.html">
+      <span class="fd-link-text">dau_core.capability_contract</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_core/composition/index.html">
+      <span class="fd-link-text">dau_core.composition</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_core/config/index.html">
+      <span class="fd-link-text">dau_core.config</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_core/cores/index.html">
+      <span class="fd-link-text">dau_core.cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_core/design/index.html">
+      <span class="fd-link-text">dau_core.design</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_core/element_types/index.html">
+      <span class="fd-link-text">dau_core.element_types</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_core/exp_generator/index.html">
+      <span class="fd-link-text">dau_core.exp_generator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_core/fixed_point/index.html">
+      <span class="fd-link-text">dau_core.fixed_point</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_core/generators/index.html">
+      <span class="fd-link-text">dau_core.generators</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_core/hdl/index.html">
+      <span class="fd-link-text">dau_core.hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_core/hero/index.html">
+      <span class="fd-link-text">dau_core.hero</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_core/ln_generator/index.html">
+      <span class="fd-link-text">dau_core.ln_generator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_core/models/index.html">
+      <span class="fd-link-text">dau_core.models</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_core/normal_cdf_generator/index.html">
+      <span class="fd-link-text">dau_core.normal_cdf_generator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_core/operators/index.html">
+      <span class="fd-link-text">dau_core.operators</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_core/registers/index.html">
+      <span class="fd-link-text">dau_core.registers</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_core/registry/index.html">
+      <span class="fd-link-text">dau_core.registry</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_core/stream/index.html">
+      <span class="fd-link-text">dau_core.stream</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_core/temporal/index.html">
+      <span class="fd-link-text">dau_core.temporal</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_core/workflows/index.html">
+      <span class="fd-link-text">dau_core.workflows</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/conftest/index.html">
+      <span class="fd-link-text">conftest</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_docs/index.html">
+      <span class="fd-link-text">test_docs</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_hero/index.html">
+      <span class="fd-link-text">test_hero</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_cores/index.html">
+      <span class="fd-link-text">test_cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_design/index.html">
+      <span class="fd-link-text">test_design</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_stream/index.html">
+      <span class="fd-link-text">test_stream</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_readme/index.html">
+      <span class="fd-link-text">test_readme</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_temporal/index.html">
+      <span class="fd-link-text">test_temporal</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_operators/index.html">
+      <span class="fd-link-text">test_operators</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder">
+      <summary class="fd-folder-summary">
+        <a class="fd-link" href="../../../autoapi/cocotb_benches/index.html">
+          <span class="fd-link-text">cocotb_benches</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_arrow_lite_stream_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_arrow_lite_stream_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_asof_backward_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_asof_backward_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_asof_feature_chain_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_asof_feature_chain_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_axi_bar_job_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_bar_job_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_axi_bar_noc_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_bar_noc_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_axi_burst_reader_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_burst_reader_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_axi_random_probe_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_random_probe_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_axi_sort_noc_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_sort_noc_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_bar_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_bar_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_bitonic_sorter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_bitonic_sorter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_broadcast_hash_join_small_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_broadcast_hash_join_small_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_broadcast_hash_join_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_broadcast_hash_join_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_bucket_agg_chain_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_bucket_agg_chain_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_datetime_format_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_datetime_format_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_field_sum_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_field_sum_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_fixed_point_divide_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_divide_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_fixed_point_exp_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_exp_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_fixed_point_ln_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_ln_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_fixed_point_sqrt_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_sqrt_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_grouped_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_grouped_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_grouped_field_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_grouped_field_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_grouped_field_sum_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_grouped_field_sum_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_hash_grouped_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_hash_grouped_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_hero_datapath_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_hero_datapath_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_int32_keyed_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_keyed_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_int32_keyed_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_keyed_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_int32_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_int32_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_int32_record_gather_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_record_gather_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_key_mask_dispatcher_exact_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_exact_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_key_mask_dispatcher_hash_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_hash_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_key_mask_dispatcher_multi_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_multi_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_key_mask_dispatcher_records_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_records_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_key_mask_dispatcher_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_key_mask_dispatcher_wide_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_wide_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_key_membership_filter_single_word_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_membership_filter_single_word_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_key_membership_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_membership_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_keyed_state_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_keyed_state_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_market_feature_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_market_feature_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_normal_cdf_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_normal_cdf_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_pair_key_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_pair_key_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_range_partitioner_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_range_partitioner_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_record_batch_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_record_batch_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_record_gearbox_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_record_gearbox_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_rolling_extremum_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_rolling_extremum_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_rolling_moments_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_rolling_moments_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_row_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_row_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_row_predicate_filter_width_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_predicate_filter_width_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_row_unpack_slots_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_unpack_slots_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_row_unpack_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_unpack_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_row_unpack_wide_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_unpack_wide_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_scratchpad_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_scratchpad_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_session_gap_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_session_gap_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_stream_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_stream_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_streaming_dedup_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_streaming_dedup_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_streaming_top_k_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_streaming_top_k_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_stride_distributor_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_stride_distributor_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_time_bucket_key_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_time_bucket_key_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_wide_field_sum_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_field_sum_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_wide_ingest_chain_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_ingest_chain_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_wide_row_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_row_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/dau_wide_row_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_row_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/cocotb_benches/rate_probe/index.html">
+      <span class="fd-link-text">cocotb_benches.rate_probe</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_hdl_cocotb/index.html">
+      <span class="fd-link-text">test_hdl_cocotb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_composition/index.html">
+      <span class="fd-link-text">test_composition</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_hdl_sources/index.html">
+      <span class="fd-link-text">test_hdl_sources</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/exhaustive_sweep/index.html">
+      <span class="fd-link-text">exhaustive_sweep</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_hash_grouped/index.html">
+      <span class="fd-link-text">test_hash_grouped</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_record_batch/index.html">
+      <span class="fd-link-text">test_record_batch</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_lazy_exports/index.html">
+      <span class="fd-link-text">test_lazy_exports</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_element_types/index.html">
+      <span class="fd-link-text">test_element_types</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_core_contract/index.html">
+      <span class="fd-link-text">test_core_contract</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_hdl_verilator/index.html">
+      <span class="fd-link-text">test_hdl_verilator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_fixed_point_ln/index.html">
+      <span class="fd-link-text">test_fixed_point_ln</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_ohlcv_fixtures/index.html">
+      <span class="fd-link-text">test_ohlcv_fixtures</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_hdl_elaboration/index.html">
+      <span class="fd-link-text">test_hdl_elaboration</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_datetime_format/index.html">
+      <span class="fd-link-text">test_datetime_format</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_fixed_point_exp/index.html">
+      <span class="fd-link-text">test_fixed_point_exp</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_generated_cores/index.html">
+      <span class="fd-link-text">test_generated_cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_benches_can_fail/index.html">
+      <span class="fd-link-text">test_benches_can_fail</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_contributed_cores/index.html">
+      <span class="fd-link-text">test_contributed_cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_validation_at_use/index.html">
+      <span class="fd-link-text">test_validation_at_use</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_aggregation_goldens/index.html">
+      <span class="fd-link-text">test_aggregation_goldens</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_capability_contract/index.html">
+      <span class="fd-link-text">test_capability_contract</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_public_tile_surface/index.html">
+      <span class="fd-link-text">test_public_tile_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_aggregation_tile_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_contributed_discovery/index.html">
+      <span class="fd-link-text">test_contributed_discovery</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_fixed_point_normal_cdf/index.html">
+      <span class="fd-link-text">test_fixed_point_normal_cdf</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_output_beat_declarations/index.html">
+      <span class="fd-link-text">test_output_beat_declarations</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_registers_and_capabilities/index.html">
+      <span class="fd-link-text">test_registers_and_capabilities</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_measured_from_matches_the_hdl/index.html">
+      <span class="fd-link-text">test_measured_from_matches_the_hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_parameter_bounds_match_the_hdl/index.html">
+      <span class="fd-link-text">test_parameter_bounds_match_the_hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_hdl_parameter_bindings_resolve/index.html">
+      <span class="fd-link-text">test_hdl_parameter_bindings_resolve</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+</ul>
+    </div>
+  </nav>
+
+  <div class="fd-sidebar-footer">
+    <div class="fd-toolbar">
+      <a class="fd-toolbar-item" href="https://github.com/dau-dev/dau-core" target="_blank" rel="noopener" aria-label="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <div class="fd-theme-switch" role="group" aria-label="Theme">
+        <button type="button" class="fd-theme-option" data-fd-theme="light" aria-label="Light theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></button>
+        <button type="button" class="fd-theme-option" data-fd-theme="dark" aria-label="Dark theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg></button>
+      </div>
+    </div>
+  </div>
+</aside>
+<button type="button" id="fd-sidebar-restore" class="fd-icon-button" aria-label="Expand sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+<div class="fd-sidebar-scrim" hidden></div>
+  <div id="fd-toc-popover">
+    <button type="button" class="fd-toc-trigger" aria-expanded="false" aria-controls="fd-toc-mobile">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg><span>On this page</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <div id="fd-toc-mobile" hidden><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#test-cores-py">test_cores.py</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#test-core-contract-py">test_core_contract.py</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#test-measured-from-matches-the-hdl-py">test_measured_from_matches_the_hdl.py</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#test-hdl-elaboration-py">test_hdl_elaboration.py</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#test-parameter-bounds-match-the-hdl-py">test_parameter_bounds_match_the_hdl.py</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#test-hdl-parameter-bindings-resolve-py">test_hdl_parameter_bindings_resolve.py</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#test-capability-contract-py">test_capability_contract.py</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#test-public-tile-surface-py">test_public_tile_surface.py</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#test-benches-can-fail-py">test_benches_can_fail.py</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#test-generated-cores-py">test_generated_cores.py</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#see-also">See also</a>
+  </li>
+</ul>
+</div>
+  </div>
+
+  <main id="fd-main">
+    <article class="fd-page">
+      <div class="fd-prose">
+  <section class="tex2jax_ignore mathjax_ignore" id="registry-wide-guards">
+<h1>Registry-wide guards<a class="headerlink" href="#registry-wide-guards" title="Link to this heading">¶</a></h1>
+<p>The guards are <code class="docutils literal notranslate"><span class="pre">pytest</span></code> tests that walk the whole registry rather than one
+core. They run with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pytest</span> <span class="pre">dau_core/tests</span></code>; none of them needs
+Vivado, and only the elaboration guard needs <code class="docutils literal notranslate"><span class="pre">verilator</span></code>.</p>
+<p>Four of them compare an <em>exact set</em> rather than a predicate. Those are
+scoped to <code class="docutils literal notranslate"><span class="pre">source_package</span> <span class="pre">==</span> <span class="pre">&quot;dau_core.hdl&quot;</span></code> so that an installed
+third-party tile does not read as drift in this package’s palette.</p>
+<section id="test-cores-py">
+<h2><code class="docutils literal notranslate"><span class="pre">test_cores.py</span></code><a class="headerlink" href="#test-cores-py" title="Link to this heading">¶</a></h2>
+<p>Registry shape, declaration completeness, and the resource-pricing
+contract.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Guard</p></th>
+<th class="head"><p>Fails on</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_every_hdl_file_belongs_to_exactly_one_core</span></code></p></td>
+<td><p>An <code class="docutils literal notranslate"><span class="pre">.sv</span></code>/<code class="docutils literal notranslate"><span class="pre">.v</span></code> file in <code class="docutils literal notranslate"><span class="pre">dau_core/hdl/</span></code> with no entry, an entry with no file, a duplicated <code class="docutils literal notranslate"><span class="pre">source</span></code>, or rendered output shadowing a generated core.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_all_source_paths_exist</span></code></p></td>
+<td><p>An entry whose <code class="docutils literal notranslate"><span class="pre">source_path()</span></code> does not resolve. Generated cores are skipped.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_goldens_resolve_to_callables</span></code></p></td>
+<td><p>A <code class="docutils literal notranslate"><span class="pre">golden</span></code> string naming a module or attribute that does not import, or that is not callable.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_benches_are_importable_modules</span></code></p></td>
+<td><p>A <code class="docutils literal notranslate"><span class="pre">bench</span></code> string naming a module that fails to import.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_every_operator_has_a_golden</span></code></p></td>
+<td><p>An operator tile with no reference semantics.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_every_selectable_operator_declares_its_ingest_rate</span></code></p></td>
+<td><p>A missing <code class="docutils literal notranslate"><span class="pre">ingest</span></code>, an unproven faster-than-1-row-per-cycle claim, or a <code class="docutils literal notranslate"><span class="pre">scales_with_param</span></code> naming an undeclared parameter.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_every_selectable_operator_declares_its_contract_kind</span></code></p></td>
+<td><p>An operator with no <code class="docutils literal notranslate"><span class="pre">contract_kind</span></code>, or a non-operator that declares one.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_every_selectable_operator_declares_its_record_words</span></code></p></td>
+<td><p>An operator declaring neither or both of <code class="docutils literal notranslate"><span class="pre">record_words</span></code> and <code class="docutils literal notranslate"><span class="pre">record_words_param</span></code>, or resolving below 1.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_parameterized_record_words_resolve_from_defaults_and_overrides</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">effective_record_words</span></code> drifting for the parameterized cores.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_only_combinational_per_beat_cores_support_pipeline_depth</span></code></p></td>
+<td><p>A stateful or multi-word tile claiming the generic elastic-depth axis.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_wide_combinational_tiles_declare_pipeline_depth_without_changing_ingest</span></code></p></td>
+<td><p>The wide combinational tiles silently moving their depth bounds or their per-slot rate.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_sources_for_closes_dependencies_in_order</span></code></p></td>
+<td><p>A dependency closure that emits a package after its consumer, or duplicates a source.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_lookup_errors_are_typed</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">core()</span></code> or <code class="docutils literal notranslate"><span class="pre">core_for_module()</span></code> raising a bare <code class="docutils literal notranslate"><span class="pre">KeyError</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_synthesizable_cores_carry_measured_envelopes</span></code></p></td>
+<td><p>A synthesizable operator or stream-infra tile with no envelope, an unmeasured estimate, or a zero-LUT point.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_exact_resource_measurement_resolves_with_parameter_defaults</span></code></p></td>
+<td><p>Coordinate lookup ignoring a declared parameter default.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_resource_measurement_refuses_an_unmeasured_part</span></code></p></td>
+<td><p>One part’s number pricing another part’s build.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_every_registered_core_with_resources_carries_measurement_points</span></code></p></td>
+<td><p>A resource record that is not a list of measurement points.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_an_unclocked_measurement_answers_for_any_clock_and_records_no_timing</span></code></p></td>
+<td><p>A combinational core’s point recording a timing status it never had, or failing to price a clock.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_violated_measurement_is_retrievable_but_not_a_usable_envelope</span></code></p></td>
+<td><p>A timing-failed build being consumed as a smaller budget.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_a_measured_point_matches_a_derived_clock_period</span></code></p></td>
+<td><p>A period derived as <code class="docutils literal notranslate"><span class="pre">1000</span> <span class="pre">/</span> <span class="pre">job_clock_mhz</span></code> failing float equality against its measured point.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_registry_is_hydra_composition_not_a_python_literal</span></code></p></td>
+<td><p>A parallel Python-literal core list reappearing, and the registry-path view drifting from the accessor view.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_accessors_defer_to_a_composed_registry</span></code></p></td>
+<td><p>A default reload clobbering a consumer’s composed overrides.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_silent_on_success_operator_set_is_pinned</span></code></p></td>
+<td><p>A core changing its status class (silent mid-chain or a per-batch close-out) without the change being stated.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_dispatcher_rate_still_needs_record_aware_modeling</span></code></p></td>
+<td><p>The known record-width-blind dispatcher rate gap being treated as closed.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_authoritative_models_reject_impossible_values</span></code></p></td>
+<td><p>Negative resource counts, empty part strings, or non-positive clock periods entering the registry.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_parameter_spec_rejects_incoherent_constraints</span></code></p></td>
+<td><p>A spec that would reject every override, including its own default.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_parameter_spec_violation_is_the_single_constraint_source</span></code></p></td>
+<td><p>The override rule being re-implemented outside <code class="docutils literal notranslate"><span class="pre">ParameterSpec.violation()</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_storage_intent_prices_against_declared_parameters</span></code></p></td>
+<td><p>Storage cost ignoring a parameter override.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_storage_intent_refuses_an_undeclared_scale_parameter</span></code></p></td>
+<td><p>An intent scaling by a parameter the core does not declare.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_storage_intent_without_scale_is_a_fixed_cost</span></code></p></td>
+<td><p>A scale-free intent being mispriced.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_storage_bytes_refuses_illegal_scale_overrides</span></code></p></td>
+<td><p>Pricing an override that no buildable design could use.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_a_core_resolves_hdl_from_the_package_that_declares_it</span></code></p></td>
+<td><p>A third-party tile being forced to vendor its SystemVerilog into <code class="docutils literal notranslate"><span class="pre">dau_core.hdl</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards</span></code></p></td>
+<td><p>An installed third-party tile failing this package’s exact-set guards.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_a_core_naming_an_uninstalled_hdl_package_refuses_clearly</span></code></p></td>
+<td><p>A raw <code class="docutils literal notranslate"><span class="pre">ImportError</span></code> where the message should name the missing distribution.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_an_unresolvable_hdl_source_says_so</span></code></p></td>
+<td><p>A resource path that formats correctly and does not exist, discovered at synthesis.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="test-core-contract-py">
+<h2><code class="docutils literal notranslate"><span class="pre">test_core_contract.py</span></code><a class="headerlink" href="#test-core-contract-py" title="Link to this heading">¶</a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Guard</p></th>
+<th class="head"><p>Fails on</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_every_operator_conforms_to_the_stream_tile_contract</span></code></p></td>
+<td><p>A <code class="docutils literal notranslate"><span class="pre">row-stream</span></code> operator whose real SystemVerilog port list drifts from the stream and status contract. Ports are parsed from the source rather than assumed.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The check runs through <code class="docutils literal notranslate"><span class="pre">dau_build.sv_contract.validate_stream_tile</span></code>. In CI a
+missing <code class="docutils literal notranslate"><span class="pre">dau_build</span></code> fails the guard; anywhere else it skips.</p>
+</section>
+<section id="test-measured-from-matches-the-hdl-py">
+<h2><code class="docutils literal notranslate"><span class="pre">test_measured_from_matches_the_hdl.py</span></code><a class="headerlink" href="#test-measured-from-matches-the-hdl-py" title="Link to this heading">¶</a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Guard</p></th>
+<th class="head"><p>Fails on</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_every_stamped_envelope_matches_its_hdl_closure</span></code></p></td>
+<td><p>An edit to a tile’s source, or to a package it imports or a header it includes, without re-measuring and re-stamping its <code class="docutils literal notranslate"><span class="pre">measured_from</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_the_unstamped_envelopes_are_exactly_the_declared_ones</span></code></p></td>
+<td><p>A measured core without a <code class="docutils literal notranslate"><span class="pre">measured_from</span></code>, beyond the pinned unstamped set, which can only shrink.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_every_core_has_a_computable_hdl_closure</span></code></p></td>
+<td><p>A core whose HDL closure cannot be digested.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_a_stamp_without_a_measurement_is_refused</span></code></p></td>
+<td><p>A <code class="docutils literal notranslate"><span class="pre">measured_from</span></code> on an entry that records no resources.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="test-hdl-elaboration-py">
+<h2><code class="docutils literal notranslate"><span class="pre">test_hdl_elaboration.py</span></code><a class="headerlink" href="#test-hdl-elaboration-py" title="Link to this heading">¶</a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Guard</p></th>
+<th class="head"><p>Fails on</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_every_declared_parameterization_elaborates</span></code></p></td>
+<td><p>The registry advertising a parameter value the RTL’s own elaboration guard rejects. Parametrized per operator; a lint-only Verilator run over the declared parameter space, capped at 24 combinations per core.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="test-parameter-bounds-match-the-hdl-py">
+<h2><code class="docutils literal notranslate"><span class="pre">test_parameter_bounds_match_the_hdl.py</span></code><a class="headerlink" href="#test-parameter-bounds-match-the-hdl-py" title="Link to this heading">¶</a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Guard</p></th>
+<th class="head"><p>Fails on</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_declared_bounds_match_the_tiles_elaboration_guard</span></code></p></td>
+<td><p>A registry <code class="docutils literal notranslate"><span class="pre">minimum</span></code>, <code class="docutils literal notranslate"><span class="pre">maximum</span></code>, or <code class="docutils literal notranslate"><span class="pre">choices</span></code> that disagrees with the bound stated in the tile’s own <code class="docutils literal notranslate"><span class="pre">$error</span></code> text.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_unparsed_guards_are_declared_and_still_exist</span></code></p></td>
+<td><p>The unparsed-guard holdout list outliving its holdouts, in either direction.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_the_python_mirror_of_the_top_k_bound_matches_the_registry</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">dau_core.operators.TOP_K_MAX</span></code> drifting from the registry’s declared <code class="docutils literal notranslate"><span class="pre">K</span></code> maximum.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Because the bound is parsed out of the <code class="docutils literal notranslate"><span class="pre">$error</span></code> string, that string is
+machine-readable text, not a comment. The recognized forms are
+<code class="docutils literal notranslate"><span class="pre">X</span> <span class="pre">must</span> <span class="pre">be</span> <span class="pre">in</span> <span class="pre">[a,</span> <span class="pre">b]</span></code>, <code class="docutils literal notranslate"><span class="pre">X</span> <span class="pre">must</span> <span class="pre">be</span> <span class="pre">between</span> <span class="pre">a</span> <span class="pre">and</span> <span class="pre">b</span></code>,
+<code class="docutils literal notranslate"><span class="pre">X</span> <span class="pre">must</span> <span class="pre">divide</span> <span class="pre">N</span> <span class="pre">and</span> <span class="pre">lie</span> <span class="pre">in</span> <span class="pre">[a,</span> <span class="pre">b]</span></code>, <code class="docutils literal notranslate"><span class="pre">X</span> <span class="pre">must</span> <span class="pre">be</span> <span class="pre">a/b/c</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">X</span> <span class="pre">must</span> <span class="pre">be</span> <span class="pre">a,</span> <span class="pre">b,</span> <span class="pre">or</span> <span class="pre">c</span></code>.</p>
+</section>
+<section id="test-hdl-parameter-bindings-resolve-py">
+<h2><code class="docutils literal notranslate"><span class="pre">test_hdl_parameter_bindings_resolve.py</span></code><a class="headerlink" href="#test-hdl-parameter-bindings-resolve-py" title="Link to this heading">¶</a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Guard</p></th>
+<th class="head"><p>Fails on</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_every_parameter_binding_names_a_declared_parameter</span></code></p></td>
+<td><p>A <code class="docutils literal notranslate"><span class="pre">.NAME()</span></code> binding in a <code class="docutils literal notranslate"><span class="pre">dau_*</span></code> instantiation naming a parameter the target module no longer declares.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_the_identity_wrapper_forwards_every_capability_parameter</span></code></p></td>
+<td><p>The identity wrapper failing to forward a capability parameter, which would advertise it as zero.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="test-capability-contract-py">
+<h2><code class="docutils literal notranslate"><span class="pre">test_capability_contract.py</span></code><a class="headerlink" href="#test-capability-contract-py" title="Link to this heading">¶</a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Guard</p></th>
+<th class="head"><p>Fails on</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_registry_declares_hardware_opcodes_only_for_opcode_driven_tiles</span></code></p></td>
+<td><p>A tile declaring an opcode it cannot execute, or declaring a host-computed operation as hardware.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="test-public-tile-surface-py">
+<h2><code class="docutils literal notranslate"><span class="pre">test_public_tile_surface.py</span></code><a class="headerlink" href="#test-public-tile-surface-py" title="Link to this heading">¶</a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Guard</p></th>
+<th class="head"><p>Fails on</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_the_authoring_surface_stays_extractable</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cores</span></code>, <code class="docutils literal notranslate"><span class="pre">design</span></code>, <code class="docutils literal notranslate"><span class="pre">generators</span></code>, or <code class="docutils literal notranslate"><span class="pre">stream</span></code> growing an import into this package’s private side.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_the_surface_declares_its_third_party_dependencies</span></code></p></td>
+<td><p>The declaration surface acquiring a runtime dependency beyond <code class="docutils literal notranslate"><span class="pre">ccflow</span></code> and <code class="docutils literal notranslate"><span class="pre">pydantic</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_the_extraction_debt_does_not_grow</span></code></p></td>
+<td><p>The declared debt list growing, and separately, going stale.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Imports are read statically rather than by importing the modules, because
+an import-time check passes on a dependency reached only inside a function.</p>
+</section>
+<section id="test-benches-can-fail-py">
+<h2><code class="docutils literal notranslate"><span class="pre">test_benches_can_fail.py</span></code><a class="headerlink" href="#test-benches-can-fail-py" title="Link to this heading">¶</a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Guard</p></th>
+<th class="head"><p>Fails on</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_a_bench_fails_when_its_tile_is_made_wrong</span></code></p></td>
+<td><p>A bench that always passes. Each mutation edits a copy of the HDL and asserts the bench fails, and that it failed in the <em>run</em> rather than at compile time.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="test-generated-cores-py">
+<h2><code class="docutils literal notranslate"><span class="pre">test_generated_cores.py</span></code><a class="headerlink" href="#test-generated-cores-py" title="Link to this heading">¶</a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Guard</p></th>
+<th class="head"><p>Fails on</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_a_generated_core_refuses_its_source_until_rendered</span></code></p></td>
+<td><p>A generated core silently resolving to a stale or absent file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_rendering_writes_the_source_the_entry_names</span></code></p></td>
+<td><p>Rendered output landing somewhere the registry entry does not name.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_a_checked_in_core_refuses_to_be_rendered</span></code></p></td>
+<td><p>A checked-in source being overwritten by a render.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_the_operating_point_comes_from_configuration</span></code></p></td>
+<td><p>A generator’s operating point being fixed in Python rather than composed.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_each_operating_point_renders_a_different_source</span></code></p></td>
+<td><p>Two operating points collapsing to one source.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_the_rendered_source_carries_the_parameters_that_made_it</span></code></p></td>
+<td><p>An untraceable generated file.</p></td>
+</tr>
+</tbody>
+</table>
+<p><code class="docutils literal notranslate"><span class="pre">dau_core/tests/conftest.py</span></code> renders the generated cores once per session
+in an autouse fixture, so registry-walking guards see real files.</p>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../how-to/test-a-core.html"><span class="std std-doc">How to test a core</span></a>: the order to run these in while
+developing a tile.</p></li>
+<li><p><a class="reference internal" href="../how-to/add-an-operator-tile.html"><span class="std std-doc">How to add an operator tile</span></a>: the steps these
+guards check.</p></li>
+<li><p><a class="reference internal" href="core-definition.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">CoreDefinition</span></code> fields</span></a>: the declarations most of these
+guards read.</p></li>
+</ul>
+</section>
+</section>
+
+
+      </div>
+<nav class="fd-pagination" aria-label="Pagination">
+  <a class="fd-pagination-card fd-pagination-prev" href="core-definition.html">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m15 18-6-6 6-6"/></svg>
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Previous</span>
+      <span class="fd-pagination-title">CoreDefinition fields</span>
+    </span>
+  </a>
+  <a class="fd-pagination-card fd-pagination-next" href="../explanation/why-cores-are-declared-in-config.html">
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Next</span>
+      <span class="fd-pagination-title">Why cores are declared in config</span>
+    </span>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+  </a>
+</nav>
+<footer id="fd-footer">
+  <p class="fd-footer-meta"><span>&#169; the dau-core authors</span><span>Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.</span>
+  </p>
+</footer>
+    </article>
+  </main>
+<nav id="fd-toc" aria-label="On this page">
+  <p class="fd-toc-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>On this page</p>
+  <div class="fd-toc-body"><svg class="fd-toc-rail" aria-hidden="true" preserveAspectRatio="none">
+      <path class="fd-toc-track" fill="none" />
+      <path class="fd-toc-thumb" fill="none" />
+    </svg><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#test-cores-py">test_cores.py</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#test-core-contract-py">test_core_contract.py</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#test-measured-from-matches-the-hdl-py">test_measured_from_matches_the_hdl.py</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#test-hdl-elaboration-py">test_hdl_elaboration.py</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#test-parameter-bounds-match-the-hdl-py">test_parameter_bounds_match_the_hdl.py</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#test-hdl-parameter-bindings-resolve-py">test_hdl_parameter_bindings_resolve.py</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#test-capability-contract-py">test_capability_contract.py</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#test-public-tile-surface-py">test_public_tile_surface.py</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#test-benches-can-fail-py">test_benches_can_fail.py</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#test-generated-cores-py">test_generated_cores.py</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#see-also">See also</a>
+  </li>
+</ul>
+
+  </div>
+  <div class="fd-toc-actions">
+    <a class="fd-toc-action" href="https://github.com/dau-dev/dau-core/edit/HEAD/docs/src/reference/registry-guards.md" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span>Edit this page</span></a>
+    <a class="fd-toc-action" href="../../../_sources/docs/src/reference/registry-guards.md.txt" rel="nofollow"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><span>View source</span></a>
+  </div>
+</nav>
+</div>
+<dialog id="fd-search-dialog" aria-label="Search">
+  <form class="fd-search-panel" method="dialog" role="search">
+    <div class="fd-search-field">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="search" id="fd-search-input" autocomplete="off" spellcheck="false" placeholder="Search documentation..." aria-label="Search" />
+      <kbd class="fd-kbd">Esc</kbd>
+    </div>
+    <div id="fd-search-results" role="listbox" aria-label="Search results"></div>
+    <p id="fd-search-empty" class="fd-search-empty" hidden>No results found.</p>
+  </form>
+</dialog>
+  </body>
+</html>

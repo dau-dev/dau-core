@@ -1,0 +1,122 @@
+cocotb_benches.dau_axi_bar_noc_tb
+=================================
+
+.. py:module:: cocotb_benches.dau_axi_bar_noc_tb
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_axi_bar_noc_tb.NUM_LANES
+   cocotb_benches.dau_axi_bar_noc_tb.INPUT_ADDRESS
+   cocotb_benches.dau_axi_bar_noc_tb.LANE_OUTPUT_ADDRESSES
+   cocotb_benches.dau_axi_bar_noc_tb.ERR_JOB_LENGTH
+   cocotb_benches.dau_axi_bar_noc_tb._TRADES
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_axi_bar_noc_tb.noc_partitions_match_golden
+   cocotb_benches.dau_axi_bar_noc_tb.noc_empty_lane_closes_out
+   cocotb_benches.dau_axi_bar_noc_tb.noc_multi_burst_batch
+   cocotb_benches.dau_axi_bar_noc_tb.noc_deep_backpressure_batch
+   cocotb_benches.dau_axi_bar_noc_tb.noc_repeated_jobs
+   cocotb_benches.dau_axi_bar_noc_tb.noc_misaligned_length_errors_then_recovers
+   cocotb_benches.dau_axi_bar_noc_tb._start
+   cocotb_benches.dau_axi_bar_noc_tb._pack_words
+   cocotb_benches.dau_axi_bar_noc_tb._run_job
+   cocotb_benches.dau_axi_bar_noc_tb._kick_job
+   cocotb_benches.dau_axi_bar_noc_tb._wait_done
+   cocotb_benches.dau_axi_bar_noc_tb._backdoor_load
+   cocotb_benches.dau_axi_bar_noc_tb._backdoor_read
+   cocotb_benches.dau_axi_bar_noc_tb._u32_lanes
+   cocotb_benches.dau_axi_bar_noc_tb._u64_lanes
+   cocotb_benches.dau_axi_bar_noc_tb._decode_bar
+   cocotb_benches.dau_axi_bar_noc_tb._signed32
+   cocotb_benches.dau_axi_bar_noc_tb._signed64
+
+
+Module Contents
+---------------
+
+.. py:data:: NUM_LANES
+   :value: 4
+
+
+.. py:data:: INPUT_ADDRESS
+   :value: 0
+
+
+.. py:data:: LANE_OUTPUT_ADDRESSES
+
+.. py:data:: ERR_JOB_LENGTH
+   :value: 254
+
+
+.. py:data:: _TRADES
+
+.. py:function:: noc_partitions_match_golden(dut)
+   :async:
+
+
+.. py:function:: noc_empty_lane_closes_out(dut)
+   :async:
+
+
+.. py:function:: noc_multi_burst_batch(dut)
+   :async:
+
+
+.. py:function:: noc_deep_backpressure_batch(dut)
+   :async:
+
+
+.. py:function:: noc_repeated_jobs(dut)
+   :async:
+
+
+.. py:function:: noc_misaligned_length_errors_then_recovers(dut)
+   :async:
+
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _pack_words(rows) -> list[int]
+
+.. py:function:: _run_job(dut, rows)
+   :async:
+
+
+.. py:function:: _kick_job(dut, input_length_bytes: int) -> None
+   :async:
+
+
+.. py:function:: _wait_done(dut) -> None
+   :async:
+
+
+.. py:function:: _backdoor_load(dut, base_index: int, words: list[int]) -> None
+   :async:
+
+
+.. py:function:: _backdoor_read(dut, base_index: int, count: int) -> list[int]
+   :async:
+
+
+.. py:function:: _u32_lanes(packed: int) -> list[int]
+
+.. py:function:: _u64_lanes(packed: int) -> list[int]
+
+.. py:function:: _decode_bar(words: list[int]) -> dau_core.operators.BarAggregate
+
+.. py:function:: _signed32(value: int) -> int
+
+.. py:function:: _signed64(value: int) -> int
+

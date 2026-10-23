@@ -1,0 +1,150 @@
+dau_core.capabilities
+=====================
+
+.. py:module:: dau_core.capabilities
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   dau_core.capabilities.DPV1_PLATFORM_ID
+   dau_core.capabilities.XILINX_VENDOR_ID
+   dau_core.capabilities.DPV1_DEVICE_ID
+   dau_core.capabilities.DPV1_PCI_ID
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   dau_core.capabilities.DmaConstraints
+   dau_core.capabilities.OperatorCapability
+   dau_core.capabilities.DeviceCapabilities
+
+
+Module Contents
+---------------
+
+.. py:data:: DPV1_PLATFORM_ID
+   :value: 'DPV1'
+
+
+.. py:data:: XILINX_VENDOR_ID
+   :value: 4334
+
+
+.. py:data:: DPV1_DEVICE_ID
+   :value: 28689
+
+
+.. py:data:: DPV1_PCI_ID
+   :value: '10ee:7011'
+
+
+.. py:class:: DmaConstraints
+
+   .. py:attribute:: alignment_bytes
+      :type:  int
+
+
+   .. py:attribute:: descriptor_bytes
+      :type:  int
+
+
+   .. py:attribute:: max_transfer_bytes
+      :type:  int
+
+
+   .. py:attribute:: read_channels
+      :type:  int
+
+
+   .. py:attribute:: write_channels
+      :type:  int
+
+
+   .. py:method:: __post_init__() -> None
+
+
+   .. py:method:: is_aligned(value: int) -> bool
+
+
+   .. py:property:: max_aligned_transfer_bytes
+      :type: int
+
+
+
+.. py:class:: OperatorCapability
+
+   .. py:attribute:: opcode
+      :type:  dau_core.stream.OperationCode
+
+
+   .. py:attribute:: input_types
+      :type:  tuple[dau_core.stream.LogicalType, ...]
+
+
+   .. py:attribute:: output_type
+      :type:  dau_core.stream.LogicalType
+
+
+   .. py:attribute:: supports_group_by
+      :type:  bool
+
+
+   .. py:method:: supports(opcode: dau_core.stream.OperationCode, logical_type: dau_core.stream.LogicalType) -> bool
+
+
+.. py:class:: DeviceCapabilities
+
+   What a probed device advertises.
+
+   ``operators`` are hardware capabilities — opcodes some tile executes in
+   HDL. ``host_operators`` are protocol-level capabilities the host derives
+   from hardware results (AVERAGE = host divide of SUM/COUNT); they must
+   never be submitted to the device as operations.
+
+
+   .. py:attribute:: platform_id
+      :type:  str
+
+
+   .. py:attribute:: pci_vendor_id
+      :type:  int
+
+
+   .. py:attribute:: pci_device_id
+      :type:  int
+
+
+   .. py:attribute:: register_map_version
+      :type:  dau_core.registers.RegisterMapVersion
+
+
+   .. py:attribute:: stream_protocol_version
+      :type:  dau_core.registers.StreamProtocolVersion
+
+
+   .. py:attribute:: dma
+      :type:  DmaConstraints
+
+
+   .. py:attribute:: operators
+      :type:  tuple[OperatorCapability, ...]
+
+
+   .. py:attribute:: host_operators
+      :type:  tuple[OperatorCapability, ...]
+      :value: ()
+
+
+
+   .. py:method:: supports(opcode: dau_core.stream.OperationCode, logical_type: dau_core.stream.LogicalType) -> bool
+
+
+   .. py:method:: supports_host_computed(opcode: dau_core.stream.OperationCode, logical_type: dau_core.stream.LogicalType) -> bool
+
+

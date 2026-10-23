@@ -1,0 +1,233 @@
+cocotb_benches.dau_key_membership_filter_tb
+===========================================
+
+.. py:module:: cocotb_benches.dau_key_membership_filter_tb
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_key_membership_filter_tb._MASK32
+   cocotb_benches.dau_key_membership_filter_tb._MASK64
+   cocotb_benches.dau_key_membership_filter_tb._INT32_MIN
+   cocotb_benches.dau_key_membership_filter_tb._INT32_MAX
+   cocotb_benches.dau_key_membership_filter_tb._KEY_SPACE
+   cocotb_benches.dau_key_membership_filter_tb._ROWS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_key_membership_filter_tb._build_set
+   cocotb_benches.dau_key_membership_filter_tb.semi_keeps_members_anti_keeps_non_members
+   cocotb_benches.dau_key_membership_filter_tb.semi_keeps_exactly_the_hits
+   cocotb_benches.dau_key_membership_filter_tb.anti_keeps_exactly_the_misses
+   cocotb_benches.dau_key_membership_filter_tb.empty_build_set
+   cocotb_benches.dau_key_membership_filter_tb.full_build_set
+   cocotb_benches.dau_key_membership_filter_tb.boundary_and_out_of_range_keys
+   cocotb_benches.dau_key_membership_filter_tb.a_second_load_replaces_the_membership_memory
+   cocotb_benches.dau_key_membership_filter_tb.int32_extreme_probe_keys_are_non_members
+   cocotb_benches.dau_key_membership_filter_tb.last_lands_on_final_kept_row
+   cocotb_benches.dau_key_membership_filter_tb.zero_rows_closes_out_success
+   cocotb_benches.dau_key_membership_filter_tb.selected_count_reports_forwarded_rows
+   cocotb_benches.dau_key_membership_filter_tb.backpressure_on_the_output
+   cocotb_benches.dau_key_membership_filter_tb.torn_probe_row_reports_stream_error
+   cocotb_benches.dau_key_membership_filter_tb.torn_row_mid_batch_reports_stream_error
+   cocotb_benches.dau_key_membership_filter_tb.unconfigured_kind_drains_batch_then_reports_config_error
+   cocotb_benches.dau_key_membership_filter_tb.bloom_kind_is_rejected_as_config_error
+   cocotb_benches.dau_key_membership_filter_tb.short_image_reports_load_error
+   cocotb_benches.dau_key_membership_filter_tb.over_long_image_reports_load_error
+   cocotb_benches.dau_key_membership_filter_tb.error_status_survives_backpressure
+   cocotb_benches.dau_key_membership_filter_tb.success_status_survives_backpressure
+   cocotb_benches.dau_key_membership_filter_tb.status_close_out_waits_for_backpressured_tail
+   cocotb_benches.dau_key_membership_filter_tb.error_close_out_waits_for_backpressured_tail
+   cocotb_benches.dau_key_membership_filter_tb.torn_batch_with_undisplaced_keeps_errors_without_forwarding
+   cocotb_benches.dau_key_membership_filter_tb.constrained_random_batches_match_golden
+   cocotb_benches.dau_key_membership_filter_tb._signed32
+   cocotb_benches.dau_key_membership_filter_tb._drive_cfg
+   cocotb_benches.dau_key_membership_filter_tb._start
+   cocotb_benches.dau_key_membership_filter_tb._pack_rows
+   cocotb_benches.dau_key_membership_filter_tb._send_words
+   cocotb_benches.dau_key_membership_filter_tb._send_rows
+   cocotb_benches.dau_key_membership_filter_tb._send_batches
+   cocotb_benches.dau_key_membership_filter_tb._drain_words
+   cocotb_benches.dau_key_membership_filter_tb._load
+   cocotb_benches.dau_key_membership_filter_tb._probe
+   cocotb_benches.dau_key_membership_filter_tb._collect_probe_output
+   cocotb_benches.dau_key_membership_filter_tb._assert_quiescent
+   cocotb_benches.dau_key_membership_filter_tb._expect_status
+
+
+Module Contents
+---------------
+
+.. py:data:: _MASK32
+   :value: 4294967295
+
+
+.. py:data:: _MASK64
+   :value: 18446744073709551615
+
+
+.. py:data:: _INT32_MIN
+   :value: -2147483648
+
+
+.. py:data:: _INT32_MAX
+   :value: 2147483647
+
+
+.. py:data:: _KEY_SPACE
+   :value: 4096
+
+
+.. py:data:: _ROWS
+
+.. py:function:: _build_set(keys) -> dau_core.operators.MembershipBuildSet
+
+.. py:function:: semi_keeps_members_anti_keeps_non_members(dut)
+   :async:
+
+
+.. py:function:: semi_keeps_exactly_the_hits(dut)
+   :async:
+
+
+.. py:function:: anti_keeps_exactly_the_misses(dut)
+   :async:
+
+
+.. py:function:: empty_build_set(dut)
+   :async:
+
+
+.. py:function:: full_build_set(dut)
+   :async:
+
+
+.. py:function:: boundary_and_out_of_range_keys(dut)
+   :async:
+
+
+.. py:function:: a_second_load_replaces_the_membership_memory(dut)
+   :async:
+
+
+.. py:function:: int32_extreme_probe_keys_are_non_members(dut)
+   :async:
+
+
+.. py:function:: last_lands_on_final_kept_row(dut)
+   :async:
+
+
+.. py:function:: zero_rows_closes_out_success(dut)
+   :async:
+
+
+.. py:function:: selected_count_reports_forwarded_rows(dut)
+   :async:
+
+
+.. py:function:: backpressure_on_the_output(dut)
+   :async:
+
+
+.. py:function:: torn_probe_row_reports_stream_error(dut)
+   :async:
+
+
+.. py:function:: torn_row_mid_batch_reports_stream_error(dut)
+   :async:
+
+
+.. py:function:: unconfigured_kind_drains_batch_then_reports_config_error(dut)
+   :async:
+
+
+.. py:function:: bloom_kind_is_rejected_as_config_error(dut)
+   :async:
+
+
+.. py:function:: short_image_reports_load_error(dut)
+   :async:
+
+
+.. py:function:: over_long_image_reports_load_error(dut)
+   :async:
+
+
+.. py:function:: error_status_survives_backpressure(dut)
+   :async:
+
+
+.. py:function:: success_status_survives_backpressure(dut)
+   :async:
+
+
+.. py:function:: status_close_out_waits_for_backpressured_tail(dut)
+   :async:
+
+
+.. py:function:: error_close_out_waits_for_backpressured_tail(dut)
+   :async:
+
+
+.. py:function:: torn_batch_with_undisplaced_keeps_errors_without_forwarding(dut)
+   :async:
+
+
+.. py:function:: constrained_random_batches_match_golden(dut)
+   :async:
+
+
+.. py:function:: _signed32(value: int) -> int
+
+.. py:function:: _drive_cfg(dut, *, load: int, mode: dau_core.operators.MembershipMode, kind: dau_core.operators.MembershipKind) -> None
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _pack_rows(rows) -> list[int]
+
+.. py:function:: _send_words(dut, words) -> None
+   :async:
+
+
+.. py:function:: _send_rows(dut, rows) -> None
+   :async:
+
+
+.. py:function:: _send_batches(dut, batches) -> None
+   :async:
+
+
+.. py:function:: _drain_words(dut) -> None
+   :async:
+
+
+.. py:function:: _load(dut, build_set: dau_core.operators.MembershipBuildSet) -> None
+   :async:
+
+
+.. py:function:: _probe(dut, rows, mode: dau_core.operators.MembershipMode, *, ready_pattern=(1, ))
+   :async:
+
+
+.. py:function:: _collect_probe_output(dut, ready_pattern) -> list[int]
+   :async:
+
+
+.. py:function:: _assert_quiescent(dut) -> None
+   :async:
+
+
+.. py:function:: _expect_status(dut, *, error: bool, code: int = 0) -> None
+   :async:
+
+

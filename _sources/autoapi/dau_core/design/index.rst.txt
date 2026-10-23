@@ -1,0 +1,133 @@
+dau_core.design
+===============
+
+.. py:module:: dau_core.design
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   dau_core.design.UnitKind
+   dau_core.design.OperatorUnit
+   dau_core.design.DauDesign
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   dau_core.design.format_units
+   dau_core.design.parse_units
+
+
+Module Contents
+---------------
+
+.. py:class:: UnitKind
+
+   Bases: :py:obj:`enum.StrEnum`
+
+
+   Enum where members are also (and must be) strings
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: AGGREGATION
+      :value: 'aggregation'
+
+
+
+   .. py:attribute:: JOIN
+      :value: 'join'
+
+
+
+   .. py:attribute:: MEMBERSHIP
+      :value: 'membership'
+
+
+
+   .. py:attribute:: SORT
+      :value: 'sort'
+
+
+
+.. py:class:: OperatorUnit
+
+   A count of identical hardware operator engines and what they accept.
+
+   ``opcodes`` and ``input_types`` describe aggregation coverage; join and sort
+   units currently carry no opcode/type detail and exist as capacity only.
+
+
+   .. py:attribute:: kind
+      :type:  UnitKind
+
+
+   .. py:attribute:: count
+      :type:  int
+
+
+   .. py:attribute:: opcodes
+      :type:  tuple[dau_core.stream.OperationCode, ...]
+      :value: ()
+
+
+
+   .. py:attribute:: input_types
+      :type:  tuple[dau_core.stream.LogicalType, ...]
+      :value: ()
+
+
+
+   .. py:method:: __post_init__() -> None
+
+
+   .. py:method:: supports(opcode: dau_core.stream.OperationCode, logical_type: dau_core.stream.LogicalType) -> bool
+
+
+.. py:class:: DauDesign
+
+   The operator inventory a synthesized DAU design advertises.
+
+
+   .. py:attribute:: name
+      :type:  str
+
+
+   .. py:attribute:: units
+      :type:  tuple[OperatorUnit, ...]
+      :value: ()
+
+
+
+   .. py:method:: units_of(kind: UnitKind) -> tuple[OperatorUnit, ...]
+
+
+   .. py:method:: capacity(kind: UnitKind) -> int
+
+
+   .. py:method:: aggregation_capacity(opcode: dau_core.stream.OperationCode, logical_type: dau_core.stream.LogicalType) -> int
+
+
+   .. py:method:: manifest_items() -> tuple[tuple[str, str], ...]
+
+
+   .. py:method:: from_manifest_mapping(mapping: dict[str, str]) -> DauDesign
+      :classmethod:
+
+
+
+   .. py:method:: from_manifest(path: str | pathlib.Path) -> DauDesign
+      :classmethod:
+
+
+
+.. py:function:: format_units(units: tuple[OperatorUnit, ...]) -> str
+
+.. py:function:: parse_units(value: str) -> tuple[OperatorUnit, ...]
+

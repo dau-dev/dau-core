@@ -1,0 +1,106 @@
+test_benches_can_fail
+=====================
+
+.. py:module:: test_benches_can_fail
+
+.. autoapi-nested-parse::
+
+   Prove the benches can fail.
+
+   A bench that always passes and a bench that checks nothing are
+   indistinguishable from a green suite, and this project has now shipped
+   several of the second kind: a scan bench that raised before comparing and
+   so never compared, a verilator install that could not build any timing
+   bench, and a device check whose field was read from a snapshot that never
+   populated it. Every one of those was found by hand or by an adversarial
+   reviewer. None was found by the suite, because a suite only reports what a
+   test asserts, and none of them asserted that the check ran.
+
+   The check here is mutation. Take a tile whose bench passes, change its
+   SystemVerilog so it computes the wrong answer, and require the bench to
+   FAIL. Together with the existing pass-on-clean-source tests that is a
+   two-sided proof: the bench distinguishes a correct implementation from an
+   incorrect one, which is the only property that makes a green bench mean
+   anything.
+
+   Mutations are chosen to be semantic and small — an off-by-one in a count, an
+   inverted comparison — so a bench that survives one is not merely insensitive
+   to a wholesale rewrite. They are applied to a COPY; the registry's source is
+   never touched.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_benches_can_fail._COCOTB_BENCH_PREFIX
+   test_benches_can_fail._MUTATIONS
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   test_benches_can_fail._Mutation
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_benches_can_fail._mutated_sources
+   test_benches_can_fail.test_a_bench_fails_when_its_tile_is_made_wrong
+
+
+Module Contents
+---------------
+
+.. py:data:: _COCOTB_BENCH_PREFIX
+   :value: 'dau_core.tests.cocotb_benches'
+
+
+.. py:class:: _Mutation
+
+   One tile, and a textual change to its HDL that makes it wrong.
+
+
+   .. py:attribute:: core_name
+      :type:  str
+
+
+   .. py:attribute:: find
+      :type:  str
+
+
+   .. py:attribute:: replace
+      :type:  str
+
+
+   .. py:attribute:: what_it_breaks
+      :type:  str
+
+
+   .. py:attribute:: parameters
+      :type:  dict | None
+      :value: None
+
+
+
+.. py:data:: _MUTATIONS
+
+.. py:function:: _mutated_sources(mutation: _Mutation, tmp_path: pathlib.Path) -> tuple[pathlib.Path, ...]
+
+   Every source the tile needs, with the named one mutated in a copy.
+
+
+.. py:function:: test_a_bench_fails_when_its_tile_is_made_wrong(mutation: _Mutation, tmp_path: pathlib.Path) -> None
+
+   The bench must reject an implementation that computes the wrong
+   answer. If it passes here it is not comparing anything, and its green
+   result elsewhere means nothing.
+
+

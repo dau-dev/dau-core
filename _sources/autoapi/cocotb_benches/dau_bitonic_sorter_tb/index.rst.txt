@@ -1,0 +1,167 @@
+cocotb_benches.dau_bitonic_sorter_tb
+====================================
+
+.. py:module:: cocotb_benches.dau_bitonic_sorter_tb
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_bitonic_sorter_tb.CAPACITY
+   cocotb_benches.dau_bitonic_sorter_tb._MASK32
+   cocotb_benches.dau_bitonic_sorter_tb._INT32_MIN
+   cocotb_benches.dau_bitonic_sorter_tb._INT32_MAX
+   cocotb_benches.dau_bitonic_sorter_tb._ROWS_FULL
+   cocotb_benches.dau_bitonic_sorter_tb._ROWS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_bitonic_sorter_tb.sorts_rows_ascending_by_key
+   cocotb_benches.dau_bitonic_sorter_tb.already_sorted_batch_passes_through
+   cocotb_benches.dau_bitonic_sorter_tb.reverse_order_batch
+   cocotb_benches.dau_bitonic_sorter_tb.duplicate_keys_drain_stable
+   cocotb_benches.dau_bitonic_sorter_tb.int32_extreme_keys_sort_signed
+   cocotb_benches.dau_bitonic_sorter_tb.all_equal_full_batch_is_stable
+   cocotb_benches.dau_bitonic_sorter_tb.int32_max_partial_batch_beats_pad_sentinels
+   cocotb_benches.dau_bitonic_sorter_tb.single_row_batch
+   cocotb_benches.dau_bitonic_sorter_tb.exact_capacity_batch
+   cocotb_benches.dau_bitonic_sorter_tb.overflow_reports_capacity_error
+   cocotb_benches.dau_bitonic_sorter_tb.torn_row_reports_stream_error
+   cocotb_benches.dau_bitonic_sorter_tb.torn_w0_after_full_batch_is_stream_error
+   cocotb_benches.dau_bitonic_sorter_tb.error_status_survives_backpressure
+   cocotb_benches.dau_bitonic_sorter_tb.backpressure_on_the_output
+   cocotb_benches.dau_bitonic_sorter_tb.constrained_random_batches_match_golden
+   cocotb_benches.dau_bitonic_sorter_tb._signed32
+   cocotb_benches.dau_bitonic_sorter_tb._start
+   cocotb_benches.dau_bitonic_sorter_tb._run
+   cocotb_benches.dau_bitonic_sorter_tb._send_rows_then_torn_w0
+   cocotb_benches.dau_bitonic_sorter_tb._send_rows
+   cocotb_benches.dau_bitonic_sorter_tb._collect_output
+   cocotb_benches.dau_bitonic_sorter_tb._assert_quiescent
+   cocotb_benches.dau_bitonic_sorter_tb._expect_status
+
+
+Module Contents
+---------------
+
+.. py:data:: CAPACITY
+
+.. py:data:: _MASK32
+   :value: 4294967295
+
+
+.. py:data:: _INT32_MIN
+   :value: -2147483648
+
+
+.. py:data:: _INT32_MAX
+   :value: 2147483647
+
+
+.. py:data:: _ROWS_FULL
+
+.. py:data:: _ROWS
+
+.. py:function:: sorts_rows_ascending_by_key(dut)
+   :async:
+
+
+.. py:function:: already_sorted_batch_passes_through(dut)
+   :async:
+
+
+.. py:function:: reverse_order_batch(dut)
+   :async:
+
+
+.. py:function:: duplicate_keys_drain_stable(dut)
+   :async:
+
+
+.. py:function:: int32_extreme_keys_sort_signed(dut)
+   :async:
+
+
+.. py:function:: all_equal_full_batch_is_stable(dut)
+   :async:
+
+
+.. py:function:: int32_max_partial_batch_beats_pad_sentinels(dut)
+   :async:
+
+
+.. py:function:: single_row_batch(dut)
+   :async:
+
+
+.. py:function:: exact_capacity_batch(dut)
+   :async:
+
+
+.. py:function:: overflow_reports_capacity_error(dut)
+   :async:
+
+
+.. py:function:: torn_row_reports_stream_error(dut)
+   :async:
+
+
+.. py:function:: torn_w0_after_full_batch_is_stream_error(dut)
+   :async:
+
+
+.. py:function:: error_status_survives_backpressure(dut)
+   :async:
+
+
+.. py:function:: backpressure_on_the_output(dut)
+   :async:
+
+
+.. py:function:: constrained_random_batches_match_golden(dut)
+   :async:
+
+
+.. py:function:: _signed32(value: int) -> int
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _run(dut, rows, *, ready_pattern=(1, ))
+   :async:
+
+
+.. py:function:: _send_rows_then_torn_w0(dut, rows) -> None
+   :async:
+
+
+   Send complete rows (no last), then a lone last-carrying w0.
+
+
+.. py:function:: _send_rows(dut, rows) -> None
+   :async:
+
+
+.. py:function:: _collect_output(dut, ready_pattern, *, expect_words: int) -> list[int]
+   :async:
+
+
+.. py:function:: _assert_quiescent(dut) -> None
+   :async:
+
+
+   After a batch drains, nothing more may appear on the output or status
+   streams even with ready held high (no trailing/duplicated beats).
+
+
+.. py:function:: _expect_status(dut, *, error: bool, code: int = 0) -> None
+   :async:
+
+

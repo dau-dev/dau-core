@@ -1,0 +1,287 @@
+dau_core.hero
+=============
+
+.. py:module:: dau_core.hero
+
+.. autoapi-nested-parse::
+
+   The temporal-finance hero workflow: the predeclared
+   end-to-end pipeline composed from the :mod:`dau_core.temporal` goldens, plus the
+   avoided-materialization cost model that is the paper's core evidence::
+
+       quotes ─┐
+               ├─> backward as-of ─> [market-feature map] ─> time bars ─> rolling moments
+       trades ─┘   (align)           (derive, fused)         (bar)        (roll)
+
+   The argument the model makes precise: the pipeline is a *cardinality funnel*.
+   The align stage emits one market row per matched trade (``N_mkt``); the bar stage
+   reduces those to a handful of bars per symbol (``N_bar << N_mkt``); the roll stage
+   runs over the bars. A **staged** execution writes each stage's output to DDR and
+   the next stage reads it back — so it pays to materialize the large ``N_mkt`` market
+   intermediate the bar reduction is about to discard. A **fused** execution keeps
+   every intermediate on-chip and touches DDR only for the input stream and the
+   final rolling output. The gain is not a magic primitive: it is the avoided DMA of
+   the intermediate the bar reduction discards.
+
+   The per-row market-feature derivation (midpoint/spread/sign/signed_volume/dollar)
+   is a map that fuses into the bar tile's front chain stage (the q1/q6 shape) — it
+   adds no materialized intermediate in either execution — so the cost model's
+   materializing stages are align → bar → roll. ``market_features`` is still run and
+   returned as the feature output branch (not discarded).
+
+   Both paths are DMA-bound (compute overlapped), so the model computes each from
+   the exact golden cardinalities and the measured per-tile record widths — a
+   first-order estimate the silicon run validates, not a measured result.
+
+   No dataframe or numerical-runtime dependency: pure integer arithmetic over
+   the temporal goldens.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   dau_core.hero.INPUT_BYTES
+   dau_core.hero.MARKET_BYTES
+   dau_core.hero.BAR_BYTES
+   dau_core.hero.ROLL_INPUT_BYTES
+   dau_core.hero.ROLL_BYTES
+   dau_core.hero.ROLL_FIELDS
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   dau_core.hero.WorkflowStage
+   dau_core.hero.HeroResult
+   dau_core.hero.MaterializationCost
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   dau_core.hero.run_hero_workflow
+   dau_core.hero.materialization_cost
+
+
+Module Contents
+---------------
+
+.. py:data:: INPUT_BYTES
+   :value: 24
+
+
+.. py:data:: MARKET_BYTES
+   :value: 32
+
+
+.. py:data:: BAR_BYTES
+   :value: 48
+
+
+.. py:data:: ROLL_INPUT_BYTES
+   :value: 8
+
+
+.. py:data:: ROLL_BYTES
+   :value: 24
+
+
+.. py:data:: ROLL_FIELDS
+   :value: ('open', 'high', 'low', 'close')
+
+
+.. py:class:: WorkflowStage(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   One materializing stage and its cardinality: ``in_rows`` records of
+   ``in_bytes`` in, ``out_rows`` records of ``out_bytes`` out (the tile's own
+   input/output record widths). A staged run DMAs both; a fused run DMAs
+   neither (except the pipeline endpoints).
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: name
+      :type:  str
+
+
+   .. py:attribute:: op
+      :type:  str
+
+
+   .. py:attribute:: in_rows
+      :type:  int
+
+
+   .. py:attribute:: in_bytes
+      :type:  int
+
+
+   .. py:attribute:: out_rows
+      :type:  int
+
+
+   .. py:attribute:: out_bytes
+      :type:  int
+
+
+   .. py:property:: read_bytes
+      :type: int
+
+
+
+   .. py:property:: write_bytes
+      :type: int
+
+
+
+.. py:class:: HeroResult(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedMixin`, :py:obj:`ccflow.ResultBase`
+
+
+   The executed workflow: the materializing-stage cardinalities (the funnel),
+   the per-row feature branch, and the stage outputs (for a bit-exact
+   comparison against a CPU reference).
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: model_config
+
+      Configuration for the model, should be a dictionary conforming to [`ConfigDict`][pydantic.config.ConfigDict].
+
+
+   .. py:attribute:: stages
+      :type:  tuple[WorkflowStage, ...]
+
+
+   .. py:attribute:: market_rows
+      :type:  tuple[dau_core.temporal.MarketRow, ...]
+
+
+   .. py:attribute:: features
+      :type:  tuple[dau_core.temporal.MarketFeatures, ...]
+
+
+   .. py:attribute:: bars
+      :type:  tuple[dau_core.temporal.TemporalBar, ...]
+
+
+   .. py:attribute:: moments
+      :type:  tuple[dau_core.temporal.RollingMoment, ...]
+
+
+   .. py:property:: funnel
+      :type: tuple[int, ...]
+
+
+      input → market → bars → rolling
+      (the fused feature map does not change cardinality).
+
+      :type: Row counts down the reduction path
+
+
+.. py:function:: run_hero_workflow(trades: list[dau_core.temporal.TradeRow], quotes: list[dau_core.temporal.QuoteRow], *, bar_width: int, roll_window: int, tolerance: int | None = None, roll_value: str = 'close') -> HeroResult
+
+   Run the predeclared workflow end to end over the goldens, recording each
+   materializing stage's cardinality. ``roll_value`` selects the per-bar OHLC
+   price the roll stage windows (:data:`ROLL_FIELDS`); ``roll_window`` is the
+   count-based window (``>= 2``, the tile's minimum). Both input streams must be
+   pre-sorted by ``(symbol_id, time)`` (the shared as-of / bar precondition).
+
+
+.. py:class:: MaterializationCost(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedMixin`, :py:obj:`ccflow.ResultBase`
+
+
+   The avoided-materialization accounting for one workflow run. ``staged``
+   DMAs every stage's read and write; ``fused`` DMAs only the pipeline endpoints
+   (the input stream in, the final rolling output out). ``avoided`` is the
+   intermediate materialization the fusion removes; ``dma_ratio`` is the
+   DMA-bound speedup (both paths are DMA-bound with compute overlapped).
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: model_config
+
+      Configuration for the model, should be a dictionary conforming to [`ConfigDict`][pydantic.config.ConfigDict].
+
+
+   .. py:attribute:: staged_bytes
+      :type:  int
+
+
+   .. py:attribute:: fused_bytes
+      :type:  int
+
+
+   .. py:attribute:: avoided_bytes
+      :type:  int
+
+
+   .. py:attribute:: input_bytes
+      :type:  int
+
+
+   .. py:attribute:: final_bytes
+      :type:  int
+
+
+   .. py:attribute:: staged_jobs
+      :type:  int
+
+
+   .. py:attribute:: fused_jobs
+      :type:  int
+
+
+   .. py:property:: dma_ratio
+      :type: float
+
+
+      Staged / fused DMA. A no-work run (both zero) has no speedup (1.0);
+      a genuinely nonzero staged cost with a zero fused cost is unbounded.
+
+
+   .. py:method:: estimate_seconds(*, dma_bytes_per_sec: float, per_job_seconds: float = 0.0) -> tuple[float, float]
+
+      (staged, fused) wall-clock estimates: DMA time plus a per-job tail
+      (device setup + the one-job compute tail the overlap runner cannot hide).
+      A DMA-bound first-order model — the prediction the silicon run checks.
+
+
+
+.. py:function:: materialization_cost(result: HeroResult) -> MaterializationCost
+
+   Fused vs staged DMA accounting for an executed workflow. Staged pays each
+   stage's read + write (the intermediate is written by one job and read back by
+   the next); fused pays only the input read and the final write.
+
+

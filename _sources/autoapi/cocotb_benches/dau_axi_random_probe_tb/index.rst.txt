@@ -1,0 +1,98 @@
+cocotb_benches.dau_axi_random_probe_tb
+======================================
+
+.. py:module:: cocotb_benches.dau_axi_random_probe_tb
+
+.. autoapi-nested-parse::
+
+   The random-read probe: does outstanding depth actually buy throughput?
+
+   This bench does not check a data transform -- it checks that the mechanism
+   the DRAM-backed join would depend on works at all. Three claims, in the
+   order they matter:
+
+   1. **every probe returns.** A read master that loses a transaction reports a
+      fast run and a wrong answer, so the checksum must be non-zero and the
+      response must never be an error.
+   2. **the depth is really reached.** `peak_outstanding` says how many reads
+      were genuinely in flight. A tile that claims MAX_OUTSTANDING=16 and only
+      ever holds one would measure the memory correctly and the design wrongly.
+   3. **cycles per probe FALL as depth rises.** This is the whole argument: at
+      depth 1 the rate is 1/latency, which is what `dau_axi_burst_reader` gets
+      and what makes a DRAM-backed join impossible. If depth does not help
+      here, it will not help on silicon either.
+
+   The RAM model's READ_LATENCY stands in for the DRAM round trip. The
+   absolute numbers are the model's, not a board's -- what transfers is the
+   SHAPE of the curve.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_axi_random_probe_tb.PROBES
+   cocotb_benches.dau_axi_random_probe_tb.WINDOW_MASK
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_axi_random_probe_tb._run
+   cocotb_benches.dau_axi_random_probe_tb.every_probe_returns
+   cocotb_benches.dau_axi_random_probe_tb.the_configured_depth_is_actually_reached
+   cocotb_benches.dau_axi_random_probe_tb.deeper_pipelining_costs_fewer_cycles_per_probe
+
+
+Module Contents
+---------------
+
+.. py:data:: PROBES
+   :value: 256
+
+
+.. py:data:: WINDOW_MASK
+   :value: 32760
+
+
+.. py:function:: _run(dut) -> tuple[int, int, int]
+   :async:
+
+
+   Drive one run; return (elapsed cycles, peak outstanding, checksum).
+
+
+.. py:function:: every_probe_returns(dut)
+   :async:
+
+
+   A lost transaction would look like a fast run, so prove the data came
+   back rather than the addresses merely being accepted.
+
+
+.. py:function:: the_configured_depth_is_actually_reached(dut)
+   :async:
+
+
+   A tile that claims a depth and holds one read would measure the
+   memory correctly and the design wrongly.
+
+
+.. py:function:: deeper_pipelining_costs_fewer_cycles_per_probe(dut)
+   :async:
+
+
+   The claim the DRAM-backed join rests on.
+
+   Recorded rather than asserted across parameters, because one elaboration
+   carries one MAX_OUTSTANDING: the sweep lives in the test that
+   parameterizes the build. What this pins is that the run is
+   LATENCY-BOUND when the depth is one -- cycles per probe at least the
+   read latency -- which is exactly the burst reader's behaviour and the
+   thing depth has to beat.
+
+

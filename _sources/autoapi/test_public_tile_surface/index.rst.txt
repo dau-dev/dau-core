@@ -1,0 +1,96 @@
+test_public_tile_surface
+========================
+
+.. py:module:: test_public_tile_surface
+
+.. autoapi-nested-parse::
+
+   The modules a third-party tile author needs, and what they may import.
+
+   A tile contributed from outside this package declares a ``CoreDefinition``,
+   speaks the row-stream ABI, names the element types its parameters take, and
+   may render its HDL through a ``CoreGenerator``. Those modules are
+   therefore the *authoring surface* -- the part that has to be reachable by
+   someone who will never have this repository, whether that eventually means
+   extracting them into a public distribution or publishing dau-core itself.
+
+   That only stays true if the surface keeps its dependencies shallow. This
+   guard enumerates what it may import. It is not a style rule: every name
+   added here is a module that would have to be carried along, and a surface
+   that quietly grows a dependency on the composition logic, the goldens, or
+   the workload code stops being extractable without anyone noticing.
+
+   The guard reads imports statically rather than importing the modules,
+   because an import-time check would pass on a dependency that is only
+   reached inside a function.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_public_tile_surface.SURFACE_MODULES
+   test_public_tile_surface.ALLOWED_THIRD_PARTY
+   test_public_tile_surface.ALLOWED_INTERNAL
+   test_public_tile_surface.EXTRACTION_DEBT
+   test_public_tile_surface._STDLIB
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_public_tile_surface._surface_paths
+   test_public_tile_surface._internal_imports
+   test_public_tile_surface.test_the_authoring_surface_stays_extractable
+   test_public_tile_surface.test_the_surface_declares_its_third_party_dependencies
+   test_public_tile_surface.test_the_extraction_debt_does_not_grow
+
+
+Module Contents
+---------------
+
+.. py:data:: SURFACE_MODULES
+   :value: ('cores', 'design', 'element_types', 'generators', 'models', 'stream')
+
+
+.. py:data:: ALLOWED_THIRD_PARTY
+
+.. py:data:: ALLOWED_INTERNAL
+
+.. py:data:: EXTRACTION_DEBT
+   :type:  set[str]
+
+.. py:function:: _surface_paths() -> tuple[pathlib.Path, ...]
+
+.. py:function:: _internal_imports(path: pathlib.Path) -> set[str]
+
+   Top-level dau-core modules this file imports, relative or absolute.
+
+
+.. py:function:: test_the_authoring_surface_stays_extractable() -> None
+
+.. py:function:: test_the_surface_declares_its_third_party_dependencies() -> None
+
+   The authoring surface may not grow a heavy runtime dependency.
+
+   An author installs this to declare a tile, not to run a build: pulling
+   in hydra, a simulator, or a synthesis toolchain here would make the
+   declaration surface as expensive as the toolchain it feeds.
+
+
+.. py:data:: _STDLIB
+
+.. py:function:: test_the_extraction_debt_does_not_grow() -> None
+
+   The recorded debt is a ceiling, not a budget.
+
+   A new private dependency in the authoring surface is cheap to add and
+   expensive to discover later -- it is only visible at the moment someone
+   tries to ship the surface without this repository. Pinning the set means
+   that moment happens now, in a test, rather than then.
+
+

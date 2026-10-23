@@ -1,0 +1,125 @@
+test_validation_at_use
+======================
+
+.. py:module:: test_validation_at_use
+
+.. autoapi-nested-parse::
+
+   Frozen is not enough: the two holes in it, and what closes them.
+
+   Every model here is frozen and validates at construction. ``model_copy`` goes
+   around the validators, and a ``dict`` on a frozen model goes around the
+   freeze. These tests pin that both are closed, and that the mechanism does not
+   change what a model means.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_validation_at_use._spec
+   test_validation_at_use.test_a_copied_model_is_refused_at_the_next_boundary
+   test_validation_at_use.test_replace_is_the_validated_copy
+   test_validation_at_use.test_a_frozen_model_holds_no_mutable_mapping
+   test_validation_at_use.test_a_read_only_mapping_still_behaves_like_the_dict_it_was
+   test_validation_at_use.test_the_canonical_form_and_the_cache_key_are_unchanged
+   test_validation_at_use.test_the_composition_boundaries_refuse_a_copied_spec
+   test_validation_at_use.test_a_polymorphic_field_keeps_its_subclass
+   test_validation_at_use.test_every_model_validates_at_use
+   test_validation_at_use.test_the_base_refuses_an_unfrozen_subclass
+   test_validation_at_use.test_a_copied_generator_cannot_render
+   test_validation_at_use.test_a_golden_refuses_a_copied_config
+   test_validation_at_use.test_staging_the_hdl_refuses_a_copied_spec
+   test_validation_at_use.test_a_record_batch_is_validated_against_checked_limits
+
+
+Module Contents
+---------------
+
+.. py:function:: _spec() -> dau_core.composition.ScanCompositionSpec
+
+.. py:function:: test_a_copied_model_is_refused_at_the_next_boundary() -> None
+
+   ``model_copy`` skips every validator, so the copy itself cannot refuse.
+   The boundary it is handed to does: a parent revalidates its children, and
+   ``check()`` revalidates on demand.
+
+
+.. py:function:: test_replace_is_the_validated_copy() -> None
+
+.. py:function:: test_a_frozen_model_holds_no_mutable_mapping() -> None
+
+   A frozen model whose ``config`` is a plain dict is not frozen: whoever
+   holds the model can rewrite the binding the design was priced under.
+
+   There is no mutating method to refuse: the field holds a ``Mapping``, not
+   a ``dict`` subclass, so nothing is inherited that could write. A subclass
+   would have been the weaker design -- ``dict.__setitem__(m, k, v)`` reaches
+   past any override -- so that bypass is pinned here too.
+
+
+.. py:function:: test_a_read_only_mapping_still_behaves_like_the_dict_it_was() -> None
+
+   The freeze is invisible to everything that reads: equality against a
+   plain dict, membership, serialization, and the hash a frozen model needs.
+
+
+.. py:function:: test_the_canonical_form_and_the_cache_key_are_unchanged() -> None
+
+   The design cache is keyed on this text. A change to how a model holds
+   its mappings must not move it, so the pinned-hash fixture in
+   test_composition.py keeps meaning what it meant.
+
+
+.. py:function:: test_the_composition_boundaries_refuse_a_copied_spec() -> None
+
+   Every entry point that reads a spec revalidates it first, so a spec
+   that was copied past its validators cannot be hashed, priced or
+   advertised.
+
+
+.. py:function:: test_a_polymorphic_field_keeps_its_subclass() -> None
+
+   ``CoreGenerator`` is a field type, so it must NOT revalidate instances:
+   a subclass handed to ``CoreDefinition.generator`` would be validated
+   against the base and lose its own fields. The generated cores in the
+   registry are the proof -- they load -- and check() on the concrete
+   subclass is what validates one.
+
+
+.. py:function:: test_every_model_validates_at_use() -> None
+
+   The guard: a dau-core model that is not checkable is a model whose
+   copies nothing refuses.
+
+
+.. py:function:: test_the_base_refuses_an_unfrozen_subclass() -> None
+
+   A subclass that unfreezes itself is the quiet way back to a mutable
+   model, so the base's config is what a new model inherits.
+
+
+.. py:function:: test_a_copied_generator_cannot_render() -> None
+
+   A generator is a field type, so nothing revalidates it on the way in.
+   ``render()`` is therefore its own boundary: a copied operating point must
+   not reach HDL, because that HDL's digest would then identify it.
+
+
+.. py:function:: test_a_golden_refuses_a_copied_config() -> None
+
+   The goldens are what hardware is compared against, so a config that
+   construction would have refused must not produce a reference answer. The
+   check runs once per call, outside the row loop.
+
+
+.. py:function:: test_staging_the_hdl_refuses_a_copied_spec() -> None
+
+   ``core_names`` decides which sources a build compiles. A spec copied
+   past its validators must not make that decision.
+
+
+.. py:function:: test_a_record_batch_is_validated_against_checked_limits() -> None
+

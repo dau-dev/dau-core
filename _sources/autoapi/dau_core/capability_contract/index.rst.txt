@@ -1,0 +1,304 @@
+dau_core.capability_contract
+============================
+
+.. py:module:: dau_core.capability_contract
+
+.. autoapi-nested-parse::
+
+   Composition-derived capability contract: the single source of truth for
+   what a generated shell can do.
+
+   ``capability_contract(spec)`` derives the contract from the same
+   ``ScanCompositionSpec`` that generates the shell top, using the registry's
+   declared HDL facts (opcodes, input types, count ports, contract kinds, row
+   capacities). Three consumers read it:
+
+   - the identity register block (``operator_bitmap`` / ``lane_count`` /
+     ``host_opcode_bitmap`` / ``sort_capacity`` words, register map 0.2);
+   - the shell-build artlink manifest (``to_mapping()``, JSON-able);
+   - host planners (``to_design()`` for the pushdown scheduler,
+     driver capability decode via the manifest mapping).
+
+   Hardware truth vs protocol truth is explicit: ``operator_bitmap`` carries
+   only OperationCodes some tile executes in HDL (MIN/MAX/SUM/COUNT);
+   AVERAGE is never a hardware opcode — when a tile provides both SUM and
+   COUNT it appears in ``host_opcodes`` (the host divides the results at
+   protocol level), never in ``opcodes``.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   dau_core.capability_contract.CAPABILITY_CONTRACT_SCHEMA
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   dau_core.capability_contract.TileCapability
+   dau_core.capability_contract.LaneCapability
+   dau_core.capability_contract.CapabilityContract
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   dau_core.capability_contract.opcode_bitmap
+   dau_core.capability_contract.tile_capability
+   dau_core.capability_contract.capability_contract
+
+
+Module Contents
+---------------
+
+.. py:data:: CAPABILITY_CONTRACT_SCHEMA
+   :value: 1
+
+
+.. py:function:: opcode_bitmap(opcodes: tuple[dau_core.stream.OperationCode, ...]) -> int
+
+   The register encoding: bit ``1 << opcode`` per OperationCode.
+
+
+.. py:class:: TileCapability(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   One operator tile instance as the contract describes it: registry
+   identity, stream contract, HDL opcode truth, and instance config.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: core
+      :type:  str
+
+
+   .. py:attribute:: module
+      :type:  str
+
+
+   .. py:attribute:: contract_kind
+      :type:  dau_core.cores.ContractKind | None
+
+
+   .. py:attribute:: count_port
+      :type:  str | None
+
+
+   .. py:attribute:: opcodes
+      :type:  tuple[dau_core.stream.OperationCode, ...]
+      :value: ()
+
+
+
+   .. py:attribute:: input_types
+      :type:  tuple[dau_core.stream.LogicalType, ...]
+      :value: ()
+
+
+
+   .. py:attribute:: unit_kind
+      :type:  dau_core.design.UnitKind | None
+      :value: None
+
+
+
+   .. py:attribute:: row_capacity
+      :type:  int | None
+      :value: None
+
+
+
+   .. py:attribute:: config
+      :type:  tuple[tuple[str, str], ...]
+      :value: ()
+
+
+
+   .. py:property:: host_opcodes
+      :type: tuple[dau_core.stream.OperationCode, ...]
+
+
+      Protocol-level opcodes the host can compute from this tile's
+      hardware results: AVERAGE = SUM/COUNT divided host-side. Never
+      hardware opcodes and never advertised as such.
+
+
+   .. py:method:: to_mapping() -> dict[str, Any]
+
+
+   .. py:method:: from_mapping(mapping: collections.abc.Mapping[str, Any]) -> TileCapability
+      :classmethod:
+
+
+
+.. py:class:: LaneCapability(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   One scan lane: the terminal operator tile, its optional partition
+   filter, and the ordered mid-lane operator ``chain`` between them.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: tile
+      :type:  TileCapability
+
+
+   .. py:attribute:: partition
+      :type:  TileCapability | None
+      :value: None
+
+
+
+   .. py:attribute:: chain
+      :type:  tuple[TileCapability, ...]
+      :value: ()
+
+
+
+   .. py:method:: to_mapping() -> dict[str, Any]
+
+
+   .. py:method:: from_mapping(mapping: collections.abc.Mapping[str, Any]) -> LaneCapability
+      :classmethod:
+
+
+
+.. py:class:: CapabilityContract(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   The advertised capability truth of one composed design.
+
+   A config-data model (it is what the shell-build manifest carries and
+   what a planner matches against), so a ccflow model like the rest of the
+   registry's declarations; ``to_mapping``/``from_mapping`` remain the
+   manifest serialization, unchanged, because manifests already on disk
+   carry that form.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: name
+      :type:  str
+
+
+   .. py:attribute:: lanes
+      :type:  tuple[LaneCapability, ...]
+
+
+   .. py:attribute:: partitioner
+      :type:  TileCapability | None
+      :value: None
+
+
+
+   .. py:attribute:: register_map_version
+      :type:  dau_core.registers.RegisterMapVersion
+
+
+   .. py:attribute:: reconfigurable
+      :type:  bool
+      :value: False
+
+
+
+   .. py:property:: lane_count
+      :type: int
+
+
+
+   .. py:property:: hardware_opcodes
+      :type: tuple[dau_core.stream.OperationCode, ...]
+
+
+      Union of the lanes' HDL opcodes (terminal tiles and chain
+      stages), ordered by opcode value.
+
+
+   .. py:property:: host_opcodes
+      :type: tuple[dau_core.stream.OperationCode, ...]
+
+
+      Protocol-level opcodes derivable host-side (AVERAGE when a tile
+      provides both SUM and COUNT); explicitly not hardware opcodes.
+
+
+   .. py:property:: operator_bitmap
+      :type: int
+
+
+
+   .. py:property:: host_opcode_bitmap
+      :type: int
+
+
+
+   .. py:property:: sort_capacity
+      :type: int
+
+
+
+   .. py:method:: to_design() -> dau_core.design.DauDesign
+
+      The operator inventory this contract advertises: identical lane
+      tiles that contribute a design unit collapse into one counted unit.
+
+
+
+   .. py:method:: to_mapping() -> dict[str, Any]
+
+      JSON-able serialization for the shell-build manifest.
+
+
+
+   .. py:method:: from_mapping(mapping: collections.abc.Mapping[str, Any]) -> CapabilityContract
+      :classmethod:
+
+
+
+.. py:function:: tile_capability(tile: dau_core.composition.TileSpec | str) -> TileCapability
+
+   The registry-declared capability facts of one tile instance.
+
+
+.. py:function:: capability_contract(spec: dau_core.composition.ScanCompositionSpec) -> CapabilityContract
+
+   Derive the capability contract from the composition that generates
+   the shell top — same spec, same registry, one source of truth.
+
+   ``reconfigurable`` stays false: the generated walker binds every config
+   port to the literal the composition names, so no composed design has
+   runtime config registers yet. When the generator can bind them to
+   registers, the composition will say so and this is where the contract
+   reads it.
+
+

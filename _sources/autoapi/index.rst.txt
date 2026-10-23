@@ -1,0 +1,51 @@
+API Reference
+=============
+
+This page contains auto-generated API reference documentation [#f1]_.
+
+.. toctree::
+   :titlesonly:
+
+   /autoapi/dau_core/index
+   /autoapi/conftest/index
+   /autoapi/test_docs/index
+   /autoapi/test_hero/index
+   /autoapi/test_cores/index
+   /autoapi/test_design/index
+   /autoapi/test_stream/index
+   /autoapi/test_readme/index
+   /autoapi/test_temporal/index
+   /autoapi/test_operators/index
+   /autoapi/cocotb_benches/index
+   /autoapi/test_hdl_cocotb/index
+   /autoapi/test_composition/index
+   /autoapi/test_hdl_sources/index
+   /autoapi/exhaustive_sweep/index
+   /autoapi/test_hash_grouped/index
+   /autoapi/test_record_batch/index
+   /autoapi/test_lazy_exports/index
+   /autoapi/test_element_types/index
+   /autoapi/test_core_contract/index
+   /autoapi/test_hdl_verilator/index
+   /autoapi/test_fixed_point_ln/index
+   /autoapi/test_ohlcv_fixtures/index
+   /autoapi/test_hdl_elaboration/index
+   /autoapi/test_datetime_format/index
+   /autoapi/test_fixed_point_exp/index
+   /autoapi/test_generated_cores/index
+   /autoapi/test_benches_can_fail/index
+   /autoapi/test_contributed_cores/index
+   /autoapi/test_validation_at_use/index
+   /autoapi/test_aggregation_goldens/index
+   /autoapi/test_capability_contract/index
+   /autoapi/test_public_tile_surface/index
+   /autoapi/test_aggregation_tile_hdl/index
+   /autoapi/test_contributed_discovery/index
+   /autoapi/test_fixed_point_normal_cdf/index
+   /autoapi/test_output_beat_declarations/index
+   /autoapi/test_registers_and_capabilities/index
+   /autoapi/test_measured_from_matches_the_hdl/index
+   /autoapi/test_parameter_bounds_match_the_hdl/index
+   /autoapi/test_hdl_parameter_bindings_resolve/index
+
+.. [#f1] Created with `sphinx-autoapi <https://github.com/readthedocs/sphinx-autoapi>`_

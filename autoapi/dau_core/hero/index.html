@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>dau_core.hero &#8212; dau core v0.1.0</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fuma.css?v=f6f6878e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fuma-code.css?v=a950e949" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fonts/fuma-fonts.css?v=c2892c73" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/custom.css?v=88c24c6a" />
+    <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-searchlite-index="searchlite-index.json" defer="defer" src="../../../_static/searchlite.js?v=a5320898"></script>
+    <script defer="defer" src="../../../_static/fuma.js?v=b46bb53d"></script>
+    <script src="../../../_static/js/custom.js?v=956e5d78"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="dau_core.ln_generator" href="../ln_generator/index.html" />
+    <link rel="prev" title="dau_core.hdl" href="../hdl/index.html" />
+    <script>
+      (function () {
+        var root = document.documentElement;
+        try {
+          var stored = localStorage.getItem("fuma-theme");
+          if (stored) {
+            root.classList.add(stored === "dark" ? "dark" : "light");
+            root.style.colorScheme = stored === "dark" ? "dark" : "light";
+          }
+          if (localStorage.getItem("fuma-sidebar") === "collapsed") root.dataset.sidebarCollapsed = "true";
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+<body class="fd-body" data-layout="docs" data-toc-style="normal" data-open-level="1">
+<div id="fd-layout"><header id="fd-subnav">
+  <div class="fd-subnav-inner">
+    <button type="button" class="fd-icon-button fd-sidebar-toggle" aria-controls="fd-sidebar" aria-expanded="false" aria-label="Toggle navigation">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
+    </button><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau core v0.1.0</span>
+</a>
+
+    <div class="fd-nav-actions">
+      <button type="button" class="fd-icon-button" data-fd-search-open aria-label="Search"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+      <a class="fd-icon-button" href="https://github.com/dau-dev/dau-core" target="_blank" rel="noopener" aria-label="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <button type="button" class="fd-icon-button fd-theme-toggle" aria-label="Toggle theme">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-light"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-dark"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<aside id="fd-sidebar" aria-label="Documentation">
+  <div class="fd-sidebar-header">
+    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau core v0.1.0</span>
+</a>
+      <button type="button" class="fd-icon-button fd-sidebar-collapse" aria-label="Collapse sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+    </div>
+    <button type="button" class="fd-search-trigger" data-fd-search-open>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><span>Search</span><kbd class="fd-kbd">/</kbd>
+    </button>
+  </div>
+
+  <nav class="fd-sidebar-nav">
+    <div class="fd-sidebar-group">
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/tutorial/read-a-tile-contract.html">
+      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-tile.html">
+      <span class="fd-link-text">How to add an operator tile</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/how-to/test-a-core.html">
+      <span class="fd-link-text">How to test a core</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/how-to/measure-a-resource-envelope.html">
+      <span class="fd-link-text">How to measure a resource envelope</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/how-to/develop.html">
+      <span class="fd-link-text">Develop and contribute</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/reference/core-definition.html">
+      <span class="fd-link-text">CoreDefinition fields</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/reference/registry-guards.html">
+      <span class="fd-link-text">Registry-wide guards</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/explanation/why-cores-are-declared-in-config.html">
+      <span class="fd-link-text">Why cores are declared in config</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
+      <span class="fd-link-text">Why each tile has a golden model</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/explanation/why-resources-are-measured.html">
+      <span class="fd-link-text">Why resource costs are measured</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder" open>
+      <summary class="fd-folder-summary">
+        <a class="fd-link" href="../../index.html">
+          <span class="fd-link-text">API Reference</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <details class="fd-folder" open>
+      <summary class="fd-folder-summary">
+        <a class="fd-link" href="../index.html">
+          <span class="fd-link-text">dau_core</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../_lazy/index.html">
+      <span class="fd-link-text">dau_core._lazy</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../capabilities/index.html">
+      <span class="fd-link-text">dau_core.capabilities</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../capability_contract/index.html">
+      <span class="fd-link-text">dau_core.capability_contract</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../composition/index.html">
+      <span class="fd-link-text">dau_core.composition</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../config/index.html">
+      <span class="fd-link-text">dau_core.config</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cores/index.html">
+      <span class="fd-link-text">dau_core.cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../design/index.html">
+      <span class="fd-link-text">dau_core.design</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../element_types/index.html">
+      <span class="fd-link-text">dau_core.element_types</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../exp_generator/index.html">
+      <span class="fd-link-text">dau_core.exp_generator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../fixed_point/index.html">
+      <span class="fd-link-text">dau_core.fixed_point</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../generators/index.html">
+      <span class="fd-link-text">dau_core.generators</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../hdl/index.html">
+      <span class="fd-link-text">dau_core.hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link fd-current" href="#">
+      <span class="fd-link-text">dau_core.hero</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../ln_generator/index.html">
+      <span class="fd-link-text">dau_core.ln_generator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../models/index.html">
+      <span class="fd-link-text">dau_core.models</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../normal_cdf_generator/index.html">
+      <span class="fd-link-text">dau_core.normal_cdf_generator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../operators/index.html">
+      <span class="fd-link-text">dau_core.operators</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../registers/index.html">
+      <span class="fd-link-text">dau_core.registers</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../registry/index.html">
+      <span class="fd-link-text">dau_core.registry</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../stream/index.html">
+      <span class="fd-link-text">dau_core.stream</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../temporal/index.html">
+      <span class="fd-link-text">dau_core.temporal</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../workflows/index.html">
+      <span class="fd-link-text">dau_core.workflows</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../conftest/index.html">
+      <span class="fd-link-text">conftest</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_docs/index.html">
+      <span class="fd-link-text">test_docs</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hero/index.html">
+      <span class="fd-link-text">test_hero</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_cores/index.html">
+      <span class="fd-link-text">test_cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_design/index.html">
+      <span class="fd-link-text">test_design</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_stream/index.html">
+      <span class="fd-link-text">test_stream</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_readme/index.html">
+      <span class="fd-link-text">test_readme</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_temporal/index.html">
+      <span class="fd-link-text">test_temporal</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_operators/index.html">
+      <span class="fd-link-text">test_operators</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder">
+      <summary class="fd-folder-summary">
+        <a class="fd-link" href="../../cocotb_benches/index.html">
+          <span class="fd-link-text">cocotb_benches</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_arrow_lite_stream_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_arrow_lite_stream_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_asof_backward_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_asof_backward_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_asof_feature_chain_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_asof_feature_chain_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_axi_bar_job_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_bar_job_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_axi_bar_noc_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_bar_noc_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_axi_burst_reader_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_burst_reader_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_axi_random_probe_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_random_probe_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_axi_sort_noc_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_sort_noc_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_bar_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_bar_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_bitonic_sorter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_bitonic_sorter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_broadcast_hash_join_small_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_broadcast_hash_join_small_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_broadcast_hash_join_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_broadcast_hash_join_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_bucket_agg_chain_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_bucket_agg_chain_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_datetime_format_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_datetime_format_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_field_sum_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_field_sum_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_fixed_point_divide_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_divide_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_fixed_point_exp_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_exp_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_fixed_point_ln_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_ln_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_fixed_point_sqrt_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_sqrt_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_grouped_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_grouped_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_grouped_field_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_grouped_field_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_grouped_field_sum_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_grouped_field_sum_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_hash_grouped_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_hash_grouped_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_hero_datapath_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_hero_datapath_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_int32_keyed_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_keyed_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_int32_keyed_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_keyed_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_int32_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_int32_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_int32_record_gather_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_record_gather_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_mask_dispatcher_exact_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_exact_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_mask_dispatcher_hash_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_hash_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_mask_dispatcher_multi_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_multi_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_mask_dispatcher_records_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_records_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_mask_dispatcher_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_mask_dispatcher_wide_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_wide_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_membership_filter_single_word_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_membership_filter_single_word_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_membership_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_membership_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_keyed_state_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_keyed_state_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_market_feature_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_market_feature_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_normal_cdf_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_normal_cdf_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_pair_key_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_pair_key_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_range_partitioner_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_range_partitioner_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_record_batch_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_record_batch_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_record_gearbox_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_record_gearbox_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_rolling_extremum_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_rolling_extremum_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_rolling_moments_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_rolling_moments_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_row_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_row_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_row_predicate_filter_width_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_predicate_filter_width_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_row_unpack_slots_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_unpack_slots_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_row_unpack_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_unpack_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_row_unpack_wide_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_unpack_wide_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_scratchpad_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_scratchpad_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_session_gap_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_session_gap_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_stream_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_stream_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_streaming_dedup_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_streaming_dedup_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_streaming_top_k_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_streaming_top_k_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_stride_distributor_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_stride_distributor_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_time_bucket_key_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_time_bucket_key_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_wide_field_sum_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_field_sum_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_wide_ingest_chain_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_ingest_chain_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_wide_row_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_row_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_wide_row_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_row_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/rate_probe/index.html">
+      <span class="fd-link-text">cocotb_benches.rate_probe</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hdl_cocotb/index.html">
+      <span class="fd-link-text">test_hdl_cocotb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_composition/index.html">
+      <span class="fd-link-text">test_composition</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hdl_sources/index.html">
+      <span class="fd-link-text">test_hdl_sources</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../exhaustive_sweep/index.html">
+      <span class="fd-link-text">exhaustive_sweep</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hash_grouped/index.html">
+      <span class="fd-link-text">test_hash_grouped</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_record_batch/index.html">
+      <span class="fd-link-text">test_record_batch</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_lazy_exports/index.html">
+      <span class="fd-link-text">test_lazy_exports</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_element_types/index.html">
+      <span class="fd-link-text">test_element_types</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_core_contract/index.html">
+      <span class="fd-link-text">test_core_contract</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hdl_verilator/index.html">
+      <span class="fd-link-text">test_hdl_verilator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_fixed_point_ln/index.html">
+      <span class="fd-link-text">test_fixed_point_ln</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_ohlcv_fixtures/index.html">
+      <span class="fd-link-text">test_ohlcv_fixtures</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hdl_elaboration/index.html">
+      <span class="fd-link-text">test_hdl_elaboration</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_datetime_format/index.html">
+      <span class="fd-link-text">test_datetime_format</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_fixed_point_exp/index.html">
+      <span class="fd-link-text">test_fixed_point_exp</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_generated_cores/index.html">
+      <span class="fd-link-text">test_generated_cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_benches_can_fail/index.html">
+      <span class="fd-link-text">test_benches_can_fail</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_contributed_cores/index.html">
+      <span class="fd-link-text">test_contributed_cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_validation_at_use/index.html">
+      <span class="fd-link-text">test_validation_at_use</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_aggregation_goldens/index.html">
+      <span class="fd-link-text">test_aggregation_goldens</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_capability_contract/index.html">
+      <span class="fd-link-text">test_capability_contract</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_public_tile_surface/index.html">
+      <span class="fd-link-text">test_public_tile_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_aggregation_tile_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_contributed_discovery/index.html">
+      <span class="fd-link-text">test_contributed_discovery</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_fixed_point_normal_cdf/index.html">
+      <span class="fd-link-text">test_fixed_point_normal_cdf</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_output_beat_declarations/index.html">
+      <span class="fd-link-text">test_output_beat_declarations</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_registers_and_capabilities/index.html">
+      <span class="fd-link-text">test_registers_and_capabilities</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_measured_from_matches_the_hdl/index.html">
+      <span class="fd-link-text">test_measured_from_matches_the_hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_parameter_bounds_match_the_hdl/index.html">
+      <span class="fd-link-text">test_parameter_bounds_match_the_hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hdl_parameter_bindings_resolve/index.html">
+      <span class="fd-link-text">test_hdl_parameter_bindings_resolve</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+</ul>
+    </div>
+  </nav>
+
+  <div class="fd-sidebar-footer">
+    <div class="fd-toolbar">
+      <a class="fd-toolbar-item" href="https://github.com/dau-dev/dau-core" target="_blank" rel="noopener" aria-label="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <div class="fd-theme-switch" role="group" aria-label="Theme">
+        <button type="button" class="fd-theme-option" data-fd-theme="light" aria-label="Light theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></button>
+        <button type="button" class="fd-theme-option" data-fd-theme="dark" aria-label="Dark theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg></button>
+      </div>
+    </div>
+  </div>
+</aside>
+<button type="button" id="fd-sidebar-restore" class="fd-icon-button" aria-label="Expand sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+<div class="fd-sidebar-scrim" hidden></div>
+  <div id="fd-toc-popover">
+    <button type="button" class="fd-toc-trigger" aria-expanded="false" aria-controls="fd-toc-mobile">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg><span>On this page</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <div id="fd-toc-mobile" hidden><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#attributes">Attributes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#classes">Classes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#functions">Functions</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#module-contents">Module Contents</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero.INPUT_BYTES">INPUT_BYTES</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero.MARKET_BYTES">MARKET_BYTES</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero.BAR_BYTES">BAR_BYTES</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero.ROLL_INPUT_BYTES">ROLL_INPUT_BYTES</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero.ROLL_BYTES">ROLL_BYTES</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero.ROLL_FIELDS">ROLL_FIELDS</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero.WorkflowStage">WorkflowStage</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.WorkflowStage.name">WorkflowStage.name</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.WorkflowStage.op">WorkflowStage.op</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.WorkflowStage.in_rows">WorkflowStage.in_rows</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.WorkflowStage.in_bytes">WorkflowStage.in_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.WorkflowStage.out_rows">WorkflowStage.out_rows</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.WorkflowStage.out_bytes">WorkflowStage.out_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.WorkflowStage.read_bytes">WorkflowStage.read_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.WorkflowStage.write_bytes">WorkflowStage.write_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero.HeroResult">HeroResult</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.HeroResult.model_config">HeroResult.model_config</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.HeroResult.stages">HeroResult.stages</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.HeroResult.market_rows">HeroResult.market_rows</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.HeroResult.features">HeroResult.features</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.HeroResult.bars">HeroResult.bars</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.HeroResult.moments">HeroResult.moments</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.HeroResult.funnel">HeroResult.funnel</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero.run_hero_workflow">run_hero_workflow()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero.MaterializationCost">MaterializationCost</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.MaterializationCost.model_config">MaterializationCost.model_config</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.MaterializationCost.staged_bytes">MaterializationCost.staged_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.MaterializationCost.fused_bytes">MaterializationCost.fused_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.MaterializationCost.avoided_bytes">MaterializationCost.avoided_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.MaterializationCost.input_bytes">MaterializationCost.input_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.MaterializationCost.final_bytes">MaterializationCost.final_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.MaterializationCost.staged_jobs">MaterializationCost.staged_jobs</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.MaterializationCost.fused_jobs">MaterializationCost.fused_jobs</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.MaterializationCost.dma_ratio">MaterializationCost.dma_ratio</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.MaterializationCost.estimate_seconds">MaterializationCost.estimate_seconds()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero.materialization_cost">materialization_cost()</a>
+  </li>
+</ul>
+</div>
+  </div>
+
+  <main id="fd-main">
+    <article class="fd-page">
+<nav class="fd-breadcrumbs" aria-label="Breadcrumbs">
+  <ol>
+    <li>
+      <a href="../../index.html">API Reference</a>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+    </li>
+    <li>
+      <a href="../index.html">dau_core</a>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+    </li>
+    <li aria-current="page">dau_core.hero</li>
+  </ol>
+</nav>
+      <div class="fd-prose">
+  <section id="module-dau_core.hero">
+<span id="dau-core-hero"></span><h1>dau_core.hero<a class="headerlink" href="#module-dau_core.hero" title="Link to this heading">¶</a></h1>
+<p>The temporal-finance hero workflow: the predeclared
+end-to-end pipeline composed from the <a class="reference internal" href="../temporal/index.html#module-dau_core.temporal" title="dau_core.temporal"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dau_core.temporal</span></code></a> goldens, plus the
+avoided-materialization cost model that is the paper’s core evidence:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>quotes ─┐
+        ├─&gt; backward as-of ─&gt; [market-feature map] ─&gt; time bars ─&gt; rolling moments
+trades ─┘   (align)           (derive, fused)         (bar)        (roll)
+</pre></div>
+</div>
+<p>The argument the model makes precise: the pipeline is a <em>cardinality funnel</em>.
+The align stage emits one market row per matched trade (<code class="docutils literal notranslate"><span class="pre">N_mkt</span></code>); the bar stage
+reduces those to a handful of bars per symbol (<code class="docutils literal notranslate"><span class="pre">N_bar</span> <span class="pre">&lt;&lt;</span> <span class="pre">N_mkt</span></code>); the roll stage
+runs over the bars. A <strong>staged</strong> execution writes each stage’s output to DDR and
+the next stage reads it back — so it pays to materialize the large <code class="docutils literal notranslate"><span class="pre">N_mkt</span></code> market
+intermediate the bar reduction is about to discard. A <strong>fused</strong> execution keeps
+every intermediate on-chip and touches DDR only for the input stream and the
+final rolling output. The gain is not a magic primitive: it is the avoided DMA of
+the intermediate the bar reduction discards.</p>
+<p>The per-row market-feature derivation (midpoint/spread/sign/signed_volume/dollar)
+is a map that fuses into the bar tile’s front chain stage (the q1/q6 shape) — it
+adds no materialized intermediate in either execution — so the cost model’s
+materializing stages are align → bar → roll. <code class="docutils literal notranslate"><span class="pre">market_features</span></code> is still run and
+returned as the feature output branch (not discarded).</p>
+<p>Both paths are DMA-bound (compute overlapped), so the model computes each from
+the exact golden cardinalities and the measured per-tile record widths — a
+first-order estimate the silicon run validates, not a measured result.</p>
+<p>No dataframe or numerical-runtime dependency: pure integer arithmetic over
+the temporal goldens.</p>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hero.INPUT_BYTES" title="dau_core.hero.INPUT_BYTES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">INPUT_BYTES</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hero.MARKET_BYTES" title="dau_core.hero.MARKET_BYTES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MARKET_BYTES</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hero.BAR_BYTES" title="dau_core.hero.BAR_BYTES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BAR_BYTES</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hero.ROLL_INPUT_BYTES" title="dau_core.hero.ROLL_INPUT_BYTES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ROLL_INPUT_BYTES</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hero.ROLL_BYTES" title="dau_core.hero.ROLL_BYTES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ROLL_BYTES</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hero.ROLL_FIELDS" title="dau_core.hero.ROLL_FIELDS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ROLL_FIELDS</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hero.WorkflowStage" title="dau_core.hero.WorkflowStage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WorkflowStage</span></code></a></p></td>
+<td><p>One materializing stage and its cardinality: <code class="docutils literal notranslate"><span class="pre">in_rows</span></code> records of</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hero.HeroResult" title="dau_core.hero.HeroResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HeroResult</span></code></a></p></td>
+<td><p>The executed workflow: the materializing-stage cardinalities (the funnel),</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hero.MaterializationCost" title="dau_core.hero.MaterializationCost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MaterializationCost</span></code></a></p></td>
+<td><p>The avoided-materialization accounting for one workflow run. <code class="docutils literal notranslate"><span class="pre">staged</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hero.run_hero_workflow" title="dau_core.hero.run_hero_workflow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_hero_workflow</span></code></a>(→ HeroResult)</p></td>
+<td><p>Run the predeclared workflow end to end over the goldens, recording each</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hero.materialization_cost" title="dau_core.hero.materialization_cost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">materialization_cost</span></code></a>(→ MaterializationCost)</p></td>
+<td><p>Fused vs staged DMA accounting for an executed workflow. Staged pays each</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_core.hero.INPUT_BYTES">
+<span class="sig-prename descclassname"><span class="pre">dau_core.hero.</span></span><span class="sig-name descname"><span class="pre">INPUT_BYTES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">24</span></em><a class="headerlink" href="#dau_core.hero.INPUT_BYTES" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_core.hero.MARKET_BYTES">
+<span class="sig-prename descclassname"><span class="pre">dau_core.hero.</span></span><span class="sig-name descname"><span class="pre">MARKET_BYTES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">32</span></em><a class="headerlink" href="#dau_core.hero.MARKET_BYTES" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_core.hero.BAR_BYTES">
+<span class="sig-prename descclassname"><span class="pre">dau_core.hero.</span></span><span class="sig-name descname"><span class="pre">BAR_BYTES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">48</span></em><a class="headerlink" href="#dau_core.hero.BAR_BYTES" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_core.hero.ROLL_INPUT_BYTES">
+<span class="sig-prename descclassname"><span class="pre">dau_core.hero.</span></span><span class="sig-name descname"><span class="pre">ROLL_INPUT_BYTES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#dau_core.hero.ROLL_INPUT_BYTES" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_core.hero.ROLL_BYTES">
+<span class="sig-prename descclassname"><span class="pre">dau_core.hero.</span></span><span class="sig-name descname"><span class="pre">ROLL_BYTES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">24</span></em><a class="headerlink" href="#dau_core.hero.ROLL_BYTES" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_core.hero.ROLL_FIELDS">
+<span class="sig-prename descclassname"><span class="pre">dau_core.hero.</span></span><span class="sig-name descname"><span class="pre">ROLL_FIELDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('open',</span> <span class="pre">'high',</span> <span class="pre">'low',</span> <span class="pre">'close')</span></em><a class="headerlink" href="#dau_core.hero.ROLL_FIELDS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.hero.WorkflowStage">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.hero.</span></span><span class="sig-name descname"><span class="pre">WorkflowStage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data:</span> <span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/dau_core/hero.html#WorkflowStage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.hero.WorkflowStage" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../models/index.html#dau_core.models.CheckedModel" title="dau_core.models.CheckedModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dau_core.models.CheckedModel</span></code></a></p>
+<p>One materializing stage and its cardinality: <code class="docutils literal notranslate"><span class="pre">in_rows</span></code> records of
+<code class="docutils literal notranslate"><span class="pre">in_bytes</span></code> in, <code class="docutils literal notranslate"><span class="pre">out_rows</span></code> records of <code class="docutils literal notranslate"><span class="pre">out_bytes</span></code> out (the tile’s own
+input/output record widths). A staged run DMAs both; a fused run DMAs
+neither (except the pipeline endpoints).</p>
+<p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
+validated to form a valid model.</p>
+<p><cite>self</cite> is explicitly positional-only to allow <cite>self</cite> as a field name.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.hero.WorkflowStage.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#dau_core.hero.WorkflowStage.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.hero.WorkflowStage.op">
+<span class="sig-name descname"><span class="pre">op</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#dau_core.hero.WorkflowStage.op" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.hero.WorkflowStage.in_rows">
+<span class="sig-name descname"><span class="pre">in_rows</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.hero.WorkflowStage.in_rows" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.hero.WorkflowStage.in_bytes">
+<span class="sig-name descname"><span class="pre">in_bytes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.hero.WorkflowStage.in_bytes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.hero.WorkflowStage.out_rows">
+<span class="sig-name descname"><span class="pre">out_rows</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.hero.WorkflowStage.out_rows" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.hero.WorkflowStage.out_bytes">
+<span class="sig-name descname"><span class="pre">out_bytes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.hero.WorkflowStage.out_bytes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dau_core.hero.WorkflowStage.read_bytes">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_bytes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.hero.WorkflowStage.read_bytes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dau_core.hero.WorkflowStage.write_bytes">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">write_bytes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.hero.WorkflowStage.write_bytes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.hero.HeroResult">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.hero.</span></span><span class="sig-name descname"><span class="pre">HeroResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data:</span> <span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/dau_core/hero.html#HeroResult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.hero.HeroResult" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../models/index.html#dau_core.models.CheckedMixin" title="dau_core.models.CheckedMixin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dau_core.models.CheckedMixin</span></code></a>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">ccflow.ResultBase</span></code></p>
+<p>The executed workflow: the materializing-stage cardinalities (the funnel),
+the per-row feature branch, and the stage outputs (for a bit-exact
+comparison against a CPU reference).</p>
+<p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
+validated to form a valid model.</p>
+<p><cite>self</cite> is explicitly positional-only to allow <cite>self</cite> as a field name.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.hero.HeroResult.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><a class="headerlink" href="#dau_core.hero.HeroResult.model_config" title="Link to this definition">¶</a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.hero.HeroResult.stages">
+<span class="sig-name descname"><span class="pre">stages</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#dau_core.hero.WorkflowStage" title="dau_core.hero.WorkflowStage"><span class="pre">WorkflowStage</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#dau_core.hero.HeroResult.stages" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.hero.HeroResult.market_rows">
+<span class="sig-name descname"><span class="pre">market_rows</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dau_core.temporal.MarketRow</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#dau_core.hero.HeroResult.market_rows" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.hero.HeroResult.features">
+<span class="sig-name descname"><span class="pre">features</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../temporal/index.html#dau_core.temporal.MarketFeatures" title="dau_core.temporal.MarketFeatures"><span class="pre">dau_core.temporal.MarketFeatures</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#dau_core.hero.HeroResult.features" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.hero.HeroResult.bars">
+<span class="sig-name descname"><span class="pre">bars</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../temporal/index.html#dau_core.temporal.TemporalBar" title="dau_core.temporal.TemporalBar"><span class="pre">dau_core.temporal.TemporalBar</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#dau_core.hero.HeroResult.bars" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.hero.HeroResult.moments">
+<span class="sig-name descname"><span class="pre">moments</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../temporal/index.html#dau_core.temporal.RollingMoment" title="dau_core.temporal.RollingMoment"><span class="pre">dau_core.temporal.RollingMoment</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#dau_core.hero.HeroResult.moments" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dau_core.hero.HeroResult.funnel">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">funnel</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#dau_core.hero.HeroResult.funnel" title="Link to this definition">¶</a></dt>
+<dd><p>input → market → bars → rolling
+(the fused feature map does not change cardinality).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Row counts down the reduction path</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.hero.run_hero_workflow">
+<span class="sig-prename descclassname"><span class="pre">dau_core.hero.</span></span><span class="sig-name descname"><span class="pre">run_hero_workflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trades</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dau_core.temporal.TradeRow</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quotes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dau_core.temporal.QuoteRow</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">bar_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">roll_window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">roll_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'close'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_core.hero.HeroResult" title="dau_core.hero.HeroResult"><span class="pre">HeroResult</span></a></span></span><a class="reference internal" href="../../../_modules/dau_core/hero.html#run_hero_workflow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.hero.run_hero_workflow" title="Link to this definition">¶</a></dt>
+<dd><p>Run the predeclared workflow end to end over the goldens, recording each
+materializing stage’s cardinality. <code class="docutils literal notranslate"><span class="pre">roll_value</span></code> selects the per-bar OHLC
+price the roll stage windows (<a class="reference internal" href="#dau_core.hero.ROLL_FIELDS" title="dau_core.hero.ROLL_FIELDS"><code class="xref py py-data docutils literal notranslate"><span class="pre">ROLL_FIELDS</span></code></a>); <code class="docutils literal notranslate"><span class="pre">roll_window</span></code> is the
+count-based window (<code class="docutils literal notranslate"><span class="pre">&gt;=</span> <span class="pre">2</span></code>, the tile’s minimum). Both input streams must be
+pre-sorted by <code class="docutils literal notranslate"><span class="pre">(symbol_id,</span> <span class="pre">time)</span></code> (the shared as-of / bar precondition).</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.hero.MaterializationCost">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.hero.</span></span><span class="sig-name descname"><span class="pre">MaterializationCost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data:</span> <span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/dau_core/hero.html#MaterializationCost"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.hero.MaterializationCost" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../models/index.html#dau_core.models.CheckedMixin" title="dau_core.models.CheckedMixin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dau_core.models.CheckedMixin</span></code></a>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">ccflow.ResultBase</span></code></p>
+<p>The avoided-materialization accounting for one workflow run. <code class="docutils literal notranslate"><span class="pre">staged</span></code>
+DMAs every stage’s read and write; <code class="docutils literal notranslate"><span class="pre">fused</span></code> DMAs only the pipeline endpoints
+(the input stream in, the final rolling output out). <code class="docutils literal notranslate"><span class="pre">avoided</span></code> is the
+intermediate materialization the fusion removes; <code class="docutils literal notranslate"><span class="pre">dma_ratio</span></code> is the
+DMA-bound speedup (both paths are DMA-bound with compute overlapped).</p>
+<p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
+validated to form a valid model.</p>
+<p><cite>self</cite> is explicitly positional-only to allow <cite>self</cite> as a field name.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.hero.MaterializationCost.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><a class="headerlink" href="#dau_core.hero.MaterializationCost.model_config" title="Link to this definition">¶</a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.hero.MaterializationCost.staged_bytes">
+<span class="sig-name descname"><span class="pre">staged_bytes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.hero.MaterializationCost.staged_bytes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.hero.MaterializationCost.fused_bytes">
+<span class="sig-name descname"><span class="pre">fused_bytes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.hero.MaterializationCost.fused_bytes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.hero.MaterializationCost.avoided_bytes">
+<span class="sig-name descname"><span class="pre">avoided_bytes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.hero.MaterializationCost.avoided_bytes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.hero.MaterializationCost.input_bytes">
+<span class="sig-name descname"><span class="pre">input_bytes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.hero.MaterializationCost.input_bytes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.hero.MaterializationCost.final_bytes">
+<span class="sig-name descname"><span class="pre">final_bytes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.hero.MaterializationCost.final_bytes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.hero.MaterializationCost.staged_jobs">
+<span class="sig-name descname"><span class="pre">staged_jobs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.hero.MaterializationCost.staged_jobs" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.hero.MaterializationCost.fused_jobs">
+<span class="sig-name descname"><span class="pre">fused_jobs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.hero.MaterializationCost.fused_jobs" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dau_core.hero.MaterializationCost.dma_ratio">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dma_ratio</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#dau_core.hero.MaterializationCost.dma_ratio" title="Link to this definition">¶</a></dt>
+<dd><p>Staged / fused DMA. A no-work run (both zero) has no speedup (1.0);
+a genuinely nonzero staged cost with a zero fused cost is unbounded.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.hero.MaterializationCost.estimate_seconds">
+<span class="sig-name descname"><span class="pre">estimate_seconds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">dma_bytes_per_sec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">per_job_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/hero.html#MaterializationCost.estimate_seconds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.hero.MaterializationCost.estimate_seconds" title="Link to this definition">¶</a></dt>
+<dd><p>(staged, fused) wall-clock estimates: DMA time plus a per-job tail
+(device setup + the one-job compute tail the overlap runner cannot hide).
+A DMA-bound first-order model — the prediction the silicon run checks.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.hero.materialization_cost">
+<span class="sig-prename descclassname"><span class="pre">dau_core.hero.</span></span><span class="sig-name descname"><span class="pre">materialization_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dau_core.hero.HeroResult" title="dau_core.hero.HeroResult"><span class="pre">HeroResult</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_core.hero.MaterializationCost" title="dau_core.hero.MaterializationCost"><span class="pre">MaterializationCost</span></a></span></span><a class="reference internal" href="../../../_modules/dau_core/hero.html#materialization_cost"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.hero.materialization_cost" title="Link to this definition">¶</a></dt>
+<dd><p>Fused vs staged DMA accounting for an executed workflow. Staged pays each
+stage’s read + write (the intermediate is written by one job and read back by
+the next); fused pays only the input read and the final write.</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+      </div>
+<nav class="fd-pagination" aria-label="Pagination">
+  <a class="fd-pagination-card fd-pagination-prev" href="../hdl/index.html">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m15 18-6-6 6-6"/></svg>
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Previous</span>
+      <span class="fd-pagination-title">dau_core.hdl</span>
+    </span>
+  </a>
+  <a class="fd-pagination-card fd-pagination-next" href="../ln_generator/index.html">
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Next</span>
+      <span class="fd-pagination-title">dau_core.ln_generator</span>
+    </span>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+  </a>
+</nav>
+<footer id="fd-footer">
+  <p class="fd-footer-meta"><span>&#169; the dau-core authors</span><span>Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.</span>
+  </p>
+</footer>
+    </article>
+  </main>
+<nav id="fd-toc" aria-label="On this page">
+  <p class="fd-toc-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>On this page</p>
+  <div class="fd-toc-body"><svg class="fd-toc-rail" aria-hidden="true" preserveAspectRatio="none">
+      <path class="fd-toc-track" fill="none" />
+      <path class="fd-toc-thumb" fill="none" />
+    </svg><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#attributes">Attributes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#classes">Classes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#functions">Functions</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#module-contents">Module Contents</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero.INPUT_BYTES">INPUT_BYTES</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero.MARKET_BYTES">MARKET_BYTES</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero.BAR_BYTES">BAR_BYTES</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero.ROLL_INPUT_BYTES">ROLL_INPUT_BYTES</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero.ROLL_BYTES">ROLL_BYTES</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero.ROLL_FIELDS">ROLL_FIELDS</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero.WorkflowStage">WorkflowStage</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.WorkflowStage.name">WorkflowStage.name</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.WorkflowStage.op">WorkflowStage.op</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.WorkflowStage.in_rows">WorkflowStage.in_rows</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.WorkflowStage.in_bytes">WorkflowStage.in_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.WorkflowStage.out_rows">WorkflowStage.out_rows</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.WorkflowStage.out_bytes">WorkflowStage.out_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.WorkflowStage.read_bytes">WorkflowStage.read_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.WorkflowStage.write_bytes">WorkflowStage.write_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero.HeroResult">HeroResult</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.HeroResult.model_config">HeroResult.model_config</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.HeroResult.stages">HeroResult.stages</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.HeroResult.market_rows">HeroResult.market_rows</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.HeroResult.features">HeroResult.features</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.HeroResult.bars">HeroResult.bars</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.HeroResult.moments">HeroResult.moments</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.HeroResult.funnel">HeroResult.funnel</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero.run_hero_workflow">run_hero_workflow()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero.MaterializationCost">MaterializationCost</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.MaterializationCost.model_config">MaterializationCost.model_config</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.MaterializationCost.staged_bytes">MaterializationCost.staged_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.MaterializationCost.fused_bytes">MaterializationCost.fused_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.MaterializationCost.avoided_bytes">MaterializationCost.avoided_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.MaterializationCost.input_bytes">MaterializationCost.input_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.MaterializationCost.final_bytes">MaterializationCost.final_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.MaterializationCost.staged_jobs">MaterializationCost.staged_jobs</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.MaterializationCost.fused_jobs">MaterializationCost.fused_jobs</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.MaterializationCost.dma_ratio">MaterializationCost.dma_ratio</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.hero.MaterializationCost.estimate_seconds">MaterializationCost.estimate_seconds()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero.materialization_cost">materialization_cost()</a>
+  </li>
+</ul>
+
+  </div>
+  <div class="fd-toc-actions">
+    <a class="fd-toc-action" href="https://github.com/dau-dev/dau-core/edit/HEAD/autoapi/dau_core/hero/index.rst" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span>Edit this page</span></a>
+    <a class="fd-toc-action" href="../../../_sources/autoapi/dau_core/hero/index.rst.txt" rel="nofollow"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><span>View source</span></a>
+  </div>
+</nav>
+</div>
+<dialog id="fd-search-dialog" aria-label="Search">
+  <form class="fd-search-panel" method="dialog" role="search">
+    <div class="fd-search-field">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="search" id="fd-search-input" autocomplete="off" spellcheck="false" placeholder="Search documentation..." aria-label="Search" />
+      <kbd class="fd-kbd">Esc</kbd>
+    </div>
+    <div id="fd-search-results" role="listbox" aria-label="Search results"></div>
+    <p id="fd-search-empty" class="fd-search-empty" hidden>No results found.</p>
+  </form>
+</dialog>
+  </body>
+</html>

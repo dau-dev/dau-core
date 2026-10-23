@@ -1,0 +1,1820 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>dau_core.registers &#8212; dau core v0.1.0</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/fuma.css?v=f6f6878e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/fuma-code.css?v=a950e949" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/fonts/fuma-fonts.css?v=c2892c73" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/custom.css?v=88c24c6a" />
+    <script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-searchlite-index="searchlite-index.json" defer="defer" src="../../_static/searchlite.js?v=a5320898"></script>
+    <script defer="defer" src="../../_static/fuma.js?v=b46bb53d"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs"
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+let closeModal = () => {};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) {
+        closeModal();
+    }
+});
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
+        all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if (true) {
+                                        addZoomToSvgs(d3.selectAll(".mermaid").select(function() {
+                                            return this.querySelector("svg");
+                                        }));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
+
+    if (true) {
+        const mermaids_to_add_zoom = -1 === -1 ? mermaids_active.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll(".mermaid").select(function() {
+                return this.querySelector("svg");
+            });
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            }
+            addZoomToSvgs(svgs);
+        }
+    } else if(mermaids_active.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if (!true) return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = "\u26f6";
+        fullscreenBtn.style.opacity = "50%";
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scrollX, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.display = 'block';
+
+                if (true) {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+
+// Resolves once the lazily-loaded zenuml plugin has registered (or immediately
+// when the page has no zenuml diagram). `load` awaits this before rendering.
+let zenumlReady = Promise.resolve();
+const pageHasZenuml = () => [...document.querySelectorAll(".mermaid")].some((el) => {
+    const code = el.getAttribute("data-original-code") || el.textContent || "";
+    const diagram = code
+        .replace(/^\s*---\s*\n[^]*?\n---\s*/, "")
+        .replace(/^\s*%%\{[^]*?\}%%\s*/, "");
+    return /^\s*zenuml\b/i.test(diagram);
+});
+
+
+const load = async () => {
+    initStyles();
+
+
+    // Wait for the zenuml plugin (loaded lazily below) to finish registering
+    // before rendering, so zenuml diagrams are recognised.
+    await zenumlReady;
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...{"startOnLoad": false},
+                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+mermaid.registerLayoutLoaders(elkLayouts);
+
+
+
+// Only load and register the zenuml plugin when the page actually contains a
+// zenuml diagram. This avoids fetching the (large) zenuml bundle on every page,
+// and avoids its side effects where they are not needed. The import is kept off
+// the module's top level (no top-level await) so the "load" listener below is
+// still registered synchronously; `load` awaits `zenumlReady` before rendering.
+if (pageHasZenuml()) {
+    // The zenuml bundle injects a stylesheet that declares generic design tokens
+    // (--background, --border, --white, ...) on :root, clobbering identically-named
+    // tokens in the host theme (sphinxawesome, shibuya, ...) and causing a flash of
+    // restyled page content. Confine those declarations to the zenuml diagram
+    // subtree so they no longer leak onto the host page.
+    const descopeZenumlStyle = (node) => {
+        if (!node || node.tagName !== "STYLE" || node.hasAttribute("data-zenuml-descoped")) return;
+        const css = node.textContent || "";
+        if (!css.includes("--occurance-border")) return; // zenuml stylesheet signature
+        node.setAttribute("data-zenuml-descoped", "true");
+        node.textContent = css.replace(/:root\b/g, ".zenuml");
+    };
+    new MutationObserver((records) => {
+        for (const rec of records) {
+            for (const node of rec.addedNodes) descopeZenumlStyle(node);
+        }
+    }).observe(document.head, { childList: true });
+
+    zenumlReady = import("https://cdn.jsdelivr.net/npm/@mermaid-js/mermaid-zenuml@0.2.2/dist/mermaid-zenuml.esm.min.mjs").then(({ default: zenumlLayouts }) => {
+        mermaid.registerExternalDiagrams([zenumlLayouts]);
+    });
+}
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...{"startOnLoad": false},
+    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script src="../../_static/js/custom.js?v=956e5d78"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <script>
+      (function () {
+        var root = document.documentElement;
+        try {
+          var stored = localStorage.getItem("fuma-theme");
+          if (stored) {
+            root.classList.add(stored === "dark" ? "dark" : "light");
+            root.style.colorScheme = stored === "dark" ? "dark" : "light";
+          }
+          if (localStorage.getItem("fuma-sidebar") === "collapsed") root.dataset.sidebarCollapsed = "true";
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+<body class="fd-body" data-layout="docs" data-toc-style="normal" data-open-level="1">
+<div id="fd-layout"><header id="fd-subnav">
+  <div class="fd-subnav-inner">
+    <button type="button" class="fd-icon-button fd-sidebar-toggle" aria-controls="fd-sidebar" aria-expanded="false" aria-label="Toggle navigation">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
+    </button><a class="fd-brand" href="../../index.html"><span class="fd-brand-name">dau core v0.1.0</span>
+</a>
+
+    <div class="fd-nav-actions">
+      <button type="button" class="fd-icon-button" data-fd-search-open aria-label="Search"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+      <a class="fd-icon-button" href="https://github.com/dau-dev/dau-core" target="_blank" rel="noopener" aria-label="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <button type="button" class="fd-icon-button fd-theme-toggle" aria-label="Toggle theme">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-light"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-dark"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<aside id="fd-sidebar" aria-label="Documentation">
+  <div class="fd-sidebar-header">
+    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../index.html"><span class="fd-brand-name">dau core v0.1.0</span>
+</a>
+      <button type="button" class="fd-icon-button fd-sidebar-collapse" aria-label="Collapse sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+    </div>
+    <button type="button" class="fd-search-trigger" data-fd-search-open>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><span>Search</span><kbd class="fd-kbd">/</kbd>
+    </button>
+  </div>
+
+  <nav class="fd-sidebar-nav">
+    <div class="fd-sidebar-group">
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/tutorial/read-a-tile-contract.html">
+      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-tile.html">
+      <span class="fd-link-text">How to add an operator tile</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/test-a-core.html">
+      <span class="fd-link-text">How to test a core</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/measure-a-resource-envelope.html">
+      <span class="fd-link-text">How to measure a resource envelope</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/develop.html">
+      <span class="fd-link-text">Develop and contribute</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/reference/core-definition.html">
+      <span class="fd-link-text">CoreDefinition fields</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/reference/registry-guards.html">
+      <span class="fd-link-text">Registry-wide guards</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/explanation/why-cores-are-declared-in-config.html">
+      <span class="fd-link-text">Why cores are declared in config</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
+      <span class="fd-link-text">Why each tile has a golden model</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/explanation/why-resources-are-measured.html">
+      <span class="fd-link-text">Why resource costs are measured</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder" open>
+      <summary class="fd-folder-summary">
+        <a class="fd-link" href="../../autoapi/index.html">
+          <span class="fd-link-text">API Reference</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <details class="fd-folder">
+      <summary class="fd-folder-summary">
+        <a class="fd-link" href="../../autoapi/dau_core/index.html">
+          <span class="fd-link-text">dau_core</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_core/_lazy/index.html">
+      <span class="fd-link-text">dau_core._lazy</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_core/capabilities/index.html">
+      <span class="fd-link-text">dau_core.capabilities</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_core/capability_contract/index.html">
+      <span class="fd-link-text">dau_core.capability_contract</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_core/composition/index.html">
+      <span class="fd-link-text">dau_core.composition</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_core/config/index.html">
+      <span class="fd-link-text">dau_core.config</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_core/cores/index.html">
+      <span class="fd-link-text">dau_core.cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_core/design/index.html">
+      <span class="fd-link-text">dau_core.design</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_core/element_types/index.html">
+      <span class="fd-link-text">dau_core.element_types</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_core/exp_generator/index.html">
+      <span class="fd-link-text">dau_core.exp_generator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_core/fixed_point/index.html">
+      <span class="fd-link-text">dau_core.fixed_point</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_core/generators/index.html">
+      <span class="fd-link-text">dau_core.generators</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_core/hdl/index.html">
+      <span class="fd-link-text">dau_core.hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_core/hero/index.html">
+      <span class="fd-link-text">dau_core.hero</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_core/ln_generator/index.html">
+      <span class="fd-link-text">dau_core.ln_generator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_core/models/index.html">
+      <span class="fd-link-text">dau_core.models</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_core/normal_cdf_generator/index.html">
+      <span class="fd-link-text">dau_core.normal_cdf_generator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_core/operators/index.html">
+      <span class="fd-link-text">dau_core.operators</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_core/registers/index.html">
+      <span class="fd-link-text">dau_core.registers</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_core/registry/index.html">
+      <span class="fd-link-text">dau_core.registry</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_core/stream/index.html">
+      <span class="fd-link-text">dau_core.stream</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_core/temporal/index.html">
+      <span class="fd-link-text">dau_core.temporal</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_core/workflows/index.html">
+      <span class="fd-link-text">dau_core.workflows</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/conftest/index.html">
+      <span class="fd-link-text">conftest</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_docs/index.html">
+      <span class="fd-link-text">test_docs</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_hero/index.html">
+      <span class="fd-link-text">test_hero</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_cores/index.html">
+      <span class="fd-link-text">test_cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_design/index.html">
+      <span class="fd-link-text">test_design</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_stream/index.html">
+      <span class="fd-link-text">test_stream</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_readme/index.html">
+      <span class="fd-link-text">test_readme</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_temporal/index.html">
+      <span class="fd-link-text">test_temporal</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_operators/index.html">
+      <span class="fd-link-text">test_operators</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder">
+      <summary class="fd-folder-summary">
+        <a class="fd-link" href="../../autoapi/cocotb_benches/index.html">
+          <span class="fd-link-text">cocotb_benches</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_arrow_lite_stream_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_arrow_lite_stream_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_asof_backward_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_asof_backward_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_asof_feature_chain_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_asof_feature_chain_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_axi_bar_job_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_bar_job_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_axi_bar_noc_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_bar_noc_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_axi_burst_reader_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_burst_reader_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_axi_random_probe_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_random_probe_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_axi_sort_noc_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_sort_noc_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_bar_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_bar_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_bitonic_sorter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_bitonic_sorter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_broadcast_hash_join_small_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_broadcast_hash_join_small_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_broadcast_hash_join_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_broadcast_hash_join_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_bucket_agg_chain_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_bucket_agg_chain_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_datetime_format_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_datetime_format_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_field_sum_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_field_sum_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_fixed_point_divide_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_divide_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_fixed_point_exp_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_exp_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_fixed_point_ln_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_ln_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_fixed_point_sqrt_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_sqrt_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_grouped_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_grouped_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_grouped_field_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_grouped_field_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_grouped_field_sum_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_grouped_field_sum_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_hash_grouped_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_hash_grouped_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_hero_datapath_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_hero_datapath_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_int32_keyed_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_keyed_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_int32_keyed_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_keyed_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_int32_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_int32_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_int32_record_gather_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_record_gather_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_key_mask_dispatcher_exact_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_exact_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_key_mask_dispatcher_hash_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_hash_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_key_mask_dispatcher_multi_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_multi_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_key_mask_dispatcher_records_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_records_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_key_mask_dispatcher_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_key_mask_dispatcher_wide_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_wide_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_key_membership_filter_single_word_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_membership_filter_single_word_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_key_membership_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_membership_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_keyed_state_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_keyed_state_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_market_feature_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_market_feature_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_normal_cdf_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_normal_cdf_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_pair_key_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_pair_key_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_range_partitioner_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_range_partitioner_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_record_batch_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_record_batch_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_record_gearbox_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_record_gearbox_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_rolling_extremum_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_rolling_extremum_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_rolling_moments_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_rolling_moments_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_row_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_row_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_row_predicate_filter_width_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_predicate_filter_width_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_row_unpack_slots_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_unpack_slots_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_row_unpack_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_unpack_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_row_unpack_wide_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_unpack_wide_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_scratchpad_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_scratchpad_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_session_gap_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_session_gap_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_stream_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_stream_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_streaming_dedup_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_streaming_dedup_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_streaming_top_k_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_streaming_top_k_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_stride_distributor_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_stride_distributor_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_time_bucket_key_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_time_bucket_key_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_wide_field_sum_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_field_sum_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_wide_ingest_chain_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_ingest_chain_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_wide_row_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_row_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_wide_row_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_row_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/rate_probe/index.html">
+      <span class="fd-link-text">cocotb_benches.rate_probe</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_hdl_cocotb/index.html">
+      <span class="fd-link-text">test_hdl_cocotb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_composition/index.html">
+      <span class="fd-link-text">test_composition</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_hdl_sources/index.html">
+      <span class="fd-link-text">test_hdl_sources</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/exhaustive_sweep/index.html">
+      <span class="fd-link-text">exhaustive_sweep</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_hash_grouped/index.html">
+      <span class="fd-link-text">test_hash_grouped</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_record_batch/index.html">
+      <span class="fd-link-text">test_record_batch</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_lazy_exports/index.html">
+      <span class="fd-link-text">test_lazy_exports</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_element_types/index.html">
+      <span class="fd-link-text">test_element_types</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_core_contract/index.html">
+      <span class="fd-link-text">test_core_contract</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_hdl_verilator/index.html">
+      <span class="fd-link-text">test_hdl_verilator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_fixed_point_ln/index.html">
+      <span class="fd-link-text">test_fixed_point_ln</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_ohlcv_fixtures/index.html">
+      <span class="fd-link-text">test_ohlcv_fixtures</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_hdl_elaboration/index.html">
+      <span class="fd-link-text">test_hdl_elaboration</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_datetime_format/index.html">
+      <span class="fd-link-text">test_datetime_format</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_fixed_point_exp/index.html">
+      <span class="fd-link-text">test_fixed_point_exp</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_generated_cores/index.html">
+      <span class="fd-link-text">test_generated_cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_benches_can_fail/index.html">
+      <span class="fd-link-text">test_benches_can_fail</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_contributed_cores/index.html">
+      <span class="fd-link-text">test_contributed_cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_validation_at_use/index.html">
+      <span class="fd-link-text">test_validation_at_use</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_aggregation_goldens/index.html">
+      <span class="fd-link-text">test_aggregation_goldens</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_capability_contract/index.html">
+      <span class="fd-link-text">test_capability_contract</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_public_tile_surface/index.html">
+      <span class="fd-link-text">test_public_tile_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_aggregation_tile_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_contributed_discovery/index.html">
+      <span class="fd-link-text">test_contributed_discovery</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_fixed_point_normal_cdf/index.html">
+      <span class="fd-link-text">test_fixed_point_normal_cdf</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_output_beat_declarations/index.html">
+      <span class="fd-link-text">test_output_beat_declarations</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_registers_and_capabilities/index.html">
+      <span class="fd-link-text">test_registers_and_capabilities</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_measured_from_matches_the_hdl/index.html">
+      <span class="fd-link-text">test_measured_from_matches_the_hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_parameter_bounds_match_the_hdl/index.html">
+      <span class="fd-link-text">test_parameter_bounds_match_the_hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_hdl_parameter_bindings_resolve/index.html">
+      <span class="fd-link-text">test_hdl_parameter_bindings_resolve</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+</ul>
+    </div>
+  </nav>
+
+  <div class="fd-sidebar-footer">
+    <div class="fd-toolbar">
+      <a class="fd-toolbar-item" href="https://github.com/dau-dev/dau-core" target="_blank" rel="noopener" aria-label="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <div class="fd-theme-switch" role="group" aria-label="Theme">
+        <button type="button" class="fd-theme-option" data-fd-theme="light" aria-label="Light theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></button>
+        <button type="button" class="fd-theme-option" data-fd-theme="dark" aria-label="Dark theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg></button>
+      </div>
+    </div>
+  </div>
+</aside>
+<button type="button" id="fd-sidebar-restore" class="fd-icon-button" aria-label="Expand sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+<div class="fd-sidebar-scrim" hidden></div>
+
+  <main id="fd-main">
+    <article class="fd-page">
+<nav class="fd-breadcrumbs" aria-label="Breadcrumbs">
+  <ol>
+    <li>
+      <a href="../index.html">Module code</a>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+    </li>
+    <li aria-current="page">dau_core.registers</li>
+  </ol>
+</nav>
+      <div class="fd-prose">
+  <h1>Source code for dau_core.registers</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">IntEnum</span><span class="p">,</span> <span class="n">IntFlag</span>
+
+<span class="n">DAU_MAGIC_WORD</span> <span class="o">=</span> <span class="mh">0x44415531</span>
+
+
+<div class="viewcode-block" id="RegisterMapVersion">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers.RegisterMapVersion">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RegisterMapVersion</span><span class="p">:</span>
+    <span class="n">major</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">minor</span><span class="p">:</span> <span class="nb">int</span>
+
+<div class="viewcode-block" id="RegisterMapVersion.__post_init__">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers.RegisterMapVersion.__post_init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_validate_u16</span><span class="p">(</span><span class="s2">"major"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">major</span><span class="p">)</span>
+        <span class="n">_validate_u16</span><span class="p">(</span><span class="s2">"minor"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">minor</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RegisterMapVersion.to_u32">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers.RegisterMapVersion.to_u32">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_u32</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">major</span> <span class="o">&lt;&lt;</span> <span class="mi">16</span><span class="p">)</span> <span class="o">|</span> <span class="bp">self</span><span class="o">.</span><span class="n">minor</span></div>
+
+
+<div class="viewcode-block" id="RegisterMapVersion.from_u32">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers.RegisterMapVersion.from_u32">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_u32</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RegisterMapVersion</span><span class="p">:</span>
+        <span class="n">_validate_u32</span><span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">major</span><span class="o">=</span><span class="p">(</span><span class="n">value</span> <span class="o">&gt;&gt;</span> <span class="mi">16</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xFFFF</span><span class="p">,</span> <span class="n">minor</span><span class="o">=</span><span class="n">value</span> <span class="o">&amp;</span> <span class="mh">0xFFFF</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="StreamProtocolVersion">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers.StreamProtocolVersion">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">StreamProtocolVersion</span><span class="p">:</span>
+    <span class="n">major</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">minor</span><span class="p">:</span> <span class="nb">int</span>
+
+<div class="viewcode-block" id="StreamProtocolVersion.__post_init__">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers.StreamProtocolVersion.__post_init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_validate_u16</span><span class="p">(</span><span class="s2">"major"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">major</span><span class="p">)</span>
+        <span class="n">_validate_u16</span><span class="p">(</span><span class="s2">"minor"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">minor</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="StreamProtocolVersion.to_u32">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers.StreamProtocolVersion.to_u32">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_u32</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">major</span> <span class="o">&lt;&lt;</span> <span class="mi">16</span><span class="p">)</span> <span class="o">|</span> <span class="bp">self</span><span class="o">.</span><span class="n">minor</span></div>
+
+
+<div class="viewcode-block" id="StreamProtocolVersion.from_u32">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers.StreamProtocolVersion.from_u32">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_u32</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StreamProtocolVersion</span><span class="p">:</span>
+        <span class="n">_validate_u32</span><span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">major</span><span class="o">=</span><span class="p">(</span><span class="n">value</span> <span class="o">&gt;&gt;</span> <span class="mi">16</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xFFFF</span><span class="p">,</span> <span class="n">minor</span><span class="o">=</span><span class="n">value</span> <span class="o">&amp;</span> <span class="mh">0xFFFF</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="RegisterOffset">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers.RegisterOffset">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RegisterOffset</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+    <span class="n">MAGIC</span> <span class="o">=</span> <span class="mh">0x0000</span>
+    <span class="n">REGISTER_MAP_VERSION</span> <span class="o">=</span> <span class="mh">0x0004</span>
+    <span class="n">STREAM_PROTOCOL_VERSION</span> <span class="o">=</span> <span class="mh">0x0008</span>
+    <span class="n">PLATFORM_ID</span> <span class="o">=</span> <span class="mh">0x000C</span>
+    <span class="c1"># 0x0010 and 0x0024 are UNMAPPED: they carried SHELL_VERSION and</span>
+    <span class="c1"># DMA_CONSTRAINTS, which no generator ever stamped, so every host read</span>
+    <span class="c1"># returned zero. A register nothing writes is not a capability, and the</span>
+    <span class="c1"># identity block now falls through to all-ones there.</span>
+    <span class="n">BUILD_ID_LOW</span> <span class="o">=</span> <span class="mh">0x0014</span>
+    <span class="n">BUILD_ID_HIGH</span> <span class="o">=</span> <span class="mh">0x0018</span>
+    <span class="n">STATUS</span> <span class="o">=</span> <span class="mh">0x001C</span>
+    <span class="n">RESET</span> <span class="o">=</span> <span class="mh">0x0020</span>
+    <span class="n">OPERATOR_BITMAP</span> <span class="o">=</span> <span class="mh">0x0028</span>
+    <span class="n">LAST_ERROR</span> <span class="o">=</span> <span class="mh">0x002C</span>
+    <span class="n">H2C_BYTES_LOW</span> <span class="o">=</span> <span class="mh">0x0030</span>
+    <span class="n">H2C_BYTES_HIGH</span> <span class="o">=</span> <span class="mh">0x0034</span>
+    <span class="n">C2H_BYTES_LOW</span> <span class="o">=</span> <span class="mh">0x0038</span>
+    <span class="n">C2H_BYTES_HIGH</span> <span class="o">=</span> <span class="mh">0x003C</span>
+    <span class="n">ROWS_LOW</span> <span class="o">=</span> <span class="mh">0x0040</span>
+    <span class="n">ROWS_HIGH</span> <span class="o">=</span> <span class="mh">0x0044</span>
+    <span class="n">BATCHES</span> <span class="o">=</span> <span class="mh">0x0048</span>
+    <span class="n">STALLS</span> <span class="o">=</span> <span class="mh">0x004C</span>
+    <span class="n">JOB_CONTROL</span> <span class="o">=</span> <span class="mh">0x0050</span>
+    <span class="n">JOB_STATUS</span> <span class="o">=</span> <span class="mh">0x0054</span>
+    <span class="n">INPUT_ADDRESS_LOW</span> <span class="o">=</span> <span class="mh">0x0058</span>
+    <span class="n">INPUT_ADDRESS_HIGH</span> <span class="o">=</span> <span class="mh">0x005C</span>
+    <span class="n">INPUT_LENGTH_LOW</span> <span class="o">=</span> <span class="mh">0x0060</span>
+    <span class="n">INPUT_LENGTH_HIGH</span> <span class="o">=</span> <span class="mh">0x0064</span>
+    <span class="n">OUTPUT_ADDRESS_LOW</span> <span class="o">=</span> <span class="mh">0x0068</span>
+    <span class="n">OUTPUT_ADDRESS_HIGH</span> <span class="o">=</span> <span class="mh">0x006C</span>
+    <span class="n">OUTPUT_LENGTH_LOW</span> <span class="o">=</span> <span class="mh">0x0070</span>
+    <span class="n">OUTPUT_LENGTH_HIGH</span> <span class="o">=</span> <span class="mh">0x0074</span>
+    <span class="n">OPERATION</span> <span class="o">=</span> <span class="mh">0x0078</span>
+    <span class="n">RESULT_LENGTH_LOW</span> <span class="o">=</span> <span class="mh">0x007C</span>
+    <span class="n">RESULT_LENGTH_HIGH</span> <span class="o">=</span> <span class="mh">0x0080</span>
+    <span class="c1"># two-phase load (additive): bit 0 drives the composed load-capable</span>
+    <span class="c1"># tiles' cfg_load ports (membership bitmap / join payload table). 1 = the</span>
+    <span class="c1"># next job's input scan is a LOAD image (the tile's success close-out is</span>
+    <span class="c1"># the load-done); 0 (the reset default) = PROBE, i.e. today's single-phase</span>
+    <span class="c1"># behavior. Shells built before their generator learned this register</span>
+    <span class="c1"># ignore writes and read 0 — never a behavior change for old bitstreams.</span>
+    <span class="n">LOAD_PHASE</span> <span class="o">=</span> <span class="mh">0x0084</span>
+    <span class="c1"># static composed-pipeline configuration (the OHLCV shell): the filter</span>
+    <span class="c1"># row count comes from INPUT_LENGTH (one row per 64-bit word), never a</span>
+    <span class="c1"># separate register.</span>
+    <span class="n">PIPELINE_FILTER_OP</span> <span class="o">=</span> <span class="mh">0x0090</span>  <span class="c1"># [2:0] op0, [5:4] combine, [10:8] op1, [16] target lane</span>
+    <span class="n">PIPELINE_FILTER_CONSTANT0</span> <span class="o">=</span> <span class="mh">0x0094</span>
+    <span class="n">PIPELINE_FILTER_CONSTANT1</span> <span class="o">=</span> <span class="mh">0x0098</span>
+    <span class="n">PIPELINE_MAP_OP</span> <span class="o">=</span> <span class="mh">0x009C</span>  <span class="c1"># [2:0] op, [12:8] shift, [16] target lane</span>
+    <span class="n">PIPELINE_MAP_CONSTANT</span> <span class="o">=</span> <span class="mh">0x00A0</span>
+    <span class="n">PIPELINE_SELECTED_COUNT_LOW</span> <span class="o">=</span> <span class="mh">0x00B0</span>
+    <span class="n">PIPELINE_SELECTED_COUNT_HIGH</span> <span class="o">=</span> <span class="mh">0x00B4</span>
+    <span class="n">PIPELINE_GROUP_COUNT_LOW</span> <span class="o">=</span> <span class="mh">0x00B8</span>
+    <span class="n">PIPELINE_GROUP_COUNT_HIGH</span> <span class="o">=</span> <span class="mh">0x00BC</span>
+    <span class="c1"># composed-capability words (register map 0.2, additive): the identity</span>
+    <span class="c1"># block advertises the composition truth instead of a static bitmap.</span>
+    <span class="c1"># 0 in any of these words means "not advertised" (a 0.2 shell built</span>
+    <span class="c1"># before its generator learned the word), never "advertised empty".</span>
+    <span class="n">LANE_COUNT</span> <span class="o">=</span> <span class="mh">0x00C0</span>  <span class="c1"># number of NoC lane register blocks at NOC_LANE_BASE (0 = no lane block)</span>
+    <span class="n">HOST_OPCODE_BITMAP</span> <span class="o">=</span> <span class="mh">0x00C4</span>  <span class="c1"># opcodes computable at protocol level from hardware results (host divide), not hardware opcodes</span>
+    <span class="n">SORT_CAPACITY</span> <span class="o">=</span> <span class="mh">0x00C8</span>  <span class="c1"># max sorter batch row capacity across lanes (0 = no sorter)</span>
+    <span class="c1"># register map 0.3. Extends the capability block rather than reusing the</span>
+    <span class="c1"># slots freed at 0x0010/0x0024: a resident 0.2 shell still decodes those</span>
+    <span class="c1"># two and would answer a capacity read with a stale SHELL_VERSION, while</span>
+    <span class="c1"># it falls through to all-ones here -- which already normalizes to</span>
+    <span class="c1"># not-advertised in every reader.</span>
+    <span class="n">INPUT_ROW_CAPACITY</span> <span class="o">=</span> <span class="mh">0x00CC</span>  <span class="c1"># input rows one job may stage (0 = not advertised)</span>
+    <span class="n">OUTPUT_RECORD_CAPACITY</span> <span class="o">=</span> <span class="mh">0x00D0</span>  <span class="c1"># output records one job may return (0 = not advertised)</span></div>
+
+
+
+<span class="c1"># THE HANDLE-TABLE APERTURE, decoded only by a composed scan shell that</span>
+<span class="c1"># declares a ``handle_table_capacity`` (dau_core.composition). The host</span>
+<span class="c1"># allocator stages one entry -- INDEX, then the grant (BASE/LENGTH/GENERATION)</span>
+<span class="c1"># -- and the CONTROL write commits it; a job then names a handle in</span>
+<span class="c1"># JOB_HANDLE_ID/JOB_HANDLE_GENERATION instead of writing INPUT_ADDRESS, and</span>
+<span class="c1"># the shell resolves it or refuses the job. INPUT_ADDRESS keeps its offsets in</span>
+<span class="c1"># handle mode but feeds nothing: naming a raw address is what the table exists</span>
+<span class="c1"># to take away.</span>
+<span class="c1">#</span>
+<span class="c1"># Window-absolute offsets, pinned to what the generator emits</span>
+<span class="c1"># (dau_build.scan_composition.RegisterLayout). A number that disagrees here is</span>
+<span class="c1"># not a crash, it is a host writing a length into a generation.</span>
+<span class="c1">#</span>
+<span class="c1"># The aperture sits above the capability block (which ends at</span>
+<span class="c1"># OUTPUT_RECORD_CAPACITY) and below NOC_LANE_BASE, so declaring a table moves</span>
+<span class="c1"># no register any host already decodes. It stays off the 0x0090-0x00A0 gap on</span>
+<span class="c1"># purpose: the static pipeline block above spends those five words, and while</span>
+<span class="c1"># a shell bakes that pipeline in or composes lanes and never both, one meaning</span>
+<span class="c1"># per address is a property, not an invariant somebody has to remember.</span>
+<span class="c1">#</span>
+<span class="c1"># A SEPARATE enum rather than RegisterOffset members because the aperture is</span>
+<span class="c1"># opt-in: only a shell that declares a capacity decodes it, and on every other</span>
+<span class="c1"># shell these addresses read back as unmapped. RegisterOffset is what a host</span>
+<span class="c1"># may always read.</span>
+<div class="viewcode-block" id="HandleTableRegisterOffset">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers.HandleTableRegisterOffset">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">HandleTableRegisterOffset</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+    <span class="n">INDEX</span> <span class="o">=</span> <span class="mh">0x00D4</span>  <span class="c1"># the slot the next CONTROL write installs or frees</span>
+    <span class="n">BASE_LOW</span> <span class="o">=</span> <span class="mh">0x00D8</span>
+    <span class="n">BASE_HIGH</span> <span class="o">=</span> <span class="mh">0x00DC</span>  <span class="c1"># decoded only by a shell whose job master is wider than 32 bits</span>
+    <span class="n">LENGTH</span> <span class="o">=</span> <span class="mh">0x00E0</span>  <span class="c1"># bytes granted; a job reading past it is refused</span>
+    <span class="n">GENERATION</span> <span class="o">=</span> <span class="mh">0x00E4</span>  <span class="c1"># the allocator's generation for this slot; 0 is never issued</span>
+    <span class="c1"># write: bit 0 installs the staged entry, bit 1 frees the slot (a one-cycle</span>
+    <span class="c1"># pulse each, so one write can never install twice, and free outranks</span>
+    <span class="c1"># install). read: bit 0 = a resolve is pending, bit 1 = the last resolve</span>
+    <span class="c1"># faulted -- the write bits always read back zero, being pulses.</span>
+    <span class="n">CONTROL</span> <span class="o">=</span> <span class="mh">0x00E8</span>
+    <span class="c1"># the handle THE NEXT JOB resolves. Both reset to zero and the allocator</span>
+    <span class="c1"># issues no generation zero, so a host that forgets to arm a handle is</span>
+    <span class="c1"># refused rather than quietly reading slot zero.</span>
+    <span class="n">JOB_HANDLE_ID</span> <span class="o">=</span> <span class="mh">0x00EC</span>
+    <span class="n">JOB_HANDLE_GENERATION</span> <span class="o">=</span> <span class="mh">0x00F0</span></div>
+
+
+
+<div class="viewcode-block" id="HandleTableControlFlag">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers.HandleTableControlFlag">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">HandleTableControlFlag</span><span class="p">(</span><span class="n">IntFlag</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The WRITE bits of ``HandleTableRegisterOffset.CONTROL``: which of the</span>
+<span class="sd">    staged entry's two commits the write performs. Both are one-cycle pulses,</span>
+<span class="sd">    so they always read back zero -- CONTROL reads report the resolution state</span>
+<span class="sd">    instead.</span>
+
+<span class="sd">    Here rather than in the host, for the same reason the offsets are: a bit</span>
+<span class="sd">    position a programmer carries in their head is how a free ends up</span>
+<span class="sd">    installing. A host stages one commit or the other; the table resolves the</span>
+<span class="sd">    collision in free's favour, which is a safety net, not a sequence."""</span>
+
+    <span class="n">INSTALL</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
+    <span class="n">FREE</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span></div>
+
+
+
+<div class="viewcode-block" id="HandleFaultCode">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers.HandleFaultCode">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">HandleFaultCode</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""LAST_ERROR codes a shell reports for a job it REFUSED to start on a</span>
+<span class="sd">    handle. A refused job never starts the reader, so it reads nothing at all</span>
+<span class="sd">    -- these mean the datapath is untouched, not that it produced garbage.</span>
+
+<span class="sd">    They sit at the top of the code space, below the shell's own 0xFE</span>
+<span class="sd">    length-gate fault, because that space is the shell's: a tile's error codes</span>
+<span class="sd">    are small and per-core (dau_core.operators), and a fault that refuses the</span>
+<span class="sd">    job outright is not one of them."""</span>
+
+    <span class="n">BAD_ID</span> <span class="o">=</span> <span class="mh">0xFD</span>  <span class="c1"># the id names no slot of this table (capacity is planned, never discovered)</span>
+    <span class="n">STALE</span> <span class="o">=</span> <span class="mh">0xFC</span>  <span class="c1"># the slot is freed, or live at a different generation: the region was handed to someone else</span>
+    <span class="n">OUT_OF_BOUNDS</span> <span class="o">=</span> <span class="mh">0xFB</span>  <span class="c1"># the job asks for more bytes than the grant</span></div>
+
+
+
+<span class="c1"># broadcast-NoC lane register block: one NOC_LANE_STRIDE-sized window per</span>
+<span class="c1"># lane starting at NOC_LANE_BASE (inside the 4 KiB register window; the</span>
+<span class="c1"># global JOB_*/INPUT_* registers stay authoritative for the shared scan)</span>
+<span class="n">NOC_LANE_BASE</span> <span class="o">=</span> <span class="mh">0x0100</span>
+<span class="n">NOC_LANE_STRIDE</span> <span class="o">=</span> <span class="mh">0x20</span>
+
+
+<div class="viewcode-block" id="NocLaneRegisterOffset">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers.NocLaneRegisterOffset">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">NocLaneRegisterOffset</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+    <span class="n">OUTPUT_ADDRESS_LOW</span> <span class="o">=</span> <span class="mh">0x00</span>
+    <span class="n">RESULT_LENGTH_LOW</span> <span class="o">=</span> <span class="mh">0x04</span>
+    <span class="n">RECORD_COUNT_LOW</span> <span class="o">=</span> <span class="mh">0x08</span>
+    <span class="n">RECORD_COUNT_HIGH</span> <span class="o">=</span> <span class="mh">0x0C</span>
+    <span class="n">LANE_ERROR</span> <span class="o">=</span> <span class="mh">0x10</span>
+    <span class="c1"># the high half of a lane's write address, for designs whose job master</span>
+    <span class="c1"># addresses past 4 GiB. Placed in free space inside the existing 0x20</span>
+    <span class="c1"># lane stride so every established offset keeps its address: a design</span>
+    <span class="c1"># built before this register simply never decodes it, and a host that</span>
+    <span class="c1"># does not write it leaves the high half zero, which is the old</span>
+    <span class="c1"># behaviour exactly.</span>
+    <span class="n">OUTPUT_ADDRESS_HIGH</span> <span class="o">=</span> <span class="mh">0x14</span></div>
+
+
+
+<div class="viewcode-block" id="noc_lane_register">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers.noc_lane_register">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">noc_lane_register</span><span class="p">(</span><span class="n">lane</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="n">NocLaneRegisterOffset</span> <span class="o">|</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""BAR window offset of one lane's register."""</span>
+    <span class="k">if</span> <span class="n">lane</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"lane must be non-negative"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">NOC_LANE_BASE</span> <span class="o">+</span> <span class="n">lane</span> <span class="o">*</span> <span class="n">NOC_LANE_STRIDE</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ResetScope">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers.ResetScope">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ResetScope</span><span class="p">(</span><span class="n">IntFlag</span><span class="p">):</span>
+    <span class="n">OPERATOR</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
+    <span class="n">STREAM</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span>
+    <span class="n">DMA</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span>
+    <span class="n">SHELL</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">3</span></div>
+
+
+
+<div class="viewcode-block" id="JobControlFlag">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers.JobControlFlag">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">JobControlFlag</span><span class="p">(</span><span class="n">IntFlag</span><span class="p">):</span>
+    <span class="n">START</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
+    <span class="n">ABORT</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span></div>
+
+
+
+<div class="viewcode-block" id="JobStatusFlag">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers.JobStatusFlag">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">JobStatusFlag</span><span class="p">(</span><span class="n">IntFlag</span><span class="p">):</span>
+    <span class="n">IDLE</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
+    <span class="n">BUSY</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span>
+    <span class="n">DONE</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span>
+    <span class="n">ERROR</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">3</span></div>
+
+
+
+<div class="viewcode-block" id="RegisterWriteError">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers.RegisterWriteError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RegisterWriteError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+
+<span class="n">_RESET_SCOPE_MASK</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ResetScope</span><span class="o">.</span><span class="n">OPERATOR</span> <span class="o">|</span> <span class="n">ResetScope</span><span class="o">.</span><span class="n">STREAM</span> <span class="o">|</span> <span class="n">ResetScope</span><span class="o">.</span><span class="n">DMA</span> <span class="o">|</span> <span class="n">ResetScope</span><span class="o">.</span><span class="n">SHELL</span><span class="p">)</span>
+<span class="n">_JOB_CONTROL_MASK</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">JobControlFlag</span><span class="o">.</span><span class="n">START</span> <span class="o">|</span> <span class="n">JobControlFlag</span><span class="o">.</span><span class="n">ABORT</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="StreamJobRegisterContract">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers.StreamJobRegisterContract">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">StreamJobRegisterContract</span><span class="p">:</span>
+    <span class="n">register_window_offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mh">0x1000</span>
+    <span class="n">input_buffer_address</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mh">0x0000_0000</span>
+    <span class="n">input_buffer_bytes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mh">0x0010_0000</span>
+    <span class="n">output_buffer_address</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mh">0x0010_0000</span>
+    <span class="n">output_buffer_bytes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mh">0x0010_0000</span>
+    <span class="n">result_bytes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">136</span>
+    <span class="n">start_offset</span><span class="p">:</span> <span class="n">RegisterOffset</span> <span class="o">=</span> <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">JOB_CONTROL</span>
+    <span class="n">status_offset</span><span class="p">:</span> <span class="n">RegisterOffset</span> <span class="o">=</span> <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">JOB_STATUS</span>
+    <span class="n">error_offset</span><span class="p">:</span> <span class="n">RegisterOffset</span> <span class="o">=</span> <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">LAST_ERROR</span>
+    <span class="n">result_length_low_offset</span><span class="p">:</span> <span class="n">RegisterOffset</span> <span class="o">=</span> <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">RESULT_LENGTH_LOW</span>
+
+<div class="viewcode-block" id="StreamJobRegisterContract.__post_init__">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers.StreamJobRegisterContract.__post_init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_validate_u32</span><span class="p">(</span><span class="s2">"register_window_offset"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_window_offset</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"input_buffer_address"</span><span class="p">,</span> <span class="s2">"input_buffer_bytes"</span><span class="p">,</span> <span class="s2">"output_buffer_address"</span><span class="p">,</span> <span class="s2">"output_buffer_bytes"</span><span class="p">,</span> <span class="s2">"result_bytes"</span><span class="p">):</span>
+            <span class="n">_validate_u64</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="StreamJobRegisterContract.manifest_items">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers.StreamJobRegisterContract.manifest_items">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">manifest_items</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="p">(</span><span class="s2">"register_window_offset"</span><span class="p">,</span> <span class="n">_hex32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">register_window_offset</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s2">"job_control_offset"</span><span class="p">,</span> <span class="n">_hex32</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_offset</span><span class="p">))),</span>
+            <span class="p">(</span><span class="s2">"job_status_offset"</span><span class="p">,</span> <span class="n">_hex32</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">status_offset</span><span class="p">))),</span>
+            <span class="p">(</span><span class="s2">"last_error_offset"</span><span class="p">,</span> <span class="n">_hex32</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">error_offset</span><span class="p">))),</span>
+            <span class="p">(</span><span class="s2">"input_address_low_offset"</span><span class="p">,</span> <span class="n">_hex32</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">INPUT_ADDRESS_LOW</span><span class="p">))),</span>
+            <span class="p">(</span><span class="s2">"input_length_low_offset"</span><span class="p">,</span> <span class="n">_hex32</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">INPUT_LENGTH_LOW</span><span class="p">))),</span>
+            <span class="p">(</span><span class="s2">"output_address_low_offset"</span><span class="p">,</span> <span class="n">_hex32</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">OUTPUT_ADDRESS_LOW</span><span class="p">))),</span>
+            <span class="p">(</span><span class="s2">"output_length_low_offset"</span><span class="p">,</span> <span class="n">_hex32</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">OUTPUT_LENGTH_LOW</span><span class="p">))),</span>
+            <span class="p">(</span><span class="s2">"result_length_low_offset"</span><span class="p">,</span> <span class="n">_hex32</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">result_length_low_offset</span><span class="p">))),</span>
+            <span class="p">(</span><span class="s2">"job_start_bit"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">_flag_bit</span><span class="p">(</span><span class="n">JobControlFlag</span><span class="o">.</span><span class="n">START</span><span class="p">))),</span>
+            <span class="p">(</span><span class="s2">"job_busy_bit"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">_flag_bit</span><span class="p">(</span><span class="n">JobStatusFlag</span><span class="o">.</span><span class="n">BUSY</span><span class="p">))),</span>
+            <span class="p">(</span><span class="s2">"job_done_bit"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">_flag_bit</span><span class="p">(</span><span class="n">JobStatusFlag</span><span class="o">.</span><span class="n">DONE</span><span class="p">))),</span>
+            <span class="p">(</span><span class="s2">"job_error_bit"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">_flag_bit</span><span class="p">(</span><span class="n">JobStatusFlag</span><span class="o">.</span><span class="n">ERROR</span><span class="p">))),</span>
+            <span class="p">(</span><span class="s2">"input_buffer_address"</span><span class="p">,</span> <span class="n">_hex64</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_buffer_address</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s2">"input_buffer_bytes"</span><span class="p">,</span> <span class="n">_hex64</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_buffer_bytes</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s2">"output_buffer_address"</span><span class="p">,</span> <span class="n">_hex64</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_buffer_address</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s2">"output_buffer_bytes"</span><span class="p">,</span> <span class="n">_hex64</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_buffer_bytes</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s2">"result_bytes"</span><span class="p">,</span> <span class="n">_hex64</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">result_bytes</span><span class="p">)),</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="RegisterBlockSnapshot">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers.RegisterBlockSnapshot">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RegisterBlockSnapshot</span><span class="p">:</span>
+    <span class="n">register_map_version</span><span class="p">:</span> <span class="n">RegisterMapVersion</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">CURRENT_REGISTER_MAP_VERSION</span><span class="p">)</span>
+    <span class="n">stream_protocol_version</span><span class="p">:</span> <span class="n">StreamProtocolVersion</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">StreamProtocolVersion</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="c1"># empty means NOT ADVERTISED; a default board here would let an</span>
+    <span class="c1"># unidentified device be priced and constrained as that board</span>
+    <span class="n">platform_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
+    <span class="n">build_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">status</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">operator_bitmap</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">last_error</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">h2c_bytes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">c2h_bytes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">rows</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">batches</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">stalls</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">job_status</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">JobStatusFlag</span><span class="o">.</span><span class="n">IDLE</span><span class="p">)</span>
+    <span class="n">input_address</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mh">0x0000_0000</span>
+    <span class="n">input_length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">output_address</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mh">0x0010_0000</span>
+    <span class="n">output_length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">136</span>
+    <span class="n">operation</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">result_length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="c1"># composed-capability words (register map 0.2; 0 = not advertised)</span>
+    <span class="n">lane_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">host_opcode_bitmap</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">sort_capacity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="c1"># job capacity (register map 0.3; 0 = not advertised). How many input</span>
+    <span class="c1"># rows and output records ONE job may stage, which is set by the shell's</span>
+    <span class="c1"># BRAM depths. The host has to batch to these, and it used to do so from</span>
+    <span class="c1"># constants compiled into the driver -- so a second shell shape was</span>
+    <span class="c1"># batched against the first one's depths with nothing to say so.</span>
+    <span class="n">input_row_capacity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">output_record_capacity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="RegisterBlockSnapshot.__post_init__">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers.RegisterBlockSnapshot.__post_init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># "" is the NOT-ADVERTISED sentinel: a board that identifies itself</span>
+        <span class="c1"># as nothing must stay nothing, because the alternative -- defaulting</span>
+        <span class="c1"># to a board -- reported a dead aperture as a working Artix</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform_id</span><span class="p">:</span>
+            <span class="n">platform_id_to_u32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">platform_id</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="s2">"status"</span><span class="p">,</span>
+            <span class="s2">"operator_bitmap"</span><span class="p">,</span>
+            <span class="s2">"last_error"</span><span class="p">,</span>
+            <span class="s2">"batches"</span><span class="p">,</span>
+            <span class="s2">"stalls"</span><span class="p">,</span>
+            <span class="s2">"job_status"</span><span class="p">,</span>
+            <span class="s2">"operation"</span><span class="p">,</span>
+            <span class="s2">"lane_count"</span><span class="p">,</span>
+            <span class="s2">"host_opcode_bitmap"</span><span class="p">,</span>
+            <span class="s2">"sort_capacity"</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="n">_validate_u32</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="s2">"build_id"</span><span class="p">,</span>
+            <span class="s2">"h2c_bytes"</span><span class="p">,</span>
+            <span class="s2">"c2h_bytes"</span><span class="p">,</span>
+            <span class="s2">"rows"</span><span class="p">,</span>
+            <span class="s2">"input_address"</span><span class="p">,</span>
+            <span class="s2">"input_length"</span><span class="p">,</span>
+            <span class="s2">"output_address"</span><span class="p">,</span>
+            <span class="s2">"output_length"</span><span class="p">,</span>
+            <span class="s2">"result_length"</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="n">_validate_u64</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="RegisterBlockSnapshot.read_u32">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers.RegisterBlockSnapshot.read_u32">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_u32</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="n">RegisterOffset</span> <span class="o">|</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">MAGIC</span><span class="p">:</span> <span class="n">DAU_MAGIC_WORD</span><span class="p">,</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">REGISTER_MAP_VERSION</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_map_version</span><span class="o">.</span><span class="n">to_u32</span><span class="p">(),</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">STREAM_PROTOCOL_VERSION</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream_protocol_version</span><span class="o">.</span><span class="n">to_u32</span><span class="p">(),</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">PLATFORM_ID</span><span class="p">:</span> <span class="n">platform_id_to_u32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">platform_id</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform_id</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">BUILD_ID_LOW</span><span class="p">:</span> <span class="n">_low_u32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">build_id</span><span class="p">),</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">BUILD_ID_HIGH</span><span class="p">:</span> <span class="n">_high_u32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">build_id</span><span class="p">),</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">STATUS</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">,</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">RESET</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">OPERATOR_BITMAP</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">operator_bitmap</span><span class="p">,</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">LAST_ERROR</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_error</span><span class="p">,</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">H2C_BYTES_LOW</span><span class="p">:</span> <span class="n">_low_u32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h2c_bytes</span><span class="p">),</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">H2C_BYTES_HIGH</span><span class="p">:</span> <span class="n">_high_u32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h2c_bytes</span><span class="p">),</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">C2H_BYTES_LOW</span><span class="p">:</span> <span class="n">_low_u32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">c2h_bytes</span><span class="p">),</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">C2H_BYTES_HIGH</span><span class="p">:</span> <span class="n">_high_u32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">c2h_bytes</span><span class="p">),</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">ROWS_LOW</span><span class="p">:</span> <span class="n">_low_u32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rows</span><span class="p">),</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">ROWS_HIGH</span><span class="p">:</span> <span class="n">_high_u32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rows</span><span class="p">),</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">BATCHES</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">batches</span><span class="p">,</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">STALLS</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">stalls</span><span class="p">,</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">JOB_CONTROL</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">JOB_STATUS</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_status</span><span class="p">,</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">INPUT_ADDRESS_LOW</span><span class="p">:</span> <span class="n">_low_u32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_address</span><span class="p">),</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">INPUT_ADDRESS_HIGH</span><span class="p">:</span> <span class="n">_high_u32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_address</span><span class="p">),</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">INPUT_LENGTH_LOW</span><span class="p">:</span> <span class="n">_low_u32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_length</span><span class="p">),</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">INPUT_LENGTH_HIGH</span><span class="p">:</span> <span class="n">_high_u32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_length</span><span class="p">),</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">OUTPUT_ADDRESS_LOW</span><span class="p">:</span> <span class="n">_low_u32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_address</span><span class="p">),</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">OUTPUT_ADDRESS_HIGH</span><span class="p">:</span> <span class="n">_high_u32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_address</span><span class="p">),</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">OUTPUT_LENGTH_LOW</span><span class="p">:</span> <span class="n">_low_u32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_length</span><span class="p">),</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">OUTPUT_LENGTH_HIGH</span><span class="p">:</span> <span class="n">_high_u32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_length</span><span class="p">),</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">OPERATION</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation</span><span class="p">,</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">RESULT_LENGTH_LOW</span><span class="p">:</span> <span class="n">_low_u32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">result_length</span><span class="p">),</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">RESULT_LENGTH_HIGH</span><span class="p">:</span> <span class="n">_high_u32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">result_length</span><span class="p">),</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">LANE_COUNT</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lane_count</span><span class="p">,</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">HOST_OPCODE_BITMAP</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">host_opcode_bitmap</span><span class="p">,</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">SORT_CAPACITY</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_capacity</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">register_offset</span> <span class="o">=</span> <span class="n">RegisterOffset</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mh">0xFFFF_FFFF</span>
+        <span class="k">return</span> <span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">register_offset</span><span class="p">,</span> <span class="mh">0xFFFF_FFFF</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RegisterBlockSnapshot.write_u32">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers.RegisterBlockSnapshot.write_u32">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_u32</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="n">RegisterOffset</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ResetScope</span> <span class="o">|</span> <span class="n">JobControlFlag</span><span class="p">:</span>
+        <span class="n">_validate_u32</span><span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="n">register_offset</span> <span class="o">=</span> <span class="n">RegisterOffset</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">register_offset</span> <span class="o">==</span> <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">RESET</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">_RESET_SCOPE_MASK</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">RegisterWriteError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"unknown reset scope bits: 0x</span><span class="si">{</span><span class="n">value</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="o">~</span><span class="n">_RESET_SCOPE_MASK</span><span class="si">:</span><span class="s2">x</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">ResetScope</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">register_offset</span> <span class="o">==</span> <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">JOB_CONTROL</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">_JOB_CONTROL_MASK</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">RegisterWriteError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"unknown job control bits: 0x</span><span class="si">{</span><span class="n">value</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="o">~</span><span class="n">_JOB_CONTROL_MASK</span><span class="si">:</span><span class="s2">x</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">JobControlFlag</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">RegisterWriteError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">register_offset</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> is read-only"</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="platform_id_to_u32">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers.platform_id_to_u32">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">platform_id_to_u32</span><span class="p">(</span><span class="n">platform_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="n">encoded</span> <span class="o">=</span> <span class="n">platform_id</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"ascii"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">encoded</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"platform_id must be 1 to 4 ASCII bytes"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">encoded</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="sa">b</span><span class="s2">"</span><span class="se">\x00</span><span class="s2">"</span><span class="p">),</span> <span class="s2">"little"</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_low_u32">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers._low_u32">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_low_u32</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">value</span> <span class="o">&amp;</span> <span class="mh">0xFFFF_FFFF</span></div>
+
+
+
+<div class="viewcode-block" id="_high_u32">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers._high_u32">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_high_u32</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">value</span> <span class="o">&gt;&gt;</span> <span class="mi">32</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xFFFF_FFFF</span></div>
+
+
+
+<div class="viewcode-block" id="_hex32">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers._hex32">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_hex32</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">_validate_u32</span><span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"0x</span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">08x</span><span class="si">}</span><span class="s2">"</span></div>
+
+
+
+<div class="viewcode-block" id="_hex64">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers._hex64">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_hex64</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">_validate_u64</span><span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"0x</span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">016x</span><span class="si">}</span><span class="s2">"</span></div>
+
+
+
+<div class="viewcode-block" id="_flag_bit">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers._flag_bit">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_flag_bit</span><span class="p">(</span><span class="n">flag</span><span class="p">:</span> <span class="n">IntFlag</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">value</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">value</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"flag must contain exactly one bit: </span><span class="si">{</span><span class="n">flag</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">bit_length</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span></div>
+
+
+
+<div class="viewcode-block" id="_validate_u16">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers._validate_u16">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_u16</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mh">0xFFFF</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> must fit in 16 bits"</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_validate_u32">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers._validate_u32">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_u32</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mh">0xFFFFFFFF</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> must fit in 32 bits"</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_validate_u64">
+<a class="viewcode-back" href="../../autoapi/dau_core/registers/index.html#dau_core.registers._validate_u64">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_u64</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mh">0xFFFFFFFFFFFFFFFF</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> must fit in 64 bits"</span><span class="p">)</span></div>
+
+
+
+<span class="n">DEFAULT_STREAM_JOB_REGISTER_CONTRACT</span> <span class="o">=</span> <span class="n">StreamJobRegisterContract</span><span class="p">()</span>
+
+<span class="c1"># Register-map history: 0.1 is the original identity/job window (the</span>
+<span class="c1"># proven resident dpv1 bitstreams report it; its OPERATOR_BITMAP was a</span>
+<span class="c1"># static advertisement). 0.2 adds the composed-capability words</span>
+<span class="c1"># (LANE_COUNT / HOST_OPCODE_BITMAP / SORT_CAPACITY) and redefines</span>
+<span class="c1"># OPERATOR_BITMAP as the hardware truth of the composed design: a bit is</span>
+<span class="c1"># set only for OperationCodes some tile executes in HDL.</span>
+<span class="n">CURRENT_REGISTER_MAP_VERSION</span> <span class="o">=</span> <span class="n">RegisterMapVersion</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+</pre></div>
+
+      </div>
+<footer id="fd-footer">
+  <p class="fd-footer-meta"><span>&#169; the dau-core authors</span><span>Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.</span>
+  </p>
+</footer>
+    </article>
+  </main>
+<nav id="fd-toc" aria-label="On this page">
+  <div class="fd-toc-actions">
+    <a class="fd-toc-action" href="https://github.com/dau-dev/dau-core/edit/HEAD/_modules/dau_core/registers.md" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span>Edit this page</span></a>
+  </div>
+</nav>
+</div>
+<dialog id="fd-search-dialog" aria-label="Search">
+  <form class="fd-search-panel" method="dialog" role="search">
+    <div class="fd-search-field">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="search" id="fd-search-input" autocomplete="off" spellcheck="false" placeholder="Search documentation..." aria-label="Search" />
+      <kbd class="fd-kbd">Esc</kbd>
+    </div>
+    <div id="fd-search-results" role="listbox" aria-label="Search results"></div>
+    <p id="fd-search-empty" class="fd-search-empty" hidden>No results found.</p>
+  </form>
+</dialog>
+  </body>
+</html>

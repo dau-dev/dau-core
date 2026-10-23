@@ -1,0 +1,124 @@
+test_fixed_point_exp
+====================
+
+.. py:module:: test_fixed_point_exp
+
+.. autoapi-nested-parse::
+
+   The exp datapath's accuracy is a measured fact, and this is the measurement.
+
+   Two layers are checked separately, which is the whole accuracy contract:
+
+   * the ALGORITHM against the MATHEMATICS, here, by sweeping inputs; and
+   * the HDL against the ALGORITHM, in the cocotb bench, with zero tolerance.
+
+   The default sweep is strided so the suite stays quick. The exhaustive sweep
+   is the one that actually licenses the claim and runs under DAU_EXHAUSTIVE=1 --
+   because a stride is a sample, and a sample declared Q48/degree-5 flawless
+   when the full sweep found three wrong inputs.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_fixed_point_exp._EXHAUSTIVE
+   test_fixed_point_exp._STRIDE
+   test_fixed_point_exp.EXP_CORES
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_fixed_point_exp._worst_deviation
+   test_fixed_point_exp.test_the_reference_is_the_mathematics_not_an_algorithm
+   test_fixed_point_exp.test_exp_overflowing_int32_is_refused_not_wrapped
+   test_fixed_point_exp._point
+   test_fixed_point_exp._recorded_ulp
+   test_fixed_point_exp.test_each_operating_point_meets_its_recorded_bound
+   test_fixed_point_exp.test_the_exact_point_is_correctly_rounded
+   test_fixed_point_exp.test_the_light_point_is_actually_lighter
+   test_fixed_point_exp.test_rounding_steps_only_help_where_precision_binds
+   test_fixed_point_exp.test_the_range_reduction_index_is_deliberately_narrow
+
+
+Module Contents
+---------------
+
+.. py:data:: _EXHAUSTIVE
+
+.. py:data:: _STRIDE
+   :value: 1
+
+
+.. py:function:: _worst_deviation(point: dau_core.fixed_point.ExpDatapath, *, stride: int) -> tuple[int, int, int]
+
+   (worst ULP, wrong count, checked count) against the correctly rounded
+   reference. Double decides the ordinary inputs; the few that sit too close
+   to a rounding boundary for it are re-decided in 80 digits.
+
+
+.. py:function:: test_the_reference_is_the_mathematics_not_an_algorithm() -> None
+
+   Spot values a human can verify, so the reference cannot drift into
+   being a description of whatever the datapath happens to do.
+
+
+.. py:function:: test_exp_overflowing_int32_is_refused_not_wrapped() -> None
+
+.. py:data:: EXP_CORES
+   :value: ('fixed-point-exp', 'fixed-point-exp-light')
+
+
+.. py:function:: _point(name: str) -> dau_core.fixed_point.ExpDatapath
+
+   The registered operating point: the exp tile's generator datapath.
+
+
+.. py:function:: _recorded_ulp(name: str) -> int
+
+.. py:function:: test_each_operating_point_meets_its_recorded_bound(name: str) -> None
+
+   The registered bound is what the registry and the docs quote. If a
+   point drifts past it, that is a change to an advertised fact.
+
+
+.. py:function:: test_the_exact_point_is_correctly_rounded() -> None
+
+   The stronger claim, kept separate because it is the one that makes the
+   contract mathematical rather than a description of our polynomial.
+
+
+.. py:function:: test_the_light_point_is_actually_lighter() -> None
+
+   A second operating point only earns its place by costing less. Guard
+   the reason it exists, not just its accuracy.
+
+
+.. py:function:: test_rounding_steps_only_help_where_precision_binds() -> None
+
+   Pins the finding that decided the operating points: below ~40 bits the
+   internal precision binds and rounding each Horner step helps; above it the
+   polynomial degree binds and rounding changes nothing. Getting this
+   backwards sends you adding precision to a problem that needs degree.
+
+
+.. py:function:: test_the_range_reduction_index_is_deliberately_narrow() -> None
+
+   `k` picks the split between table index and residue, nothing more.
+
+   Computing it at full internal precision made it the WIDEST multiply in
+   the datapath -- a 48-bit operand against a 61-bit constant, measured at 9
+   DSP48s -- and bought no accuracy: the sweep is correctly rounded at every
+   width down to 12 bits, because a k off by one merely widens the residue
+   and the polynomial still covers it.
+
+   Widening it back is not wrong, only wasteful, so this guards the reason
+   rather than the number: more precision here must not change a single
+   result.
+
+

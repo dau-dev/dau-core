@@ -1,0 +1,75 @@
+dau_core.normal_cdf_generator
+=============================
+
+.. py:module:: dau_core.normal_cdf_generator
+
+.. autoapi-nested-parse::
+
+   Renders the normal-CDF tile from a declared operating point.
+
+   Generated for the same reason the exp tile is: its per-segment Taylor
+   coefficients are transcendental constants at the configured internal
+   precision, and SystemVerilog cannot compute them at elaboration.
+
+   The emitted SystemVerilog mirrors
+   :meth:`dau_core.fixed_point.NormalCdfDatapath.evaluate` step for step, so
+   the cocotb bench compares against it with zero tolerance like every other
+   tile. That model is correctly rounded over EVERY representable input, so for
+   this tile the algorithm and the mathematics coincide.
+
+   Pipelined one multiply per stage, which is what the exp measurements forced:
+   a DSP48's clock-to-out is ~3.5 ns, so a carry chain sitting between two of
+   them overruns 8 ns.
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   dau_core.normal_cdf_generator.NormalCdfTileGenerator
+
+
+Module Contents
+---------------
+
+.. py:class:: NormalCdfTileGenerator(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.generators.CoreGenerator`
+
+
+   Renders ``dau_normal_cdf`` for one operating point.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: module
+      :type:  str
+      :value: 'dau_normal_cdf'
+
+
+
+   .. py:attribute:: datapath
+      :type:  dau_core.fixed_point.NormalCdfDatapath
+
+
+   .. py:property:: source_name
+      :type: str
+
+
+
+   .. py:method:: __call__(context: dau_core.generators.RenderContext) -> dau_core.generators.RenderedCore
+
+      This method produces the result for the given context.
+
+      Instead of passing the context, one can pass an object that pydantic will try to validate as the context.
+      Additionally, if kwargs are passed instead of the context, it will use these to construct the context.
+
+
+

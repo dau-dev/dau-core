@@ -1,0 +1,150 @@
+cocotb_benches.dau_rolling_extremum_tb
+======================================
+
+.. py:module:: cocotb_benches.dau_rolling_extremum_tb
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_rolling_extremum_tb.WINDOW
+   cocotb_benches.dau_rolling_extremum_tb.VALUE_WIDTH
+   cocotb_benches.dau_rolling_extremum_tb.FIND_MAX
+   cocotb_benches.dau_rolling_extremum_tb.WORDS
+   cocotb_benches.dau_rolling_extremum_tb._VALUES
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_rolling_extremum_tb._golden
+   cocotb_benches.dau_rolling_extremum_tb.rolling_extremum_matches_golden
+   cocotb_benches.dau_rolling_extremum_tb.rolling_extremum_backpressure_both_sides
+   cocotb_benches.dau_rolling_extremum_tb.rolling_extremum_resets_per_symbol
+   cocotb_benches.dau_rolling_extremum_tb.rolling_extremum_all_warmup_emits_nothing_and_closes_out
+   cocotb_benches.dau_rolling_extremum_tb.rolling_extremum_last_rides_the_final_forwarded_row
+   cocotb_benches.dau_rolling_extremum_tb.rolling_extremum_reuses_across_batches
+   cocotb_benches.dau_rolling_extremum_tb.rolling_extremum_zero_row_close_out_fires_exactly_once
+   cocotb_benches.dau_rolling_extremum_tb._start
+   cocotb_benches.dau_rolling_extremum_tb._run
+   cocotb_benches.dau_rolling_extremum_tb._decode_rows
+   cocotb_benches.dau_rolling_extremum_tb._send_rows
+   cocotb_benches.dau_rolling_extremum_tb._collect_output
+   cocotb_benches.dau_rolling_extremum_tb._collect_with_last
+   cocotb_benches.dau_rolling_extremum_tb._accept_success_status
+   cocotb_benches.dau_rolling_extremum_tb._signed
+   cocotb_benches.dau_rolling_extremum_tb._signed32
+
+
+Module Contents
+---------------
+
+.. py:data:: WINDOW
+
+.. py:data:: VALUE_WIDTH
+
+.. py:data:: FIND_MAX
+
+.. py:data:: WORDS
+   :value: 2
+
+
+.. py:data:: _VALUES
+
+.. py:function:: _golden(values, *, window=WINDOW)
+
+.. py:function:: rolling_extremum_matches_golden(dut)
+   :async:
+
+
+.. py:function:: rolling_extremum_backpressure_both_sides(dut)
+   :async:
+
+
+   Backpressure must not change a value or reorder a row: the network is
+   a pipeline, and a skid slot sits between it and the output.
+
+
+.. py:function:: rolling_extremum_resets_per_symbol(dut)
+   :async:
+
+
+   The segment boundary is the whole point: a new symbol must not see the
+   previous symbol's values, however extreme they were.
+
+
+.. py:function:: rolling_extremum_all_warmup_emits_nothing_and_closes_out(dut)
+   :async:
+
+
+   A stream that forwards NOTHING still closes out. Zero forwarded rows is
+   the one outcome a downstream tile cannot tell apart from a stall, which is
+   why this tile is silent on success only while it is forwarding.
+
+
+.. py:function:: rolling_extremum_last_rides_the_final_forwarded_row(dut)
+   :async:
+
+
+   The final input rows may all be warm-up. output_last still has to land
+   on the last row actually forwarded, so the skid holds it back until the
+   stream ends.
+
+
+.. py:function:: rolling_extremum_reuses_across_batches(dut)
+   :async:
+
+
+   A SECOND batch after input_last must be a fresh window.
+
+   Every other test resets first, which is exactly how a tile that carries
+   its segment state across a batch boundary passes a whole bench. Here the
+   second batch opens with the SAME symbol the first one closed on: if the
+   run length survived, its first rows emit during what should be warm-up.
+
+
+.. py:function:: rolling_extremum_zero_row_close_out_fires_exactly_once(dut)
+   :async:
+
+
+   The close-out is a pulse, not a level.
+
+   The condition is derived from a latched 'stream has ended' bit, so
+   without a fired-once guard it re-asserts every cycle and a consumer
+   holding status_ready sees an unbounded run of transfers.
+
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _run(dut, values, *, ready_pattern=(1, ), expect_close_out=False)
+   :async:
+
+
+.. py:function:: _decode_rows(words)
+
+.. py:function:: _send_rows(dut, values) -> None
+   :async:
+
+
+.. py:function:: _collect_output(dut, ready_pattern)
+   :async:
+
+
+.. py:function:: _collect_with_last(dut, values)
+   :async:
+
+
+.. py:function:: _accept_success_status(dut) -> None
+   :async:
+
+
+.. py:function:: _signed(value: int, width: int) -> int
+
+.. py:function:: _signed32(value: int) -> int
+

@@ -1,0 +1,80 @@
+test_lazy_exports
+=================
+
+.. py:module:: test_lazy_exports
+
+.. autoapi-nested-parse::
+
+   Importing this package must stay cheap, and its exports must stay honest.
+
+   Every model here is a ccflow model, and importing ccflow imports csp and
+   pandas: about 0.9 s. Hydra's searchpath plugin imports ``dau_core.config``
+   to discover what is installed, so a package that imports its model modules
+   at import time puts that 0.9 s in front of every composition, for names
+   discovery never reads.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_lazy_exports.INIT
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_lazy_exports._init_tree
+   test_lazy_exports._type_checking_imports
+   test_lazy_exports.test_the_declaration_and_the_type_checking_block_agree
+   test_lazy_exports.test_every_exported_name_resolves
+   test_lazy_exports.test_an_unknown_name_still_raises_attribute_error
+   test_lazy_exports.test_importing_the_package_does_not_import_ccflow
+   test_lazy_exports.test_a_name_reached_through_the_package_is_the_submodule_object
+
+
+Module Contents
+---------------
+
+.. py:data:: INIT
+
+.. py:function:: _init_tree() -> ast.Module
+
+.. py:function:: _type_checking_imports() -> dict[str, tuple[str, ...]]
+
+   What the ``TYPE_CHECKING`` block declares, read from the source.
+
+
+.. py:function:: test_the_declaration_and_the_type_checking_block_agree() -> None
+
+   The two exist for different readers -- the resolver and a type
+   checker -- and a name in one and not the other is a name that imports
+   for one of them and fails for the other.
+
+
+.. py:function:: test_every_exported_name_resolves() -> None
+
+   A name declared here and missing from its submodule would raise on
+   first access, which is a broken import nobody sees until a caller
+   reaches for it. Resolve all of them now.
+
+
+.. py:function:: test_an_unknown_name_still_raises_attribute_error() -> None
+
+.. py:function:: test_importing_the_package_does_not_import_ccflow() -> None
+
+   The guard that keeps composition fast. Run in a fresh interpreter,
+   because this one has already imported everything.
+
+
+.. py:function:: test_a_name_reached_through_the_package_is_the_submodule_object() -> None
+
+   Lazily resolved is not a copy: the name a caller imports from the
+   package is the one the submodule defines, so an isinstance check against
+   either spelling holds.
+
+

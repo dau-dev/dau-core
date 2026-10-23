@@ -1,0 +1,2127 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>dau_core.stream &#8212; dau core v0.1.0</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fuma.css?v=f6f6878e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fuma-code.css?v=a950e949" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fonts/fuma-fonts.css?v=c2892c73" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/custom.css?v=88c24c6a" />
+    <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-searchlite-index="searchlite-index.json" defer="defer" src="../../../_static/searchlite.js?v=a5320898"></script>
+    <script defer="defer" src="../../../_static/fuma.js?v=b46bb53d"></script>
+    <script src="../../../_static/js/custom.js?v=956e5d78"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="dau_core.temporal" href="../temporal/index.html" />
+    <link rel="prev" title="dau_core.registry" href="../registry/index.html" />
+    <script>
+      (function () {
+        var root = document.documentElement;
+        try {
+          var stored = localStorage.getItem("fuma-theme");
+          if (stored) {
+            root.classList.add(stored === "dark" ? "dark" : "light");
+            root.style.colorScheme = stored === "dark" ? "dark" : "light";
+          }
+          if (localStorage.getItem("fuma-sidebar") === "collapsed") root.dataset.sidebarCollapsed = "true";
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+<body class="fd-body" data-layout="docs" data-toc-style="normal" data-open-level="1">
+<div id="fd-layout"><header id="fd-subnav">
+  <div class="fd-subnav-inner">
+    <button type="button" class="fd-icon-button fd-sidebar-toggle" aria-controls="fd-sidebar" aria-expanded="false" aria-label="Toggle navigation">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
+    </button><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau core v0.1.0</span>
+</a>
+
+    <div class="fd-nav-actions">
+      <button type="button" class="fd-icon-button" data-fd-search-open aria-label="Search"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+      <a class="fd-icon-button" href="https://github.com/dau-dev/dau-core" target="_blank" rel="noopener" aria-label="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <button type="button" class="fd-icon-button fd-theme-toggle" aria-label="Toggle theme">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-light"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-dark"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<aside id="fd-sidebar" aria-label="Documentation">
+  <div class="fd-sidebar-header">
+    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau core v0.1.0</span>
+</a>
+      <button type="button" class="fd-icon-button fd-sidebar-collapse" aria-label="Collapse sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+    </div>
+    <button type="button" class="fd-search-trigger" data-fd-search-open>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><span>Search</span><kbd class="fd-kbd">/</kbd>
+    </button>
+  </div>
+
+  <nav class="fd-sidebar-nav">
+    <div class="fd-sidebar-group">
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/tutorial/read-a-tile-contract.html">
+      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-tile.html">
+      <span class="fd-link-text">How to add an operator tile</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/how-to/test-a-core.html">
+      <span class="fd-link-text">How to test a core</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/how-to/measure-a-resource-envelope.html">
+      <span class="fd-link-text">How to measure a resource envelope</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/how-to/develop.html">
+      <span class="fd-link-text">Develop and contribute</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/reference/core-definition.html">
+      <span class="fd-link-text">CoreDefinition fields</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/reference/registry-guards.html">
+      <span class="fd-link-text">Registry-wide guards</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/explanation/why-cores-are-declared-in-config.html">
+      <span class="fd-link-text">Why cores are declared in config</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
+      <span class="fd-link-text">Why each tile has a golden model</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/explanation/why-resources-are-measured.html">
+      <span class="fd-link-text">Why resource costs are measured</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder" open>
+      <summary class="fd-folder-summary">
+        <a class="fd-link" href="../../index.html">
+          <span class="fd-link-text">API Reference</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <details class="fd-folder" open>
+      <summary class="fd-folder-summary">
+        <a class="fd-link" href="../index.html">
+          <span class="fd-link-text">dau_core</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../_lazy/index.html">
+      <span class="fd-link-text">dau_core._lazy</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../capabilities/index.html">
+      <span class="fd-link-text">dau_core.capabilities</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../capability_contract/index.html">
+      <span class="fd-link-text">dau_core.capability_contract</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../composition/index.html">
+      <span class="fd-link-text">dau_core.composition</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../config/index.html">
+      <span class="fd-link-text">dau_core.config</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cores/index.html">
+      <span class="fd-link-text">dau_core.cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../design/index.html">
+      <span class="fd-link-text">dau_core.design</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../element_types/index.html">
+      <span class="fd-link-text">dau_core.element_types</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../exp_generator/index.html">
+      <span class="fd-link-text">dau_core.exp_generator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../fixed_point/index.html">
+      <span class="fd-link-text">dau_core.fixed_point</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../generators/index.html">
+      <span class="fd-link-text">dau_core.generators</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../hdl/index.html">
+      <span class="fd-link-text">dau_core.hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../hero/index.html">
+      <span class="fd-link-text">dau_core.hero</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../ln_generator/index.html">
+      <span class="fd-link-text">dau_core.ln_generator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../models/index.html">
+      <span class="fd-link-text">dau_core.models</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../normal_cdf_generator/index.html">
+      <span class="fd-link-text">dau_core.normal_cdf_generator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../operators/index.html">
+      <span class="fd-link-text">dau_core.operators</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../registers/index.html">
+      <span class="fd-link-text">dau_core.registers</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../registry/index.html">
+      <span class="fd-link-text">dau_core.registry</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link fd-current" href="#">
+      <span class="fd-link-text">dau_core.stream</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../temporal/index.html">
+      <span class="fd-link-text">dau_core.temporal</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../workflows/index.html">
+      <span class="fd-link-text">dau_core.workflows</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../conftest/index.html">
+      <span class="fd-link-text">conftest</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_docs/index.html">
+      <span class="fd-link-text">test_docs</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hero/index.html">
+      <span class="fd-link-text">test_hero</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_cores/index.html">
+      <span class="fd-link-text">test_cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_design/index.html">
+      <span class="fd-link-text">test_design</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_stream/index.html">
+      <span class="fd-link-text">test_stream</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_readme/index.html">
+      <span class="fd-link-text">test_readme</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_temporal/index.html">
+      <span class="fd-link-text">test_temporal</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_operators/index.html">
+      <span class="fd-link-text">test_operators</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder">
+      <summary class="fd-folder-summary">
+        <a class="fd-link" href="../../cocotb_benches/index.html">
+          <span class="fd-link-text">cocotb_benches</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_arrow_lite_stream_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_arrow_lite_stream_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_asof_backward_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_asof_backward_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_asof_feature_chain_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_asof_feature_chain_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_axi_bar_job_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_bar_job_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_axi_bar_noc_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_bar_noc_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_axi_burst_reader_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_burst_reader_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_axi_random_probe_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_random_probe_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_axi_sort_noc_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_sort_noc_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_bar_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_bar_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_bitonic_sorter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_bitonic_sorter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_broadcast_hash_join_small_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_broadcast_hash_join_small_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_broadcast_hash_join_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_broadcast_hash_join_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_bucket_agg_chain_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_bucket_agg_chain_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_datetime_format_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_datetime_format_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_field_sum_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_field_sum_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_fixed_point_divide_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_divide_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_fixed_point_exp_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_exp_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_fixed_point_ln_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_ln_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_fixed_point_sqrt_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_sqrt_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_grouped_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_grouped_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_grouped_field_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_grouped_field_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_grouped_field_sum_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_grouped_field_sum_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_hash_grouped_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_hash_grouped_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_hero_datapath_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_hero_datapath_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_int32_keyed_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_keyed_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_int32_keyed_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_keyed_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_int32_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_int32_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_int32_record_gather_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_record_gather_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_mask_dispatcher_exact_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_exact_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_mask_dispatcher_hash_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_hash_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_mask_dispatcher_multi_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_multi_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_mask_dispatcher_records_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_records_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_mask_dispatcher_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_mask_dispatcher_wide_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_wide_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_membership_filter_single_word_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_membership_filter_single_word_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_membership_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_membership_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_keyed_state_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_keyed_state_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_market_feature_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_market_feature_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_normal_cdf_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_normal_cdf_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_pair_key_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_pair_key_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_range_partitioner_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_range_partitioner_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_record_batch_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_record_batch_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_record_gearbox_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_record_gearbox_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_rolling_extremum_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_rolling_extremum_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_rolling_moments_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_rolling_moments_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_row_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_row_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_row_predicate_filter_width_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_predicate_filter_width_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_row_unpack_slots_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_unpack_slots_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_row_unpack_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_unpack_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_row_unpack_wide_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_unpack_wide_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_scratchpad_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_scratchpad_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_session_gap_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_session_gap_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_stream_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_stream_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_streaming_dedup_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_streaming_dedup_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_streaming_top_k_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_streaming_top_k_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_stride_distributor_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_stride_distributor_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_time_bucket_key_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_time_bucket_key_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_wide_field_sum_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_field_sum_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_wide_ingest_chain_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_ingest_chain_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_wide_row_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_row_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_wide_row_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_row_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/rate_probe/index.html">
+      <span class="fd-link-text">cocotb_benches.rate_probe</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hdl_cocotb/index.html">
+      <span class="fd-link-text">test_hdl_cocotb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_composition/index.html">
+      <span class="fd-link-text">test_composition</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hdl_sources/index.html">
+      <span class="fd-link-text">test_hdl_sources</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../exhaustive_sweep/index.html">
+      <span class="fd-link-text">exhaustive_sweep</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hash_grouped/index.html">
+      <span class="fd-link-text">test_hash_grouped</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_record_batch/index.html">
+      <span class="fd-link-text">test_record_batch</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_lazy_exports/index.html">
+      <span class="fd-link-text">test_lazy_exports</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_element_types/index.html">
+      <span class="fd-link-text">test_element_types</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_core_contract/index.html">
+      <span class="fd-link-text">test_core_contract</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hdl_verilator/index.html">
+      <span class="fd-link-text">test_hdl_verilator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_fixed_point_ln/index.html">
+      <span class="fd-link-text">test_fixed_point_ln</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_ohlcv_fixtures/index.html">
+      <span class="fd-link-text">test_ohlcv_fixtures</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hdl_elaboration/index.html">
+      <span class="fd-link-text">test_hdl_elaboration</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_datetime_format/index.html">
+      <span class="fd-link-text">test_datetime_format</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_fixed_point_exp/index.html">
+      <span class="fd-link-text">test_fixed_point_exp</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_generated_cores/index.html">
+      <span class="fd-link-text">test_generated_cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_benches_can_fail/index.html">
+      <span class="fd-link-text">test_benches_can_fail</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_contributed_cores/index.html">
+      <span class="fd-link-text">test_contributed_cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_validation_at_use/index.html">
+      <span class="fd-link-text">test_validation_at_use</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_aggregation_goldens/index.html">
+      <span class="fd-link-text">test_aggregation_goldens</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_capability_contract/index.html">
+      <span class="fd-link-text">test_capability_contract</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_public_tile_surface/index.html">
+      <span class="fd-link-text">test_public_tile_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_aggregation_tile_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_contributed_discovery/index.html">
+      <span class="fd-link-text">test_contributed_discovery</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_fixed_point_normal_cdf/index.html">
+      <span class="fd-link-text">test_fixed_point_normal_cdf</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_output_beat_declarations/index.html">
+      <span class="fd-link-text">test_output_beat_declarations</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_registers_and_capabilities/index.html">
+      <span class="fd-link-text">test_registers_and_capabilities</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_measured_from_matches_the_hdl/index.html">
+      <span class="fd-link-text">test_measured_from_matches_the_hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_parameter_bounds_match_the_hdl/index.html">
+      <span class="fd-link-text">test_parameter_bounds_match_the_hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hdl_parameter_bindings_resolve/index.html">
+      <span class="fd-link-text">test_hdl_parameter_bindings_resolve</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+</ul>
+    </div>
+  </nav>
+
+  <div class="fd-sidebar-footer">
+    <div class="fd-toolbar">
+      <a class="fd-toolbar-item" href="https://github.com/dau-dev/dau-core" target="_blank" rel="noopener" aria-label="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <div class="fd-theme-switch" role="group" aria-label="Theme">
+        <button type="button" class="fd-theme-option" data-fd-theme="light" aria-label="Light theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></button>
+        <button type="button" class="fd-theme-option" data-fd-theme="dark" aria-label="Dark theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg></button>
+      </div>
+    </div>
+  </div>
+</aside>
+<button type="button" id="fd-sidebar-restore" class="fd-icon-button" aria-label="Expand sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+<div class="fd-sidebar-scrim" hidden></div>
+  <div id="fd-toc-popover">
+    <button type="button" class="fd-toc-trigger" aria-expanded="false" aria-controls="fd-toc-mobile">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg><span>On this page</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <div id="fd-toc-mobile" hidden><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#attributes">Attributes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#exceptions">Exceptions</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#classes">Classes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#functions">Functions</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#module-contents">Module Contents</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream.InvalidStreamError">InvalidStreamError</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream.LogicalType">LogicalType</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.LogicalType.BOOL">LogicalType.BOOL</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.LogicalType.INT8">LogicalType.INT8</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.LogicalType.INT16">LogicalType.INT16</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.LogicalType.INT32">LogicalType.INT32</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.LogicalType.INT64">LogicalType.INT64</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.LogicalType.UINT8">LogicalType.UINT8</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.LogicalType.UINT16">LogicalType.UINT16</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.LogicalType.UINT32">LogicalType.UINT32</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.LogicalType.UINT64">LogicalType.UINT64</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.LogicalType.FLOAT32">LogicalType.FLOAT32</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.LogicalType.FLOAT64">LogicalType.FLOAT64</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream.OperationCode">OperationCode</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationCode.MIN">OperationCode.MIN</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationCode.MAX">OperationCode.MAX</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationCode.SUM">OperationCode.SUM</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationCode.COUNT">OperationCode.COUNT</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationCode.AVERAGE">OperationCode.AVERAGE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationCode.from_name">OperationCode.from_name()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream.output_type_for">output_type_for()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream.StreamAggregationErrorCode">StreamAggregationErrorCode</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.StreamAggregationErrorCode.DESCRIPTOR">StreamAggregationErrorCode.DESCRIPTOR</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.StreamAggregationErrorCode.OPCODE">StreamAggregationErrorCode.OPCODE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.StreamAggregationErrorCode.TILE">StreamAggregationErrorCode.TILE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream.GroupRole">GroupRole</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.GroupRole.VALUE">GroupRole.VALUE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.GroupRole.KEY">GroupRole.KEY</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.GroupRole.OUTPUT">GroupRole.OUTPUT</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream.PolicyFlag">PolicyFlag</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.PolicyFlag.NONE">PolicyFlag.NONE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.PolicyFlag.SATURATING_SUM">PolicyFlag.SATURATING_SUM</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.PolicyFlag.IEEE_FLOAT_NAN">PolicyFlag.IEEE_FLOAT_NAN</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.PolicyFlag.FLOAT64_AVERAGE">PolicyFlag.FLOAT64_AVERAGE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream.StreamFlag">StreamFlag</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.StreamFlag.NONE">StreamFlag.NONE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.StreamFlag.HAS_GROUP_FIELDS">StreamFlag.HAS_GROUP_FIELDS</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream.BatchHeader">BatchHeader</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.schema_hash">BatchHeader.schema_hash</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.batch_id">BatchHeader.batch_id</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.row_count">BatchHeader.row_count</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.column_count">BatchHeader.column_count</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.operation_count">BatchHeader.operation_count</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.group_key_count">BatchHeader.group_key_count</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.descriptor_table_offset">BatchHeader.descriptor_table_offset</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.payload_offset">BatchHeader.payload_offset</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.payload_length">BatchHeader.payload_length</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.version_major">BatchHeader.version_major</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.version_minor">BatchHeader.version_minor</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.header_length">BatchHeader.header_length</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.flags">BatchHeader.flags</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.SIZE_BYTES">BatchHeader.SIZE_BYTES</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader._STRUCT">BatchHeader._STRUCT</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.__post_init__">BatchHeader.__post_init__()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.pack">BatchHeader.pack()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.unpack">BatchHeader.unpack()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream.ColumnDescriptor">ColumnDescriptor</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.ColumnDescriptor.field_id">ColumnDescriptor.field_id</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.ColumnDescriptor.logical_type">ColumnDescriptor.logical_type</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.ColumnDescriptor.physical_width_bits">ColumnDescriptor.physical_width_bits</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.ColumnDescriptor.row_count">ColumnDescriptor.row_count</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.ColumnDescriptor.null_count">ColumnDescriptor.null_count</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.ColumnDescriptor.payload_offset">ColumnDescriptor.payload_offset</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.ColumnDescriptor.payload_length">ColumnDescriptor.payload_length</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.ColumnDescriptor.validity_offset">ColumnDescriptor.validity_offset</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.ColumnDescriptor.validity_length">ColumnDescriptor.validity_length</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.ColumnDescriptor.group_role">ColumnDescriptor.group_role</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.ColumnDescriptor.flags">ColumnDescriptor.flags</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.ColumnDescriptor.SIZE_BYTES">ColumnDescriptor.SIZE_BYTES</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.ColumnDescriptor._STRUCT">ColumnDescriptor._STRUCT</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.ColumnDescriptor.__post_init__">ColumnDescriptor.__post_init__()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.ColumnDescriptor.pack">ColumnDescriptor.pack()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.ColumnDescriptor.unpack">ColumnDescriptor.unpack()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream.OperationDescriptor">OperationDescriptor</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationDescriptor.operation_id">OperationDescriptor.operation_id</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationDescriptor.opcode">OperationDescriptor.opcode</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationDescriptor.input_column_id">OperationDescriptor.input_column_id</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationDescriptor.output_field_id">OperationDescriptor.output_field_id</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationDescriptor.output_type">OperationDescriptor.output_type</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationDescriptor.accumulator_width_bits">OperationDescriptor.accumulator_width_bits</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationDescriptor.policy_flags">OperationDescriptor.policy_flags</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationDescriptor.group_key_set_id">OperationDescriptor.group_key_set_id</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationDescriptor.SIZE_BYTES">OperationDescriptor.SIZE_BYTES</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationDescriptor._STRUCT">OperationDescriptor._STRUCT</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationDescriptor.__post_init__">OperationDescriptor.__post_init__()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationDescriptor.pack">OperationDescriptor.pack()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationDescriptor.unpack">OperationDescriptor.unpack()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream.RecordBatchLimits">RecordBatchLimits</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.RecordBatchLimits.max_columns">RecordBatchLimits.max_columns</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.RecordBatchLimits.max_rows">RecordBatchLimits.max_rows</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.RecordBatchLimits.max_batch_bytes">RecordBatchLimits.max_batch_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.RecordBatchLimits.alignment_bytes">RecordBatchLimits.alignment_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.RecordBatchLimits.model_post_init">RecordBatchLimits.model_post_init()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream.DEFAULT_RECORD_BATCH_LIMITS">DEFAULT_RECORD_BATCH_LIMITS</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream.validate_record_batch">validate_record_batch()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream._validate_u8">_validate_u8()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream._validate_u16">_validate_u16()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream._validate_u32">_validate_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream._validate_u64">_validate_u64()</a>
+  </li>
+</ul>
+</div>
+  </div>
+
+  <main id="fd-main">
+    <article class="fd-page">
+<nav class="fd-breadcrumbs" aria-label="Breadcrumbs">
+  <ol>
+    <li>
+      <a href="../../index.html">API Reference</a>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+    </li>
+    <li>
+      <a href="../index.html">dau_core</a>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+    </li>
+    <li aria-current="page">dau_core.stream</li>
+  </ol>
+</nav>
+      <div class="fd-prose">
+  <section id="module-dau_core.stream">
+<span id="dau-core-stream"></span><h1>dau_core.stream<a class="headerlink" href="#module-dau_core.stream" title="Link to this heading">¶</a></h1>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.stream.DEFAULT_RECORD_BATCH_LIMITS" title="dau_core.stream.DEFAULT_RECORD_BATCH_LIMITS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEFAULT_RECORD_BATCH_LIMITS</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="exceptions">
+<h2>Exceptions<a class="headerlink" href="#exceptions" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.stream.InvalidStreamError" title="dau_core.stream.InvalidStreamError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InvalidStreamError</span></code></a></p></td>
+<td><p>Inappropriate argument value (of correct type).</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.stream.LogicalType" title="dau_core.stream.LogicalType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LogicalType</span></code></a></p></td>
+<td><p>Enum where members are also (and must be) ints</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.stream.OperationCode" title="dau_core.stream.OperationCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OperationCode</span></code></a></p></td>
+<td><p>Enum where members are also (and must be) ints</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.stream.StreamAggregationErrorCode" title="dau_core.stream.StreamAggregationErrorCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StreamAggregationErrorCode</span></code></a></p></td>
+<td><p>Enum where members are also (and must be) ints</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.stream.GroupRole" title="dau_core.stream.GroupRole"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GroupRole</span></code></a></p></td>
+<td><p>Enum where members are also (and must be) ints</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.stream.PolicyFlag" title="dau_core.stream.PolicyFlag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PolicyFlag</span></code></a></p></td>
+<td><p>Support for integer-based Flags</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.stream.StreamFlag" title="dau_core.stream.StreamFlag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StreamFlag</span></code></a></p></td>
+<td><p>Support for integer-based Flags</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.stream.BatchHeader" title="dau_core.stream.BatchHeader"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BatchHeader</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.stream.ColumnDescriptor" title="dau_core.stream.ColumnDescriptor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ColumnDescriptor</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.stream.OperationDescriptor" title="dau_core.stream.OperationDescriptor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OperationDescriptor</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.stream.RecordBatchLimits" title="dau_core.stream.RecordBatchLimits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RecordBatchLimits</span></code></a></p></td>
+<td><p>Caps for multi-column record batches (see dau-docs record-batch contract).</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.stream.output_type_for" title="dau_core.stream.output_type_for"><code class="xref py py-obj docutils literal notranslate"><span class="pre">output_type_for</span></code></a>(→ LogicalType)</p></td>
+<td><p>The wire type an aggregation opcode produces (single source of truth</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.stream.validate_record_batch" title="dau_core.stream.validate_record_batch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_record_batch</span></code></a>(→ None)</p></td>
+<td><p>Validate the multi-column batch shape shared by host codecs and HDL models.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.stream._validate_u8" title="dau_core.stream._validate_u8"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_validate_u8</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.stream._validate_u16" title="dau_core.stream._validate_u16"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_validate_u16</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.stream._validate_u32" title="dau_core.stream._validate_u32"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_validate_u32</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.stream._validate_u64" title="dau_core.stream._validate_u64"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_validate_u64</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
+<dl class="py exception">
+<dt class="sig sig-object py" id="dau_core.stream.InvalidStreamError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.stream.</span></span><span class="sig-name descname"><span class="pre">InvalidStreamError</span></span><a class="reference internal" href="../../../_modules/dau_core/stream.html#InvalidStreamError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.stream.InvalidStreamError" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">ValueError</span></code></p>
+<p>Inappropriate argument value (of correct type).</p>
+<p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.stream.LogicalType">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.stream.</span></span><span class="sig-name descname"><span class="pre">LogicalType</span></span><a class="reference internal" href="../../../_modules/dau_core/stream.html#LogicalType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.stream.LogicalType" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.IntEnum</span></code></p>
+<p>Enum where members are also (and must be) ints</p>
+<p>Initialize self.  See help(type(self)) for accurate signature.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.LogicalType.BOOL">
+<span class="sig-name descname"><span class="pre">BOOL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#dau_core.stream.LogicalType.BOOL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.LogicalType.INT8">
+<span class="sig-name descname"><span class="pre">INT8</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10</span></em><a class="headerlink" href="#dau_core.stream.LogicalType.INT8" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.LogicalType.INT16">
+<span class="sig-name descname"><span class="pre">INT16</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">11</span></em><a class="headerlink" href="#dau_core.stream.LogicalType.INT16" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.LogicalType.INT32">
+<span class="sig-name descname"><span class="pre">INT32</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">12</span></em><a class="headerlink" href="#dau_core.stream.LogicalType.INT32" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.LogicalType.INT64">
+<span class="sig-name descname"><span class="pre">INT64</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">13</span></em><a class="headerlink" href="#dau_core.stream.LogicalType.INT64" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.LogicalType.UINT8">
+<span class="sig-name descname"><span class="pre">UINT8</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">20</span></em><a class="headerlink" href="#dau_core.stream.LogicalType.UINT8" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.LogicalType.UINT16">
+<span class="sig-name descname"><span class="pre">UINT16</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">21</span></em><a class="headerlink" href="#dau_core.stream.LogicalType.UINT16" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.LogicalType.UINT32">
+<span class="sig-name descname"><span class="pre">UINT32</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">22</span></em><a class="headerlink" href="#dau_core.stream.LogicalType.UINT32" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.LogicalType.UINT64">
+<span class="sig-name descname"><span class="pre">UINT64</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">23</span></em><a class="headerlink" href="#dau_core.stream.LogicalType.UINT64" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.LogicalType.FLOAT32">
+<span class="sig-name descname"><span class="pre">FLOAT32</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">30</span></em><a class="headerlink" href="#dau_core.stream.LogicalType.FLOAT32" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.LogicalType.FLOAT64">
+<span class="sig-name descname"><span class="pre">FLOAT64</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">31</span></em><a class="headerlink" href="#dau_core.stream.LogicalType.FLOAT64" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.stream.OperationCode">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.stream.</span></span><span class="sig-name descname"><span class="pre">OperationCode</span></span><a class="reference internal" href="../../../_modules/dau_core/stream.html#OperationCode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.stream.OperationCode" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.IntEnum</span></code></p>
+<p>Enum where members are also (and must be) ints</p>
+<p>Initialize self.  See help(type(self)) for accurate signature.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.OperationCode.MIN">
+<span class="sig-name descname"><span class="pre">MIN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#dau_core.stream.OperationCode.MIN" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.OperationCode.MAX">
+<span class="sig-name descname"><span class="pre">MAX</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#dau_core.stream.OperationCode.MAX" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.OperationCode.SUM">
+<span class="sig-name descname"><span class="pre">SUM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#dau_core.stream.OperationCode.SUM" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.OperationCode.COUNT">
+<span class="sig-name descname"><span class="pre">COUNT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#dau_core.stream.OperationCode.COUNT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.OperationCode.AVERAGE">
+<span class="sig-name descname"><span class="pre">AVERAGE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#dau_core.stream.OperationCode.AVERAGE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.stream.OperationCode.from_name">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_core.stream.OperationCode" title="dau_core.stream.OperationCode"><span class="pre">OperationCode</span></a></span></span><a class="reference internal" href="../../../_modules/dau_core/stream.html#OperationCode.from_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.stream.OperationCode.from_name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.stream.output_type_for">
+<span class="sig-prename descclassname"><span class="pre">dau_core.stream.</span></span><span class="sig-name descname"><span class="pre">output_type_for</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opcode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dau_core.stream.OperationCode" title="dau_core.stream.OperationCode"><span class="pre">OperationCode</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_core.stream.LogicalType" title="dau_core.stream.LogicalType"><span class="pre">LogicalType</span></a></span></span><a class="reference internal" href="../../../_modules/dau_core/stream.html#output_type_for"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.stream.output_type_for" title="Link to this definition">¶</a></dt>
+<dd><p>The wire type an aggregation opcode produces (single source of truth
+for every backend, API layer, and example).</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.stream.StreamAggregationErrorCode">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.stream.</span></span><span class="sig-name descname"><span class="pre">StreamAggregationErrorCode</span></span><a class="reference internal" href="../../../_modules/dau_core/stream.html#StreamAggregationErrorCode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.stream.StreamAggregationErrorCode" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.IntEnum</span></code></p>
+<p>Enum where members are also (and must be) ints</p>
+<p>Initialize self.  See help(type(self)) for accurate signature.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.StreamAggregationErrorCode.DESCRIPTOR">
+<span class="sig-name descname"><span class="pre">DESCRIPTOR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#dau_core.stream.StreamAggregationErrorCode.DESCRIPTOR" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.StreamAggregationErrorCode.OPCODE">
+<span class="sig-name descname"><span class="pre">OPCODE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#dau_core.stream.StreamAggregationErrorCode.OPCODE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.StreamAggregationErrorCode.TILE">
+<span class="sig-name descname"><span class="pre">TILE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#dau_core.stream.StreamAggregationErrorCode.TILE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.stream.GroupRole">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.stream.</span></span><span class="sig-name descname"><span class="pre">GroupRole</span></span><a class="reference internal" href="../../../_modules/dau_core/stream.html#GroupRole"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.stream.GroupRole" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.IntEnum</span></code></p>
+<p>Enum where members are also (and must be) ints</p>
+<p>Initialize self.  See help(type(self)) for accurate signature.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.GroupRole.VALUE">
+<span class="sig-name descname"><span class="pre">VALUE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#dau_core.stream.GroupRole.VALUE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.GroupRole.KEY">
+<span class="sig-name descname"><span class="pre">KEY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#dau_core.stream.GroupRole.KEY" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.GroupRole.OUTPUT">
+<span class="sig-name descname"><span class="pre">OUTPUT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#dau_core.stream.GroupRole.OUTPUT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.stream.PolicyFlag">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.stream.</span></span><span class="sig-name descname"><span class="pre">PolicyFlag</span></span><a class="reference internal" href="../../../_modules/dau_core/stream.html#PolicyFlag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.stream.PolicyFlag" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.IntFlag</span></code></p>
+<p>Support for integer-based Flags</p>
+<p>Initialize self.  See help(type(self)) for accurate signature.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.PolicyFlag.NONE">
+<span class="sig-name descname"><span class="pre">NONE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#dau_core.stream.PolicyFlag.NONE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.PolicyFlag.SATURATING_SUM">
+<span class="sig-name descname"><span class="pre">SATURATING_SUM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#dau_core.stream.PolicyFlag.SATURATING_SUM" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.PolicyFlag.IEEE_FLOAT_NAN">
+<span class="sig-name descname"><span class="pre">IEEE_FLOAT_NAN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#dau_core.stream.PolicyFlag.IEEE_FLOAT_NAN" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.PolicyFlag.FLOAT64_AVERAGE">
+<span class="sig-name descname"><span class="pre">FLOAT64_AVERAGE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#dau_core.stream.PolicyFlag.FLOAT64_AVERAGE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.stream.StreamFlag">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.stream.</span></span><span class="sig-name descname"><span class="pre">StreamFlag</span></span><a class="reference internal" href="../../../_modules/dau_core/stream.html#StreamFlag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.stream.StreamFlag" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.IntFlag</span></code></p>
+<p>Support for integer-based Flags</p>
+<p>Initialize self.  See help(type(self)) for accurate signature.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.StreamFlag.NONE">
+<span class="sig-name descname"><span class="pre">NONE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#dau_core.stream.StreamFlag.NONE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.StreamFlag.HAS_GROUP_FIELDS">
+<span class="sig-name descname"><span class="pre">HAS_GROUP_FIELDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#dau_core.stream.StreamFlag.HAS_GROUP_FIELDS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.stream.BatchHeader">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.stream.</span></span><span class="sig-name descname"><span class="pre">BatchHeader</span></span><a class="reference internal" href="../../../_modules/dau_core/stream.html#BatchHeader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.stream.BatchHeader" title="Link to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.BatchHeader.schema_hash">
+<span class="sig-name descname"><span class="pre">schema_hash</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.stream.BatchHeader.schema_hash" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.BatchHeader.batch_id">
+<span class="sig-name descname"><span class="pre">batch_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.stream.BatchHeader.batch_id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.BatchHeader.row_count">
+<span class="sig-name descname"><span class="pre">row_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.stream.BatchHeader.row_count" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.BatchHeader.column_count">
+<span class="sig-name descname"><span class="pre">column_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.stream.BatchHeader.column_count" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.BatchHeader.operation_count">
+<span class="sig-name descname"><span class="pre">operation_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.stream.BatchHeader.operation_count" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.BatchHeader.group_key_count">
+<span class="sig-name descname"><span class="pre">group_key_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.stream.BatchHeader.group_key_count" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.BatchHeader.descriptor_table_offset">
+<span class="sig-name descname"><span class="pre">descriptor_table_offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.stream.BatchHeader.descriptor_table_offset" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.BatchHeader.payload_offset">
+<span class="sig-name descname"><span class="pre">payload_offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.stream.BatchHeader.payload_offset" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.BatchHeader.payload_length">
+<span class="sig-name descname"><span class="pre">payload_length</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.stream.BatchHeader.payload_length" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.BatchHeader.version_major">
+<span class="sig-name descname"><span class="pre">version_major</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#dau_core.stream.BatchHeader.version_major" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.BatchHeader.version_minor">
+<span class="sig-name descname"><span class="pre">version_minor</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#dau_core.stream.BatchHeader.version_minor" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.BatchHeader.header_length">
+<span class="sig-name descname"><span class="pre">header_length</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">64</span></em><a class="headerlink" href="#dau_core.stream.BatchHeader.header_length" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.BatchHeader.flags">
+<span class="sig-name descname"><span class="pre">flags</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#dau_core.stream.StreamFlag" title="dau_core.stream.StreamFlag"><span class="pre">StreamFlag</span></a></em><a class="headerlink" href="#dau_core.stream.BatchHeader.flags" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.BatchHeader.SIZE_BYTES">
+<span class="sig-name descname"><span class="pre">SIZE_BYTES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">64</span></em><a class="headerlink" href="#dau_core.stream.BatchHeader.SIZE_BYTES" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.BatchHeader._STRUCT">
+<span class="sig-name descname"><span class="pre">_STRUCT</span></span><a class="headerlink" href="#dau_core.stream.BatchHeader._STRUCT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.stream.BatchHeader.__post_init__">
+<span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_core/stream.html#BatchHeader.__post_init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.stream.BatchHeader.__post_init__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.stream.BatchHeader.pack">
+<span class="sig-name descname"><span class="pre">pack</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="reference internal" href="../../../_modules/dau_core/stream.html#BatchHeader.pack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.stream.BatchHeader.pack" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.stream.BatchHeader.unpack">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unpack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_core.stream.BatchHeader" title="dau_core.stream.BatchHeader"><span class="pre">BatchHeader</span></a></span></span><a class="reference internal" href="../../../_modules/dau_core/stream.html#BatchHeader.unpack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.stream.BatchHeader.unpack" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.stream.ColumnDescriptor">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.stream.</span></span><span class="sig-name descname"><span class="pre">ColumnDescriptor</span></span><a class="reference internal" href="../../../_modules/dau_core/stream.html#ColumnDescriptor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.stream.ColumnDescriptor" title="Link to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.ColumnDescriptor.field_id">
+<span class="sig-name descname"><span class="pre">field_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.stream.ColumnDescriptor.field_id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.ColumnDescriptor.logical_type">
+<span class="sig-name descname"><span class="pre">logical_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#dau_core.stream.LogicalType" title="dau_core.stream.LogicalType"><span class="pre">LogicalType</span></a></em><a class="headerlink" href="#dau_core.stream.ColumnDescriptor.logical_type" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.ColumnDescriptor.physical_width_bits">
+<span class="sig-name descname"><span class="pre">physical_width_bits</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.stream.ColumnDescriptor.physical_width_bits" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.ColumnDescriptor.row_count">
+<span class="sig-name descname"><span class="pre">row_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.stream.ColumnDescriptor.row_count" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.ColumnDescriptor.null_count">
+<span class="sig-name descname"><span class="pre">null_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.stream.ColumnDescriptor.null_count" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.ColumnDescriptor.payload_offset">
+<span class="sig-name descname"><span class="pre">payload_offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.stream.ColumnDescriptor.payload_offset" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.ColumnDescriptor.payload_length">
+<span class="sig-name descname"><span class="pre">payload_length</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.stream.ColumnDescriptor.payload_length" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.ColumnDescriptor.validity_offset">
+<span class="sig-name descname"><span class="pre">validity_offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#dau_core.stream.ColumnDescriptor.validity_offset" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.ColumnDescriptor.validity_length">
+<span class="sig-name descname"><span class="pre">validity_length</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#dau_core.stream.ColumnDescriptor.validity_length" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.ColumnDescriptor.group_role">
+<span class="sig-name descname"><span class="pre">group_role</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#dau_core.stream.GroupRole" title="dau_core.stream.GroupRole"><span class="pre">GroupRole</span></a></em><a class="headerlink" href="#dau_core.stream.ColumnDescriptor.group_role" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.ColumnDescriptor.flags">
+<span class="sig-name descname"><span class="pre">flags</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#dau_core.stream.ColumnDescriptor.flags" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.ColumnDescriptor.SIZE_BYTES">
+<span class="sig-name descname"><span class="pre">SIZE_BYTES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">64</span></em><a class="headerlink" href="#dau_core.stream.ColumnDescriptor.SIZE_BYTES" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.ColumnDescriptor._STRUCT">
+<span class="sig-name descname"><span class="pre">_STRUCT</span></span><a class="headerlink" href="#dau_core.stream.ColumnDescriptor._STRUCT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.stream.ColumnDescriptor.__post_init__">
+<span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_core/stream.html#ColumnDescriptor.__post_init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.stream.ColumnDescriptor.__post_init__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.stream.ColumnDescriptor.pack">
+<span class="sig-name descname"><span class="pre">pack</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="reference internal" href="../../../_modules/dau_core/stream.html#ColumnDescriptor.pack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.stream.ColumnDescriptor.pack" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.stream.ColumnDescriptor.unpack">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unpack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_core.stream.ColumnDescriptor" title="dau_core.stream.ColumnDescriptor"><span class="pre">ColumnDescriptor</span></a></span></span><a class="reference internal" href="../../../_modules/dau_core/stream.html#ColumnDescriptor.unpack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.stream.ColumnDescriptor.unpack" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.stream.OperationDescriptor">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.stream.</span></span><span class="sig-name descname"><span class="pre">OperationDescriptor</span></span><a class="reference internal" href="../../../_modules/dau_core/stream.html#OperationDescriptor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.stream.OperationDescriptor" title="Link to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.OperationDescriptor.operation_id">
+<span class="sig-name descname"><span class="pre">operation_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.stream.OperationDescriptor.operation_id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.OperationDescriptor.opcode">
+<span class="sig-name descname"><span class="pre">opcode</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#dau_core.stream.OperationCode" title="dau_core.stream.OperationCode"><span class="pre">OperationCode</span></a></em><a class="headerlink" href="#dau_core.stream.OperationDescriptor.opcode" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.OperationDescriptor.input_column_id">
+<span class="sig-name descname"><span class="pre">input_column_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.stream.OperationDescriptor.input_column_id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.OperationDescriptor.output_field_id">
+<span class="sig-name descname"><span class="pre">output_field_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.stream.OperationDescriptor.output_field_id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.OperationDescriptor.output_type">
+<span class="sig-name descname"><span class="pre">output_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#dau_core.stream.LogicalType" title="dau_core.stream.LogicalType"><span class="pre">LogicalType</span></a></em><a class="headerlink" href="#dau_core.stream.OperationDescriptor.output_type" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.OperationDescriptor.accumulator_width_bits">
+<span class="sig-name descname"><span class="pre">accumulator_width_bits</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.stream.OperationDescriptor.accumulator_width_bits" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.OperationDescriptor.policy_flags">
+<span class="sig-name descname"><span class="pre">policy_flags</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#dau_core.stream.PolicyFlag" title="dau_core.stream.PolicyFlag"><span class="pre">PolicyFlag</span></a></em><a class="headerlink" href="#dau_core.stream.OperationDescriptor.policy_flags" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.OperationDescriptor.group_key_set_id">
+<span class="sig-name descname"><span class="pre">group_key_set_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#dau_core.stream.OperationDescriptor.group_key_set_id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.OperationDescriptor.SIZE_BYTES">
+<span class="sig-name descname"><span class="pre">SIZE_BYTES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">64</span></em><a class="headerlink" href="#dau_core.stream.OperationDescriptor.SIZE_BYTES" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.OperationDescriptor._STRUCT">
+<span class="sig-name descname"><span class="pre">_STRUCT</span></span><a class="headerlink" href="#dau_core.stream.OperationDescriptor._STRUCT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.stream.OperationDescriptor.__post_init__">
+<span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_core/stream.html#OperationDescriptor.__post_init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.stream.OperationDescriptor.__post_init__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.stream.OperationDescriptor.pack">
+<span class="sig-name descname"><span class="pre">pack</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="reference internal" href="../../../_modules/dau_core/stream.html#OperationDescriptor.pack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.stream.OperationDescriptor.pack" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.stream.OperationDescriptor.unpack">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unpack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_core.stream.OperationDescriptor" title="dau_core.stream.OperationDescriptor"><span class="pre">OperationDescriptor</span></a></span></span><a class="reference internal" href="../../../_modules/dau_core/stream.html#OperationDescriptor.unpack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.stream.OperationDescriptor.unpack" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.stream.RecordBatchLimits">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.stream.</span></span><span class="sig-name descname"><span class="pre">RecordBatchLimits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data:</span> <span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/dau_core/stream.html#RecordBatchLimits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.stream.RecordBatchLimits" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../models/index.html#dau_core.models.CheckedModel" title="dau_core.models.CheckedModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dau_core.models.CheckedModel</span></code></a></p>
+<p>Caps for multi-column record batches (see dau-docs record-batch contract).</p>
+<p>Defaults are sized to the 1 MiB stream-job staging buffers: header +
+descriptor table + payload must fit one staging region.</p>
+<p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
+validated to form a valid model.</p>
+<p><cite>self</cite> is explicitly positional-only to allow <cite>self</cite> as a field name.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.RecordBatchLimits.max_columns">
+<span class="sig-name descname"><span class="pre">max_columns</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">16</span></em><a class="headerlink" href="#dau_core.stream.RecordBatchLimits.max_columns" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.RecordBatchLimits.max_rows">
+<span class="sig-name descname"><span class="pre">max_rows</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1048576</span></em><a class="headerlink" href="#dau_core.stream.RecordBatchLimits.max_rows" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.RecordBatchLimits.max_batch_bytes">
+<span class="sig-name descname"><span class="pre">max_batch_bytes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1048576</span></em><a class="headerlink" href="#dau_core.stream.RecordBatchLimits.max_batch_bytes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.stream.RecordBatchLimits.alignment_bytes">
+<span class="sig-name descname"><span class="pre">alignment_bytes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">64</span></em><a class="headerlink" href="#dau_core.stream.RecordBatchLimits.alignment_bytes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.stream.RecordBatchLimits.model_post_init">
+<span class="sig-name descname"><span class="pre">model_post_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_core/stream.html#RecordBatchLimits.model_post_init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.stream.RecordBatchLimits.model_post_init" title="Link to this definition">¶</a></dt>
+<dd><p>Override this method to perform additional initialization after <cite>__init__</cite> and <cite>model_construct</cite>.
+This is useful if you want to do some validation that requires the entire model to be initialized.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_core.stream.DEFAULT_RECORD_BATCH_LIMITS">
+<span class="sig-prename descclassname"><span class="pre">dau_core.stream.</span></span><span class="sig-name descname"><span class="pre">DEFAULT_RECORD_BATCH_LIMITS</span></span><a class="headerlink" href="#dau_core.stream.DEFAULT_RECORD_BATCH_LIMITS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.stream.validate_record_batch">
+<span class="sig-prename descclassname"><span class="pre">dau_core.stream.</span></span><span class="sig-name descname"><span class="pre">validate_record_batch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dau_core.stream.BatchHeader" title="dau_core.stream.BatchHeader"><span class="pre">BatchHeader</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#dau_core.stream.ColumnDescriptor" title="dau_core.stream.ColumnDescriptor"><span class="pre">ColumnDescriptor</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">limits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dau_core.stream.RecordBatchLimits" title="dau_core.stream.RecordBatchLimits"><span class="pre">RecordBatchLimits</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">DEFAULT_RECORD_BATCH_LIMITS</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_core/stream.html#validate_record_batch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.stream.validate_record_batch" title="Link to this definition">¶</a></dt>
+<dd><p>Validate the multi-column batch shape shared by host codecs and HDL models.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.stream._validate_u8">
+<span class="sig-prename descclassname"><span class="pre">dau_core.stream.</span></span><span class="sig-name descname"><span class="pre">_validate_u8</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_core/stream.html#_validate_u8"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.stream._validate_u8" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.stream._validate_u16">
+<span class="sig-prename descclassname"><span class="pre">dau_core.stream.</span></span><span class="sig-name descname"><span class="pre">_validate_u16</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_core/stream.html#_validate_u16"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.stream._validate_u16" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.stream._validate_u32">
+<span class="sig-prename descclassname"><span class="pre">dau_core.stream.</span></span><span class="sig-name descname"><span class="pre">_validate_u32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_core/stream.html#_validate_u32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.stream._validate_u32" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.stream._validate_u64">
+<span class="sig-prename descclassname"><span class="pre">dau_core.stream.</span></span><span class="sig-name descname"><span class="pre">_validate_u64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_core/stream.html#_validate_u64"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.stream._validate_u64" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+      </div>
+<nav class="fd-pagination" aria-label="Pagination">
+  <a class="fd-pagination-card fd-pagination-prev" href="../registry/index.html">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m15 18-6-6 6-6"/></svg>
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Previous</span>
+      <span class="fd-pagination-title">dau_core.registry</span>
+    </span>
+  </a>
+  <a class="fd-pagination-card fd-pagination-next" href="../temporal/index.html">
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Next</span>
+      <span class="fd-pagination-title">dau_core.temporal</span>
+    </span>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+  </a>
+</nav>
+<footer id="fd-footer">
+  <p class="fd-footer-meta"><span>&#169; the dau-core authors</span><span>Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.</span>
+  </p>
+</footer>
+    </article>
+  </main>
+<nav id="fd-toc" aria-label="On this page">
+  <p class="fd-toc-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>On this page</p>
+  <div class="fd-toc-body"><svg class="fd-toc-rail" aria-hidden="true" preserveAspectRatio="none">
+      <path class="fd-toc-track" fill="none" />
+      <path class="fd-toc-thumb" fill="none" />
+    </svg><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#attributes">Attributes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#exceptions">Exceptions</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#classes">Classes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#functions">Functions</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#module-contents">Module Contents</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream.InvalidStreamError">InvalidStreamError</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream.LogicalType">LogicalType</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.LogicalType.BOOL">LogicalType.BOOL</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.LogicalType.INT8">LogicalType.INT8</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.LogicalType.INT16">LogicalType.INT16</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.LogicalType.INT32">LogicalType.INT32</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.LogicalType.INT64">LogicalType.INT64</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.LogicalType.UINT8">LogicalType.UINT8</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.LogicalType.UINT16">LogicalType.UINT16</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.LogicalType.UINT32">LogicalType.UINT32</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.LogicalType.UINT64">LogicalType.UINT64</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.LogicalType.FLOAT32">LogicalType.FLOAT32</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.LogicalType.FLOAT64">LogicalType.FLOAT64</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream.OperationCode">OperationCode</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationCode.MIN">OperationCode.MIN</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationCode.MAX">OperationCode.MAX</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationCode.SUM">OperationCode.SUM</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationCode.COUNT">OperationCode.COUNT</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationCode.AVERAGE">OperationCode.AVERAGE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationCode.from_name">OperationCode.from_name()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream.output_type_for">output_type_for()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream.StreamAggregationErrorCode">StreamAggregationErrorCode</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.StreamAggregationErrorCode.DESCRIPTOR">StreamAggregationErrorCode.DESCRIPTOR</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.StreamAggregationErrorCode.OPCODE">StreamAggregationErrorCode.OPCODE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.StreamAggregationErrorCode.TILE">StreamAggregationErrorCode.TILE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream.GroupRole">GroupRole</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.GroupRole.VALUE">GroupRole.VALUE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.GroupRole.KEY">GroupRole.KEY</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.GroupRole.OUTPUT">GroupRole.OUTPUT</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream.PolicyFlag">PolicyFlag</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.PolicyFlag.NONE">PolicyFlag.NONE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.PolicyFlag.SATURATING_SUM">PolicyFlag.SATURATING_SUM</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.PolicyFlag.IEEE_FLOAT_NAN">PolicyFlag.IEEE_FLOAT_NAN</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.PolicyFlag.FLOAT64_AVERAGE">PolicyFlag.FLOAT64_AVERAGE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream.StreamFlag">StreamFlag</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.StreamFlag.NONE">StreamFlag.NONE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.StreamFlag.HAS_GROUP_FIELDS">StreamFlag.HAS_GROUP_FIELDS</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream.BatchHeader">BatchHeader</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.schema_hash">BatchHeader.schema_hash</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.batch_id">BatchHeader.batch_id</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.row_count">BatchHeader.row_count</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.column_count">BatchHeader.column_count</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.operation_count">BatchHeader.operation_count</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.group_key_count">BatchHeader.group_key_count</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.descriptor_table_offset">BatchHeader.descriptor_table_offset</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.payload_offset">BatchHeader.payload_offset</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.payload_length">BatchHeader.payload_length</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.version_major">BatchHeader.version_major</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.version_minor">BatchHeader.version_minor</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.header_length">BatchHeader.header_length</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.flags">BatchHeader.flags</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.SIZE_BYTES">BatchHeader.SIZE_BYTES</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader._STRUCT">BatchHeader._STRUCT</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.__post_init__">BatchHeader.__post_init__()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.pack">BatchHeader.pack()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.BatchHeader.unpack">BatchHeader.unpack()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream.ColumnDescriptor">ColumnDescriptor</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.ColumnDescriptor.field_id">ColumnDescriptor.field_id</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.ColumnDescriptor.logical_type">ColumnDescriptor.logical_type</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.ColumnDescriptor.physical_width_bits">ColumnDescriptor.physical_width_bits</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.ColumnDescriptor.row_count">ColumnDescriptor.row_count</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.ColumnDescriptor.null_count">ColumnDescriptor.null_count</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.ColumnDescriptor.payload_offset">ColumnDescriptor.payload_offset</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.ColumnDescriptor.payload_length">ColumnDescriptor.payload_length</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.ColumnDescriptor.validity_offset">ColumnDescriptor.validity_offset</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.ColumnDescriptor.validity_length">ColumnDescriptor.validity_length</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.ColumnDescriptor.group_role">ColumnDescriptor.group_role</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.ColumnDescriptor.flags">ColumnDescriptor.flags</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.ColumnDescriptor.SIZE_BYTES">ColumnDescriptor.SIZE_BYTES</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.ColumnDescriptor._STRUCT">ColumnDescriptor._STRUCT</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.ColumnDescriptor.__post_init__">ColumnDescriptor.__post_init__()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.ColumnDescriptor.pack">ColumnDescriptor.pack()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.ColumnDescriptor.unpack">ColumnDescriptor.unpack()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream.OperationDescriptor">OperationDescriptor</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationDescriptor.operation_id">OperationDescriptor.operation_id</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationDescriptor.opcode">OperationDescriptor.opcode</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationDescriptor.input_column_id">OperationDescriptor.input_column_id</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationDescriptor.output_field_id">OperationDescriptor.output_field_id</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationDescriptor.output_type">OperationDescriptor.output_type</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationDescriptor.accumulator_width_bits">OperationDescriptor.accumulator_width_bits</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationDescriptor.policy_flags">OperationDescriptor.policy_flags</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationDescriptor.group_key_set_id">OperationDescriptor.group_key_set_id</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationDescriptor.SIZE_BYTES">OperationDescriptor.SIZE_BYTES</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationDescriptor._STRUCT">OperationDescriptor._STRUCT</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationDescriptor.__post_init__">OperationDescriptor.__post_init__()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationDescriptor.pack">OperationDescriptor.pack()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.OperationDescriptor.unpack">OperationDescriptor.unpack()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream.RecordBatchLimits">RecordBatchLimits</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.RecordBatchLimits.max_columns">RecordBatchLimits.max_columns</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.RecordBatchLimits.max_rows">RecordBatchLimits.max_rows</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.RecordBatchLimits.max_batch_bytes">RecordBatchLimits.max_batch_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.RecordBatchLimits.alignment_bytes">RecordBatchLimits.alignment_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.stream.RecordBatchLimits.model_post_init">RecordBatchLimits.model_post_init()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream.DEFAULT_RECORD_BATCH_LIMITS">DEFAULT_RECORD_BATCH_LIMITS</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream.validate_record_batch">validate_record_batch()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream._validate_u8">_validate_u8()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream._validate_u16">_validate_u16()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream._validate_u32">_validate_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.stream._validate_u64">_validate_u64()</a>
+  </li>
+</ul>
+
+  </div>
+  <div class="fd-toc-actions">
+    <a class="fd-toc-action" href="https://github.com/dau-dev/dau-core/edit/HEAD/autoapi/dau_core/stream/index.rst" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span>Edit this page</span></a>
+    <a class="fd-toc-action" href="../../../_sources/autoapi/dau_core/stream/index.rst.txt" rel="nofollow"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><span>View source</span></a>
+  </div>
+</nav>
+</div>
+<dialog id="fd-search-dialog" aria-label="Search">
+  <form class="fd-search-panel" method="dialog" role="search">
+    <div class="fd-search-field">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="search" id="fd-search-input" autocomplete="off" spellcheck="false" placeholder="Search documentation..." aria-label="Search" />
+      <kbd class="fd-kbd">Esc</kbd>
+    </div>
+    <div id="fd-search-results" role="listbox" aria-label="Search results"></div>
+    <p id="fd-search-empty" class="fd-search-empty" hidden>No results found.</p>
+  </form>
+</dialog>
+  </body>
+</html>

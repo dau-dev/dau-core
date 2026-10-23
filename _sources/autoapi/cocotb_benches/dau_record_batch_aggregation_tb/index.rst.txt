@@ -1,0 +1,119 @@
+cocotb_benches.dau_record_batch_aggregation_tb
+==============================================
+
+.. py:module:: cocotb_benches.dau_record_batch_aggregation_tb
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_record_batch_aggregation_tb._ALIGN
+   cocotb_benches.dau_record_batch_aggregation_tb._WIDTHS
+   cocotb_benches.dau_record_batch_aggregation_tb._CODES
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_record_batch_aggregation_tb.record_batch_aggregates_selected_middle_column
+   cocotb_benches.dau_record_batch_aggregation_tb.record_batch_first_column_min_with_trailing_columns_skipped
+   cocotb_benches.dau_record_batch_aggregation_tb.record_batch_count_outputs_uint64
+   cocotb_benches.dau_record_batch_aggregation_tb.record_batch_repeated_batches_reuse_module
+   cocotb_benches.dau_record_batch_aggregation_tb.record_batch_many_back_to_back_batches_reuse_module
+   cocotb_benches.dau_record_batch_aggregation_tb.record_batch_survives_input_and_output_stalls
+   cocotb_benches.dau_record_batch_aggregation_tb.record_batch_out_of_range_column_reports_descriptor_error
+   cocotb_benches.dau_record_batch_aggregation_tb.record_batch_non_int32_selected_column_reports_descriptor_error
+   cocotb_benches.dau_record_batch_aggregation_tb.record_batch_truncated_payload_reports_descriptor_error
+   cocotb_benches.dau_record_batch_aggregation_tb._encode_batch
+   cocotb_benches.dau_record_batch_aggregation_tb._align_up
+   cocotb_benches.dau_record_batch_aggregation_tb._words_from_bytes
+   cocotb_benches.dau_record_batch_aggregation_tb._reset
+   cocotb_benches.dau_record_batch_aggregation_tb._send_words
+   cocotb_benches.dau_record_batch_aggregation_tb._collect_output_words
+   cocotb_benches.dau_record_batch_aggregation_tb._accept_success_status
+   cocotb_benches.dau_record_batch_aggregation_tb._expect_error_status
+   cocotb_benches.dau_record_batch_aggregation_tb._result_logical_type
+   cocotb_benches.dau_record_batch_aggregation_tb._result_payload
+
+
+Module Contents
+---------------
+
+.. py:data:: _ALIGN
+   :value: 64
+
+
+.. py:data:: _WIDTHS
+
+.. py:data:: _CODES
+
+.. py:function:: record_batch_aggregates_selected_middle_column(dut)
+   :async:
+
+
+.. py:function:: record_batch_first_column_min_with_trailing_columns_skipped(dut)
+   :async:
+
+
+.. py:function:: record_batch_count_outputs_uint64(dut)
+   :async:
+
+
+.. py:function:: record_batch_repeated_batches_reuse_module(dut)
+   :async:
+
+
+.. py:function:: record_batch_many_back_to_back_batches_reuse_module(dut)
+   :async:
+
+
+.. py:function:: record_batch_survives_input_and_output_stalls(dut)
+   :async:
+
+
+.. py:function:: record_batch_out_of_range_column_reports_descriptor_error(dut)
+   :async:
+
+
+.. py:function:: record_batch_non_int32_selected_column_reports_descriptor_error(dut)
+   :async:
+
+
+.. py:function:: record_batch_truncated_payload_reports_descriptor_error(dut)
+   :async:
+
+
+.. py:function:: _encode_batch(columns: list[tuple[dau_core.stream.LogicalType, list[int]]], opcode: dau_core.stream.OperationCode, *, input_column_id: int) -> bytes
+
+.. py:function:: _align_up(value: int) -> int
+
+.. py:function:: _words_from_bytes(data: bytes) -> list[int]
+
+.. py:function:: _reset(dut) -> None
+   :async:
+
+
+.. py:function:: _send_words(dut, words: list[int], *, rng: random.Random | None = None) -> None
+   :async:
+
+
+.. py:function:: _collect_output_words(dut, *, rng: random.Random | None = None) -> list[int]
+   :async:
+
+
+.. py:function:: _accept_success_status(dut, *, rng: random.Random | None = None) -> None
+   :async:
+
+
+.. py:function:: _expect_error_status(dut, code: dau_core.stream.StreamAggregationErrorCode) -> None
+   :async:
+
+
+.. py:function:: _result_logical_type(words: list[int]) -> int
+
+.. py:function:: _result_payload(words: list[int], *, signed: bool = False) -> int
+

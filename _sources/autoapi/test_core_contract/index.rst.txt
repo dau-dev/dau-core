@@ -1,0 +1,24 @@
+test_core_contract
+==================
+
+.. py:module:: test_core_contract
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_core_contract.test_every_operator_conforms_to_the_stream_tile_contract
+
+
+Module Contents
+---------------
+
+.. py:function:: test_every_operator_conforms_to_the_stream_tile_contract() -> None
+
+   Slang-parsed conformance: each row-stream operator's real port
+   interface matches the stream+status contract its registry entry promises
+   (drift fails here, not at Vivado elaboration).
+
+

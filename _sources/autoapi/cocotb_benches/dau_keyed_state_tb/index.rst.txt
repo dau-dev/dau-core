@@ -1,0 +1,103 @@
+cocotb_benches.dau_keyed_state_tb
+=================================
+
+.. py:module:: cocotb_benches.dau_keyed_state_tb
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_keyed_state_tb.CAPACITY
+   cocotb_benches.dau_keyed_state_tb._ROWS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_keyed_state_tb.keyed_state_add_matches_golden
+   cocotb_benches.dau_keyed_state_tb.keyed_state_every_op_matches_golden
+   cocotb_benches.dau_keyed_state_tb.keyed_state_batches_are_independent
+   cocotb_benches.dau_keyed_state_tb.keyed_state_grant_exceeded_preserves_prefix
+   cocotb_benches.dau_keyed_state_tb.keyed_state_bad_grant_is_refused
+   cocotb_benches.dau_keyed_state_tb.keyed_state_wraps_in_the_int32_domain
+   cocotb_benches.dau_keyed_state_tb.keyed_state_colliding_keys_probe_correctly
+   cocotb_benches.dau_keyed_state_tb.keyed_state_is_patient
+   cocotb_benches.dau_keyed_state_tb._start
+   cocotb_benches.dau_keyed_state_tb._run
+   cocotb_benches.dau_keyed_state_tb._send_rows
+   cocotb_benches.dau_keyed_state_tb._collect_output
+   cocotb_benches.dau_keyed_state_tb._accept_status
+   cocotb_benches.dau_keyed_state_tb._signed32
+
+
+Module Contents
+---------------
+
+.. py:data:: CAPACITY
+
+.. py:data:: _ROWS
+
+.. py:function:: keyed_state_add_matches_golden(dut)
+   :async:
+
+
+.. py:function:: keyed_state_every_op_matches_golden(dut)
+   :async:
+
+
+.. py:function:: keyed_state_batches_are_independent(dut)
+   :async:
+
+
+.. py:function:: keyed_state_grant_exceeded_preserves_prefix(dut)
+   :async:
+
+
+.. py:function:: keyed_state_bad_grant_is_refused(dut)
+   :async:
+
+
+.. py:function:: keyed_state_wraps_in_the_int32_domain(dut)
+   :async:
+
+
+.. py:function:: keyed_state_colliding_keys_probe_correctly(dut)
+   :async:
+
+
+.. py:function:: keyed_state_is_patient(dut)
+   :async:
+
+
+   The binding LID requirement (STORAGE_AND_NOC.md backpressure rule 1):
+   random relay-station delays on every channel change NOTHING about the
+   emitted sequence. No write-prefix is needed here — state is fresh per
+   batch, so the same rows replay identically by construction.
+
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _run(dut, rows, *, op, granted_keys, initial=0, delay_seed=None)
+   :async:
+
+
+.. py:function:: _send_rows(dut, rows, *, gap=None) -> None
+   :async:
+
+
+.. py:function:: _collect_output(dut, *, stall=None)
+   :async:
+
+
+.. py:function:: _accept_status(dut)
+   :async:
+
+
+.. py:function:: _signed32(value: int) -> int
+

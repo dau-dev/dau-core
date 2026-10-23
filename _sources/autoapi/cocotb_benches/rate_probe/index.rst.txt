@@ -1,0 +1,40 @@
+cocotb_benches.rate_probe
+=========================
+
+.. py:module:: cocotb_benches.rate_probe
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.rate_probe.RATE_TOLERANCE
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.rate_probe.assert_sustained_ingest
+
+
+Module Contents
+---------------
+
+.. py:data:: RATE_TOLERANCE
+
+.. py:function:: assert_sustained_ingest(dut, core_name: str, *, send: collections.abc.Callable[[], collections.abc.Coroutine[Any, Any, None]], input_beats: int, rows_per_beat: int = 1, beats_per_row: int = 1, params: collections.abc.Mapping[str, int] | None = None, ready_signal_names: collections.abc.Sequence[str] = ('output_ready', 'status_ready')) -> fractions.Fraction
+   :async:
+
+
+   Measure continuous-valid input handshakes against the registry floor.
+
+   SCOPE: this measures INPUT ACCEPTANCE for a STREAMING tile, ending at
+   the last accepted beat. A tile that buffers a whole batch and works
+   afterward could accept quickly and still be slow overall; such a tile
+   needs a measurement spanning its drain and re-arm instead. Every core
+   probed here consumes and emits continuously.
+
+

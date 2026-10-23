@@ -1,0 +1,100 @@
+test_generated_cores
+====================
+
+.. py:module:: test_generated_cores
+
+.. autoapi-nested-parse::
+
+   Generated cores go through the same seams as checked-in ones.
+
+   A tile whose HDL is rendered is the first thing in this registry that has no
+   file beside its entry. That is a place where a parallel mechanism could
+   easily grow -- a build-layer side channel that renders somewhere the registry
+   cannot see. The rule against it is the one already learned the hard way: a
+   tile known only to the build layer never reaches ``core_names``, so its HDL
+   goes unstaged, its spec hash collides with its siblings, and its resources
+   go unpriced.
+
+   So: the generator is reached through the registry, its parameters are hydra
+   configuration like every other fact, and the rendered file arrives at
+   ``source_path()`` -- the same accessor dependency closure and synthesis
+   already use.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_generated_cores._BASE
+   test_generated_cores.EXP_EXACT
+   test_generated_cores.EXP_LIGHT
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_generated_cores._registered_point
+   test_generated_cores._definition
+   test_generated_cores.test_a_generated_core_refuses_its_source_until_rendered
+   test_generated_cores.test_rendering_writes_the_source_the_entry_names
+   test_generated_cores.test_a_checked_in_core_refuses_to_be_rendered
+   test_generated_cores.test_the_operating_point_comes_from_configuration
+   test_generated_cores.test_each_operating_point_renders_a_different_source
+   test_generated_cores.test_the_rendered_source_carries_the_parameters_that_made_it
+
+
+Module Contents
+---------------
+
+.. py:data:: _BASE
+   :type:  dict[str, Any]
+
+.. py:function:: _registered_point(name: str) -> dau_core.fixed_point.ExpDatapath
+
+.. py:data:: EXP_EXACT
+
+.. py:data:: EXP_LIGHT
+
+.. py:function:: _definition(**overrides) -> dau_core.cores.CoreDefinition
+
+.. py:function:: test_a_generated_core_refuses_its_source_until_rendered(tmp_path: pathlib.Path, monkeypatch) -> None
+
+   Rendering implicitly on read would hide which parameters produced the
+   file that then gets synthesized.
+
+   Points the render root at an empty directory: the session fixture renders
+   the real palette, and without this isolation that fixture would satisfy
+   the very refusal under test.
+
+
+.. py:function:: test_rendering_writes_the_source_the_entry_names(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_a_checked_in_core_refuses_to_be_rendered() -> None
+
+   The inverse mistake: rendering over a hand-written tile would replace
+   reviewed HDL with generated text.
+
+
+.. py:function:: test_the_operating_point_comes_from_configuration(tmp_path: pathlib.Path) -> None
+
+   The parameters are hydra-injected, not Python literals — the same rule
+   the rest of the registry follows. Instantiating from a config tree is the
+   thing that must work, so it is what is tested.
+
+
+.. py:function:: test_each_operating_point_renders_a_different_source() -> None
+
+   Two points must not render identical HDL, or the spec hash could not
+   tell them apart and one measurement would be quoted for both.
+
+
+.. py:function:: test_the_rendered_source_carries_the_parameters_that_made_it() -> None
+
+   A generated file with no record of its inputs is untraceable back to
+   the configuration that produced it.
+
+

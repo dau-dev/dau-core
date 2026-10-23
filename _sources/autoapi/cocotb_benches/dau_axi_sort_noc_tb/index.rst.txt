@@ -1,0 +1,137 @@
+cocotb_benches.dau_axi_sort_noc_tb
+==================================
+
+.. py:module:: cocotb_benches.dau_axi_sort_noc_tb
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_axi_sort_noc_tb.NUM_LANES
+   cocotb_benches.dau_axi_sort_noc_tb.SORT_CAPACITY
+   cocotb_benches.dau_axi_sort_noc_tb.INPUT_ADDRESS
+   cocotb_benches.dau_axi_sort_noc_tb.LANE_OUTPUT_ADDRESSES
+   cocotb_benches.dau_axi_sort_noc_tb.ERR_JOB_LENGTH
+   cocotb_benches.dau_axi_sort_noc_tb._SPLITTERS
+   cocotb_benches.dau_axi_sort_noc_tb._ROWS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_axi_sort_noc_tb._golden_lanes
+   cocotb_benches.dau_axi_sort_noc_tb.sorted_scan_matches_golden
+   cocotb_benches.dau_axi_sort_noc_tb.empty_lane_closes_out
+   cocotb_benches.dau_axi_sort_noc_tb.multi_burst_sorted_scan
+   cocotb_benches.dau_axi_sort_noc_tb.lane_overflow_reports_capacity_error_then_recovers
+   cocotb_benches.dau_axi_sort_noc_tb.repeated_jobs
+   cocotb_benches.dau_axi_sort_noc_tb.misaligned_length_errors_then_recovers
+   cocotb_benches.dau_axi_sort_noc_tb.randomized_jobs_match_golden
+   cocotb_benches.dau_axi_sort_noc_tb._start
+   cocotb_benches.dau_axi_sort_noc_tb._set_splitters
+   cocotb_benches.dau_axi_sort_noc_tb._pack_words
+   cocotb_benches.dau_axi_sort_noc_tb._run_job
+   cocotb_benches.dau_axi_sort_noc_tb._kick_job
+   cocotb_benches.dau_axi_sort_noc_tb._wait_done
+   cocotb_benches.dau_axi_sort_noc_tb._backdoor_load
+   cocotb_benches.dau_axi_sort_noc_tb._backdoor_read
+   cocotb_benches.dau_axi_sort_noc_tb._u32_lanes
+   cocotb_benches.dau_axi_sort_noc_tb._decode_row
+   cocotb_benches.dau_axi_sort_noc_tb._signed32
+
+
+Module Contents
+---------------
+
+.. py:data:: NUM_LANES
+   :value: 4
+
+
+.. py:data:: SORT_CAPACITY
+   :value: 16
+
+
+.. py:data:: INPUT_ADDRESS
+   :value: 0
+
+
+.. py:data:: LANE_OUTPUT_ADDRESSES
+
+.. py:data:: ERR_JOB_LENGTH
+   :value: 254
+
+
+.. py:data:: _SPLITTERS
+   :value: [10, 20, 30]
+
+
+.. py:data:: _ROWS
+
+.. py:function:: _golden_lanes(rows, splitters)
+
+.. py:function:: sorted_scan_matches_golden(dut)
+   :async:
+
+
+.. py:function:: empty_lane_closes_out(dut)
+   :async:
+
+
+.. py:function:: multi_burst_sorted_scan(dut)
+   :async:
+
+
+.. py:function:: lane_overflow_reports_capacity_error_then_recovers(dut)
+   :async:
+
+
+.. py:function:: repeated_jobs(dut)
+   :async:
+
+
+.. py:function:: misaligned_length_errors_then_recovers(dut)
+   :async:
+
+
+.. py:function:: randomized_jobs_match_golden(dut)
+   :async:
+
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _set_splitters(dut, splitters) -> None
+
+.. py:function:: _pack_words(rows) -> list[int]
+
+.. py:function:: _run_job(dut, rows, splitters)
+   :async:
+
+
+.. py:function:: _kick_job(dut, input_length_bytes: int) -> None
+   :async:
+
+
+.. py:function:: _wait_done(dut) -> None
+   :async:
+
+
+.. py:function:: _backdoor_load(dut, base_index: int, words: list[int]) -> None
+   :async:
+
+
+.. py:function:: _backdoor_read(dut, base_index: int, count: int) -> list[int]
+   :async:
+
+
+.. py:function:: _u32_lanes(packed: int) -> list[int]
+
+.. py:function:: _decode_row(words: list[int]) -> tuple[int, int, int, int]
+
+.. py:function:: _signed32(value: int) -> int
+

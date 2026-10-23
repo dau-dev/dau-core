@@ -1,0 +1,154 @@
+dau_core.generators
+===================
+
+.. py:module:: dau_core.generators
+
+.. autoapi-nested-parse::
+
+   Cores whose HDL is RENDERED rather than checked in.
+
+   Most tiles are a hand-written ``.sv`` beside their registry entry. A few
+   cannot be: this one needs 256 entries of ``2**(j/256)`` to 52 bits, and
+   SystemVerilog has no way to compute a transcendental at elaboration. The
+   constants have to come from somewhere, and the choice is between committing
+   a generated file that silently drifts from the parameters that produced it,
+   or rendering it from those parameters on demand.
+
+   Rendering is the same shape as everything else here: the generator is a
+   ccflow ``CallableModel`` reached through the registry, its parameters are
+   config, and the rendered text is a typed result. A core declares one in its
+   registry entry and dau-build renders it before synthesis; nothing imports a
+   generator directly, so the public build package can drive a private core's
+   generator without importing it.
+
+   The rule that makes this safe is in :meth:`CoreDefinition.source_path`: a
+   generated core REFUSES to hand out a path until it has been rendered. The
+   alternative -- rendering implicitly on first read -- hides which parameters
+   produced the file sitting on disk, and that file is what gets synthesized.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   dau_core.generators.RenderContext
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   dau_core.generators.RenderedCore
+   dau_core.generators.CoreGenerator
+
+
+Module Contents
+---------------
+
+.. py:data:: RenderContext
+
+.. py:class:: RenderedCore(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedMixin`, :py:obj:`ccflow.ResultBase`
+
+
+   One rendered SystemVerilog source and the parameters behind it.
+
+   ``parameters`` is carried so the rendered text can be traced back to the
+   configuration that produced it; a generated file with no record of its
+   inputs is the thing this design exists to avoid.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: model_config
+
+      Configuration for the model, should be a dictionary conforming to [`ConfigDict`][pydantic.config.ConfigDict].
+
+
+   .. py:attribute:: module
+      :type:  str
+
+
+   .. py:attribute:: source_name
+      :type:  str
+
+
+   .. py:attribute:: text
+      :type:  str
+
+
+   .. py:attribute:: parameters
+      :type:  Annotated[collections.abc.Mapping[str, int], *ReadOnly]
+
+
+   .. py:method:: write(into: pathlib.Path) -> pathlib.Path
+
+      Materialize under ``into``, returning the written path.
+
+      ``source_name`` is a file name, not a path: a registry entry that
+      named ``../x.sv`` or an absolute path would otherwise write outside
+      the render root, and the render root is the only place a generated
+      source is read back from.
+
+
+
+.. py:class:: CoreGenerator(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedMixin`, :py:obj:`ccflow.CallableModel`
+
+
+   Base for anything that renders a core's HDL from configuration.
+
+   Subclasses carry their parameters as model fields, so an operating point
+   is chosen the same way every other fact in this stack is chosen: in
+   config, resolved by hydra, with no Python-literal alternative.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: model_config
+
+      Configuration for the model, should be a dictionary conforming to [`ConfigDict`][pydantic.config.ConfigDict].
+
+
+   .. py:method:: __call__(context: RenderContext) -> RenderedCore
+      :abstractmethod:
+
+
+      This method produces the result for the given context.
+
+      Instead of passing the context, one can pass an object that pydantic will try to validate as the context.
+      Additionally, if kwargs are passed instead of the context, it will use these to construct the context.
+
+
+
+   .. py:method:: render() -> RenderedCore
+
+      Render without constructing a context by hand.
+
+      The context carries nothing -- a generator's inputs are all
+      configuration -- so callers should not have to invent one.
+
+      This is the generator's validation boundary. Nothing revalidates the
+      instance on the way in (a generator is a field type: see
+      :class:`dau_core.models.CheckedModel`), so a generator copied past its
+      validators would otherwise render HDL from an operating point
+      construction would have refused -- and that HDL's digest would then
+      identify it.
+
+
+

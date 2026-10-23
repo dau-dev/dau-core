@@ -1,0 +1,113 @@
+cocotb_benches.dau_bar_aggregation_tb
+=====================================
+
+.. py:module:: cocotb_benches.dau_bar_aggregation_tb
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_bar_aggregation_tb._TRADES
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_bar_aggregation_tb.bar_tile_matches_golden
+   cocotb_benches.dau_bar_aggregation_tb.bar_tile_backpressure_both_sides
+   cocotb_benches.dau_bar_aggregation_tb.bar_tile_single_row_and_reappearing_key
+   cocotb_benches.dau_bar_aggregation_tb.bar_tile_key_change_on_final_row
+   cocotb_benches.dau_bar_aggregation_tb.bar_tile_int64_sums
+   cocotb_benches.dau_bar_aggregation_tb.bar_tile_repeated_batches_reset
+   cocotb_benches.dau_bar_aggregation_tb.bar_tile_reserved_mode_reports_config_error
+   cocotb_benches.dau_bar_aggregation_tb.bar_tile_truncated_row_reports_stream_error
+   cocotb_benches.dau_bar_aggregation_tb.bar_tile_short_stream_reports_stream_error
+   cocotb_benches.dau_bar_aggregation_tb._start
+   cocotb_benches.dau_bar_aggregation_tb._apply_config
+   cocotb_benches.dau_bar_aggregation_tb._run_bars
+   cocotb_benches.dau_bar_aggregation_tb._decode_bar
+   cocotb_benches.dau_bar_aggregation_tb._send_rows
+   cocotb_benches.dau_bar_aggregation_tb._collect_output
+   cocotb_benches.dau_bar_aggregation_tb._accept_success_status
+   cocotb_benches.dau_bar_aggregation_tb._expect_error
+   cocotb_benches.dau_bar_aggregation_tb._signed32
+   cocotb_benches.dau_bar_aggregation_tb._signed64
+
+
+Module Contents
+---------------
+
+.. py:data:: _TRADES
+
+.. py:function:: bar_tile_matches_golden(dut)
+   :async:
+
+
+.. py:function:: bar_tile_backpressure_both_sides(dut)
+   :async:
+
+
+.. py:function:: bar_tile_single_row_and_reappearing_key(dut)
+   :async:
+
+
+.. py:function:: bar_tile_key_change_on_final_row(dut)
+   :async:
+
+
+.. py:function:: bar_tile_int64_sums(dut)
+   :async:
+
+
+.. py:function:: bar_tile_repeated_batches_reset(dut)
+   :async:
+
+
+.. py:function:: bar_tile_reserved_mode_reports_config_error(dut)
+   :async:
+
+
+.. py:function:: bar_tile_truncated_row_reports_stream_error(dut)
+   :async:
+
+
+.. py:function:: bar_tile_short_stream_reports_stream_error(dut)
+   :async:
+
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _apply_config(dut, *, row_count: int) -> None
+
+.. py:function:: _run_bars(dut, rows, *, ready_pattern=(1, ))
+   :async:
+
+
+.. py:function:: _decode_bar(words: list[int]) -> dau_core.operators.BarAggregate
+
+.. py:function:: _send_rows(dut, rows) -> None
+   :async:
+
+
+.. py:function:: _collect_output(dut, ready_pattern) -> list[int]
+   :async:
+
+
+.. py:function:: _accept_success_status(dut) -> int
+   :async:
+
+
+.. py:function:: _expect_error(dut, code) -> None
+   :async:
+
+
+.. py:function:: _signed32(value: int) -> int
+
+.. py:function:: _signed64(value: int) -> int
+

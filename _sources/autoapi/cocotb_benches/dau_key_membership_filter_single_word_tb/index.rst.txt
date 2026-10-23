@@ -1,0 +1,54 @@
+cocotb_benches.dau_key_membership_filter_single_word_tb
+=======================================================
+
+.. py:module:: cocotb_benches.dau_key_membership_filter_single_word_tb
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_key_membership_filter_single_word_tb._KEY_SPACE
+   cocotb_benches.dau_key_membership_filter_single_word_tb._ROWS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_key_membership_filter_single_word_tb._build
+   cocotb_benches.dau_key_membership_filter_single_word_tb.single_word_semi_and_anti_match_golden
+   cocotb_benches.dau_key_membership_filter_single_word_tb.single_word_load_then_probe_boundaries
+   cocotb_benches.dau_key_membership_filter_single_word_tb.single_word_empty_and_full_sets
+   cocotb_benches.dau_key_membership_filter_single_word_tb.single_word_over_long_image_reports_load_error
+
+
+Module Contents
+---------------
+
+.. py:data:: _KEY_SPACE
+   :value: 64
+
+
+.. py:data:: _ROWS
+
+.. py:function:: _build(keys) -> dau_core.operators.MembershipBuildSet
+
+.. py:function:: single_word_semi_and_anti_match_golden(dut)
+   :async:
+
+
+.. py:function:: single_word_load_then_probe_boundaries(dut)
+   :async:
+
+
+.. py:function:: single_word_empty_and_full_sets(dut)
+   :async:
+
+
+.. py:function:: single_word_over_long_image_reports_load_error(dut)
+   :async:
+
+

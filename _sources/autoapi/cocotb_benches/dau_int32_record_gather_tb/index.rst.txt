@@ -1,0 +1,128 @@
+cocotb_benches.dau_int32_record_gather_tb
+=========================================
+
+.. py:module:: cocotb_benches.dau_int32_record_gather_tb
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_int32_record_gather_tb.IN_WORDS
+   cocotb_benches.dau_int32_record_gather_tb.OUT_WORDS
+   cocotb_benches.dau_int32_record_gather_tb.BUCKET_BITS
+   cocotb_benches.dau_int32_record_gather_tb.MASK64
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_int32_record_gather_tb._selector
+   cocotb_benches.dau_int32_record_gather_tb._identity_selectors
+   cocotb_benches.dau_int32_record_gather_tb.random_multi_record_batch_matches_golden
+   cocotb_benches.dau_int32_record_gather_tb.gather_holds_stable_under_backpressure
+   cocotb_benches.dau_int32_record_gather_tb.feature_to_bucket_matches_hero_projection
+   cocotb_benches.dau_int32_record_gather_tb.bar_to_roll_matches_hero_logical_extract
+   cocotb_benches.dau_int32_record_gather_tb.torn_record_reports_stream_error
+   cocotb_benches.dau_int32_record_gather_tb.invalid_config_drains_batch_and_reports_config_error
+   cocotb_benches.dau_int32_record_gather_tb.config_latches_for_entire_batch_and_reloads_between_batches
+   cocotb_benches.dau_int32_record_gather_tb.clean_batch_is_silent_on_success
+   cocotb_benches.dau_int32_record_gather_tb._start
+   cocotb_benches.dau_int32_record_gather_tb._set_selectors
+   cocotb_benches.dau_int32_record_gather_tb._run_clean
+   cocotb_benches.dau_int32_record_gather_tb._send_records
+   cocotb_benches.dau_int32_record_gather_tb._send_records_with_config_change
+   cocotb_benches.dau_int32_record_gather_tb._send_words
+   cocotb_benches.dau_int32_record_gather_tb._collect_output
+   cocotb_benches.dau_int32_record_gather_tb._wait_for
+   cocotb_benches.dau_int32_record_gather_tb._expect_status
+
+
+Module Contents
+---------------
+
+.. py:data:: IN_WORDS
+
+.. py:data:: OUT_WORDS
+
+.. py:data:: BUCKET_BITS
+   :value: 16
+
+
+.. py:data:: MASK64
+   :value: 18446744073709551615
+
+
+.. py:function:: _selector(word: int, *, high: bool = False, shift: int = 0) -> int
+
+.. py:function:: _identity_selectors() -> tuple[int, ...]
+
+.. py:function:: random_multi_record_batch_matches_golden(dut)
+   :async:
+
+
+.. py:function:: gather_holds_stable_under_backpressure(dut)
+   :async:
+
+
+.. py:function:: feature_to_bucket_matches_hero_projection(dut)
+   :async:
+
+
+.. py:function:: bar_to_roll_matches_hero_logical_extract(dut)
+   :async:
+
+
+.. py:function:: torn_record_reports_stream_error(dut)
+   :async:
+
+
+.. py:function:: invalid_config_drains_batch_and_reports_config_error(dut)
+   :async:
+
+
+.. py:function:: config_latches_for_entire_batch_and_reloads_between_batches(dut)
+   :async:
+
+
+.. py:function:: clean_batch_is_silent_on_success(dut)
+   :async:
+
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _set_selectors(dut, selectors: tuple[int, ...]) -> None
+
+.. py:function:: _run_clean(dut, records, selectors, *, ready_pattern=(1, ))
+   :async:
+
+
+.. py:function:: _send_records(dut, records) -> None
+   :async:
+
+
+.. py:function:: _send_records_with_config_change(dut, records, selectors) -> None
+   :async:
+
+
+.. py:function:: _send_words(dut, words, *, last_index: int) -> None
+   :async:
+
+
+.. py:function:: _collect_output(dut, *, ready_pattern)
+   :async:
+
+
+.. py:function:: _wait_for(dut, signal_name: str) -> None
+   :async:
+
+
+.. py:function:: _expect_status(dut, *, code: int) -> None
+   :async:
+
+

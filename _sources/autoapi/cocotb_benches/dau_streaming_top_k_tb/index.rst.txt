@@ -1,0 +1,102 @@
+cocotb_benches.dau_streaming_top_k_tb
+=====================================
+
+.. py:module:: cocotb_benches.dau_streaming_top_k_tb
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_streaming_top_k_tb.K
+   cocotb_benches.dau_streaming_top_k_tb._ROWS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_streaming_top_k_tb.top_k_matches_golden
+   cocotb_benches.dau_streaming_top_k_tb.top_k_backpressure
+   cocotb_benches.dau_streaming_top_k_tb.top_k_ties_keep_earliest_arrival
+   cocotb_benches.dau_streaming_top_k_tb.top_k_signed_key_comparison
+   cocotb_benches.dau_streaming_top_k_tb.top_k_fewer_rows_than_k
+   cocotb_benches.dau_streaming_top_k_tb.top_k_random_streams
+   cocotb_benches.dau_streaming_top_k_tb.top_k_truncated_row_reports_stream_error
+   cocotb_benches.dau_streaming_top_k_tb._start
+   cocotb_benches.dau_streaming_top_k_tb._run
+   cocotb_benches.dau_streaming_top_k_tb._decode_row
+   cocotb_benches.dau_streaming_top_k_tb._send_rows
+   cocotb_benches.dau_streaming_top_k_tb._collect_output
+   cocotb_benches.dau_streaming_top_k_tb._accept_success_status
+   cocotb_benches.dau_streaming_top_k_tb._expect_error
+   cocotb_benches.dau_streaming_top_k_tb._signed32
+
+
+Module Contents
+---------------
+
+.. py:data:: K
+
+.. py:data:: _ROWS
+   :value: [(30, 0, 100, 200), (90, 1, 101, 201), (10, 2, 102, 202), (70, 3, 103, 203), (50, 4, 104, 204),...
+
+
+.. py:function:: top_k_matches_golden(dut)
+   :async:
+
+
+.. py:function:: top_k_backpressure(dut)
+   :async:
+
+
+.. py:function:: top_k_ties_keep_earliest_arrival(dut)
+   :async:
+
+
+.. py:function:: top_k_signed_key_comparison(dut)
+   :async:
+
+
+.. py:function:: top_k_fewer_rows_than_k(dut)
+   :async:
+
+
+.. py:function:: top_k_random_streams(dut)
+   :async:
+
+
+.. py:function:: top_k_truncated_row_reports_stream_error(dut)
+   :async:
+
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _run(dut, rows, *, ready_pattern=(1, ))
+   :async:
+
+
+.. py:function:: _decode_row(w0, w1)
+
+.. py:function:: _send_rows(dut, rows) -> None
+   :async:
+
+
+.. py:function:: _collect_output(dut, ready_pattern)
+   :async:
+
+
+.. py:function:: _accept_success_status(dut) -> int
+   :async:
+
+
+.. py:function:: _expect_error(dut) -> None
+   :async:
+
+
+.. py:function:: _signed32(value: int) -> int
+

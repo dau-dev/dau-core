@@ -1,0 +1,173 @@
+cocotb_benches.dau_field_sum_aggregation_tb
+===========================================
+
+.. py:module:: cocotb_benches.dau_field_sum_aggregation_tb
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_field_sum_aggregation_tb._MASK32
+   cocotb_benches.dau_field_sum_aggregation_tb._MASK64
+   cocotb_benches.dau_field_sum_aggregation_tb._INT32_MIN
+   cocotb_benches.dau_field_sum_aggregation_tb._INT32_MAX
+   cocotb_benches.dau_field_sum_aggregation_tb._ROWS
+   cocotb_benches.dau_field_sum_aggregation_tb._VALUE_MASK
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_field_sum_aggregation_tb.sustained_ingest_meets_registry_floor
+   cocotb_benches.dau_field_sum_aggregation_tb.q6_single_sum_record
+   cocotb_benches.dau_field_sum_aggregation_tb.all_fields_mask_is_the_q1_shape
+   cocotb_benches.dau_field_sum_aggregation_tb.sparse_masks_emit_ascending_field_order
+   cocotb_benches.dau_field_sum_aggregation_tb.negative_sums_are_twos_complement
+   cocotb_benches.dau_field_sum_aggregation_tb.int32_extreme_sums_accumulate_int64
+   cocotb_benches.dau_field_sum_aggregation_tb.single_row_batch
+   cocotb_benches.dau_field_sum_aggregation_tb.aggregated_count_reports_rows
+   cocotb_benches.dau_field_sum_aggregation_tb.repeated_batches_relatch_the_mask
+   cocotb_benches.dau_field_sum_aggregation_tb.backpressure_on_the_record_drain
+   cocotb_benches.dau_field_sum_aggregation_tb.zero_mask_drains_batch_then_reports_config_error
+   cocotb_benches.dau_field_sum_aggregation_tb.torn_row_reports_stream_error
+   cocotb_benches.dau_field_sum_aggregation_tb.torn_row_mid_batch_reports_stream_error
+   cocotb_benches.dau_field_sum_aggregation_tb.error_status_survives_backpressure
+   cocotb_benches.dau_field_sum_aggregation_tb.success_status_survives_backpressure
+   cocotb_benches.dau_field_sum_aggregation_tb.constrained_random_batches_match_golden
+   cocotb_benches.dau_field_sum_aggregation_tb._start
+   cocotb_benches.dau_field_sum_aggregation_tb._run
+   cocotb_benches.dau_field_sum_aggregation_tb._pack_rows
+   cocotb_benches.dau_field_sum_aggregation_tb._send_words
+   cocotb_benches.dau_field_sum_aggregation_tb._send_rows
+   cocotb_benches.dau_field_sum_aggregation_tb._collect_output
+   cocotb_benches.dau_field_sum_aggregation_tb._assert_quiescent
+   cocotb_benches.dau_field_sum_aggregation_tb._expect_status
+
+
+Module Contents
+---------------
+
+.. py:data:: _MASK32
+   :value: 4294967295
+
+
+.. py:data:: _MASK64
+   :value: 18446744073709551615
+
+
+.. py:data:: _INT32_MIN
+   :value: -2147483648
+
+
+.. py:data:: _INT32_MAX
+   :value: 2147483647
+
+
+.. py:data:: _ROWS
+
+.. py:data:: _VALUE_MASK
+   :value: 2
+
+
+.. py:function:: sustained_ingest_meets_registry_floor(dut)
+   :async:
+
+
+.. py:function:: q6_single_sum_record(dut)
+   :async:
+
+
+.. py:function:: all_fields_mask_is_the_q1_shape(dut)
+   :async:
+
+
+.. py:function:: sparse_masks_emit_ascending_field_order(dut)
+   :async:
+
+
+.. py:function:: negative_sums_are_twos_complement(dut)
+   :async:
+
+
+.. py:function:: int32_extreme_sums_accumulate_int64(dut)
+   :async:
+
+
+.. py:function:: single_row_batch(dut)
+   :async:
+
+
+.. py:function:: aggregated_count_reports_rows(dut)
+   :async:
+
+
+.. py:function:: repeated_batches_relatch_the_mask(dut)
+   :async:
+
+
+.. py:function:: backpressure_on_the_record_drain(dut)
+   :async:
+
+
+.. py:function:: zero_mask_drains_batch_then_reports_config_error(dut)
+   :async:
+
+
+.. py:function:: torn_row_reports_stream_error(dut)
+   :async:
+
+
+.. py:function:: torn_row_mid_batch_reports_stream_error(dut)
+   :async:
+
+
+.. py:function:: error_status_survives_backpressure(dut)
+   :async:
+
+
+.. py:function:: success_status_survives_backpressure(dut)
+   :async:
+
+
+.. py:function:: constrained_random_batches_match_golden(dut)
+   :async:
+
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _run(dut, rows, *, field_mask: int, ready_pattern=(1, ))
+   :async:
+
+
+.. py:function:: _pack_rows(rows) -> list[int]
+
+.. py:function:: _send_words(dut, words) -> None
+   :async:
+
+
+.. py:function:: _send_rows(dut, rows) -> None
+   :async:
+
+
+.. py:function:: _collect_output(dut, ready_pattern, *, expect_words: int) -> list[int]
+   :async:
+
+
+.. py:function:: _assert_quiescent(dut) -> None
+   :async:
+
+
+   After a record drains, nothing more may appear on the output or
+   status streams even with ready held high.
+
+
+.. py:function:: _expect_status(dut, *, error: bool, code: int = 0) -> None
+   :async:
+
+

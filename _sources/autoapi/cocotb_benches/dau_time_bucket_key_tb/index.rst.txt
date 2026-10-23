@@ -1,0 +1,95 @@
+cocotb_benches.dau_time_bucket_key_tb
+=====================================
+
+.. py:module:: cocotb_benches.dau_time_bucket_key_tb
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_time_bucket_key_tb.BUCKET_BITS
+   cocotb_benches.dau_time_bucket_key_tb.BUCKET_SHIFT
+   cocotb_benches.dau_time_bucket_key_tb._ROWS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_time_bucket_key_tb.sustained_ingest_meets_registry_floor
+   cocotb_benches.dau_time_bucket_key_tb.bucket_key_matches_golden
+   cocotb_benches.dau_time_bucket_key_tb.bucket_key_backpressure
+   cocotb_benches.dau_time_bucket_key_tb.bucket_key_partition_and_bucket_pack_disjointly
+   cocotb_benches.dau_time_bucket_key_tb.bucket_key_single_row
+   cocotb_benches.dau_time_bucket_key_tb.bucket_key_truncated_row_reports_stream_error
+   cocotb_benches.dau_time_bucket_key_tb.bucket_key_partition_overflow_is_range_error
+   cocotb_benches.dau_time_bucket_key_tb._start
+   cocotb_benches.dau_time_bucket_key_tb._run
+   cocotb_benches.dau_time_bucket_key_tb._decode
+   cocotb_benches.dau_time_bucket_key_tb._send_rows
+   cocotb_benches.dau_time_bucket_key_tb._collect_output
+   cocotb_benches.dau_time_bucket_key_tb._s32
+
+
+Module Contents
+---------------
+
+.. py:data:: BUCKET_BITS
+
+.. py:data:: BUCKET_SHIFT
+   :value: 3
+
+
+.. py:data:: _ROWS
+
+.. py:function:: sustained_ingest_meets_registry_floor(dut)
+   :async:
+
+
+.. py:function:: bucket_key_matches_golden(dut)
+   :async:
+
+
+.. py:function:: bucket_key_backpressure(dut)
+   :async:
+
+
+.. py:function:: bucket_key_partition_and_bucket_pack_disjointly(dut)
+   :async:
+
+
+.. py:function:: bucket_key_single_row(dut)
+   :async:
+
+
+.. py:function:: bucket_key_truncated_row_reports_stream_error(dut)
+   :async:
+
+
+.. py:function:: bucket_key_partition_overflow_is_range_error(dut)
+   :async:
+
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _run(dut, rows, *, ready_pattern=(1, ))
+   :async:
+
+
+.. py:function:: _decode(words)
+
+.. py:function:: _send_rows(dut, rows) -> None
+   :async:
+
+
+.. py:function:: _collect_output(dut, ready_pattern)
+   :async:
+
+
+.. py:function:: _s32(value: int) -> int
+

@@ -1,0 +1,380 @@
+test_cores
+==========
+
+.. py:module:: test_cores
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_cores.OWN_PACKAGE
+   test_cores.HDL_SUFFIXES
+   test_cores.WIDTH_NAMED_TILES
+   test_cores.CANONICAL_PALETTE_VERSION
+   test_cores.CANONICAL_PALETTE
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_cores.own_cores
+   test_cores.committed_hdl
+   test_cores.test_every_hdl_file_belongs_to_exactly_one_core
+   test_cores.test_all_source_paths_exist
+   test_cores.test_goldens_resolve_to_callables
+   test_cores.test_benches_are_importable_modules
+   test_cores.test_every_operator_has_a_golden
+   test_cores.test_every_selectable_operator_declares_its_ingest_rate
+   test_cores.test_wide_combinational_tiles_declare_pipeline_depth_without_changing_ingest
+   test_cores.test_every_selectable_operator_declares_its_contract_kind
+   test_cores.test_every_selectable_operator_declares_its_record_words
+   test_cores.test_parameterized_record_words_resolve_from_defaults_and_overrides
+   test_cores.test_only_combinational_per_beat_cores_support_pipeline_depth
+   test_cores.test_sources_for_closes_dependencies_in_order
+   test_cores.test_lookup_errors_are_typed
+   test_cores.test_synthesizable_cores_carry_measured_envelopes
+   test_cores.test_the_width_named_tiles_are_exactly_the_declared_ones
+   test_cores.test_the_canonical_palette_is_exactly_the_registered_names
+   test_cores.test_the_canonical_palette_is_pinned_to_the_canonical_form_it_spells
+   test_cores._measured
+   test_cores.test_exact_resource_measurement_resolves_with_parameter_defaults
+   test_cores.test_resource_measurement_refuses_an_unmeasured_part
+   test_cores.test_an_unclocked_measurement_answers_for_any_clock_and_records_no_timing
+   test_cores.test_every_registered_core_with_resources_carries_measurement_points
+   test_cores.test_normalize_follows_the_same_rule_as_violation
+   test_cores.test_violated_measurement_is_retrievable_but_not_a_usable_envelope
+   test_cores.test_registry_is_hydra_composition_not_a_python_literal
+   test_cores.test_accessors_defer_to_a_composed_registry
+   test_cores.test_silent_on_success_operator_set_is_pinned
+   test_cores.test_dispatcher_rate_still_needs_record_aware_modeling
+   test_cores.test_authoritative_models_reject_impossible_values
+   test_cores.test_parameter_spec_rejects_incoherent_constraints
+   test_cores.test_parameter_spec_violation_is_the_single_constraint_source
+   test_cores.test_an_element_type_parameter_accepts_a_width_or_a_spelling
+   test_cores.test_an_element_type_parameter_bounds_the_width_not_the_encoding
+   test_cores.test_an_element_type_spelling_is_refused_where_no_type_is_declared
+   test_cores.test_an_element_type_default_must_name_a_type_the_spec_admits
+   test_cores.test_a_measurement_coordinate_may_name_the_type_it_was_measured_at
+   test_cores.test_storage_intent_prices_against_declared_parameters
+   test_cores.test_storage_intent_refuses_an_undeclared_scale_parameter
+   test_cores.test_storage_intent_without_scale_is_a_fixed_cost
+   test_cores.test_storage_bytes_refuses_illegal_scale_overrides
+   test_cores.test_a_core_resolves_hdl_from_the_package_that_declares_it
+   test_cores.test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards
+   test_cores.test_a_core_naming_an_uninstalled_hdl_package_refuses_clearly
+   test_cores.test_a_measured_point_matches_a_derived_clock_period
+   test_cores.test_an_unresolvable_hdl_source_says_so
+
+
+Module Contents
+---------------
+
+.. py:data:: OWN_PACKAGE
+   :value: 'dau_core.hdl'
+
+
+.. py:data:: HDL_SUFFIXES
+   :value: ('.sv', '.v')
+
+
+.. py:function:: own_cores() -> tuple
+
+.. py:function:: committed_hdl(hdl_dir: pathlib.Path) -> set[str] | None
+
+   The HDL git CARRIES under ``hdl_dir``, as paths relative to it, or
+   None when there is no repository to ask.
+
+   Committedness is a git fact, and only git can answer it. A directory
+   listing cannot: the suite renders every generated core into the render
+   root on each run (``conftest._render_generated_cores``), so a rendered
+   file being PRESENT there is the normal state and says nothing about
+   whether someone checked it in. Absent a repository -- an installed
+   distribution -- nothing is committed and there is nothing to check.
+
+
+.. py:function:: test_every_hdl_file_belongs_to_exactly_one_core() -> None
+
+   Checked-in HDL and registry entries match exactly, in both directions.
+
+   A GENERATED core is excluded because it has no checked-in file by
+   definition -- and asserted to have none, which is the same guard from the
+   other side: a generated core with a file beside the entry means someone
+   committed rendered output, and whichever of the two is stale will be the
+   one that gets synthesized.
+
+   The reach is the whole package, not one directory listing. Listing
+   ``hdl/`` alone left the render root -- a SUBDIRECTORY of it -- outside
+   this guard entirely, and three rendered tiles sat committed there until a
+   rename made their filenames disagree with their contents. So the walk
+   descends, and the committed set comes from git: a rendered file being
+   present in the render root is the normal working state (the suite renders
+   there on every run), and what distinguishes that from the mistake is
+   whether it was checked in.
+
+
+.. py:function:: test_all_source_paths_exist() -> None
+
+.. py:function:: test_goldens_resolve_to_callables() -> None
+
+.. py:function:: test_benches_are_importable_modules() -> None
+
+.. py:function:: test_every_operator_has_a_golden() -> None
+
+.. py:function:: test_every_selectable_operator_declares_its_ingest_rate() -> None
+
+   Ingest rate is core PUBLIC INTERFACE (the scheduler rate-matches
+   opaque cores from the registry declaration alone): every stream operator
+   declares it. The floor is the composed 1-row/2-cycle
+   lane rate; only silicon-proven faster cores declare 1/1.
+
+
+.. py:function:: test_wide_combinational_tiles_declare_pipeline_depth_without_changing_ingest() -> None
+
+.. py:function:: test_every_selectable_operator_declares_its_contract_kind() -> None
+
+   A new core declares its stream contract in the registry — contract
+   tests select validators from this tag, never from test-local exemption
+   sets.
+
+
+.. py:function:: test_every_selectable_operator_declares_its_record_words() -> None
+
+.. py:function:: test_parameterized_record_words_resolve_from_defaults_and_overrides() -> None
+
+.. py:function:: test_only_combinational_per_beat_cores_support_pipeline_depth() -> None
+
+.. py:function:: test_sources_for_closes_dependencies_in_order() -> None
+
+.. py:function:: test_lookup_errors_are_typed() -> None
+
+.. py:function:: test_synthesizable_cores_carry_measured_envelopes() -> None
+
+   Recorded operator/stream-infra envelopes are measured OOC values.
+
+   EMPTY as of 2026-08-16: the stride distributor was the last operator
+   carrying no envelope at all, and no design containing it could be
+   priced. Asserted exactly, so a tile shipped without a measurement fails
+   here rather than surfacing as an unpriceable design later.
+
+
+.. py:data:: WIDTH_NAMED_TILES
+   :type:  frozenset[str]
+
+.. py:function:: test_the_width_named_tiles_are_exactly_the_declared_ones() -> None
+
+   The naming rule is that a width is a parameter, not an identity; this
+   pins how much of the palette still contradicts it.
+
+   Scoped to `own_cores()` for the same reason every exact-set guard here
+   is: an installed third-party tile with a width in its name is that
+   vendor's business, not drift in our palette.
+
+
+.. py:data:: CANONICAL_PALETTE_VERSION
+   :value: '7'
+
+
+.. py:data:: CANONICAL_PALETTE
+   :type:  frozenset[str]
+
+.. py:function:: test_the_canonical_palette_is_exactly_the_registered_names() -> None
+
+   THE GUARD a rename has to pass. A name that leaves this set takes
+   every recorded canonical spec that spells it with it.
+
+   Scoped to `own_cores()` like every exact set here: a vendor's installed
+   tile is not in our canonical alphabet's history and cannot depart from
+   it.
+
+   There are exactly two honest ways past a DEPARTURE failure:
+
+   1. Keep the name. A rename that buys nothing is not worth an identity
+      boundary.
+   2. Bump ``SPEC_CANONICAL_VERSION`` and ``CANONICAL_PALETTE_VERSION`` in
+      the same change, so every text recorded under the old palette is
+      refused by version instead of read against a registry that cannot
+      resolve it. Designs already on silicon do not re-enter the design
+      cache across that boundary -- their hash is stamped in a bitstream
+      and the manifest recording it must not be rewritten -- so they are
+      rebuilt once, deliberately, rather than mis-recognized forever.
+
+
+.. py:function:: test_the_canonical_palette_is_pinned_to_the_canonical_form_it_spells() -> None
+
+   The other direction of the same coupling: a canonical-form bump that
+   leaves this set alone has not said which palette the new version reads,
+   and the departure message above would then name the wrong version.
+
+
+.. py:function:: _measured(**overrides)
+
+   A core carrying one measurement point, built here rather than read from
+   the registry: which cores are migrated is a migration detail, and a test
+   of the lookup should not move when that changes.
+
+
+.. py:function:: test_exact_resource_measurement_resolves_with_parameter_defaults() -> None
+
+.. py:function:: test_resource_measurement_refuses_an_unmeasured_part() -> None
+
+.. py:function:: test_an_unclocked_measurement_answers_for_any_clock_and_records_no_timing() -> None
+
+   A combinational core (identity-registers is one: a parameter ROM with
+   no clock) has no timing to meet, so its point carries no timing status
+   and prices a build at every clock.
+
+
+.. py:function:: test_every_registered_core_with_resources_carries_measurement_points() -> None
+
+   There is one shape for a resource record. A scalar count with no
+   part, clock or parameters cannot say which board it was measured on
+   and no longer parses.
+
+
+.. py:function:: test_normalize_follows_the_same_rule_as_violation() -> None
+
+   A type spelling is only for a parameter declared element_type; a plain
+   parameter takes an int and refuses a string the way violation() does.
+
+
+.. py:function:: test_violated_measurement_is_retrievable_but_not_a_usable_envelope() -> None
+
+.. py:function:: test_registry_is_hydra_composition_not_a_python_literal() -> None
+
+   Composition IS the registry: cores load from dau-core's hydra config
+   tree into the ccflow ModelRegistry at /dau-core/<name>. A parallel
+   Python-literal core list is the anti-pattern this guards against.
+
+
+.. py:function:: test_accessors_defer_to_a_composed_registry() -> None
+
+   The composed registry is the source of truth: accessors read through
+   to /dau-core (no snapshot cache), so a consumer's hydra overrides are
+   visible and never clobbered by a default reload.
+
+
+.. py:function:: test_silent_on_success_operator_set_is_pinned() -> None
+
+   The status contract's two classes are registry truth: silent-on-success
+   cores (chain-stage/partition legal) versus per-batch success close-out
+   cores (terminal-tile legal). Changing a core's class changes lane status
+   semantics — confirm intent here.
+
+
+.. py:function:: test_dispatcher_rate_still_needs_record_aware_modeling() -> None
+
+   The dispatcher's framing-shaped rate describes a 2-word record. Its
+   64-bit front ingests one WORD per cycle, so an N-word record costs N
+   cycles, while a wide framing delivers a whole record per beat-slot —
+   two rules the current rate shapes cannot express together. Record shape
+   is now declared for detection, but this pins the remaining rate-model gap
+   so RECORD_WORDS != 2 is not silently treated as resolved.
+
+
+.. py:function:: test_authoritative_models_reject_impossible_values() -> None
+
+.. py:function:: test_parameter_spec_rejects_incoherent_constraints() -> None
+
+.. py:function:: test_parameter_spec_violation_is_the_single_constraint_source() -> None
+
+.. py:function:: test_an_element_type_parameter_accepts_a_width_or_a_spelling() -> None
+
+   The two forms are the same declaration where they overlap, and the
+   spelling reaches types a width never could.
+
+
+.. py:function:: test_an_element_type_parameter_bounds_the_width_not_the_encoding() -> None
+
+   A registry bound mirrors an RTL guard about BITS. q16.16 encodes as
+   4128 and is a 32-bit type; bounding the encoding would reject it for being
+   a large number, which is a statement about nothing.
+
+
+.. py:function:: test_an_element_type_spelling_is_refused_where_no_type_is_declared() -> None
+
+   A size parameter takes a size. Silently reading "int32" as 32 on a
+   capacity is the misreading the whole mechanism exists to prevent.
+
+
+.. py:function:: test_an_element_type_default_must_name_a_type_the_spec_admits() -> None
+
+.. py:function:: test_a_measurement_coordinate_may_name_the_type_it_was_measured_at() -> None
+
+   The same point, written either way, is one point -- so migrating a
+   registry entry to spellings cannot orphan an envelope that was measured
+   before types existed.
+
+
+.. py:function:: test_storage_intent_prices_against_declared_parameters() -> None
+
+.. py:function:: test_storage_intent_refuses_an_undeclared_scale_parameter() -> None
+
+.. py:function:: test_storage_intent_without_scale_is_a_fixed_cost() -> None
+
+.. py:function:: test_storage_bytes_refuses_illegal_scale_overrides() -> None
+
+.. py:function:: test_a_core_resolves_hdl_from_the_package_that_declares_it(tmp_path, monkeypatch) -> None
+
+   A tile contributed by another distribution finds its own HDL.
+
+   The registry is a hydra search path, so any package joining it through
+   the `hydra.lernaplugins` entry point can contribute cores. Their HDL
+   used to be resolved under dau_core.hdl regardless, so a third-party
+   tile could be registered from anywhere but had to vendor its Verilog
+   into this package. `source_package` is the seam.
+
+
+.. py:function:: test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards(monkeypatch) -> None
+
+   Installing a third-party tile must not fail THIS suite.
+
+   Four guards here assert an exact set over the whole registry -- the HDL
+   directory listing, the descriptor-tagged operators, the envelope-free
+   tiles, and the scalar-envelope holdouts. Each is a statement about
+   dau-core's own palette, and each read `loaded_cores()`, so a vendor tile
+   registered through the entry point showed up as drift in all four. A
+   contributor's first experience of the platform was our test suite
+   failing on their correct tile.
+
+   The line drawn is between those four and the universal-property guards
+   (every operator has a golden, a contract kind, record words, a measured
+   envelope). Those are contract requirements a well-formed tile satisfies,
+   so they stay registry-wide on purpose -- which is why the tile below is
+   built well-formed rather than minimal. It is the exact-set guards that
+   fail even a perfect vendor tile, and only those are scoped.
+
+
+.. py:function:: test_a_core_naming_an_uninstalled_hdl_package_refuses_clearly() -> None
+
+   The failure names the missing distribution rather than surfacing an
+   ImportError from inside a path resolution.
+
+
+.. py:function:: test_a_measured_point_matches_a_derived_clock_period() -> None
+
+   A clock period is DERIVED (1000 / job_clock_mhz), so exact float
+   equality is the wrong test.
+
+   150 MHz gives 6.666666666666667 while a registry writes 6.66667: the same
+   physical clock, and the lookup refused it as unmeasured while printing the
+   point it had just rejected. Real clock tiers differ by more than a
+   nanosecond, so a picosecond tolerance keeps the "never a neighboring
+   point" guarantee intact while tolerating representation.
+
+
+.. py:function:: test_an_unresolvable_hdl_source_says_so() -> None
+
+   A declared source that does not resolve is a DECLARATION error.
+
+   An out-of-tree tile whose HDL directory is not an importable package
+   resolves to a MultiplexedPath that prints the right path and does not
+   exist, so the first symptom used to be a synthesis run against a missing
+   file. The requirement -- an __init__.py beside the .sv files, so importlib
+   can traverse the directory -- is stated in the error rather than left to
+   be discovered.
+
+

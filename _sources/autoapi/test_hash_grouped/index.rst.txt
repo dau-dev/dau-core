@@ -1,0 +1,91 @@
+test_hash_grouped
+=================
+
+.. py:module:: test_hash_grouped
+
+.. autoapi-nested-parse::
+
+   Hash-mode grouped field-sum aggregation golden: one accumulator per
+   DISTINCT key regardless of input order (the ordered tile's
+   ``sorted_by_key`` staging precondition removed), key-ascending drain,
+   explicit overflow, and the host split-and-merge algebra that makes
+   overflow recoverable.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_hash_grouped._MASK
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_hash_grouped._rows
+   test_hash_grouped._as_pairs
+   test_hash_grouped.test_one_record_per_distinct_key_regardless_of_order
+   test_hash_grouped.test_permutation_invariance
+   test_hash_grouped.test_sorted_input_agrees_with_the_ordered_tile
+   test_hash_grouped.test_drain_is_signed_key_ascending
+   test_hash_grouped.test_keys_are_int32_wires
+   test_hash_grouped.test_overflow_invalidates_the_batch
+   test_hash_grouped.test_full_table_without_a_new_key_is_not_an_overflow
+   test_hash_grouped.test_bad_configuration_is_refused
+   test_hash_grouped.test_split_and_merge_equals_one_shot
+   test_hash_grouped.test_key_range_split_recovers_an_overflowed_batch
+   test_hash_grouped.test_merging_mixed_field_masks_is_a_caller_error
+   test_hash_grouped.test_empty_batch_emits_nothing
+   test_hash_grouped.test_record_words_match_the_ordered_tile_shape
+
+
+Module Contents
+---------------
+
+.. py:data:: _MASK
+   :value: 2
+
+
+.. py:function:: _rows(seed: int, count: int, keys: int) -> list[tuple[int, int, int, int]]
+
+.. py:function:: _as_pairs(groups)
+
+.. py:function:: test_one_record_per_distinct_key_regardless_of_order() -> None
+
+.. py:function:: test_permutation_invariance() -> None
+
+.. py:function:: test_sorted_input_agrees_with_the_ordered_tile() -> None
+
+.. py:function:: test_drain_is_signed_key_ascending() -> None
+
+.. py:function:: test_keys_are_int32_wires() -> None
+
+.. py:function:: test_overflow_invalidates_the_batch() -> None
+
+   The platform's uniform error convention: an error close-out
+   invalidates the whole batch. Returning the partial accumulation would
+   be a DOUBLE-COUNT hazard, since the host's recovery re-runs the same
+   rows split by key range.
+
+
+.. py:function:: test_full_table_without_a_new_key_is_not_an_overflow() -> None
+
+.. py:function:: test_bad_configuration_is_refused() -> None
+
+.. py:function:: test_split_and_merge_equals_one_shot() -> None
+
+   The property that makes overflow recoverable rather than fatal.
+
+
+.. py:function:: test_key_range_split_recovers_an_overflowed_batch() -> None
+
+.. py:function:: test_merging_mixed_field_masks_is_a_caller_error() -> None
+
+.. py:function:: test_empty_batch_emits_nothing() -> None
+
+.. py:function:: test_record_words_match_the_ordered_tile_shape() -> None
+

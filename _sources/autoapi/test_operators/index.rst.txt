@@ -1,0 +1,516 @@
+test_operators
+==============
+
+.. py:module:: test_operators
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_operators._VALUES
+   test_operators._QUAD_ROWS
+   test_operators._GROUPED_ROWS
+   test_operators._MEMBERSHIP_ROWS
+   test_operators._JOIN_BUILD
+   test_operators._JOIN_PROBE
+   test_operators._CARRY_BUILD
+   test_operators._Q6_SPECS
+   test_operators._Q1_SPECS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_operators._gather_selector
+   test_operators.test_record_gather_reproduces_feature_to_bucket_projection
+   test_operators.test_record_gather_reproduces_bar_to_roll_logical_key_extract
+   test_operators.test_record_gather_preserves_record_order
+   test_operators.test_record_gather_rejects_invalid_shapes
+   test_operators.test_single_predicate_ops
+   test_operators.test_and_combine_is_range_filter
+   test_operators.test_or_combine_is_union
+   test_operators.test_empty_selection_and_empty_input
+   test_operators.test_order_is_preserved
+   test_operators.test_constants_must_fit_int32
+   test_operators.test_map_add_sub_mul
+   test_operators.test_map_wraps_int32
+   test_operators.test_map_mulshr_is_bucket_derivation
+   test_operators.test_map_mulshr_arithmetic_shift_on_negative
+   test_operators.test_map_shift_and_bitwise_key_packing
+   test_operators.test_map_order_and_count_preserved
+   test_operators.test_map_config_validation
+   test_operators.test_grouped_aggregate_consecutive_keys
+   test_operators.test_grouped_aggregate_reappearing_key_opens_new_partial
+   test_operators.test_grouped_aggregate_single_group_and_empty
+   test_operators.test_grouped_aggregate_int64_sum_of_int32_extremes
+   test_operators.test_filter_rows_on_value_lane_keeps_pairs_aligned
+   test_operators.test_filter_rows_on_key_lane
+   test_operators.test_map_rows_key_lane_derives_buckets_value_passthrough
+   test_operators.test_map_rows_value_lane_key_passthrough
+   test_operators.test_ohlcv_graph_golden_composition
+   test_operators.test_bar_aggregate_fuses_price_stats_and_volume
+   test_operators.test_bar_aggregate_matches_composed_goldens
+   test_operators.test_row_predicate_single_term_on_each_field
+   test_operators.test_row_predicate_three_term_tree_is_the_q6_where
+   test_operators.test_row_predicate_or_of_and_levels
+   test_operators.test_row_predicate_validation
+   test_operators.test_row_map_q6_revenue_is_fixed_point_mulshr
+   test_operators.test_row_map_other_fields_pass_through
+   test_operators.test_row_map_wraps_int32
+   test_operators.test_mask_dispatch_routes_by_two_complement_low_bits
+   test_operators.test_mask_dispatch_rejects_non_power_of_two
+   test_operators.test_exact_branch_dispatch_routes_in_range_and_drops_the_rest
+   test_operators.test_exact_branch_dispatch_preserves_order_within_a_branch
+   test_operators.test_exact_branch_dispatch_rejects_non_positive_partitions
+   test_operators.test_stride_distribute_routes_by_static_slot_group
+   test_operators.test_stride_distribute_supports_one_lane_per_slot
+   test_operators.test_stride_distribute_rejects_invalid_lane_shape
+   test_operators.test_pack_splitters_is_msb_first_reversed_hex
+   test_operators.test_pack_splitters_rejects_out_of_signed_int32_range
+   test_operators.test_row_map_shift_validation
+   test_operators.test_field_sum_single_field_mask_is_q6
+   test_operators.test_field_sum_full_mask_is_the_q1_shape
+   test_operators.test_field_sum_negative_sum_encodes_twos_complement
+   test_operators.test_field_sum_int32_extremes_stay_exact
+   test_operators.test_field_sum_empty_batch_and_mask_validation
+   test_operators.test_field_sum_record_words_round_trip_at_every_mask
+   test_operators.test_field_sum_decode_reads_negative_sums_as_twos_complement
+   test_operators.test_field_sum_record_word_count_is_what_the_encoder_emits
+   test_operators.test_field_sum_combine_of_a_partition_equals_one_lane_over_all_rows
+   test_operators.test_field_sum_combine_refuses_mismatched_masks_and_nothing
+   test_operators.test_field_sum_decode_refuses_a_record_the_mask_does_not_describe
+   test_operators.test_grouped_field_sum_groups_consecutive_equal_keys
+   test_operators.test_grouped_field_sum_record_words_carry_key_sums_count
+   test_operators.test_grouped_field_sum_reappearing_key_opens_a_new_group
+   test_operators.test_grouped_field_sum_int64_accumulation_and_masks
+   test_operators.test_grouped_field_sum_empty_and_mask_validation
+   test_operators.test_membership_semi_keeps_members_anti_keeps_non_members
+   test_operators.test_membership_empty_and_full_sets
+   test_operators.test_membership_out_of_range_keys_are_non_members
+   test_operators.test_membership_image_words_round_trip_is_exact
+   test_operators.test_membership_build_set_validation
+   test_operators.test_membership_kind_and_mode_are_one_hot_config
+   test_operators.test_membership_order_is_preserved
+   test_operators.test_dedup_counts_each_key_once
+   test_operators.test_dedup_accumulates_across_batches
+   test_operators.test_dedup_rejects_an_out_of_range_key_and_drops_the_accumulation
+   test_operators.test_dedup_key_space_must_be_a_representable_bitmap
+   test_operators.test_broadcast_join_inner_join_carries_build_payload
+   test_operators.test_broadcast_join_field_select_mixes_build_and_probe
+   test_operators.test_broadcast_join_carry_probe_columns
+   test_operators.test_broadcast_join_last_writer_wins_on_duplicate_build_key
+   test_operators.test_broadcast_join_all_misses_emit_nothing
+   test_operators.test_broadcast_join_int32_wraparound_in_payload
+   test_operators.test_broadcast_join_key_range_is_rejected
+   test_operators.test_broadcast_join_config_validation
+   test_operators.test_broadcast_join_bounded_key_space_and_order_preserved
+   test_operators._pack
+   test_operators.test_unpack_single_word_exact_quad_row_tuple
+   test_operators.test_unpack_zero_extend_keeps_field_positive
+   test_operators.test_unpack_sign_extend_recovers_negative
+   test_operators.test_unpack_fields_cross_byte_boundaries
+   test_operators.test_unpack_boundary_widths_one_and_thirtytwo
+   test_operators.test_unpack_width32_unsigned_wraps_to_signed_int32
+   test_operators.test_unpack_q6_like_packing
+   test_operators.test_unpack_q1_like_packing_and_order_preserved
+   test_operators.test_unpack_field_spec_config_rejects
+   test_operators.test_unpack_requires_four_specs
+   test_operators.test_unpack_empty_input
+   test_operators.test_unpack_bypass_returns_quad_rows_unchanged
+   test_operators.test_unpack_bypass_ignores_field_specs
+   test_operators.test_unpack_bypass_empty_input
+   test_operators.test_bars_are_a_selection_over_the_generic_field_aggregate
+   test_operators.test_grouped_field_aggregate_per_field_stats
+   test_operators.test_finance_asof_is_the_generic_keyed_asof_join
+   test_operators.test_keyed_asof_join_holds_one_build_per_key
+   test_operators._wrap32
+   test_operators._heap_top_k
+   test_operators.test_streaming_top_k_orders_by_key_desc_limit_k
+   test_operators.test_streaming_top_k_ties_keep_earliest_arrival
+   test_operators.test_streaming_top_k_signed_key_comparison
+   test_operators.test_streaming_top_k_k_at_or_over_row_count_returns_all_sorted
+   test_operators.test_streaming_top_k_rejects_out_of_range_k
+   test_operators.test_streaming_top_k_matches_bounded_heap_model
+   test_operators.test_keyed_state_carries_a_dependency_per_key
+   test_operators.test_keyed_state_emits_post_update_so_back_to_back_rows_see_the_write
+   test_operators.test_keyed_state_first_row_of_a_key_starts_from_initial
+   test_operators.test_keyed_state_add_wraps_in_the_int32_domain
+   test_operators.test_keyed_state_refuses_to_evict_and_reports_where_it_filled
+   test_operators.test_keyed_state_rejects_a_capacity_the_hardware_cannot_hold
+   test_operators.test_keyed_state_keys_and_values_live_in_the_int32_domain
+   test_operators.test_keyed_state_rejects_an_unsupported_op
+   test_operators.test_scratchpad_emits_post_op_state_per_row
+   test_operators.test_scratchpad_overflow_is_an_error_that_preserves_emitted_rows
+   test_operators.test_scratchpad_values_live_in_the_int32_domain
+   test_operators.test_scratchpad_rejects_a_grant_the_arena_cannot_hold
+   test_operators.test_sessionize_closes_on_gap_and_at_batch_end
+   test_operators.test_sessionize_gap_boundary_is_exclusive
+   test_operators.test_sessionize_requires_per_batch_time_order
+   test_operators.test_sessionize_capacity_bounds_distinct_keys
+   test_operators.test_sessionize_rejects_bad_parameters
+   test_operators.test_sessionize_times_and_keys_live_in_the_int32_domain
+   test_operators.test_hash_dispatch_spreads_keys_that_mask_dispatch_collapses
+   test_operators.test_hash_dispatch_is_a_pinned_function_of_the_key
+   test_operators.test_hash_dispatch_preserves_order_and_drops_nothing
+   test_operators.test_hash_dispatch_requires_a_power_of_two
+   test_operators.test_hash_dispatch_records_agree_with_the_row_form
+   test_operators.test_divide_at_zero_fractional_bits_is_python_floor_division
+   test_operators.test_field_sum_combine_refuses_a_malformed_record_and_an_overflowing_union
+   test_operators.test_field_sum_decode_refuses_non_integer_words
+
+
+Module Contents
+---------------
+
+.. py:data:: _VALUES
+
+.. py:function:: _gather_selector(word: int, *, high: bool = False, shift: int = 0) -> int
+
+.. py:function:: test_record_gather_reproduces_feature_to_bucket_projection() -> None
+
+.. py:function:: test_record_gather_reproduces_bar_to_roll_logical_key_extract() -> None
+
+.. py:function:: test_record_gather_preserves_record_order() -> None
+
+.. py:function:: test_record_gather_rejects_invalid_shapes(words, in_words, out_words, selectors) -> None
+
+.. py:function:: test_single_predicate_ops(op: dau_core.operators.PredicateOp, constant: int, expected: list[int]) -> None
+
+.. py:function:: test_and_combine_is_range_filter() -> None
+
+.. py:function:: test_or_combine_is_union() -> None
+
+.. py:function:: test_empty_selection_and_empty_input() -> None
+
+.. py:function:: test_order_is_preserved() -> None
+
+.. py:function:: test_constants_must_fit_int32() -> None
+
+.. py:function:: test_map_add_sub_mul() -> None
+
+.. py:function:: test_map_wraps_int32() -> None
+
+.. py:function:: test_map_mulshr_is_bucket_derivation() -> None
+
+.. py:function:: test_map_mulshr_arithmetic_shift_on_negative() -> None
+
+.. py:function:: test_map_shift_and_bitwise_key_packing() -> None
+
+.. py:function:: test_map_order_and_count_preserved() -> None
+
+.. py:function:: test_map_config_validation() -> None
+
+.. py:function:: test_grouped_aggregate_consecutive_keys() -> None
+
+.. py:function:: test_grouped_aggregate_reappearing_key_opens_new_partial() -> None
+
+.. py:function:: test_grouped_aggregate_single_group_and_empty() -> None
+
+.. py:function:: test_grouped_aggregate_int64_sum_of_int32_extremes() -> None
+
+.. py:function:: test_filter_rows_on_value_lane_keeps_pairs_aligned() -> None
+
+.. py:function:: test_filter_rows_on_key_lane() -> None
+
+.. py:function:: test_map_rows_key_lane_derives_buckets_value_passthrough() -> None
+
+.. py:function:: test_map_rows_value_lane_key_passthrough() -> None
+
+.. py:function:: test_ohlcv_graph_golden_composition() -> None
+
+.. py:function:: test_bar_aggregate_fuses_price_stats_and_volume() -> None
+
+.. py:function:: test_bar_aggregate_matches_composed_goldens() -> None
+
+.. py:data:: _QUAD_ROWS
+
+.. py:function:: test_row_predicate_single_term_on_each_field() -> None
+
+.. py:function:: test_row_predicate_three_term_tree_is_the_q6_where() -> None
+
+.. py:function:: test_row_predicate_or_of_and_levels() -> None
+
+.. py:function:: test_row_predicate_validation() -> None
+
+.. py:function:: test_row_map_q6_revenue_is_fixed_point_mulshr() -> None
+
+.. py:function:: test_row_map_other_fields_pass_through() -> None
+
+.. py:function:: test_row_map_wraps_int32() -> None
+
+.. py:function:: test_mask_dispatch_routes_by_two_complement_low_bits() -> None
+
+.. py:function:: test_mask_dispatch_rejects_non_power_of_two() -> None
+
+.. py:function:: test_exact_branch_dispatch_routes_in_range_and_drops_the_rest() -> None
+
+.. py:function:: test_exact_branch_dispatch_preserves_order_within_a_branch() -> None
+
+.. py:function:: test_exact_branch_dispatch_rejects_non_positive_partitions() -> None
+
+.. py:function:: test_stride_distribute_routes_by_static_slot_group() -> None
+
+.. py:function:: test_stride_distribute_supports_one_lane_per_slot() -> None
+
+.. py:function:: test_stride_distribute_rejects_invalid_lane_shape(rows_per_beat: int, num_partitions: int) -> None
+
+.. py:function:: test_pack_splitters_is_msb_first_reversed_hex() -> None
+
+.. py:function:: test_pack_splitters_rejects_out_of_signed_int32_range() -> None
+
+.. py:function:: test_row_map_shift_validation() -> None
+
+.. py:function:: test_field_sum_single_field_mask_is_q6() -> None
+
+.. py:function:: test_field_sum_full_mask_is_the_q1_shape() -> None
+
+.. py:function:: test_field_sum_negative_sum_encodes_twos_complement() -> None
+
+.. py:function:: test_field_sum_int32_extremes_stay_exact() -> None
+
+.. py:function:: test_field_sum_empty_batch_and_mask_validation() -> None
+
+.. py:function:: test_field_sum_record_words_round_trip_at_every_mask(field_mask: int) -> None
+
+   Decoding a record returns the aggregate that emitted it, for every
+   mask -- so the word count, the field order and the sign convention are
+   stated once and read back the same way.
+
+
+.. py:function:: test_field_sum_decode_reads_negative_sums_as_twos_complement() -> None
+
+   The sign convention is the half a hand-rolled unpack gets wrong: a
+   negative sum is a large unsigned word on the wire.
+
+
+.. py:function:: test_field_sum_record_word_count_is_what_the_encoder_emits(field_mask: int) -> None
+
+.. py:function:: test_field_sum_combine_of_a_partition_equals_one_lane_over_all_rows() -> None
+
+   The partition algebra: split the rows by key across four lanes, fold
+   the four records, get the record one lane over every row emits.
+
+
+.. py:function:: test_field_sum_combine_refuses_mismatched_masks_and_nothing() -> None
+
+.. py:function:: test_field_sum_decode_refuses_a_record_the_mask_does_not_describe() -> None
+
+   A wrong-length record is a mask/design mismatch, and reading it
+   would silently attribute one field's sum to another.
+
+
+.. py:data:: _GROUPED_ROWS
+
+.. py:function:: test_grouped_field_sum_groups_consecutive_equal_keys() -> None
+
+.. py:function:: test_grouped_field_sum_record_words_carry_key_sums_count() -> None
+
+.. py:function:: test_grouped_field_sum_reappearing_key_opens_a_new_group() -> None
+
+.. py:function:: test_grouped_field_sum_int64_accumulation_and_masks() -> None
+
+.. py:function:: test_grouped_field_sum_empty_and_mask_validation() -> None
+
+.. py:data:: _MEMBERSHIP_ROWS
+
+.. py:function:: test_membership_semi_keeps_members_anti_keeps_non_members() -> None
+
+.. py:function:: test_membership_empty_and_full_sets() -> None
+
+.. py:function:: test_membership_out_of_range_keys_are_non_members() -> None
+
+.. py:function:: test_membership_image_words_round_trip_is_exact() -> None
+
+.. py:function:: test_membership_build_set_validation() -> None
+
+.. py:function:: test_membership_kind_and_mode_are_one_hot_config() -> None
+
+.. py:function:: test_membership_order_is_preserved() -> None
+
+.. py:function:: test_dedup_counts_each_key_once() -> None
+
+.. py:function:: test_dedup_accumulates_across_batches() -> None
+
+.. py:function:: test_dedup_rejects_an_out_of_range_key_and_drops_the_accumulation() -> None
+
+.. py:function:: test_dedup_key_space_must_be_a_representable_bitmap() -> None
+
+.. py:data:: _JOIN_BUILD
+   :value: [(7, 100, 101, 102), (100, 200, 201, 202), (63, 300, 301, 302)]
+
+
+.. py:data:: _JOIN_PROBE
+   :value: [(7, 1000, 1001, 1002), (999, 2000, 2001, 2002), (63, 3000, 3001, 3002), (100, 4000, 4001, 4002)]
+
+
+.. py:data:: _CARRY_BUILD
+
+.. py:function:: test_broadcast_join_inner_join_carries_build_payload() -> None
+
+.. py:function:: test_broadcast_join_field_select_mixes_build_and_probe() -> None
+
+.. py:function:: test_broadcast_join_carry_probe_columns() -> None
+
+.. py:function:: test_broadcast_join_last_writer_wins_on_duplicate_build_key() -> None
+
+.. py:function:: test_broadcast_join_all_misses_emit_nothing() -> None
+
+.. py:function:: test_broadcast_join_int32_wraparound_in_payload() -> None
+
+.. py:function:: test_broadcast_join_key_range_is_rejected() -> None
+
+.. py:function:: test_broadcast_join_config_validation() -> None
+
+.. py:function:: test_broadcast_join_bounded_key_space_and_order_preserved() -> None
+
+.. py:function:: _pack(specs: list[dau_core.operators.UnpackFieldSpec], fields: tuple[int, int, int, int]) -> int
+
+   Pack four field values into one word at the specs' offsets/widths
+   (two's-complement within each width).
+
+
+.. py:data:: _Q6_SPECS
+
+.. py:data:: _Q1_SPECS
+
+.. py:function:: test_unpack_single_word_exact_quad_row_tuple() -> None
+
+.. py:function:: test_unpack_zero_extend_keeps_field_positive() -> None
+
+.. py:function:: test_unpack_sign_extend_recovers_negative() -> None
+
+.. py:function:: test_unpack_fields_cross_byte_boundaries() -> None
+
+.. py:function:: test_unpack_boundary_widths_one_and_thirtytwo() -> None
+
+.. py:function:: test_unpack_width32_unsigned_wraps_to_signed_int32() -> None
+
+.. py:function:: test_unpack_q6_like_packing() -> None
+
+.. py:function:: test_unpack_q1_like_packing_and_order_preserved() -> None
+
+.. py:function:: test_unpack_field_spec_config_rejects() -> None
+
+.. py:function:: test_unpack_requires_four_specs() -> None
+
+.. py:function:: test_unpack_empty_input() -> None
+
+.. py:function:: test_unpack_bypass_returns_quad_rows_unchanged() -> None
+
+.. py:function:: test_unpack_bypass_ignores_field_specs() -> None
+
+.. py:function:: test_unpack_bypass_empty_input() -> None
+
+.. py:function:: test_bars_are_a_selection_over_the_generic_field_aggregate() -> None
+
+.. py:function:: test_grouped_field_aggregate_per_field_stats() -> None
+
+.. py:function:: test_finance_asof_is_the_generic_keyed_asof_join() -> None
+
+.. py:function:: test_keyed_asof_join_holds_one_build_per_key() -> None
+
+.. py:function:: _wrap32(value: int) -> int
+
+.. py:function:: _heap_top_k(rows, k)
+
+   Operational model of the size-k min-heap tile: fill k, then replace the
+   current worst-kept row (smallest key, latest arrival among ties) only when a
+   new key is STRICTLY greater. Emit sorted key-desc, arrival-asc. This is the
+   algorithm the hardware runs; the equivalence test proves it matches the
+   ``streaming_top_k`` spec.
+
+
+.. py:function:: test_streaming_top_k_orders_by_key_desc_limit_k()
+
+.. py:function:: test_streaming_top_k_ties_keep_earliest_arrival()
+
+.. py:function:: test_streaming_top_k_signed_key_comparison()
+
+.. py:function:: test_streaming_top_k_k_at_or_over_row_count_returns_all_sorted()
+
+.. py:function:: test_streaming_top_k_rejects_out_of_range_k()
+
+.. py:function:: test_streaming_top_k_matches_bounded_heap_model()
+
+.. py:function:: test_keyed_state_carries_a_dependency_per_key() -> None
+
+.. py:function:: test_keyed_state_emits_post_update_so_back_to_back_rows_see_the_write() -> None
+
+.. py:function:: test_keyed_state_first_row_of_a_key_starts_from_initial() -> None
+
+.. py:function:: test_keyed_state_add_wraps_in_the_int32_domain() -> None
+
+.. py:function:: test_keyed_state_refuses_to_evict_and_reports_where_it_filled() -> None
+
+.. py:function:: test_keyed_state_rejects_a_capacity_the_hardware_cannot_hold() -> None
+
+.. py:function:: test_keyed_state_keys_and_values_live_in_the_int32_domain() -> None
+
+.. py:function:: test_keyed_state_rejects_an_unsupported_op() -> None
+
+.. py:function:: test_scratchpad_emits_post_op_state_per_row() -> None
+
+.. py:function:: test_scratchpad_overflow_is_an_error_that_preserves_emitted_rows() -> None
+
+.. py:function:: test_scratchpad_values_live_in_the_int32_domain() -> None
+
+.. py:function:: test_scratchpad_rejects_a_grant_the_arena_cannot_hold() -> None
+
+.. py:function:: test_sessionize_closes_on_gap_and_at_batch_end() -> None
+
+.. py:function:: test_sessionize_gap_boundary_is_exclusive() -> None
+
+.. py:function:: test_sessionize_requires_per_batch_time_order() -> None
+
+.. py:function:: test_sessionize_capacity_bounds_distinct_keys() -> None
+
+.. py:function:: test_sessionize_rejects_bad_parameters() -> None
+
+.. py:function:: test_sessionize_times_and_keys_live_in_the_int32_domain() -> None
+
+.. py:function:: test_hash_dispatch_spreads_keys_that_mask_dispatch_collapses() -> None
+
+   Why HASH mode exists: MASK reads the key's LOW bits, so keys sharing
+   a stride land on one lane. The multiplicative hash mixes the whole key
+   into the high bits before the select.
+
+
+.. py:function:: test_hash_dispatch_is_a_pinned_function_of_the_key() -> None
+
+   A row's partition is part of the answer, so the constant and the
+   bit-extraction are contract, not implementation. These values are what
+   the HDL must reproduce.
+
+
+.. py:function:: test_hash_dispatch_preserves_order_and_drops_nothing() -> None
+
+.. py:function:: test_hash_dispatch_requires_a_power_of_two() -> None
+
+.. py:function:: test_hash_dispatch_records_agree_with_the_row_form() -> None
+
+.. py:function:: test_divide_at_zero_fractional_bits_is_python_floor_division() -> None
+
+   The bridge a `col_a // col_b` lowering rests on.
+
+   polars integer `//` floors, and so does this tile at FRACTIONAL_BITS=0 --
+   `(A << 0) // B` is just `A // B`. That equivalence is what lets a
+   column-by-column floor divide lower onto the divide tile with no host
+   correction, so it is pinned rather than left as a reading of the code.
+
+   The negative cases are the ones that matter: a tile truncating toward
+   zero would agree on every positive pair and disagree on half the rest.
+
+
+.. py:function:: test_field_sum_combine_refuses_a_malformed_record_and_an_overflowing_union() -> None
+
+   A record whose sums do not match its mask is not a record; a union
+   that leaves INT64 is not one any lane could have emitted, and
+   re-encoding it would truncate silently.
+
+
+.. py:function:: test_field_sum_decode_refuses_non_integer_words() -> None
+

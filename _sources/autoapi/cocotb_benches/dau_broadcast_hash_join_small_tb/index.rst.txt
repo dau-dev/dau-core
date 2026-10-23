@@ -1,0 +1,56 @@
+cocotb_benches.dau_broadcast_hash_join_small_tb
+===============================================
+
+.. py:module:: cocotb_benches.dau_broadcast_hash_join_small_tb
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_broadcast_hash_join_small_tb._KEY_SPACE
+   cocotb_benches.dau_broadcast_hash_join_small_tb._CARRY_BUILD
+   cocotb_benches.dau_broadcast_hash_join_small_tb._BUILD
+   cocotb_benches.dau_broadcast_hash_join_small_tb._PROBE
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_broadcast_hash_join_small_tb.small_table_load_then_probe
+   cocotb_benches.dau_broadcast_hash_join_small_tb.small_table_second_load_replaces
+   cocotb_benches.dau_broadcast_hash_join_small_tb.small_table_out_of_range_keys_reject
+
+
+Module Contents
+---------------
+
+.. py:data:: _KEY_SPACE
+   :value: 64
+
+
+.. py:data:: _CARRY_BUILD
+
+.. py:data:: _BUILD
+   :value: [(7, 100, 101, 102), (0, 200, 201, 202), (63, 300, 301, 302)]
+
+
+.. py:data:: _PROBE
+   :value: [(7, 1, 1, 1), (0, 2, 2, 2), (63, 3, 3, 3), (40, 4, 4, 4)]
+
+
+.. py:function:: small_table_load_then_probe(dut)
+   :async:
+
+
+.. py:function:: small_table_second_load_replaces(dut)
+   :async:
+
+
+.. py:function:: small_table_out_of_range_keys_reject(dut)
+   :async:
+
+

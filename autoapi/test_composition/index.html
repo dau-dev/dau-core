@@ -1,0 +1,2127 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>test_composition &#8212; dau core v0.1.0</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/fuma.css?v=f6f6878e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/fuma-code.css?v=a950e949" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/fonts/fuma-fonts.css?v=c2892c73" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/custom.css?v=88c24c6a" />
+    <script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-searchlite-index="searchlite-index.json" defer="defer" src="../../_static/searchlite.js?v=a5320898"></script>
+    <script defer="defer" src="../../_static/fuma.js?v=b46bb53d"></script>
+    <script src="../../_static/js/custom.js?v=956e5d78"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="test_hdl_sources" href="../test_hdl_sources/index.html" />
+    <link rel="prev" title="test_hdl_cocotb" href="../test_hdl_cocotb/index.html" />
+    <script>
+      (function () {
+        var root = document.documentElement;
+        try {
+          var stored = localStorage.getItem("fuma-theme");
+          if (stored) {
+            root.classList.add(stored === "dark" ? "dark" : "light");
+            root.style.colorScheme = stored === "dark" ? "dark" : "light";
+          }
+          if (localStorage.getItem("fuma-sidebar") === "collapsed") root.dataset.sidebarCollapsed = "true";
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+<body class="fd-body" data-layout="docs" data-toc-style="normal" data-open-level="1">
+<div id="fd-layout"><header id="fd-subnav">
+  <div class="fd-subnav-inner">
+    <button type="button" class="fd-icon-button fd-sidebar-toggle" aria-controls="fd-sidebar" aria-expanded="false" aria-label="Toggle navigation">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
+    </button><a class="fd-brand" href="../../index.html"><span class="fd-brand-name">dau core v0.1.0</span>
+</a>
+
+    <div class="fd-nav-actions">
+      <button type="button" class="fd-icon-button" data-fd-search-open aria-label="Search"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+      <a class="fd-icon-button" href="https://github.com/dau-dev/dau-core" target="_blank" rel="noopener" aria-label="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <button type="button" class="fd-icon-button fd-theme-toggle" aria-label="Toggle theme">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-light"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-dark"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<aside id="fd-sidebar" aria-label="Documentation">
+  <div class="fd-sidebar-header">
+    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../index.html"><span class="fd-brand-name">dau core v0.1.0</span>
+</a>
+      <button type="button" class="fd-icon-button fd-sidebar-collapse" aria-label="Collapse sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+    </div>
+    <button type="button" class="fd-search-trigger" data-fd-search-open>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><span>Search</span><kbd class="fd-kbd">/</kbd>
+    </button>
+  </div>
+
+  <nav class="fd-sidebar-nav">
+    <div class="fd-sidebar-group">
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/tutorial/read-a-tile-contract.html">
+      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-tile.html">
+      <span class="fd-link-text">How to add an operator tile</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/test-a-core.html">
+      <span class="fd-link-text">How to test a core</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/measure-a-resource-envelope.html">
+      <span class="fd-link-text">How to measure a resource envelope</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/develop.html">
+      <span class="fd-link-text">Develop and contribute</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/reference/core-definition.html">
+      <span class="fd-link-text">CoreDefinition fields</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/reference/registry-guards.html">
+      <span class="fd-link-text">Registry-wide guards</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/explanation/why-cores-are-declared-in-config.html">
+      <span class="fd-link-text">Why cores are declared in config</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
+      <span class="fd-link-text">Why each tile has a golden model</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/explanation/why-resources-are-measured.html">
+      <span class="fd-link-text">Why resource costs are measured</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder" open>
+      <summary class="fd-folder-summary">
+        <a class="fd-link" href="../index.html">
+          <span class="fd-link-text">API Reference</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <details class="fd-folder">
+      <summary class="fd-folder-summary">
+        <a class="fd-link" href="../dau_core/index.html">
+          <span class="fd-link-text">dau_core</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/_lazy/index.html">
+      <span class="fd-link-text">dau_core._lazy</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/capabilities/index.html">
+      <span class="fd-link-text">dau_core.capabilities</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/capability_contract/index.html">
+      <span class="fd-link-text">dau_core.capability_contract</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/composition/index.html">
+      <span class="fd-link-text">dau_core.composition</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/config/index.html">
+      <span class="fd-link-text">dau_core.config</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/cores/index.html">
+      <span class="fd-link-text">dau_core.cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/design/index.html">
+      <span class="fd-link-text">dau_core.design</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/element_types/index.html">
+      <span class="fd-link-text">dau_core.element_types</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/exp_generator/index.html">
+      <span class="fd-link-text">dau_core.exp_generator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/fixed_point/index.html">
+      <span class="fd-link-text">dau_core.fixed_point</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/generators/index.html">
+      <span class="fd-link-text">dau_core.generators</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/hdl/index.html">
+      <span class="fd-link-text">dau_core.hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/hero/index.html">
+      <span class="fd-link-text">dau_core.hero</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/ln_generator/index.html">
+      <span class="fd-link-text">dau_core.ln_generator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/models/index.html">
+      <span class="fd-link-text">dau_core.models</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/normal_cdf_generator/index.html">
+      <span class="fd-link-text">dau_core.normal_cdf_generator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/operators/index.html">
+      <span class="fd-link-text">dau_core.operators</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/registers/index.html">
+      <span class="fd-link-text">dau_core.registers</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/registry/index.html">
+      <span class="fd-link-text">dau_core.registry</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/stream/index.html">
+      <span class="fd-link-text">dau_core.stream</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/temporal/index.html">
+      <span class="fd-link-text">dau_core.temporal</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_core/workflows/index.html">
+      <span class="fd-link-text">dau_core.workflows</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../conftest/index.html">
+      <span class="fd-link-text">conftest</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_docs/index.html">
+      <span class="fd-link-text">test_docs</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_hero/index.html">
+      <span class="fd-link-text">test_hero</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_cores/index.html">
+      <span class="fd-link-text">test_cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_design/index.html">
+      <span class="fd-link-text">test_design</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_stream/index.html">
+      <span class="fd-link-text">test_stream</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_readme/index.html">
+      <span class="fd-link-text">test_readme</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_temporal/index.html">
+      <span class="fd-link-text">test_temporal</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_operators/index.html">
+      <span class="fd-link-text">test_operators</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder">
+      <summary class="fd-folder-summary">
+        <a class="fd-link" href="../cocotb_benches/index.html">
+          <span class="fd-link-text">cocotb_benches</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_arrow_lite_stream_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_arrow_lite_stream_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_asof_backward_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_asof_backward_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_asof_feature_chain_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_asof_feature_chain_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_axi_bar_job_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_bar_job_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_axi_bar_noc_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_bar_noc_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_axi_burst_reader_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_burst_reader_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_axi_random_probe_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_random_probe_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_axi_sort_noc_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_sort_noc_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_bar_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_bar_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_bitonic_sorter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_bitonic_sorter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_broadcast_hash_join_small_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_broadcast_hash_join_small_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_broadcast_hash_join_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_broadcast_hash_join_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_bucket_agg_chain_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_bucket_agg_chain_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_datetime_format_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_datetime_format_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_field_sum_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_field_sum_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_fixed_point_divide_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_divide_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_fixed_point_exp_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_exp_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_fixed_point_ln_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_ln_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_fixed_point_sqrt_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_sqrt_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_grouped_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_grouped_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_grouped_field_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_grouped_field_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_grouped_field_sum_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_grouped_field_sum_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_hash_grouped_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_hash_grouped_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_hero_datapath_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_hero_datapath_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_int32_keyed_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_keyed_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_int32_keyed_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_keyed_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_int32_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_int32_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_int32_record_gather_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_record_gather_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_key_mask_dispatcher_exact_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_exact_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_key_mask_dispatcher_hash_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_hash_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_key_mask_dispatcher_multi_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_multi_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_key_mask_dispatcher_records_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_records_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_key_mask_dispatcher_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_key_mask_dispatcher_wide_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_wide_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_key_membership_filter_single_word_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_membership_filter_single_word_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_key_membership_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_membership_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_keyed_state_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_keyed_state_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_market_feature_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_market_feature_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_normal_cdf_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_normal_cdf_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_pair_key_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_pair_key_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_range_partitioner_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_range_partitioner_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_record_batch_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_record_batch_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_record_gearbox_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_record_gearbox_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_rolling_extremum_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_rolling_extremum_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_rolling_moments_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_rolling_moments_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_row_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_row_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_row_predicate_filter_width_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_predicate_filter_width_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_row_unpack_slots_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_unpack_slots_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_row_unpack_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_unpack_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_row_unpack_wide_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_unpack_wide_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_scratchpad_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_scratchpad_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_session_gap_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_session_gap_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_stream_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_stream_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_streaming_dedup_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_streaming_dedup_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_streaming_top_k_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_streaming_top_k_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_stride_distributor_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_stride_distributor_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_time_bucket_key_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_time_bucket_key_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_wide_field_sum_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_field_sum_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_wide_ingest_chain_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_ingest_chain_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_wide_row_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_row_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/dau_wide_row_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_row_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cocotb_benches/rate_probe/index.html">
+      <span class="fd-link-text">cocotb_benches.rate_probe</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_hdl_cocotb/index.html">
+      <span class="fd-link-text">test_hdl_cocotb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link fd-current" href="#">
+      <span class="fd-link-text">test_composition</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_hdl_sources/index.html">
+      <span class="fd-link-text">test_hdl_sources</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../exhaustive_sweep/index.html">
+      <span class="fd-link-text">exhaustive_sweep</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_hash_grouped/index.html">
+      <span class="fd-link-text">test_hash_grouped</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_record_batch/index.html">
+      <span class="fd-link-text">test_record_batch</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_lazy_exports/index.html">
+      <span class="fd-link-text">test_lazy_exports</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_element_types/index.html">
+      <span class="fd-link-text">test_element_types</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_core_contract/index.html">
+      <span class="fd-link-text">test_core_contract</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_hdl_verilator/index.html">
+      <span class="fd-link-text">test_hdl_verilator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_fixed_point_ln/index.html">
+      <span class="fd-link-text">test_fixed_point_ln</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_ohlcv_fixtures/index.html">
+      <span class="fd-link-text">test_ohlcv_fixtures</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_hdl_elaboration/index.html">
+      <span class="fd-link-text">test_hdl_elaboration</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_datetime_format/index.html">
+      <span class="fd-link-text">test_datetime_format</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_fixed_point_exp/index.html">
+      <span class="fd-link-text">test_fixed_point_exp</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_generated_cores/index.html">
+      <span class="fd-link-text">test_generated_cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_benches_can_fail/index.html">
+      <span class="fd-link-text">test_benches_can_fail</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_contributed_cores/index.html">
+      <span class="fd-link-text">test_contributed_cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_validation_at_use/index.html">
+      <span class="fd-link-text">test_validation_at_use</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_aggregation_goldens/index.html">
+      <span class="fd-link-text">test_aggregation_goldens</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_capability_contract/index.html">
+      <span class="fd-link-text">test_capability_contract</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_public_tile_surface/index.html">
+      <span class="fd-link-text">test_public_tile_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_aggregation_tile_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_contributed_discovery/index.html">
+      <span class="fd-link-text">test_contributed_discovery</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_fixed_point_normal_cdf/index.html">
+      <span class="fd-link-text">test_fixed_point_normal_cdf</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_output_beat_declarations/index.html">
+      <span class="fd-link-text">test_output_beat_declarations</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_registers_and_capabilities/index.html">
+      <span class="fd-link-text">test_registers_and_capabilities</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_measured_from_matches_the_hdl/index.html">
+      <span class="fd-link-text">test_measured_from_matches_the_hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_parameter_bounds_match_the_hdl/index.html">
+      <span class="fd-link-text">test_parameter_bounds_match_the_hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_hdl_parameter_bindings_resolve/index.html">
+      <span class="fd-link-text">test_hdl_parameter_bindings_resolve</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+</ul>
+    </div>
+  </nav>
+
+  <div class="fd-sidebar-footer">
+    <div class="fd-toolbar">
+      <a class="fd-toolbar-item" href="https://github.com/dau-dev/dau-core" target="_blank" rel="noopener" aria-label="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <div class="fd-theme-switch" role="group" aria-label="Theme">
+        <button type="button" class="fd-theme-option" data-fd-theme="light" aria-label="Light theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></button>
+        <button type="button" class="fd-theme-option" data-fd-theme="dark" aria-label="Dark theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg></button>
+      </div>
+    </div>
+  </div>
+</aside>
+<button type="button" id="fd-sidebar-restore" class="fd-icon-button" aria-label="Expand sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+<div class="fd-sidebar-scrim" hidden></div>
+  <div id="fd-toc-popover">
+    <button type="button" class="fd-toc-trigger" aria-expanded="false" aria-controls="fd-toc-mobile">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg><span>On this page</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <div id="fd-toc-mobile" hidden><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#attributes">Attributes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#functions">Functions</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#module-contents">Module Contents</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition._BAR">_BAR</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition._PART">_PART</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition._CLOCK_NS">_CLOCK_NS</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition._priced">_priced()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition._tile_lut">_tile_lut()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition._partition">_partition()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.bar_noc_spec">bar_noc_spec()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_spec_validates_lane_tiles">test_spec_validates_lane_tiles()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_core_names_cover_infrastructure_and_lanes">test_core_names_cover_infrastructure_and_lanes()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_estimated_resources_scale_with_lanes">test_estimated_resources_scale_with_lanes()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_single_lane_filterless_scan_is_valid">test_single_lane_filterless_scan_is_valid()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition._range_partitioner">_range_partitioner()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.sorted_scan_spec">sorted_scan_spec()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_shared_partitioner_replaces_broadcast">test_shared_partitioner_replaces_broadcast()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_shared_partitioner_rejects_per_lane_partitions">test_shared_partitioner_rejects_per_lane_partitions()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_shared_partitioner_must_be_operator">test_shared_partitioner_must_be_operator()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_sorted_scan_resources_use_partitioner_envelope">test_sorted_scan_resources_use_partitioner_envelope()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.q6_scan_spec">q6_scan_spec()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_chain_lanes_validate_and_close_core_names">test_chain_lanes_validate_and_close_core_names()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_chain_stages_must_be_operators">test_chain_stages_must_be_operators()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_chain_stages_need_no_status_counter">test_chain_stages_need_no_status_counter()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_chain_resources_are_counted_per_lane">test_chain_resources_are_counted_per_lane()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_tile_params_validate_declared_names_and_positive_values">test_tile_params_validate_declared_names_and_positive_values()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_a_design_may_pick_an_element_type_by_name">test_a_design_may_pick_an_element_type_by_name()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_a_type_and_its_width_are_the_same_design">test_a_type_and_its_width_are_the_same_design()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_minimum_constraint_mirrors_the_rolling_window_guard">test_minimum_constraint_mirrors_the_rolling_window_guard()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_a_declared_zero_minimum_admits_zero">test_a_declared_zero_minimum_admits_zero()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_maximum_constraint_mirrors_the_bucket_bits_guard">test_maximum_constraint_mirrors_the_bucket_bits_guard()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards">test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_load_phase_shape_rules">test_load_phase_shape_rules()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_param_override_is_validated_on_the_lane_tile_and_partition_slots">test_param_override_is_validated_on_the_lane_tile_and_partition_slots()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_key_space_override_must_match_the_declared_multiple">test_key_space_override_must_match_the_declared_multiple()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_shared_partitioner_params_are_validated">test_shared_partitioner_params_are_validated()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_a_sized_tile_prices_at_its_size_not_its_default">test_a_sized_tile_prices_at_its_size_not_its_default()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition._FRONT_UNPACK_CONFIG">_FRONT_UNPACK_CONFIG</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition._front_unpack">_front_unpack()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_front_unpack_validates_and_reaches_core_names_and_resources">test_front_unpack_validates_and_reaches_core_names_and_resources()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_front_unpack_rejects_a_non_unpack_tile">test_front_unpack_rejects_a_non_unpack_tile()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_front_unpack_less_composition_is_unchanged">test_front_unpack_less_composition_is_unchanged()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_exactly_one_success_close_out_per_lane_is_enforced">test_exactly_one_success_close_out_per_lane_is_enforced()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_spec_canonical_round_trip_and_hash_stability">test_spec_canonical_round_trip_and_hash_stability()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_spec_hash_is_config_order_insensitive_and_content_sensitive">test_spec_hash_is_config_order_insensitive_and_content_sensitive()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_spec_hash_pinned_fixture">test_spec_hash_pinned_fixture()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_spec_from_canonical_revalidates">test_spec_from_canonical_revalidates()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_canonical_version_reads_the_prefix_a_recorded_hash_carries">test_canonical_version_reads_the_prefix_a_recorded_hash_carries()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_a_text_recorded_under_an_older_palette_is_refused_by_version_not_by_parse">test_a_text_recorded_under_an_older_palette_is_refused_by_version_not_by_parse()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_spec_hash_stable_when_defaults_are_explicit">test_spec_hash_stable_when_defaults_are_explicit()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_handle_table_capacity_is_design_identity_and_inert_at_zero">test_handle_table_capacity_is_design_identity_and_inert_at_zero()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_wide_data_width_composition_rules">test_wide_data_width_composition_rules()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_throughput_reproduces_the_measured_rate_ladder">test_throughput_reproduces_the_measured_rate_ladder()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_throughput_packed_front_re_times_delivery">test_throughput_packed_front_re_times_delivery()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_the_wide_lane_shape_composes_and_rate_matches">test_the_wide_lane_shape_composes_and_rate_matches()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_wide_combinational_tile_pipeline_depth_bounds_are_enforced">test_wide_combinational_tile_pipeline_depth_bounds_are_enforced()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_the_wide_lane_shape_rules_are_enforced">test_the_wide_lane_shape_rules_are_enforced()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_wide_row_stream_cores_are_refused_in_the_partitioner_slot">test_wide_row_stream_cores_are_refused_in_the_partitioner_slot()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_the_fused_chain_shape_is_declared_not_inferred">test_the_fused_chain_shape_is_declared_not_inferred()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition._temporal_hero_spec">_temporal_hero_spec()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_temporal_hero_gathers_reconcile_every_stream_shape">test_temporal_hero_gathers_reconcile_every_stream_shape()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_stream_shape_mismatch_names_both_cores_and_shapes">test_stream_shape_mismatch_names_both_cores_and_shapes()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_stream_shape_mismatches_include_front_feed_and_partitioner">test_stream_shape_mismatches_include_front_feed_and_partitioner()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_selectivity_reconciles_the_model_with_q6_silicon">test_selectivity_reconciles_the_model_with_q6_silicon()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition._record_dispatcher">_record_dispatcher()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition._front_gearbox">_front_gearbox()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_front_gearbox_reaches_core_names_and_resources">test_front_gearbox_reaches_core_names_and_resources()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_a_geared_design_does_not_share_a_hash_with_an_ungeared_one">test_a_geared_design_does_not_share_a_hash_with_an_ungeared_one()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_the_gearbox_is_charged_as_the_front_delivery_it_is">test_the_gearbox_is_charged_as_the_front_delivery_it_is()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_a_wider_record_lowers_the_geared_delivery">test_a_wider_record_lowers_the_geared_delivery()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_a_gearbox_record_mismatch_is_detected">test_a_gearbox_record_mismatch_is_detected()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front">test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition._stream_job_spec">_stream_job_spec()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_a_stream_job_composition_declares_its_own_infrastructure">test_a_stream_job_composition_declares_its_own_infrastructure()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_a_stream_job_composition_refuses_scan_shaped_fields">test_a_stream_job_composition_refuses_scan_shaped_fields()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_the_scan_shell_still_requires_a_lane_counter">test_the_scan_shell_still_requires_a_lane_counter()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_addr_width_is_32_or_64_only">test_addr_width_is_32_or_64_only()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_a_packed_front_can_feed_a_wide_lane">test_a_packed_front_can_feed_a_wide_lane()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_a_packed_wide_feed_rates_at_the_unpacker_not_at_one_row">test_a_packed_wide_feed_rates_at_the_unpacker_not_at_one_row()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_shell_infrastructure_is_selected_by_role_not_by_name">test_shell_infrastructure_is_selected_by_role_not_by_name()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_a_stream_job_must_name_a_stream_job_shell">test_a_stream_job_must_name_a_stream_job_shell()</a>
+  </li>
+</ul>
+</div>
+  </div>
+
+  <main id="fd-main">
+    <article class="fd-page">
+<nav class="fd-breadcrumbs" aria-label="Breadcrumbs">
+  <ol>
+    <li>
+      <a href="../index.html">API Reference</a>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+    </li>
+    <li aria-current="page">test_composition</li>
+  </ol>
+</nav>
+      <div class="fd-prose">
+  <section id="module-test_composition">
+<span id="test-composition"></span><h1>test_composition<a class="headerlink" href="#module-test_composition" title="Link to this heading">¶</a></h1>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition._BAR" title="test_composition._BAR"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_BAR</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition._PART" title="test_composition._PART"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_PART</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition._CLOCK_NS" title="test_composition._CLOCK_NS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_CLOCK_NS</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition._FRONT_UNPACK_CONFIG" title="test_composition._FRONT_UNPACK_CONFIG"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_FRONT_UNPACK_CONFIG</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition._priced" title="test_composition._priced"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_priced</span></code></a>(spec)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition._tile_lut" title="test_composition._tile_lut"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_tile_lut</span></code></a>(→ int)</p></td>
+<td><p>A tile's LUTs at the coordinate above.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition._partition" title="test_composition._partition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_partition</span></code></a>(→ dau_core.composition.TileSpec)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.bar_noc_spec" title="test_composition.bar_noc_spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bar_noc_spec</span></code></a>(→ dau_core.composition.ScanCompositionSpec)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_spec_validates_lane_tiles" title="test_composition.test_spec_validates_lane_tiles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_spec_validates_lane_tiles</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_core_names_cover_infrastructure_and_lanes" title="test_composition.test_core_names_cover_infrastructure_and_lanes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_core_names_cover_infrastructure_and_lanes</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_estimated_resources_scale_with_lanes" title="test_composition.test_estimated_resources_scale_with_lanes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_estimated_resources_scale_with_lanes</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_single_lane_filterless_scan_is_valid" title="test_composition.test_single_lane_filterless_scan_is_valid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_single_lane_filterless_scan_is_valid</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition._range_partitioner" title="test_composition._range_partitioner"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_range_partitioner</span></code></a>(→ dau_core.composition.TileSpec)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.sorted_scan_spec" title="test_composition.sorted_scan_spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sorted_scan_spec</span></code></a>(...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_shared_partitioner_replaces_broadcast" title="test_composition.test_shared_partitioner_replaces_broadcast"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_shared_partitioner_replaces_broadcast</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_shared_partitioner_rejects_per_lane_partitions" title="test_composition.test_shared_partitioner_rejects_per_lane_partitions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_shared_partitioner_rejects_per_lane_partitions</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_shared_partitioner_must_be_operator" title="test_composition.test_shared_partitioner_must_be_operator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_shared_partitioner_must_be_operator</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_sorted_scan_resources_use_partitioner_envelope" title="test_composition.test_sorted_scan_resources_use_partitioner_envelope"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_sorted_scan_resources_use_partitioner_envelope</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.q6_scan_spec" title="test_composition.q6_scan_spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">q6_scan_spec</span></code></a>(→ dau_core.composition.ScanCompositionSpec)</p></td>
+<td><p>The q6 filter+reduce lane: key-partitioned fan-out, a chain of two</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_chain_lanes_validate_and_close_core_names" title="test_composition.test_chain_lanes_validate_and_close_core_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_chain_lanes_validate_and_close_core_names</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_chain_stages_must_be_operators" title="test_composition.test_chain_stages_must_be_operators"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_chain_stages_must_be_operators</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_chain_stages_need_no_status_counter" title="test_composition.test_chain_stages_need_no_status_counter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_chain_stages_need_no_status_counter</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_chain_resources_are_counted_per_lane" title="test_composition.test_chain_resources_are_counted_per_lane"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_chain_resources_are_counted_per_lane</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_tile_params_validate_declared_names_and_positive_values" title="test_composition.test_tile_params_validate_declared_names_and_positive_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_tile_params_validate_declared_names_and_positive_values</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_a_design_may_pick_an_element_type_by_name" title="test_composition.test_a_design_may_pick_an_element_type_by_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_design_may_pick_an_element_type_by_name</span></code></a>(→ None)</p></td>
+<td><p>What the migration is FOR: a design says what its fields are, not how</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_a_type_and_its_width_are_the_same_design" title="test_composition.test_a_type_and_its_width_are_the_same_design"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_type_and_its_width_are_the_same_design</span></code></a>(→ None)</p></td>
+<td><p>int32 IS 32, so the two spellings are one cache key rather than two --</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_minimum_constraint_mirrors_the_rolling_window_guard" title="test_composition.test_minimum_constraint_mirrors_the_rolling_window_guard"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_minimum_constraint_mirrors_the_rolling_window_guard</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_a_declared_zero_minimum_admits_zero" title="test_composition.test_a_declared_zero_minimum_admits_zero"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_declared_zero_minimum_admits_zero</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_maximum_constraint_mirrors_the_bucket_bits_guard" title="test_composition.test_maximum_constraint_mirrors_the_bucket_bits_guard"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_maximum_constraint_mirrors_the_bucket_bits_guard</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards" title="test_composition.test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_load_phase_shape_rules" title="test_composition.test_load_phase_shape_rules"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_load_phase_shape_rules</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_param_override_is_validated_on_the_lane_tile_and_partition_slots" title="test_composition.test_param_override_is_validated_on_the_lane_tile_and_partition_slots"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_param_override_is_validated_on_the_lane_tile_and_partition_slots</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_key_space_override_must_match_the_declared_multiple" title="test_composition.test_key_space_override_must_match_the_declared_multiple"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_key_space_override_must_match_the_declared_multiple</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_shared_partitioner_params_are_validated" title="test_composition.test_shared_partitioner_params_are_validated"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_shared_partitioner_params_are_validated</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_a_sized_tile_prices_at_its_size_not_its_default" title="test_composition.test_a_sized_tile_prices_at_its_size_not_its_default"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_sized_tile_prices_at_its_size_not_its_default</span></code></a>(→ None)</p></td>
+<td><p>A parameter that changes the hardware has to change the price.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition._front_unpack" title="test_composition._front_unpack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_front_unpack</span></code></a>(→ dau_core.composition.TileSpec)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_front_unpack_validates_and_reaches_core_names_and_resources" title="test_composition.test_front_unpack_validates_and_reaches_core_names_and_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_front_unpack_validates_and_reaches_core_names_and_resources</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_front_unpack_rejects_a_non_unpack_tile" title="test_composition.test_front_unpack_rejects_a_non_unpack_tile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_front_unpack_rejects_a_non_unpack_tile</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_front_unpack_less_composition_is_unchanged" title="test_composition.test_front_unpack_less_composition_is_unchanged"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_front_unpack_less_composition_is_unchanged</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_exactly_one_success_close_out_per_lane_is_enforced" title="test_composition.test_exactly_one_success_close_out_per_lane_is_enforced"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_exactly_one_success_close_out_per_lane_is_enforced</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_spec_canonical_round_trip_and_hash_stability" title="test_composition.test_spec_canonical_round_trip_and_hash_stability"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_spec_canonical_round_trip_and_hash_stability</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_spec_hash_is_config_order_insensitive_and_content_sensitive" title="test_composition.test_spec_hash_is_config_order_insensitive_and_content_sensitive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_spec_hash_is_config_order_insensitive_and_content_sensitive</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_spec_hash_pinned_fixture" title="test_composition.test_spec_hash_pinned_fixture"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_spec_hash_pinned_fixture</span></code></a>(→ None)</p></td>
+<td><p>The design-cache key must be stable across releases: ANY change to</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_spec_from_canonical_revalidates" title="test_composition.test_spec_from_canonical_revalidates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_spec_from_canonical_revalidates</span></code></a>(→ None)</p></td>
+<td><p>A tampered canonical form fails registry validation, never builds.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_canonical_version_reads_the_prefix_a_recorded_hash_carries" title="test_composition.test_canonical_version_reads_the_prefix_a_recorded_hash_carries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_canonical_version_reads_the_prefix_a_recorded_hash_carries</span></code></a>(→ None)</p></td>
+<td><p>The prefix is what a reader has instead of the palette that wrote the</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_a_text_recorded_under_an_older_palette_is_refused_by_version_not_by_parse" title="test_composition.test_a_text_recorded_under_an_older_palette_is_refused_by_version_not_by_parse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_text_recorded_under_an_older_palette_is_refused_by_version_not_by_parse</span></code></a>(→ None)</p></td>
+<td><p>The defect this boundary closes, in one place.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_spec_hash_stable_when_defaults_are_explicit" title="test_composition.test_spec_hash_stable_when_defaults_are_explicit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_spec_hash_stable_when_defaults_are_explicit</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_handle_table_capacity_is_design_identity_and_inert_at_zero" title="test_composition.test_handle_table_capacity_is_design_identity_and_inert_at_zero"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_handle_table_capacity_is_design_identity_and_inert_at_zero</span></code></a>(→ None)</p></td>
+<td><p>A handle table is HARDWARE — a table of flops and a resolve stage in</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_wide_data_width_composition_rules" title="test_composition.test_wide_data_width_composition_rules"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_wide_data_width_composition_rules</span></code></a>(→ None)</p></td>
+<td><p>The canonical spec mirrors the walker's width rules: a wide feed</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_throughput_reproduces_the_measured_rate_ladder" title="test_composition.test_throughput_reproduces_the_measured_rate_ladder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_throughput_reproduces_the_measured_rate_ladder</span></code></a>()</p></td>
+<td><p>The rate model recomputes silicon: 64-bit two-beat = 1/2 row/cycle</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_throughput_packed_front_re_times_delivery" title="test_composition.test_throughput_packed_front_re_times_delivery"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_throughput_packed_front_re_times_delivery</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_the_wide_lane_shape_composes_and_rate_matches" title="test_composition.test_the_wide_lane_shape_composes_and_rate_matches"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_wide_lane_shape_composes_and_rate_matches</span></code></a>()</p></td>
+<td><p>The wide lane: one lane of wide-row-stream stages consuming reader</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_wide_combinational_tile_pipeline_depth_bounds_are_enforced" title="test_composition.test_wide_combinational_tile_pipeline_depth_bounds_are_enforced"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_wide_combinational_tile_pipeline_depth_bounds_are_enforced</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_the_wide_lane_shape_rules_are_enforced" title="test_composition.test_the_wide_lane_shape_rules_are_enforced"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_wide_lane_shape_rules_are_enforced</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_wide_row_stream_cores_are_refused_in_the_partitioner_slot" title="test_composition.test_wide_row_stream_cores_are_refused_in_the_partitioner_slot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_wide_row_stream_cores_are_refused_in_the_partitioner_slot</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_the_fused_chain_shape_is_declared_not_inferred" title="test_composition.test_the_fused_chain_shape_is_declared_not_inferred"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_fused_chain_shape_is_declared_not_inferred</span></code></a>(→ None)</p></td>
+<td><p>A terminal-shaped tile mid-lane (the temporal hero's as-of join and</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition._temporal_hero_spec" title="test_composition._temporal_hero_spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_temporal_hero_spec</span></code></a>(...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_temporal_hero_gathers_reconcile_every_stream_shape" title="test_composition.test_temporal_hero_gathers_reconcile_every_stream_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_temporal_hero_gathers_reconcile_every_stream_shape</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_stream_shape_mismatch_names_both_cores_and_shapes" title="test_composition.test_stream_shape_mismatch_names_both_cores_and_shapes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_stream_shape_mismatch_names_both_cores_and_shapes</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_stream_shape_mismatches_include_front_feed_and_partitioner" title="test_composition.test_stream_shape_mismatches_include_front_feed_and_partitioner"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_stream_shape_mismatches_include_front_feed_and_partitioner</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_selectivity_reconciles_the_model_with_q6_silicon" title="test_composition.test_selectivity_reconciles_the_model_with_q6_silicon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_selectivity_reconciles_the_model_with_q6_silicon</span></code></a>(→ None)</p></td>
+<td><p>The rate benches measured the q6 map stage at one row per SEVEN</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition._record_dispatcher" title="test_composition._record_dispatcher"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_record_dispatcher</span></code></a>(→ dau_core.composition.TileSpec)</p></td>
+<td><p>The dispatcher as it sits BEHIND a gearbox: its bus is one whole</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition._front_gearbox" title="test_composition._front_gearbox"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_front_gearbox</span></code></a>(→ dau_core.composition.TileSpec)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_front_gearbox_reaches_core_names_and_resources" title="test_composition.test_front_gearbox_reaches_core_names_and_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_front_gearbox_reaches_core_names_and_resources</span></code></a>(→ None)</p></td>
+<td><p>The gearbox must appear in core_names: that tuple is what stages the</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_a_geared_design_does_not_share_a_hash_with_an_ungeared_one" title="test_composition.test_a_geared_design_does_not_share_a_hash_with_an_ungeared_one"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_geared_design_does_not_share_a_hash_with_an_ungeared_one</span></code></a>(→ None)</p></td>
+<td><p>The spec hash keys the design cache. If the gearbox were invisible to</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_the_gearbox_is_charged_as_the_front_delivery_it_is" title="test_composition.test_the_gearbox_is_charged_as_the_front_delivery_it_is"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_gearbox_is_charged_as_the_front_delivery_it_is</span></code></a>(→ None)</p></td>
+<td><p>A GUARANTEED floor has to charge the stage that produces the rows.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_a_wider_record_lowers_the_geared_delivery" title="test_composition.test_a_wider_record_lowers_the_geared_delivery"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_wider_record_lowers_the_geared_delivery</span></code></a>(→ None)</p></td>
+<td><p>The record size is the DIVISOR of the reader's supply, so it has to</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_a_gearbox_record_mismatch_is_detected" title="test_composition.test_a_gearbox_record_mismatch_is_detected"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_gearbox_record_mismatch_is_detected</span></code></a>(→ None)</p></td>
+<td><p><cite>stream_shape_mismatches</cite> exists to find exactly this, and the front</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front" title="test_composition.test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition._stream_job_spec" title="test_composition._stream_job_spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_stream_job_spec</span></code></a>(...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_a_stream_job_composition_declares_its_own_infrastructure" title="test_composition.test_a_stream_job_composition_declares_its_own_infrastructure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_stream_job_composition_declares_its_own_infrastructure</span></code></a>(→ None)</p></td>
+<td><p>A stream job stages one tile chain through its job core instead of</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_a_stream_job_composition_refuses_scan_shaped_fields" title="test_composition.test_a_stream_job_composition_refuses_scan_shaped_fields"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_stream_job_composition_refuses_scan_shaped_fields</span></code></a>(→ None)</p></td>
+<td><p>The stream job has no fan-out and no burst feed, so accepting a</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_the_scan_shell_still_requires_a_lane_counter" title="test_composition.test_the_scan_shell_still_requires_a_lane_counter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_scan_shell_still_requires_a_lane_counter</span></code></a>(→ None)</p></td>
+<td><p>The count_port waiver is the STREAM job's, not a general relaxation:</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_addr_width_is_32_or_64_only" title="test_composition.test_addr_width_is_32_or_64_only"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_addr_width_is_32_or_64_only</span></code></a>(→ None)</p></td>
+<td><p>A job master of some intermediate width is not hardware anyone builds,</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_a_packed_front_can_feed_a_wide_lane" title="test_composition.test_a_packed_front_can_feed_a_wide_lane"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_packed_front_can_feed_a_wide_lane</span></code></a>(→ None)</p></td>
+<td><p>The packed feed and the wide lane compose.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_a_packed_wide_feed_rates_at_the_unpacker_not_at_one_row" title="test_composition.test_a_packed_wide_feed_rates_at_the_unpacker_not_at_one_row"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_packed_wide_feed_rates_at_the_unpacker_not_at_one_row</span></code></a>(→ None)</p></td>
+<td><p>The packed feed's ceiling is the READER's packed-row supply, which is</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_shell_infrastructure_is_selected_by_role_not_by_name" title="test_composition.test_shell_infrastructure_is_selected_by_role_not_by_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_shell_infrastructure_is_selected_by_role_not_by_name</span></code></a>(→ None)</p></td>
+<td><p>Composition IS the registry: the shell cores a composition places are</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_a_stream_job_must_name_a_stream_job_shell" title="test_composition.test_a_stream_job_must_name_a_stream_job_shell"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_stream_job_must_name_a_stream_job_shell</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="test_composition._BAR">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">_BAR</span></span><a class="headerlink" href="#test_composition._BAR" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="test_composition._PART">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">_PART</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'xc7k325tffg900-2'</span></em><a class="headerlink" href="#test_composition._PART" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="test_composition._CLOCK_NS">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">_CLOCK_NS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8.0</span></em><a class="headerlink" href="#test_composition._CLOCK_NS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition._priced">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">_priced</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../dau_core/composition/index.html#dau_core.composition.ScanCompositionSpec" title="dau_core.composition.ScanCompositionSpec"><span class="pre">dau_core.composition.ScanCompositionSpec</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#test_composition._priced" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition._tile_lut">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">_tile_lut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#test_composition._tile_lut" title="Link to this definition">¶</a></dt>
+<dd><p>A tile’s LUTs at the coordinate above.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition._partition">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">_partition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lane</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lanes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../dau_core/composition/index.html#dau_core.composition.TileSpec" title="dau_core.composition.TileSpec"><span class="pre">dau_core.composition.TileSpec</span></a></span></span><a class="headerlink" href="#test_composition._partition" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.bar_noc_spec">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">bar_noc_spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lanes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../dau_core/composition/index.html#dau_core.composition.ScanCompositionSpec" title="dau_core.composition.ScanCompositionSpec"><span class="pre">dau_core.composition.ScanCompositionSpec</span></a></span></span><a class="headerlink" href="#test_composition.bar_noc_spec" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_spec_validates_lane_tiles">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_spec_validates_lane_tiles</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_spec_validates_lane_tiles" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_core_names_cover_infrastructure_and_lanes">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_core_names_cover_infrastructure_and_lanes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_core_names_cover_infrastructure_and_lanes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_estimated_resources_scale_with_lanes">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_estimated_resources_scale_with_lanes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_estimated_resources_scale_with_lanes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_single_lane_filterless_scan_is_valid">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_single_lane_filterless_scan_is_valid</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_single_lane_filterless_scan_is_valid" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition._range_partitioner">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">_range_partitioner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lanes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../dau_core/composition/index.html#dau_core.composition.TileSpec" title="dau_core.composition.TileSpec"><span class="pre">dau_core.composition.TileSpec</span></a></span></span><a class="headerlink" href="#test_composition._range_partitioner" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.sorted_scan_spec">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">sorted_scan_spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lanes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../dau_core/composition/index.html#dau_core.composition.ScanCompositionSpec" title="dau_core.composition.ScanCompositionSpec"><span class="pre">dau_core.composition.ScanCompositionSpec</span></a></span></span><a class="headerlink" href="#test_composition.sorted_scan_spec" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_shared_partitioner_replaces_broadcast">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_shared_partitioner_replaces_broadcast</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_shared_partitioner_replaces_broadcast" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_shared_partitioner_rejects_per_lane_partitions">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_shared_partitioner_rejects_per_lane_partitions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_shared_partitioner_rejects_per_lane_partitions" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_shared_partitioner_must_be_operator">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_shared_partitioner_must_be_operator</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_shared_partitioner_must_be_operator" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_sorted_scan_resources_use_partitioner_envelope">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_sorted_scan_resources_use_partitioner_envelope</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_sorted_scan_resources_use_partitioner_envelope" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.q6_scan_spec">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">q6_scan_spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lanes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../dau_core/composition/index.html#dau_core.composition.ScanCompositionSpec" title="dau_core.composition.ScanCompositionSpec"><span class="pre">dau_core.composition.ScanCompositionSpec</span></a></span></span><a class="headerlink" href="#test_composition.q6_scan_spec" title="Link to this definition">¶</a></dt>
+<dd><p>The q6 filter+reduce lane: key-partitioned fan-out, a chain of two
+row-predicate filters (the four-comparison WHERE split across two
+3-term tiles) and the revenue map, closed by the field-sum tile.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_chain_lanes_validate_and_close_core_names">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_chain_lanes_validate_and_close_core_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_chain_lanes_validate_and_close_core_names" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_chain_stages_must_be_operators">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_chain_stages_must_be_operators</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_chain_stages_must_be_operators" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_chain_stages_need_no_status_counter">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_chain_stages_need_no_status_counter</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_chain_stages_need_no_status_counter" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_chain_resources_are_counted_per_lane">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_chain_resources_are_counted_per_lane</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_chain_resources_are_counted_per_lane" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_tile_params_validate_declared_names_and_positive_values">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_tile_params_validate_declared_names_and_positive_values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_tile_params_validate_declared_names_and_positive_values" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_a_design_may_pick_an_element_type_by_name">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_a_design_may_pick_an_element_type_by_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_a_design_may_pick_an_element_type_by_name" title="Link to this definition">¶</a></dt>
+<dd><p>What the migration is FOR: a design says what its fields are, not how
+many bits they take.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_a_type_and_its_width_are_the_same_design">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_a_type_and_its_width_are_the_same_design</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_a_type_and_its_width_are_the_same_design" title="Link to this definition">¶</a></dt>
+<dd><p>int32 IS 32, so the two spellings are one cache key rather than two –
+a design cache that missed on spelling would rebuild an identical shell.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_minimum_constraint_mirrors_the_rolling_window_guard">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_minimum_constraint_mirrors_the_rolling_window_guard</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_minimum_constraint_mirrors_the_rolling_window_guard" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_a_declared_zero_minimum_admits_zero">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_a_declared_zero_minimum_admits_zero</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_a_declared_zero_minimum_admits_zero" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_maximum_constraint_mirrors_the_bucket_bits_guard">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_maximum_constraint_mirrors_the_bucket_bits_guard</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_maximum_constraint_mirrors_the_bucket_bits_guard" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_load_phase_shape_rules">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_load_phase_shape_rules</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_load_phase_shape_rules" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_param_override_is_validated_on_the_lane_tile_and_partition_slots">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_param_override_is_validated_on_the_lane_tile_and_partition_slots</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_param_override_is_validated_on_the_lane_tile_and_partition_slots" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_key_space_override_must_match_the_declared_multiple">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_key_space_override_must_match_the_declared_multiple</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_key_space_override_must_match_the_declared_multiple" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_shared_partitioner_params_are_validated">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_shared_partitioner_params_are_validated</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_shared_partitioner_params_are_validated" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_a_sized_tile_prices_at_its_size_not_its_default">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_a_sized_tile_prices_at_its_size_not_its_default</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_a_sized_tile_prices_at_its_size_not_its_default" title="Link to this definition">¶</a></dt>
+<dd><p>A parameter that changes the hardware has to change the price.</p>
+<p>This assertion used to be the OPPOSITE – that a 6M-key membership
+filter priced identically to a default 4096-key one – and it was true
+only because the tile carried a scalar envelope that answered every
+KEY_SPACE with the same numbers. The membership filter is a BITMAP, so
+its BRAM cost IS the key space: 1 BRAM36 at 4096, 192 at 6,000,000,
+which is 57% of the Artix’s 335 budgeted blocks. Every composition
+using the silicon-proven configuration was priced at 1/192 of the BRAM
+it actually places.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="test_composition._FRONT_UNPACK_CONFIG">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">_FRONT_UNPACK_CONFIG</span></span><a class="headerlink" href="#test_composition._FRONT_UNPACK_CONFIG" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition._front_unpack">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">_front_unpack</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../dau_core/composition/index.html#dau_core.composition.TileSpec" title="dau_core.composition.TileSpec"><span class="pre">dau_core.composition.TileSpec</span></a></span></span><a class="headerlink" href="#test_composition._front_unpack" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_front_unpack_validates_and_reaches_core_names_and_resources">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_front_unpack_validates_and_reaches_core_names_and_resources</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_front_unpack_validates_and_reaches_core_names_and_resources" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_front_unpack_rejects_a_non_unpack_tile">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_front_unpack_rejects_a_non_unpack_tile</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_front_unpack_rejects_a_non_unpack_tile" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_front_unpack_less_composition_is_unchanged">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_front_unpack_less_composition_is_unchanged</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_front_unpack_less_composition_is_unchanged" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_exactly_one_success_close_out_per_lane_is_enforced">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_exactly_one_success_close_out_per_lane_is_enforced</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_exactly_one_success_close_out_per_lane_is_enforced" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_spec_canonical_round_trip_and_hash_stability">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_spec_canonical_round_trip_and_hash_stability</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_spec_canonical_round_trip_and_hash_stability" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_spec_hash_is_config_order_insensitive_and_content_sensitive">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_spec_hash_is_config_order_insensitive_and_content_sensitive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_spec_hash_is_config_order_insensitive_and_content_sensitive" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_spec_hash_pinned_fixture">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_spec_hash_pinned_fixture</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_spec_hash_pinned_fixture" title="Link to this definition">¶</a></dt>
+<dd><p>The design-cache key must be stable across releases: ANY change to
+the canonical form — field ordering, a new or changed spec field or
+default, hash construction — fails HERE, loudly, and must bump
+SPEC_CANONICAL_VERSION deliberately (defaults are included precisely so
+a changed default changes the key instead of colliding).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_spec_from_canonical_revalidates">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_spec_from_canonical_revalidates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_spec_from_canonical_revalidates" title="Link to this definition">¶</a></dt>
+<dd><p>A tampered canonical form fails registry validation, never builds.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_canonical_version_reads_the_prefix_a_recorded_hash_carries">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_canonical_version_reads_the_prefix_a_recorded_hash_carries</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_canonical_version_reads_the_prefix_a_recorded_hash_carries" title="Link to this definition">¶</a></dt>
+<dd><p>The prefix is what a reader has instead of the palette that wrote the
+text beside it, so it has to be readable without one.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_a_text_recorded_under_an_older_palette_is_refused_by_version_not_by_parse">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_a_text_recorded_under_an_older_palette_is_refused_by_version_not_by_parse</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_a_text_recorded_under_an_older_palette_is_refused_by_version_not_by_parse" title="Link to this definition">¶</a></dt>
+<dd><p>The defect this boundary closes, in one place.</p>
+<p>A build manifest written before the width-named tiles were renamed
+records a canonical text naming them. Reading it against today’s
+registry raises <cite>UnknownCoreError</cite> — an error about a missing tile, from
+a design that is built, flashed and answering. The version prefix beside
+the text is the fact that says the text predates this palette, and it
+says so without a parse.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_spec_hash_stable_when_defaults_are_explicit">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_spec_hash_stable_when_defaults_are_explicit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_spec_hash_stable_when_defaults_are_explicit" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_handle_table_capacity_is_design_identity_and_inert_at_zero">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_handle_table_capacity_is_design_identity_and_inert_at_zero</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_handle_table_capacity_is_design_identity_and_inert_at_zero" title="Link to this definition">¶</a></dt>
+<dd><p>A handle table is HARDWARE — a table of flops and a resolve stage in
+front of the reader — so a design that carries one must not share a cache
+key with one that does not, and eight slots is not sixteen. Zero is the
+no-table default: a spec that never mentions it keeps the shape it has
+today and round-trips unchanged.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_wide_data_width_composition_rules">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_wide_data_width_composition_rules</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_wide_data_width_composition_rules" title="Link to this definition">¶</a></dt>
+<dd><p>The canonical spec mirrors the walker’s width rules: a wide feed
+needs a dispatcher (broadcast is 64-bit only), wide packed reads are a
+typed follow-up, and the tier set is closed.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_throughput_reproduces_the_measured_rate_ladder">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_throughput_reproduces_the_measured_rate_ladder</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#test_composition.test_throughput_reproduces_the_measured_rate_ladder" title="Link to this definition">¶</a></dt>
+<dd><p>The rate model recomputes silicon: 64-bit two-beat = 1/2 row/cycle
+(~99 ms q6), the 512-bit dispatch feed = 1 (the serializer, 60.3 ms
+measured 2026-07-30), and MORE LANES DO NOT HELP past the dispatcher’s
+declared ingest — the motivation for the wide-sum lane / distributor.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_throughput_packed_front_re_times_delivery">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_throughput_packed_front_re_times_delivery</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#test_composition.test_throughput_packed_front_re_times_delivery" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_the_wide_lane_shape_composes_and_rate_matches">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_the_wide_lane_shape_composes_and_rate_matches</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#test_composition.test_the_wide_lane_shape_composes_and_rate_matches" title="Link to this definition">¶</a></dt>
+<dd><p>The wide lane: one lane of wide-row-stream stages consuming reader
+beats directly — SLOTS rows per cycle, no partitioner. The q6 shape at
+512 rates 4 rows/cycle (the parallel-row target).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_wide_combinational_tile_pipeline_depth_bounds_are_enforced">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_wide_combinational_tile_pipeline_depth_bounds_are_enforced</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#test_composition.test_wide_combinational_tile_pipeline_depth_bounds_are_enforced" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_the_wide_lane_shape_rules_are_enforced">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_the_wide_lane_shape_rules_are_enforced</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#test_composition.test_the_wide_lane_shape_rules_are_enforced" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_wide_row_stream_cores_are_refused_in_the_partitioner_slot">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_wide_row_stream_cores_are_refused_in_the_partitioner_slot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_wide_row_stream_cores_are_refused_in_the_partitioner_slot" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_the_fused_chain_shape_is_declared_not_inferred">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_the_fused_chain_shape_is_declared_not_inferred</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_the_fused_chain_shape_is_declared_not_inferred" title="Link to this definition">¶</a></dt>
+<dd><p>A terminal-shaped tile mid-lane (the temporal hero’s as-of join and
+grouped aggregator) composes only when the spec DECLARES the fused
+chain: the refusal still catches an aggregator dropped into a chain by
+accident, while the declaration says the caller accepts that mid-stage
+close-outs are drained and only their errors reach the lane status.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition._temporal_hero_spec">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">_temporal_hero_spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_feature_gather</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../dau_core/composition/index.html#dau_core.composition.ScanCompositionSpec" title="dau_core.composition.ScanCompositionSpec"><span class="pre">dau_core.composition.ScanCompositionSpec</span></a></span></span><a class="headerlink" href="#test_composition._temporal_hero_spec" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_temporal_hero_gathers_reconcile_every_stream_shape">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_temporal_hero_gathers_reconcile_every_stream_shape</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_temporal_hero_gathers_reconcile_every_stream_shape" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_stream_shape_mismatch_names_both_cores_and_shapes">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_stream_shape_mismatch_names_both_cores_and_shapes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_stream_shape_mismatch_names_both_cores_and_shapes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_stream_shape_mismatches_include_front_feed_and_partitioner">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_stream_shape_mismatches_include_front_feed_and_partitioner</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_stream_shape_mismatches_include_front_feed_and_partitioner" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_selectivity_reconciles_the_model_with_q6_silicon">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_selectivity_reconciles_the_model_with_q6_silicon</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_selectivity_reconciles_the_model_with_q6_silicon" title="Link to this definition">¶</a></dt>
+<dd><p>The rate benches measured the q6 map stage at one row per SEVEN
+cycles standalone, which made the no-selectivity model predict 1/7
+for q6 — 3.4x below the 0.483 rows/cycle silicon actually ran. Both
+numbers are right: two predicates upstream pass ~2% of rows, so the
+map never binds the feed. Charging each stage against the rows that
+reach it restores agreement, and the worst case stays the default
+because selectivity is data-dependent.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition._record_dispatcher">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">_record_dispatcher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record_words</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../dau_core/composition/index.html#dau_core.composition.TileSpec" title="dau_core.composition.TileSpec"><span class="pre">dau_core.composition.TileSpec</span></a></span></span><a class="headerlink" href="#test_composition._record_dispatcher" title="Link to this definition">¶</a></dt>
+<dd><p>The dispatcher as it sits BEHIND a gearbox: its bus is one whole
+record wide, so it takes RECORD_INPUT rather than a row framing.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition._front_gearbox">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">_front_gearbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record_words</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../dau_core/composition/index.html#dau_core.composition.TileSpec" title="dau_core.composition.TileSpec"><span class="pre">dau_core.composition.TileSpec</span></a></span></span><a class="headerlink" href="#test_composition._front_gearbox" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_front_gearbox_reaches_core_names_and_resources">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_front_gearbox_reaches_core_names_and_resources</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_front_gearbox_reaches_core_names_and_resources" title="Link to this definition">¶</a></dt>
+<dd><p>The gearbox must appear in core_names: that tuple is what stages the
+HDL a build compiles, so a gearbox missing from it is instantiated by
+the generated top and never handed to the toolchain — the design
+black-boxes at synthesis.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_a_geared_design_does_not_share_a_hash_with_an_ungeared_one">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_a_geared_design_does_not_share_a_hash_with_an_ungeared_one</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_a_geared_design_does_not_share_a_hash_with_an_ungeared_one" title="Link to this definition">¶</a></dt>
+<dd><p>The spec hash keys the design cache. If the gearbox were invisible to
+the canonical form, a cached ungeared bitstream would be handed back for
+a geared design and silently run the wrong front.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_the_gearbox_is_charged_as_the_front_delivery_it_is">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_the_gearbox_is_charged_as_the_front_delivery_it_is</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_the_gearbox_is_charged_as_the_front_delivery_it_is" title="Link to this definition">¶</a></dt>
+<dd><p>A GUARANTEED floor has to charge the stage that produces the rows.</p>
+<p>The gearbox was validated by five walkers and priced by none: absent
+from this function, a geared composition took the quad-row delivery of
+data_width/128 – 24-byte records charged as 16-byte ones – and the
+gearbox’s own one-record-per-cycle ceiling was never applied at all. At
+data_width=512 that reports 4 rows/cycle for a front that sustains 1.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_a_wider_record_lowers_the_geared_delivery">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_a_wider_record_lowers_the_geared_delivery</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_a_wider_record_lowers_the_geared_delivery" title="Link to this definition">¶</a></dt>
+<dd><p>The record size is the DIVISOR of the reader’s supply, so it has to
+move the answer – a delivery term that ignores it is the shape that
+charged 24-byte records at the 16-byte quad-row rate.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_a_gearbox_record_mismatch_is_detected">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_a_gearbox_record_mismatch_is_detected</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_a_gearbox_record_mismatch_is_detected" title="Link to this definition">¶</a></dt>
+<dd><p><cite>stream_shape_mismatches</cite> exists to find exactly this, and the front
+stage it never looked at was the gearbox: a 3-word gearbox feeding a
+4-word dispatcher validated clean and the detector returned ().</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition._stream_job_spec">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">_stream_job_spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'bram-stream-job'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'bar-aggregation'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../dau_core/composition/index.html#dau_core.composition.ScanCompositionSpec" title="dau_core.composition.ScanCompositionSpec"><span class="pre">dau_core.composition.ScanCompositionSpec</span></a></span></span><a class="headerlink" href="#test_composition._stream_job_spec" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_a_stream_job_composition_declares_its_own_infrastructure">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_a_stream_job_composition_declares_its_own_infrastructure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_a_stream_job_composition_declares_its_own_infrastructure" title="Link to this definition">¶</a></dt>
+<dd><p>A stream job stages one tile chain through its job core instead of
+reading bursts and fanning out. Until it could be declared, its cores
+reached the build as a hand-copied list — so nothing checked that the
+list still matched what the top instantiates.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_a_stream_job_composition_refuses_scan_shaped_fields">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_a_stream_job_composition_refuses_scan_shaped_fields</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_a_stream_job_composition_refuses_scan_shaped_fields" title="Link to this definition">¶</a></dt>
+<dd><p>The stream job has no fan-out and no burst feed, so accepting a
+partitioner or a front stage would let a spec describe hardware the
+shell cannot build.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_the_scan_shell_still_requires_a_lane_counter">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_the_scan_shell_still_requires_a_lane_counter</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_the_scan_shell_still_requires_a_lane_counter" title="Link to this definition">¶</a></dt>
+<dd><p>The count_port waiver is the STREAM job’s, not a general relaxation:
+the scan shell’s record writer sizes its write-out from that port.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_addr_width_is_32_or_64_only">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_addr_width_is_32_or_64_only</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_addr_width_is_32_or_64_only" title="Link to this definition">¶</a></dt>
+<dd><p>A job master of some intermediate width is not hardware anyone builds,
+and permitting it would mean carrying padding logic through every
+register slice for a shape with nothing behind it: the AXI-Lite read
+path zero-extends cleanly at exactly 32 and 64 and needs an explicit
+pad at anything else.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_a_packed_front_can_feed_a_wide_lane">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_a_packed_front_can_feed_a_wide_lane</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_a_packed_front_can_feed_a_wide_lane" title="Link to this definition">¶</a></dt>
+<dd><p>The packed feed and the wide lane compose.</p>
+<p>Each is silicon-proven alone and they were mutually exclusive: the wide
+lane read whole quad rows straight from the reader, so it burned 16
+bytes of DDR per row, and the next SLOTS doubling would have demanded
+19.2 GB/s from a 12.8 GB/s DDR3. Packed, the same lane demands 9.6.</p>
+<p>Two widths are in play and they are NOT the same number. <code class="docutils literal notranslate"><span class="pre">data_width</span></code>
+is the READ width – SLOTS packed 64-bit rows per beat – while the lane
+downstream of the unpacker sees SLOTS whole 128-bit quad rows. Note the
+consequence: an unpacked SLOTS=8 lane would need data_width=1024, which
+is not a legal tier, so packing is what puts eight slots in reach at all.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_a_packed_wide_feed_rates_at_the_unpacker_not_at_one_row">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_a_packed_wide_feed_rates_at_the_unpacker_not_at_one_row</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_a_packed_wide_feed_rates_at_the_unpacker_not_at_one_row" title="Link to this definition">¶</a></dt>
+<dd><p>The packed feed’s ceiling is the READER’s packed-row supply, which is
+data_width/64, not a flat one row per cycle.</p>
+<p>The flat cap read the packed path as “one 8-byte row per 64-bit beat”,
+true only while data_width was 64. A packed WIDE feed hands the unpacker
+data_width/64 packed rows per beat, and capping at 1 under-reported the
+silicon-measured eight-slot lane by 8x – the design would have been
+priced as no faster than the build it replaced.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_shell_infrastructure_is_selected_by_role_not_by_name">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_shell_infrastructure_is_selected_by_role_not_by_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_shell_infrastructure_is_selected_by_role_not_by_name" title="Link to this definition">¶</a></dt>
+<dd><p>Composition IS the registry: the shell cores a composition places are
+the ones declaring each infrastructure role, exactly one per role, and
+<code class="docutils literal notranslate"><span class="pre">composition.py</span></code> names none of them. The order the scan roles are
+placed in is pinned because <code class="docutils literal notranslate"><span class="pre">core_names</span></code> feeds the canonical hash.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_a_stream_job_must_name_a_stream_job_shell">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_a_stream_job_must_name_a_stream_job_shell</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_a_stream_job_must_name_a_stream_job_shell" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+      </div>
+<nav class="fd-pagination" aria-label="Pagination">
+  <a class="fd-pagination-card fd-pagination-prev" href="../test_hdl_cocotb/index.html">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m15 18-6-6 6-6"/></svg>
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Previous</span>
+      <span class="fd-pagination-title">test_hdl_cocotb</span>
+    </span>
+  </a>
+  <a class="fd-pagination-card fd-pagination-next" href="../test_hdl_sources/index.html">
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Next</span>
+      <span class="fd-pagination-title">test_hdl_sources</span>
+    </span>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+  </a>
+</nav>
+<footer id="fd-footer">
+  <p class="fd-footer-meta"><span>&#169; the dau-core authors</span><span>Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.</span>
+  </p>
+</footer>
+    </article>
+  </main>
+<nav id="fd-toc" aria-label="On this page">
+  <p class="fd-toc-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>On this page</p>
+  <div class="fd-toc-body"><svg class="fd-toc-rail" aria-hidden="true" preserveAspectRatio="none">
+      <path class="fd-toc-track" fill="none" />
+      <path class="fd-toc-thumb" fill="none" />
+    </svg><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#attributes">Attributes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#functions">Functions</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#module-contents">Module Contents</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition._BAR">_BAR</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition._PART">_PART</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition._CLOCK_NS">_CLOCK_NS</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition._priced">_priced()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition._tile_lut">_tile_lut()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition._partition">_partition()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.bar_noc_spec">bar_noc_spec()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_spec_validates_lane_tiles">test_spec_validates_lane_tiles()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_core_names_cover_infrastructure_and_lanes">test_core_names_cover_infrastructure_and_lanes()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_estimated_resources_scale_with_lanes">test_estimated_resources_scale_with_lanes()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_single_lane_filterless_scan_is_valid">test_single_lane_filterless_scan_is_valid()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition._range_partitioner">_range_partitioner()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.sorted_scan_spec">sorted_scan_spec()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_shared_partitioner_replaces_broadcast">test_shared_partitioner_replaces_broadcast()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_shared_partitioner_rejects_per_lane_partitions">test_shared_partitioner_rejects_per_lane_partitions()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_shared_partitioner_must_be_operator">test_shared_partitioner_must_be_operator()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_sorted_scan_resources_use_partitioner_envelope">test_sorted_scan_resources_use_partitioner_envelope()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.q6_scan_spec">q6_scan_spec()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_chain_lanes_validate_and_close_core_names">test_chain_lanes_validate_and_close_core_names()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_chain_stages_must_be_operators">test_chain_stages_must_be_operators()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_chain_stages_need_no_status_counter">test_chain_stages_need_no_status_counter()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_chain_resources_are_counted_per_lane">test_chain_resources_are_counted_per_lane()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_tile_params_validate_declared_names_and_positive_values">test_tile_params_validate_declared_names_and_positive_values()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_a_design_may_pick_an_element_type_by_name">test_a_design_may_pick_an_element_type_by_name()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_a_type_and_its_width_are_the_same_design">test_a_type_and_its_width_are_the_same_design()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_minimum_constraint_mirrors_the_rolling_window_guard">test_minimum_constraint_mirrors_the_rolling_window_guard()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_a_declared_zero_minimum_admits_zero">test_a_declared_zero_minimum_admits_zero()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_maximum_constraint_mirrors_the_bucket_bits_guard">test_maximum_constraint_mirrors_the_bucket_bits_guard()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards">test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_load_phase_shape_rules">test_load_phase_shape_rules()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_param_override_is_validated_on_the_lane_tile_and_partition_slots">test_param_override_is_validated_on_the_lane_tile_and_partition_slots()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_key_space_override_must_match_the_declared_multiple">test_key_space_override_must_match_the_declared_multiple()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_shared_partitioner_params_are_validated">test_shared_partitioner_params_are_validated()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_a_sized_tile_prices_at_its_size_not_its_default">test_a_sized_tile_prices_at_its_size_not_its_default()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition._FRONT_UNPACK_CONFIG">_FRONT_UNPACK_CONFIG</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition._front_unpack">_front_unpack()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_front_unpack_validates_and_reaches_core_names_and_resources">test_front_unpack_validates_and_reaches_core_names_and_resources()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_front_unpack_rejects_a_non_unpack_tile">test_front_unpack_rejects_a_non_unpack_tile()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_front_unpack_less_composition_is_unchanged">test_front_unpack_less_composition_is_unchanged()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_exactly_one_success_close_out_per_lane_is_enforced">test_exactly_one_success_close_out_per_lane_is_enforced()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_spec_canonical_round_trip_and_hash_stability">test_spec_canonical_round_trip_and_hash_stability()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_spec_hash_is_config_order_insensitive_and_content_sensitive">test_spec_hash_is_config_order_insensitive_and_content_sensitive()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_spec_hash_pinned_fixture">test_spec_hash_pinned_fixture()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_spec_from_canonical_revalidates">test_spec_from_canonical_revalidates()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_canonical_version_reads_the_prefix_a_recorded_hash_carries">test_canonical_version_reads_the_prefix_a_recorded_hash_carries()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_a_text_recorded_under_an_older_palette_is_refused_by_version_not_by_parse">test_a_text_recorded_under_an_older_palette_is_refused_by_version_not_by_parse()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_spec_hash_stable_when_defaults_are_explicit">test_spec_hash_stable_when_defaults_are_explicit()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_handle_table_capacity_is_design_identity_and_inert_at_zero">test_handle_table_capacity_is_design_identity_and_inert_at_zero()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_wide_data_width_composition_rules">test_wide_data_width_composition_rules()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_throughput_reproduces_the_measured_rate_ladder">test_throughput_reproduces_the_measured_rate_ladder()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_throughput_packed_front_re_times_delivery">test_throughput_packed_front_re_times_delivery()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_the_wide_lane_shape_composes_and_rate_matches">test_the_wide_lane_shape_composes_and_rate_matches()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_wide_combinational_tile_pipeline_depth_bounds_are_enforced">test_wide_combinational_tile_pipeline_depth_bounds_are_enforced()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_the_wide_lane_shape_rules_are_enforced">test_the_wide_lane_shape_rules_are_enforced()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_wide_row_stream_cores_are_refused_in_the_partitioner_slot">test_wide_row_stream_cores_are_refused_in_the_partitioner_slot()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_the_fused_chain_shape_is_declared_not_inferred">test_the_fused_chain_shape_is_declared_not_inferred()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition._temporal_hero_spec">_temporal_hero_spec()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_temporal_hero_gathers_reconcile_every_stream_shape">test_temporal_hero_gathers_reconcile_every_stream_shape()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_stream_shape_mismatch_names_both_cores_and_shapes">test_stream_shape_mismatch_names_both_cores_and_shapes()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_stream_shape_mismatches_include_front_feed_and_partitioner">test_stream_shape_mismatches_include_front_feed_and_partitioner()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_selectivity_reconciles_the_model_with_q6_silicon">test_selectivity_reconciles_the_model_with_q6_silicon()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition._record_dispatcher">_record_dispatcher()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition._front_gearbox">_front_gearbox()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_front_gearbox_reaches_core_names_and_resources">test_front_gearbox_reaches_core_names_and_resources()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_a_geared_design_does_not_share_a_hash_with_an_ungeared_one">test_a_geared_design_does_not_share_a_hash_with_an_ungeared_one()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_the_gearbox_is_charged_as_the_front_delivery_it_is">test_the_gearbox_is_charged_as_the_front_delivery_it_is()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_a_wider_record_lowers_the_geared_delivery">test_a_wider_record_lowers_the_geared_delivery()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_a_gearbox_record_mismatch_is_detected">test_a_gearbox_record_mismatch_is_detected()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front">test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition._stream_job_spec">_stream_job_spec()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_a_stream_job_composition_declares_its_own_infrastructure">test_a_stream_job_composition_declares_its_own_infrastructure()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_a_stream_job_composition_refuses_scan_shaped_fields">test_a_stream_job_composition_refuses_scan_shaped_fields()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_the_scan_shell_still_requires_a_lane_counter">test_the_scan_shell_still_requires_a_lane_counter()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_addr_width_is_32_or_64_only">test_addr_width_is_32_or_64_only()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_a_packed_front_can_feed_a_wide_lane">test_a_packed_front_can_feed_a_wide_lane()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_a_packed_wide_feed_rates_at_the_unpacker_not_at_one_row">test_a_packed_wide_feed_rates_at_the_unpacker_not_at_one_row()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_shell_infrastructure_is_selected_by_role_not_by_name">test_shell_infrastructure_is_selected_by_role_not_by_name()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_a_stream_job_must_name_a_stream_job_shell">test_a_stream_job_must_name_a_stream_job_shell()</a>
+  </li>
+</ul>
+
+  </div>
+  <div class="fd-toc-actions">
+    <a class="fd-toc-action" href="https://github.com/dau-dev/dau-core/edit/HEAD/autoapi/test_composition/index.rst" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span>Edit this page</span></a>
+    <a class="fd-toc-action" href="../../_sources/autoapi/test_composition/index.rst.txt" rel="nofollow"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><span>View source</span></a>
+  </div>
+</nav>
+</div>
+<dialog id="fd-search-dialog" aria-label="Search">
+  <form class="fd-search-panel" method="dialog" role="search">
+    <div class="fd-search-field">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="search" id="fd-search-input" autocomplete="off" spellcheck="false" placeholder="Search documentation..." aria-label="Search" />
+      <kbd class="fd-kbd">Esc</kbd>
+    </div>
+    <div id="fd-search-results" role="listbox" aria-label="Search results"></div>
+    <p id="fd-search-empty" class="fd-search-empty" hidden>No results found.</p>
+  </form>
+</dialog>
+  </body>
+</html>

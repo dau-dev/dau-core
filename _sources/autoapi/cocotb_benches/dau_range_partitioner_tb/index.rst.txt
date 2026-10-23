@@ -1,0 +1,185 @@
+cocotb_benches.dau_range_partitioner_tb
+=======================================
+
+.. py:module:: cocotb_benches.dau_range_partitioner_tb
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_range_partitioner_tb.ERR_STREAM
+   cocotb_benches.dau_range_partitioner_tb._MASK32
+   cocotb_benches.dau_range_partitioner_tb._MASK64
+   cocotb_benches.dau_range_partitioner_tb._INT32_MIN
+   cocotb_benches.dau_range_partitioner_tb._INT32_MAX
+   cocotb_benches.dau_range_partitioner_tb._ROWS
+   cocotb_benches.dau_range_partitioner_tb._SPLITTERS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_range_partitioner_tb.partition_routes_rows_by_range
+   cocotb_benches.dau_range_partitioner_tb.boundary_key_lands_in_upper_partition
+   cocotb_benches.dau_range_partitioner_tb.all_rows_to_one_partition
+   cocotb_benches.dau_range_partitioner_tb.negative_keys_partition_signed
+   cocotb_benches.dau_range_partitioner_tb.last_lands_on_each_partitions_final_row
+   cocotb_benches.dau_range_partitioner_tb.int32_extreme_keys_partition_signed
+   cocotb_benches.dau_range_partitioner_tb.backpressure_on_every_stream
+   cocotb_benches.dau_range_partitioner_tb.torn_row_status_survives_backpressure
+   cocotb_benches.dau_range_partitioner_tb.status_backpressure_stalls_the_front
+   cocotb_benches.dau_range_partitioner_tb.constrained_random_streams_match_golden
+   cocotb_benches.dau_range_partitioner_tb._num_parts
+   cocotb_benches.dau_range_partitioner_tb._default_splitters
+   cocotb_benches.dau_range_partitioner_tb._spread_splitters
+   cocotb_benches.dau_range_partitioner_tb._signed32
+   cocotb_benches.dau_range_partitioner_tb._random_monotonic_splitters
+   cocotb_benches.dau_range_partitioner_tb._random_rows
+   cocotb_benches.dau_range_partitioner_tb._set_splitters
+   cocotb_benches.dau_range_partitioner_tb._start
+   cocotb_benches.dau_range_partitioner_tb._run
+   cocotb_benches.dau_range_partitioner_tb._send_rows
+   cocotb_benches.dau_range_partitioner_tb._drive_torn_first_row
+   cocotb_benches.dau_range_partitioner_tb._drive_and_collect
+   cocotb_benches.dau_range_partitioner_tb._assert_quiescent
+   cocotb_benches.dau_range_partitioner_tb._drain_partition_output
+   cocotb_benches.dau_range_partitioner_tb._collect_all_status
+   cocotb_benches.dau_range_partitioner_tb._unpack_rows
+
+
+Module Contents
+---------------
+
+.. py:data:: ERR_STREAM
+   :value: 2
+
+
+.. py:data:: _MASK32
+   :value: 4294967295
+
+
+.. py:data:: _MASK64
+   :value: 18446744073709551615
+
+
+.. py:data:: _INT32_MIN
+   :value: -2147483648
+
+
+.. py:data:: _INT32_MAX
+   :value: 2147483647
+
+
+.. py:data:: _ROWS
+
+.. py:data:: _SPLITTERS
+   :value: [10, 20, 30]
+
+
+.. py:function:: partition_routes_rows_by_range(dut)
+   :async:
+
+
+.. py:function:: boundary_key_lands_in_upper_partition(dut)
+   :async:
+
+
+.. py:function:: all_rows_to_one_partition(dut)
+   :async:
+
+
+.. py:function:: negative_keys_partition_signed(dut)
+   :async:
+
+
+.. py:function:: last_lands_on_each_partitions_final_row(dut)
+   :async:
+
+
+.. py:function:: int32_extreme_keys_partition_signed(dut)
+   :async:
+
+
+.. py:function:: backpressure_on_every_stream(dut)
+   :async:
+
+
+.. py:function:: torn_row_status_survives_backpressure(dut)
+   :async:
+
+
+.. py:function:: status_backpressure_stalls_the_front(dut)
+   :async:
+
+
+.. py:function:: constrained_random_streams_match_golden(dut)
+   :async:
+
+
+.. py:function:: _num_parts(dut) -> int
+
+.. py:function:: _default_splitters(dut) -> list[int]
+
+.. py:function:: _spread_splitters(lo: int, hi: int, count: int) -> list[int]
+
+.. py:function:: _signed32(value: int) -> int
+
+.. py:function:: _random_monotonic_splitters(rng: random.Random, count: int) -> list[int]
+
+.. py:function:: _random_rows(rng: random.Random) -> list[tuple[int, int, int, int]]
+
+.. py:function:: _set_splitters(dut, splitters: list[int]) -> None
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _run(dut, rows, splitters, *, ready_pattern=(1, ))
+   :async:
+
+
+.. py:function:: _send_rows(dut, rows) -> None
+   :async:
+
+
+.. py:function:: _drive_torn_first_row(dut) -> None
+   :async:
+
+
+.. py:function:: _drive_and_collect(dut, golden, ready_pattern)
+   :async:
+
+
+   Drive all partition output/status streams and reassemble per-partition
+   rows. Each active partition gets an independent (phase-shifted) ready
+   pattern so lanes stall out of step. A partition that expects rows completes
+   on its last word; a partition that expects zero rows completes on its
+   success status. After completion the streams must fall quiescent.
+
+
+.. py:function:: _assert_quiescent(dut, num_parts: int) -> None
+   :async:
+
+
+   After a batch completes, nothing more may appear on any output or status
+   stream even with every ready held high (no trailing/duplicated beats).
+
+
+.. py:function:: _drain_partition_output(dut, partition: int) -> None
+   :async:
+
+
+.. py:function:: _collect_all_status(dut, *, only: set[int] | None = None)
+   :async:
+
+
+   Wait for a status beat from every (or ``only``) partition; return
+   (error, code) per partition (None for partitions not collected).
+
+
+.. py:function:: _unpack_rows(words: list[int]) -> list[tuple[int, int, int, int]]
+

@@ -1,0 +1,2340 @@
+dau_core.operators
+==================
+
+.. py:module:: dau_core.operators
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   dau_core.operators._INT32_MASK
+   dau_core.operators.SQRT_FRACTIONAL_BITS
+   dau_core.operators.DATETIME_FORMAT_MAX_EPOCH_SECONDS
+   dau_core.operators.DATETIME_FORMAT_WIDTH
+   dau_core.operators.DIVIDE_FRACTIONAL_BITS
+   dau_core.operators.STREAM_WORD_BYTES
+   dau_core.operators._STREAM_WORD_MASK
+   dau_core.operators.DEDUP_KEY_SPACE_MAX
+   dau_core.operators.DISPATCH_HASH_MULTIPLIER
+   dau_core.operators.TOP_K_MAX
+   dau_core.operators._INTEGER_RANGES
+   dau_core.operators._FLOAT_TYPES
+   dau_core.operators.KEYED_STATE_MAX_KEYS
+   dau_core.operators.SCRATCHPAD_MAX_WORDS
+   dau_core.operators.HASH_GROUPED_MAX_GROUPS
+
+
+Exceptions
+----------
+
+.. autoapisummary::
+
+   dau_core.operators.MembershipBuildSetError
+   dau_core.operators.EmptyInputError
+   dau_core.operators.UnsupportedAggregationError
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   dau_core.operators.PredicateOp
+   dau_core.operators.PredicateCombine
+   dau_core.operators.FilterErrorCode
+   dau_core.operators.FilterPredicate
+   dau_core.operators.MapOp
+   dau_core.operators.MapErrorCode
+   dau_core.operators.MapConfig
+   dau_core.operators.RowField
+   dau_core.operators.RowPredicateTerm
+   dau_core.operators.RowPredicateConfig
+   dau_core.operators.RowMapConfig
+   dau_core.operators.SqrtErrorCode
+   dau_core.operators.RowSqrtConfig
+   dau_core.operators.DatetimeFormatErrorCode
+   dau_core.operators.DivideErrorCode
+   dau_core.operators.RowDivideConfig
+   dau_core.operators.UnpackErrorCode
+   dau_core.operators.UnpackFieldSpec
+   dau_core.operators.FieldSumErrorCode
+   dau_core.operators.FieldSumAggregate
+   dau_core.operators.GroupedFieldSumErrorCode
+   dau_core.operators.GroupedFieldSumAggregate
+   dau_core.operators.MembershipKind
+   dau_core.operators.MembershipMode
+   dau_core.operators.MembershipErrorCode
+   dau_core.operators.MembershipBuildSet
+   dau_core.operators.DedupErrorCode
+   dau_core.operators.DistinctCount
+   dau_core.operators.JoinSource
+   dau_core.operators.JoinErrorCode
+   dau_core.operators.BroadcastJoinConfig
+   dau_core.operators.GroupedAggregationErrorCode
+   dau_core.operators.GroupAggregate
+   dau_core.operators.BarAggregate
+   dau_core.operators.FieldStats
+   dau_core.operators.GroupedFieldAggregate
+   dau_core.operators.DispatchMode
+   dau_core.operators.SorterErrorCode
+   dau_core.operators.TopKErrorCode
+   dau_core.operators.KeyedStateErrorCode
+   dau_core.operators.KeyedStateOp
+   dau_core.operators.ScratchpadErrorCode
+   dau_core.operators.SessionErrorCode
+   dau_core.operators.HashGroupedErrorCode
+   dau_core.operators.HashGroupedAggregate
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   dau_core.operators.filter_values
+   dau_core.operators._compare
+   dau_core.operators._apply_map_op
+   dau_core.operators.map_values
+   dau_core.operators._wrap_int32
+   dau_core.operators.filter_rows
+   dau_core.operators.map_rows
+   dau_core.operators.filter_rows_by_predicate
+   dau_core.operators._quad
+   dau_core.operators.map_row_fields
+   dau_core.operators.fixed_point_sqrt
+   dau_core.operators.sqrt_row_fields
+   dau_core.operators.format_datetime
+   dau_core.operators.format_datetime_rows
+   dau_core.operators.fixed_point_divide
+   dau_core.operators.divide_row_fields
+   dau_core.operators.unpack_rows
+   dau_core.operators._signed_int64
+   dau_core.operators.field_sum_rows
+   dau_core.operators.grouped_field_sum_rows
+   dau_core.operators.filter_rows_by_membership
+   dau_core.operators.count_distinct_rows
+   dau_core.operators.keyed_asof_join_rows
+   dau_core.operators.broadcast_hash_join_rows
+   dau_core.operators.filter_bar_rows_by_key
+   dau_core.operators.range_partition_bar_rows
+   dau_core.operators.gearbox_records
+   dau_core.operators._dispatch_dest
+   dau_core.operators._check_dispatch_partitions
+   dau_core.operators.mask_dispatch_records
+   dau_core.operators.mask_dispatch_rows
+   dau_core.operators.stride_distribute_rows
+   dau_core.operators.pack_splitters
+   dau_core.operators.sort_bar_rows_by_key
+   dau_core.operators.streaming_top_k
+   dau_core.operators.time_bucket_key_rows
+   dau_core.operators.gather_records
+   dau_core.operators.grouped_field_aggregate_rows
+   dau_core.operators.bars_from_field_aggregate
+   dau_core.operators.bar_aggregate_rows
+   dau_core.operators.grouped_aggregate_rows
+   dau_core.operators.aggregate_values
+   dau_core.operators.synthetic_values
+   dau_core.operators._sum_values
+   dau_core.operators._bounds_fixture
+   dau_core.operators._is_nan
+   dau_core.operators.keyed_state_scan
+   dau_core.operators.scratchpad_scan
+   dau_core.operators.sessionize_scan
+   dau_core.operators.hash_grouped_field_sum_rows
+   dau_core.operators.merge_hash_grouped
+
+
+Module Contents
+---------------
+
+.. py:class:: PredicateOp
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   Comparison opcodes for the predicate filter tile. Zero is reserved so an
+   unconfigured tile fails explicitly.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: EQ
+      :value: 1
+
+
+
+   .. py:attribute:: NE
+      :value: 2
+
+
+
+   .. py:attribute:: LT
+      :value: 3
+
+
+
+   .. py:attribute:: LE
+      :value: 4
+
+
+
+   .. py:attribute:: GT
+      :value: 5
+
+
+
+   .. py:attribute:: GE
+      :value: 6
+
+
+
+.. py:class:: PredicateCombine
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   Enum where members are also (and must be) ints
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: SINGLE
+      :value: 0
+
+
+
+   .. py:attribute:: AND
+      :value: 1
+
+
+
+   .. py:attribute:: OR
+      :value: 2
+
+
+
+.. py:class:: FilterErrorCode
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   Enum where members are also (and must be) ints
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: CONFIG
+      :value: 1
+
+
+
+   .. py:attribute:: STREAM
+      :value: 2
+
+
+
+.. py:class:: FilterPredicate(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   Predicate configuration: ``value <op0> constant0`` optionally combined
+   with ``value <op1> constant1`` by AND/OR. Matches the tile's config ports.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: op0
+      :type:  PredicateOp
+
+
+   .. py:attribute:: constant0
+      :type:  int
+
+
+   .. py:attribute:: combine
+      :type:  PredicateCombine
+
+
+   .. py:attribute:: op1
+      :type:  PredicateOp
+
+
+   .. py:attribute:: constant1
+      :type:  int
+      :value: 0
+
+
+
+   .. py:method:: model_post_init(context) -> None
+
+      Override this method to perform additional initialization after `__init__` and `model_construct`.
+      This is useful if you want to do some validation that requires the entire model to be initialized.
+
+
+
+   .. py:method:: matches(value: int) -> bool
+
+
+.. py:function:: filter_values(values: collections.abc.Iterable[int], predicate: FilterPredicate) -> list[int]
+
+   Golden semantics for the compacting predicate filter tile: emit the
+   matching values in input order.
+
+
+.. py:function:: _compare(op: PredicateOp, value: int, constant: int) -> bool
+
+.. py:data:: _INT32_MASK
+   :value: 4294967295
+
+
+.. py:class:: MapOp
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   ALU opcodes for the map tile. Zero is reserved so an unconfigured tile
+   fails explicitly.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: ADD
+      :value: 1
+
+
+
+   .. py:attribute:: SUB
+      :value: 2
+
+
+
+   .. py:attribute:: MUL
+      :value: 3
+
+
+
+   .. py:attribute:: MULSHR
+      :value: 4
+
+
+
+   .. py:attribute:: SHL
+      :value: 5
+
+
+
+   .. py:attribute:: AND
+      :value: 6
+
+
+
+   .. py:attribute:: OR
+      :value: 7
+
+
+
+.. py:class:: MapErrorCode
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   Enum where members are also (and must be) ints
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: CONFIG
+      :value: 1
+
+
+
+   .. py:attribute:: STREAM
+      :value: 2
+
+
+
+.. py:function:: _apply_map_op(op: MapOp, value: int, constant: int, shift: int) -> int
+
+   The tile ALU: shared by the scalar and row map configs (a plain
+   function so per-row golden loops never construct a model).
+
+
+.. py:class:: MapConfig(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   Per-row ALU configuration: ``value <op> constant`` (MULSHR/SHL also use
+   ``shift``). All arithmetic is INT32 two's-complement wraparound — the
+   golden and the tile agree bit-for-bit. Matches the tile's config ports.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: op
+      :type:  MapOp
+
+
+   .. py:attribute:: constant
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: shift
+      :type:  int
+      :value: 0
+
+
+
+   .. py:method:: model_post_init(context) -> None
+
+      Override this method to perform additional initialization after `__init__` and `model_construct`.
+      This is useful if you want to do some validation that requires the entire model to be initialized.
+
+
+
+   .. py:method:: apply(value: int) -> int
+
+
+.. py:function:: map_values(values: collections.abc.Iterable[int], config: MapConfig) -> list[int]
+
+   Golden semantics for the map/ALU tile: apply the configured ALU
+   operation to every value, preserving order and count.
+
+
+.. py:function:: _wrap_int32(value: int) -> int
+
+.. py:function:: filter_rows(rows: collections.abc.Iterable[tuple[int, int]], predicate: FilterPredicate, *, on_key: bool = False) -> list[tuple[int, int]]
+
+   Golden semantics for the keyed predicate-filter tile: the predicate is
+   evaluated on the value lane (or the key lane with ``on_key``) and whole
+   ``(key, value)`` rows pass or drop together — compaction never misaligns
+   the lanes.
+
+
+.. py:function:: map_rows(rows: collections.abc.Iterable[tuple[int, int]], config: MapConfig, *, on_key: bool = False) -> list[tuple[int, int]]
+
+   Golden semantics for the keyed map/ALU tile: the ALU operation applies
+   to the value lane (or the key lane with ``on_key`` — e.g. time→bucket
+   derivation); the other lane passes through unchanged, order and count
+   preserved.
+
+
+.. py:class:: RowField
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   Field selectors for 16-byte quad rows (two 64-bit words,
+   w0 = {value, key}, w1 = {aux1, aux0}): field i is the i-th 32-bit lane
+   in row order (key, value, aux0, aux1).
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: KEY
+      :value: 0
+
+
+
+   .. py:attribute:: VALUE
+      :value: 1
+
+
+
+   .. py:attribute:: AUX0
+      :value: 2
+
+
+
+   .. py:attribute:: AUX1
+      :value: 3
+
+
+
+.. py:class:: RowPredicateTerm(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   One comparison term of a row predicate: ``field <op> constant``
+   (signed 32-bit). Matches one term's config-port triple on the tile.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: field
+      :type:  RowField
+
+
+   .. py:attribute:: op
+      :type:  PredicateOp
+
+
+   .. py:attribute:: constant
+      :type:  int
+
+
+   .. py:method:: model_post_init(context) -> None
+
+      Override this method to perform additional initialization after `__init__` and `model_construct`.
+      This is useful if you want to do some validation that requires the entire model to be initialized.
+
+
+
+   .. py:method:: matches(row: tuple[int, int, int, int]) -> bool
+
+
+.. py:class:: RowPredicateConfig(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   Compound row predicate: up to three terms combined by the two-level
+   tree ``(term0 <combine01> term1) <combine2> term2``. ``SINGLE`` at a
+   level ignores the right-hand term (the 2-term filter's combine,
+   extended to three terms). Matches the tile's config ports.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: term0
+      :type:  RowPredicateTerm
+
+
+   .. py:attribute:: combine01
+      :type:  PredicateCombine
+
+
+   .. py:attribute:: term1
+      :type:  RowPredicateTerm | None
+      :value: None
+
+
+
+   .. py:attribute:: combine2
+      :type:  PredicateCombine
+
+
+   .. py:attribute:: term2
+      :type:  RowPredicateTerm | None
+      :value: None
+
+
+
+   .. py:method:: model_post_init(context) -> None
+
+      Override this method to perform additional initialization after `__init__` and `model_construct`.
+      This is useful if you want to do some validation that requires the entire model to be initialized.
+
+
+
+   .. py:method:: matches(row: tuple[int, int, int, int]) -> bool
+
+
+.. py:function:: filter_rows_by_predicate(rows: collections.abc.Iterable[tuple[int, int, int, int]], config: RowPredicateConfig) -> list[tuple[int, int, int, int]]
+
+   Golden semantics for the row predicate filter tile: whole
+   (key, value, aux0, aux1) rows pass when the compound predicate over the
+   selected fields matches (signed 32-bit compares), order preserved.
+
+
+.. py:class:: RowMapConfig(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   Per-row field ALU configuration: ``dst = src_a <op> src_b`` over the
+   four row fields (MULSHR/SHL also use ``shift``; SHL ignores ``src_b``).
+   All arithmetic is INT32 two's-complement wraparound — the golden and the
+   tile agree bit-for-bit. Matches the tile's config ports.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: op
+      :type:  MapOp
+
+
+   .. py:attribute:: dst
+      :type:  RowField
+
+
+   .. py:attribute:: src_a
+      :type:  RowField
+
+
+   .. py:attribute:: src_b
+      :type:  RowField
+
+
+   .. py:attribute:: shift
+      :type:  int
+      :value: 0
+
+
+
+   .. py:method:: model_post_init(context) -> None
+
+      Override this method to perform additional initialization after `__init__` and `model_construct`.
+      This is useful if you want to do some validation that requires the entire model to be initialized.
+
+
+
+   .. py:method:: apply(row: tuple[int, int, int, int]) -> int
+
+
+.. py:function:: _quad(values: collections.abc.Iterable[int]) -> tuple[int, int, int, int]
+
+   Four ints as the quad-row tuple, from any four-element iterable.
+
+
+.. py:function:: map_row_fields(rows: collections.abc.Iterable[tuple[int, int, int, int]], config: RowMapConfig) -> list[tuple[int, int, int, int]]
+
+   Golden semantics for the row map/ALU tile: the configured destination
+   field is rewritten from the two source-field operands; the other fields
+   pass through unchanged, order and count preserved.
+
+
+.. py:class:: SqrtErrorCode
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   Enum where members are also (and must be) ints
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: STREAM
+      :value: 2
+
+
+
+   .. py:attribute:: DOMAIN
+      :value: 3
+
+
+
+.. py:data:: SQRT_FRACTIONAL_BITS
+   :value: 16
+
+
+.. py:function:: fixed_point_sqrt(value: int, *, fractional_bits: int = SQRT_FRACTIONAL_BITS) -> int
+
+   Square root of a Q``(32-f)``.``f`` fixed-point value, EXACTLY.
+
+   A fixed-point root is an integer root in disguise. With ``x = X * 2**-f``,
+   the result ``sqrt(x) * 2**f`` is ``sqrt(X * 2**f)`` — so the answer is
+   ``isqrt(X << f)``, floor-truncated like every other fixed-point result in
+   this package (the multiply-shift convention).
+
+   This is worth stating because the obvious implementation is a polynomial
+   approximation, which would need an error bound and would still be wrong in
+   the last place. There is no approximation here and no tolerance in the
+   bench: the tile either matches this or it is broken.
+
+   Raises on a negative input; the tile reports ``DOMAIN`` for the same case.
+
+
+.. py:class:: RowSqrtConfig(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   Which field the root is taken from and which one receives it.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: dst
+      :type:  RowField
+
+
+   .. py:attribute:: src
+      :type:  RowField
+
+
+   .. py:attribute:: fractional_bits
+      :type:  int
+      :value: 16
+
+
+
+   .. py:method:: model_post_init(context) -> None
+
+      Override this method to perform additional initialization after `__init__` and `model_construct`.
+      This is useful if you want to do some validation that requires the entire model to be initialized.
+
+
+
+.. py:function:: sqrt_row_fields(rows: collections.abc.Iterable[tuple[int, int, int, int]], config: RowSqrtConfig) -> list[tuple[int, int, int, int]]
+
+   Golden semantics for the fixed-point sqrt tile: the destination field
+   is rewritten with the root of the source field, the other fields pass
+   through unchanged, order and count preserved.
+
+   A negative source value raises here and closes the batch out with
+   ``DOMAIN`` on the tile — the row is not emitted with a substituted value,
+   because a wrong number that looks right is the failure this avoids.
+
+
+.. py:class:: DatetimeFormatErrorCode
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   Enum where members are also (and must be) ints
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: DOMAIN
+      :value: 3
+
+
+
+.. py:data:: DATETIME_FORMAT_MAX_EPOCH_SECONDS
+   :value: 253402300799
+
+
+.. py:data:: DATETIME_FORMAT_WIDTH
+   :value: 19
+
+
+.. py:function:: format_datetime(epoch_seconds: int) -> str
+
+   ``epoch_seconds`` rendered as ``YYYY-MM-DD HH:MM:SS``, in UTC.
+
+   The civil date comes from Howard Hinnant's ``civil_from_days``, written
+   here in the same shape the tile implements it: every division is by a
+   CONSTANT, which is what lets the hardware do all of them as multiply-shift
+   with no divider. Leap years are exact, all three rules (4, 100, 400) --
+   they are not special-cased anywhere, they fall out of the 400-year era
+   arithmetic.
+
+   Raises outside the representable range; the tile reports ``DOMAIN`` for
+   the same case rather than emitting a truncated year.
+
+
+.. py:function:: format_datetime_rows(rows: collections.abc.Iterable[int]) -> list[str]
+
+   Golden semantics for the datetime formatter tile: one int64 epoch-second
+   value in, one fixed-width 19-character rendering out, order and count
+   preserved.
+
+   The tile emits the ASCII of each string in one 152-bit beat, character i
+   in bits ``[8*i+7:8*i]``. An out-of-range value is not rendered: it closes
+   the batch out with ``DOMAIN``.
+
+
+.. py:class:: DivideErrorCode
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   Enum where members are also (and must be) ints
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: STREAM
+      :value: 2
+
+
+
+   .. py:attribute:: DOMAIN
+      :value: 3
+
+
+
+   .. py:attribute:: RANGE
+      :value: 4
+
+
+
+.. py:data:: DIVIDE_FRACTIONAL_BITS
+   :value: 16
+
+
+.. py:function:: fixed_point_divide(numerator: int, denominator: int, *, fractional_bits: int = DIVIDE_FRACTIONAL_BITS) -> int
+
+   Quotient of two Q``(32-f)``.``f`` fixed-point values, EXACTLY.
+
+   With ``a = A * 2**-f`` and ``b = B * 2**-f``, the result ``(a/b) * 2**f``
+   is ``(A << f) / B`` — an integer division, so there is nothing to
+   approximate and the bench compares with no tolerance.
+
+   FLOOR, not truncation toward zero. That is the convention the rest of the
+   package already uses: ``MULSHR`` divides by a power of two with an
+   arithmetic shift, which floors, and ``-7 >> 1`` is ``-4``. Python's ``//``
+   floors too, so this is simply that operator. A tile that truncated toward
+   zero would disagree with the existing map ALU on every negative operand.
+
+   Raises on a zero divisor, and on a quotient that does not fit int32; the
+   tile reports ``DOMAIN`` and ``RANGE`` for those cases.
+
+
+.. py:class:: RowDivideConfig(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   Which fields the quotient is formed from and which receives it.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: dst
+      :type:  RowField
+
+
+   .. py:attribute:: numerator
+      :type:  RowField
+
+
+   .. py:attribute:: denominator
+      :type:  RowField
+
+
+   .. py:attribute:: fractional_bits
+      :type:  int
+      :value: 16
+
+
+
+   .. py:method:: model_post_init(context) -> None
+
+      Override this method to perform additional initialization after `__init__` and `model_construct`.
+      This is useful if you want to do some validation that requires the entire model to be initialized.
+
+
+
+.. py:function:: divide_row_fields(rows: collections.abc.Iterable[tuple[int, int, int, int]], config: RowDivideConfig) -> list[tuple[int, int, int, int]]
+
+   Golden semantics for the fixed-point divide tile: the destination field
+   is rewritten with the quotient of the two source fields, the others pass
+   through unchanged, order and count preserved.
+
+   This is what retires the deferred-division convention. Means, VWAP and
+   z-score denominators were computed as exact integer accumulators and
+   divided on the host because there was no divider; with one, the divide
+   stays on the device.
+
+
+.. py:class:: UnpackErrorCode
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   Enum where members are also (and must be) ints
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: CONFIG
+      :value: 1
+
+
+
+   .. py:attribute:: STREAM
+      :value: 2
+
+
+
+.. py:class:: UnpackFieldSpec(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   One output field's slice of a packed row: the ``width``-bit field at bit
+   ``offset`` of the (<=64-bit) packed word, sign-extended (``signed``) or
+   zero-extended to int32. Matches the tile's
+   ``cfg_field{i}_{offset,width,signed}`` config ports.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: offset
+      :type:  int
+
+
+   .. py:attribute:: width
+      :type:  int
+
+
+   .. py:attribute:: signed
+      :type:  bool
+      :value: False
+
+
+
+   .. py:method:: model_post_init(context) -> None
+
+      Override this method to perform additional initialization after `__init__` and `model_construct`.
+      This is useful if you want to do some validation that requires the entire model to be initialized.
+
+
+
+   .. py:method:: extract(packed: int) -> int
+
+      Extract this field from ``packed`` as an int32-domain signed value
+      (the exact 32-bit pattern the tile emits, read back as signed int32).
+
+
+
+.. py:function:: unpack_rows(rows: collections.abc.Iterable[int] | collections.abc.Iterable[tuple[int, int, int, int]], field_specs: collections.abc.Sequence[UnpackFieldSpec] = (), *, bypass: bool = False) -> list[tuple[int, int, int, int]]
+
+   Golden semantics for the row-unpack front-end feed tile.
+
+   UNPACK (``bypass=False``, the default): widen each packed input word (one
+   <=64-bit packed row per word in ``rows``) into a 16-byte int32 quad row.
+   Output field i is ``packed[offset_i +: width_i]`` sign/zero extended to
+   int32; the four fields map to (key, value, aux0, aux1) — the exact quad-row
+   layout downstream row tiles consume (field 0 = key = w0.lo). One packed word
+   in, one quad row out, order and count preserved.
+
+   BYPASS (``bypass=True``): the input is already 16-byte int32 quad rows
+   (``rows`` is an iterable of (key, value, aux0, aux1) tuples); the tile
+   forwards them byte-identically, so the golden is the identity. Field
+   descriptors are unused in this mode (not required, not validated).
+
+
+.. py:class:: FieldSumErrorCode
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   Enum where members are also (and must be) ints
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: CONFIG
+      :value: 1
+
+
+
+   .. py:attribute:: STREAM
+      :value: 2
+
+
+
+.. py:data:: STREAM_WORD_BYTES
+   :value: 8
+
+
+.. py:data:: _STREAM_WORD_MASK
+   :value: 18446744073709551615
+
+
+.. py:class:: FieldSumAggregate
+
+   The one record the field-sum aggregation tile emits per batch: exact
+   INT64 sums of the mask-selected fields (ascending field order) plus the
+   row count. Record format on the wire: one 64-bit word per selected
+   field (two's-complement sum, ascending field index), then the count
+   word, ``output_last`` on the count word.
+
+
+   .. py:attribute:: field_mask
+      :type:  int
+
+
+   .. py:attribute:: sums
+      :type:  tuple[int, ...]
+
+
+   .. py:attribute:: count
+      :type:  int
+
+
+   .. py:method:: record_words() -> list[int]
+
+      The record as unsigned 64-bit stream words (sums re-encoded to
+      two's complement), count last.
+
+
+
+   .. py:method:: record_word_count(field_mask: int) -> int
+      :staticmethod:
+
+
+      Words in the record a lane with this mask emits: one per selected
+      field, plus the count word. The one statement of the record's
+      length, which the encoder, the decoder and any host sizing a read
+      all consult.
+
+
+
+   .. py:method:: from_record_words(words: collections.abc.Sequence[int], *, field_mask: int) -> FieldSumAggregate
+      :classmethod:
+
+
+      The inverse of :meth:`record_words`: read one lane's emitted
+      record back into the aggregate it describes.
+
+      A host reading results off a device has the same record and the
+      same mask, so the decode is not a second statement of the format
+      but this one run backwards -- which is why it lives here rather
+      than in whichever host layer happens to read the bytes. Every
+      caller that hand-rolled the unpack got to choose its own word
+      order and its own sign convention; this cannot.
+
+      ``words`` is one unsigned 64-bit word per mask-selected field in
+      ascending field order, then the count. Sums are two's complement
+      and come back signed; the count does not.
+
+
+
+   .. py:method:: combine(records: collections.abc.Sequence[FieldSumAggregate]) -> FieldSumAggregate
+      :classmethod:
+
+
+      The record one lane would have emitted over the union of the
+      rows several lanes each saw a DISJOINT share of: sums add, counts
+      add.
+
+      This is the partition algebra of the tile -- what makes a key-mask
+      dispatcher's replicas, or a complete pair-key partition group,
+      answer as one lane -- and it holds only under a partition. Folding
+      two lanes that each saw every row counts every row twice, which is
+      a fact about who fed the lanes and not about this fold; the caller
+      that knows the fan-out decides what is combined.
+
+
+
+.. py:function:: _signed_int64(word: int) -> int
+
+   Two's-complement read of one unsigned stream word.
+
+
+.. py:function:: field_sum_rows(rows: collections.abc.Iterable[tuple[int, int, int, int]], *, field_mask: int) -> FieldSumAggregate
+
+   Golden semantics for the batch field-sum aggregation tile: one pass
+   over (key, value, aux0, aux1) rows accumulating an INT64 sum per
+   mask-selected field plus the row count. ``field_mask`` bit i selects
+   field i; at least one field must be selected (a zero mask is an
+   unconfigured tile and reports CONFIG on hardware).
+
+
+.. py:class:: GroupedFieldSumErrorCode
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   Enum where members are also (and must be) ints
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: CONFIG
+      :value: 1
+
+
+
+   .. py:attribute:: STREAM
+      :value: 2
+
+
+
+.. py:class:: GroupedFieldSumAggregate
+
+   One closed group from the ordered grouped field-sum aggregation
+   tile: INT64 sums of the mask-selected fields (ascending field order)
+   plus the group's row count — exact for every feasible batch (an INT64
+   accumulator of int32 addends cannot overflow below 2**32 rows in one
+   group, far past any stageable batch). Record format on the wire: the
+   group key sign-extended to one 64-bit word, one 64-bit word per
+   selected field (two's-complement sum, ascending field index), then the
+   count word. ``output_last`` is set only on the final group's count
+   word — the batch's group records form one record stream and the tile
+   closes out once per batch, after the last group (the composition
+   invariant: exactly one success close-out per lane per batch).
+
+
+   .. py:attribute:: key
+      :type:  int
+
+
+   .. py:attribute:: field_mask
+      :type:  int
+
+
+   .. py:attribute:: sums
+      :type:  tuple[int, ...]
+
+
+   .. py:attribute:: count
+      :type:  int
+
+
+   .. py:method:: record_words() -> list[int]
+
+      The group record as unsigned 64-bit stream words: sign-extended
+      key, sums re-encoded to two's complement, count last.
+
+
+
+.. py:function:: grouped_field_sum_rows(rows: collections.abc.Iterable[tuple[int, int, int, int]], *, field_mask: int) -> list[GroupedFieldSumAggregate]
+
+   Golden semantics for the ordered grouped field-sum aggregation tile
+   (close-out mode): consecutive (key, value, aux0, aux1) rows with equal
+   signed 32-bit keys form a group; a group closes when the key changes or
+   input ends, emitting an INT64 sum per mask-selected field plus the row
+   count. A key that reappears later opens a NEW group — partials merge on
+   the host, never in the tile (the partial-bar contract). ``field_mask``
+   bit i selects field i; at least one field must be selected (a zero mask
+   is an unconfigured tile and reports CONFIG on hardware).
+
+
+.. py:class:: MembershipKind
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   Membership-structure kind for the key-set membership filter tile. Zero
+   is reserved so an unconfigured tile fails explicitly. v0 implements only
+   ``EXACT_BITMAP`` — a direct-mapped bitmap over the configured dictionary-id
+   key space, with no false positives. ``BLOOM`` is a reserved future config (a
+   hashed bitmap trading exactness for an unbounded key space, its false
+   positives verified host-side); the v0 tile rejects it with a config
+   error.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: EXACT_BITMAP
+      :value: 1
+
+
+
+   .. py:attribute:: BLOOM
+      :value: 2
+
+
+
+.. py:class:: MembershipMode
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   Probe-phase disposition — one config bit: keep members (semi/IN) or keep
+   non-members (anti/NOT IN).
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: SEMI
+      :value: 0
+
+
+
+   .. py:attribute:: ANTI
+      :value: 1
+
+
+
+.. py:exception:: MembershipBuildSetError
+
+   Bases: :py:obj:`Exception`
+
+
+   An invalid membership build set. Deliberately not a ``ValueError``:
+   pydantic wraps those raised inside ``model_post_init`` into a
+   ``ValidationError``, which buries the message the caller needs.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+.. py:class:: MembershipErrorCode
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   Enum where members are also (and must be) ints
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: CONFIG
+      :value: 1
+
+
+
+   .. py:attribute:: STREAM
+      :value: 2
+
+
+
+   .. py:attribute:: LOAD
+      :value: 3
+
+
+
+.. py:class:: MembershipBuildSet(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   The membership memory: a direct-mapped EXACT bitmap over the configured
+   dictionary-id key space ``[0, key_space)``. Key ``k`` is a member iff
+   ``0 <= k < key_space`` and bit ``k`` is set.
+
+   Addressing decision (and its exactness). The IN-list / semi-join key column
+   is dictionary-encoded host-side (dau-polars) into dense ids ``[0, N)``, and
+   ``key_space`` is that dictionary's cardinality rounded up to a multiple of
+   64. Because every id maps to exactly one bit, membership is EXACT — no false
+   positives AND no false negatives — over the id space. A full ``2**32``
+   bitmap would be 512 MB, impossible; the bounded dictionary space is the
+   natural fit and keeps the whole memory BRAM-resident. A probe key outside
+   ``[0, key_space)`` is definitionally a non-member: the build set only ever
+   holds in-range dictionary ids, so an out-of-range probe key (signed int32,
+   so negatives and ids ``>= key_space`` included) cannot be in it. This is the
+   honest, verifiable v0; ``MembershipKind.BLOOM`` is the future inexact
+   alternative for unbounded key spaces (host-verified false positives).
+
+   The bitmap loads as ``key_space // 64`` little-endian 64-bit image words:
+   word ``w`` bit ``b`` is id ``64*w + b``.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: key_space
+      :type:  int
+
+
+   .. py:attribute:: members
+      :type:  frozenset[int]
+
+
+   .. py:method:: model_post_init(context) -> None
+
+      Override this method to perform additional initialization after `__init__` and `model_construct`.
+      This is useful if you want to do some validation that requires the entire model to be initialized.
+
+
+
+   .. py:property:: word_count
+      :type: int
+
+
+
+   .. py:method:: member(key: int) -> bool
+
+
+   .. py:method:: image_words() -> list[int]
+
+      The bitmap as ``key_space // 64`` little-endian 64-bit words — the
+      LOAD-phase stream: word ``w`` bit ``b`` set iff ``64*w + b`` is a
+      member.
+
+
+
+   .. py:method:: from_keys(keys: collections.abc.Iterable[int], *, key_space: int) -> MembershipBuildSet
+      :classmethod:
+
+
+
+   .. py:method:: from_image_words(words: collections.abc.Iterable[int], *, key_space: int) -> MembershipBuildSet
+      :classmethod:
+
+
+
+.. py:function:: filter_rows_by_membership(rows: collections.abc.Iterable[tuple[int, int, int, int]], build_set: MembershipBuildSet, *, mode: MembershipMode) -> list[tuple[int, int, int, int]]
+
+   Golden semantics for the key-set membership filter tile (probe phase):
+   whole (key, value, aux0, aux1) rows pass by whether the row key (``w0.lo``,
+   signed int32) is a member of ``build_set``. ``SEMI`` keeps members, ``ANTI``
+   keeps non-members; order preserved. Exact bitmap membership — no false
+   positives.
+
+
+.. py:data:: DEDUP_KEY_SPACE_MAX
+   :value: 8388608
+
+
+.. py:class:: DedupErrorCode
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   Status codes for the streaming dedup tile. Code 1 — ``CONFIG`` in every
+   tile that has one — is deliberately absent: ``cfg_clear`` is a single bit
+   with no invalid encoding, so there is no configuration this tile can
+   reject. ``STREAM`` keeps the palette-wide value 2 and ``RANGE`` the value
+   the broadcast hash join gives the same condition.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: OK
+      :value: 0
+
+
+
+   .. py:attribute:: STREAM
+      :value: 2
+
+
+
+   .. py:attribute:: RANGE
+      :value: 3
+
+
+
+.. py:class:: DistinctCount
+
+   What the streaming dedup tile holds after a batch: the running distinct
+   count it emits as its one-word close-out record, and the bitmap that count
+   was taken from.
+
+   ``seen`` is carried rather than derived because the tile's bitmap SURVIVES
+   a batch boundary. A scan split into overlapped batches is one dedup, and
+   summing per-batch counts would count a key once per batch it appears in —
+   so the accumulation runs until the host asks for a fresh one (``cfg_clear``
+   on the batch that starts it), and the final batch's count is the answer.
+   Feed a result's ``seen`` back in to model the next batch of the same
+   accumulation; pass nothing to model one that cleared first.
+
+
+   .. py:attribute:: key_space
+      :type:  int
+
+
+   .. py:attribute:: count
+      :type:  int
+
+
+   .. py:attribute:: seen
+      :type:  frozenset[int]
+
+
+   .. py:attribute:: error
+      :type:  DedupErrorCode
+
+
+   .. py:method:: record_words() -> list[int]
+
+      The close-out record as unsigned 64-bit stream words: the distinct
+      count and nothing else — N keys in, ONE count out.
+
+
+
+.. py:function:: count_distinct_rows(rows: collections.abc.Iterable[tuple[int, int, int, int]], *, key_space: int, seen: collections.abc.Iterable[int] = ()) -> DistinctCount
+
+   Golden semantics for the streaming insert-on-probe dedup tile: one pass
+   over (key, value, aux0, aux1) rows counting each key the FIRST time it is
+   seen — ``COUNT(DISTINCT key)`` over the dictionary-id space
+   ``[0, key_space)``.
+
+   The membership filter's bitmap is STATIC: loaded in a build phase, then
+   probed read-only. This one is written as it is probed — if the row key's
+   bit is clear, set it and count the row; otherwise the key has been seen
+   and the row changes nothing. That single difference (insert on probe) is
+   what a ``distinct`` needs and what a static bitmap cannot do, and it is
+   why the tile pays a read-modify-write per row where the filter pays a
+   read.
+
+   Sized by CARDINALITY, not by row count: the bitmap holds one bit per
+   distinct key, so the memory is set by how many distinct keys exist, not by
+   how many rows carry them. That is the whole reason this fits on-chip where
+   a join build side does not.
+
+   An out-of-range key is an ERROR here rather than the definitional miss it
+   is in the membership filter. A filter can honestly answer "not a member"
+   for a key the build set could never hold; a dedup cannot answer "have I
+   seen this" for a key it has nowhere to record, and silently wrapping it
+   into another key's bit would merge two distinct keys into one count. The
+   tile drains the batch and closes out ``RANGE``; the accumulation goes with
+   it (count zero, empty bitmap), because rows before the bad one already set
+   their bits and a half-inserted bitmap is not a state anything can resume
+   from.
+
+
+.. py:class:: JoinSource
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   Output field-select sources for the broadcast hash join tile: the six
+   32-bit operands an emitted output field may carry — the matched build row's
+   three data fields (``b0``/``b1``/``b2``) and the probe row's three
+   (``v0``/``v1``/``v2``). Selectors 6 and 7 are reserved (the tile rejects
+   them as ``ERR_CONFIG``). The emitted row's key is always the matched key,
+   so it is not a selectable source.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: B0
+      :value: 0
+
+
+
+   .. py:attribute:: B1
+      :value: 1
+
+
+
+   .. py:attribute:: B2
+      :value: 2
+
+
+
+   .. py:attribute:: V0
+      :value: 3
+
+
+
+   .. py:attribute:: V1
+      :value: 4
+
+
+
+   .. py:attribute:: V2
+      :value: 5
+
+
+
+.. py:class:: JoinErrorCode
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   Enum where members are also (and must be) ints
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: CONFIG
+      :value: 1
+
+
+
+   .. py:attribute:: STREAM
+      :value: 2
+
+
+
+   .. py:attribute:: RANGE
+      :value: 3
+
+
+
+.. py:class:: BroadcastJoinConfig(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   Output field-select for the broadcast hash join: each of the emitted
+   row's three data fields (``out0``, ``out1``, ``out2``) is chosen from the
+   six join sources. The emitted key is always the matched probe key. Matches
+   the tile's ``cfg_out{0,1,2}_sel`` config ports.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: out0
+      :type:  JoinSource
+
+
+   .. py:attribute:: out1
+      :type:  JoinSource
+
+
+   .. py:attribute:: out2
+      :type:  JoinSource
+
+
+   .. py:method:: model_post_init(context) -> None
+
+      Override this method to perform additional initialization after `__init__` and `model_construct`.
+      This is useful if you want to do some validation that requires the entire model to be initialized.
+
+
+
+   .. py:method:: select(sources: tuple[int, int, int, int, int, int]) -> tuple[int, int, int]
+
+
+.. py:function:: keyed_asof_join_rows(records: collections.abc.Iterable[tuple[int, int, int, int, int]], *, tolerance: int | None = None) -> list[tuple[int, int, int, int, int, int]]
+
+   Golden semantics for the generic keyed backward as-of join tile: one
+   host-merged, ``(key, time)``-sorted stream of BUILD and PROBE records
+   (build-before-probe at equal key/time). Each record is
+   ``(rec_type, key, time, a, b)`` — ``rec_type`` bit0: 0 = build, 1 = probe;
+   ``a``/``b`` are two opaque INT32 payload fields. Because the stream is
+   key-grouped, exactly one build is live at a time: a build updates the held
+   ``(time, a, b)`` for its key (reset on key change), and a probe attaches the
+   most recent build with ``build_time <= probe_time`` (within ``tolerance`` on
+   the time axis, ``None`` = unbounded), emitting the joined row
+   ``(key, time, probe_a, probe_b, build_a, build_b)``. A probe with no live
+   build (or one older than tolerance) drops — the tile emits matched joins
+   only. Workload-agnostic: the temporal-finance backward as-of (quote = build
+   ``{bid, ask}``, trade = probe ``{price, size}``) is exactly this join, and
+   :func:`dau_core.temporal.asof_backward` on sorted inputs agrees with it.
+
+
+.. py:function:: broadcast_hash_join_rows(build_rows: collections.abc.Iterable[tuple[int, int, int, int]], probe_rows: collections.abc.Iterable[tuple[int, int, int, int]], *, out_sel: BroadcastJoinConfig, key_space: int = 1024) -> list[tuple[int, int, int, int]]
+
+   Golden semantics for the broadcast hash join tile (the join tier's
+   payload-emitting Joiner). The build side of ``(key, b0, b1, b2)`` rows is
+   loaded into a direct-mapped payload table over the key space
+   ``[0, key_space)`` — one slot per key, last-writer-wins on a duplicate
+   build key (the build side is expected unique/PK). Then ``(key, v0, v1, v2)``
+   probe rows inner-join against it: a probe key that hits emits one
+   ``(key, out0, out1, out2)`` row whose three data fields are chosen by
+   ``out_sel`` from the six sources ``(b0, b1, b2, v0, v1, v2)``; a probe miss
+   drops. Order is preserved. Every build and probe key must lie in
+   ``[0, key_space)`` — an out-of-range key is ``ERR_RANGE`` on the tile and
+   raises here. All fields are INT32 (two's-complement wraparound).
+
+   An empty ``build_rows`` is the mathematically empty table (every probe
+   misses). On the tile, an empty table is the cleared/initial state reached
+   by the load-phase sweep or power-on ``INIT`` — a *load batch* itself always
+   carries at least one build row, since the stream contract delimits a batch
+   with ``input_last`` on a data word and so cannot express a zero-row
+   batch.
+
+
+.. py:class:: GroupedAggregationErrorCode
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   Enum where members are also (and must be) ints
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: CONFIG
+      :value: 1
+
+
+
+   .. py:attribute:: STREAM
+      :value: 2
+
+
+
+.. py:class:: GroupAggregate
+
+   One closed group from the ordered grouped-aggregation tile: every
+   statistic is computed in a single pass. ``first``/``last`` follow input
+   order, so partial groups from separate batches merge correctly on the
+   host (the partial-bar contract).
+
+
+   .. py:attribute:: key
+      :type:  int
+
+
+   .. py:attribute:: first
+      :type:  int
+
+
+   .. py:attribute:: last
+      :type:  int
+
+
+   .. py:attribute:: minimum
+      :type:  int
+
+
+   .. py:attribute:: maximum
+      :type:  int
+
+
+   .. py:attribute:: total
+      :type:  int
+
+
+   .. py:attribute:: count
+      :type:  int
+
+
+.. py:class:: BarAggregate
+
+   One closed bar from the fused single-pass bar-aggregation tile: price
+   OHLC statistics plus the exact micro-share volume decomposition, all in
+   one pass over (key, price, shares, frac) rows.
+
+
+   .. py:attribute:: key
+      :type:  int
+
+
+   .. py:attribute:: open
+      :type:  int
+
+
+   .. py:attribute:: close
+      :type:  int
+
+
+   .. py:attribute:: low
+      :type:  int
+
+
+   .. py:attribute:: high
+      :type:  int
+
+
+   .. py:attribute:: shares
+      :type:  int
+
+
+   .. py:attribute:: frac
+      :type:  int
+
+
+   .. py:attribute:: count
+      :type:  int
+
+
+.. py:class:: FieldStats
+
+   The single-pass statistics of one data field over a group: first/last in
+   input order, running min/max, and the exact int64 sum.
+
+
+   .. py:attribute:: first
+      :type:  int
+
+
+   .. py:attribute:: last
+      :type:  int
+
+
+   .. py:attribute:: minimum
+      :type:  int
+
+
+   .. py:attribute:: maximum
+      :type:  int
+
+
+   .. py:attribute:: total
+      :type:  int
+
+
+.. py:class:: GroupedFieldAggregate
+
+   One closed group from the GENERIC multi-field aggregator: per-field
+   first/last/min/max/sum over the three data fields of a quad row, plus the
+   row count. A workload-agnostic superset — OHLCV bars (and other grouped
+   reductions) are a field/stat SELECTION over it, not a baked-in tile.
+
+
+   .. py:attribute:: key
+      :type:  int
+
+
+   .. py:attribute:: fields
+      :type:  tuple[FieldStats, FieldStats, FieldStats]
+
+
+   .. py:attribute:: count
+      :type:  int
+
+
+.. py:function:: filter_bar_rows_by_key(rows: collections.abc.Iterable[tuple[int, int, int, int]], *, key_mask: int, key_match: int) -> list[tuple[int, int, int, int]]
+
+   Golden semantics for the pair-row key partition filter: whole
+   (key, price, shares, frac) rows pass when ``(key & mask) == match``
+   (32-bit two's-complement key lane), order preserved.
+
+
+.. py:function:: range_partition_bar_rows(rows: collections.abc.Iterable[tuple[int, int, int, int]], *, splitters: collections.abc.Iterable[int]) -> list[list[tuple[int, int, int, int]]]
+
+   Golden semantics for the range partitioner: route each
+   (key, price, shares, frac) row to partition
+   ``p = #{ s in splitters : signed32(key) >= signed32(s) }`` (splitters
+   monotonic non-decreasing, signed 32-bit key lane), order preserved within
+   each partition. Returns one ordered list per partition
+   (length ``len(splitters) + 1``).
+
+
+.. py:function:: gearbox_records(words: collections.abc.Iterable[int], *, record_words: int, record_count: int) -> list[tuple[int, ...]]
+
+   Golden semantics for the record gearbox: a pure REFRAMING.
+
+   The input is a flat stream of 64-bit words carrying ``record_count``
+   back-to-back records of ``record_words`` words each, delivered in
+   beats that need not divide the record size — so records straddle beat
+   boundaries and the tail beat may be padded. The output is the record
+   sequence, unchanged: no field is inspected, reordered or dropped, so
+   the golden is the identity and the interesting property is the RATE
+   (one whole record per cycle) rather than the values.
+
+   Words beyond ``record_count * record_words`` are beat padding and are
+   ignored; too few words is a framing error the hardware reports as
+   ERR_STREAM.
+
+
+.. py:data:: DISPATCH_HASH_MULTIPLIER
+   :value: 2654435769
+
+
+.. py:class:: DispatchMode
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   How the key-mask dispatcher maps a row's key to a partition. The
+   values ARE the tile's MODE parameter encoding, so the golden and the
+   HDL cannot drift apart silently.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: MASK
+      :value: 0
+
+
+
+   .. py:attribute:: EXACT_BRANCH
+      :value: 1
+
+
+
+   .. py:attribute:: HASH
+      :value: 2
+
+
+
+.. py:function:: _dispatch_dest(key_u32: int, *, num_partitions: int, mode: DispatchMode) -> int | None
+
+   The partition a key routes to, or ``None`` when the router drops the
+   row. One implementation shared by both golden record shapes.
+
+
+.. py:function:: _check_dispatch_partitions(num_partitions: int, mode: DispatchMode) -> None
+
+.. py:function:: mask_dispatch_records(records: collections.abc.Iterable[collections.abc.Sequence[int]], *, num_partitions: int, mode: DispatchMode = DispatchMode.MASK) -> list[list[tuple[int, ...]]]
+
+   Golden semantics for the key-mask dispatcher over N-WORD records.
+
+   The quad-row form (:func:`mask_dispatch_rows`) routes two 64-bit words
+   keyed on the first word's low half. A fused chain whose head reads
+   wider records — the as-of join's three-word ``{tag/key, time,
+   payload}`` — routes those records WHOLE on the same key, so a
+   per-symbol workflow can be replicated across lanes without reshaping
+   the stream. Each record is a sequence of 64-bit words; the routing key
+   is ``word0 & 0xFFFFFFFF`` read as a signed 32-bit value, exactly the
+   hardware bit-select. Order is preserved within each partition.
+
+
+.. py:function:: mask_dispatch_rows(rows: collections.abc.Iterable[tuple[int, int, int, int]], *, num_partitions: int, mode: DispatchMode = DispatchMode.MASK) -> list[list[tuple[int, int, int, int]]]
+
+   Golden semantics for the key-mask dispatcher: route each
+   (key, value, aux0, aux1) row to partition ``key & (num_partitions - 1)``
+   (``num_partitions`` a power of two; the signed 32-bit key's low bits —
+   two's complement, so negative keys mask exactly like the hardware
+   bit-select), order preserved within each partition. The pair-key
+   partition (``key & mask == lane``) moved from N per-lane filters into
+   one shared router. Returns one ordered list per partition.
+
+   :class:`DispatchMode.EXACT_BRANCH` selects the exact-branch-id mode
+   (q19's disjunct branches): partition ``key - 1`` for keys in
+   ``[1, num_partitions]``, every other key **dropped at the router**
+   (branch 0 — and any negative key, whose unsigned 32-bit image exceeds
+   any partition count — costs zero lane cycles). It needs no
+   power-of-two.
+
+   :class:`DispatchMode.HASH` multiplies the key by
+   :data:`DISPATCH_HASH_MULTIPLIER` and takes the TOP ``log2(N)`` bits of
+   the low-32-bit product. MASK reads the key's LOW bits, so it spreads
+   keys evenly only when those bits already vary — dictionary ids
+   clustered by insertion order, or keys sharing a stride, collapse onto
+   a few lanes. The multiplicative hash mixes the whole key into the high
+   bits before the select, which is what makes it the fan-out for keys
+   the host did not choose. The constant is part of the contract: a
+   row's partition is part of the answer, so the golden and the HDL must
+   compute the identical value.
+
+
+.. py:function:: stride_distribute_rows(rows: collections.abc.Iterable[tuple[int, int, int, int]], *, rows_per_beat: int, num_partitions: int) -> tuple[list[tuple[int, int, int, int]], ...]
+
+   Route packed rows by static slot position and per-slot round robin.
+
+   Row ``i`` occupies slot ``i % rows_per_beat``. Each slot owns one
+   contiguous group of ``num_partitions / rows_per_beat`` lanes and advances
+   only its own round-robin counter. This is correct for keyed aggregation
+   even though a key may reach several lanes: the host merges per-lane
+   partials by key, the same partial-group contract used by q1's two-pass
+   aggregation.
+
+
+.. py:function:: pack_splitters(values: collections.abc.Sequence[int]) -> str
+
+   Pack range-partitioner splitter constants into the ``cfg_splitters`` SV
+   bus literal ``{32'h..., ...}``. ``cfg_splitters`` is a flat bus carrying
+   splitter ``i`` at ``[i*32 +: 32]``; SV concatenation packs MSB-first, so
+   the highest-index splitter is emitted first (reversed). The partitioner
+   compares keys and splitters as *signed* 32-bit values
+   (``range_partition_bar_rows``); values that would wrap under the
+   ``& 0xFFFF_FFFF`` pack are rejected.
+
+
+.. py:class:: SorterErrorCode
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   Enum where members are also (and must be) ints
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: STREAM
+      :value: 2
+
+
+
+   .. py:attribute:: CAPACITY
+      :value: 3
+
+
+
+.. py:function:: sort_bar_rows_by_key(rows: collections.abc.Iterable[tuple[int, int, int, int]]) -> list[tuple[int, int, int, int]]
+
+   Golden semantics for the batch bitonic sorter: rows ascending by the
+   signed 32-bit key, STABLE (rows with equal keys keep input order — the
+   tile tie-breaks on load index).
+
+
+.. py:data:: TOP_K_MAX
+   :value: 128
+
+
+.. py:class:: TopKErrorCode
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   Status codes for the streaming top-k heap tile.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: OK
+      :value: 0
+
+
+
+   .. py:attribute:: BAD_K
+      :value: 1
+
+
+
+.. py:function:: streaming_top_k(rows: collections.abc.Iterable[tuple[int, int, int, int]], *, k: int) -> list[tuple[int, int, int, int]]
+
+   Golden semantics for the streaming top-k heap tile: in one pass keep the
+   ``k`` rows with the largest signed-32-bit sort key (field 0), breaking ties
+   by arrival order (earlier rows win), and emit them sorted by sort key
+   DESCENDING (ties arrival ascending) — the ``ORDER BY <key> DESC LIMIT k``
+   shape (q3/q10, TSBS group-by-order-by-limit).
+
+   Bounded state: the tile holds at most ``k`` rows in a size-``k`` min-heap
+   whose root — the eviction target — is the entry with the smallest key and,
+   among equal-key entries, the LATEST arrival (the heap orders on
+   ``(key, -arrival)``, not key alone). An arriving row replaces the root only
+   when its key is STRICTLY greater, so at the k-th-largest key the earliest
+   arrivals are retained — matched by the ``(-key, arrival)`` sort below. This
+   root tie-order is part of the tile contract: a key-only min-heap could evict
+   an earlier tied row and diverge from this golden. ``k`` is bounded to
+   ``[1, TOP_K_MAX]``; the tile reports ``BAD_K`` outside that range.
+
+
+.. py:function:: time_bucket_key_rows(rows: collections.abc.Iterable[tuple[int, int, int, int, int]], *, bucket_shift: int, bucket_bits: int) -> list[tuple[int, int, int, int]]
+
+   Golden semantics for the generic time-bucket key tile: rewrite each row's
+   partition key into a composite ``(partition, time-bucket)`` group key so a
+   downstream key-grouped aggregator produces fixed-width time-windowed groups
+   per partition. Window = ``2**bucket_shift``; key =
+   ``(partition[:PART_BITS] << bucket_bits) | (time >> bucket_shift)[:bucket_bits]``
+   with ``PART_BITS = 32 - bucket_bits``. Input rows are
+   ``(partition, payload_hi, time, payload2, payload3)``; output the aggregator's
+   quad rows ``(key, payload_hi, payload2, payload3)``. Workload-agnostic — any
+   time-windowed aggregation composes it before the generic aggregator.
+
+
+.. py:function:: gather_records(words: list[int], *, in_words: int, out_words: int, selectors: tuple[int, ...]) -> list[int]
+
+   Gather 32-bit halves from fixed-width records into new records.
+
+   Each packed selector uses bits ``[5:0]`` for source-word index, bit 6 for
+   source half (0 low, 1 high), and bits ``[11:7]`` for a logical right shift;
+   bits ``[31:12]`` are reserved and must be zero. Selectors are ordered by
+   output half: low half, then high half, for each output word. Shifts always
+   zero-fill, including when the selected half has its sign bit set.
+
+
+.. py:function:: grouped_field_aggregate_rows(rows: collections.abc.Iterable[tuple[int, int, int, int]]) -> list[GroupedFieldAggregate]
+
+   Golden semantics for the generic multi-field grouped aggregator (ordered
+   close-out): consecutive rows with equal keys form a group; each of the three
+   data fields ``(v0, v1, v2)`` gets its first/last/min/max/sum in one pass, plus
+   the row count. A reappearing key opens a NEW group (partials merged host-side,
+   the partial-group contract) — workload-agnostic; OHLCV bars are a selection
+   over it (see :func:`bars_from_field_aggregate`).
+
+
+.. py:function:: bars_from_field_aggregate(groups: collections.abc.Iterable[GroupedFieldAggregate]) -> list[BarAggregate]
+
+   OHLCV bars as a field/stat SELECTION over the generic multi-field
+   aggregate: price = field 0 (open/close/low/high = first/last/min/max),
+   shares = sum of field 1, frac = sum of field 2. The finance column
+   assignment lives here, not in the aggregator.
+
+
+.. py:function:: bar_aggregate_rows(rows: collections.abc.Iterable[tuple[int, int, int, int]]) -> list[BarAggregate]
+
+   Golden semantics for the fused bar-aggregation tile (ordered
+   close-out): consecutive rows with equal keys form a bar; volume is
+   ``shares * SCALE + frac`` recombined on the host.
+
+
+.. py:function:: grouped_aggregate_rows(rows: collections.abc.Iterable[tuple[int, int]]) -> list[GroupAggregate]
+
+   Golden semantics for the ordered grouped-aggregation tile
+   (close-out mode): consecutive rows with equal keys form a group; a group
+   closes when the key changes or input ends. A key that reappears later
+   opens a NEW group — partials are merged by the host, never the tile.
+
+
+.. py:exception:: EmptyInputError
+
+   Bases: :py:obj:`ValueError`
+
+
+   Inappropriate argument value (of correct type).
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+.. py:exception:: UnsupportedAggregationError
+
+   Bases: :py:obj:`ValueError`
+
+
+   Inappropriate argument value (of correct type).
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+.. py:data:: _INTEGER_RANGES
+
+.. py:data:: _FLOAT_TYPES
+
+.. py:function:: aggregate_values(opcode: dau_core.stream.OperationCode, values: collections.abc.Iterable[int | float | bool], logical_type: dau_core.stream.LogicalType) -> int | float
+
+.. py:function:: synthetic_values(name: str, logical_type: dau_core.stream.LogicalType) -> list[int | float | bool]
+
+.. py:function:: _sum_values(values: list[int | float | bool], logical_type: dau_core.stream.LogicalType) -> int | float
+
+.. py:function:: _bounds_fixture(logical_type: dau_core.stream.LogicalType) -> list[int | float | bool]
+
+.. py:function:: _is_nan(value: float | bool) -> bool
+
+.. py:data:: KEYED_STATE_MAX_KEYS
+   :value: 1024
+
+
+.. py:class:: KeyedStateErrorCode
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   Status codes for the keyed state tile.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: OK
+      :value: 0
+
+
+
+   .. py:attribute:: BAD_CAPACITY
+      :value: 1
+
+
+
+   .. py:attribute:: KEY_CAPACITY_EXCEEDED
+      :value: 2
+
+
+
+.. py:class:: KeyedStateOp
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   What a row does to its key's accumulator.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: SET
+      :value: 0
+
+
+
+   .. py:attribute:: ADD
+      :value: 1
+
+
+
+   .. py:attribute:: MAX
+      :value: 2
+
+
+
+   .. py:attribute:: MIN
+      :value: 3
+
+
+
+.. py:function:: keyed_state_scan(rows: collections.abc.Iterable[tuple[int, int]], *, op: KeyedStateOp, capacity: int, initial: int = 0) -> tuple[list[tuple[int, int]], KeyedStateErrorCode]
+
+   Golden semantics for the keyed state tile: a per-key accumulator updated
+   once per row, emitting the POST-UPDATE state for every row.
+
+   This is the primitive the stateful family is built on. Unlike every tile
+   that precedes it, the output for a row depends on rows that came before it
+   with the SAME key — a loop-carried dependency per key, which is exactly the
+   shape a SIMD CPU cannot vectorize and a spatial datapath can hold on-chip.
+
+   ``rows`` are ``(key, value)`` pairs in arrival order. Each row reads its
+   key's current state, applies ``op``, writes it back, and emits
+   ``(key, new_state)``. A key seen for the first time starts from ``initial``,
+   so the first row of a key emits ``op(initial, value)`` — NOT ``value``,
+   unless ``op`` is SET. That distinction is the whole reason ``initial`` is
+   explicit rather than implied.
+
+   **Emitting post-update state, not pre-update, is a deliberate contract.**
+   Post-update is what a running aggregate means, it is what the hardware can
+   produce without an extra pipeline stage holding the old value, and it makes
+   back-to-back same-key rows well defined: the second row observes the first
+   row's write. In hardware that is a read-modify-write hazard the tile must
+   FORWARD rather than stall, and this golden pins the answer it must forward
+   to.
+
+   ``capacity`` is the declared number of distinct keys the table holds. It is
+   a hardware fact (a BRAM depth), so exceeding it is an ERROR rather than an
+   eviction: silently dropping a key would make the result wrong in a way no
+   downstream consumer could detect. Rows already emitted stay emitted, and
+   the error is returned alongside them so a caller can see exactly where the
+   table filled.
+
+   **Hardware note the HDL must honour**: exact arbitrary-key lookup at one
+   row per cycle needs a CAM or a pipelined associative/hash design with
+   collision handling and pending-allocation tracking. A plain single-BRAM
+   dictionary cannot do it, and the forwarding above must bypass both the
+   newest in-flight update and a pending key allocation.
+
+   ``initial=0`` is unambiguous but worth stating: MAX over only negative
+   values emits 0, and MIN over only positive values emits 0. Callers wanting
+   the first value to win should pass the domain's extreme.
+
+   Returns ``(emitted_rows, error_code)``.
+
+
+.. py:data:: SCRATCHPAD_MAX_WORDS
+   :value: 16384
+
+
+.. py:class:: ScratchpadErrorCode
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   Status codes for the scratchpad owned-arena tile.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: OK
+      :value: 0
+
+
+
+   .. py:attribute:: BAD_GRANT
+      :value: 1
+
+
+
+   .. py:attribute:: STORAGE_OVERFLOW
+      :value: 2
+
+
+
+.. py:function:: scratchpad_scan(rows: collections.abc.Iterable[tuple[int, int, int]], *, granted_words: int) -> tuple[list[tuple[int, int]], ScratchpadErrorCode]
+
+   Golden semantics for the scratchpad tile: the deliberately trivial
+   consumer of the OWNED storage class (STORAGE_AND_NOC.md). A private
+   word-addressed arena; each row is ``(write_enable, addr, value)`` and
+   emits ``(addr, post_op_value)`` — a write emits what it wrote, a read
+   emits what is stored, an unwritten word reads 0 (BRAM init).
+
+   The contract under test is the GRANT, not the arithmetic: an address at
+   or past ``granted_words`` is STORAGE_OVERFLOW — a defined close-out that
+   preserves already-emitted rows, exactly the shape a grow-request replaces
+   when the allocator hardens. Addresses and values are int32 wires
+   (wrapped); a negative address is never inside any grant.
+
+
+.. py:class:: SessionErrorCode
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   Status codes for the session-gap tile.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: OK
+      :value: 0
+
+
+
+   .. py:attribute:: BAD_CAPACITY
+      :value: 1
+
+
+
+   .. py:attribute:: SESSION_CAPACITY_EXCEEDED
+      :value: 2
+
+
+
+   .. py:attribute:: BAD_GAP
+      :value: 3
+
+
+
+   .. py:attribute:: TIME_ORDER
+      :value: 4
+
+
+
+.. py:function:: sessionize_scan(rows: collections.abc.Iterable[tuple[int, int]], *, gap: int, capacity: int) -> tuple[list[tuple[int, int, int, int]], SessionErrorCode]
+
+   Golden semantics for the session-gap tile: the Nexmark-Q11 shape over
+   bounded keyed state (STORAGE_AND_NOC.md). Rows are ``(key, time)`` in
+   arrival order; a session is a maximal per-key run of rows with no
+   inter-row gap exceeding ``gap``. Each closed session emits
+   ``(key, start_time, end_time, row_count)``.
+
+   Sessions close two ways. A row whose time exceeds its key's last time by
+   more than ``gap`` closes the old session (emitted immediately, in arrival
+   order) and opens a new one. Batch end closes everything still open,
+   emitted **sorted by signed key** — a deterministic order no
+   implementation detail (hash placement, slot index) can leak into.
+
+   **Scope is PROCESSING-order sessionization**: times must be
+   non-decreasing across the batch (the generator's contract), and a
+   violation is ``TIME_ORDER`` — refused, never silently reordered. Event
+   time, watermarks and late arrivals are deliberately absent here.
+
+   ``capacity`` bounds DISTINCT KEYS per batch, exactly like keyed state: a
+   gap-close immediately reopens, so it never frees a slot mid-batch. The
+   (capacity+1)-th distinct key is ``SESSION_CAPACITY_EXCEEDED``, a defined
+   close-out preserving emitted sessions — never an eviction. Keys and
+   times are int32 wires (wrapped); ``row_count`` is a CARDINALITY carried
+   as an unsigned 32-bit wire in hardware — identical to this unbounded int
+   for every batch below 2^32 rows, which no staging region can hold.
+
+   Returns ``(closed_sessions, error_code)``.
+
+
+.. py:data:: HASH_GROUPED_MAX_GROUPS
+   :value: 1024
+
+
+.. py:class:: HashGroupedErrorCode
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   Status codes for the hash-mode grouped field-sum aggregation tile.
+   The values ARE the tile's ``status_error_code`` wire encoding, so the
+   golden and the HDL cannot drift apart silently.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: OK
+      :value: 0
+
+
+
+   .. py:attribute:: BAD_CAPACITY
+      :value: 1
+
+
+
+   .. py:attribute:: BAD_FIELD_MASK
+      :value: 2
+
+
+
+   .. py:attribute:: GROUP_CAPACITY_EXCEEDED
+      :value: 3
+
+
+
+   .. py:attribute:: BAD_STREAM
+      :value: 4
+
+
+
+.. py:class:: HashGroupedAggregate
+
+   One group from the hash-mode grouped field-sum aggregation tile:
+   INT64 sums of the mask-selected fields (ascending field order) plus the
+   group's row count — the same record shape the ORDERED grouped
+   field-sum tile emits, so the host decode path is shared.
+
+
+   .. py:attribute:: key
+      :type:  int
+
+
+   .. py:attribute:: field_mask
+      :type:  int
+
+
+   .. py:attribute:: sums
+      :type:  tuple[int, ...]
+
+
+   .. py:attribute:: count
+      :type:  int
+
+
+   .. py:method:: record_words() -> list[int]
+
+      The group record as unsigned 64-bit stream words: sign-extended
+      key, sums re-encoded to two's complement, count last.
+
+
+
+.. py:function:: hash_grouped_field_sum_rows(rows: collections.abc.Iterable[tuple[int, int, int, int]], *, field_mask: int, capacity: int) -> tuple[list[HashGroupedAggregate], HashGroupedErrorCode]
+
+   Golden semantics for the HASH-mode grouped field-sum aggregation tile:
+   one INT64 accumulator set per DISTINCT key in a bounded on-chip table,
+   drained key-ascending at close-out.
+
+   The difference from :func:`grouped_field_sum_rows` is the whole point of
+   the tile: the ordered tile groups CONSECUTIVE equal keys, so a key that
+   reappears after another key opens a second partial group the host must
+   merge, and the staged table must be pre-sorted on the group key. This
+   tile holds a per-key accumulator, so **input order does not matter** and
+   a key may reappear anywhere in the batch — one record per distinct key,
+   always. That removes the ``sorted_by_key`` staging precondition from
+   every grouped scan.
+
+   Two contracts are deliberate and must be honoured bit-for-bit by the HDL:
+
+   **Emission is key-ASCENDING (signed).** A hash table has no intrinsic
+   order, so leaking the probe/slot order into the record stream would make
+   the result depend on the hash function — an implementation detail no
+   golden could pin and no host could rely on. Sorting the drain by signed
+   key makes the order implementation-independent and physically true (the
+   session-gap tile's min-extraction drain is the same decision).
+
+   **Overflow is an ERROR that invalidates the batch**, never an eviction.
+   ``capacity`` is a hardware fact (the table depth). When a row presents a
+   key not in the table and the table is full, the batch reports
+   ``GROUP_CAPACITY_EXCEEDED`` and returns NO groups: evicting or silently
+   dropping the key would make the answer wrong in a way no downstream
+   consumer could detect, and returning the partial accumulation would be
+   worse than useless — the host's recovery is to re-run the batch split by
+   key range, so a caller that merged the partial with the re-run results
+   would DOUBLE-COUNT every key that had accumulated before the overflow.
+   Discarding the batch is also the platform's uniform error convention (an
+   error close-out invalidates the whole batch; the tile's group_count
+   reads 0 and no success close-out is raised), which is what lets the
+   golden and the HDL agree by construction rather than by inspection.
+   Recovery is exact because INT64 sums and counts are additive per key —
+   see :func:`merge_hash_grouped`.
+
+   ``field_mask`` bit i selects field i of the quad row ``(key, value,
+   aux0, aux1)``; selecting field 0 sums the key itself, which is legal and
+   equals ``key * count`` (the ordered tile's convention).
+
+   Returns ``(groups_key_ascending, error_code)``.
+
+
+.. py:function:: merge_hash_grouped(partials: collections.abc.Iterable[collections.abc.Iterable[HashGroupedAggregate]]) -> list[HashGroupedAggregate]
+
+   Merge per-batch hash-grouped partials into one key-ascending result —
+   the host half of the overflow contract.
+
+   Splitting a batch (by key range, or simply into smaller batches) and
+   merging the partials is EXACT: INT64 sums and row counts are additive
+   per key, and no other state crosses a batch boundary. This is what makes
+   ``GROUP_CAPACITY_EXCEEDED`` a recoverable condition rather than a failed
+   query, and the property ``merge(split(rows)) == one_shot(rows)`` is the
+   test that keeps it honest. Every partial must carry the same
+   ``field_mask``; mixing masks is a caller error, not a merge case.
+
+

@@ -1,0 +1,82 @@
+cocotb_benches.dau_key_mask_dispatcher_multi_tb
+===============================================
+
+.. py:module:: cocotb_benches.dau_key_mask_dispatcher_multi_tb
+
+.. autoapi-nested-parse::
+
+   IN_WIDTH 256/512 (R = 2/4 quad rows per beat): the wide beat
+   deserializes onto the internal single-row feed (one row per cycle,
+   lowest index first), drops the reserved all-ones PAD ROW (ragged-tail
+   padding), and stays golden-equal to ``mask_dispatch_rows`` under
+   same-lane collisions and backpressure. Same routing datapath as 128; the
+   width buys DDR-side burst width, not (yet) rows/cycle. The width-agnostic
+   collect harness is shared with the 64-bit bench.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_key_mask_dispatcher_multi_tb._PAD_ROW_BITS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_key_mask_dispatcher_multi_tb._rows_per_beat
+   cocotb_benches.dau_key_mask_dispatcher_multi_tb._send_multi_beats
+   cocotb_benches.dau_key_mask_dispatcher_multi_tb._run
+   cocotb_benches.dau_key_mask_dispatcher_multi_tb.multi_row_dispatch_matches_the_golden
+   cocotb_benches.dau_key_mask_dispatcher_multi_tb.same_lane_collisions_serialize_in_arrival_order
+   cocotb_benches.dau_key_mask_dispatcher_multi_tb.ragged_tail_pad_rows_are_dropped
+   cocotb_benches.dau_key_mask_dispatcher_multi_tb.all_ones_key_still_routes_when_row_is_not_pad
+   cocotb_benches.dau_key_mask_dispatcher_multi_tb.backpressured_lanes_stay_golden_equal
+   cocotb_benches.dau_key_mask_dispatcher_multi_tb.a_trailing_all_pad_beat_still_closes_the_batch
+
+
+Module Contents
+---------------
+
+.. py:data:: _PAD_ROW_BITS
+   :value: 340282366920938463463374607431768211455
+
+
+.. py:function:: _rows_per_beat(dut) -> int
+
+.. py:function:: _send_multi_beats(dut, rows) -> None
+   :async:
+
+
+.. py:function:: _run(dut, rows, *, ready_pattern=(1, ))
+   :async:
+
+
+.. py:function:: multi_row_dispatch_matches_the_golden(dut)
+   :async:
+
+
+.. py:function:: same_lane_collisions_serialize_in_arrival_order(dut)
+   :async:
+
+
+.. py:function:: ragged_tail_pad_rows_are_dropped(dut)
+   :async:
+
+
+.. py:function:: all_ones_key_still_routes_when_row_is_not_pad(dut)
+   :async:
+
+
+.. py:function:: backpressured_lanes_stay_golden_equal(dut)
+   :async:
+
+
+.. py:function:: a_trailing_all_pad_beat_still_closes_the_batch(dut)
+   :async:
+
+

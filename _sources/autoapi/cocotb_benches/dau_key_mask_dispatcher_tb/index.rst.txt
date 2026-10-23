@@ -1,0 +1,134 @@
+cocotb_benches.dau_key_mask_dispatcher_tb
+=========================================
+
+.. py:module:: cocotb_benches.dau_key_mask_dispatcher_tb
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_key_mask_dispatcher_tb.ERR_STREAM
+   cocotb_benches.dau_key_mask_dispatcher_tb._MASK32
+   cocotb_benches.dau_key_mask_dispatcher_tb._MASK64
+   cocotb_benches.dau_key_mask_dispatcher_tb._ROWS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_key_mask_dispatcher_tb.sustained_ingest_meets_registry_floor
+   cocotb_benches.dau_key_mask_dispatcher_tb.dispatch_routes_rows_by_key_mask
+   cocotb_benches.dau_key_mask_dispatcher_tb.negative_keys_mask_two_complement
+   cocotb_benches.dau_key_mask_dispatcher_tb.all_rows_to_one_partition
+   cocotb_benches.dau_key_mask_dispatcher_tb.torn_row_errors_every_lane
+   cocotb_benches.dau_key_mask_dispatcher_tb.backpressure_holds_rows_stable
+   cocotb_benches.dau_key_mask_dispatcher_tb.repeated_batches_back_to_back
+   cocotb_benches.dau_key_mask_dispatcher_tb.constrained_random_batches_match_golden
+   cocotb_benches.dau_key_mask_dispatcher_tb._num_parts
+   cocotb_benches.dau_key_mask_dispatcher_tb._signed32
+   cocotb_benches.dau_key_mask_dispatcher_tb._random_rows
+   cocotb_benches.dau_key_mask_dispatcher_tb._start
+   cocotb_benches.dau_key_mask_dispatcher_tb._run
+   cocotb_benches.dau_key_mask_dispatcher_tb._send_rows
+   cocotb_benches.dau_key_mask_dispatcher_tb._drive_torn_first_row
+   cocotb_benches.dau_key_mask_dispatcher_tb._drive_and_collect
+   cocotb_benches.dau_key_mask_dispatcher_tb._assert_quiescent
+   cocotb_benches.dau_key_mask_dispatcher_tb._collect_all_status
+   cocotb_benches.dau_key_mask_dispatcher_tb._unpack_rows
+
+
+Module Contents
+---------------
+
+.. py:data:: ERR_STREAM
+   :value: 2
+
+
+.. py:function:: sustained_ingest_meets_registry_floor(dut)
+   :async:
+
+
+.. py:data:: _MASK32
+   :value: 4294967295
+
+
+.. py:data:: _MASK64
+   :value: 18446744073709551615
+
+
+.. py:data:: _ROWS
+
+.. py:function:: dispatch_routes_rows_by_key_mask(dut)
+   :async:
+
+
+.. py:function:: negative_keys_mask_two_complement(dut)
+   :async:
+
+
+.. py:function:: all_rows_to_one_partition(dut)
+   :async:
+
+
+.. py:function:: torn_row_errors_every_lane(dut)
+   :async:
+
+
+.. py:function:: backpressure_holds_rows_stable(dut)
+   :async:
+
+
+.. py:function:: repeated_batches_back_to_back(dut)
+   :async:
+
+
+.. py:function:: constrained_random_batches_match_golden(dut)
+   :async:
+
+
+.. py:function:: _num_parts(dut) -> int
+
+.. py:function:: _signed32(value: int) -> int
+
+.. py:function:: _random_rows(rng: random.Random) -> list[tuple[int, int, int, int]]
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _run(dut, rows, *, ready_pattern=(1, ))
+   :async:
+
+
+.. py:function:: _send_rows(dut, rows) -> None
+   :async:
+
+
+.. py:function:: _drive_torn_first_row(dut) -> None
+   :async:
+
+
+.. py:function:: _drive_and_collect(dut, golden, ready_pattern)
+   :async:
+
+
+   Drive all partition output/status streams and reassemble per-partition
+   rows (phase-shifted ready per lane so lanes stall out of step). A lane
+   expecting rows completes on its last word; a zero-row lane on its success
+   status. Afterwards the streams must fall quiescent.
+
+
+.. py:function:: _assert_quiescent(dut, num_parts: int) -> None
+   :async:
+
+
+.. py:function:: _collect_all_status(dut, *, only: set[int] | None = None)
+   :async:
+
+
+.. py:function:: _unpack_rows(words: list[int]) -> list[tuple[int, int, int, int]]
+

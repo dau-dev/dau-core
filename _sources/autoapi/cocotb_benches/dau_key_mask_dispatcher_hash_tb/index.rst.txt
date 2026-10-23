@@ -1,0 +1,89 @@
+cocotb_benches.dau_key_mask_dispatcher_hash_tb
+==============================================
+
+.. py:module:: cocotb_benches.dau_key_mask_dispatcher_hash_tb
+
+.. autoapi-nested-parse::
+
+   MODE == DispatchMode.HASH: dest = the top log2(N) bits of the low 32
+   bits of key * 0x9E3779B9. The multiplier and bit-extraction are contract —
+   a row's partition is part of the answer — so this bench proves the HDL
+   computes the identical partition the golden does, key for key, including
+   the strided keys MASK mode crowds onto a fraction of the lanes.
+
+   Runner passes parameters={"MODE": 2, "NUM_PARTITIONS": 4} at either
+   IN_WIDTH; the width is detected from the dut so one module covers both
+   fronts.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_key_mask_dispatcher_hash_tb._STRIDED_ROWS
+   cocotb_benches.dau_key_mask_dispatcher_hash_tb._MIXED_ROWS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_key_mask_dispatcher_hash_tb._wide
+   cocotb_benches.dau_key_mask_dispatcher_hash_tb._send
+   cocotb_benches.dau_key_mask_dispatcher_hash_tb._run
+   cocotb_benches.dau_key_mask_dispatcher_hash_tb.hash_dispatch_matches_the_golden_partition_for_partition
+   cocotb_benches.dau_key_mask_dispatcher_hash_tb.hash_dispatch_spreads_strided_keys
+   cocotb_benches.dau_key_mask_dispatcher_hash_tb.hash_dispatch_drops_nothing
+   cocotb_benches.dau_key_mask_dispatcher_hash_tb.hash_dispatch_keeps_a_key_on_one_lane_in_order
+   cocotb_benches.dau_key_mask_dispatcher_hash_tb.hash_dispatch_backpressure_holds_rows_stable
+   cocotb_benches.dau_key_mask_dispatcher_hash_tb.hash_dispatch_repeated_batches_back_to_back
+
+
+Module Contents
+---------------
+
+.. py:data:: _STRIDED_ROWS
+
+.. py:data:: _MIXED_ROWS
+
+.. py:function:: _wide(dut) -> bool
+
+.. py:function:: _send(dut, rows) -> None
+   :async:
+
+
+.. py:function:: _run(dut, rows, *, ready_pattern=(1, ))
+   :async:
+
+
+.. py:function:: hash_dispatch_matches_the_golden_partition_for_partition(dut)
+   :async:
+
+
+.. py:function:: hash_dispatch_spreads_strided_keys(dut)
+   :async:
+
+
+   The motivating case: MASK crowds strided keys onto a fraction of
+   the lanes; HASH mixes the whole key and reaches more of them.
+
+
+.. py:function:: hash_dispatch_drops_nothing(dut)
+   :async:
+
+
+.. py:function:: hash_dispatch_keeps_a_key_on_one_lane_in_order(dut)
+   :async:
+
+
+.. py:function:: hash_dispatch_backpressure_holds_rows_stable(dut)
+   :async:
+
+
+.. py:function:: hash_dispatch_repeated_batches_back_to_back(dut)
+   :async:
+
+

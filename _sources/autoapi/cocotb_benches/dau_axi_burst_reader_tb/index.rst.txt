@@ -1,0 +1,37 @@
+cocotb_benches.dau_axi_burst_reader_tb
+======================================
+
+.. py:module:: cocotb_benches.dau_axi_burst_reader_tb
+
+.. autoapi-nested-parse::
+
+   Width-parameterized burst-reader bench: an AXI4 read-slave model serves
+   a deterministic memory image (each 32-bit lane = its global word index)
+   with periodic backpressure, and the collected stream must reproduce the
+   image exactly at every DATA_WIDTH tier — the same contract at
+   64/128/256/512 is the precompiled-catalog guarantee.
+
+   Handshake discipline: sample every valid/ready pair in the ReadOnly phase
+   (stable pre-edge values), apply state and drive next-cycle values after
+   the clock edge.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_axi_burst_reader_tb._beat_value
+   cocotb_benches.dau_axi_burst_reader_tb.burst_reader_streams_the_window_exactly
+
+
+Module Contents
+---------------
+
+.. py:function:: _beat_value(beat_index: int, data_width: int) -> int
+
+.. py:function:: burst_reader_streams_the_window_exactly(dut)
+   :async:
+
+

@@ -1,0 +1,25 @@
+test_hdl_sources
+================
+
+.. py:module:: test_hdl_sources
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_hdl_sources.test_packaged_identity_axi_lite_wrapper_instantiates_register_block
+   test_hdl_sources.test_identity_registers_inputs_have_explicit_net_types
+   test_hdl_sources.test_identity_axi_lite_wrapper_exposes_expected_axil_ports
+
+
+Module Contents
+---------------
+
+.. py:function:: test_packaged_identity_axi_lite_wrapper_instantiates_register_block() -> None
+
+.. py:function:: test_identity_registers_inputs_have_explicit_net_types() -> None
+
+.. py:function:: test_identity_axi_lite_wrapper_exposes_expected_axil_ports() -> None
+

@@ -1,0 +1,99 @@
+test_temporal
+=============
+
+.. py:module:: test_temporal
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_temporal.test_asof_backward_matches_most_recent_quote_including_equal_time
+   test_temporal.test_asof_backward_equal_time_ties_take_the_last_quote
+   test_temporal.test_asof_backward_tolerance_makes_a_stale_quote_a_miss
+   test_temporal.test_asof_backward_keeps_symbols_independent
+   test_temporal.test_matched_rows_drops_the_misses
+   test_temporal.test_market_feature_primitives
+   test_temporal.test_market_features_derives_every_field
+   test_temporal.test_time_bars_bucket_by_floor_and_close_on_bucket_or_symbol_change
+   test_temporal.test_time_bars_rejects_nonpositive_width
+   test_temporal.test_volume_bars_close_on_the_crossing_trade_and_emit_the_partial
+   test_temporal.test_dollar_bars_close_on_cumulative_notional
+   test_temporal.test_imbalance_bars_close_on_absolute_net_signed_flow
+   test_temporal.test_bar_volume_and_dollar_accumulators_are_exact
+   test_temporal.test_rolling_sum_min_max_warm_up_to_none_then_full_window
+   test_temporal.test_rolling_resets_per_symbol
+   test_temporal.test_rolling_moments_and_derived_mean_variance
+   test_temporal.test_moment_var_is_exact_at_fixed_point_magnitudes
+   test_temporal.test_rolling_moments_refuses_a_window_that_overflows_the_tiles_sum_of_squares
+   test_temporal.test_moment_var_rejects_underdetermined_window
+   test_temporal.test_ewma_non_adjusted_recursion_per_symbol
+   test_temporal.test_ewma_rejects_out_of_range_alpha
+   test_temporal.test_deltas_first_difference_per_symbol
+   test_temporal.test_gaps_flag_time_jumps_over_the_threshold
+   test_temporal.test_generate_market_stream_is_replay_deterministic
+   test_temporal.test_generated_streams_are_sorted_and_guarantee_both_paths
+   test_temporal.test_generated_stream_feeds_the_full_fused_pipeline
+
+
+Module Contents
+---------------
+
+.. py:function:: test_asof_backward_matches_most_recent_quote_including_equal_time() -> None
+
+.. py:function:: test_asof_backward_equal_time_ties_take_the_last_quote() -> None
+
+.. py:function:: test_asof_backward_tolerance_makes_a_stale_quote_a_miss() -> None
+
+.. py:function:: test_asof_backward_keeps_symbols_independent() -> None
+
+.. py:function:: test_matched_rows_drops_the_misses() -> None
+
+.. py:function:: test_market_feature_primitives() -> None
+
+.. py:function:: test_market_features_derives_every_field() -> None
+
+.. py:function:: test_time_bars_bucket_by_floor_and_close_on_bucket_or_symbol_change() -> None
+
+.. py:function:: test_time_bars_rejects_nonpositive_width() -> None
+
+.. py:function:: test_volume_bars_close_on_the_crossing_trade_and_emit_the_partial() -> None
+
+.. py:function:: test_dollar_bars_close_on_cumulative_notional() -> None
+
+.. py:function:: test_imbalance_bars_close_on_absolute_net_signed_flow() -> None
+
+.. py:function:: test_bar_volume_and_dollar_accumulators_are_exact() -> None
+
+.. py:function:: test_rolling_sum_min_max_warm_up_to_none_then_full_window() -> None
+
+.. py:function:: test_rolling_resets_per_symbol() -> None
+
+.. py:function:: test_rolling_moments_and_derived_mean_variance() -> None
+
+.. py:function:: test_moment_var_is_exact_at_fixed_point_magnitudes() -> None
+
+.. py:function:: test_rolling_moments_refuses_a_window_that_overflows_the_tiles_sum_of_squares() -> None
+
+   The tile's INT64 sum_sq wraps silently; Python's integers do not. If the
+   golden answered anyway the two would disagree over exactly the inputs the
+   contract excludes, so it refuses instead.
+
+
+.. py:function:: test_moment_var_rejects_underdetermined_window() -> None
+
+.. py:function:: test_ewma_non_adjusted_recursion_per_symbol() -> None
+
+.. py:function:: test_ewma_rejects_out_of_range_alpha() -> None
+
+.. py:function:: test_deltas_first_difference_per_symbol() -> None
+
+.. py:function:: test_gaps_flag_time_jumps_over_the_threshold() -> None
+
+.. py:function:: test_generate_market_stream_is_replay_deterministic() -> None
+
+.. py:function:: test_generated_streams_are_sorted_and_guarantee_both_paths(seed: int) -> None
+
+.. py:function:: test_generated_stream_feeds_the_full_fused_pipeline() -> None
+

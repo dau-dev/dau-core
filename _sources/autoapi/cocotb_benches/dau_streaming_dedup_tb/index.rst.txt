@@ -1,0 +1,160 @@
+cocotb_benches.dau_streaming_dedup_tb
+=====================================
+
+.. py:module:: cocotb_benches.dau_streaming_dedup_tb
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_streaming_dedup_tb._MASK32
+   cocotb_benches.dau_streaming_dedup_tb._MASK64
+   cocotb_benches.dau_streaming_dedup_tb._INT32_MIN
+   cocotb_benches.dau_streaming_dedup_tb._INT32_MAX
+   cocotb_benches.dau_streaming_dedup_tb._KEY_SPACE
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_streaming_dedup_tb._rows
+   cocotb_benches.dau_streaming_dedup_tb.all_distinct_keys_are_all_counted
+   cocotb_benches.dau_streaming_dedup_tb.one_key_repeated_counts_once
+   cocotb_benches.dau_streaming_dedup_tb.consecutive_duplicate_keys_are_counted_once
+   cocotb_benches.dau_streaming_dedup_tb.neighbouring_keys_in_one_word_keep_every_bit
+   cocotb_benches.dau_streaming_dedup_tb.a_second_batch_continues_the_accumulation
+   cocotb_benches.dau_streaming_dedup_tb.cfg_clear_starts_a_fresh_accumulation
+   cocotb_benches.dau_streaming_dedup_tb.the_count_port_reports_the_emitted_record
+   cocotb_benches.dau_streaming_dedup_tb.out_of_range_keys_report_range_error
+   cocotb_benches.dau_streaming_dedup_tb.a_torn_row_reports_stream_error
+   cocotb_benches.dau_streaming_dedup_tb.backpressure_on_the_count_word_and_gaps_in_the_input
+   cocotb_benches.dau_streaming_dedup_tb.success_status_survives_backpressure
+   cocotb_benches.dau_streaming_dedup_tb.constrained_random_batches_match_golden
+   cocotb_benches.dau_streaming_dedup_tb._golden
+   cocotb_benches.dau_streaming_dedup_tb._start
+   cocotb_benches.dau_streaming_dedup_tb._pack_rows
+   cocotb_benches.dau_streaming_dedup_tb._send_words
+   cocotb_benches.dau_streaming_dedup_tb._send_rows
+   cocotb_benches.dau_streaming_dedup_tb._run_batch
+   cocotb_benches.dau_streaming_dedup_tb._collect_count
+   cocotb_benches.dau_streaming_dedup_tb._assert_quiescent
+   cocotb_benches.dau_streaming_dedup_tb._expect_status
+
+
+Module Contents
+---------------
+
+.. py:data:: _MASK32
+   :value: 4294967295
+
+
+.. py:data:: _MASK64
+   :value: 18446744073709551615
+
+
+.. py:data:: _INT32_MIN
+   :value: -2147483648
+
+
+.. py:data:: _INT32_MAX
+   :value: 2147483647
+
+
+.. py:data:: _KEY_SPACE
+   :value: 4096
+
+
+.. py:function:: _rows(keys)
+
+   Quad rows carrying `keys`. The value and aux fields are deliberately
+   varied junk: a dedup reads w0.lo and nothing else, so rows that differ in
+   every other field are still duplicates.
+
+
+.. py:function:: all_distinct_keys_are_all_counted(dut)
+   :async:
+
+
+.. py:function:: one_key_repeated_counts_once(dut)
+   :async:
+
+
+.. py:function:: consecutive_duplicate_keys_are_counted_once(dut)
+   :async:
+
+
+.. py:function:: neighbouring_keys_in_one_word_keep_every_bit(dut)
+   :async:
+
+
+.. py:function:: a_second_batch_continues_the_accumulation(dut)
+   :async:
+
+
+.. py:function:: cfg_clear_starts_a_fresh_accumulation(dut)
+   :async:
+
+
+.. py:function:: the_count_port_reports_the_emitted_record(dut)
+   :async:
+
+
+.. py:function:: out_of_range_keys_report_range_error(dut)
+   :async:
+
+
+.. py:function:: a_torn_row_reports_stream_error(dut)
+   :async:
+
+
+.. py:function:: backpressure_on_the_count_word_and_gaps_in_the_input(dut)
+   :async:
+
+
+.. py:function:: success_status_survives_backpressure(dut)
+   :async:
+
+
+.. py:function:: constrained_random_batches_match_golden(dut)
+   :async:
+
+
+.. py:function:: _golden(rows)
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _pack_rows(rows) -> list[int]
+
+.. py:function:: _send_words(dut, words, *, gaps: int = 0) -> None
+   :async:
+
+
+.. py:function:: _send_rows(dut, rows, *, gaps: int = 0) -> None
+   :async:
+
+
+.. py:function:: _run_batch(dut, rows, *, clear: bool = True, ready_pattern=(1, ), gaps: int = 0) -> int
+   :async:
+
+
+.. py:function:: _collect_count(dut, ready_pattern) -> int
+   :async:
+
+
+   Consume the batch's one-word count record, then its success close-out.
+
+
+.. py:function:: _assert_quiescent(dut) -> None
+   :async:
+
+
+.. py:function:: _expect_status(dut, *, error: bool, code: int = 0) -> None
+   :async:
+
+

@@ -1,0 +1,83 @@
+cocotb_benches
+==============
+
+.. py:module:: cocotb_benches
+
+.. autoapi-nested-parse::
+
+   Static cocotb benches for DAU-owned HDL.
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/cocotb_benches/dau_arrow_lite_stream_aggregation_tb/index
+   /autoapi/cocotb_benches/dau_asof_backward_tb/index
+   /autoapi/cocotb_benches/dau_asof_feature_chain_tb/index
+   /autoapi/cocotb_benches/dau_axi_bar_job_tb/index
+   /autoapi/cocotb_benches/dau_axi_bar_noc_tb/index
+   /autoapi/cocotb_benches/dau_axi_burst_reader_tb/index
+   /autoapi/cocotb_benches/dau_axi_random_probe_tb/index
+   /autoapi/cocotb_benches/dau_axi_sort_noc_tb/index
+   /autoapi/cocotb_benches/dau_bar_aggregation_tb/index
+   /autoapi/cocotb_benches/dau_bitonic_sorter_tb/index
+   /autoapi/cocotb_benches/dau_broadcast_hash_join_small_tb/index
+   /autoapi/cocotb_benches/dau_broadcast_hash_join_tb/index
+   /autoapi/cocotb_benches/dau_bucket_agg_chain_tb/index
+   /autoapi/cocotb_benches/dau_datetime_format_tb/index
+   /autoapi/cocotb_benches/dau_field_sum_aggregation_tb/index
+   /autoapi/cocotb_benches/dau_fixed_point_divide_tb/index
+   /autoapi/cocotb_benches/dau_fixed_point_exp_tb/index
+   /autoapi/cocotb_benches/dau_fixed_point_ln_tb/index
+   /autoapi/cocotb_benches/dau_fixed_point_sqrt_tb/index
+   /autoapi/cocotb_benches/dau_grouped_aggregation_tb/index
+   /autoapi/cocotb_benches/dau_grouped_field_aggregation_tb/index
+   /autoapi/cocotb_benches/dau_grouped_field_sum_aggregation_tb/index
+   /autoapi/cocotb_benches/dau_hash_grouped_aggregation_tb/index
+   /autoapi/cocotb_benches/dau_hero_datapath_tb/index
+   /autoapi/cocotb_benches/dau_int32_keyed_map_alu_tb/index
+   /autoapi/cocotb_benches/dau_int32_keyed_predicate_filter_tb/index
+   /autoapi/cocotb_benches/dau_int32_map_alu_tb/index
+   /autoapi/cocotb_benches/dau_int32_predicate_filter_tb/index
+   /autoapi/cocotb_benches/dau_int32_record_gather_tb/index
+   /autoapi/cocotb_benches/dau_key_mask_dispatcher_exact_tb/index
+   /autoapi/cocotb_benches/dau_key_mask_dispatcher_hash_tb/index
+   /autoapi/cocotb_benches/dau_key_mask_dispatcher_multi_tb/index
+   /autoapi/cocotb_benches/dau_key_mask_dispatcher_records_tb/index
+   /autoapi/cocotb_benches/dau_key_mask_dispatcher_tb/index
+   /autoapi/cocotb_benches/dau_key_mask_dispatcher_wide_tb/index
+   /autoapi/cocotb_benches/dau_key_membership_filter_single_word_tb/index
+   /autoapi/cocotb_benches/dau_key_membership_filter_tb/index
+   /autoapi/cocotb_benches/dau_keyed_state_tb/index
+   /autoapi/cocotb_benches/dau_market_feature_tb/index
+   /autoapi/cocotb_benches/dau_normal_cdf_tb/index
+   /autoapi/cocotb_benches/dau_pair_key_filter_tb/index
+   /autoapi/cocotb_benches/dau_range_partitioner_tb/index
+   /autoapi/cocotb_benches/dau_record_batch_aggregation_tb/index
+   /autoapi/cocotb_benches/dau_record_gearbox_tb/index
+   /autoapi/cocotb_benches/dau_rolling_extremum_tb/index
+   /autoapi/cocotb_benches/dau_rolling_moments_tb/index
+   /autoapi/cocotb_benches/dau_row_map_alu_tb/index
+   /autoapi/cocotb_benches/dau_row_predicate_filter_tb/index
+   /autoapi/cocotb_benches/dau_row_predicate_filter_width_tb/index
+   /autoapi/cocotb_benches/dau_row_unpack_slots_tb/index
+   /autoapi/cocotb_benches/dau_row_unpack_tb/index
+   /autoapi/cocotb_benches/dau_row_unpack_wide_tb/index
+   /autoapi/cocotb_benches/dau_scratchpad_tb/index
+   /autoapi/cocotb_benches/dau_session_gap_tb/index
+   /autoapi/cocotb_benches/dau_stream_aggregation_tb/index
+   /autoapi/cocotb_benches/dau_streaming_dedup_tb/index
+   /autoapi/cocotb_benches/dau_streaming_top_k_tb/index
+   /autoapi/cocotb_benches/dau_stride_distributor_tb/index
+   /autoapi/cocotb_benches/dau_time_bucket_key_tb/index
+   /autoapi/cocotb_benches/dau_wide_field_sum_aggregation_tb/index
+   /autoapi/cocotb_benches/dau_wide_ingest_chain_tb/index
+   /autoapi/cocotb_benches/dau_wide_row_map_alu_tb/index
+   /autoapi/cocotb_benches/dau_wide_row_predicate_filter_tb/index
+   /autoapi/cocotb_benches/rate_probe/index
+
+

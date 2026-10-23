@@ -1,0 +1,181 @@
+dau_core.hdl
+============
+
+.. py:module:: dau_core.hdl
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   dau_core.hdl.DAU_HDL_INCLUDE_DIR
+   dau_core.hdl.DAU_TYPES_SVH
+   dau_core.hdl.DAU_AGGREGATION_PKG_SV
+   dau_core.hdl.DAU_PREDICATE_PKG_SV
+   dau_core.hdl.DAU_MAP_ALU_PKG_SV
+   dau_core.hdl.DAU_IDENTITY_REGISTERS_SV
+   dau_core.hdl.DAU_IDENTITY_AXIL_V
+   dau_core.hdl.DAU_STREAM_AGGREGATION_SV
+   dau_core.hdl.DAU_ARROW_LITE_STREAM_AGGREGATION_SV
+   dau_core.hdl.DAU_RECORD_BATCH_AGGREGATION_SV
+   dau_core.hdl.DAU_INT32_PREDICATE_FILTER_SV
+   dau_core.hdl.DAU_INT32_MAP_ALU_SV
+   dau_core.hdl.DAU_GROUPED_AGGREGATION_SV
+   dau_core.hdl.DAU_BAR_AGGREGATION_SV
+   dau_core.hdl.DAU_INT32_KEYED_PREDICATE_FILTER_SV
+   dau_core.hdl.DAU_INT32_KEYED_MAP_ALU_SV
+   dau_core.hdl.DAU_BRAM_STREAM_JOB_SV
+   dau_core.hdl.DAU_AXI_STREAM_JOB_SV
+   dau_core.hdl.DAU_AXI_RAM_SIM_SV
+   dau_core.hdl.DAU_AXI_BURST_READER_SV
+   dau_core.hdl.DAU_AXI_RECORD_WRITER_SV
+   dau_core.hdl.DAU_AXI_WRITE_MUX_SV
+   dau_core.hdl.DAU_STREAM_BROADCAST_SV
+   dau_core.hdl.DAU_PAIR_KEY_FILTER_SV
+   dau_core.hdl.DAU_RANGE_PARTITIONER_SV
+   dau_core.hdl.DAU_KEY_MASK_DISPATCHER_SV
+   dau_core.hdl.DAU_STRIDE_DISTRIBUTOR_SV
+   dau_core.hdl.DAU_BITONIC_SORTER_SV
+   dau_core.hdl.DAU_ROW_PREDICATE_FILTER_SV
+   dau_core.hdl.DAU_FIXED_POINT_DIVIDE_SV
+   dau_core.hdl.DAU_FIXED_POINT_SQRT_SV
+   dau_core.hdl.DAU_DATETIME_FORMAT_SV
+   dau_core.hdl.DAU_ROW_MAP_ALU_SV
+   dau_core.hdl.DAU_FIELD_SUM_AGGREGATION_SV
+   dau_core.hdl.DAU_GROUPED_FIELD_SUM_AGGREGATION_SV
+   dau_core.hdl.DAU_WIDE_FIELD_SUM_AGGREGATION_SV
+   dau_core.hdl.DAU_RECORD_GEARBOX_SV
+   dau_core.hdl.DAU_WIDE_ROW_MAP_ALU_SV
+   dau_core.hdl.DAU_WIDE_ROW_PREDICATE_FILTER_SV
+   dau_core.hdl.DAU_GROUPED_FIELD_AGGREGATION_SV
+   dau_core.hdl.DAU_KEY_MEMBERSHIP_FILTER_SV
+   dau_core.hdl.DAU_BROADCAST_HASH_JOIN_SV
+   dau_core.hdl.DAU_ROW_UNPACK_SV
+   dau_core.hdl.DAU_ASOF_BACKWARD_SV
+   dau_core.hdl.DAU_ROLLING_MOMENTS_SV
+   dau_core.hdl.DAU_ROLLING_EXTREMUM_SV
+   dau_core.hdl.DAU_MARKET_FEATURE_SV
+   dau_core.hdl.DAU_INT32_RECORD_GATHER_SV
+   dau_core.hdl.DAU_TIME_BUCKET_KEY_SV
+   dau_core.hdl.DAU_KEYED_STATE_SV
+   dau_core.hdl.DAU_SCRATCHPAD_SV
+   dau_core.hdl.DAU_HASH_GROUPED_AGGREGATION_SV
+   dau_core.hdl.DAU_SESSION_GAP_SV
+   dau_core.hdl.DAU_STREAMING_TOP_K_SV
+   dau_core.hdl.DAU_STREAMING_DEDUP_SV
+
+
+Package Contents
+----------------
+
+.. py:data:: DAU_HDL_INCLUDE_DIR
+
+.. py:data:: DAU_TYPES_SVH
+
+.. py:data:: DAU_AGGREGATION_PKG_SV
+
+.. py:data:: DAU_PREDICATE_PKG_SV
+
+.. py:data:: DAU_MAP_ALU_PKG_SV
+
+.. py:data:: DAU_IDENTITY_REGISTERS_SV
+
+.. py:data:: DAU_IDENTITY_AXIL_V
+
+.. py:data:: DAU_STREAM_AGGREGATION_SV
+
+.. py:data:: DAU_ARROW_LITE_STREAM_AGGREGATION_SV
+
+.. py:data:: DAU_RECORD_BATCH_AGGREGATION_SV
+
+.. py:data:: DAU_INT32_PREDICATE_FILTER_SV
+
+.. py:data:: DAU_INT32_MAP_ALU_SV
+
+.. py:data:: DAU_GROUPED_AGGREGATION_SV
+
+.. py:data:: DAU_BAR_AGGREGATION_SV
+
+.. py:data:: DAU_INT32_KEYED_PREDICATE_FILTER_SV
+
+.. py:data:: DAU_INT32_KEYED_MAP_ALU_SV
+
+.. py:data:: DAU_BRAM_STREAM_JOB_SV
+
+.. py:data:: DAU_AXI_STREAM_JOB_SV
+
+.. py:data:: DAU_AXI_RAM_SIM_SV
+
+.. py:data:: DAU_AXI_BURST_READER_SV
+
+.. py:data:: DAU_AXI_RECORD_WRITER_SV
+
+.. py:data:: DAU_AXI_WRITE_MUX_SV
+
+.. py:data:: DAU_STREAM_BROADCAST_SV
+
+.. py:data:: DAU_PAIR_KEY_FILTER_SV
+
+.. py:data:: DAU_RANGE_PARTITIONER_SV
+
+.. py:data:: DAU_KEY_MASK_DISPATCHER_SV
+
+.. py:data:: DAU_STRIDE_DISTRIBUTOR_SV
+
+.. py:data:: DAU_BITONIC_SORTER_SV
+
+.. py:data:: DAU_ROW_PREDICATE_FILTER_SV
+
+.. py:data:: DAU_FIXED_POINT_DIVIDE_SV
+
+.. py:data:: DAU_FIXED_POINT_SQRT_SV
+
+.. py:data:: DAU_DATETIME_FORMAT_SV
+
+.. py:data:: DAU_ROW_MAP_ALU_SV
+
+.. py:data:: DAU_FIELD_SUM_AGGREGATION_SV
+
+.. py:data:: DAU_GROUPED_FIELD_SUM_AGGREGATION_SV
+
+.. py:data:: DAU_WIDE_FIELD_SUM_AGGREGATION_SV
+
+.. py:data:: DAU_RECORD_GEARBOX_SV
+
+.. py:data:: DAU_WIDE_ROW_MAP_ALU_SV
+
+.. py:data:: DAU_WIDE_ROW_PREDICATE_FILTER_SV
+
+.. py:data:: DAU_GROUPED_FIELD_AGGREGATION_SV
+
+.. py:data:: DAU_KEY_MEMBERSHIP_FILTER_SV
+
+.. py:data:: DAU_BROADCAST_HASH_JOIN_SV
+
+.. py:data:: DAU_ROW_UNPACK_SV
+
+.. py:data:: DAU_ASOF_BACKWARD_SV
+
+.. py:data:: DAU_ROLLING_MOMENTS_SV
+
+.. py:data:: DAU_ROLLING_EXTREMUM_SV
+
+.. py:data:: DAU_MARKET_FEATURE_SV
+
+.. py:data:: DAU_INT32_RECORD_GATHER_SV
+
+.. py:data:: DAU_TIME_BUCKET_KEY_SV
+
+.. py:data:: DAU_KEYED_STATE_SV
+
+.. py:data:: DAU_SCRATCHPAD_SV
+
+.. py:data:: DAU_HASH_GROUPED_AGGREGATION_SV
+
+.. py:data:: DAU_SESSION_GAP_SV
+
+.. py:data:: DAU_STREAMING_TOP_K_SV
+
+.. py:data:: DAU_STREAMING_DEDUP_SV
+

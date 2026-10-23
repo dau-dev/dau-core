@@ -1,0 +1,53 @@
+test_hdl_verilator
+==================
+
+.. py:module:: test_hdl_verilator
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_hdl_verilator._SV_DIR
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_hdl_verilator.test_int32_stream_aggregation_systemverilog_bench_runs_under_verilator
+   test_hdl_verilator.test_arrow_lite_stream_aggregation_systemverilog_bench_runs_under_verilator
+   test_hdl_verilator.test_bar_aggregation_systemverilog_bench_runs_under_verilator
+   test_hdl_verilator.test_axi_bar_job_systemverilog_bench_runs_under_verilator
+   test_hdl_verilator.test_grouped_aggregation_systemverilog_bench_runs_under_verilator
+   test_hdl_verilator.test_map_alu_systemverilog_bench_runs_under_verilator
+   test_hdl_verilator.test_predicate_filter_systemverilog_bench_runs_under_verilator
+   test_hdl_verilator.test_record_batch_aggregation_systemverilog_bench_runs_under_verilator
+   test_hdl_verilator._run_verilator_testbench
+
+
+Module Contents
+---------------
+
+.. py:data:: _SV_DIR
+
+.. py:function:: test_int32_stream_aggregation_systemverilog_bench_runs_under_verilator(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_arrow_lite_stream_aggregation_systemverilog_bench_runs_under_verilator(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_bar_aggregation_systemverilog_bench_runs_under_verilator(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_axi_bar_job_systemverilog_bench_runs_under_verilator(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_grouped_aggregation_systemverilog_bench_runs_under_verilator(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_map_alu_systemverilog_bench_runs_under_verilator(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_predicate_filter_systemverilog_bench_runs_under_verilator(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_record_batch_aggregation_systemverilog_bench_runs_under_verilator(tmp_path: pathlib.Path) -> None
+
+.. py:function:: _run_verilator_testbench(**kwargs)
+

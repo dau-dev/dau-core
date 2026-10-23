@@ -1,0 +1,74 @@
+test_hero
+=========
+
+.. py:module:: test_hero
+
+.. autoapi-nested-parse::
+
+   The hero workflow: the predeclared pipeline over the
+   goldens, and the avoided-materialization cost model.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_hero._STREAM
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_hero._run
+   test_hero.test_stages_match_the_individual_goldens
+   test_hero.test_the_pipeline_is_a_cardinality_funnel
+   test_hero.test_fusion_avoids_the_intermediate_materialization
+   test_hero.test_dma_bound_time_estimate_favours_fusion
+   test_hero.test_avoided_bytes_are_dominated_by_the_market_intermediate
+   test_hero.test_empty_after_alignment_still_prices
+   test_hero.test_fully_empty_workload_has_no_speedup_not_infinity
+   test_hero.test_roll_value_selects_the_windowed_bar_price
+   test_hero.test_int64_accumulator_roll_values_are_rejected
+   test_hero.test_window_below_two_is_rejected
+   test_hero.test_estimate_rejects_invalid_physical_parameters
+   test_hero.test_bucket_then_generic_aggregator_composes_to_time_bars
+   test_hero.test_hero_workflow_model_matches_the_function
+
+
+Module Contents
+---------------
+
+.. py:data:: _STREAM
+
+.. py:function:: _run(**kwargs)
+
+.. py:function:: test_stages_match_the_individual_goldens() -> None
+
+.. py:function:: test_the_pipeline_is_a_cardinality_funnel() -> None
+
+.. py:function:: test_fusion_avoids_the_intermediate_materialization() -> None
+
+.. py:function:: test_dma_bound_time_estimate_favours_fusion() -> None
+
+.. py:function:: test_avoided_bytes_are_dominated_by_the_market_intermediate() -> None
+
+.. py:function:: test_empty_after_alignment_still_prices() -> None
+
+.. py:function:: test_fully_empty_workload_has_no_speedup_not_infinity() -> None
+
+.. py:function:: test_roll_value_selects_the_windowed_bar_price() -> None
+
+.. py:function:: test_int64_accumulator_roll_values_are_rejected() -> None
+
+.. py:function:: test_window_below_two_is_rejected() -> None
+
+.. py:function:: test_estimate_rejects_invalid_physical_parameters() -> None
+
+.. py:function:: test_bucket_then_generic_aggregator_composes_to_time_bars() -> None
+
+.. py:function:: test_hero_workflow_model_matches_the_function() -> None
+

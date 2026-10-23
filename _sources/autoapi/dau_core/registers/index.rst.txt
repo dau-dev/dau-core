@@ -1,0 +1,843 @@
+dau_core.registers
+==================
+
+.. py:module:: dau_core.registers
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   dau_core.registers.DAU_MAGIC_WORD
+   dau_core.registers.NOC_LANE_BASE
+   dau_core.registers.NOC_LANE_STRIDE
+   dau_core.registers._RESET_SCOPE_MASK
+   dau_core.registers._JOB_CONTROL_MASK
+   dau_core.registers.DEFAULT_STREAM_JOB_REGISTER_CONTRACT
+   dau_core.registers.CURRENT_REGISTER_MAP_VERSION
+
+
+Exceptions
+----------
+
+.. autoapisummary::
+
+   dau_core.registers.RegisterWriteError
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   dau_core.registers.RegisterMapVersion
+   dau_core.registers.StreamProtocolVersion
+   dau_core.registers.RegisterOffset
+   dau_core.registers.HandleTableRegisterOffset
+   dau_core.registers.HandleTableControlFlag
+   dau_core.registers.HandleFaultCode
+   dau_core.registers.NocLaneRegisterOffset
+   dau_core.registers.ResetScope
+   dau_core.registers.JobControlFlag
+   dau_core.registers.JobStatusFlag
+   dau_core.registers.StreamJobRegisterContract
+   dau_core.registers.RegisterBlockSnapshot
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   dau_core.registers.noc_lane_register
+   dau_core.registers.platform_id_to_u32
+   dau_core.registers._low_u32
+   dau_core.registers._high_u32
+   dau_core.registers._hex32
+   dau_core.registers._hex64
+   dau_core.registers._flag_bit
+   dau_core.registers._validate_u16
+   dau_core.registers._validate_u32
+   dau_core.registers._validate_u64
+
+
+Module Contents
+---------------
+
+.. py:data:: DAU_MAGIC_WORD
+   :value: 1145132337
+
+
+.. py:class:: RegisterMapVersion
+
+   .. py:attribute:: major
+      :type:  int
+
+
+   .. py:attribute:: minor
+      :type:  int
+
+
+   .. py:method:: __post_init__() -> None
+
+
+   .. py:method:: to_u32() -> int
+
+
+   .. py:method:: from_u32(value: int) -> RegisterMapVersion
+      :classmethod:
+
+
+
+.. py:class:: StreamProtocolVersion
+
+   .. py:attribute:: major
+      :type:  int
+
+
+   .. py:attribute:: minor
+      :type:  int
+
+
+   .. py:method:: __post_init__() -> None
+
+
+   .. py:method:: to_u32() -> int
+
+
+   .. py:method:: from_u32(value: int) -> StreamProtocolVersion
+      :classmethod:
+
+
+
+.. py:class:: RegisterOffset
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   Enum where members are also (and must be) ints
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: MAGIC
+      :value: 0
+
+
+
+   .. py:attribute:: REGISTER_MAP_VERSION
+      :value: 4
+
+
+
+   .. py:attribute:: STREAM_PROTOCOL_VERSION
+      :value: 8
+
+
+
+   .. py:attribute:: PLATFORM_ID
+      :value: 12
+
+
+
+   .. py:attribute:: BUILD_ID_LOW
+      :value: 20
+
+
+
+   .. py:attribute:: BUILD_ID_HIGH
+      :value: 24
+
+
+
+   .. py:attribute:: STATUS
+      :value: 28
+
+
+
+   .. py:attribute:: RESET
+      :value: 32
+
+
+
+   .. py:attribute:: OPERATOR_BITMAP
+      :value: 40
+
+
+
+   .. py:attribute:: LAST_ERROR
+      :value: 44
+
+
+
+   .. py:attribute:: H2C_BYTES_LOW
+      :value: 48
+
+
+
+   .. py:attribute:: H2C_BYTES_HIGH
+      :value: 52
+
+
+
+   .. py:attribute:: C2H_BYTES_LOW
+      :value: 56
+
+
+
+   .. py:attribute:: C2H_BYTES_HIGH
+      :value: 60
+
+
+
+   .. py:attribute:: ROWS_LOW
+      :value: 64
+
+
+
+   .. py:attribute:: ROWS_HIGH
+      :value: 68
+
+
+
+   .. py:attribute:: BATCHES
+      :value: 72
+
+
+
+   .. py:attribute:: STALLS
+      :value: 76
+
+
+
+   .. py:attribute:: JOB_CONTROL
+      :value: 80
+
+
+
+   .. py:attribute:: JOB_STATUS
+      :value: 84
+
+
+
+   .. py:attribute:: INPUT_ADDRESS_LOW
+      :value: 88
+
+
+
+   .. py:attribute:: INPUT_ADDRESS_HIGH
+      :value: 92
+
+
+
+   .. py:attribute:: INPUT_LENGTH_LOW
+      :value: 96
+
+
+
+   .. py:attribute:: INPUT_LENGTH_HIGH
+      :value: 100
+
+
+
+   .. py:attribute:: OUTPUT_ADDRESS_LOW
+      :value: 104
+
+
+
+   .. py:attribute:: OUTPUT_ADDRESS_HIGH
+      :value: 108
+
+
+
+   .. py:attribute:: OUTPUT_LENGTH_LOW
+      :value: 112
+
+
+
+   .. py:attribute:: OUTPUT_LENGTH_HIGH
+      :value: 116
+
+
+
+   .. py:attribute:: OPERATION
+      :value: 120
+
+
+
+   .. py:attribute:: RESULT_LENGTH_LOW
+      :value: 124
+
+
+
+   .. py:attribute:: RESULT_LENGTH_HIGH
+      :value: 128
+
+
+
+   .. py:attribute:: LOAD_PHASE
+      :value: 132
+
+
+
+   .. py:attribute:: PIPELINE_FILTER_OP
+      :value: 144
+
+
+
+   .. py:attribute:: PIPELINE_FILTER_CONSTANT0
+      :value: 148
+
+
+
+   .. py:attribute:: PIPELINE_FILTER_CONSTANT1
+      :value: 152
+
+
+
+   .. py:attribute:: PIPELINE_MAP_OP
+      :value: 156
+
+
+
+   .. py:attribute:: PIPELINE_MAP_CONSTANT
+      :value: 160
+
+
+
+   .. py:attribute:: PIPELINE_SELECTED_COUNT_LOW
+      :value: 176
+
+
+
+   .. py:attribute:: PIPELINE_SELECTED_COUNT_HIGH
+      :value: 180
+
+
+
+   .. py:attribute:: PIPELINE_GROUP_COUNT_LOW
+      :value: 184
+
+
+
+   .. py:attribute:: PIPELINE_GROUP_COUNT_HIGH
+      :value: 188
+
+
+
+   .. py:attribute:: LANE_COUNT
+      :value: 192
+
+
+
+   .. py:attribute:: HOST_OPCODE_BITMAP
+      :value: 196
+
+
+
+   .. py:attribute:: SORT_CAPACITY
+      :value: 200
+
+
+
+   .. py:attribute:: INPUT_ROW_CAPACITY
+      :value: 204
+
+
+
+   .. py:attribute:: OUTPUT_RECORD_CAPACITY
+      :value: 208
+
+
+
+.. py:class:: HandleTableRegisterOffset
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   Enum where members are also (and must be) ints
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: INDEX
+      :value: 212
+
+
+
+   .. py:attribute:: BASE_LOW
+      :value: 216
+
+
+
+   .. py:attribute:: BASE_HIGH
+      :value: 220
+
+
+
+   .. py:attribute:: LENGTH
+      :value: 224
+
+
+
+   .. py:attribute:: GENERATION
+      :value: 228
+
+
+
+   .. py:attribute:: CONTROL
+      :value: 232
+
+
+
+   .. py:attribute:: JOB_HANDLE_ID
+      :value: 236
+
+
+
+   .. py:attribute:: JOB_HANDLE_GENERATION
+      :value: 240
+
+
+
+.. py:class:: HandleTableControlFlag
+
+   Bases: :py:obj:`enum.IntFlag`
+
+
+   The WRITE bits of ``HandleTableRegisterOffset.CONTROL``: which of the
+   staged entry's two commits the write performs. Both are one-cycle pulses,
+   so they always read back zero -- CONTROL reads report the resolution state
+   instead.
+
+   Here rather than in the host, for the same reason the offsets are: a bit
+   position a programmer carries in their head is how a free ends up
+   installing. A host stages one commit or the other; the table resolves the
+   collision in free's favour, which is a safety net, not a sequence.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: INSTALL
+      :value: 1
+
+
+
+   .. py:attribute:: FREE
+      :value: 2
+
+
+
+.. py:class:: HandleFaultCode
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   LAST_ERROR codes a shell reports for a job it REFUSED to start on a
+   handle. A refused job never starts the reader, so it reads nothing at all
+   -- these mean the datapath is untouched, not that it produced garbage.
+
+   They sit at the top of the code space, below the shell's own 0xFE
+   length-gate fault, because that space is the shell's: a tile's error codes
+   are small and per-core (dau_core.operators), and a fault that refuses the
+   job outright is not one of them.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: BAD_ID
+      :value: 253
+
+
+
+   .. py:attribute:: STALE
+      :value: 252
+
+
+
+   .. py:attribute:: OUT_OF_BOUNDS
+      :value: 251
+
+
+
+.. py:data:: NOC_LANE_BASE
+   :value: 256
+
+
+.. py:data:: NOC_LANE_STRIDE
+   :value: 32
+
+
+.. py:class:: NocLaneRegisterOffset
+
+   Bases: :py:obj:`enum.IntEnum`
+
+
+   Enum where members are also (and must be) ints
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: OUTPUT_ADDRESS_LOW
+      :value: 0
+
+
+
+   .. py:attribute:: RESULT_LENGTH_LOW
+      :value: 4
+
+
+
+   .. py:attribute:: RECORD_COUNT_LOW
+      :value: 8
+
+
+
+   .. py:attribute:: RECORD_COUNT_HIGH
+      :value: 12
+
+
+
+   .. py:attribute:: LANE_ERROR
+      :value: 16
+
+
+
+   .. py:attribute:: OUTPUT_ADDRESS_HIGH
+      :value: 20
+
+
+
+.. py:function:: noc_lane_register(lane: int, offset: NocLaneRegisterOffset | int) -> int
+
+   BAR window offset of one lane's register.
+
+
+.. py:class:: ResetScope
+
+   Bases: :py:obj:`enum.IntFlag`
+
+
+   Support for integer-based Flags
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: OPERATOR
+      :value: 1
+
+
+
+   .. py:attribute:: STREAM
+      :value: 2
+
+
+
+   .. py:attribute:: DMA
+      :value: 4
+
+
+
+   .. py:attribute:: SHELL
+      :value: 8
+
+
+
+.. py:class:: JobControlFlag
+
+   Bases: :py:obj:`enum.IntFlag`
+
+
+   Support for integer-based Flags
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: START
+      :value: 1
+
+
+
+   .. py:attribute:: ABORT
+      :value: 2
+
+
+
+.. py:class:: JobStatusFlag
+
+   Bases: :py:obj:`enum.IntFlag`
+
+
+   Support for integer-based Flags
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: IDLE
+      :value: 1
+
+
+
+   .. py:attribute:: BUSY
+      :value: 2
+
+
+
+   .. py:attribute:: DONE
+      :value: 4
+
+
+
+   .. py:attribute:: ERROR
+      :value: 8
+
+
+
+.. py:exception:: RegisterWriteError
+
+   Bases: :py:obj:`ValueError`
+
+
+   Inappropriate argument value (of correct type).
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+.. py:data:: _RESET_SCOPE_MASK
+
+.. py:data:: _JOB_CONTROL_MASK
+
+.. py:class:: StreamJobRegisterContract
+
+   .. py:attribute:: register_window_offset
+      :type:  int
+      :value: 4096
+
+
+
+   .. py:attribute:: input_buffer_address
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: input_buffer_bytes
+      :type:  int
+      :value: 1048576
+
+
+
+   .. py:attribute:: output_buffer_address
+      :type:  int
+      :value: 1048576
+
+
+
+   .. py:attribute:: output_buffer_bytes
+      :type:  int
+      :value: 1048576
+
+
+
+   .. py:attribute:: result_bytes
+      :type:  int
+      :value: 136
+
+
+
+   .. py:attribute:: start_offset
+      :type:  RegisterOffset
+
+
+   .. py:attribute:: status_offset
+      :type:  RegisterOffset
+
+
+   .. py:attribute:: error_offset
+      :type:  RegisterOffset
+
+
+   .. py:attribute:: result_length_low_offset
+      :type:  RegisterOffset
+
+
+   .. py:method:: __post_init__() -> None
+
+
+   .. py:method:: manifest_items() -> tuple[tuple[str, str], ...]
+
+
+.. py:class:: RegisterBlockSnapshot
+
+   .. py:attribute:: register_map_version
+      :type:  RegisterMapVersion
+
+
+   .. py:attribute:: stream_protocol_version
+      :type:  StreamProtocolVersion
+
+
+   .. py:attribute:: platform_id
+      :type:  str
+      :value: ''
+
+
+
+   .. py:attribute:: build_id
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: status
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: operator_bitmap
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: last_error
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: h2c_bytes
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: c2h_bytes
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: rows
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: batches
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: stalls
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: job_status
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: input_address
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: input_length
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: output_address
+      :type:  int
+      :value: 1048576
+
+
+
+   .. py:attribute:: output_length
+      :type:  int
+      :value: 136
+
+
+
+   .. py:attribute:: operation
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: result_length
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: lane_count
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: host_opcode_bitmap
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: sort_capacity
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: input_row_capacity
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: output_record_capacity
+      :type:  int
+      :value: 0
+
+
+
+   .. py:method:: __post_init__() -> None
+
+
+   .. py:method:: read_u32(offset: RegisterOffset | int) -> int
+
+
+   .. py:method:: write_u32(offset: RegisterOffset | int, value: int) -> ResetScope | JobControlFlag
+
+
+.. py:function:: platform_id_to_u32(platform_id: str) -> int
+
+.. py:function:: _low_u32(value: int) -> int
+
+.. py:function:: _high_u32(value: int) -> int
+
+.. py:function:: _hex32(value: int) -> str
+
+.. py:function:: _hex64(value: int) -> str
+
+.. py:function:: _flag_bit(flag: enum.IntFlag) -> int
+
+.. py:function:: _validate_u16(name: str, value: int) -> None
+
+.. py:function:: _validate_u32(name: str, value: int) -> None
+
+.. py:function:: _validate_u64(name: str, value: int) -> None
+
+.. py:data:: DEFAULT_STREAM_JOB_REGISTER_CONTRACT
+
+.. py:data:: CURRENT_REGISTER_MAP_VERSION
+

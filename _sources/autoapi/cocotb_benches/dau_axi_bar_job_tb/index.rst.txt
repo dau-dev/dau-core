@@ -1,0 +1,115 @@
+cocotb_benches.dau_axi_bar_job_tb
+=================================
+
+.. py:module:: cocotb_benches.dau_axi_bar_job_tb
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_axi_bar_job_tb.INPUT_ADDRESS
+   cocotb_benches.dau_axi_bar_job_tb.OUTPUT_ADDRESS
+   cocotb_benches.dau_axi_bar_job_tb.ERR_JOB_LENGTH
+   cocotb_benches.dau_axi_bar_job_tb._TRADES
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_axi_bar_job_tb.axi_bar_job_matches_golden
+   cocotb_benches.dau_axi_bar_job_tb.axi_bar_job_multi_burst
+   cocotb_benches.dau_axi_bar_job_tb.axi_bar_job_partial_final_burst
+   cocotb_benches.dau_axi_bar_job_tb.axi_bar_job_single_row
+   cocotb_benches.dau_axi_bar_job_tb.axi_bar_job_repeated_jobs
+   cocotb_benches.dau_axi_bar_job_tb.axi_bar_job_misaligned_length_reports_error
+   cocotb_benches.dau_axi_bar_job_tb.axi_bar_job_zero_length_reports_error
+   cocotb_benches.dau_axi_bar_job_tb._start
+   cocotb_benches.dau_axi_bar_job_tb._run_job
+   cocotb_benches.dau_axi_bar_job_tb._kick_job
+   cocotb_benches.dau_axi_bar_job_tb._wait_done
+   cocotb_benches.dau_axi_bar_job_tb._backdoor_load
+   cocotb_benches.dau_axi_bar_job_tb._backdoor_read
+   cocotb_benches.dau_axi_bar_job_tb._decode_bar
+   cocotb_benches.dau_axi_bar_job_tb._signed32
+   cocotb_benches.dau_axi_bar_job_tb._signed64
+
+
+Module Contents
+---------------
+
+.. py:data:: INPUT_ADDRESS
+   :value: 0
+
+
+.. py:data:: OUTPUT_ADDRESS
+   :value: 262144
+
+
+.. py:data:: ERR_JOB_LENGTH
+   :value: 254
+
+
+.. py:data:: _TRADES
+
+.. py:function:: axi_bar_job_matches_golden(dut)
+   :async:
+
+
+.. py:function:: axi_bar_job_multi_burst(dut)
+   :async:
+
+
+.. py:function:: axi_bar_job_partial_final_burst(dut)
+   :async:
+
+
+.. py:function:: axi_bar_job_single_row(dut)
+   :async:
+
+
+.. py:function:: axi_bar_job_repeated_jobs(dut)
+   :async:
+
+
+.. py:function:: axi_bar_job_misaligned_length_reports_error(dut)
+   :async:
+
+
+.. py:function:: axi_bar_job_zero_length_reports_error(dut)
+   :async:
+
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _run_job(dut, rows)
+   :async:
+
+
+.. py:function:: _kick_job(dut, input_address: int, input_length_bytes: int, output_address: int) -> None
+   :async:
+
+
+.. py:function:: _wait_done(dut) -> None
+   :async:
+
+
+.. py:function:: _backdoor_load(dut, base_index: int, words: list[int]) -> None
+   :async:
+
+
+.. py:function:: _backdoor_read(dut, base_index: int, count: int) -> list[int]
+   :async:
+
+
+.. py:function:: _decode_bar(words: list[int]) -> dau_core.operators.BarAggregate
+
+.. py:function:: _signed32(value: int) -> int
+
+.. py:function:: _signed64(value: int) -> int
+

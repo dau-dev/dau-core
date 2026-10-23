@@ -1,0 +1,477 @@
+dau_core.composition
+====================
+
+.. py:module:: dau_core.composition
+
+.. autoapi-nested-parse::
+
+   Composition specs: shell datapaths described as data.
+
+   A scan composition is the one-scan-N-lanes shape proven by the broadcast
+   NoC shell: an AXI burst reader fans a row stream to N lanes, each an
+   optional partition filter feeding an operator tile and a record writer
+   with its own output region. The spec names registry cores and their
+   config-port bindings; a generator walks it to emit the shell top, and
+   ``estimated_resources`` sums the registry's measured envelopes — the
+   planner-facing cost of a design before it is built.
+
+   N=1 with no filter degenerates to the single-tile DDR scan.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   dau_core.composition._SCAN_SHELL_ROLES
+   dau_core.composition.LOAD_PHASE_BINDING
+   dau_core.composition.SPEC_CANONICAL_VERSION
+
+
+Exceptions
+----------
+
+.. autoapisummary::
+
+   dau_core.composition.CompositionError
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   dau_core.composition.TileSpec
+   dau_core.composition.LaneSpec
+   dau_core.composition.ScanCompositionSpec
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   dau_core.composition._stream_job_shell
+   dau_core.composition._stream_job_cores
+   dau_core.composition._validate_tile_params
+   dau_core.composition.stream_shape_mismatches
+   dau_core.composition.throughput_rows_per_cycle
+   dau_core.composition.estimated_resources
+   dau_core.composition.canonical_spec_json
+   dau_core.composition.spec_hash
+   dau_core.composition.build_id_from_spec_hash
+   dau_core.composition.canonical_version
+   dau_core.composition.spec_from_canonical
+
+
+Module Contents
+---------------
+
+.. py:data:: _SCAN_SHELL_ROLES
+
+.. py:function:: _stream_job_shell(name: str) -> dau_core.cores.CoreDefinition
+
+   The stream-job top ``name`` names, refused unless the registry says
+   that core fills that job.
+
+
+.. py:function:: _stream_job_cores(name: str) -> tuple[str, ...]
+
+.. py:data:: LOAD_PHASE_BINDING
+   :value: 'load_phase'
+
+
+.. py:exception:: CompositionError
+
+   Bases: :py:obj:`Exception`
+
+
+   Common base class for all non-exit exceptions.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+.. py:function:: _validate_tile_params(tile: TileSpec, role: str) -> None
+
+   Every module-parameter override on a tile must name a parameter the
+   core declares as overridable (``CoreDefinition.parameters``) and carry a
+   positive integer value (SV sizes are positive; an element type has already
+   been resolved to its encoding by then). An unknown name is a typo or a
+   param the core does not expose — rejected up front.
+
+
+.. py:class:: TileSpec(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   One registry core plus its config-port bindings (SystemVerilog
+   literals or expressions in terms of the top's signals) and any
+   module-parameter overrides (``params``: SystemVerilog PARAMETERs, e.g.
+   the membership core's ``KEY_SPACE``, that size the built RTL). Config
+   ports are runtime bindings; params are elaboration-time sizes.
+
+   A parameter the core declares as an element type may be written as a type
+   spelling (``{"FIELD_WIDTH": "int32"}``) and is stored as its encoding, so
+   a spec means the same design however it was written and hashes to one
+   cache key.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: core
+      :type:  str
+
+
+   .. py:attribute:: config
+      :type:  Annotated[collections.abc.Mapping[str, str], *ReadOnly]
+
+
+   .. py:attribute:: params
+      :type:  Annotated[collections.abc.Mapping[str, pydantic.StrictInt], *ReadOnly]
+
+
+   .. py:method:: _resolve_element_type_params(data)
+      :classmethod:
+
+
+      Turn declared type spellings into the encoding the RTL elaborates
+      with. Only a parameter the core DECLARES as an element type may be
+      spelled this way -- otherwise "int32" on a capacity parameter would
+      quietly become 32, which is the class of silent misreading this whole
+      mechanism exists to prevent. The registry is consulted only when a
+      spelling is actually present, so specs written in integers construct
+      exactly as before.
+
+
+
+   .. py:method:: definition() -> dau_core.cores.CoreDefinition
+
+
+.. py:class:: LaneSpec(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   One lane of the scan: an optional row-atomic partition filter, an
+   optional ordered ``chain`` of mid-lane operator stages
+   (filter -> map -> ...), and the terminal operator tile. Chain stages
+   speak the stream+status contract but need no status counter; the
+   terminal tile's count port backs the lane register block.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: tile
+      :type:  TileSpec
+
+
+   .. py:attribute:: partition
+      :type:  TileSpec | None
+      :value: None
+
+
+
+   .. py:attribute:: chain
+      :type:  tuple[TileSpec, ...]
+      :value: ()
+
+
+
+.. py:class:: ScanCompositionSpec(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   One scan fanned to ``len(lanes)`` lanes with per-lane output
+   regions and the NoC lane register block.
+
+   Two fan-out shapes: the default broadcasts the scan to every lane
+   (each lane's optional ``partition`` filter selects its rows), or a
+   shared ``partitioner`` (e.g. the range partitioner) routes each row
+   to exactly one lane — lanes then carry no per-lane partition.
+
+   An optional ``front_unpack`` feed transform (the row-unpack core) sits
+   between the burst reader and the fan-out: it widens PACKED rows (half
+   the DDR bytes) into the standard 16-byte quad rows, so the fan-out
+   still sees the clean 32-bit key it partitions on. It coexists with
+   either fan-out shape.
+
+   An optional ``front_gearbox`` sits in the same feed position but
+   reframes rather than widens: it turns wide beats into ONE WHOLE
+   RECORD per cycle, so the fan-out behind it routes records instead
+   of rows. Its bus is therefore a record size, not a row width.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: name
+      :type:  str
+
+
+   .. py:attribute:: lanes
+      :type:  tuple[LaneSpec, ...]
+
+
+   .. py:attribute:: burst_beats
+      :type:  int
+      :value: 32
+
+
+
+   .. py:attribute:: addr_width
+      :type:  int
+      :value: 32
+
+
+
+   .. py:attribute:: data_width
+      :type:  int
+      :value: 64
+
+
+
+   .. py:attribute:: partitioner
+      :type:  TileSpec | None
+      :value: None
+
+
+
+   .. py:attribute:: front_unpack
+      :type:  TileSpec | None
+      :value: None
+
+
+
+   .. py:attribute:: front_gearbox
+      :type:  TileSpec | None
+      :value: None
+
+
+
+   .. py:attribute:: stream_job
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:attribute:: fused_chain
+      :type:  bool
+      :value: False
+
+
+
+   .. py:attribute:: handle_table_capacity
+      :type:  int
+      :value: 0
+
+
+
+   .. py:method:: model_post_init(context) -> None
+
+      Override this method to perform additional initialization after `__init__` and `model_construct`.
+      This is useful if you want to do some validation that requires the entire model to be initialized.
+
+
+
+   .. py:method:: _validate_load_phase_shape() -> None
+
+      The two-phase load shape (v1): a tile binding ``cfg_load`` to the
+      reserved ``load_phase`` symbol is driven by the shell's LOAD_PHASE
+      register, making the composition two-phase (a LOAD job streams the
+      tile's build image; a PROBE job streams rows). The LOAD image must
+      reach every load tile unmolested, so the shape is constrained: every
+      lane's ``chain[0]`` is the load tile (uniformly — a loadless lane
+      would misread the image as rows), no partition filters, no shared
+      partitioner (the broadcast delivers the image to every lane), no
+      front unpacker (it would re-slice image words), and — for a BITMAP_64
+      load tile — ``KEY_SPACE`` a multiple of 128 so the
+      ``KEY_SPACE/64``-word image lands on the 16-byte input length grid
+      (QUAD_ROWS images are 16-byte rows, always on the grid).
+
+
+
+   .. py:method:: is_wide_lane() -> bool
+
+      Whether this is the wide-lane shape: the single lane's terminal
+      speaks the wide-row-stream contract, so the reader feeds the lane
+      directly — no broadcast, no partitioner (validated at
+      construction).
+
+
+
+   .. py:method:: core_names() -> tuple[str, ...]
+
+      Every registry core the composition instantiates, infrastructure
+      included, deduplicated in first-use order. A shared partitioner
+      replaces the broadcast.
+
+      This is what stages the HDL a build compiles, so the spec is
+      re-validated first: a composition copied past its validators must not
+      decide which sources reach the synthesis tool.
+
+
+
+.. py:function:: stream_shape_mismatches(spec: ScanCompositionSpec) -> tuple[str, ...]
+
+   Describe every known record-width mismatch without rejecting ``spec``.
+
+   This is detection only: it neither changes composition validity nor inserts
+   adapters. Runtime-variable producer widths cannot be compared and are
+   intentionally omitted until a concrete output shape exists.
+
+
+.. py:function:: throughput_rows_per_cycle(spec: ScanCompositionSpec, *, stage_pass_fractions: collections.abc.Mapping[int, collections.abc.Sequence[fractions.Fraction]] | None = None) -> fractions.Fraction
+
+   The composed design's GUARANTEED sustained ingest rate, in rows per
+   job-clock cycle — the number the scheduler plans on (declared rates are
+   floors, so silicon may burst higher; it will not sustain lower). An
+   exact rational computed ONLY from public interface facts
+   (each core's declared ``ingest`` rate plus the spec's feed shape), so
+   the scheduler can rate-match a composition of cores it cannot inspect.
+
+   Three factors, minimum wins:
+
+   - **front delivery**: the reader hands off ``data_width/128`` quad rows
+     per cycle (64-bit staging frames one row per two beats = 1/2). A
+     ``front_unpack`` feed re-times packed rows at its ``OUT_WIDTH``:
+     64 emits one row per two cycles, 128 one per cycle.
+   - **shared fan-out**: a partitioner/dispatcher's own declared ingest.
+   - **lane consumption**: with a shared partitioner rows split across
+     lanes, so lane rates SUM; a broadcast shows every row to every lane,
+     so the SLOWEST lane is the system rate (no summing). A lane's rate
+     is the minimum declared ingest over its partition, chain, and
+     terminal tile.
+
+   DISTRIBUTION ASSUMPTION (explicit, not fine print): the partitioned
+   sum assumes rows spread across lanes per the partitioner's routing —
+   the key-mask dispatcher's declaration already says "mask-distributed
+   keys". Adversarial inputs (every key to one lane) degrade to a single
+   lane's rate; a scheduler planning for that regime should use
+   ``min(lane rates)`` instead. The broadcast path has no such
+   assumption (every lane sees every row regardless of keys).
+
+   SELECTIVITY: by default every stage is charged as if EVERY input row
+   reached it, which is the worst case and can be badly pessimistic for
+   a chain whose slow stage sits behind a filter. q6 is the worked
+   example: its map stage sustains one row per seven cycles standalone
+   (bench-measured), but two predicates upstream pass ~2% of rows, so
+   the map never binds and silicon ran at 0.483 rows/cycle — 3.4x the
+   no-selectivity figure. Pass ``stage_pass_fractions`` (lane index ->
+   the fraction of INPUT rows reaching each chain stage, in chain order)
+   when the caller knows the plan; each stage's rate is then charged
+   against the rows it actually sees. Selectivity is data-dependent, so
+   the composition never guesses it — that is the planner's to supply.
+
+
+.. py:function:: estimated_resources(spec: ScanCompositionSpec, *, part: str, clock_ns: float) -> dau_core.cores.ResourceEnvelope
+
+   Sum the measured resources of every instance the composition places.
+
+   Every core prices from a measurement point keyed by ``part``,
+   ``clock_ns`` and module parameters, so both coordinates are required.
+   An unmeasured tuple or a timing violation RAISES rather than returning a
+   plausible-looking number: a marker could be dropped by a numeric
+   consumer, recreating the silent cross-part fallback this API exists to
+   prevent. A combinational core's point answers for any clock.
+
+
+.. py:data:: SPEC_CANONICAL_VERSION
+   :value: '7'
+
+
+.. py:function:: canonical_spec_json(spec: ScanCompositionSpec) -> str
+
+   The canonical serialized form of a composition spec: deterministic
+   JSON (sorted keys, compact separators) of the FULL elaborated spec —
+   every field, defaults included. The canonical text captures the
+   effective design: if a model default ever changes, old and new specs
+   produce different text rather than silently sharing a cache key. The
+   cost is that growing the spec model changes hashes (a safe cache miss);
+   that evolution is the explicit job of SPEC_CANONICAL_VERSION.
+
+
+.. py:function:: spec_hash(spec: ScanCompositionSpec) -> str
+
+   The content hash of a composition spec: sha256 over the canonical
+   form, prefixed with the canonical-form version so a deliberate change
+   to the canonicalization is distinguishable from a different design.
+   This is the design-cache key: a planner-emitted design and a resident
+   built design that elaborate to the same spec share one hash.
+
+
+.. py:function:: build_id_from_spec_hash(value: str) -> int
+
+   The 64-bit identity a shell advertises for a spec, from that spec's
+   hash: the leading 64 bits of the digest.
+
+   A shell's capability words cannot identify a design. Distinct designs
+   routinely advertise the same lane count, operator bitmap, host-opcode
+   bitmap and sort capacity -- q19-scan and q19-packed-wide are identical
+   across all four -- so a host asking "is the device running the design I
+   flashed" gets a yes from a board running something else. The spec hash
+   distinguishes them by construction, and 64 bits of it fits the identity
+   block's BUILD_ID register pair.
+
+   Truncation is safe for this use. BUILD_ID answers "is this the design I
+   expect", where the alternative is a handful of shells built by the same
+   people, not an adversary searching for a collision; the full hash stays
+   in the manifest for anything stronger. Zero is reserved: an unstamped
+   shell reads back as zero, so the caller must treat it as "not stamped"
+   rather than as a design identity.
+
+   KNOW WHAT THIS DOES NOT IDENTIFY. It is the hash of a composition SPEC,
+   so it names the design's inputs, not the image built from them. Two
+   bitstreams built from the same spec at different times — different RTL,
+   generator, constraints or toolchain — carry the SAME id. That is the
+   right granularity for "did my flash take" (the alternative resident
+   image is a different design) and the wrong one for "is this the exact
+   artifact I validated", which only the bitstream digest answers. It also
+   drops the canonical-version prefix, so ``5:<digest>`` and ``6:<digest>``
+   are indistinguishable here while being different cache keys.
+
+
+.. py:function:: canonical_version(value: str) -> str
+
+   The canonical-form version a recorded spec hash was written under.
+
+   Ask this BEFORE reading the text recorded beside it. The canonical form
+   is written against the registry, so a text from an older version can
+   name a tile this palette no longer carries, and
+   :func:`spec_from_canonical` then raises ``UnknownCoreError`` — an error
+   that names the registry, which is not the thing at fault. The version is
+   the only place a reader can learn that the text predates the palette it
+   is being read against, so a version mismatch is a refusal to compare,
+   decided without a parse.
+
+
+.. py:function:: spec_from_canonical(text: str) -> ScanCompositionSpec
+
+   Rebuild a spec from its canonical form. Construction re-validates
+   against the registry (kinds, status roles, parameter bounds), so a
+   tampered or stale canonical form fails loudly, never builds.
+
+   Reads text canonicalized under the CURRENT ``SPEC_CANONICAL_VERSION``.
+   A caller holding a RECORDED text — one out of a build manifest — holds
+   the version it was written under too, in the spec hash beside it, and
+   must check :func:`canonical_version` first: an older text is refused by
+   version, not by whatever the registry happens to say about the first
+   departed name it meets.
+
+

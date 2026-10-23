@@ -1,0 +1,79 @@
+dau_core.exp_generator
+======================
+
+.. py:module:: dau_core.exp_generator
+
+.. autoapi-nested-parse::
+
+   Renders the fixed-point exp tile from a declared operating point.
+
+   The datapath is :class:`dau_core.fixed_point.ExpDatapath` and the emitted
+   SystemVerilog mirrors :meth:`ExpDatapath.evaluate` step for step, so the
+   cocotb bench can compare against it with zero tolerance like every other
+   tile. The operating point -- internal precision, table size, polynomial
+   degree, whether Horner steps round -- arrives as configuration, which is why
+   this is a generator and not a checked-in file: the 256-entry table of
+   ``2**(j/256)`` is a function of those parameters and SystemVerilog cannot
+   compute it.
+
+   The datapath is PIPELINED, one multiply per stage, chosen after measuring
+   what a multiply costs rather than from the estimate this docstring used to
+   quote. Measured on the dpv1 Artix (2026-08-09, the registry's points): 50
+   DSP48s at the exact point and 20 at the light one, against 740 on the part.
+   Folding onto a shared multiplier
+   would cut that to roughly a ninth, but at one row per nine cycles against
+   sqrt's and divide's one per three -- the tile would become the bottleneck of
+   any chain it joined.
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   dau_core.exp_generator.ExpTileGenerator
+
+
+Module Contents
+---------------
+
+.. py:class:: ExpTileGenerator(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.generators.CoreGenerator`
+
+
+   Renders ``dau_fixed_point_exp`` for one operating point.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: module
+      :type:  str
+      :value: 'dau_fixed_point_exp'
+
+
+
+   .. py:attribute:: datapath
+      :type:  dau_core.fixed_point.ExpDatapath
+
+
+   .. py:property:: source_name
+      :type: str
+
+
+
+   .. py:method:: __call__(context: dau_core.generators.RenderContext) -> dau_core.generators.RenderedCore
+
+      This method produces the result for the given context.
+
+      Instead of passing the context, one can pass an object that pydantic will try to validate as the context.
+      Additionally, if kwargs are passed instead of the context, it will use these to construct the context.
+
+
+

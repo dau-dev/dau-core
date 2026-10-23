@@ -1,0 +1,108 @@
+cocotb_benches.dau_asof_feature_chain_tb
+========================================
+
+.. py:module:: cocotb_benches.dau_asof_feature_chain_tb
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_asof_feature_chain_tb._QUOTES
+   cocotb_benches.dau_asof_feature_chain_tb._TRADES
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_asof_feature_chain_tb._merge
+   cocotb_benches.dau_asof_feature_chain_tb._expected
+   cocotb_benches.dau_asof_feature_chain_tb.chain_matches_align_then_derive_golden
+   cocotb_benches.dau_asof_feature_chain_tb.chain_backpressure_both_sides
+   cocotb_benches.dau_asof_feature_chain_tb.chain_with_tolerance
+   cocotb_benches.dau_asof_feature_chain_tb.chain_exposes_the_match_count_at_terminal_status
+   cocotb_benches.dau_asof_feature_chain_tb.chain_all_miss_still_closes_out
+   cocotb_benches.dau_asof_feature_chain_tb.chain_propagates_an_asof_error
+   cocotb_benches.dau_asof_feature_chain_tb.chain_propagates_an_error_after_prior_matches
+   cocotb_benches.dau_asof_feature_chain_tb._start
+   cocotb_benches.dau_asof_feature_chain_tb._run
+   cocotb_benches.dau_asof_feature_chain_tb._decode
+   cocotb_benches.dau_asof_feature_chain_tb._send_records
+   cocotb_benches.dau_asof_feature_chain_tb._collect_output
+   cocotb_benches.dau_asof_feature_chain_tb._accept_success_status
+   cocotb_benches.dau_asof_feature_chain_tb._s32
+   cocotb_benches.dau_asof_feature_chain_tb._s64
+
+
+Module Contents
+---------------
+
+.. py:data:: _QUOTES
+   :value: [(570, 100, 10, 12), (570, 105, 11, 13), (570, 120, 9, 11), (571, 100, 50, 52), (571, 110, 51, 54)]
+
+
+.. py:data:: _TRADES
+   :value: [(570, 99, 11, 5), (570, 100, 12, 3), (570, 107, 13, 2), (570, 130, 8, 1), (571, 105, 53, 7),...
+
+
+.. py:function:: _merge(quotes, trades)
+
+.. py:function:: _expected(quotes, trades, *, tolerance=None)
+
+.. py:function:: chain_matches_align_then_derive_golden(dut)
+   :async:
+
+
+.. py:function:: chain_backpressure_both_sides(dut)
+   :async:
+
+
+.. py:function:: chain_with_tolerance(dut)
+   :async:
+
+
+.. py:function:: chain_exposes_the_match_count_at_terminal_status(dut)
+   :async:
+
+
+.. py:function:: chain_all_miss_still_closes_out(dut)
+   :async:
+
+
+.. py:function:: chain_propagates_an_asof_error(dut)
+   :async:
+
+
+.. py:function:: chain_propagates_an_error_after_prior_matches(dut)
+   :async:
+
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _run(dut, records, *, ready_pattern=(1, ), tolerance=None)
+   :async:
+
+
+.. py:function:: _decode(words) -> dau_core.temporal.MarketFeatures
+
+.. py:function:: _send_records(dut, records) -> None
+   :async:
+
+
+.. py:function:: _collect_output(dut, ready_pattern)
+   :async:
+
+
+.. py:function:: _accept_success_status(dut) -> int
+   :async:
+
+
+.. py:function:: _s32(value: int) -> int
+
+.. py:function:: _s64(value: int) -> int
+

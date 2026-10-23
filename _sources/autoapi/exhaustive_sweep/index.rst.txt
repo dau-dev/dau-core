@@ -1,0 +1,92 @@
+exhaustive_sweep
+================
+
+.. py:module:: exhaustive_sweep
+
+.. autoapi-nested-parse::
+
+   Exhaustive accuracy sweeps for the fixed-point transcendental datapaths.
+
+   A bound is only ever what was actually swept. This arc has four recorded
+   cases of a sample declaring a datapath flawless that the full domain
+   disproved -- Q48/degree-5 exp, the 256-segment CDF, ln at 60,000 samples,
+   and ln again at 663,000 -- so a registered accuracy fact comes from here,
+   not from a stratified sample.
+
+   THE COST IS THE REFERENCE, NOT THE DATAPATH. `ln_reference` and its
+   siblings compute in 80 decimal digits so that half-way cases double cannot
+   decide are decided correctly. Calling that for every input puts a full
+   2**31 sweep in the tens of core-hours (an estimate from the per-input cost
+   when this was written, not a timed run). Deciding in double and re-deciding
+   only the inputs that sit too close to a rounding boundary brings it down to
+   minutes on a workstation, because only a few thousand inputs are close.
+   Both answers are identical; only one is affordable enough to run on every
+   candidate operating point.
+
+   This module was written after the slow estimate had sent a candidate light
+   point to the back of the queue as a multi-session task. It is committed so
+   the capability is not rediscovered a third time.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   exhaustive_sweep.BOUNDARY_GUARD
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   exhaustive_sweep.SweepResult
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   exhaustive_sweep.sweep
+
+
+Module Contents
+---------------
+
+.. py:data:: BOUNDARY_GUARD
+   :value: 1e-06
+
+
+.. py:class:: SweepResult(worst: int, wrong: int, checked: int, first: int | None, boundary: int)
+
+   What an exhaustive sweep establishes about one operating point.
+
+
+   .. py:property:: faithful
+      :type: bool
+
+
+      Never more than one ULP from the correctly rounded answer.
+
+
+   .. py:property:: correctly_rounded
+      :type: bool
+
+
+
+   .. py:method:: __repr__() -> str
+
+
+.. py:function:: sweep(evaluate: collections.abc.Callable[[int], int], reference: collections.abc.Callable[[int], int], values: collections.abc.Iterable[int], *, scale: int, transform: collections.abc.Callable[[float], float] = math.log, guard: float = BOUNDARY_GUARD) -> SweepResult
+
+   Compare a datapath against its mathematical reference over ``values``.
+
+   ``transform`` is the real-valued function in double precision; the
+   exact ``reference`` is consulted only where double cannot decide the
+   rounding. The two-tier split is what makes a full-domain sweep
+   affordable -- see the module docstring.
+
+

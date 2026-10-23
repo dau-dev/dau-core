@@ -1,0 +1,1057 @@
+dau_core.cores
+==============
+
+.. py:module:: dau_core.cores
+
+.. autoapi-nested-parse::
+
+   Core registry models and accessors: every HDL building block, what it
+   is, what it depends on, which golden defines its semantics, and what it
+   costs.
+
+   The registry itself lives in dau-core's hydra config tree
+   (``dau_core/config/dau-core/cores.yaml``): one ``CoreDefinition`` entry per
+   core, composed into the ccflow ``ModelRegistry`` at ``/dau-core/<name>``
+   and discoverable on the shared search path via the ``hydra.lernaplugins``
+   entry point. Composition IS the registry — this module defines the models
+   and thin cached accessors, never a core list. Resource measurements are
+   produced by the dau-build synthesize-cores task and recorded per part, clock
+   and module parameters; there is no other shape.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   dau_core.cores.HDL_CLOSURE_DIGEST_VERSION
+   dau_core.cores._HDL_INCLUDE
+
+
+Exceptions
+----------
+
+.. autoapisummary::
+
+   dau_core.cores.UnknownCoreSourceError
+   dau_core.cores.UnrenderedCoreError
+   dau_core.cores.UnmeasuredResourceError
+   dau_core.cores.TimingViolationError
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   dau_core.cores.CoreKind
+   dau_core.cores.LoadImageKind
+   dau_core.cores.CoreRole
+   dau_core.cores.ContractKind
+   dau_core.cores.ResourceEnvelope
+   dau_core.cores.TimingStatus
+   dau_core.cores.ResourceMeasurement
+   dau_core.cores.IngestRate
+   dau_core.cores.ParameterSpec
+   dau_core.cores.StorageIntent
+   dau_core.cores.CoreDefinition
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   dau_core.cores._same_clock
+   dau_core.cores.package_root
+   dau_core.cores.render_root
+
+
+Module Contents
+---------------
+
+.. py:class:: CoreKind(*args, **kwds)
+
+   Bases: :py:obj:`enum.Enum`
+
+
+   Create a collection of name/value pairs.
+
+   Example enumeration:
+
+   >>> class Color(Enum):
+   ...     RED = 1
+   ...     BLUE = 2
+   ...     GREEN = 3
+
+   Access them by:
+
+   - attribute access::
+
+   >>> Color.RED
+   <Color.RED: 1>
+
+   - value lookup:
+
+   >>> Color(1)
+   <Color.RED: 1>
+
+   - name lookup:
+
+   >>> Color['RED']
+   <Color.RED: 1>
+
+   Enumerations can be iterated over, and know how many members they have:
+
+   >>> len(Color)
+   3
+
+   >>> list(Color)
+   [<Color.RED: 1>, <Color.BLUE: 2>, <Color.GREEN: 3>]
+
+   Methods can be added to enumerations, and members can have their own
+   attributes -- see the documentation for details.
+
+
+   .. py:attribute:: OPERATOR
+      :value: 'operator'
+
+
+
+   .. py:attribute:: STREAM_INFRA
+      :value: 'stream-infra'
+
+
+
+   .. py:attribute:: SHELL_ADAPTER
+      :value: 'shell-adapter'
+
+
+
+   .. py:attribute:: PACKAGE
+      :value: 'package'
+
+
+
+   .. py:attribute:: SIM_MODEL
+      :value: 'sim-model'
+
+
+
+.. py:class:: LoadImageKind(*args, **kwds)
+
+   Bases: :py:obj:`enum.Enum`
+
+
+   What a load-capable tile's LOAD-phase input stream is (the two-phase
+   load: cfg_load=1 streams the build image, cfg_load=0 probes). The
+   composition validates image/length-grid rules per kind; a core without
+   this marker has no cfg_load port and can never be phase-bound.
+
+
+   .. py:attribute:: BITMAP_64
+      :value: 'bitmap-64'
+
+
+
+   .. py:attribute:: QUAD_ROWS
+      :value: 'quad-rows'
+
+
+
+.. py:class:: CoreRole(*args, **kwds)
+
+   Bases: :py:obj:`enum.Enum`
+
+
+   What a core is FOR where a composition has to know, declared by the
+   registry rather than recognized by its name.
+
+   Two composition rules cannot be read off a tile's ports: that the core in
+   the optional front-stage feed-transform slot is one that widens packed
+   rows, and that a key-routing partitioner's lane count satisfies the decode
+   its ``MODE`` selects. Both were exact-name comparisons, which is the one
+   thing "composition IS the registry" forbids -- a second unpacker or a
+   second router could not be written without editing this package, and a
+   tile rename silently turned the check into dead code. A core says here
+   what job it does; the composition asks.
+
+   ``KEY_DISPATCH`` is a contract as well as a label: a core declaring it
+   routes whole records to lanes by a decode over the record's key, and
+   carries ``MODE`` (a :class:`dau_core.operators.DispatchMode`) and
+   ``NUM_PARTITIONS`` parameters with those meanings. A range partitioner
+   routes by ordered splitters instead and is deliberately not one.
+
+
+   .. py:attribute:: FRONT_UNPACK
+      :value: 'front-unpack'
+
+
+
+   .. py:attribute:: KEY_DISPATCH
+      :value: 'key-dispatch'
+
+
+
+   .. py:attribute:: SCAN_READER
+      :value: 'scan-reader'
+
+
+
+   .. py:attribute:: SCAN_BROADCAST
+      :value: 'scan-broadcast'
+
+
+
+   .. py:attribute:: SCAN_RECORD_WRITER
+      :value: 'scan-record-writer'
+
+
+
+   .. py:attribute:: SCAN_WRITE_MUX
+      :value: 'scan-write-mux'
+
+
+
+   .. py:attribute:: SHELL_REGISTERS
+      :value: 'shell-registers'
+
+
+
+   .. py:attribute:: STREAM_JOB_SHELL
+      :value: 'stream-job-shell'
+
+
+
+   .. py:attribute:: FRONT_GEARBOX
+      :value: 'front-gearbox'
+
+
+
+.. py:class:: ContractKind(*args, **kwds)
+
+   Bases: :py:obj:`enum.Enum`
+
+
+   Which streaming interface contract an operator tile speaks. Contract
+   tests select their validator from this tag; a new core declares its
+   contract here rather than being special-cased in test code.
+
+
+   .. py:attribute:: ROW_STREAM
+      :value: 'row-stream'
+
+
+
+   .. py:attribute:: ARROW_LITE_DESCRIPTOR
+      :value: 'arrow-lite-descriptor'
+
+
+
+   .. py:attribute:: WIDE_ROW_STREAM
+      :value: 'wide-row-stream'
+
+
+
+.. py:class:: ResourceEnvelope(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   Resource counts: one LUT/FF/BRAM/DSP tuple. The usable face of a
+   measurement point, or the sum a composition estimate adds up to. Never
+   a registry entry on its own: the registry records measurement points,
+   which carry the coordinates a count is meaningless without.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: lut
+      :type:  pydantic.NonNegativeInt
+
+
+   .. py:attribute:: ff
+      :type:  pydantic.NonNegativeInt
+
+
+   .. py:attribute:: bram36
+      :type:  pydantic.NonNegativeFloat
+
+
+   .. py:attribute:: dsp
+      :type:  pydantic.NonNegativeInt
+
+
+.. py:class:: TimingStatus(*args, **kwds)
+
+   Bases: :py:obj:`enum.Enum`
+
+
+   Create a collection of name/value pairs.
+
+   Example enumeration:
+
+   >>> class Color(Enum):
+   ...     RED = 1
+   ...     BLUE = 2
+   ...     GREEN = 3
+
+   Access them by:
+
+   - attribute access::
+
+   >>> Color.RED
+   <Color.RED: 1>
+
+   - value lookup:
+
+   >>> Color(1)
+   <Color.RED: 1>
+
+   - name lookup:
+
+   >>> Color['RED']
+   <Color.RED: 1>
+
+   Enumerations can be iterated over, and know how many members they have:
+
+   >>> len(Color)
+   3
+
+   >>> list(Color)
+   [<Color.RED: 1>, <Color.BLUE: 2>, <Color.GREEN: 3>]
+
+   Methods can be added to enumerations, and members can have their own
+   attributes -- see the documentation for details.
+
+
+   .. py:attribute:: MET
+      :value: 'met'
+
+
+
+   .. py:attribute:: VIOLATED
+      :value: 'violated'
+
+
+
+.. py:class:: ResourceMeasurement(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   One exact OOC result. Coordinates are deliberately discrete: a
+   measurement says nothing about another part, clock, or parameter tuple.
+
+   A combinational core has no clock: ``clock_ns`` is ``None``, no timing
+   was reported and none is recorded, and the point answers for any clock
+   because the logic costs the same at every one. A clocked point carries
+   the clock it was constrained to, whether it met, and by how much.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: part
+      :type:  str
+
+
+   .. py:attribute:: clock_ns
+      :type:  float | None
+      :value: None
+
+
+
+   .. py:attribute:: params
+      :type:  Annotated[collections.abc.Mapping[str, pydantic.StrictInt], *ReadOnly]
+
+
+   .. py:attribute:: lut
+      :type:  pydantic.NonNegativeInt
+
+
+   .. py:attribute:: ff
+      :type:  pydantic.NonNegativeInt
+
+
+   .. py:attribute:: bram36
+      :type:  pydantic.NonNegativeFloat
+
+
+   .. py:attribute:: dsp
+      :type:  pydantic.NonNegativeInt
+
+
+   .. py:attribute:: timing
+      :type:  TimingStatus | None
+      :value: None
+
+
+
+   .. py:attribute:: wns_ns
+      :type:  float | None
+      :value: None
+
+
+
+   .. py:method:: _accept_type_spellings(data)
+      :classmethod:
+
+
+      A coordinate may name an element type where the synthesis run took
+      one ("FIELD_WIDTH: int32"), and is stored as the encoding, so it
+      compares equal to the same point written as a number. No parameter of
+      an SV module has a legal non-numeric value other than a type, so a
+      string here needs no further disambiguation.
+
+
+
+   .. py:method:: _timing_matches_wns() -> ResourceMeasurement
+
+
+   .. py:method:: answers_clock(clock_ns: float) -> bool
+
+      Whether this point prices a build at ``clock_ns``: an unclocked
+      point prices any clock, a clocked one only its own.
+
+
+
+   .. py:method:: usable_envelope() -> ResourceEnvelope
+
+      Return resource counts only when timing met its target (or there
+      was no timing to meet).
+
+
+
+.. py:class:: IngestRate(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   A stream core's guaranteed sustained ingest rate: ``rows`` rows per
+   ``per_cycles`` clock cycles, an exact rational (1 row per 2 cycles is
+   the composed lane rate the silicon proved; the key-mask dispatcher
+   ingests 1 per 1). This is PUBLIC INTERFACE, not a heuristic: the
+   scheduler/pricing software rate-matches a core it cannot inspect — a
+   user-provided custom core tied to a custom operator is opaque except
+   for its registry declaration, so the declaration carries the rate.
+   Declare the FLOOR a core sustains under continuous valid input,
+   with RECORD/DRAIN EMISSION AMORTIZED over the batch: close-out
+   records, top-k drains, and per-group records are batch-tail or
+   per-group costs, not per-row costs, so the declaration describes the
+   streaming regime (groups much smaller than rows, drains at close).
+   Data-dependent worst cases — every group key distinct, adversarial
+   key runs into one dispatcher lane — are planner-regime concerns the
+   planner sees in the plan (group keys, sortedness), not floor
+   violations. A core may burst faster, and a measured improvement (a
+   retime, a wider port) lands here the same release the RTL proves it.
+   Compositions over these floors yield the sustained rate the scheduler
+   plans on UNDER those stated assumptions.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: rows
+      :type:  pydantic.StrictInt
+
+
+   .. py:attribute:: per_cycles
+      :type:  pydantic.StrictInt
+
+
+   .. py:attribute:: scales_with_param
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:attribute:: frames_on_param
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:method:: _positive(value: int) -> int
+      :classmethod:
+
+
+
+   .. py:method:: _one_scaling_shape() -> IngestRate
+
+
+   .. py:property:: rows_per_cycle
+      :type: fractions.Fraction
+
+
+
+   .. py:method:: effective(params: collections.abc.Mapping[str, int], declared: collections.abc.Mapping[str, ParameterSpec]) -> fractions.Fraction
+
+      The rate at concrete parameter values — what the scheduler uses.
+      ``params`` are the composition's overrides; ``declared`` the core's
+      parameter specs (defaults fill unset overrides).
+
+
+
+.. py:class:: ParameterSpec(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   An overridable SystemVerilog module parameter: its HDL default and the
+   constraint a composition override must satisfy — mirroring the RTL's own
+   elaboration guards so an invalid override is rejected at composition time,
+   never later as an HDL elaboration failure. ``multiple_of`` mirrors sizing
+   (the membership bitmap is ``KEY_SPACE/64`` words); ``choices`` pins an
+   exact legal set (the quad-stream widths are 64 or 128, nothing else);
+   ``power_of_two`` mirrors mask/bit-select decodes (the key-mask dispatcher's
+   ``NUM_PARTITIONS``); ``minimum`` mirrors a lower bound (the rolling-moment
+   window is ``>= 2`` — a size-1 sample variance is undefined). The HDL is the
+   source of truth; this mirrors it.
+
+   ``element_type`` marks the parameter as naming WHAT AN ELEMENT IS rather
+   than how big something is, and changes three things:
+
+   * ``default`` and ``choices`` may be written as type spellings
+     (``int32``, ``q16.16``, ``float64``) as well as integers, and are stored
+     as the :mod:`dau_core.element_types` encoding either way. A plain signed
+     integer encodes as its own width, so ``32`` and ``int32`` are the same
+     declaration and no existing entry changes meaning.
+   * ``choices`` are matched on the whole type. ``int32`` and ``q16.16`` are
+     both 32 bits wide and are NOT interchangeable, which is the distinction
+     a width could not draw.
+   * ``minimum``/``maximum``/``multiple_of``/``power_of_two`` constrain the
+     type's WIDTH, because that is what the RTL guard they mirror is about
+     ("FIELD_WIDTH must divide 128 and lie in [8, 64]" is a statement about
+     the field's bits, not about the number that names its type).
+
+   Set it only for a parameter that genuinely selects an element type. Bus
+   and beat widths (``IN_WIDTH``, ``OUT_WIDTH``, ``DATA_WIDTH``) count bits
+   per handshake and are not types; declaring one here would let a design ask
+   for a fixed-point AXI bus.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: default
+      :type:  int
+
+
+   .. py:attribute:: multiple_of
+      :type:  int
+
+
+   .. py:attribute:: choices
+      :type:  tuple[int, ...] | None
+      :value: None
+
+
+
+   .. py:attribute:: power_of_two
+      :type:  bool
+      :value: False
+
+
+
+   .. py:attribute:: minimum
+      :type:  int
+      :value: 1
+
+
+
+   .. py:attribute:: maximum
+      :type:  int | None
+      :value: None
+
+
+
+   .. py:attribute:: element_type
+      :type:  bool
+      :value: False
+
+
+
+   .. py:method:: _accept_type_spellings(data)
+      :classmethod:
+
+
+      Resolve declared type spellings to their encoding before the int
+      fields see them, so everything downstream -- the constraint checks,
+      the ``-generic`` a synthesis run passes, the canonical spec hash --
+      works on one integer form and never has to know how it was written.
+
+
+
+   .. py:method:: violation(value: int | str) -> str | None
+
+      Why ``value`` is not a legal override, or ``None`` when it is.
+      This is the ONE statement of the constraint -- composition wraps it
+      with tile context, and the model's own coherence check runs the
+      default through it, so the rule cannot drift between the two.
+
+
+
+   .. py:method:: normalize(value: int | str) -> int
+
+      The integer the RTL elaborates with, however the value was written.
+
+      A consumer holding a raw override -- a build task assembling
+      ``-generic`` arguments, say -- has to turn a spelling into its code
+      before it reaches a tool, and cannot import this package to do it:
+      dau-build is public and the encoding lives here. Asking the spec that
+      declared the parameter keeps the vocabulary in one place.
+
+
+
+   .. py:method:: _violation(value: int, magnitude: int) -> str | None
+
+      ``value`` is what the RTL elaborates with; ``magnitude`` is what the
+      bounds constrain -- the same number for a size parameter, and the
+      element type's width for a type parameter.
+
+
+
+   .. py:method:: _spell(value: int) -> str
+
+      How a value appears in a message: a type parameter's values are
+      named, because '4128' tells a reader nothing and 'q16.16' does.
+
+
+
+   .. py:method:: _constraints_cohere() -> ParameterSpec
+
+      The spec mirrors RTL elaboration guards, so an incoherent spec is a
+      registry bug that would reject every override -- catch it at
+      registration, not at the first composition.
+
+
+
+.. py:class:: StorageIntent(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   A core's declared storage need (STORAGE_AND_NOC.md). ``owned`` = a
+   private single-cycle arena; ``shared`` = handle-based tier transactions.
+   Capacity prices against a declared module parameter so the planner can
+   refuse what no tier serves — never discovered at synthesis.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: role
+      :type:  str
+
+
+   .. py:attribute:: access
+      :type:  Literal['owned', 'shared']
+
+
+   .. py:attribute:: bytes_per_unit
+      :type:  int
+
+
+   .. py:attribute:: scale_parameter
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:attribute:: tier_hint
+      :type:  str | None
+      :value: None
+
+
+
+.. py:function:: _same_clock(a: float, b: float) -> bool
+
+   Two clock periods naming the same physical clock.
+
+   The unit is NANOSECONDS, so the tolerance is a picosecond: 6.66667 against
+   a derived 6.666666666666667 differs by 3.3e-6 ns. Clock tiers in this
+   registry are more than a nanosecond apart (8.0 vs 6.667 vs 10.0), so a
+   picosecond is a thousand times too small to reach a neighbour.
+
+
+.. py:data:: HDL_CLOSURE_DIGEST_VERSION
+   :value: '1'
+
+
+.. py:data:: _HDL_INCLUDE
+
+.. py:class:: CoreDefinition(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   One HDL building block and its contract surround.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: name
+      :type:  str
+
+
+   .. py:attribute:: kind
+      :type:  CoreKind
+
+
+   .. py:attribute:: module
+      :type:  str
+
+
+   .. py:attribute:: source
+      :type:  str
+
+
+   .. py:attribute:: source_package
+      :type:  str
+      :value: 'dau_core.hdl'
+
+
+
+   .. py:attribute:: generator
+      :type:  dau_core.generators.CoreGenerator | None
+      :value: None
+
+
+
+   .. py:attribute:: description
+      :type:  str
+
+
+   .. py:attribute:: depends
+      :type:  tuple[str, ...]
+      :value: ()
+
+
+
+   .. py:attribute:: golden
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:attribute:: bench
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:attribute:: resources
+      :type:  tuple[ResourceMeasurement, ...] | None
+      :value: None
+
+
+
+   .. py:attribute:: measured_from
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:attribute:: count_port
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:attribute:: contract_kind
+      :type:  ContractKind | None
+      :value: None
+
+
+
+   .. py:attribute:: role
+      :type:  CoreRole | None
+      :value: None
+
+
+
+   .. py:attribute:: accuracy_ulp
+      :type:  int | None
+      :value: None
+
+
+
+   .. py:attribute:: ingest
+      :type:  IngestRate | None
+      :value: None
+
+
+
+   .. py:attribute:: record_words
+      :type:  pydantic.StrictInt | None
+      :value: None
+
+
+
+   .. py:attribute:: record_words_param
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:attribute:: output_record_words
+      :type:  pydantic.StrictInt | None
+      :value: None
+
+
+
+   .. py:attribute:: output_record_words_param
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:attribute:: output_record_words_variable
+      :type:  bool
+      :value: False
+
+
+
+   .. py:attribute:: supports_pipeline_depth
+      :type:  bool
+      :value: False
+
+
+
+   .. py:attribute:: opcodes
+      :type:  tuple[dau_core.stream.OperationCode, ...]
+      :value: ()
+
+
+
+   .. py:attribute:: opcode_input_types
+      :type:  tuple[dau_core.stream.LogicalType, ...]
+      :value: ()
+
+
+
+   .. py:attribute:: row_capacity
+      :type:  int | None
+      :value: None
+
+
+
+   .. py:attribute:: unit_kind
+      :type:  dau_core.design.UnitKind | None
+      :value: None
+
+
+
+   .. py:attribute:: success_close_out
+      :type:  bool
+      :value: False
+
+
+
+   .. py:attribute:: load_image
+      :type:  LoadImageKind | None
+      :value: None
+
+
+
+   .. py:attribute:: parameters
+      :type:  Annotated[collections.abc.Mapping[str, ParameterSpec], *ReadOnly]
+
+
+   .. py:attribute:: storage_intent
+      :type:  tuple[StorageIntent, ...]
+      :value: ()
+
+
+
+   .. py:method:: storage_bytes(params: collections.abc.Mapping[str, int]) -> tuple[tuple[StorageIntent, int], ...]
+
+      Each intent with its byte cost at the effective parameters
+      (overrides win, declared defaults otherwise).
+
+
+
+   .. py:method:: model_post_init(context) -> None
+
+      Override this method to perform additional initialization after `__init__` and `model_construct`.
+      This is useful if you want to do some validation that requires the entire model to be initialized.
+
+
+
+   .. py:method:: _parameter_value(name: str, params: collections.abc.Mapping[str, int]) -> int
+
+
+   .. py:method:: effective_record_words(params: collections.abc.Mapping[str, int]) -> int
+
+      Concrete input-record width after applying parameter overrides.
+
+
+
+   .. py:method:: effective_output_record_words(params: collections.abc.Mapping[str, int]) -> int | None
+
+      Concrete emitted width, or ``None`` for runtime-variable output.
+
+
+
+   .. py:method:: resource_measurement(*, part: str, clock_ns: float, params: collections.abc.Mapping[str, int]) -> ResourceMeasurement
+
+      Resolve one exact measurement, never a neighboring point.
+
+      Composition overrides are expanded with declared defaults before
+      comparison. An unclocked (combinational) point answers for any clock.
+
+      Clock periods are DERIVED (1000 / job_clock_mhz), so they are compared
+      to the picosecond rather than by float equality: 150 MHz yields
+      6.666666666666667 while a registry writes 6.66667, and exact equality
+      rejected a point while printing it in the same breath. Real clock tiers
+      are more than a nanosecond apart, so this cannot reach a neighbour.
+
+
+
+   .. py:method:: source_path() -> pathlib.Path
+
+      The HDL this core synthesizes from.
+
+      A GENERATED core (one declaring a ``generator``) has no checked-in
+      file, so it refuses until it has been rendered rather than rendering
+      implicitly on first read. What sits on disk is what gets synthesized;
+      rendering behind a read would hide which parameters produced it, and
+      the whole reason this core is generated is that its constants are a
+      function of those parameters.
+
+
+
+   .. py:method:: hdl_closure(resolve) -> tuple[tuple[str, str], ...]
+
+      Every HDL file this core synthesizes from, as ``(name, sha256)``
+      pairs sorted by name.
+
+      WHAT IS IN THE CLOSURE is the whole question, and the answer is: the
+      files a synthesis run of THIS core reads. That is its own source, the
+      source of every core reachable through ``depends`` (the packages it
+      imports), and every header those files `` `include ``, resolved the
+      way the toolchain resolves them -- beside the including file first,
+      then along the other source directories, which is exactly the
+      ``-include_dirs`` list the synthesis task builds. A header nothing
+      includes is NOT in the closure, so adding a second one to the palette
+      does not re-measure every tile that ignores it; and a package a tile
+      imports IS, so an edit there reaches every tile that reads it.
+
+      ``resolve`` maps a core name to its definition. It is a parameter
+      rather than a registry import because the build package reaches these
+      models through the composed ccflow registry and must not import this
+      one.
+
+      A GENERATED core is hashed from its RENDERED TEXT, not from a file on
+      disk: its RTL is a function of the generator and of the constants in
+      its registry entry, so an edit to either changes what synthesis reads
+      while every checked-in file stays byte-identical.
+
+
+
+   .. py:method:: hdl_closure_digest(resolve) -> str
+
+      The digest a measured envelope records as ``measured_from``.
+
+      Over BYTES, deliberately. A digest cannot tell a retimed adder from a
+      renamed module, and pretending otherwise would mean teaching it which
+      edits are allowed to be free -- which is the judgement the guard
+      exists to force someone to make and write down. So a rename moves the
+      digest too, and re-stamping it costs an argument in the pull request.
+
+
+
+   .. py:method:: render(*, into: pathlib.Path | None = None) -> pathlib.Path
+
+      Render this core's HDL, returning the written path.
+
+
+
+   .. py:method:: golden_callable()
+
+
+.. py:exception:: UnknownCoreSourceError
+
+   Bases: :py:obj:`RuntimeError`
+
+
+   A core names an HDL package that is not installed.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+.. py:exception:: UnrenderedCoreError
+
+   Bases: :py:obj:`RuntimeError`
+
+
+   A generated core was asked for its source before it was rendered.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+.. py:exception:: UnmeasuredResourceError
+
+   Bases: :py:obj:`LookupError`
+
+
+   Base class for lookup errors.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+.. py:exception:: TimingViolationError
+
+   Bases: :py:obj:`ValueError`
+
+
+   Inappropriate argument value (of correct type).
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+.. py:function:: package_root(package: str) -> pathlib.Path
+
+   The on-disk directory of an HDL package.
+
+   Resolved through importlib rather than a relative path from this file,
+   so a core contributed by another distribution finds its own tree.
+
+
+.. py:function:: render_root(package: str = 'dau_core.hdl') -> pathlib.Path
+
+   Where generated cores are materialized.
+
+   Defaults beside the declaring package so a checkout behaves like one
+   with the files committed; a build tree points DAU_CORE_RENDER_ROOT at
+   its own directory so two builds cannot race on one file.
+
+

@@ -1,0 +1,64 @@
+cocotb_benches.dau_key_mask_dispatcher_exact_tb
+===============================================
+
+.. py:module:: cocotb_benches.dau_key_mask_dispatcher_exact_tb
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_key_mask_dispatcher_exact_tb._EXACT_ROWS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_key_mask_dispatcher_exact_tb._wide
+   cocotb_benches.dau_key_mask_dispatcher_exact_tb._send
+   cocotb_benches.dau_key_mask_dispatcher_exact_tb._run
+   cocotb_benches.dau_key_mask_dispatcher_exact_tb.exact_branch_routes_and_drops
+   cocotb_benches.dau_key_mask_dispatcher_exact_tb.exact_branch_all_dropped_closes_out_every_lane
+   cocotb_benches.dau_key_mask_dispatcher_exact_tb.exact_branch_backpressure_holds_rows_stable
+   cocotb_benches.dau_key_mask_dispatcher_exact_tb.exact_branch_repeated_batches_back_to_back
+   cocotb_benches.dau_key_mask_dispatcher_exact_tb.exact_branch_drop_dominant_sustains_front_rate
+
+
+Module Contents
+---------------
+
+.. py:data:: _EXACT_ROWS
+
+.. py:function:: _wide(dut) -> bool
+
+.. py:function:: _send(dut, rows) -> None
+   :async:
+
+
+.. py:function:: _run(dut, rows, *, ready_pattern=(1, ))
+   :async:
+
+
+.. py:function:: exact_branch_routes_and_drops(dut)
+   :async:
+
+
+.. py:function:: exact_branch_all_dropped_closes_out_every_lane(dut)
+   :async:
+
+
+.. py:function:: exact_branch_backpressure_holds_rows_stable(dut)
+   :async:
+
+
+.. py:function:: exact_branch_repeated_batches_back_to_back(dut)
+   :async:
+
+
+.. py:function:: exact_branch_drop_dominant_sustains_front_rate(dut)
+   :async:
+
+

@@ -1,0 +1,435 @@
+dau_core.temporal
+=================
+
+.. py:module:: dau_core.temporal
+
+.. autoapi-nested-parse::
+
+   Golden models for the temporal-finance hero workflow.
+
+   The fused workflow this file is the CPU reference for:
+
+       quotes ─┐
+               ├─> backward as-of ─> midpoint/spread/sign ─┐
+       trades ─┘                                           ├─> time/vol/$ bars
+                                                           └─> rolling features
+
+   Everything here operates on the **encoded integer domain** the hardware sees —
+   symbol ids are int32 dictionary codes, timestamps are int64, prices/sizes are
+   int64 fixed-point (the host quantizes at a chosen scale before staging, exactly
+   as ``dau_polars.ohlcv`` does with its micro-unit ``SCALE``). The models are
+   therefore scale-agnostic integer arithmetic: a caller that quantizes price and
+   size at scales ``Sp`` and ``Ss`` gets dollar volume in ``Sp*Ss`` units and must
+   express dollar-bar thresholds in the same units. Division is **deferred** (Q100
+   discipline): bars and rolling windows emit exact integer accumulators
+   (sum / sum-of-squares / count) and the host divides once, so every value on the
+   wire is exact.
+
+   State is **bounded and per-symbol**: the as-of tile holds one current quote per
+   symbol partition; a bar tile holds one open bar; a rolling tile holds one
+   window. The pre-sort precondition (both streams ordered by ``(symbol_id, time)``)
+   is the same one the sorted-scan tiles already require — the host sorts, or the
+   range-partitioner + sorter path does.
+
+   These are semantic references, ahead of the HDL. The ``int64`` timestamp / sum
+   tiles and the as-of / windowed-stat tiles byte-compare against them.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   dau_core.temporal._T
+   dau_core.temporal.QuoteRow
+   dau_core.temporal.TradeRow
+   dau_core.temporal.MarketRow
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   dau_core.temporal.MarketFeatures
+   dau_core.temporal.TemporalBar
+   dau_core.temporal.RollingMoment
+   dau_core.temporal.MarketStream
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   dau_core.temporal.asof_backward
+   dau_core.temporal.matched_rows
+   dau_core.temporal.midpoint
+   dau_core.temporal.spread
+   dau_core.temporal.trade_sign
+   dau_core.temporal.signed_volume
+   dau_core.temporal.dollar_volume
+   dau_core.temporal.vwap_numerator
+   dau_core.temporal.market_features
+   dau_core.temporal._open_bar
+   dau_core.temporal.time_bars
+   dau_core.temporal._accumulator_bars
+   dau_core.temporal.volume_bars
+   dau_core.temporal.dollar_bars
+   dau_core.temporal.imbalance_bars
+   dau_core.temporal._rolling
+   dau_core.temporal.rolling_sum
+   dau_core.temporal.rolling_min
+   dau_core.temporal.rolling_max
+   dau_core.temporal.rolling_moments
+   dau_core.temporal.moment_mean
+   dau_core.temporal.moment_var
+   dau_core.temporal.moment_std
+   dau_core.temporal.ewma
+   dau_core.temporal.deltas
+   dau_core.temporal.gaps
+   dau_core.temporal.generate_market_stream
+
+
+Module Contents
+---------------
+
+.. py:data:: _T
+
+.. py:data:: QuoteRow
+
+.. py:data:: TradeRow
+
+.. py:data:: MarketRow
+
+.. py:function:: asof_backward(trades: collections.abc.Iterable[TradeRow], quotes: collections.abc.Iterable[QuoteRow], *, tolerance: int | None = None) -> list[MarketRow | None]
+
+   Backward as-of join: each trade attached to the most recent quote for
+   the same symbol whose ``quote_time <= trade_time`` (and, when ``tolerance``
+   is set, ``trade_time - quote_time <= tolerance``). Emits one entry per input
+   trade, in input order — a matched ``(symbol_id, time, price, size, bid,
+   ask)`` market row, or ``None`` when no quote qualifies (the miss is a typed
+   residue; :func:`matched_rows` drops them).
+
+   Matches ``polars.DataFrame.join_asof(strategy="backward", by="symbol",
+   tolerance=...)``: on equal timestamps the *last* qualifying quote wins.
+   Both streams must be pre-sorted by ``(symbol_id, time)``. The tile holds one
+   current quote per symbol partition and advances it monotonically — bounded
+   state, one pass.
+
+
+.. py:function:: matched_rows(aligned: collections.abc.Iterable[MarketRow | None]) -> list[MarketRow]
+
+   Drop the as-of misses — the aligned market rows the downstream fused
+   stages consume.
+
+
+.. py:function:: midpoint(bid: int, ask: int) -> int
+
+   ``(bid + ask) // 2`` (floor). The quote midpoint in the price scale.
+
+
+.. py:function:: spread(bid: int, ask: int) -> int
+
+   ``ask - bid`` in the price scale.
+
+
+.. py:function:: trade_sign(price: int, bid: int, ask: int) -> int
+
+   The stateless quote-rule trade sign: ``+1`` above the midpoint, ``-1``
+   below, ``0`` at it. (The tick-test tie-break needs prior state and is a
+   later windowed variant.)
+
+
+.. py:function:: signed_volume(price: int, size: int, bid: int, ask: int) -> int
+
+   ``trade_sign * size`` — size credited to the initiating side.
+
+
+.. py:function:: dollar_volume(price: int, size: int) -> int
+
+   ``price * size`` — notional in ``price_scale * size_scale`` units (the
+   VWAP numerator; exact, host rescales).
+
+
+.. py:function:: vwap_numerator(price: int, size: int) -> int
+
+   Alias of :func:`dollar_volume`: VWAP = ``sum(price*size) / sum(size)``,
+   accumulated over a bar and divided once by the host.
+
+
+.. py:class:: MarketFeatures
+
+   The per-row derived features of one aligned market row.
+
+
+   .. py:attribute:: symbol_id
+      :type:  int
+
+
+   .. py:attribute:: time
+      :type:  int
+
+
+   .. py:attribute:: price
+      :type:  int
+
+
+   .. py:attribute:: size
+      :type:  int
+
+
+   .. py:attribute:: midpoint
+      :type:  int
+
+
+   .. py:attribute:: spread
+      :type:  int
+
+
+   .. py:attribute:: trade_sign
+      :type:  int
+
+
+   .. py:attribute:: signed_volume
+      :type:  int
+
+
+   .. py:attribute:: dollar_volume
+      :type:  int
+
+
+.. py:function:: market_features(rows: collections.abc.Iterable[MarketRow]) -> list[MarketFeatures]
+
+   Derive the fused per-row market features for a stream of aligned market
+   rows (the ``derive`` stage of the workflow plan).
+
+
+.. py:class:: TemporalBar
+
+   One closed bar over aligned market rows. OHLC on price, plus exact
+   integer accumulators (volume, dollar/vwap-numerator, signed volume, count)
+   so VWAP and averages divide once on the host — ``int64`` on the wire (see
+   :data:`INT64_MAX`). ``open_time``/``close_time`` carry the ordering keys for
+   associative cross-batch merge.
+
+
+   .. py:attribute:: symbol_id
+      :type:  int
+
+
+   .. py:attribute:: open
+      :type:  int
+
+
+   .. py:attribute:: high
+      :type:  int
+
+
+   .. py:attribute:: low
+      :type:  int
+
+
+   .. py:attribute:: close
+      :type:  int
+
+
+   .. py:attribute:: volume
+      :type:  int
+
+
+   .. py:attribute:: dollar
+      :type:  int
+
+
+   .. py:attribute:: signed_volume
+      :type:  int
+
+
+   .. py:attribute:: count
+      :type:  int
+
+
+   .. py:attribute:: open_time
+      :type:  int
+
+
+   .. py:attribute:: close_time
+      :type:  int
+
+
+   .. py:method:: _extend(time: int, price: int, size: int, signed: int) -> TemporalBar
+
+
+.. py:function:: _open_bar(symbol_id: int, time: int, price: int, size: int, signed: int) -> TemporalBar
+
+.. py:function:: time_bars(rows: collections.abc.Iterable[MarketRow], *, bar_width: int) -> list[TemporalBar]
+
+   Fixed-width time bars: trades bucket by ``time // bar_width``; a bar spans
+   one ``(symbol_id, bucket)`` and closes when the bucket or symbol changes.
+   Rows must be pre-sorted by ``(symbol_id, time)``. Matches
+   ``group_by_dynamic(every=bar_width, closed="left")`` per symbol.
+
+
+.. py:function:: _accumulator_bars(rows: collections.abc.Iterable[MarketRow], *, threshold: int, metric: str) -> list[TemporalBar]
+
+   Threshold-clock bars: accumulate ``metric`` per symbol and close the bar
+   on the trade that reaches ``threshold`` (the crossing trade is included —
+   the López de Prado convention). A symbol change closes the open bar. Emits a
+   trailing partial bar at end-of-stream.
+
+
+.. py:function:: volume_bars(rows: collections.abc.Iterable[MarketRow], *, threshold: int) -> list[TemporalBar]
+
+   Volume bars: close when cumulative traded size reaches ``threshold``.
+
+
+.. py:function:: dollar_bars(rows: collections.abc.Iterable[MarketRow], *, threshold: int) -> list[TemporalBar]
+
+   Dollar bars: close when cumulative notional (``sum price*size``) reaches
+   ``threshold`` (same units as :func:`dollar_volume`).
+
+
+.. py:function:: imbalance_bars(rows: collections.abc.Iterable[MarketRow], *, threshold: int) -> list[TemporalBar]
+
+   Imbalance bars: close when ``|cumulative signed volume|`` reaches
+   ``threshold`` — a bar per unit of net directional flow.
+
+
+.. py:function:: _rolling(values: collections.abc.Iterable[tuple[int, int]], *, window: int, reduce: collections.abc.Callable[[list[int]], _T]) -> list[_T | None]
+
+.. py:function:: rolling_sum(values: collections.abc.Iterable[tuple[int, int]], *, window: int) -> list[int | None]
+
+   Per-symbol rolling sum of the last ``window`` values (exact int).
+
+
+.. py:function:: rolling_min(values: collections.abc.Iterable[tuple[int, int]], *, window: int) -> list[int | None]
+
+   Per-symbol rolling minimum of the last ``window`` values.
+
+
+.. py:function:: rolling_max(values: collections.abc.Iterable[tuple[int, int]], *, window: int) -> list[int | None]
+
+   Per-symbol rolling maximum of the last ``window`` values.
+
+
+.. py:class:: RollingMoment
+
+   The exact integer accumulators of one full rolling window — mean and
+   variance divide once on the host (:func:`moment_mean`, :func:`moment_var`).
+
+
+   .. py:attribute:: count
+      :type:  int
+
+
+   .. py:attribute:: total
+      :type:  int
+
+
+   .. py:attribute:: total_sq
+      :type:  int
+
+
+.. py:function:: rolling_moments(values: collections.abc.Iterable[tuple[int, int]], *, window: int) -> list[RollingMoment | None]
+
+   Per-symbol rolling ``(count, sum, sum_of_squares)`` over the last
+   ``window`` values — the deferred-division form of rolling mean/variance.
+
+   REFUSES a window whose sum of squares leaves a signed 64-bit accumulator.
+   That is the tile's arithmetic precondition, and it binds inside the int32
+   domain: ``(2**31-1)**2`` is already ``2**61``, so a full-range int32 column
+   overflows ``sum_sq`` from window 3. The tile cannot check it — it sees one
+   row at a time and has no bound to compare against — and it wraps silently
+   into a wrong variance rather than erroring. Python integers do not wrap, so
+   a golden that computed the exact value would DISAGREE with the hardware
+   over exactly the inputs the contract excludes, and the bench comparing the
+   two would be the only thing that ever noticed. Raising instead keeps the
+   reference and the datapath from ever quietly parting company: inside the
+   precondition they are equal, and outside it neither claims an answer.
+
+   The proof properly lives further upstream — dau-polars refuses to route a
+   rolling scan whose value column declares no ``magnitude_bits`` — so this is
+   a backstop for a direct caller, not the primary check.
+
+
+.. py:function:: moment_mean(moment: RollingMoment) -> float
+
+   Mean from a rolling moment.
+
+
+.. py:function:: moment_var(moment: RollingMoment, *, ddof: int = 1) -> float
+
+   Variance from a rolling moment (``ddof=1`` sample variance, matching
+   ``polars.rolling_var``). Raises on an under-determined window.
+
+   The numerator ``count*sum_sq - sum*sum`` is formed in **exact integers**
+   before the single float divide — dividing ``sum*sum`` first (float) would
+   cancel the variance away at fixed-point magnitudes (e.g. three consecutive
+   values near ``1e9``).
+
+
+.. py:function:: moment_std(moment: RollingMoment, *, ddof: int = 1) -> float
+
+   Sample standard deviation from a rolling moment.
+
+   The root of :func:`moment_var`, and deliberately defined in terms of it
+   rather than independently: polars' ``rolling_std`` is the root of its
+   ``rolling_var``, so any other formulation would disagree with the
+   reference in the last place for no benefit.
+
+   On device this is where the divide and sqrt tiles land -- variance
+   divides before it roots -- which is why the numerator stays exact
+   integers right up to the single divide.
+
+
+.. py:function:: ewma(values: collections.abc.Iterable[tuple[int, int]], *, alpha: float) -> list[float]
+
+   Per-symbol exponentially weighted moving average, non-adjusted recursion
+   (``e[0] = x[0]``; ``e[i] = alpha*x[i] + (1-alpha)*e[i-1]``) — matches
+   ``pl.col(x).ewm_mean(alpha=alpha, adjust=False).over("symbol")``. Float: the
+   reference real-valued semantics the fixed-point tile approximates under its
+   declared error budget.
+
+
+.. py:function:: deltas(values: collections.abc.Iterable[tuple[int, int]]) -> list[int | None]
+
+   Per-symbol first difference (``value[i] - value[i-1]``; ``None`` for the
+   first row of each symbol) — matches ``pl.col(x).diff().over("symbol")``.
+
+
+.. py:function:: gaps(times: collections.abc.Iterable[tuple[int, int]], *, max_gap: int) -> list[bool]
+
+   Per-symbol gap flags: ``True`` where ``time[i] - time[i-1] > max_gap``
+   (the first row of each symbol is never a gap).
+
+
+.. py:class:: MarketStream
+
+   A deterministic (seeded) quote/trade fixture in the encoded domain, both
+   streams sorted by ``(symbol_id, time)``.
+
+
+   .. py:attribute:: quotes
+      :type:  tuple[QuoteRow, ...]
+
+
+   .. py:attribute:: trades
+      :type:  tuple[TradeRow, ...]
+
+
+.. py:function:: generate_market_stream(*, seed: int, num_symbols: int = 4, quotes_per_symbol: int = 24, trades_per_symbol: int = 40, price_scale: int = 1000000) -> MarketStream
+
+   Generate a deterministic quote/trade fixture: per symbol, a random-walk
+   two-sided quote (micro-dollar prices) and interleaved trades in integer
+   share sizes priced near the prevailing midpoint — so ``dollar_volume``
+   accumulators stay comfortably in int64. Same ``seed`` ⇒ byte-identical
+   output (replay determinism). Uses only the stdlib ``random`` —
+   zero-dependency, like the rest of dau-core.
+
+   **Both paths are exercised by construction**: one trade per symbol is placed
+   just before that symbol's first quote, so :func:`asof_backward` always
+   produces at least one miss as well as matches.
+
+

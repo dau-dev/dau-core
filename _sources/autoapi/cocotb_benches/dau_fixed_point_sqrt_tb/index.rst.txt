@@ -1,0 +1,199 @@
+cocotb_benches.dau_fixed_point_sqrt_tb
+======================================
+
+.. py:module:: cocotb_benches.dau_fixed_point_sqrt_tb
+
+.. autoapi-nested-parse::
+
+   The fixed-point sqrt tile against its golden, with NO tolerance.
+
+   The root is exact by construction -- `isqrt(X << F)` -- so every comparison
+   here is equality against `sqrt_row_fields`. If this tile ever grows a
+   polynomial approximation, these tests are what will refuse it, and that is
+   deliberate: an approximate root would need an error bound nobody in the
+   stack currently has a way to state.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_fixed_point_sqrt_tb._MASK32
+   cocotb_benches.dau_fixed_point_sqrt_tb._INT32_MAX
+   cocotb_benches.dau_fixed_point_sqrt_tb._ONE
+   cocotb_benches.dau_fixed_point_sqrt_tb._ROWS
+   cocotb_benches.dau_fixed_point_sqrt_tb._SQRT_VALUE
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_fixed_point_sqrt_tb.sustained_ingest_meets_registry_floor
+   cocotb_benches.dau_fixed_point_sqrt_tb.perfect_squares_are_exact
+   cocotb_benches.dau_fixed_point_sqrt_tb.directed_rows_match_golden
+   cocotb_benches.dau_fixed_point_sqrt_tb.every_dst_variant_passes_the_others_through
+   cocotb_benches.dau_fixed_point_sqrt_tb.boundaries_around_every_power_of_two
+   cocotb_benches.dau_fixed_point_sqrt_tb.order_and_count_preserved_with_backpressure
+   cocotb_benches.dau_fixed_point_sqrt_tb.constrained_random_batches_match_golden
+   cocotb_benches.dau_fixed_point_sqrt_tb.negative_source_drains_batch_then_reports_domain_error
+   cocotb_benches.dau_fixed_point_sqrt_tb.negative_row_never_escapes_while_the_close_out_waits
+   cocotb_benches.dau_fixed_point_sqrt_tb.dst_equal_to_src_updates_in_place
+   cocotb_benches.dau_fixed_point_sqrt_tb.torn_row_reports_stream_error
+   cocotb_benches.dau_fixed_point_sqrt_tb.error_status_survives_backpressure
+   cocotb_benches.dau_fixed_point_sqrt_tb._signed32
+   cocotb_benches.dau_fixed_point_sqrt_tb._drive_config
+   cocotb_benches.dau_fixed_point_sqrt_tb._start
+   cocotb_benches.dau_fixed_point_sqrt_tb._run
+   cocotb_benches.dau_fixed_point_sqrt_tb._pack_rows
+   cocotb_benches.dau_fixed_point_sqrt_tb._send_words
+   cocotb_benches.dau_fixed_point_sqrt_tb._send_rows
+   cocotb_benches.dau_fixed_point_sqrt_tb._drain_and_record
+   cocotb_benches.dau_fixed_point_sqrt_tb._drain_words
+   cocotb_benches.dau_fixed_point_sqrt_tb._collect_output
+   cocotb_benches.dau_fixed_point_sqrt_tb._assert_quiescent
+   cocotb_benches.dau_fixed_point_sqrt_tb._expect_status
+
+
+Module Contents
+---------------
+
+.. py:data:: _MASK32
+   :value: 4294967295
+
+
+.. py:data:: _INT32_MAX
+   :value: 2147483647
+
+
+.. py:data:: _ONE
+   :value: 65536
+
+
+.. py:data:: _ROWS
+
+.. py:data:: _SQRT_VALUE
+
+.. py:function:: sustained_ingest_meets_registry_floor(dut)
+   :async:
+
+
+.. py:function:: perfect_squares_are_exact(dut)
+   :async:
+
+
+   The cases a human can check by hand, so a wrong scale factor cannot
+   hide behind 'close enough'.
+
+
+.. py:function:: directed_rows_match_golden(dut)
+   :async:
+
+
+.. py:function:: every_dst_variant_passes_the_others_through(dut)
+   :async:
+
+
+.. py:function:: boundaries_around_every_power_of_two(dut)
+   :async:
+
+
+   Digit recurrences fail at carries. Each power of two and its
+   neighbours put the recurrence's remainder at its extremes.
+
+
+.. py:function:: order_and_count_preserved_with_backpressure(dut)
+   :async:
+
+
+.. py:function:: constrained_random_batches_match_golden(dut)
+   :async:
+
+
+.. py:function:: negative_source_drains_batch_then_reports_domain_error(dut)
+   :async:
+
+
+   The whole reason the tile has its own error code: sqrt of a negative
+   has no answer, and emitting one anyway would be a wrong number that
+   looks right.
+
+
+.. py:function:: negative_row_never_escapes_while_the_close_out_waits(dut)
+   :async:
+
+
+   The domain guard is only load-bearing under status backpressure.
+
+   When the close-out is taken promptly it flushes the pipeline, so a
+   negative row that entered would be dropped before it retired and the
+   guard would look redundant. Hold status_ready low for longer than the
+   pipeline is deep and the row reaches the output instead -- which is
+   exactly the case that must not emit a root the tile does not have.
+
+
+.. py:function:: dst_equal_to_src_updates_in_place(dut)
+   :async:
+
+
+   In-place is legal, as it is for the map ALU: the source is captured
+   when the row is pushed and the destination written when it retires, so
+   they may be the same field.
+
+
+.. py:function:: torn_row_reports_stream_error(dut)
+   :async:
+
+
+.. py:function:: error_status_survives_backpressure(dut)
+   :async:
+
+
+.. py:function:: _signed32(value: int) -> int
+
+.. py:function:: _drive_config(dut, config: dau_core.operators.RowSqrtConfig) -> None
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _run(dut, rows, config: dau_core.operators.RowSqrtConfig, *, ready_pattern=(1, ))
+   :async:
+
+
+.. py:function:: _pack_rows(rows) -> list[int]
+
+.. py:function:: _send_words(dut, words) -> None
+   :async:
+
+
+.. py:function:: _send_rows(dut, rows) -> None
+   :async:
+
+
+.. py:function:: _drain_and_record(dut, seen: list[int]) -> None
+   :async:
+
+
+   Drain the output, keeping what came out so a test can assert on it.
+
+
+.. py:function:: _drain_words(dut) -> None
+   :async:
+
+
+.. py:function:: _collect_output(dut, ready_pattern, *, expect_words: int) -> list[int]
+   :async:
+
+
+.. py:function:: _assert_quiescent(dut) -> None
+   :async:
+
+
+.. py:function:: _expect_status(dut, *, error: bool, code: int = 0) -> None
+   :async:
+
+

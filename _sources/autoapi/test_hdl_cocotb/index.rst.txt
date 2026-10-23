@@ -1,0 +1,317 @@
+test_hdl_cocotb
+===============
+
+.. py:module:: test_hdl_cocotb
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_hdl_cocotb._COCOTB_BENCH_PREFIX
+   test_hdl_cocotb._SV_TB_DIR
+   test_hdl_cocotb.VERILATOR_BUILD_ARGS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_hdl_cocotb._bar_noc_sim_sv
+   test_hdl_cocotb._sort_noc_sim_sv
+   test_hdl_cocotb.test_int32_stream_aggregation_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_record_gearbox_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_wide_ingest_chain_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_arrow_lite_stream_aggregation_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_bar_aggregation_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_asof_backward_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_time_bucket_key_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_record_gather_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_hero_datapath_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_bucket_agg_chain_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_market_feature_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_asof_feature_chain_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_rolling_moments_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_rolling_extremum_matches_golden
+   test_hdl_cocotb.test_rolling_extremum_window_eight
+   test_hdl_cocotb.test_rolling_moments_window_two
+   test_hdl_cocotb.test_streaming_dedup_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_streaming_top_k_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_streaming_top_k_k_one
+   test_hdl_cocotb.test_axi_bar_job_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_pair_key_filter_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_range_partitioner_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_burst_reader_streams_exactly_at_every_width_tier
+   test_hdl_cocotb.test_bitonic_sorter_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_bitonic_sorter_small_capacity
+   test_hdl_cocotb.test_range_partitioner_non_power_of_two_partitions
+   test_hdl_cocotb.test_row_predicate_filter_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_normal_cdf_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_fixed_point_exp_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_fixed_point_ln_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_fixed_point_divide_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_datetime_format_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_fixed_point_sqrt_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_row_map_alu_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_row_unpack_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_key_mask_dispatcher_routes_n_word_records
+   test_hdl_cocotb.test_key_mask_dispatcher_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_key_mask_dispatcher_wide_front_runs_real_cocotb
+   test_hdl_cocotb.test_key_mask_dispatcher_multi_row_runs_real_cocotb
+   test_hdl_cocotb.test_stride_distributor_runs_real_cocotb
+   test_hdl_cocotb.test_key_mask_dispatcher_hash_runs_real_cocotb
+   test_hdl_cocotb.test_key_mask_dispatcher_exact_branch_wide_runs_real_cocotb
+   test_hdl_cocotb.test_key_mask_dispatcher_exact_branch_narrow_runs_real_cocotb
+   test_hdl_cocotb.test_row_unpack_wide_quad_stream_runs_real_cocotb
+   test_hdl_cocotb.test_row_unpack_multi_slot_beats_run_real_cocotb
+   test_hdl_cocotb.test_keyed_predicate_filter_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_keyed_map_alu_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_field_sum_aggregation_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_wide_row_predicate_filter_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_wide_row_map_alu_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_wide_field_sum_aggregation_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_grouped_field_aggregation_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_grouped_field_sum_aggregation_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_key_membership_filter_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_key_membership_filter_single_word_bitmap_runs_real_cocotb
+   test_hdl_cocotb.test_broadcast_hash_join_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_broadcast_hash_join_small_key_space_runs_real_cocotb
+   test_hdl_cocotb.test_axi_bar_noc_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_axi_sort_noc_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_grouped_aggregation_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_map_alu_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_predicate_filter_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_record_batch_aggregation_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb._run_cocotb_verilator
+   test_hdl_cocotb.test_scratchpad_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_scratchpad_capacity_sixteen
+   test_hdl_cocotb.test_keyed_state_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_keyed_state_capacity_eight
+   test_hdl_cocotb.test_hash_grouped_aggregation_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_hash_grouped_aggregation_capacity_eight
+   test_hdl_cocotb.test_hash_grouped_aggregation_capacity_one
+   test_hdl_cocotb.test_session_gap_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_session_gap_capacity_eight
+   test_hdl_cocotb.test_row_predicate_filter_runs_at_every_field_type
+
+
+Module Contents
+---------------
+
+.. py:data:: _COCOTB_BENCH_PREFIX
+   :value: 'dau_core.tests.cocotb_benches'
+
+
+.. py:data:: _SV_TB_DIR
+
+.. py:function:: _bar_noc_sim_sv(tmp_path: pathlib.Path) -> pathlib.Path
+
+   Generate the broadcast-NoC sim harness (four key-filtered bar lanes)
+   from the same composition data the shell top is walked from.
+
+
+.. py:function:: _sort_noc_sim_sv(tmp_path: pathlib.Path) -> pathlib.Path
+
+   Generate the sorted-scan sim harness (shared range partitioner into
+   four sorter lanes) with the splitters surfaced as a testbench-driven
+   config input.
+
+
+.. py:function:: test_int32_stream_aggregation_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_record_gearbox_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path, in_width: int, record_words: int) -> None
+
+.. py:function:: test_wide_ingest_chain_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_arrow_lite_stream_aggregation_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_bar_aggregation_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_asof_backward_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_time_bucket_key_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_record_gather_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch, in_words: int, out_words: int) -> None
+
+.. py:function:: test_hero_datapath_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_bucket_agg_chain_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_market_feature_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_asof_feature_chain_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_rolling_moments_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_rolling_extremum_matches_golden(tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch, value_width: int, find_max: int) -> None
+
+   Every build of the tile against the same golden.
+
+   The point of the parameter sweep is the tile's claim: extremum does not
+   depend on the width it is computed in, so ONE implementation serves every
+   signed integer type. If that were wrong, a width would disagree with the
+   golden here rather than on silicon.
+
+
+.. py:function:: test_rolling_extremum_window_eight(tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch) -> None
+
+   A second window depth: the Hillis-Steele network gains a stage, and the
+   per-symbol reset has to keep working across it.
+
+
+.. py:function:: test_rolling_moments_window_two(tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch) -> None
+
+.. py:function:: test_streaming_dedup_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_streaming_top_k_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_streaming_top_k_k_one(tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch) -> None
+
+.. py:function:: test_axi_bar_job_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_pair_key_filter_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_range_partitioner_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_burst_reader_streams_exactly_at_every_width_tier(tmp_path: pathlib.Path, data_width: int) -> None
+
+   The width-tier contract: the reader reproduces the memory window
+   bit-exactly at every catalog DATA_WIDTH (64/128/256/512).
+
+
+.. py:function:: test_bitonic_sorter_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_bitonic_sorter_small_capacity(tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch, capacity: int) -> None
+
+.. py:function:: test_range_partitioner_non_power_of_two_partitions(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_row_predicate_filter_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_normal_cdf_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+   The rendered CDF tile against its model, which is correctly rounded
+   over every representable input.
+
+
+.. py:function:: test_fixed_point_exp_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path, core_name: str, monkeypatch) -> None
+
+   Each registered operating point against the model it renders from.
+
+   Driven off the registry rather than a hardcoded pair, so a third point
+   is covered by adding an entry -- and so the bench can never test a
+   datapath the registry does not actually build.
+
+
+.. py:function:: test_fixed_point_ln_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+   The rendered ln tile against the model it renders from, with zero
+   tolerance -- the model's own 1 ULP deviation from the mathematics is a
+   separate, measured question.
+
+
+.. py:function:: test_fixed_point_divide_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_datetime_format_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+   The tile shipped with no bench at all: its only test read constants out
+   of the SystemVerilog and exercised the Python golden, so the module was
+   never instantiated and its measured resource number described an
+   unverified design.
+
+
+.. py:function:: test_fixed_point_sqrt_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_row_map_alu_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_row_unpack_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_key_mask_dispatcher_routes_n_word_records(tmp_path: pathlib.Path, num_partitions: int, record_input: int) -> None
+
+.. py:function:: test_key_mask_dispatcher_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_key_mask_dispatcher_wide_front_runs_real_cocotb(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_key_mask_dispatcher_multi_row_runs_real_cocotb(tmp_path: pathlib.Path, in_width: int, num_partitions: int) -> None
+
+.. py:function:: test_stride_distributor_runs_real_cocotb(tmp_path: pathlib.Path, in_width: int, num_partitions: int) -> None
+
+.. py:function:: test_key_mask_dispatcher_hash_runs_real_cocotb(tmp_path: pathlib.Path, in_width: int, num_partitions: int) -> None
+
+.. py:function:: test_key_mask_dispatcher_exact_branch_wide_runs_real_cocotb(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_key_mask_dispatcher_exact_branch_narrow_runs_real_cocotb(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_row_unpack_wide_quad_stream_runs_real_cocotb(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_row_unpack_multi_slot_beats_run_real_cocotb(tmp_path: pathlib.Path, monkeypatch, slots: int) -> None
+
+.. py:function:: test_keyed_predicate_filter_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_keyed_map_alu_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_field_sum_aggregation_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_wide_row_predicate_filter_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path, slots: int, pipeline_depth: int) -> None
+
+.. py:function:: test_wide_row_map_alu_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path, slots: int, pipeline_depth: int) -> None
+
+.. py:function:: test_wide_field_sum_aggregation_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path, slots: int) -> None
+
+.. py:function:: test_grouped_field_aggregation_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_grouped_field_sum_aggregation_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_key_membership_filter_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_key_membership_filter_single_word_bitmap_runs_real_cocotb(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_broadcast_hash_join_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_broadcast_hash_join_small_key_space_runs_real_cocotb(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_axi_bar_noc_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_axi_sort_noc_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_grouped_aggregation_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_map_alu_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_predicate_filter_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_record_batch_aggregation_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:data:: VERILATOR_BUILD_ARGS
+
+.. py:function:: _run_cocotb_verilator(*, sources: tuple[pathlib.Path, ...], hdl_toplevel: str, test_module: str, tmp_path: pathlib.Path, parameters=None) -> None
+
+.. py:function:: test_scratchpad_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_scratchpad_capacity_sixteen(tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch) -> None
+
+.. py:function:: test_keyed_state_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_keyed_state_capacity_eight(tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch) -> None
+
+.. py:function:: test_hash_grouped_aggregation_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_hash_grouped_aggregation_capacity_eight(tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch) -> None
+
+.. py:function:: test_hash_grouped_aggregation_capacity_one(tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch) -> None
+
+.. py:function:: test_session_gap_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_session_gap_capacity_eight(tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch) -> None
+
+.. py:function:: test_row_predicate_filter_runs_at_every_field_type(field_type: str, tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch) -> None
+
+   The 128-bit row is the transport unit and the field TYPE says how many
+   fields it carries, so int16 packs eight values per row where int32 packs
+   four. int32 is included so this bench is known to agree with the directed
+   one, not merely to run; q16.16 is the case the old width parameter could
+   not state at all -- 32 bits like int32, a different type, and ordered
+   correctly by the same comparator.
+
+

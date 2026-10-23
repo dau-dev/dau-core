@@ -1,0 +1,280 @@
+cocotb_benches.dau_row_unpack_tb
+================================
+
+.. py:module:: cocotb_benches.dau_row_unpack_tb
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_row_unpack_tb._MASK32
+   cocotb_benches.dau_row_unpack_tb._INT32_MIN
+   cocotb_benches.dau_row_unpack_tb._INT32_MAX
+   cocotb_benches.dau_row_unpack_tb._BYTE_SPECS
+   cocotb_benches.dau_row_unpack_tb._Q6_SPECS
+   cocotb_benches.dau_row_unpack_tb._Q1_SPECS
+   cocotb_benches.dau_row_unpack_tb._Q6_ROWS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_row_unpack_tb.byte_lane_unpack_matches_golden
+   cocotb_benches.dau_row_unpack_tb.sustained_ingest_meets_registry_floor
+   cocotb_benches.dau_row_unpack_tb.sign_versus_zero_extend
+   cocotb_benches.dau_row_unpack_tb.fields_crossing_bit_boundaries
+   cocotb_benches.dau_row_unpack_tb.boundary_widths_one_and_thirtytwo
+   cocotb_benches.dau_row_unpack_tb.width32_unsigned_reads_back_signed
+   cocotb_benches.dau_row_unpack_tb.q6_like_packing
+   cocotb_benches.dau_row_unpack_tb.q1_like_packing
+   cocotb_benches.dau_row_unpack_tb.single_row_batch
+   cocotb_benches.dau_row_unpack_tb.output_backpressure_holds_stable
+   cocotb_benches.dau_row_unpack_tb.repeated_batches_back_to_back
+   cocotb_benches.dau_row_unpack_tb.bad_config_zero_width_drains_then_config_error
+   cocotb_benches.dau_row_unpack_tb.bad_config_width_over_32_reports_config_error
+   cocotb_benches.dau_row_unpack_tb.bad_config_offset_plus_width_over_64_reports_config_error
+   cocotb_benches.dau_row_unpack_tb.error_status_survives_backpressure
+   cocotb_benches.dau_row_unpack_tb.error_close_out_waits_for_backpressured_tail
+   cocotb_benches.dau_row_unpack_tb.idle_after_reset_is_quiescent
+   cocotb_benches.dau_row_unpack_tb.constrained_random_batches_match_golden
+   cocotb_benches.dau_row_unpack_tb.bypass_passes_quad_rows_through_byte_identical
+   cocotb_benches.dau_row_unpack_tb.bypass_is_zero_added_latency
+   cocotb_benches.dau_row_unpack_tb.bypass_mode_is_batch_latched
+   cocotb_benches.dau_row_unpack_tb.bypass_backpressure_holds_stable
+   cocotb_benches.dau_row_unpack_tb.mode_switches_between_batches_on_one_dut
+   cocotb_benches.dau_row_unpack_tb.bypass_waits_for_backpressured_unpack_tail
+   cocotb_benches.dau_row_unpack_tb.bypass_torn_row_reports_stream_error
+   cocotb_benches.dau_row_unpack_tb.bypass_torn_row_reports_error_under_backpressure
+   cocotb_benches.dau_row_unpack_tb._signed32
+   cocotb_benches.dau_row_unpack_tb._int_in_width
+   cocotb_benches.dau_row_unpack_tb._pack
+   cocotb_benches.dau_row_unpack_tb._expand
+   cocotb_benches.dau_row_unpack_tb._quad_words
+   cocotb_benches.dau_row_unpack_tb._bypass_words
+   cocotb_benches.dau_row_unpack_tb._run_bypass
+   cocotb_benches.dau_row_unpack_tb._drive_config
+   cocotb_benches.dau_row_unpack_tb._drive_raw_config
+   cocotb_benches.dau_row_unpack_tb._random_specs
+   cocotb_benches.dau_row_unpack_tb._random_field
+   cocotb_benches.dau_row_unpack_tb._start
+   cocotb_benches.dau_row_unpack_tb._run
+   cocotb_benches.dau_row_unpack_tb._send_words
+   cocotb_benches.dau_row_unpack_tb._send_bypass_flip
+   cocotb_benches.dau_row_unpack_tb._send_unpack_then_bypass
+   cocotb_benches.dau_row_unpack_tb._send_a_then_bad_b
+   cocotb_benches.dau_row_unpack_tb._collect_output
+   cocotb_benches.dau_row_unpack_tb._assert_quiescent
+   cocotb_benches.dau_row_unpack_tb._expect_status
+
+
+Module Contents
+---------------
+
+.. py:data:: _MASK32
+   :value: 4294967295
+
+
+.. py:data:: _INT32_MIN
+   :value: -2147483648
+
+
+.. py:data:: _INT32_MAX
+   :value: 2147483647
+
+
+.. py:data:: _BYTE_SPECS
+
+.. py:data:: _Q6_SPECS
+
+.. py:data:: _Q1_SPECS
+
+.. py:data:: _Q6_ROWS
+
+.. py:function:: byte_lane_unpack_matches_golden(dut)
+   :async:
+
+
+.. py:function:: sustained_ingest_meets_registry_floor(dut)
+   :async:
+
+
+.. py:function:: sign_versus_zero_extend(dut)
+   :async:
+
+
+.. py:function:: fields_crossing_bit_boundaries(dut)
+   :async:
+
+
+.. py:function:: boundary_widths_one_and_thirtytwo(dut)
+   :async:
+
+
+.. py:function:: width32_unsigned_reads_back_signed(dut)
+   :async:
+
+
+.. py:function:: q6_like_packing(dut)
+   :async:
+
+
+.. py:function:: q1_like_packing(dut)
+   :async:
+
+
+.. py:function:: single_row_batch(dut)
+   :async:
+
+
+.. py:function:: output_backpressure_holds_stable(dut)
+   :async:
+
+
+.. py:function:: repeated_batches_back_to_back(dut)
+   :async:
+
+
+.. py:function:: bad_config_zero_width_drains_then_config_error(dut)
+   :async:
+
+
+.. py:function:: bad_config_width_over_32_reports_config_error(dut)
+   :async:
+
+
+.. py:function:: bad_config_offset_plus_width_over_64_reports_config_error(dut)
+   :async:
+
+
+.. py:function:: error_status_survives_backpressure(dut)
+   :async:
+
+
+.. py:function:: error_close_out_waits_for_backpressured_tail(dut)
+   :async:
+
+
+.. py:function:: idle_after_reset_is_quiescent(dut)
+   :async:
+
+
+.. py:function:: constrained_random_batches_match_golden(dut)
+   :async:
+
+
+.. py:function:: bypass_passes_quad_rows_through_byte_identical(dut)
+   :async:
+
+
+.. py:function:: bypass_is_zero_added_latency(dut)
+   :async:
+
+
+.. py:function:: bypass_mode_is_batch_latched(dut)
+   :async:
+
+
+.. py:function:: bypass_backpressure_holds_stable(dut)
+   :async:
+
+
+.. py:function:: mode_switches_between_batches_on_one_dut(dut)
+   :async:
+
+
+.. py:function:: bypass_waits_for_backpressured_unpack_tail(dut)
+   :async:
+
+
+.. py:function:: bypass_torn_row_reports_stream_error(dut)
+   :async:
+
+
+.. py:function:: bypass_torn_row_reports_error_under_backpressure(dut)
+   :async:
+
+
+.. py:function:: _signed32(value: int) -> int
+
+.. py:function:: _int_in_width(width: int) -> int
+
+.. py:function:: _pack(specs, fields) -> int
+
+.. py:function:: _expand(word: int, specs) -> list[int]
+
+   The two output words the tile emits for one packed word.
+
+
+.. py:function:: _quad_words(row) -> list[int]
+
+   A 16-byte quad row as its two 64-bit stream words (w0 = {value, key},
+   w1 = {aux1, aux0}) — the bypass-mode input framing (two words per row).
+
+
+.. py:function:: _bypass_words(rows) -> list[int]
+
+   The bypass-mode input stream for a batch of quad rows: two words each.
+
+
+.. py:function:: _run_bypass(dut, words, *, ready_pattern=(1, )) -> list[int]
+   :async:
+
+
+   Drive a bypass batch (cfg_bypass must already be 1) and collect the
+   forwarded stream. Bypass is 1:1 word-for-word (no widening), so the output
+   is exactly ``len(words)`` words; _send_words/_collect_output already assert
+   hold-stability, last placement, and silent-success quiescence.
+
+
+.. py:function:: _drive_config(dut, specs) -> None
+
+.. py:function:: _drive_raw_config(dut, descriptors) -> None
+
+.. py:function:: _random_specs(rng)
+
+.. py:function:: _random_field(rng, spec: dau_core.operators.UnpackFieldSpec) -> int
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _run(dut, words, specs, *, ready_pattern=(1, ))
+   :async:
+
+
+.. py:function:: _send_words(dut, words) -> None
+   :async:
+
+
+.. py:function:: _send_bypass_flip(dut, words) -> None
+   :async:
+
+
+.. py:function:: _send_unpack_then_bypass(dut, a_word, b_words) -> None
+   :async:
+
+
+.. py:function:: _send_a_then_bad_b(dut, a_word) -> None
+   :async:
+
+
+.. py:function:: _collect_output(dut, ready_pattern, *, expect_words: int) -> list[int]
+   :async:
+
+
+.. py:function:: _assert_quiescent(dut) -> None
+   :async:
+
+
+   Nothing may appear on the output or status streams even with ready held
+   high (silent-success contract).
+
+
+.. py:function:: _expect_status(dut, *, error: bool, code: int = 0) -> None
+   :async:
+
+

@@ -1,0 +1,2775 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>dau_core.registers &#8212; dau core v0.1.0</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fuma.css?v=f6f6878e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fuma-code.css?v=a950e949" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fonts/fuma-fonts.css?v=c2892c73" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/custom.css?v=88c24c6a" />
+    <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-searchlite-index="searchlite-index.json" defer="defer" src="../../../_static/searchlite.js?v=a5320898"></script>
+    <script defer="defer" src="../../../_static/fuma.js?v=b46bb53d"></script>
+    <script src="../../../_static/js/custom.js?v=956e5d78"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="dau_core.registry" href="../registry/index.html" />
+    <link rel="prev" title="dau_core.operators" href="../operators/index.html" />
+    <script>
+      (function () {
+        var root = document.documentElement;
+        try {
+          var stored = localStorage.getItem("fuma-theme");
+          if (stored) {
+            root.classList.add(stored === "dark" ? "dark" : "light");
+            root.style.colorScheme = stored === "dark" ? "dark" : "light";
+          }
+          if (localStorage.getItem("fuma-sidebar") === "collapsed") root.dataset.sidebarCollapsed = "true";
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+<body class="fd-body" data-layout="docs" data-toc-style="normal" data-open-level="1">
+<div id="fd-layout"><header id="fd-subnav">
+  <div class="fd-subnav-inner">
+    <button type="button" class="fd-icon-button fd-sidebar-toggle" aria-controls="fd-sidebar" aria-expanded="false" aria-label="Toggle navigation">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
+    </button><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau core v0.1.0</span>
+</a>
+
+    <div class="fd-nav-actions">
+      <button type="button" class="fd-icon-button" data-fd-search-open aria-label="Search"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+      <a class="fd-icon-button" href="https://github.com/dau-dev/dau-core" target="_blank" rel="noopener" aria-label="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <button type="button" class="fd-icon-button fd-theme-toggle" aria-label="Toggle theme">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-light"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-dark"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<aside id="fd-sidebar" aria-label="Documentation">
+  <div class="fd-sidebar-header">
+    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau core v0.1.0</span>
+</a>
+      <button type="button" class="fd-icon-button fd-sidebar-collapse" aria-label="Collapse sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+    </div>
+    <button type="button" class="fd-search-trigger" data-fd-search-open>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><span>Search</span><kbd class="fd-kbd">/</kbd>
+    </button>
+  </div>
+
+  <nav class="fd-sidebar-nav">
+    <div class="fd-sidebar-group">
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/tutorial/read-a-tile-contract.html">
+      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-tile.html">
+      <span class="fd-link-text">How to add an operator tile</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/how-to/test-a-core.html">
+      <span class="fd-link-text">How to test a core</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/how-to/measure-a-resource-envelope.html">
+      <span class="fd-link-text">How to measure a resource envelope</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/how-to/develop.html">
+      <span class="fd-link-text">Develop and contribute</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/reference/core-definition.html">
+      <span class="fd-link-text">CoreDefinition fields</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/reference/registry-guards.html">
+      <span class="fd-link-text">Registry-wide guards</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/explanation/why-cores-are-declared-in-config.html">
+      <span class="fd-link-text">Why cores are declared in config</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
+      <span class="fd-link-text">Why each tile has a golden model</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/explanation/why-resources-are-measured.html">
+      <span class="fd-link-text">Why resource costs are measured</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder" open>
+      <summary class="fd-folder-summary">
+        <a class="fd-link" href="../../index.html">
+          <span class="fd-link-text">API Reference</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <details class="fd-folder" open>
+      <summary class="fd-folder-summary">
+        <a class="fd-link" href="../index.html">
+          <span class="fd-link-text">dau_core</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../_lazy/index.html">
+      <span class="fd-link-text">dau_core._lazy</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../capabilities/index.html">
+      <span class="fd-link-text">dau_core.capabilities</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../capability_contract/index.html">
+      <span class="fd-link-text">dau_core.capability_contract</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../composition/index.html">
+      <span class="fd-link-text">dau_core.composition</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../config/index.html">
+      <span class="fd-link-text">dau_core.config</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cores/index.html">
+      <span class="fd-link-text">dau_core.cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../design/index.html">
+      <span class="fd-link-text">dau_core.design</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../element_types/index.html">
+      <span class="fd-link-text">dau_core.element_types</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../exp_generator/index.html">
+      <span class="fd-link-text">dau_core.exp_generator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../fixed_point/index.html">
+      <span class="fd-link-text">dau_core.fixed_point</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../generators/index.html">
+      <span class="fd-link-text">dau_core.generators</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../hdl/index.html">
+      <span class="fd-link-text">dau_core.hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../hero/index.html">
+      <span class="fd-link-text">dau_core.hero</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../ln_generator/index.html">
+      <span class="fd-link-text">dau_core.ln_generator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../models/index.html">
+      <span class="fd-link-text">dau_core.models</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../normal_cdf_generator/index.html">
+      <span class="fd-link-text">dau_core.normal_cdf_generator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../operators/index.html">
+      <span class="fd-link-text">dau_core.operators</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link fd-current" href="#">
+      <span class="fd-link-text">dau_core.registers</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../registry/index.html">
+      <span class="fd-link-text">dau_core.registry</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../stream/index.html">
+      <span class="fd-link-text">dau_core.stream</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../temporal/index.html">
+      <span class="fd-link-text">dau_core.temporal</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../workflows/index.html">
+      <span class="fd-link-text">dau_core.workflows</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../conftest/index.html">
+      <span class="fd-link-text">conftest</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_docs/index.html">
+      <span class="fd-link-text">test_docs</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hero/index.html">
+      <span class="fd-link-text">test_hero</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_cores/index.html">
+      <span class="fd-link-text">test_cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_design/index.html">
+      <span class="fd-link-text">test_design</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_stream/index.html">
+      <span class="fd-link-text">test_stream</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_readme/index.html">
+      <span class="fd-link-text">test_readme</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_temporal/index.html">
+      <span class="fd-link-text">test_temporal</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_operators/index.html">
+      <span class="fd-link-text">test_operators</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder">
+      <summary class="fd-folder-summary">
+        <a class="fd-link" href="../../cocotb_benches/index.html">
+          <span class="fd-link-text">cocotb_benches</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_arrow_lite_stream_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_arrow_lite_stream_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_asof_backward_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_asof_backward_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_asof_feature_chain_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_asof_feature_chain_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_axi_bar_job_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_bar_job_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_axi_bar_noc_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_bar_noc_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_axi_burst_reader_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_burst_reader_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_axi_random_probe_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_random_probe_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_axi_sort_noc_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_sort_noc_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_bar_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_bar_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_bitonic_sorter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_bitonic_sorter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_broadcast_hash_join_small_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_broadcast_hash_join_small_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_broadcast_hash_join_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_broadcast_hash_join_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_bucket_agg_chain_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_bucket_agg_chain_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_datetime_format_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_datetime_format_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_field_sum_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_field_sum_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_fixed_point_divide_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_divide_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_fixed_point_exp_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_exp_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_fixed_point_ln_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_ln_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_fixed_point_sqrt_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_sqrt_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_grouped_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_grouped_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_grouped_field_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_grouped_field_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_grouped_field_sum_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_grouped_field_sum_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_hash_grouped_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_hash_grouped_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_hero_datapath_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_hero_datapath_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_int32_keyed_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_keyed_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_int32_keyed_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_keyed_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_int32_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_int32_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_int32_record_gather_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_record_gather_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_mask_dispatcher_exact_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_exact_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_mask_dispatcher_hash_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_hash_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_mask_dispatcher_multi_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_multi_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_mask_dispatcher_records_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_records_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_mask_dispatcher_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_mask_dispatcher_wide_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_wide_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_membership_filter_single_word_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_membership_filter_single_word_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_membership_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_membership_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_keyed_state_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_keyed_state_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_market_feature_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_market_feature_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_normal_cdf_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_normal_cdf_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_pair_key_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_pair_key_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_range_partitioner_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_range_partitioner_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_record_batch_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_record_batch_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_record_gearbox_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_record_gearbox_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_rolling_extremum_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_rolling_extremum_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_rolling_moments_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_rolling_moments_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_row_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_row_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_row_predicate_filter_width_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_predicate_filter_width_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_row_unpack_slots_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_unpack_slots_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_row_unpack_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_unpack_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_row_unpack_wide_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_unpack_wide_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_scratchpad_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_scratchpad_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_session_gap_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_session_gap_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_stream_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_stream_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_streaming_dedup_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_streaming_dedup_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_streaming_top_k_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_streaming_top_k_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_stride_distributor_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_stride_distributor_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_time_bucket_key_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_time_bucket_key_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_wide_field_sum_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_field_sum_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_wide_ingest_chain_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_ingest_chain_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_wide_row_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_row_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_wide_row_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_row_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/rate_probe/index.html">
+      <span class="fd-link-text">cocotb_benches.rate_probe</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hdl_cocotb/index.html">
+      <span class="fd-link-text">test_hdl_cocotb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_composition/index.html">
+      <span class="fd-link-text">test_composition</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hdl_sources/index.html">
+      <span class="fd-link-text">test_hdl_sources</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../exhaustive_sweep/index.html">
+      <span class="fd-link-text">exhaustive_sweep</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hash_grouped/index.html">
+      <span class="fd-link-text">test_hash_grouped</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_record_batch/index.html">
+      <span class="fd-link-text">test_record_batch</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_lazy_exports/index.html">
+      <span class="fd-link-text">test_lazy_exports</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_element_types/index.html">
+      <span class="fd-link-text">test_element_types</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_core_contract/index.html">
+      <span class="fd-link-text">test_core_contract</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hdl_verilator/index.html">
+      <span class="fd-link-text">test_hdl_verilator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_fixed_point_ln/index.html">
+      <span class="fd-link-text">test_fixed_point_ln</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_ohlcv_fixtures/index.html">
+      <span class="fd-link-text">test_ohlcv_fixtures</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hdl_elaboration/index.html">
+      <span class="fd-link-text">test_hdl_elaboration</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_datetime_format/index.html">
+      <span class="fd-link-text">test_datetime_format</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_fixed_point_exp/index.html">
+      <span class="fd-link-text">test_fixed_point_exp</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_generated_cores/index.html">
+      <span class="fd-link-text">test_generated_cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_benches_can_fail/index.html">
+      <span class="fd-link-text">test_benches_can_fail</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_contributed_cores/index.html">
+      <span class="fd-link-text">test_contributed_cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_validation_at_use/index.html">
+      <span class="fd-link-text">test_validation_at_use</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_aggregation_goldens/index.html">
+      <span class="fd-link-text">test_aggregation_goldens</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_capability_contract/index.html">
+      <span class="fd-link-text">test_capability_contract</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_public_tile_surface/index.html">
+      <span class="fd-link-text">test_public_tile_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_aggregation_tile_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_contributed_discovery/index.html">
+      <span class="fd-link-text">test_contributed_discovery</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_fixed_point_normal_cdf/index.html">
+      <span class="fd-link-text">test_fixed_point_normal_cdf</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_output_beat_declarations/index.html">
+      <span class="fd-link-text">test_output_beat_declarations</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_registers_and_capabilities/index.html">
+      <span class="fd-link-text">test_registers_and_capabilities</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_measured_from_matches_the_hdl/index.html">
+      <span class="fd-link-text">test_measured_from_matches_the_hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_parameter_bounds_match_the_hdl/index.html">
+      <span class="fd-link-text">test_parameter_bounds_match_the_hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hdl_parameter_bindings_resolve/index.html">
+      <span class="fd-link-text">test_hdl_parameter_bindings_resolve</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+</ul>
+    </div>
+  </nav>
+
+  <div class="fd-sidebar-footer">
+    <div class="fd-toolbar">
+      <a class="fd-toolbar-item" href="https://github.com/dau-dev/dau-core" target="_blank" rel="noopener" aria-label="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <div class="fd-theme-switch" role="group" aria-label="Theme">
+        <button type="button" class="fd-theme-option" data-fd-theme="light" aria-label="Light theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></button>
+        <button type="button" class="fd-theme-option" data-fd-theme="dark" aria-label="Dark theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg></button>
+      </div>
+    </div>
+  </div>
+</aside>
+<button type="button" id="fd-sidebar-restore" class="fd-icon-button" aria-label="Expand sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+<div class="fd-sidebar-scrim" hidden></div>
+  <div id="fd-toc-popover">
+    <button type="button" class="fd-toc-trigger" aria-expanded="false" aria-controls="fd-toc-mobile">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg><span>On this page</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <div id="fd-toc-mobile" hidden><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#attributes">Attributes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#exceptions">Exceptions</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#classes">Classes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#functions">Functions</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#module-contents">Module Contents</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.DAU_MAGIC_WORD">DAU_MAGIC_WORD</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.RegisterMapVersion">RegisterMapVersion</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterMapVersion.major">RegisterMapVersion.major</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterMapVersion.minor">RegisterMapVersion.minor</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterMapVersion.__post_init__">RegisterMapVersion.__post_init__()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterMapVersion.to_u32">RegisterMapVersion.to_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterMapVersion.from_u32">RegisterMapVersion.from_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.StreamProtocolVersion">StreamProtocolVersion</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamProtocolVersion.major">StreamProtocolVersion.major</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamProtocolVersion.minor">StreamProtocolVersion.minor</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamProtocolVersion.__post_init__">StreamProtocolVersion.__post_init__()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamProtocolVersion.to_u32">StreamProtocolVersion.to_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamProtocolVersion.from_u32">StreamProtocolVersion.from_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.RegisterOffset">RegisterOffset</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.MAGIC">RegisterOffset.MAGIC</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.REGISTER_MAP_VERSION">RegisterOffset.REGISTER_MAP_VERSION</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.STREAM_PROTOCOL_VERSION">RegisterOffset.STREAM_PROTOCOL_VERSION</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.PLATFORM_ID">RegisterOffset.PLATFORM_ID</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.BUILD_ID_LOW">RegisterOffset.BUILD_ID_LOW</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.BUILD_ID_HIGH">RegisterOffset.BUILD_ID_HIGH</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.STATUS">RegisterOffset.STATUS</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.RESET">RegisterOffset.RESET</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.OPERATOR_BITMAP">RegisterOffset.OPERATOR_BITMAP</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.LAST_ERROR">RegisterOffset.LAST_ERROR</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.H2C_BYTES_LOW">RegisterOffset.H2C_BYTES_LOW</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.H2C_BYTES_HIGH">RegisterOffset.H2C_BYTES_HIGH</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.C2H_BYTES_LOW">RegisterOffset.C2H_BYTES_LOW</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.C2H_BYTES_HIGH">RegisterOffset.C2H_BYTES_HIGH</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.ROWS_LOW">RegisterOffset.ROWS_LOW</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.ROWS_HIGH">RegisterOffset.ROWS_HIGH</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.BATCHES">RegisterOffset.BATCHES</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.STALLS">RegisterOffset.STALLS</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.JOB_CONTROL">RegisterOffset.JOB_CONTROL</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.JOB_STATUS">RegisterOffset.JOB_STATUS</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.INPUT_ADDRESS_LOW">RegisterOffset.INPUT_ADDRESS_LOW</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.INPUT_ADDRESS_HIGH">RegisterOffset.INPUT_ADDRESS_HIGH</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.INPUT_LENGTH_LOW">RegisterOffset.INPUT_LENGTH_LOW</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.INPUT_LENGTH_HIGH">RegisterOffset.INPUT_LENGTH_HIGH</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.OUTPUT_ADDRESS_LOW">RegisterOffset.OUTPUT_ADDRESS_LOW</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.OUTPUT_ADDRESS_HIGH">RegisterOffset.OUTPUT_ADDRESS_HIGH</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.OUTPUT_LENGTH_LOW">RegisterOffset.OUTPUT_LENGTH_LOW</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.OUTPUT_LENGTH_HIGH">RegisterOffset.OUTPUT_LENGTH_HIGH</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.OPERATION">RegisterOffset.OPERATION</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.RESULT_LENGTH_LOW">RegisterOffset.RESULT_LENGTH_LOW</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.RESULT_LENGTH_HIGH">RegisterOffset.RESULT_LENGTH_HIGH</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.LOAD_PHASE">RegisterOffset.LOAD_PHASE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.PIPELINE_FILTER_OP">RegisterOffset.PIPELINE_FILTER_OP</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.PIPELINE_FILTER_CONSTANT0">RegisterOffset.PIPELINE_FILTER_CONSTANT0</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.PIPELINE_FILTER_CONSTANT1">RegisterOffset.PIPELINE_FILTER_CONSTANT1</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.PIPELINE_MAP_OP">RegisterOffset.PIPELINE_MAP_OP</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.PIPELINE_MAP_CONSTANT">RegisterOffset.PIPELINE_MAP_CONSTANT</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.PIPELINE_SELECTED_COUNT_LOW">RegisterOffset.PIPELINE_SELECTED_COUNT_LOW</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.PIPELINE_SELECTED_COUNT_HIGH">RegisterOffset.PIPELINE_SELECTED_COUNT_HIGH</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.PIPELINE_GROUP_COUNT_LOW">RegisterOffset.PIPELINE_GROUP_COUNT_LOW</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.PIPELINE_GROUP_COUNT_HIGH">RegisterOffset.PIPELINE_GROUP_COUNT_HIGH</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.LANE_COUNT">RegisterOffset.LANE_COUNT</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.HOST_OPCODE_BITMAP">RegisterOffset.HOST_OPCODE_BITMAP</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.SORT_CAPACITY">RegisterOffset.SORT_CAPACITY</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.INPUT_ROW_CAPACITY">RegisterOffset.INPUT_ROW_CAPACITY</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.OUTPUT_RECORD_CAPACITY">RegisterOffset.OUTPUT_RECORD_CAPACITY</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.HandleTableRegisterOffset">HandleTableRegisterOffset</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.HandleTableRegisterOffset.INDEX">HandleTableRegisterOffset.INDEX</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.HandleTableRegisterOffset.BASE_LOW">HandleTableRegisterOffset.BASE_LOW</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.HandleTableRegisterOffset.BASE_HIGH">HandleTableRegisterOffset.BASE_HIGH</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.HandleTableRegisterOffset.LENGTH">HandleTableRegisterOffset.LENGTH</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.HandleTableRegisterOffset.GENERATION">HandleTableRegisterOffset.GENERATION</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.HandleTableRegisterOffset.CONTROL">HandleTableRegisterOffset.CONTROL</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.HandleTableRegisterOffset.JOB_HANDLE_ID">HandleTableRegisterOffset.JOB_HANDLE_ID</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.HandleTableRegisterOffset.JOB_HANDLE_GENERATION">HandleTableRegisterOffset.JOB_HANDLE_GENERATION</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.HandleTableControlFlag">HandleTableControlFlag</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.HandleTableControlFlag.INSTALL">HandleTableControlFlag.INSTALL</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.HandleTableControlFlag.FREE">HandleTableControlFlag.FREE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.HandleFaultCode">HandleFaultCode</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.HandleFaultCode.BAD_ID">HandleFaultCode.BAD_ID</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.HandleFaultCode.STALE">HandleFaultCode.STALE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.HandleFaultCode.OUT_OF_BOUNDS">HandleFaultCode.OUT_OF_BOUNDS</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.NOC_LANE_BASE">NOC_LANE_BASE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.NOC_LANE_STRIDE">NOC_LANE_STRIDE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.NocLaneRegisterOffset">NocLaneRegisterOffset</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.NocLaneRegisterOffset.OUTPUT_ADDRESS_LOW">NocLaneRegisterOffset.OUTPUT_ADDRESS_LOW</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.NocLaneRegisterOffset.RESULT_LENGTH_LOW">NocLaneRegisterOffset.RESULT_LENGTH_LOW</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.NocLaneRegisterOffset.RECORD_COUNT_LOW">NocLaneRegisterOffset.RECORD_COUNT_LOW</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.NocLaneRegisterOffset.RECORD_COUNT_HIGH">NocLaneRegisterOffset.RECORD_COUNT_HIGH</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.NocLaneRegisterOffset.LANE_ERROR">NocLaneRegisterOffset.LANE_ERROR</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.NocLaneRegisterOffset.OUTPUT_ADDRESS_HIGH">NocLaneRegisterOffset.OUTPUT_ADDRESS_HIGH</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.noc_lane_register">noc_lane_register()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.ResetScope">ResetScope</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.ResetScope.OPERATOR">ResetScope.OPERATOR</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.ResetScope.STREAM">ResetScope.STREAM</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.ResetScope.DMA">ResetScope.DMA</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.ResetScope.SHELL">ResetScope.SHELL</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.JobControlFlag">JobControlFlag</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.JobControlFlag.START">JobControlFlag.START</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.JobControlFlag.ABORT">JobControlFlag.ABORT</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.JobStatusFlag">JobStatusFlag</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.JobStatusFlag.IDLE">JobStatusFlag.IDLE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.JobStatusFlag.BUSY">JobStatusFlag.BUSY</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.JobStatusFlag.DONE">JobStatusFlag.DONE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.JobStatusFlag.ERROR">JobStatusFlag.ERROR</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.RegisterWriteError">RegisterWriteError</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers._RESET_SCOPE_MASK">_RESET_SCOPE_MASK</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers._JOB_CONTROL_MASK">_JOB_CONTROL_MASK</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.StreamJobRegisterContract">StreamJobRegisterContract</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamJobRegisterContract.register_window_offset">StreamJobRegisterContract.register_window_offset</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamJobRegisterContract.input_buffer_address">StreamJobRegisterContract.input_buffer_address</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamJobRegisterContract.input_buffer_bytes">StreamJobRegisterContract.input_buffer_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamJobRegisterContract.output_buffer_address">StreamJobRegisterContract.output_buffer_address</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamJobRegisterContract.output_buffer_bytes">StreamJobRegisterContract.output_buffer_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamJobRegisterContract.result_bytes">StreamJobRegisterContract.result_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamJobRegisterContract.start_offset">StreamJobRegisterContract.start_offset</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamJobRegisterContract.status_offset">StreamJobRegisterContract.status_offset</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamJobRegisterContract.error_offset">StreamJobRegisterContract.error_offset</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamJobRegisterContract.result_length_low_offset">StreamJobRegisterContract.result_length_low_offset</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamJobRegisterContract.__post_init__">StreamJobRegisterContract.__post_init__()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamJobRegisterContract.manifest_items">StreamJobRegisterContract.manifest_items()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.RegisterBlockSnapshot">RegisterBlockSnapshot</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.register_map_version">RegisterBlockSnapshot.register_map_version</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.stream_protocol_version">RegisterBlockSnapshot.stream_protocol_version</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.platform_id">RegisterBlockSnapshot.platform_id</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.build_id">RegisterBlockSnapshot.build_id</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.status">RegisterBlockSnapshot.status</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.operator_bitmap">RegisterBlockSnapshot.operator_bitmap</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.last_error">RegisterBlockSnapshot.last_error</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.h2c_bytes">RegisterBlockSnapshot.h2c_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.c2h_bytes">RegisterBlockSnapshot.c2h_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.rows">RegisterBlockSnapshot.rows</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.batches">RegisterBlockSnapshot.batches</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.stalls">RegisterBlockSnapshot.stalls</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.job_status">RegisterBlockSnapshot.job_status</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.input_address">RegisterBlockSnapshot.input_address</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.input_length">RegisterBlockSnapshot.input_length</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.output_address">RegisterBlockSnapshot.output_address</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.output_length">RegisterBlockSnapshot.output_length</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.operation">RegisterBlockSnapshot.operation</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.result_length">RegisterBlockSnapshot.result_length</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.lane_count">RegisterBlockSnapshot.lane_count</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.host_opcode_bitmap">RegisterBlockSnapshot.host_opcode_bitmap</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.sort_capacity">RegisterBlockSnapshot.sort_capacity</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.input_row_capacity">RegisterBlockSnapshot.input_row_capacity</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.output_record_capacity">RegisterBlockSnapshot.output_record_capacity</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.__post_init__">RegisterBlockSnapshot.__post_init__()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.read_u32">RegisterBlockSnapshot.read_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.write_u32">RegisterBlockSnapshot.write_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.platform_id_to_u32">platform_id_to_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers._low_u32">_low_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers._high_u32">_high_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers._hex32">_hex32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers._hex64">_hex64()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers._flag_bit">_flag_bit()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers._validate_u16">_validate_u16()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers._validate_u32">_validate_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers._validate_u64">_validate_u64()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.DEFAULT_STREAM_JOB_REGISTER_CONTRACT">DEFAULT_STREAM_JOB_REGISTER_CONTRACT</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.CURRENT_REGISTER_MAP_VERSION">CURRENT_REGISTER_MAP_VERSION</a>
+  </li>
+</ul>
+</div>
+  </div>
+
+  <main id="fd-main">
+    <article class="fd-page">
+<nav class="fd-breadcrumbs" aria-label="Breadcrumbs">
+  <ol>
+    <li>
+      <a href="../../index.html">API Reference</a>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+    </li>
+    <li>
+      <a href="../index.html">dau_core</a>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+    </li>
+    <li aria-current="page">dau_core.registers</li>
+  </ol>
+</nav>
+      <div class="fd-prose">
+  <section id="module-dau_core.registers">
+<span id="dau-core-registers"></span><h1>dau_core.registers<a class="headerlink" href="#module-dau_core.registers" title="Link to this heading">¶</a></h1>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registers.DAU_MAGIC_WORD" title="dau_core.registers.DAU_MAGIC_WORD"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_MAGIC_WORD</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registers.NOC_LANE_BASE" title="dau_core.registers.NOC_LANE_BASE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NOC_LANE_BASE</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registers.NOC_LANE_STRIDE" title="dau_core.registers.NOC_LANE_STRIDE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NOC_LANE_STRIDE</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registers._RESET_SCOPE_MASK" title="dau_core.registers._RESET_SCOPE_MASK"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_RESET_SCOPE_MASK</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registers._JOB_CONTROL_MASK" title="dau_core.registers._JOB_CONTROL_MASK"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_JOB_CONTROL_MASK</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registers.DEFAULT_STREAM_JOB_REGISTER_CONTRACT" title="dau_core.registers.DEFAULT_STREAM_JOB_REGISTER_CONTRACT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEFAULT_STREAM_JOB_REGISTER_CONTRACT</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registers.CURRENT_REGISTER_MAP_VERSION" title="dau_core.registers.CURRENT_REGISTER_MAP_VERSION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CURRENT_REGISTER_MAP_VERSION</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="exceptions">
+<h2>Exceptions<a class="headerlink" href="#exceptions" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registers.RegisterWriteError" title="dau_core.registers.RegisterWriteError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RegisterWriteError</span></code></a></p></td>
+<td><p>Inappropriate argument value (of correct type).</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registers.RegisterMapVersion" title="dau_core.registers.RegisterMapVersion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RegisterMapVersion</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registers.StreamProtocolVersion" title="dau_core.registers.StreamProtocolVersion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StreamProtocolVersion</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registers.RegisterOffset" title="dau_core.registers.RegisterOffset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RegisterOffset</span></code></a></p></td>
+<td><p>Enum where members are also (and must be) ints</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registers.HandleTableRegisterOffset" title="dau_core.registers.HandleTableRegisterOffset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HandleTableRegisterOffset</span></code></a></p></td>
+<td><p>Enum where members are also (and must be) ints</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registers.HandleTableControlFlag" title="dau_core.registers.HandleTableControlFlag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HandleTableControlFlag</span></code></a></p></td>
+<td><p>The WRITE bits of <code class="docutils literal notranslate"><span class="pre">HandleTableRegisterOffset.CONTROL</span></code>: which of the</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registers.HandleFaultCode" title="dau_core.registers.HandleFaultCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HandleFaultCode</span></code></a></p></td>
+<td><p>LAST_ERROR codes a shell reports for a job it REFUSED to start on a</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registers.NocLaneRegisterOffset" title="dau_core.registers.NocLaneRegisterOffset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NocLaneRegisterOffset</span></code></a></p></td>
+<td><p>Enum where members are also (and must be) ints</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registers.ResetScope" title="dau_core.registers.ResetScope"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ResetScope</span></code></a></p></td>
+<td><p>Support for integer-based Flags</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registers.JobControlFlag" title="dau_core.registers.JobControlFlag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">JobControlFlag</span></code></a></p></td>
+<td><p>Support for integer-based Flags</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registers.JobStatusFlag" title="dau_core.registers.JobStatusFlag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">JobStatusFlag</span></code></a></p></td>
+<td><p>Support for integer-based Flags</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registers.StreamJobRegisterContract" title="dau_core.registers.StreamJobRegisterContract"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StreamJobRegisterContract</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registers.RegisterBlockSnapshot" title="dau_core.registers.RegisterBlockSnapshot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RegisterBlockSnapshot</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registers.noc_lane_register" title="dau_core.registers.noc_lane_register"><code class="xref py py-obj docutils literal notranslate"><span class="pre">noc_lane_register</span></code></a>(→ int)</p></td>
+<td><p>BAR window offset of one lane's register.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registers.platform_id_to_u32" title="dau_core.registers.platform_id_to_u32"><code class="xref py py-obj docutils literal notranslate"><span class="pre">platform_id_to_u32</span></code></a>(→ int)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registers._low_u32" title="dau_core.registers._low_u32"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_low_u32</span></code></a>(→ int)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registers._high_u32" title="dau_core.registers._high_u32"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_high_u32</span></code></a>(→ int)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registers._hex32" title="dau_core.registers._hex32"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_hex32</span></code></a>(→ str)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registers._hex64" title="dau_core.registers._hex64"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_hex64</span></code></a>(→ str)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registers._flag_bit" title="dau_core.registers._flag_bit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_flag_bit</span></code></a>(→ int)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registers._validate_u16" title="dau_core.registers._validate_u16"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_validate_u16</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registers._validate_u32" title="dau_core.registers._validate_u32"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_validate_u32</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registers._validate_u64" title="dau_core.registers._validate_u64"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_validate_u64</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_core.registers.DAU_MAGIC_WORD">
+<span class="sig-prename descclassname"><span class="pre">dau_core.registers.</span></span><span class="sig-name descname"><span class="pre">DAU_MAGIC_WORD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1145132337</span></em><a class="headerlink" href="#dau_core.registers.DAU_MAGIC_WORD" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterMapVersion">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.registers.</span></span><span class="sig-name descname"><span class="pre">RegisterMapVersion</span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#RegisterMapVersion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers.RegisterMapVersion" title="Link to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterMapVersion.major">
+<span class="sig-name descname"><span class="pre">major</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.registers.RegisterMapVersion.major" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterMapVersion.minor">
+<span class="sig-name descname"><span class="pre">minor</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.registers.RegisterMapVersion.minor" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterMapVersion.__post_init__">
+<span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#RegisterMapVersion.__post_init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers.RegisterMapVersion.__post_init__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterMapVersion.to_u32">
+<span class="sig-name descname"><span class="pre">to_u32</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#RegisterMapVersion.to_u32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers.RegisterMapVersion.to_u32" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterMapVersion.from_u32">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_u32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_core.registers.RegisterMapVersion" title="dau_core.registers.RegisterMapVersion"><span class="pre">RegisterMapVersion</span></a></span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#RegisterMapVersion.from_u32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers.RegisterMapVersion.from_u32" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.registers.StreamProtocolVersion">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.registers.</span></span><span class="sig-name descname"><span class="pre">StreamProtocolVersion</span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#StreamProtocolVersion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers.StreamProtocolVersion" title="Link to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.StreamProtocolVersion.major">
+<span class="sig-name descname"><span class="pre">major</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.registers.StreamProtocolVersion.major" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.StreamProtocolVersion.minor">
+<span class="sig-name descname"><span class="pre">minor</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.registers.StreamProtocolVersion.minor" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.registers.StreamProtocolVersion.__post_init__">
+<span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#StreamProtocolVersion.__post_init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers.StreamProtocolVersion.__post_init__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.registers.StreamProtocolVersion.to_u32">
+<span class="sig-name descname"><span class="pre">to_u32</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#StreamProtocolVersion.to_u32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers.StreamProtocolVersion.to_u32" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.registers.StreamProtocolVersion.from_u32">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_u32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_core.registers.StreamProtocolVersion" title="dau_core.registers.StreamProtocolVersion"><span class="pre">StreamProtocolVersion</span></a></span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#StreamProtocolVersion.from_u32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers.StreamProtocolVersion.from_u32" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.registers.</span></span><span class="sig-name descname"><span class="pre">RegisterOffset</span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#RegisterOffset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers.RegisterOffset" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.IntEnum</span></code></p>
+<p>Enum where members are also (and must be) ints</p>
+<p>Initialize self.  See help(type(self)) for accurate signature.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.MAGIC">
+<span class="sig-name descname"><span class="pre">MAGIC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.MAGIC" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.REGISTER_MAP_VERSION">
+<span class="sig-name descname"><span class="pre">REGISTER_MAP_VERSION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.REGISTER_MAP_VERSION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.STREAM_PROTOCOL_VERSION">
+<span class="sig-name descname"><span class="pre">STREAM_PROTOCOL_VERSION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.STREAM_PROTOCOL_VERSION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.PLATFORM_ID">
+<span class="sig-name descname"><span class="pre">PLATFORM_ID</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">12</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.PLATFORM_ID" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.BUILD_ID_LOW">
+<span class="sig-name descname"><span class="pre">BUILD_ID_LOW</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">20</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.BUILD_ID_LOW" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.BUILD_ID_HIGH">
+<span class="sig-name descname"><span class="pre">BUILD_ID_HIGH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">24</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.BUILD_ID_HIGH" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.STATUS">
+<span class="sig-name descname"><span class="pre">STATUS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">28</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.STATUS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.RESET">
+<span class="sig-name descname"><span class="pre">RESET</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">32</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.RESET" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.OPERATOR_BITMAP">
+<span class="sig-name descname"><span class="pre">OPERATOR_BITMAP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">40</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.OPERATOR_BITMAP" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.LAST_ERROR">
+<span class="sig-name descname"><span class="pre">LAST_ERROR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">44</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.LAST_ERROR" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.H2C_BYTES_LOW">
+<span class="sig-name descname"><span class="pre">H2C_BYTES_LOW</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">48</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.H2C_BYTES_LOW" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.H2C_BYTES_HIGH">
+<span class="sig-name descname"><span class="pre">H2C_BYTES_HIGH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">52</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.H2C_BYTES_HIGH" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.C2H_BYTES_LOW">
+<span class="sig-name descname"><span class="pre">C2H_BYTES_LOW</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">56</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.C2H_BYTES_LOW" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.C2H_BYTES_HIGH">
+<span class="sig-name descname"><span class="pre">C2H_BYTES_HIGH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">60</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.C2H_BYTES_HIGH" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.ROWS_LOW">
+<span class="sig-name descname"><span class="pre">ROWS_LOW</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">64</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.ROWS_LOW" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.ROWS_HIGH">
+<span class="sig-name descname"><span class="pre">ROWS_HIGH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">68</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.ROWS_HIGH" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.BATCHES">
+<span class="sig-name descname"><span class="pre">BATCHES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">72</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.BATCHES" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.STALLS">
+<span class="sig-name descname"><span class="pre">STALLS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">76</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.STALLS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.JOB_CONTROL">
+<span class="sig-name descname"><span class="pre">JOB_CONTROL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">80</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.JOB_CONTROL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.JOB_STATUS">
+<span class="sig-name descname"><span class="pre">JOB_STATUS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">84</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.JOB_STATUS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.INPUT_ADDRESS_LOW">
+<span class="sig-name descname"><span class="pre">INPUT_ADDRESS_LOW</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">88</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.INPUT_ADDRESS_LOW" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.INPUT_ADDRESS_HIGH">
+<span class="sig-name descname"><span class="pre">INPUT_ADDRESS_HIGH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">92</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.INPUT_ADDRESS_HIGH" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.INPUT_LENGTH_LOW">
+<span class="sig-name descname"><span class="pre">INPUT_LENGTH_LOW</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">96</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.INPUT_LENGTH_LOW" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.INPUT_LENGTH_HIGH">
+<span class="sig-name descname"><span class="pre">INPUT_LENGTH_HIGH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">100</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.INPUT_LENGTH_HIGH" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.OUTPUT_ADDRESS_LOW">
+<span class="sig-name descname"><span class="pre">OUTPUT_ADDRESS_LOW</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">104</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.OUTPUT_ADDRESS_LOW" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.OUTPUT_ADDRESS_HIGH">
+<span class="sig-name descname"><span class="pre">OUTPUT_ADDRESS_HIGH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">108</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.OUTPUT_ADDRESS_HIGH" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.OUTPUT_LENGTH_LOW">
+<span class="sig-name descname"><span class="pre">OUTPUT_LENGTH_LOW</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">112</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.OUTPUT_LENGTH_LOW" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.OUTPUT_LENGTH_HIGH">
+<span class="sig-name descname"><span class="pre">OUTPUT_LENGTH_HIGH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">116</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.OUTPUT_LENGTH_HIGH" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.OPERATION">
+<span class="sig-name descname"><span class="pre">OPERATION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">120</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.OPERATION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.RESULT_LENGTH_LOW">
+<span class="sig-name descname"><span class="pre">RESULT_LENGTH_LOW</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">124</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.RESULT_LENGTH_LOW" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.RESULT_LENGTH_HIGH">
+<span class="sig-name descname"><span class="pre">RESULT_LENGTH_HIGH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">128</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.RESULT_LENGTH_HIGH" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.LOAD_PHASE">
+<span class="sig-name descname"><span class="pre">LOAD_PHASE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">132</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.LOAD_PHASE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.PIPELINE_FILTER_OP">
+<span class="sig-name descname"><span class="pre">PIPELINE_FILTER_OP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">144</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.PIPELINE_FILTER_OP" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.PIPELINE_FILTER_CONSTANT0">
+<span class="sig-name descname"><span class="pre">PIPELINE_FILTER_CONSTANT0</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">148</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.PIPELINE_FILTER_CONSTANT0" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.PIPELINE_FILTER_CONSTANT1">
+<span class="sig-name descname"><span class="pre">PIPELINE_FILTER_CONSTANT1</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">152</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.PIPELINE_FILTER_CONSTANT1" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.PIPELINE_MAP_OP">
+<span class="sig-name descname"><span class="pre">PIPELINE_MAP_OP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">156</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.PIPELINE_MAP_OP" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.PIPELINE_MAP_CONSTANT">
+<span class="sig-name descname"><span class="pre">PIPELINE_MAP_CONSTANT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">160</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.PIPELINE_MAP_CONSTANT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.PIPELINE_SELECTED_COUNT_LOW">
+<span class="sig-name descname"><span class="pre">PIPELINE_SELECTED_COUNT_LOW</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">176</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.PIPELINE_SELECTED_COUNT_LOW" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.PIPELINE_SELECTED_COUNT_HIGH">
+<span class="sig-name descname"><span class="pre">PIPELINE_SELECTED_COUNT_HIGH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">180</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.PIPELINE_SELECTED_COUNT_HIGH" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.PIPELINE_GROUP_COUNT_LOW">
+<span class="sig-name descname"><span class="pre">PIPELINE_GROUP_COUNT_LOW</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">184</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.PIPELINE_GROUP_COUNT_LOW" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.PIPELINE_GROUP_COUNT_HIGH">
+<span class="sig-name descname"><span class="pre">PIPELINE_GROUP_COUNT_HIGH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">188</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.PIPELINE_GROUP_COUNT_HIGH" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.LANE_COUNT">
+<span class="sig-name descname"><span class="pre">LANE_COUNT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">192</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.LANE_COUNT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.HOST_OPCODE_BITMAP">
+<span class="sig-name descname"><span class="pre">HOST_OPCODE_BITMAP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">196</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.HOST_OPCODE_BITMAP" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.SORT_CAPACITY">
+<span class="sig-name descname"><span class="pre">SORT_CAPACITY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">200</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.SORT_CAPACITY" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.INPUT_ROW_CAPACITY">
+<span class="sig-name descname"><span class="pre">INPUT_ROW_CAPACITY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">204</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.INPUT_ROW_CAPACITY" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterOffset.OUTPUT_RECORD_CAPACITY">
+<span class="sig-name descname"><span class="pre">OUTPUT_RECORD_CAPACITY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">208</span></em><a class="headerlink" href="#dau_core.registers.RegisterOffset.OUTPUT_RECORD_CAPACITY" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.registers.HandleTableRegisterOffset">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.registers.</span></span><span class="sig-name descname"><span class="pre">HandleTableRegisterOffset</span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#HandleTableRegisterOffset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers.HandleTableRegisterOffset" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.IntEnum</span></code></p>
+<p>Enum where members are also (and must be) ints</p>
+<p>Initialize self.  See help(type(self)) for accurate signature.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.HandleTableRegisterOffset.INDEX">
+<span class="sig-name descname"><span class="pre">INDEX</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">212</span></em><a class="headerlink" href="#dau_core.registers.HandleTableRegisterOffset.INDEX" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.HandleTableRegisterOffset.BASE_LOW">
+<span class="sig-name descname"><span class="pre">BASE_LOW</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">216</span></em><a class="headerlink" href="#dau_core.registers.HandleTableRegisterOffset.BASE_LOW" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.HandleTableRegisterOffset.BASE_HIGH">
+<span class="sig-name descname"><span class="pre">BASE_HIGH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">220</span></em><a class="headerlink" href="#dau_core.registers.HandleTableRegisterOffset.BASE_HIGH" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.HandleTableRegisterOffset.LENGTH">
+<span class="sig-name descname"><span class="pre">LENGTH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">224</span></em><a class="headerlink" href="#dau_core.registers.HandleTableRegisterOffset.LENGTH" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.HandleTableRegisterOffset.GENERATION">
+<span class="sig-name descname"><span class="pre">GENERATION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">228</span></em><a class="headerlink" href="#dau_core.registers.HandleTableRegisterOffset.GENERATION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.HandleTableRegisterOffset.CONTROL">
+<span class="sig-name descname"><span class="pre">CONTROL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">232</span></em><a class="headerlink" href="#dau_core.registers.HandleTableRegisterOffset.CONTROL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.HandleTableRegisterOffset.JOB_HANDLE_ID">
+<span class="sig-name descname"><span class="pre">JOB_HANDLE_ID</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">236</span></em><a class="headerlink" href="#dau_core.registers.HandleTableRegisterOffset.JOB_HANDLE_ID" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.HandleTableRegisterOffset.JOB_HANDLE_GENERATION">
+<span class="sig-name descname"><span class="pre">JOB_HANDLE_GENERATION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">240</span></em><a class="headerlink" href="#dau_core.registers.HandleTableRegisterOffset.JOB_HANDLE_GENERATION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.registers.HandleTableControlFlag">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.registers.</span></span><span class="sig-name descname"><span class="pre">HandleTableControlFlag</span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#HandleTableControlFlag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers.HandleTableControlFlag" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.IntFlag</span></code></p>
+<p>The WRITE bits of <code class="docutils literal notranslate"><span class="pre">HandleTableRegisterOffset.CONTROL</span></code>: which of the
+staged entry’s two commits the write performs. Both are one-cycle pulses,
+so they always read back zero – CONTROL reads report the resolution state
+instead.</p>
+<p>Here rather than in the host, for the same reason the offsets are: a bit
+position a programmer carries in their head is how a free ends up
+installing. A host stages one commit or the other; the table resolves the
+collision in free’s favour, which is a safety net, not a sequence.</p>
+<p>Initialize self.  See help(type(self)) for accurate signature.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.HandleTableControlFlag.INSTALL">
+<span class="sig-name descname"><span class="pre">INSTALL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#dau_core.registers.HandleTableControlFlag.INSTALL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.HandleTableControlFlag.FREE">
+<span class="sig-name descname"><span class="pre">FREE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#dau_core.registers.HandleTableControlFlag.FREE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.registers.HandleFaultCode">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.registers.</span></span><span class="sig-name descname"><span class="pre">HandleFaultCode</span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#HandleFaultCode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers.HandleFaultCode" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.IntEnum</span></code></p>
+<p>LAST_ERROR codes a shell reports for a job it REFUSED to start on a
+handle. A refused job never starts the reader, so it reads nothing at all
+– these mean the datapath is untouched, not that it produced garbage.</p>
+<p>They sit at the top of the code space, below the shell’s own 0xFE
+length-gate fault, because that space is the shell’s: a tile’s error codes
+are small and per-core (dau_core.operators), and a fault that refuses the
+job outright is not one of them.</p>
+<p>Initialize self.  See help(type(self)) for accurate signature.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.HandleFaultCode.BAD_ID">
+<span class="sig-name descname"><span class="pre">BAD_ID</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">253</span></em><a class="headerlink" href="#dau_core.registers.HandleFaultCode.BAD_ID" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.HandleFaultCode.STALE">
+<span class="sig-name descname"><span class="pre">STALE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">252</span></em><a class="headerlink" href="#dau_core.registers.HandleFaultCode.STALE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.HandleFaultCode.OUT_OF_BOUNDS">
+<span class="sig-name descname"><span class="pre">OUT_OF_BOUNDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">251</span></em><a class="headerlink" href="#dau_core.registers.HandleFaultCode.OUT_OF_BOUNDS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_core.registers.NOC_LANE_BASE">
+<span class="sig-prename descclassname"><span class="pre">dau_core.registers.</span></span><span class="sig-name descname"><span class="pre">NOC_LANE_BASE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">256</span></em><a class="headerlink" href="#dau_core.registers.NOC_LANE_BASE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_core.registers.NOC_LANE_STRIDE">
+<span class="sig-prename descclassname"><span class="pre">dau_core.registers.</span></span><span class="sig-name descname"><span class="pre">NOC_LANE_STRIDE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">32</span></em><a class="headerlink" href="#dau_core.registers.NOC_LANE_STRIDE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.registers.NocLaneRegisterOffset">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.registers.</span></span><span class="sig-name descname"><span class="pre">NocLaneRegisterOffset</span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#NocLaneRegisterOffset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers.NocLaneRegisterOffset" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.IntEnum</span></code></p>
+<p>Enum where members are also (and must be) ints</p>
+<p>Initialize self.  See help(type(self)) for accurate signature.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.NocLaneRegisterOffset.OUTPUT_ADDRESS_LOW">
+<span class="sig-name descname"><span class="pre">OUTPUT_ADDRESS_LOW</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#dau_core.registers.NocLaneRegisterOffset.OUTPUT_ADDRESS_LOW" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.NocLaneRegisterOffset.RESULT_LENGTH_LOW">
+<span class="sig-name descname"><span class="pre">RESULT_LENGTH_LOW</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#dau_core.registers.NocLaneRegisterOffset.RESULT_LENGTH_LOW" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.NocLaneRegisterOffset.RECORD_COUNT_LOW">
+<span class="sig-name descname"><span class="pre">RECORD_COUNT_LOW</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#dau_core.registers.NocLaneRegisterOffset.RECORD_COUNT_LOW" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.NocLaneRegisterOffset.RECORD_COUNT_HIGH">
+<span class="sig-name descname"><span class="pre">RECORD_COUNT_HIGH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">12</span></em><a class="headerlink" href="#dau_core.registers.NocLaneRegisterOffset.RECORD_COUNT_HIGH" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.NocLaneRegisterOffset.LANE_ERROR">
+<span class="sig-name descname"><span class="pre">LANE_ERROR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">16</span></em><a class="headerlink" href="#dau_core.registers.NocLaneRegisterOffset.LANE_ERROR" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.NocLaneRegisterOffset.OUTPUT_ADDRESS_HIGH">
+<span class="sig-name descname"><span class="pre">OUTPUT_ADDRESS_HIGH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">20</span></em><a class="headerlink" href="#dau_core.registers.NocLaneRegisterOffset.OUTPUT_ADDRESS_HIGH" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.registers.noc_lane_register">
+<span class="sig-prename descclassname"><span class="pre">dau_core.registers.</span></span><span class="sig-name descname"><span class="pre">noc_lane_register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lane</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dau_core.registers.NocLaneRegisterOffset" title="dau_core.registers.NocLaneRegisterOffset"><span class="pre">NocLaneRegisterOffset</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#noc_lane_register"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers.noc_lane_register" title="Link to this definition">¶</a></dt>
+<dd><p>BAR window offset of one lane’s register.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.registers.ResetScope">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.registers.</span></span><span class="sig-name descname"><span class="pre">ResetScope</span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#ResetScope"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers.ResetScope" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.IntFlag</span></code></p>
+<p>Support for integer-based Flags</p>
+<p>Initialize self.  See help(type(self)) for accurate signature.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.ResetScope.OPERATOR">
+<span class="sig-name descname"><span class="pre">OPERATOR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#dau_core.registers.ResetScope.OPERATOR" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.ResetScope.STREAM">
+<span class="sig-name descname"><span class="pre">STREAM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#dau_core.registers.ResetScope.STREAM" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.ResetScope.DMA">
+<span class="sig-name descname"><span class="pre">DMA</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#dau_core.registers.ResetScope.DMA" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.ResetScope.SHELL">
+<span class="sig-name descname"><span class="pre">SHELL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#dau_core.registers.ResetScope.SHELL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.registers.JobControlFlag">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.registers.</span></span><span class="sig-name descname"><span class="pre">JobControlFlag</span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#JobControlFlag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers.JobControlFlag" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.IntFlag</span></code></p>
+<p>Support for integer-based Flags</p>
+<p>Initialize self.  See help(type(self)) for accurate signature.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.JobControlFlag.START">
+<span class="sig-name descname"><span class="pre">START</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#dau_core.registers.JobControlFlag.START" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.JobControlFlag.ABORT">
+<span class="sig-name descname"><span class="pre">ABORT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#dau_core.registers.JobControlFlag.ABORT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.registers.JobStatusFlag">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.registers.</span></span><span class="sig-name descname"><span class="pre">JobStatusFlag</span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#JobStatusFlag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers.JobStatusFlag" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.IntFlag</span></code></p>
+<p>Support for integer-based Flags</p>
+<p>Initialize self.  See help(type(self)) for accurate signature.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.JobStatusFlag.IDLE">
+<span class="sig-name descname"><span class="pre">IDLE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#dau_core.registers.JobStatusFlag.IDLE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.JobStatusFlag.BUSY">
+<span class="sig-name descname"><span class="pre">BUSY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#dau_core.registers.JobStatusFlag.BUSY" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.JobStatusFlag.DONE">
+<span class="sig-name descname"><span class="pre">DONE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#dau_core.registers.JobStatusFlag.DONE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.JobStatusFlag.ERROR">
+<span class="sig-name descname"><span class="pre">ERROR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#dau_core.registers.JobStatusFlag.ERROR" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterWriteError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.registers.</span></span><span class="sig-name descname"><span class="pre">RegisterWriteError</span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#RegisterWriteError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers.RegisterWriteError" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">ValueError</span></code></p>
+<p>Inappropriate argument value (of correct type).</p>
+<p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_core.registers._RESET_SCOPE_MASK">
+<span class="sig-prename descclassname"><span class="pre">dau_core.registers.</span></span><span class="sig-name descname"><span class="pre">_RESET_SCOPE_MASK</span></span><a class="headerlink" href="#dau_core.registers._RESET_SCOPE_MASK" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_core.registers._JOB_CONTROL_MASK">
+<span class="sig-prename descclassname"><span class="pre">dau_core.registers.</span></span><span class="sig-name descname"><span class="pre">_JOB_CONTROL_MASK</span></span><a class="headerlink" href="#dau_core.registers._JOB_CONTROL_MASK" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.registers.StreamJobRegisterContract">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.registers.</span></span><span class="sig-name descname"><span class="pre">StreamJobRegisterContract</span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#StreamJobRegisterContract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers.StreamJobRegisterContract" title="Link to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.StreamJobRegisterContract.register_window_offset">
+<span class="sig-name descname"><span class="pre">register_window_offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4096</span></em><a class="headerlink" href="#dau_core.registers.StreamJobRegisterContract.register_window_offset" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.StreamJobRegisterContract.input_buffer_address">
+<span class="sig-name descname"><span class="pre">input_buffer_address</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#dau_core.registers.StreamJobRegisterContract.input_buffer_address" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.StreamJobRegisterContract.input_buffer_bytes">
+<span class="sig-name descname"><span class="pre">input_buffer_bytes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1048576</span></em><a class="headerlink" href="#dau_core.registers.StreamJobRegisterContract.input_buffer_bytes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.StreamJobRegisterContract.output_buffer_address">
+<span class="sig-name descname"><span class="pre">output_buffer_address</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1048576</span></em><a class="headerlink" href="#dau_core.registers.StreamJobRegisterContract.output_buffer_address" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.StreamJobRegisterContract.output_buffer_bytes">
+<span class="sig-name descname"><span class="pre">output_buffer_bytes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1048576</span></em><a class="headerlink" href="#dau_core.registers.StreamJobRegisterContract.output_buffer_bytes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.StreamJobRegisterContract.result_bytes">
+<span class="sig-name descname"><span class="pre">result_bytes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">136</span></em><a class="headerlink" href="#dau_core.registers.StreamJobRegisterContract.result_bytes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.StreamJobRegisterContract.start_offset">
+<span class="sig-name descname"><span class="pre">start_offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#dau_core.registers.RegisterOffset" title="dau_core.registers.RegisterOffset"><span class="pre">RegisterOffset</span></a></em><a class="headerlink" href="#dau_core.registers.StreamJobRegisterContract.start_offset" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.StreamJobRegisterContract.status_offset">
+<span class="sig-name descname"><span class="pre">status_offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#dau_core.registers.RegisterOffset" title="dau_core.registers.RegisterOffset"><span class="pre">RegisterOffset</span></a></em><a class="headerlink" href="#dau_core.registers.StreamJobRegisterContract.status_offset" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.StreamJobRegisterContract.error_offset">
+<span class="sig-name descname"><span class="pre">error_offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#dau_core.registers.RegisterOffset" title="dau_core.registers.RegisterOffset"><span class="pre">RegisterOffset</span></a></em><a class="headerlink" href="#dau_core.registers.StreamJobRegisterContract.error_offset" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.StreamJobRegisterContract.result_length_low_offset">
+<span class="sig-name descname"><span class="pre">result_length_low_offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#dau_core.registers.RegisterOffset" title="dau_core.registers.RegisterOffset"><span class="pre">RegisterOffset</span></a></em><a class="headerlink" href="#dau_core.registers.StreamJobRegisterContract.result_length_low_offset" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.registers.StreamJobRegisterContract.__post_init__">
+<span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#StreamJobRegisterContract.__post_init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers.StreamJobRegisterContract.__post_init__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.registers.StreamJobRegisterContract.manifest_items">
+<span class="sig-name descname"><span class="pre">manifest_items</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#StreamJobRegisterContract.manifest_items"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers.StreamJobRegisterContract.manifest_items" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterBlockSnapshot">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.registers.</span></span><span class="sig-name descname"><span class="pre">RegisterBlockSnapshot</span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#RegisterBlockSnapshot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers.RegisterBlockSnapshot" title="Link to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterBlockSnapshot.register_map_version">
+<span class="sig-name descname"><span class="pre">register_map_version</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#dau_core.registers.RegisterMapVersion" title="dau_core.registers.RegisterMapVersion"><span class="pre">RegisterMapVersion</span></a></em><a class="headerlink" href="#dau_core.registers.RegisterBlockSnapshot.register_map_version" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterBlockSnapshot.stream_protocol_version">
+<span class="sig-name descname"><span class="pre">stream_protocol_version</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#dau_core.registers.StreamProtocolVersion" title="dau_core.registers.StreamProtocolVersion"><span class="pre">StreamProtocolVersion</span></a></em><a class="headerlink" href="#dau_core.registers.RegisterBlockSnapshot.stream_protocol_version" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterBlockSnapshot.platform_id">
+<span class="sig-name descname"><span class="pre">platform_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#dau_core.registers.RegisterBlockSnapshot.platform_id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterBlockSnapshot.build_id">
+<span class="sig-name descname"><span class="pre">build_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#dau_core.registers.RegisterBlockSnapshot.build_id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterBlockSnapshot.status">
+<span class="sig-name descname"><span class="pre">status</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#dau_core.registers.RegisterBlockSnapshot.status" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterBlockSnapshot.operator_bitmap">
+<span class="sig-name descname"><span class="pre">operator_bitmap</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#dau_core.registers.RegisterBlockSnapshot.operator_bitmap" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterBlockSnapshot.last_error">
+<span class="sig-name descname"><span class="pre">last_error</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#dau_core.registers.RegisterBlockSnapshot.last_error" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterBlockSnapshot.h2c_bytes">
+<span class="sig-name descname"><span class="pre">h2c_bytes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#dau_core.registers.RegisterBlockSnapshot.h2c_bytes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterBlockSnapshot.c2h_bytes">
+<span class="sig-name descname"><span class="pre">c2h_bytes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#dau_core.registers.RegisterBlockSnapshot.c2h_bytes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterBlockSnapshot.rows">
+<span class="sig-name descname"><span class="pre">rows</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#dau_core.registers.RegisterBlockSnapshot.rows" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterBlockSnapshot.batches">
+<span class="sig-name descname"><span class="pre">batches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#dau_core.registers.RegisterBlockSnapshot.batches" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterBlockSnapshot.stalls">
+<span class="sig-name descname"><span class="pre">stalls</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#dau_core.registers.RegisterBlockSnapshot.stalls" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterBlockSnapshot.job_status">
+<span class="sig-name descname"><span class="pre">job_status</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#dau_core.registers.RegisterBlockSnapshot.job_status" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterBlockSnapshot.input_address">
+<span class="sig-name descname"><span class="pre">input_address</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#dau_core.registers.RegisterBlockSnapshot.input_address" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterBlockSnapshot.input_length">
+<span class="sig-name descname"><span class="pre">input_length</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#dau_core.registers.RegisterBlockSnapshot.input_length" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterBlockSnapshot.output_address">
+<span class="sig-name descname"><span class="pre">output_address</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1048576</span></em><a class="headerlink" href="#dau_core.registers.RegisterBlockSnapshot.output_address" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterBlockSnapshot.output_length">
+<span class="sig-name descname"><span class="pre">output_length</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">136</span></em><a class="headerlink" href="#dau_core.registers.RegisterBlockSnapshot.output_length" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterBlockSnapshot.operation">
+<span class="sig-name descname"><span class="pre">operation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#dau_core.registers.RegisterBlockSnapshot.operation" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterBlockSnapshot.result_length">
+<span class="sig-name descname"><span class="pre">result_length</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#dau_core.registers.RegisterBlockSnapshot.result_length" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterBlockSnapshot.lane_count">
+<span class="sig-name descname"><span class="pre">lane_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#dau_core.registers.RegisterBlockSnapshot.lane_count" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterBlockSnapshot.host_opcode_bitmap">
+<span class="sig-name descname"><span class="pre">host_opcode_bitmap</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#dau_core.registers.RegisterBlockSnapshot.host_opcode_bitmap" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterBlockSnapshot.sort_capacity">
+<span class="sig-name descname"><span class="pre">sort_capacity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#dau_core.registers.RegisterBlockSnapshot.sort_capacity" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterBlockSnapshot.input_row_capacity">
+<span class="sig-name descname"><span class="pre">input_row_capacity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#dau_core.registers.RegisterBlockSnapshot.input_row_capacity" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterBlockSnapshot.output_record_capacity">
+<span class="sig-name descname"><span class="pre">output_record_capacity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#dau_core.registers.RegisterBlockSnapshot.output_record_capacity" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterBlockSnapshot.__post_init__">
+<span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#RegisterBlockSnapshot.__post_init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers.RegisterBlockSnapshot.__post_init__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterBlockSnapshot.read_u32">
+<span class="sig-name descname"><span class="pre">read_u32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dau_core.registers.RegisterOffset" title="dau_core.registers.RegisterOffset"><span class="pre">RegisterOffset</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#RegisterBlockSnapshot.read_u32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers.RegisterBlockSnapshot.read_u32" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.registers.RegisterBlockSnapshot.write_u32">
+<span class="sig-name descname"><span class="pre">write_u32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dau_core.registers.RegisterOffset" title="dau_core.registers.RegisterOffset"><span class="pre">RegisterOffset</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_core.registers.ResetScope" title="dau_core.registers.ResetScope"><span class="pre">ResetScope</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#dau_core.registers.JobControlFlag" title="dau_core.registers.JobControlFlag"><span class="pre">JobControlFlag</span></a></span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#RegisterBlockSnapshot.write_u32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers.RegisterBlockSnapshot.write_u32" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.registers.platform_id_to_u32">
+<span class="sig-prename descclassname"><span class="pre">dau_core.registers.</span></span><span class="sig-name descname"><span class="pre">platform_id_to_u32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#platform_id_to_u32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers.platform_id_to_u32" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.registers._low_u32">
+<span class="sig-prename descclassname"><span class="pre">dau_core.registers.</span></span><span class="sig-name descname"><span class="pre">_low_u32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#_low_u32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers._low_u32" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.registers._high_u32">
+<span class="sig-prename descclassname"><span class="pre">dau_core.registers.</span></span><span class="sig-name descname"><span class="pre">_high_u32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#_high_u32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers._high_u32" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.registers._hex32">
+<span class="sig-prename descclassname"><span class="pre">dau_core.registers.</span></span><span class="sig-name descname"><span class="pre">_hex32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#_hex32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers._hex32" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.registers._hex64">
+<span class="sig-prename descclassname"><span class="pre">dau_core.registers.</span></span><span class="sig-name descname"><span class="pre">_hex64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#_hex64"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers._hex64" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.registers._flag_bit">
+<span class="sig-prename descclassname"><span class="pre">dau_core.registers.</span></span><span class="sig-name descname"><span class="pre">_flag_bit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">enum.IntFlag</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#_flag_bit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers._flag_bit" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.registers._validate_u16">
+<span class="sig-prename descclassname"><span class="pre">dau_core.registers.</span></span><span class="sig-name descname"><span class="pre">_validate_u16</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#_validate_u16"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers._validate_u16" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.registers._validate_u32">
+<span class="sig-prename descclassname"><span class="pre">dau_core.registers.</span></span><span class="sig-name descname"><span class="pre">_validate_u32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#_validate_u32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers._validate_u32" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.registers._validate_u64">
+<span class="sig-prename descclassname"><span class="pre">dau_core.registers.</span></span><span class="sig-name descname"><span class="pre">_validate_u64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_core/registers.html#_validate_u64"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registers._validate_u64" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_core.registers.DEFAULT_STREAM_JOB_REGISTER_CONTRACT">
+<span class="sig-prename descclassname"><span class="pre">dau_core.registers.</span></span><span class="sig-name descname"><span class="pre">DEFAULT_STREAM_JOB_REGISTER_CONTRACT</span></span><a class="headerlink" href="#dau_core.registers.DEFAULT_STREAM_JOB_REGISTER_CONTRACT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_core.registers.CURRENT_REGISTER_MAP_VERSION">
+<span class="sig-prename descclassname"><span class="pre">dau_core.registers.</span></span><span class="sig-name descname"><span class="pre">CURRENT_REGISTER_MAP_VERSION</span></span><a class="headerlink" href="#dau_core.registers.CURRENT_REGISTER_MAP_VERSION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+      </div>
+<nav class="fd-pagination" aria-label="Pagination">
+  <a class="fd-pagination-card fd-pagination-prev" href="../operators/index.html">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m15 18-6-6 6-6"/></svg>
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Previous</span>
+      <span class="fd-pagination-title">dau_core.operators</span>
+    </span>
+  </a>
+  <a class="fd-pagination-card fd-pagination-next" href="../registry/index.html">
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Next</span>
+      <span class="fd-pagination-title">dau_core.registry</span>
+    </span>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+  </a>
+</nav>
+<footer id="fd-footer">
+  <p class="fd-footer-meta"><span>&#169; the dau-core authors</span><span>Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.</span>
+  </p>
+</footer>
+    </article>
+  </main>
+<nav id="fd-toc" aria-label="On this page">
+  <p class="fd-toc-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>On this page</p>
+  <div class="fd-toc-body"><svg class="fd-toc-rail" aria-hidden="true" preserveAspectRatio="none">
+      <path class="fd-toc-track" fill="none" />
+      <path class="fd-toc-thumb" fill="none" />
+    </svg><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#attributes">Attributes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#exceptions">Exceptions</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#classes">Classes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#functions">Functions</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#module-contents">Module Contents</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.DAU_MAGIC_WORD">DAU_MAGIC_WORD</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.RegisterMapVersion">RegisterMapVersion</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterMapVersion.major">RegisterMapVersion.major</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterMapVersion.minor">RegisterMapVersion.minor</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterMapVersion.__post_init__">RegisterMapVersion.__post_init__()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterMapVersion.to_u32">RegisterMapVersion.to_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterMapVersion.from_u32">RegisterMapVersion.from_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.StreamProtocolVersion">StreamProtocolVersion</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamProtocolVersion.major">StreamProtocolVersion.major</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamProtocolVersion.minor">StreamProtocolVersion.minor</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamProtocolVersion.__post_init__">StreamProtocolVersion.__post_init__()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamProtocolVersion.to_u32">StreamProtocolVersion.to_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamProtocolVersion.from_u32">StreamProtocolVersion.from_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.RegisterOffset">RegisterOffset</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.MAGIC">RegisterOffset.MAGIC</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.REGISTER_MAP_VERSION">RegisterOffset.REGISTER_MAP_VERSION</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.STREAM_PROTOCOL_VERSION">RegisterOffset.STREAM_PROTOCOL_VERSION</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.PLATFORM_ID">RegisterOffset.PLATFORM_ID</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.BUILD_ID_LOW">RegisterOffset.BUILD_ID_LOW</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.BUILD_ID_HIGH">RegisterOffset.BUILD_ID_HIGH</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.STATUS">RegisterOffset.STATUS</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.RESET">RegisterOffset.RESET</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.OPERATOR_BITMAP">RegisterOffset.OPERATOR_BITMAP</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.LAST_ERROR">RegisterOffset.LAST_ERROR</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.H2C_BYTES_LOW">RegisterOffset.H2C_BYTES_LOW</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.H2C_BYTES_HIGH">RegisterOffset.H2C_BYTES_HIGH</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.C2H_BYTES_LOW">RegisterOffset.C2H_BYTES_LOW</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.C2H_BYTES_HIGH">RegisterOffset.C2H_BYTES_HIGH</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.ROWS_LOW">RegisterOffset.ROWS_LOW</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.ROWS_HIGH">RegisterOffset.ROWS_HIGH</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.BATCHES">RegisterOffset.BATCHES</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.STALLS">RegisterOffset.STALLS</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.JOB_CONTROL">RegisterOffset.JOB_CONTROL</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.JOB_STATUS">RegisterOffset.JOB_STATUS</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.INPUT_ADDRESS_LOW">RegisterOffset.INPUT_ADDRESS_LOW</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.INPUT_ADDRESS_HIGH">RegisterOffset.INPUT_ADDRESS_HIGH</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.INPUT_LENGTH_LOW">RegisterOffset.INPUT_LENGTH_LOW</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.INPUT_LENGTH_HIGH">RegisterOffset.INPUT_LENGTH_HIGH</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.OUTPUT_ADDRESS_LOW">RegisterOffset.OUTPUT_ADDRESS_LOW</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.OUTPUT_ADDRESS_HIGH">RegisterOffset.OUTPUT_ADDRESS_HIGH</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.OUTPUT_LENGTH_LOW">RegisterOffset.OUTPUT_LENGTH_LOW</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.OUTPUT_LENGTH_HIGH">RegisterOffset.OUTPUT_LENGTH_HIGH</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.OPERATION">RegisterOffset.OPERATION</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.RESULT_LENGTH_LOW">RegisterOffset.RESULT_LENGTH_LOW</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.RESULT_LENGTH_HIGH">RegisterOffset.RESULT_LENGTH_HIGH</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.LOAD_PHASE">RegisterOffset.LOAD_PHASE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.PIPELINE_FILTER_OP">RegisterOffset.PIPELINE_FILTER_OP</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.PIPELINE_FILTER_CONSTANT0">RegisterOffset.PIPELINE_FILTER_CONSTANT0</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.PIPELINE_FILTER_CONSTANT1">RegisterOffset.PIPELINE_FILTER_CONSTANT1</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.PIPELINE_MAP_OP">RegisterOffset.PIPELINE_MAP_OP</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.PIPELINE_MAP_CONSTANT">RegisterOffset.PIPELINE_MAP_CONSTANT</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.PIPELINE_SELECTED_COUNT_LOW">RegisterOffset.PIPELINE_SELECTED_COUNT_LOW</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.PIPELINE_SELECTED_COUNT_HIGH">RegisterOffset.PIPELINE_SELECTED_COUNT_HIGH</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.PIPELINE_GROUP_COUNT_LOW">RegisterOffset.PIPELINE_GROUP_COUNT_LOW</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.PIPELINE_GROUP_COUNT_HIGH">RegisterOffset.PIPELINE_GROUP_COUNT_HIGH</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.LANE_COUNT">RegisterOffset.LANE_COUNT</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.HOST_OPCODE_BITMAP">RegisterOffset.HOST_OPCODE_BITMAP</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.SORT_CAPACITY">RegisterOffset.SORT_CAPACITY</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.INPUT_ROW_CAPACITY">RegisterOffset.INPUT_ROW_CAPACITY</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterOffset.OUTPUT_RECORD_CAPACITY">RegisterOffset.OUTPUT_RECORD_CAPACITY</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.HandleTableRegisterOffset">HandleTableRegisterOffset</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.HandleTableRegisterOffset.INDEX">HandleTableRegisterOffset.INDEX</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.HandleTableRegisterOffset.BASE_LOW">HandleTableRegisterOffset.BASE_LOW</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.HandleTableRegisterOffset.BASE_HIGH">HandleTableRegisterOffset.BASE_HIGH</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.HandleTableRegisterOffset.LENGTH">HandleTableRegisterOffset.LENGTH</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.HandleTableRegisterOffset.GENERATION">HandleTableRegisterOffset.GENERATION</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.HandleTableRegisterOffset.CONTROL">HandleTableRegisterOffset.CONTROL</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.HandleTableRegisterOffset.JOB_HANDLE_ID">HandleTableRegisterOffset.JOB_HANDLE_ID</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.HandleTableRegisterOffset.JOB_HANDLE_GENERATION">HandleTableRegisterOffset.JOB_HANDLE_GENERATION</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.HandleTableControlFlag">HandleTableControlFlag</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.HandleTableControlFlag.INSTALL">HandleTableControlFlag.INSTALL</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.HandleTableControlFlag.FREE">HandleTableControlFlag.FREE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.HandleFaultCode">HandleFaultCode</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.HandleFaultCode.BAD_ID">HandleFaultCode.BAD_ID</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.HandleFaultCode.STALE">HandleFaultCode.STALE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.HandleFaultCode.OUT_OF_BOUNDS">HandleFaultCode.OUT_OF_BOUNDS</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.NOC_LANE_BASE">NOC_LANE_BASE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.NOC_LANE_STRIDE">NOC_LANE_STRIDE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.NocLaneRegisterOffset">NocLaneRegisterOffset</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.NocLaneRegisterOffset.OUTPUT_ADDRESS_LOW">NocLaneRegisterOffset.OUTPUT_ADDRESS_LOW</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.NocLaneRegisterOffset.RESULT_LENGTH_LOW">NocLaneRegisterOffset.RESULT_LENGTH_LOW</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.NocLaneRegisterOffset.RECORD_COUNT_LOW">NocLaneRegisterOffset.RECORD_COUNT_LOW</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.NocLaneRegisterOffset.RECORD_COUNT_HIGH">NocLaneRegisterOffset.RECORD_COUNT_HIGH</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.NocLaneRegisterOffset.LANE_ERROR">NocLaneRegisterOffset.LANE_ERROR</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.NocLaneRegisterOffset.OUTPUT_ADDRESS_HIGH">NocLaneRegisterOffset.OUTPUT_ADDRESS_HIGH</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.noc_lane_register">noc_lane_register()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.ResetScope">ResetScope</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.ResetScope.OPERATOR">ResetScope.OPERATOR</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.ResetScope.STREAM">ResetScope.STREAM</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.ResetScope.DMA">ResetScope.DMA</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.ResetScope.SHELL">ResetScope.SHELL</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.JobControlFlag">JobControlFlag</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.JobControlFlag.START">JobControlFlag.START</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.JobControlFlag.ABORT">JobControlFlag.ABORT</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.JobStatusFlag">JobStatusFlag</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.JobStatusFlag.IDLE">JobStatusFlag.IDLE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.JobStatusFlag.BUSY">JobStatusFlag.BUSY</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.JobStatusFlag.DONE">JobStatusFlag.DONE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.JobStatusFlag.ERROR">JobStatusFlag.ERROR</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.RegisterWriteError">RegisterWriteError</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers._RESET_SCOPE_MASK">_RESET_SCOPE_MASK</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers._JOB_CONTROL_MASK">_JOB_CONTROL_MASK</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.StreamJobRegisterContract">StreamJobRegisterContract</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamJobRegisterContract.register_window_offset">StreamJobRegisterContract.register_window_offset</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamJobRegisterContract.input_buffer_address">StreamJobRegisterContract.input_buffer_address</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamJobRegisterContract.input_buffer_bytes">StreamJobRegisterContract.input_buffer_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamJobRegisterContract.output_buffer_address">StreamJobRegisterContract.output_buffer_address</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamJobRegisterContract.output_buffer_bytes">StreamJobRegisterContract.output_buffer_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamJobRegisterContract.result_bytes">StreamJobRegisterContract.result_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamJobRegisterContract.start_offset">StreamJobRegisterContract.start_offset</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamJobRegisterContract.status_offset">StreamJobRegisterContract.status_offset</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamJobRegisterContract.error_offset">StreamJobRegisterContract.error_offset</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamJobRegisterContract.result_length_low_offset">StreamJobRegisterContract.result_length_low_offset</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamJobRegisterContract.__post_init__">StreamJobRegisterContract.__post_init__()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.StreamJobRegisterContract.manifest_items">StreamJobRegisterContract.manifest_items()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.RegisterBlockSnapshot">RegisterBlockSnapshot</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.register_map_version">RegisterBlockSnapshot.register_map_version</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.stream_protocol_version">RegisterBlockSnapshot.stream_protocol_version</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.platform_id">RegisterBlockSnapshot.platform_id</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.build_id">RegisterBlockSnapshot.build_id</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.status">RegisterBlockSnapshot.status</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.operator_bitmap">RegisterBlockSnapshot.operator_bitmap</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.last_error">RegisterBlockSnapshot.last_error</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.h2c_bytes">RegisterBlockSnapshot.h2c_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.c2h_bytes">RegisterBlockSnapshot.c2h_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.rows">RegisterBlockSnapshot.rows</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.batches">RegisterBlockSnapshot.batches</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.stalls">RegisterBlockSnapshot.stalls</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.job_status">RegisterBlockSnapshot.job_status</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.input_address">RegisterBlockSnapshot.input_address</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.input_length">RegisterBlockSnapshot.input_length</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.output_address">RegisterBlockSnapshot.output_address</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.output_length">RegisterBlockSnapshot.output_length</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.operation">RegisterBlockSnapshot.operation</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.result_length">RegisterBlockSnapshot.result_length</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.lane_count">RegisterBlockSnapshot.lane_count</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.host_opcode_bitmap">RegisterBlockSnapshot.host_opcode_bitmap</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.sort_capacity">RegisterBlockSnapshot.sort_capacity</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.input_row_capacity">RegisterBlockSnapshot.input_row_capacity</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.output_record_capacity">RegisterBlockSnapshot.output_record_capacity</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.__post_init__">RegisterBlockSnapshot.__post_init__()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.read_u32">RegisterBlockSnapshot.read_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.registers.RegisterBlockSnapshot.write_u32">RegisterBlockSnapshot.write_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.platform_id_to_u32">platform_id_to_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers._low_u32">_low_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers._high_u32">_high_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers._hex32">_hex32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers._hex64">_hex64()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers._flag_bit">_flag_bit()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers._validate_u16">_validate_u16()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers._validate_u32">_validate_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers._validate_u64">_validate_u64()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.DEFAULT_STREAM_JOB_REGISTER_CONTRACT">DEFAULT_STREAM_JOB_REGISTER_CONTRACT</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registers.CURRENT_REGISTER_MAP_VERSION">CURRENT_REGISTER_MAP_VERSION</a>
+  </li>
+</ul>
+
+  </div>
+  <div class="fd-toc-actions">
+    <a class="fd-toc-action" href="https://github.com/dau-dev/dau-core/edit/HEAD/autoapi/dau_core/registers/index.rst" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span>Edit this page</span></a>
+    <a class="fd-toc-action" href="../../../_sources/autoapi/dau_core/registers/index.rst.txt" rel="nofollow"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><span>View source</span></a>
+  </div>
+</nav>
+</div>
+<dialog id="fd-search-dialog" aria-label="Search">
+  <form class="fd-search-panel" method="dialog" role="search">
+    <div class="fd-search-field">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="search" id="fd-search-input" autocomplete="off" spellcheck="false" placeholder="Search documentation..." aria-label="Search" />
+      <kbd class="fd-kbd">Esc</kbd>
+    </div>
+    <div id="fd-search-results" role="listbox" aria-label="Search results"></div>
+    <p id="fd-search-empty" class="fd-search-empty" hidden>No results found.</p>
+  </form>
+</dialog>
+  </body>
+</html>

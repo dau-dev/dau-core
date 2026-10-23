@@ -1,0 +1,87 @@
+dau_core.workflows
+==================
+
+.. py:module:: dau_core.workflows
+
+.. autoapi-nested-parse::
+
+   Registrable ccflow workflows over the temporal goldens.
+
+   ``HeroWorkflow`` is the composable form of
+   :func:`dau_core.hero.run_hero_workflow`: the bar clock, rolling window,
+   tolerance, and rolled field are configuration; the market stream under
+   evaluation is the runtime input, a hashable
+   :class:`dau_core.temporal.MarketStream` carried in a ``GenericContext``.
+   The result is the typed :class:`dau_core.hero.HeroResult`.
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   dau_core.workflows.HeroWorkflow
+
+
+Module Contents
+---------------
+
+.. py:class:: HeroWorkflow(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedMixin`, :py:obj:`ccflow.CallableModel`
+
+
+   The predeclared align -> derive -> bar -> roll pipeline over the
+   temporal goldens, recording the cardinality funnel and stage outputs.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: model_config
+      :type:  ClassVar
+
+      Configuration for the model, should be a dictionary conforming to [`ConfigDict`][pydantic.config.ConfigDict].
+
+
+   .. py:attribute:: bar_width
+      :type:  int
+
+
+   .. py:attribute:: roll_window
+      :type:  int
+
+
+   .. py:attribute:: tolerance
+      :type:  int | None
+      :value: None
+
+
+
+   .. py:attribute:: roll_value
+      :type:  str
+      :value: 'close'
+
+
+
+   .. py:method:: model_post_init(_context: object) -> None
+
+      Override this method to perform additional initialization after `__init__` and `model_construct`.
+      This is useful if you want to do some validation that requires the entire model to be initialized.
+
+
+
+   .. py:method:: __call__(context: ccflow.GenericContext[dau_core.temporal.MarketStream]) -> dau_core.hero.HeroResult
+
+      This method produces the result for the given context.
+
+      Instead of passing the context, one can pass an object that pydantic will try to validate as the context.
+      Additionally, if kwargs are passed instead of the context, it will use these to construct the context.
+
+
+

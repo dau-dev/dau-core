@@ -1,0 +1,86 @@
+test_contributed_cores
+======================
+
+.. py:module:: test_contributed_cores
+
+.. autoapi-nested-parse::
+
+   A core someone else declared is still a core.
+
+   A third party composing a ``CoreDefinition`` under its own registry group
+   used to compose successfully, register, and then be invisible: every
+   consumer reaches tiles through :func:`loaded_cores`, which read ``/dau-core``
+   and nothing else. The author did everything the authoring surface asks for
+   and their tile silently vanished, with no error naming the cause -- the
+   worst shape a failure can take, because there is nothing to search for.
+
+   The seam that keeps packages apart is ``source_package``, not invisibility.
+   dau-core's own guards already scope themselves by it rather than assuming
+   every registered core is theirs, so admitting foreign cores here does not
+   loosen a single one of them.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_contributed_cores._VENDOR_TILE
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_contributed_cores.registry_group
+   test_contributed_cores.test_a_contributed_core_is_visible_to_consumers
+   test_contributed_cores.test_contribution_does_not_disturb_our_own_cores
+   test_contributed_cores.test_a_name_collision_is_raised_not_resolved
+   test_contributed_cores.test_an_absent_core_still_reports_unknown
+   test_contributed_cores.test_a_single_core_lookup_builds_a_single_model
+   test_contributed_cores.test_the_whole_palette_is_still_available_to_the_consumers_that_need_it
+
+
+Module Contents
+---------------
+
+.. py:data:: _VENDOR_TILE
+
+.. py:function:: registry_group()
+
+   Compose a group, then drop it so the registry is not left mutated.
+
+
+.. py:function:: test_a_contributed_core_is_visible_to_consumers(registry_group) -> None
+
+.. py:function:: test_contribution_does_not_disturb_our_own_cores(registry_group) -> None
+
+   The seam still works: ours remain identifiable, and a foreign tile
+   does not become one of ours by being visible.
+
+
+.. py:function:: test_a_name_collision_is_raised_not_resolved(registry_group) -> None
+
+   A core name is how every design, spec hash and cached manifest refers
+   to a tile. Silently preferring one definition would let a design mean two
+   different things depending on what else was installed.
+
+
+.. py:function:: test_an_absent_core_still_reports_unknown() -> None
+
+.. py:function:: test_a_single_core_lookup_builds_a_single_model() -> None
+
+   The point of loading the palette lazily: asking for one tile builds
+   one ``CoreDefinition``. Reading the group's items builds all of them, so
+   ``core()`` must not go through ``loaded_cores()``, which is what it used
+   to do.
+
+
+.. py:function:: test_the_whole_palette_is_still_available_to_the_consumers_that_need_it() -> None
+
+   ``loaded_cores`` is the whole-palette path -- the guards, source
+   staging, the role scans -- and pays for it.
+
+

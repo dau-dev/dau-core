@@ -1,0 +1,400 @@
+dau_core.fixed_point
+====================
+
+.. py:module:: dau_core.fixed_point
+
+.. autoapi-nested-parse::
+
+   Integer models of the fixed-point transcendental datapaths.
+
+   Two layers, and the distinction is the whole accuracy contract:
+
+   * :func:`exp_reference` is the MATHEMATICAL answer -- true ``exp`` correctly
+     rounded to the fixed-point format. It is what "right" means.
+   * :class:`ExpDatapath` is an ALGORITHM: a specific range reduction, table and
+     polynomial at a specific internal precision. The HDL mirrors it exactly, so
+     the cocotb benches compare against it with zero tolerance, like every other
+     tile in the package.
+
+   An operating point that deviates from the reference does so by a MEASURED
+   amount, swept exhaustively over every representable input and recorded in the
+   registry beside the resource envelope. Accuracy is a measured fact here, not
+   a claim -- sampling reported one configuration as flawless when an exhaustive
+   sweep found three wrong inputs, so nothing is believed without the full
+   sweep.
+
+   See dau-docs-private/design/transcendental-tiles.md for how the operating
+   points were chosen.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   dau_core.fixed_point._ORACLE_PRECISION
+   dau_core.fixed_point.EXP_FRACTIONAL_BITS
+   dau_core.fixed_point.LN_FRACTIONAL_BITS
+   dau_core.fixed_point.NORMAL_CDF_FRACTIONAL_BITS
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   dau_core.fixed_point.ExpDatapath
+   dau_core.fixed_point.LnDatapath
+   dau_core.fixed_point.NormalCdfDatapath
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   dau_core.fixed_point._decimal_context
+   dau_core.fixed_point.exp_reference
+   dau_core.fixed_point.exp_domain
+   dau_core.fixed_point._exp_constants
+   dau_core.fixed_point.ln_reference
+   dau_core.fixed_point._ln_constants
+   dau_core.fixed_point.normal_cdf_reference
+   dau_core.fixed_point._erfc
+   dau_core.fixed_point._pi
+   dau_core.fixed_point.normal_cdf_domain
+   dau_core.fixed_point._normal_cdf_constants
+
+
+Module Contents
+---------------
+
+.. py:data:: _ORACLE_PRECISION
+   :value: 80
+
+
+.. py:data:: EXP_FRACTIONAL_BITS
+   :value: 16
+
+
+.. py:function:: _decimal_context() -> None
+
+.. py:function:: exp_reference(x: int, *, fractional_bits: int = EXP_FRACTIONAL_BITS) -> int
+
+   True ``exp`` of a Q(32-f).f value, correctly rounded to Q(32-f).f.
+
+   The mathematical contract. Computed in 80 digits, so the half-way cases
+   that double precision cannot decide are decided here.
+
+   Raises when the result does not fit int32; the tile reports ``RANGE``.
+
+
+.. py:function:: exp_domain(*, fractional_bits: int = EXP_FRACTIONAL_BITS) -> tuple[int, int]
+
+   The inputs where ``exp`` is neither 0 nor an overflow, inclusive.
+
+   Below the low bound the correctly rounded answer is 0; above the high
+   bound it does not fit int32. Small enough to sweep exhaustively, which is
+   what makes a correctness claim about this tile a proof rather than a
+   sample.
+
+
+.. py:class:: ExpDatapath(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   One operating point of the exp datapath.
+
+   ``x`` is reduced as ``k/2**table_bits`` units of ln2 plus a residue, the
+   table supplies ``2**(j/2**table_bits)``, and a Horner polynomial of
+   ``degree`` evaluates ``exp(residue)`` -- all in ``internal_bits``
+   fractional bits.
+
+   ``round_steps`` rounds each Horner step instead of truncating it, which
+   costs an adder per step in hardware. It buys accuracy only where the
+   internal precision is the binding constraint; past that the polynomial
+   degree binds instead and rounding changes nothing.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: internal_bits
+      :type:  int
+      :value: 52
+
+
+
+   .. py:attribute:: table_bits
+      :type:  int
+      :value: 8
+
+
+
+   .. py:attribute:: degree
+      :type:  int
+      :value: 4
+
+
+
+   .. py:attribute:: round_steps
+      :type:  bool
+      :value: False
+
+
+
+   .. py:attribute:: fractional_bits
+      :type:  int
+      :value: 16
+
+
+
+   .. py:attribute:: k_bits
+      :type:  int
+      :value: 12
+
+
+
+   .. py:method:: model_post_init(context) -> None
+
+      Override this method to perform additional initialization after `__init__` and `model_construct`.
+      This is useful if you want to do some validation that requires the entire model to be initialized.
+
+
+
+   .. py:property:: multiplies
+      :type: int
+
+
+      the Horner chain, the table, and the
+      two in the range reduction. This is what the DSP cost tracks.
+
+      :type: Multiplies on the datapath
+
+
+   .. py:method:: constants() -> dict
+
+
+   .. py:method:: evaluate(x: int) -> int
+
+      The integer datapath, bit for bit as the HDL runs it.
+
+
+
+.. py:function:: _exp_constants(internal_bits: int, table_bits: int, degree: int, k_bits: int) -> dict
+
+.. py:data:: LN_FRACTIONAL_BITS
+   :value: 16
+
+
+.. py:function:: ln_reference(x: int, *, fractional_bits: int = LN_FRACTIONAL_BITS) -> int
+
+   True ``ln`` of a Q(32-f).f value, correctly rounded to Q(32-f).f.
+
+   The mathematical contract, like :func:`exp_reference`. Computed in 80
+   digits so the half-way cases double precision cannot decide are decided
+   here.
+
+   Raises on a non-positive input; the tile reports ``DOMAIN``, the same
+   position the sqrt tile takes -- ln of zero or a negative has no value and
+   a substituted one would be a wrong number that looks right.
+
+
+.. py:class:: LnDatapath(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   One operating point of the ln datapath.
+
+   ``x`` is normalised to ``m * 2**e`` with ``m`` in [1, 2), so
+   ``ln(x) = e*ln2 + ln(m)``. The mantissa's top ``table_bits`` index two
+   tables -- ``ln(1 + j/N)`` and the reciprocal ``1/(1 + j/N)`` -- reducing
+   the residue to ``|v| <= 1/N`` before a short Horner series for
+   ``ln(1+v)``. The reciprocal table is what keeps the polynomial degree low
+   without a divider: a direct series on [0,1) would need many more terms.
+
+   The exponent term is EXACT integer work: ``e`` is a small signed integer
+   and ``ln2`` a constant, so the only approximation is the mantissa series.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: internal_bits
+      :type:  int
+      :value: 52
+
+
+
+   .. py:attribute:: table_bits
+      :type:  int
+      :value: 8
+
+
+
+   .. py:attribute:: degree
+      :type:  int
+      :value: 3
+
+
+
+   .. py:attribute:: round_steps
+      :type:  bool
+      :value: False
+
+
+
+   .. py:attribute:: fractional_bits
+      :type:  int
+      :value: 16
+
+
+
+   .. py:method:: model_post_init(context) -> None
+
+      Override this method to perform additional initialization after `__init__` and `model_construct`.
+      This is useful if you want to do some validation that requires the entire model to be initialized.
+
+
+
+   .. py:property:: multiplies
+      :type: int
+
+
+      The reciprocal multiply, the Horner chain, and e*ln2.
+
+
+   .. py:method:: constants() -> dict
+
+
+   .. py:method:: evaluate(x: int) -> int
+
+      The integer datapath, bit for bit as the HDL will run it.
+
+
+
+.. py:function:: _ln_constants(internal_bits: int, table_bits: int) -> dict
+
+.. py:data:: NORMAL_CDF_FRACTIONAL_BITS
+   :value: 16
+
+
+.. py:function:: normal_cdf_reference(x: int, *, fractional_bits: int = NORMAL_CDF_FRACTIONAL_BITS) -> int
+
+   The standard normal CDF of a Q(32-f).f value, correctly rounded.
+
+   TOTAL: every int32 input has an answer, so unlike ln and exp there is no
+   error path. Beyond about +/-4.33 the result saturates to 0 or 1 exactly,
+   which IS the correctly rounded answer rather than a clamp.
+
+
+.. py:function:: _erfc(z: decimal.Decimal) -> decimal.Decimal
+
+   Complementary error function to the working precision.
+
+
+.. py:function:: _pi() -> decimal.Decimal
+
+   Pi to the working precision (Chudnovsky is overkill; Machin suffices).
+
+
+.. py:function:: normal_cdf_domain(*, fractional_bits: int = NORMAL_CDF_FRACTIONAL_BITS) -> tuple[int, int]
+
+   The inputs where the CDF is neither 0 nor 1 to the last bit.
+
+   Small enough to sweep EXHAUSTIVELY, which is what makes a correctness
+   claim about this tile a proof rather than a sample.
+
+
+.. py:class:: NormalCdfDatapath(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   One operating point of the normal-CDF datapath.
+
+   Folds on symmetry (the CDF of -x is one minus the CDF of x), so only the
+   positive half is approximated, then evaluates a PER-SEGMENT Taylor
+   polynomial: the magnitude's top ``table_bits`` select a segment and the
+   coefficients are the CDF's derivatives at that segment, which have closed
+   forms in the density. Piecewise rather than one polynomial because the
+   CDF has no useful global series.
+
+   Saturation is exact rather than a clamp: beyond the domain the correctly
+   rounded answer IS 0 or 1, so this tile is TOTAL and needs no error path
+   -- the one transcendental here that does not.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: internal_bits
+      :type:  int
+      :value: 52
+
+
+
+   .. py:attribute:: table_bits
+      :type:  int
+      :value: 10
+
+
+
+   .. py:attribute:: degree
+      :type:  int
+      :value: 3
+
+
+
+   .. py:attribute:: fractional_bits
+      :type:  int
+      :value: 16
+
+
+
+   .. py:attribute:: span_bits
+      :type:  int
+      :value: 19
+
+
+
+   .. py:method:: model_post_init(context) -> None
+
+      Override this method to perform additional initialization after `__init__` and `model_construct`.
+      This is useful if you want to do some validation that requires the entire model to be initialized.
+
+
+
+   .. py:property:: multiplies
+      :type: int
+
+
+      The Horner chain; the symmetry fold and saturation are free.
+
+
+   .. py:method:: constants() -> dict
+
+
+   .. py:method:: evaluate(x: int) -> int
+
+      The integer datapath, bit for bit as the HDL will run it.
+
+
+
+.. py:function:: _normal_cdf_constants(internal_bits: int, table_bits: int, degree: int, fractional_bits: int, span_bits: int) -> dict
+

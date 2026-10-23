@@ -1,0 +1,85 @@
+test_registers_and_capabilities
+===============================
+
+.. py:module:: test_registers_and_capabilities
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_registers_and_capabilities.test_register_contract_uses_dau_magic_and_aligned_offsets
+   test_registers_and_capabilities.test_handle_table_aperture_is_word_aligned_and_shares_no_address
+   test_registers_and_capabilities.test_handle_table_aperture_matches_the_generator_that_emits_it
+   test_registers_and_capabilities.test_register_block_snapshot_reads_identity_status_and_counters_as_u32_words
+   test_registers_and_capabilities.test_register_block_snapshot_models_reset_write_side_effects_only
+   test_registers_and_capabilities.test_stream_job_register_contract_names_host_trigger_status_and_result_addresses
+   test_registers_and_capabilities.test_packaged_identity_register_hdl_exposes_reset_write_pulse_ports
+   test_registers_and_capabilities.test_packaged_identity_register_hdl_advertises_the_current_register_map
+   test_registers_and_capabilities.test_device_capabilities_report_supported_operations_and_dma_constraints
+   test_registers_and_capabilities.test_device_capabilities_keep_host_computed_operators_apart_from_hardware
+   test_registers_and_capabilities.test_the_addresses_of_the_deleted_registers_are_unmapped
+
+
+Module Contents
+---------------
+
+.. py:function:: test_register_contract_uses_dau_magic_and_aligned_offsets()
+
+.. py:function:: test_handle_table_aperture_is_word_aligned_and_shares_no_address()
+
+   The handle aperture the composed scan shell decodes. Its offsets are
+   the generator's, and they sit in free window space: above the capability
+   block, below the lane block, overlapping nothing the base register map
+   defines. An aperture laid over the static pipeline block would decode
+   correctly (a shell is one personality or the other) but would leave every
+   address in it meaning two things, which is a thing to remember rather
+   than a property to rely on.
+
+
+.. py:function:: test_handle_table_aperture_matches_the_generator_that_emits_it()
+
+   The register contract lives here, but the ADDRESSES are decoded by
+   what dau-build emits: a disagreement is not a crash, it is a host writing
+   a length into a generation. Pin them against the generator's layout.
+
+   Imported outright rather than skipped around: a guard that skips when the
+   other side of the contract is missing reports the same green as one that
+   checked, which is how this ran for exactly nobody while the aperture was
+   being placed. The develop extra installs the dau-build this is written
+   against, so a missing generator is a broken environment, not a reason to
+   pass.
+
+
+.. py:function:: test_register_block_snapshot_reads_identity_status_and_counters_as_u32_words()
+
+.. py:function:: test_register_block_snapshot_models_reset_write_side_effects_only()
+
+.. py:function:: test_stream_job_register_contract_names_host_trigger_status_and_result_addresses()
+
+.. py:function:: test_packaged_identity_register_hdl_exposes_reset_write_pulse_ports()
+
+.. py:function:: test_packaged_identity_register_hdl_advertises_the_current_register_map()
+
+   The SV default and decode stay pinned to the Python contract: the
+   0.2 bump adds the composed-capability words at 0x00c0..0x00c8.
+
+
+.. py:function:: test_device_capabilities_report_supported_operations_and_dma_constraints()
+
+.. py:function:: test_device_capabilities_keep_host_computed_operators_apart_from_hardware()
+
+   AVERAGE is a protocol-level host divide over SUM/COUNT results — it
+   is advertised in host_operators, never as a hardware operator.
+
+
+.. py:function:: test_the_addresses_of_the_deleted_registers_are_unmapped() -> None
+
+   0x0010 and 0x0024 carried SHELL_VERSION and DMA_CONSTRAINTS, which no
+   generator ever stamped, so every host read returned zero. A register
+   nothing writes is not a capability. They are gone from the offsets, and
+   the identity block falls through to all-ones there -- which the driver
+   already reads as 'not advertised' rather than as a value.
+
+

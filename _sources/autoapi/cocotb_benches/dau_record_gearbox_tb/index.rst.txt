@@ -1,0 +1,120 @@
+cocotb_benches.dau_record_gearbox_tb
+====================================
+
+.. py:module:: cocotb_benches.dau_record_gearbox_tb
+
+.. autoapi-nested-parse::
+
+   Record gearbox: wide beats in, one WHOLE RECORD PER CYCLE out.
+
+   Correctness here is nearly trivial — the gearbox is a pure reframing, so
+   the golden is the identity on the record sequence. The property that
+   justifies the core is the RATE, so this bench measures it: under
+   continuous valid input and an always-ready sink it must sustain one
+   record per cycle, which is what turns a 3-cycles-per-record front into a
+   1-cycle one. A version that was correct but slow would pass a
+   values-only bench and be worthless.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_record_gearbox_tb._MASK64
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_record_gearbox_tb._beat_words
+   cocotb_benches.dau_record_gearbox_tb._record_words
+   cocotb_benches.dau_record_gearbox_tb._start
+   cocotb_benches.dau_record_gearbox_tb._beats
+   cocotb_benches.dau_record_gearbox_tb._send
+   cocotb_benches.dau_record_gearbox_tb._collect
+   cocotb_benches.dau_record_gearbox_tb._records
+   cocotb_benches.dau_record_gearbox_tb._run
+   cocotb_benches.dau_record_gearbox_tb.records_reframe_across_beat_boundaries
+   cocotb_benches.dau_record_gearbox_tb.sustains_one_record_per_cycle
+   cocotb_benches.dau_record_gearbox_tb.a_ragged_tail_beat_emits_no_padding_record
+   cocotb_benches.dau_record_gearbox_tb.backpressure_and_input_gaps_stay_golden
+   cocotb_benches.dau_record_gearbox_tb.back_to_back_batches_rearm
+   cocotb_benches.dau_record_gearbox_tb.a_short_stream_reports_a_framing_error
+
+
+Module Contents
+---------------
+
+.. py:data:: _MASK64
+   :value: 18446744073709551615
+
+
+.. py:function:: _beat_words(dut) -> int
+
+.. py:function:: _record_words(dut) -> int
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _beats(words, beat_words)
+
+.. py:function:: _send(dut, beats, *, gap_pattern=(1, )) -> None
+   :async:
+
+
+.. py:function:: _collect(dut, count, *, ready_pattern=(1, ))
+   :async:
+
+
+.. py:function:: _records(rng, count, record_words)
+
+.. py:function:: _run(dut, records, *, ready_pattern=(1, ), gap_pattern=(1, ))
+   :async:
+
+
+.. py:function:: records_reframe_across_beat_boundaries(dut)
+   :async:
+
+
+   The interesting case is a record size that does NOT divide the beat:
+   3-word records over 8-word beats straddle every boundary.
+
+
+.. py:function:: sustains_one_record_per_cycle(dut)
+   :async:
+
+
+   THE property this core exists for. A 64-bit front costs N cycles per
+   N-word record; this must cost one, or the whole point is lost.
+
+
+.. py:function:: a_ragged_tail_beat_emits_no_padding_record(dut)
+   :async:
+
+
+   The final beat is padded to the bus width; the record count — not the
+   byte length — decides how many records exist.
+
+
+.. py:function:: backpressure_and_input_gaps_stay_golden(dut)
+   :async:
+
+
+.. py:function:: back_to_back_batches_rearm(dut)
+   :async:
+
+
+.. py:function:: a_short_stream_reports_a_framing_error(dut)
+   :async:
+
+
+   The record COUNT and the byte length must agree. Nothing else in this
+   bench exercises the error branch — without this, deleting it entirely
+   would still pass.
+
+

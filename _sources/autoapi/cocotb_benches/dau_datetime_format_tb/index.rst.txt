@@ -1,0 +1,150 @@
+cocotb_benches.dau_datetime_format_tb
+=====================================
+
+.. py:module:: cocotb_benches.dau_datetime_format_tb
+
+.. autoapi-nested-parse::
+
+   The datetime formatter against its golden, character for character.
+
+   This tile shipped without a bench, which an audit caught: its only test read
+   constants out of the SystemVerilog and exercised the Python golden, so the
+   HDL was never instantiated. A resource number for a module nobody ran is a
+   number about an unverified design, and that is what this file fixes.
+
+   Every case compares the 152-bit output beat against ``format_datetime_rows``
+   by decoding it back to a string, so a wrong character fails with the two
+   strings side by side rather than with a hex mismatch.
+
+   The dates chosen are the ones the era arithmetic gets wrong when it is
+   written by hand: 2000 is a leap year (divisible by 400), 2100 is not
+   (divisible by 100 but not 400), and 2024-02-29 must exist. The range ends
+   are here because a formatter that silently truncates the year is exactly the
+   failure ``DOMAIN`` exists to prevent.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_datetime_format_tb._CHARS
+   cocotb_benches.dau_datetime_format_tb._EDGE_ROWS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_datetime_format_tb._decode
+   cocotb_benches.dau_datetime_format_tb._start
+   cocotb_benches.dau_datetime_format_tb._send
+   cocotb_benches.dau_datetime_format_tb._run
+   cocotb_benches.dau_datetime_format_tb.renders_every_row_exactly
+   cocotb_benches.dau_datetime_format_tb.leap_rules_and_range_ends_are_exact
+   cocotb_benches.dau_datetime_format_tb.a_value_past_the_range_closes_out_domain
+   cocotb_benches.dau_datetime_format_tb.backpressure_does_not_drop_or_reorder
+   cocotb_benches.dau_datetime_format_tb.a_second_batch_matches_the_first
+   cocotb_benches.dau_datetime_format_tb.reset_clears_a_batch_in_flight
+   cocotb_benches.dau_datetime_format_tb.randomized_instants_match_the_golden
+   cocotb_benches.dau_datetime_format_tb.sustained_ingest_meets_registry_floor
+
+
+Module Contents
+---------------
+
+.. py:data:: _CHARS
+   :value: 19
+
+
+.. py:data:: _EDGE_ROWS
+
+.. py:function:: _decode(beat: int) -> str
+
+   The 152-bit beat back to text: character i in bits [8*i+7:8*i].
+
+
+.. py:function:: _start(dut)
+   :async:
+
+
+.. py:function:: _send(dut, rows) -> None
+   :async:
+
+
+   Drive rows, one handshake at a time.
+
+   Sampling happens in ReadOnly and the cycle advances on RisingEdge, which
+   is the palette's shape. Combining send, drain and status-watch into one
+   loop deadlocks -- the sender holds input_valid while the same loop is
+   trying to observe the output, so neither side ever fires.
+
+
+.. py:function:: _run(dut, rows, *, expect: int | None = None, ready_pattern=None)
+   :async:
+
+
+   Send ``rows`` concurrently while draining.
+
+   **This tile declares ``success_close_out: False``**, so a clean batch is
+   contractually SILENT -- there is no status beat to wait for, and a bench
+   that waits for one hangs forever. That is not a tile defect; 23 of the 45
+   registered operators are silent on success, and the registry fact is the
+   authority. So the drain ends when the expected rows have arrived, and
+   only an ERROR produces a close-out.
+
+   ``expect`` is how many rendered rows to wait for (default: all of them).
+   ``ready_pattern`` stalls the sink, which is the backpressure case.
+
+
+.. py:function:: renders_every_row_exactly(dut)
+   :async:
+
+
+.. py:function:: leap_rules_and_range_ends_are_exact(dut)
+   :async:
+
+
+   The cases a hand-written civil-from-days gets wrong.
+
+
+.. py:function:: a_value_past_the_range_closes_out_domain(dut)
+   :async:
+
+
+   A formatter that truncated the year instead of refusing would pass
+   every other test in this file, which is why this one exists.
+
+
+.. py:function:: backpressure_does_not_drop_or_reorder(dut)
+   :async:
+
+
+   The sink stalls on a fixed pattern; nothing may be lost or reordered.
+
+
+.. py:function:: a_second_batch_matches_the_first(dut)
+   :async:
+
+
+   Repeated runs without an intervening reset: state must not carry.
+
+
+.. py:function:: reset_clears_a_batch_in_flight(dut)
+   :async:
+
+
+   Reset mid-batch, then run a clean one: the interrupted rows must not
+   appear in the next batch's output.
+
+
+.. py:function:: randomized_instants_match_the_golden(dut)
+   :async:
+
+
+.. py:function:: sustained_ingest_meets_registry_floor(dut)
+   :async:
+
+

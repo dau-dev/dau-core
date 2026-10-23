@@ -1,0 +1,93 @@
+cocotb_benches.dau_bucket_agg_chain_tb
+======================================
+
+.. py:module:: cocotb_benches.dau_bucket_agg_chain_tb
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_bucket_agg_chain_tb.BUCKET_SHIFT
+   cocotb_benches.dau_bucket_agg_chain_tb.BUCKET_BITS
+   cocotb_benches.dau_bucket_agg_chain_tb._MARKET
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_bucket_agg_chain_tb._bucket_rows
+   cocotb_benches.dau_bucket_agg_chain_tb.bar_stage_matches_generic_aggregate
+   cocotb_benches.dau_bucket_agg_chain_tb.bar_stage_selects_to_time_bars
+   cocotb_benches.dau_bucket_agg_chain_tb.bar_stage_backpressure
+   cocotb_benches.dau_bucket_agg_chain_tb._start
+   cocotb_benches.dau_bucket_agg_chain_tb._run
+   cocotb_benches.dau_bucket_agg_chain_tb._field
+   cocotb_benches.dau_bucket_agg_chain_tb._decode
+   cocotb_benches.dau_bucket_agg_chain_tb._send_rows
+   cocotb_benches.dau_bucket_agg_chain_tb._collect_output
+   cocotb_benches.dau_bucket_agg_chain_tb._accept_success_status
+   cocotb_benches.dau_bucket_agg_chain_tb._s32
+   cocotb_benches.dau_bucket_agg_chain_tb._s64
+
+
+Module Contents
+---------------
+
+.. py:data:: BUCKET_SHIFT
+   :value: 3
+
+
+.. py:data:: BUCKET_BITS
+   :value: 16
+
+
+.. py:data:: _MARKET
+   :value: [(5, 100, 12, 3, 10, 12), (5, 103, 15, 2, 11, 13), (5, 112, 8, 4, 9, 11), (7, 100, 50, 7, 48,...
+
+
+.. py:function:: _bucket_rows(market)
+
+.. py:function:: bar_stage_matches_generic_aggregate(dut)
+   :async:
+
+
+.. py:function:: bar_stage_selects_to_time_bars(dut)
+   :async:
+
+
+.. py:function:: bar_stage_backpressure(dut)
+   :async:
+
+
+.. py:function:: _start(dut) -> None
+   :async:
+
+
+.. py:function:: _run(dut, rows, *, ready_pattern=(1, ))
+   :async:
+
+
+.. py:function:: _field(lastfirst, minmax, total) -> dau_core.operators.FieldStats
+
+.. py:function:: _decode(w) -> dau_core.operators.GroupedFieldAggregate
+
+.. py:function:: _send_rows(dut, rows) -> None
+   :async:
+
+
+.. py:function:: _collect_output(dut, ready_pattern)
+   :async:
+
+
+.. py:function:: _accept_success_status(dut) -> int
+   :async:
+
+
+.. py:function:: _s32(value: int) -> int
+
+.. py:function:: _s64(value: int) -> int
+

@@ -1,0 +1,49 @@
+test_record_batch
+=================
+
+.. py:module:: test_record_batch
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_record_batch._header
+   test_record_batch._column
+   test_record_batch.test_valid_multi_column_batch_passes
+   test_record_batch.test_column_count_mismatch_rejected
+   test_record_batch.test_column_cap_enforced
+   test_record_batch.test_row_cap_enforced
+   test_record_batch.test_batch_extent_cap_enforced
+   test_record_batch.test_duplicate_field_ids_rejected
+   test_record_batch.test_overlapping_column_payloads_rejected
+   test_record_batch.test_misaligned_column_offset_rejected
+   test_record_batch.test_row_count_mismatch_rejected
+
+
+Module Contents
+---------------
+
+.. py:function:: _header(row_count: int, columns: int, payload_offset: int, payload_length: int) -> dau_core.stream.BatchHeader
+
+.. py:function:: _column(field_id: int, offset: int, rows: int, width_bytes: int, logical_type: dau_core.stream.LogicalType = LogicalType.INT32) -> dau_core.stream.ColumnDescriptor
+
+.. py:function:: test_valid_multi_column_batch_passes() -> None
+
+.. py:function:: test_column_count_mismatch_rejected() -> None
+
+.. py:function:: test_column_cap_enforced() -> None
+
+.. py:function:: test_row_cap_enforced() -> None
+
+.. py:function:: test_batch_extent_cap_enforced() -> None
+
+.. py:function:: test_duplicate_field_ids_rejected() -> None
+
+.. py:function:: test_overlapping_column_payloads_rejected() -> None
+
+.. py:function:: test_misaligned_column_offset_rejected() -> None
+
+.. py:function:: test_row_count_mismatch_rejected() -> None
+
