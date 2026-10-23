@@ -301,6 +301,52 @@ body[data-layout="notebook"] #fd-subnav {
   background: var(--color-fd-accent);
 }
 
+.fd-llms {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.fd-llms summary {
+  list-style: none;
+}
+
+.fd-llms summary::-webkit-details-marker {
+  display: none;
+}
+
+.fd-llms-menu {
+  position: absolute;
+  z-index: 20;
+  inset-inline-start: 0;
+  bottom: calc(100% + 0.25rem);
+  min-width: 10rem;
+  padding: 0.25rem;
+  border: 1px solid var(--color-fd-border);
+  border-radius: var(--fd-radius);
+  background: var(--color-fd-popover);
+  color: var(--color-fd-popover-foreground);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.16);
+}
+
+#fd-subnav .fd-llms-menu {
+  inset-inline-start: auto;
+  inset-inline-end: 0;
+  top: calc(100% + 0.25rem);
+  bottom: auto;
+}
+
+.fd-llms-menu a {
+  display: block;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+}
+
+.fd-llms-menu a:hover,
+.fd-llms-menu a:focus-visible {
+  background: var(--color-fd-accent);
+}
+
 .fd-theme-toggle .fd-icon-dark,
 html.dark .fd-theme-toggle .fd-icon-light {
   display: none;

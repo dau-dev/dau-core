@@ -8,6 +8,19 @@
   var body = document.body;
   var docEl = document.documentElement;
 
+  document.querySelectorAll(".fd-llms").forEach(function (menu) {
+    document.addEventListener("click", function (event) {
+      if (!menu.contains(event.target) || event.target.closest("a")) menu.open = false;
+    });
+    menu.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && menu.open) {
+        menu.open = false;
+        menu.querySelector("summary").focus();
+        event.preventDefault();
+      }
+    });
+  });
+
   /* Theme -------------------------------------------------------------- */
 
   function isDark() {
