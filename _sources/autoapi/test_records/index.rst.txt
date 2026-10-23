@@ -1,0 +1,43 @@
+test_records
+============
+
+.. py:module:: test_records
+
+.. autoapi-nested-parse::
+
+   The host's record layouts agree with what the registry says the tiles read
+   and write, and with the goldens' result types.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_records.WORD_BYTES
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_records.test_each_layout_is_as_wide_as_the_registry_says
+   test_records.test_each_record_carries_the_goldens_fields_in_order
+   test_records.test_the_struct_and_numpy_views_agree
+
+
+Module Contents
+---------------
+
+.. py:data:: WORD_BYTES
+   :value: 8
+
+
+.. py:function:: test_each_layout_is_as_wide_as_the_registry_says(tile: str, row_bytes: int, record_bytes: int) -> None
+
+.. py:function:: test_each_record_carries_the_goldens_fields_in_order(fields, result_type) -> None
+
+.. py:function:: test_the_struct_and_numpy_views_agree() -> None
+

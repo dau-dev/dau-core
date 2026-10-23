@@ -16,6 +16,8 @@ Attributes
    dau_core.registers._JOB_CONTROL_MASK
    dau_core.registers.DEFAULT_STREAM_JOB_REGISTER_CONTRACT
    dau_core.registers.CURRENT_REGISTER_MAP_VERSION
+   dau_core.registers.CAPABILITY_WORDS_REGISTER_MAP_VERSION
+   dau_core.registers.JOB_CAPACITY_REGISTER_MAP_VERSION
 
 
 Exceptions
@@ -840,4 +842,8 @@ Module Contents
 .. py:data:: DEFAULT_STREAM_JOB_REGISTER_CONTRACT
 
 .. py:data:: CURRENT_REGISTER_MAP_VERSION
+
+.. py:data:: CAPABILITY_WORDS_REGISTER_MAP_VERSION
+
+.. py:data:: JOB_CAPACITY_REGISTER_MAP_VERSION
 

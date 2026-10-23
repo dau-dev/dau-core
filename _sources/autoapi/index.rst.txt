@@ -14,6 +14,7 @@ This page contains auto-generated API reference documentation [#f1]_.
    /autoapi/test_design/index
    /autoapi/test_stream/index
    /autoapi/test_readme/index
+   /autoapi/test_records/index
    /autoapi/test_temporal/index
    /autoapi/test_operators/index
    /autoapi/cocotb_benches/index

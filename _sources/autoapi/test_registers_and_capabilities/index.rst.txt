@@ -20,6 +20,7 @@ Functions
    test_registers_and_capabilities.test_device_capabilities_report_supported_operations_and_dma_constraints
    test_registers_and_capabilities.test_device_capabilities_keep_host_computed_operators_apart_from_hardware
    test_registers_and_capabilities.test_the_addresses_of_the_deleted_registers_are_unmapped
+   test_registers_and_capabilities.test_each_word_group_arrives_no_later_than_the_current_map
 
 
 Module Contents
@@ -81,5 +82,11 @@ Module Contents
    nothing writes is not a capability. They are gone from the offsets, and
    the identity block falls through to all-ones there -- which the driver
    already reads as 'not advertised' rather than as a value.
+
+
+.. py:function:: test_each_word_group_arrives_no_later_than_the_current_map() -> None
+
+   The gates a reader checks a resident shell against: capability words
+   before job capacity, and neither newer than the map this package writes.
 
 

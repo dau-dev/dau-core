@@ -9,6 +9,7 @@ Attributes
 
 .. autoapisummary::
 
+   dau_core.stream.LOGICAL_TYPE_BYTE_WIDTHS
    dau_core.stream.DEFAULT_RECORD_BATCH_LIMITS
 
 
@@ -127,6 +128,8 @@ Module Contents
       :value: 31
 
 
+
+.. py:data:: LOGICAL_TYPE_BYTE_WIDTHS
 
 .. py:class:: OperationCode
 

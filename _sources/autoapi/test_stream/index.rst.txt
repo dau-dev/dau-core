@@ -13,6 +13,8 @@ Functions
    test_stream.test_column_descriptor_preserves_arrow_lite_offsets_and_group_role
    test_stream.test_operation_descriptor_records_float64_average_policy_and_group_key_set
    test_stream.test_stream_aggregation_error_codes_match_hdl_contract_values
+   test_stream.test_each_wire_width_is_the_size_of_its_value
+   test_stream.test_bool_has_no_fixed_wire_width_and_the_widths_are_read_only
 
 
 Module Contents
@@ -25,4 +27,8 @@ Module Contents
 .. py:function:: test_operation_descriptor_records_float64_average_policy_and_group_key_set()
 
 .. py:function:: test_stream_aggregation_error_codes_match_hdl_contract_values()
+
+.. py:function:: test_each_wire_width_is_the_size_of_its_value() -> None
+
+.. py:function:: test_bool_has_no_fixed_wire_width_and_the_widths_are_read_only() -> None
 

@@ -37,6 +37,7 @@ Submodules
    /autoapi/dau_core/models/index
    /autoapi/dau_core/normal_cdf_generator/index
    /autoapi/dau_core/operators/index
+   /autoapi/dau_core/records/index
    /autoapi/dau_core/registers/index
    /autoapi/dau_core/registry/index
    /autoapi/dau_core/stream/index
