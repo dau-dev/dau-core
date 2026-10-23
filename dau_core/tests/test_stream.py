@@ -1,4 +1,9 @@
+import struct
+
+import pytest
+
 from dau_core.stream import (
+    LOGICAL_TYPE_BYTE_WIDTHS,
     BatchHeader,
     ColumnDescriptor,
     GroupRole,
@@ -71,3 +76,25 @@ def test_stream_aggregation_error_codes_match_hdl_contract_values():
     assert int(StreamAggregationErrorCode.DESCRIPTOR) == 1
     assert int(StreamAggregationErrorCode.OPCODE) == 2
     assert int(StreamAggregationErrorCode.TILE) == 3
+
+
+def test_each_wire_width_is_the_size_of_its_value() -> None:
+    formats = {
+        LogicalType.INT8: "b",
+        LogicalType.INT16: "h",
+        LogicalType.INT32: "i",
+        LogicalType.INT64: "q",
+        LogicalType.UINT8: "B",
+        LogicalType.UINT16: "H",
+        LogicalType.UINT32: "I",
+        LogicalType.UINT64: "Q",
+        LogicalType.FLOAT32: "f",
+        LogicalType.FLOAT64: "d",
+    }
+    assert {logical_type: struct.calcsize(f"<{code}") for logical_type, code in formats.items()} == dict(LOGICAL_TYPE_BYTE_WIDTHS)
+
+
+def test_bool_has_no_fixed_wire_width_and_the_widths_are_read_only() -> None:
+    assert LogicalType.BOOL not in LOGICAL_TYPE_BYTE_WIDTHS
+    with pytest.raises(TypeError):
+        LOGICAL_TYPE_BYTE_WIDTHS[LogicalType.BOOL] = 1  # ty: ignore[invalid-assignment]

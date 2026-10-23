@@ -3,6 +3,7 @@ from __future__ import annotations
 import struct
 from dataclasses import dataclass
 from enum import IntEnum, IntFlag
+from types import MappingProxyType
 
 from .models import CheckedModel
 from .registers import DAU_MAGIC_WORD
@@ -24,6 +25,26 @@ class LogicalType(IntEnum):
     UINT64 = 23
     FLOAT32 = 30
     FLOAT64 = 31
+
+
+# Bytes per value on the wire for each fixed-width type, which is what a
+# column payload's length is checked against. BOOL has no fixed-width
+# encoding in the stream protocol, so it is absent: a type missing here is
+# one the codecs do not carry.
+LOGICAL_TYPE_BYTE_WIDTHS = MappingProxyType(
+    {
+        LogicalType.INT8: 1,
+        LogicalType.INT16: 2,
+        LogicalType.INT32: 4,
+        LogicalType.INT64: 8,
+        LogicalType.UINT8: 1,
+        LogicalType.UINT16: 2,
+        LogicalType.UINT32: 4,
+        LogicalType.UINT64: 8,
+        LogicalType.FLOAT32: 4,
+        LogicalType.FLOAT64: 8,
+    }
+)
 
 
 class OperationCode(IntEnum):

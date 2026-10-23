@@ -4,9 +4,11 @@ import pytest
 
 from dau_core.capabilities import DeviceCapabilities, DmaConstraints, OperatorCapability
 from dau_core.registers import (
+    CAPABILITY_WORDS_REGISTER_MAP_VERSION,
     CURRENT_REGISTER_MAP_VERSION,
     DAU_MAGIC_WORD,
     DEFAULT_STREAM_JOB_REGISTER_CONTRACT,
+    JOB_CAPACITY_REGISTER_MAP_VERSION,
     NOC_LANE_BASE,
     HandleFaultCode,
     HandleTableControlFlag,
@@ -318,3 +320,9 @@ def test_the_addresses_of_the_deleted_registers_are_unmapped() -> None:
     assert not hasattr(RegisterOffset, "DMA_CONSTRAINTS")
     live = {int(offset) for offset in RegisterOffset}
     assert 0x0010 not in live and 0x0024 not in live
+
+
+def test_each_word_group_arrives_no_later_than_the_current_map() -> None:
+    """The gates a reader checks a resident shell against: capability words
+    before job capacity, and neither newer than the map this package writes."""
+    assert CAPABILITY_WORDS_REGISTER_MAP_VERSION < JOB_CAPACITY_REGISTER_MAP_VERSION <= CURRENT_REGISTER_MAP_VERSION

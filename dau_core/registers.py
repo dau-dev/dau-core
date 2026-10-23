@@ -460,5 +460,11 @@ DEFAULT_STREAM_JOB_REGISTER_CONTRACT = StreamJobRegisterContract()
 # static advertisement). 0.2 adds the composed-capability words
 # (LANE_COUNT / HOST_OPCODE_BITMAP / SORT_CAPACITY) and redefines
 # OPERATOR_BITMAP as the hardware truth of the composed design: a bit is
-# set only for OperationCodes some tile executes in HDL.
+# set only for OperationCodes some tile executes in HDL. 0.3 adds the job
+# capacity words (INPUT_ROW_CAPACITY / OUTPUT_RECORD_CAPACITY).
 CURRENT_REGISTER_MAP_VERSION = RegisterMapVersion(0, 3)
+# The first version that decodes each group. A reader gates on these rather
+# than on CURRENT: an older resident shell answers the newer offsets with
+# all-ones or with whatever it decoded there before.
+CAPABILITY_WORDS_REGISTER_MAP_VERSION = RegisterMapVersion(0, 2)
+JOB_CAPACITY_REGISTER_MAP_VERSION = RegisterMapVersion(0, 3)
