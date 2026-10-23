@@ -9,7 +9,7 @@ loaded into the ccflow `ModelRegistry` at `/dau-core/<name>`.
 
 | Field            | Type                    | Description                                                                                                                                                                                  |
 | ---------------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`           | `str`                   | Registry key, named for what the tile computes. A width belongs in the parameters, not the name; see [Add an operator tile](Add-an-Operator-Tile).                                           |
+| `name`           | `str`                   | Registry key, named for what the tile computes. A width belongs in the parameters, not the name; see [Add an operator tile](../how-to/add-an-operator-tile.md).                              |
 | `kind`           | `CoreKind`              | `operator`, `stream-infra`, `shell-adapter`, `package`, or `sim-model`.                                                                                                                      |
 | `module`         | `str`                   | The SystemVerilog module name.                                                                                                                                                               |
 | `source`         | `str`                   | The HDL filename within `source_package`.                                                                                                                                                    |
@@ -43,9 +43,11 @@ raises an error.
 
 ## Resources
 
-| Field       | Type                                      | Description                                                                                                             |
-| ----------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `resources` | `tuple[ResourceMeasurement, ...] \| None` | Measurement points keyed by part, clock, and parameters. A combinational core's point has no clock and answers for any. |
+| Field           | Type                                      | Description                                                                                                                                                                                        |
+| --------------- | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `resources`     | `tuple[ResourceMeasurement, ...] \| None` | Measurement points keyed by part, clock, and parameters. A combinational core's point has no clock and answers for any.                                                                            |
+| `measured_from` | `str \| None`                             | Digest of the HDL closure the points were measured from (`hdl_closure_digest()`): the tile's source, the packages it imports and the headers it includes. A stamp with no `resources` is rejected. |
+| `accuracy_ulp`  | `int \| None`                             | For a tile whose golden is a mathematical reference (the transcendentals): the worst deviation from the correctly rounded answer, in ULP, over an exhaustive sweep. `0` means correctly rounded.   |
 
 `ResourceEnvelope` is a count (`lut`, `ff`, `bram36`, `dsp`): a measurement point's usable face, or the sum a composition estimate adds up to. It is not a registry shape.
 
@@ -81,7 +83,7 @@ numbers as a budget.
 
 Two rules cannot be read off a tile's ports, so the registry states them.
 `front-unpack` marks a core admissible in the optional front-stage feed
-transform slot — it widens packed rows into the quad rows the lanes consume.
+transform slot, which widens packed rows into the quad rows the lanes consume.
 `key-dispatch` marks a core that routes whole records to lanes by a decode
 over the record's key, and is a contract as well as a label: such a core
 has `MODE` (a `DispatchMode`) and `NUM_PARTITIONS`, and the composition
@@ -106,16 +108,15 @@ shapes. At most one scaling shape may be set.
 `IngestRate.effective(params, declared)` resolves the rate against a
 parameter set as an exact `Fraction`.
 
-The declaration is **public interface, not a heuristic**: pricing and
-scheduling rate-match a core they cannot inspect from it alone. It states
-the *floor* a core sustains under continuous valid input, with record and
-drain emission **amortized over the batch** — close-out records, top-k
-drains, and per-group records are batch-tail or per-group costs, not
-per-row costs.
+The declaration is **public interface**: pricing and scheduling rate-match
+a core from it alone, without inspecting the core. It states the *floor* a
+core sustains under continuous valid input, with record and drain emission
+**amortized over the batch**. Close-out records, top-k drains and per-group
+records are batch-tail or per-group costs, not per-row costs.
 
-Data-dependent worst cases — every group key distinct, adversarial key runs
-into one dispatcher lane — are planner-regime concerns visible in the plan,
-not floor violations. A core whose rate depends on data declares the
+Data-dependent worst cases, such as every group key being distinct or
+adversarial key runs landing on one dispatcher lane, are visible in the plan
+and handled by the planner; they do not violate the floor. A core whose rate depends on data declares the
 amortized cadence and names the adversarial case in its registry comment
 rather than padding the number.
 
@@ -150,13 +151,13 @@ a parameter set, validating overrides against the declared parameter specs.
 A `ParameterSpec` has a `default`, and optionally `minimum`, `maximum`,
 `multiple_of`, `choices`, `power_of_two`, and `element_type`. These mirror
 the RTL's elaboration guards, and `ParameterSpec.violation()` is the single
-statement of the override rule — composition validation, the build layer,
-and the pricing path all consult it rather than re-implementing the checks.
+statement of the override rule: composition validation, the build layer,
+and the pricing path all call it instead of re-implementing the checks.
 
 ### Element types
 
-`element_type: true` marks a parameter that names WHAT AN ELEMENT IS rather
-than how big something is. Its `default` and `choices` may then be written
+`element_type: true` marks a parameter that names what an element is,
+rather than how big something is. Its `default` and `choices` may then be written
 as type spellings, and a composition may override it the same way:
 
 ```yaml
@@ -169,18 +170,18 @@ FIELD_WIDTH:
 ```
 
 The spellings are `intN`/`uintN`, `float32`/`float64`, and the fixed-point
-form `qI.F` (I integer bits including the sign, F fractional, I+F total —
+form `qI.F` (I integer bits including the sign, F fractional, I+F total, so
 `q16.16` is 32 bits). They resolve to the encoding in
 `dau_core/hdl/types.svh`, which tiles include to decode a type's width,
 signedness, fractional bits and float-ness. A plain signed integer encodes
 as its own width, so `int32` and `32` are the same declaration and an entry
 migrated from a width names exactly the tile it always did.
 
-Bounds on such a parameter constrain the type's WIDTH, because that is what
-the RTL guard they mirror is about; `choices` match the whole type, so
+Bounds on such a parameter constrain the type's width, because that is what
+the RTL guard they mirror checks; `choices` match the whole type, so
 `int32` and `q16.16` are not interchangeable despite both being 32 bits.
 
-Bus and beat widths — `IN_WIDTH`, `OUT_WIDTH`, `DATA_WIDTH` — count bits per
+Bus and beat widths (`IN_WIDTH`, `OUT_WIDTH`, `DATA_WIDTH`) count bits per
 handshake and are **not** element types. Leave `element_type` unset for them.
 
 A tile that includes `types.svh` needs its directory on the include path;

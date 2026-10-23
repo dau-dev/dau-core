@@ -1,6 +1,6 @@
 """The temporal-finance hero workflow: the predeclared
 end-to-end pipeline composed from the :mod:`dau_core.temporal` goldens, plus the
-avoided-materialization cost model that is the paper's core evidence.
+avoided-materialization cost model that is the paper's core evidence::
 
     quotes ─┐
             ├─> backward as-of ─> [market-feature map] ─> time bars ─> rolling moments

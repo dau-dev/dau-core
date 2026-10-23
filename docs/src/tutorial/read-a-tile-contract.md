@@ -157,4 +157,4 @@ Five facts about a tile live in five places:
 | That the last two agree       | the cocotb bench                         |
 
 Adding a tile means producing all five, in that order. That is the subject
-of [how to add an operator tile](Add-an-Operator-Tile).
+of [how to add an operator tile](../how-to/add-an-operator-tile.md).

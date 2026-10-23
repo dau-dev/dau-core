@@ -175,3 +175,20 @@ section-order = [
     "F401",
     "F403",
 ]
+
+[tool.yardang]
+title = "dau core"
+root = "README.md"
+pages = [
+    "docs/src/tutorial/read-a-tile-contract.md",
+    "docs/src/how-to/add-an-operator-tile.md",
+    "docs/src/how-to/test-a-core.md",
+    "docs/src/how-to/measure-a-resource-envelope.md",
+    "docs/src/how-to/develop.md",
+    "docs/src/reference/core-definition.md",
+    "docs/src/reference/registry-guards.md",
+    "docs/src/explanation/why-cores-are-declared-in-config.md",
+    "docs/src/explanation/why-each-tile-has-a-golden-model.md",
+    "docs/src/explanation/why-resources-are-measured.md",
+]
+use-autoapi = true

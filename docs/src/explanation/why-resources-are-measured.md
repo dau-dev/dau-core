@@ -50,6 +50,14 @@ task reports any drift from what the registry already declares. Synthesis
 is never run by hand, because a hand-run number loses the coordinate it was
 measured at.
 
+The numbers also cannot say which HDL produced them, so each entry records
+that as `measured_from`, a digest of the tile's source and everything it
+imports or includes. A test recomputes the digest from the tree, so editing
+the HDL under a recorded envelope fails the suite until the core is measured
+again. Before that stamp existed, two envelopes went stale for months
+because one commit re-measured the coordinates it added and not the ones it
+changed.
+
 ## What a measured point does not tell you
 
 An out-of-context run measures the core by itself. Inside a shell the same
@@ -68,5 +76,5 @@ the numbers, since the numbers cannot show it.
 Measuring a core means synthesizing it across its parameter space on every
 supported part, which takes real machine time. Until a core has been
 measured on a part, a design for that part cannot be priced: the estimator
-raises instead of borrowing another part's number. That is the trade for
-never again pricing a Kintex build with an Artix figure.
+raises instead of borrowing another part's number. In exchange, a Kintex
+build is never priced with an Artix figure.
