@@ -32,12 +32,12 @@ contract.
 | `test_exact_resource_measurement_resolves_with_parameter_defaults`             | Coordinate lookup ignoring a declared parameter default.                                                                                          |
 | `test_resource_measurement_refuses_an_unmeasured_part`                         | One part's number pricing another part's build.                                                                                                   |
 | `test_every_registered_core_with_resources_carries_measurement_points`         | A resource record that is not a list of measurement points.                                                                                       |
-| `test_an_unclocked_measurement_answers_for_any_clock_and_records_no_timing`    | A combinational core's point carrying a timing status it never had, or failing to price a clock.                                                  |
+| `test_an_unclocked_measurement_answers_for_any_clock_and_records_no_timing`    | A combinational core's point recording a timing status it never had, or failing to price a clock.                                                 |
 | `test_violated_measurement_is_retrievable_but_not_a_usable_envelope`           | A timing-failed build being consumed as a smaller budget.                                                                                         |
 | `test_a_measured_point_matches_a_derived_clock_period`                         | A period derived as `1000 / job_clock_mhz` failing float equality against its measured point.                                                     |
 | `test_registry_is_hydra_composition_not_a_python_literal`                      | A parallel Python-literal core list reappearing, and the registry-path view drifting from the accessor view.                                      |
 | `test_accessors_defer_to_a_composed_registry`                                  | A default reload clobbering a consumer's composed overrides.                                                                                      |
-| `test_silent_on_success_operator_set_is_pinned`                                | A core changing its status class — silent mid-chain versus per-batch close-out — without the change being stated.                                 |
+| `test_silent_on_success_operator_set_is_pinned`                                | A core changing its status class (silent mid-chain or a per-batch close-out) without the change being stated.                                     |
 | `test_dispatcher_rate_still_needs_record_aware_modeling`                       | The known record-width-blind dispatcher rate gap being treated as closed.                                                                         |
 | `test_authoritative_models_reject_impossible_values`                           | Negative resource counts, empty part strings, or non-positive clock periods entering the registry.                                                |
 | `test_parameter_spec_rejects_incoherent_constraints`                           | A spec that would reject every override, including its own default.                                                                               |
@@ -45,7 +45,7 @@ contract.
 | `test_storage_intent_prices_against_declared_parameters`                       | Storage cost ignoring a parameter override.                                                                                                       |
 | `test_storage_intent_refuses_an_undeclared_scale_parameter`                    | An intent scaling by a parameter the core does not declare.                                                                                       |
 | `test_storage_intent_without_scale_is_a_fixed_cost`                            | A scale-free intent being mispriced.                                                                                                              |
-| `test_storage_bytes_refuses_illegal_scale_overrides`                           | Pricing an override that no buildable design could carry.                                                                                         |
+| `test_storage_bytes_refuses_illegal_scale_overrides`                           | Pricing an override that no buildable design could use.                                                                                           |
 | `test_a_core_resolves_hdl_from_the_package_that_declares_it`                   | A third-party tile being forced to vendor its SystemVerilog into `dau_core.hdl`.                                                                  |
 | `test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards`              | An installed third-party tile failing this package's exact-set guards.                                                                            |
 | `test_a_core_naming_an_uninstalled_hdl_package_refuses_clearly`                | A raw `ImportError` where the message should name the missing distribution.                                                                       |
@@ -57,8 +57,17 @@ contract.
 | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `test_every_operator_conforms_to_the_stream_tile_contract` | A `row-stream` operator whose real SystemVerilog port list drifts from the stream and status contract. Ports are parsed from the source rather than assumed. |
 
-The check runs through `dau_build.sv_contract.validate_stream_tile`. A
-missing `dau_build` fails the guard rather than skipping it.
+The check runs through `dau_build.sv_contract.validate_stream_tile`. In CI a
+missing `dau_build` fails the guard; anywhere else it skips.
+
+## `test_measured_from_matches_the_hdl.py`
+
+| Guard                                                        | Fails on                                                                                                                                  |
+| ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `test_every_stamped_envelope_matches_its_hdl_closure`        | An edit to a tile's source, or to a package it imports or a header it includes, without re-measuring and re-stamping its `measured_from`. |
+| `test_the_unstamped_envelopes_are_exactly_the_declared_ones` | A measured core without a `measured_from`, beyond the pinned unstamped set, which can only shrink.                                        |
+| `test_every_core_has_a_computable_hdl_closure`               | A core whose HDL closure cannot be digested.                                                                                              |
+| `test_a_stamp_without_a_measurement_is_refused`              | A `measured_from` on an entry that records no resources.                                                                                  |
 
 ## `test_hdl_elaboration.py`
 
@@ -126,9 +135,9 @@ in an autouse fixture, so registry-walking guards see real files.
 
 ## See also
 
-- [How to test a core](Test-a-Core): the order to run these in while
+- [How to test a core](../how-to/test-a-core.md): the order to run these in while
   developing a tile.
-- [How to add an operator tile](Add-an-Operator-Tile): the steps these
+- [How to add an operator tile](../how-to/add-an-operator-tile.md): the steps these
   guards check.
-- [`CoreDefinition` fields](Core-Definition): the declarations most of these
+- [`CoreDefinition` fields](core-definition.md): the declarations most of these
   guards read.

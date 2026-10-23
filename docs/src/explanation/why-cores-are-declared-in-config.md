@@ -1,4 +1,4 @@
-# Why cores are declared in config, not code
+# Why cores are declared in config
 
 `dau-core` has no Python list of cores. The palette is a Hydra config tree,
 `dau_core/config/dau-core/cores.yaml`, with one
@@ -56,14 +56,12 @@ field, and a typo shows up as a composition failure instead of an
 `AttributeError` where it is used. Reading the palette means reading a long
 yaml file instead of skimming a module.
 
-That is the price of letting more than one party edit the palette. A
-registry that only this package can change has one author, and a registry
-exists so that it can have more than one.
+That is the price of letting more than one party edit the palette.
 
 ## See also
 
-- [How to add an operator tile](Add-an-Operator-Tile): the steps a new entry
+- [How to add an operator tile](../how-to/add-an-operator-tile.md): the steps a new entry
   goes through.
-- [`CoreDefinition` fields](Core-Definition): what an entry can declare.
-- [Why resource costs are measured](Why-Resources-Are-Measured): why the
+- [`CoreDefinition` fields](../reference/core-definition.md): what an entry can declare.
+- [Why resource costs are measured](why-resources-are-measured.md): why the
   most expensive field in an entry raises instead of guessing.

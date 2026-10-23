@@ -56,7 +56,7 @@ A golden also defines:
   explicitly, because Python's unbounded integers would describe hardware
   that cannot be built.
 
-## What a golden is not
+## What a golden does not do
 
 A golden is not a fallback implementation or a performance reference. It
 runs on the CPU because that is where tests run; the product never executes

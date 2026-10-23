@@ -25,7 +25,7 @@ dau-build task=tasks/build/synthesize-cores \
   model.clock_period_ns=8.0
 ```
 
-Under `output_root` you get, per core, an `.ooc.xdc` carrying the clock
+Under `output_root` you get, per core, an `.ooc.xdc` holding the clock
 constraint, an `.ooc.tcl` that reads the dependency-closed sources and runs
 `synth_design -mode out_of_context`, and a `synthesize-cores.sh` that
 invokes Vivado over them. The XDC is read *before* synthesis, so the run is
@@ -74,8 +74,11 @@ dau-build task=tasks/build/synthesize-cores \
 
 With `execute=true` the task runs Vivado per core, parses utilization and
 timing, and reports one line per core with `lut`, `ff`, `bram36`, `dsp`,
-the worst negative slack, and whether timing was met. It also compares
-against whatever the registry already declares, and flags drift.
+the worst negative slack, whether timing was met, and `measured_from`: a
+digest of the HDL the run read (the tile's source, the packages it imports
+and the headers it includes). It also compares the numbers and the digest
+against whatever the registry already declares, and flags drift in
+either.
 
 Drift comparison requires *every* axis to match. A coordinate the
 registry has never been measured at is reported as having nothing to
@@ -86,10 +89,11 @@ like a regression.
 
 There is no writer: you transcribe the results. Each run becomes one entry
 in the core's `resources:` list, keyed by the coordinate it was measured
-at, with a comment recording where it came from:
+at, and the entry's `measured_from` is set to the digest the task reported:
 
 ```yaml
   # Measured via dau-build task=tasks/build/synthesize-cores.
+  measured_from: 1:<digest from the report line>
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -102,10 +106,16 @@ at, with a comment recording where it came from:
       wns_ns: 3.857
 ```
 
-Every point's `params` must name exactly the parameters the entry declares
-— no more and no fewer — and no two points may share a
+Every point's `params` must name exactly the parameters the entry declares,
+no more and no fewer, and no two points may share a
 `(part, clock_ns, params)` coordinate. A point whose `timing` disagrees
 with the sign of its `wns_ns` is rejected at load.
+
+`measured_from` is what checks the numbers after they are written.
+`dau_core/tests/test_measured_from_matches_the_hdl.py` recomputes the digest
+from the HDL in the tree, so an edit to the tile or to anything it imports or
+includes fails that test, naming the tile, until the core is measured again
+and re-stamped.
 
 Confirm the entry loads and resolves at the coordinate you measured:
 
@@ -127,9 +137,9 @@ budget.
 
 ## Next
 
-- [Why resource costs are measured](Why-Resources-Are-Measured): why an
+- [Why resource costs are measured](../explanation/why-resources-are-measured.md): why an
   unmeasured coordinate raises instead of interpolating.
-- [`CoreDefinition` fields](Core-Definition): the `resources` field and
+- [`CoreDefinition` fields](../reference/core-definition.md): the `resources` field and
   the lookup that reads it.
-- [Registry-wide guards](Registry-Guards): the guards that fail a
+- [Registry-wide guards](../reference/registry-guards.md): the guards that fail a
   synthesizable core with no envelope.

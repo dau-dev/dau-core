@@ -1,12 +1,12 @@
 # Changes here will be overwritten by Copier
 _commit: 162463c
 _src_path: https://github.com/python-project-templates/base.git
-add_docs: false
+add_docs: true
 add_extension: python
-add_wiki: true
+add_wiki: false
 email: dev@dau.dev
 github: dau-dev
-project_description: dau core ip
+project_description: Core IP for dau projects
 project_name: dau core
 python_version_primary: '3.11'
 team: the dau-core authors

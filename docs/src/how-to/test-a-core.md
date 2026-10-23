@@ -2,7 +2,7 @@
 
 This guide shows you how to check that a tile does what its registry entry
 says. It assumes the tile already has a golden, HDL, and an entry; see
-[how to add an operator tile](Add-an-Operator-Tile) for the order those
+[how to add an operator tile](add-an-operator-tile.md) for the order those
 come in.
 
 Nothing here needs Vivado. The bench steps need `verilator` on `PATH` and
@@ -35,9 +35,11 @@ python -m pytest dau_core/tests/test_<name>.py -q
 ## 2. Prove the HDL equal to the golden
 
 The cocotb bench in `dau_core/tests/cocotb_benches/dau_<name>_tb.py`
-drives the DUT and compares against the golden, never against hand-written
-expected values. Build the tile's config object once and pass the same
+drives the DUT and compares its output with the golden's, using no
+hand-written expected values. Build the tile's config object once and pass the same
 object to both sides, so a misread config cannot cancel itself out:
+
+<!-- excerpt -->
 
 ```python
 predicate = FilterPredicate(op0=PredicateOp.GT, constant0=4)
@@ -79,6 +81,8 @@ python -m pytest dau_core/tests/test_benches_can_fail.py -q
 `ingest` is part of the public interface, because a scheduler matches
 rates using only that declaration. Check it in the bench with the rate
 probe instead of trusting it:
+
+<!-- excerpt -->
 
 ```python
 from .rate_probe import assert_sustained_ingest
@@ -136,7 +140,7 @@ golden that does not import, a source file no entry claims.
 python -m pytest dau_core/tests/test_cores.py -q
 ```
 
-See the [registry guard reference](Registry-Guards) for what each one
+See the [registry guard reference](../reference/registry-guards.md) for what each one
 checks. Four of them compare exact sets instead of predicates. If your tile
 belongs in one, a new silent-on-success stage for example, adding it to the
 pinned set is part of the change, so a reviewer sees it in the diff.
@@ -150,9 +154,9 @@ python -m ruff check dau_core && python -m ruff format --check dau_core
 
 ## Next
 
-- [Measure a resource envelope](Measure-a-Resource-Envelope): the one step
+- [Measure a resource envelope](measure-a-resource-envelope.md): the one step
   that needs a synthesis host.
-- [Registry-wide guards](Registry-Guards): the full list, and what each one
+- [Registry-wide guards](../reference/registry-guards.md): the full list, and what each one
   checks.
-- [Why each tile has a golden model](Why-Each-Tile-Has-a-Golden-Model): why
+- [Why each tile has a golden model](../explanation/why-each-tile-has-a-golden-model.md): why
   step 1 comes first.

@@ -30,21 +30,20 @@ generate their source from their parameters when rendered.
 
 ## Documentation
 
-The documentation is in [the wiki](https://github.com/dau-dev/dau-core/wiki),
-written under [`docs/wiki`](docs/wiki).
+The full documentation is at
+[dau-dev.github.io/dau-core](https://dau-dev.github.io/dau-core/).
 
-- **Tutorial**: [read a tile's contract end to end](https://github.com/dau-dev/dau-core/wiki/Read-a-Tile-Contract)
+- **Tutorial**: [Read a tile's contract end to end](docs/src/tutorial/read-a-tile-contract.md)
   follows one operator through the five places its definition lives.
-- **How-to guides**: [add an operator tile](https://github.com/dau-dev/dau-core/wiki/Add-an-Operator-Tile),
-  [test a core](https://github.com/dau-dev/dau-core/wiki/Test-a-Core), and
-  [measure a resource envelope](https://github.com/dau-dev/dau-core/wiki/Measure-a-Resource-Envelope),
-  the one step that needs a synthesis host.
-- **Reference**: the [`CoreDefinition` fields](https://github.com/dau-dev/dau-core/wiki/Core-Definition)
-  and the [registry-wide guards](https://github.com/dau-dev/dau-core/wiki/Registry-Guards)
-  with what each one checks.
-- **Explanation**: [why cores are declared in config](https://github.com/dau-dev/dau-core/wiki/Why-Cores-Are-Declared-in-Config),
-  [why each tile has a golden model](https://github.com/dau-dev/dau-core/wiki/Why-Each-Tile-Has-a-Golden-Model),
-  and [why resource costs are measured](https://github.com/dau-dev/dau-core/wiki/Why-Resources-Are-Measured).
+- **How-to guides**: [Add an operator tile](docs/src/how-to/add-an-operator-tile.md) ·
+  [Test a core](docs/src/how-to/test-a-core.md) ·
+  [Measure a resource envelope](docs/src/how-to/measure-a-resource-envelope.md), the one
+  step that needs a synthesis host · [Develop and contribute](docs/src/how-to/develop.md).
+- **Reference**: [`CoreDefinition` fields](docs/src/reference/core-definition.md) ·
+  [Registry guards](docs/src/reference/registry-guards.md) and what each one checks.
+- **Explanation**: [Why cores are declared in config](docs/src/explanation/why-cores-are-declared-in-config.md) ·
+  [Why each tile has a golden model](docs/src/explanation/why-each-tile-has-a-golden-model.md) ·
+  [Why resource costs are measured](docs/src/explanation/why-resources-are-measured.md).
 
 ## The core registry
 
