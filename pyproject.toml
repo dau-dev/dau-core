@@ -9,7 +9,7 @@ name = "dau-core"
 authors = [
     {name = "the dau-core authors", email = "dev@dau.dev"},
 ]
-description = "dau core ip"
+description = "Core IP for dau projects"
 readme = "README.md"
 license = { text = "Apache-2.0" }
 version = "0.1.0"
