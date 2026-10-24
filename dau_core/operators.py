@@ -203,6 +203,10 @@ class RowPredicateTerm(CheckedModel):
         return _compare(self.op, _wrap_int32(row[self.field]), self.constant)
 
 
+# the terms one predicate stage compares: term0, term1 and term2 below
+ROW_PREDICATE_TERMS = 3
+
+
 class RowPredicateConfig(CheckedModel):
     """Compound row predicate: up to three terms combined by the two-level
     tree ``(term0 <combine01> term1) <combine2> term2``. ``SINGLE`` at a
