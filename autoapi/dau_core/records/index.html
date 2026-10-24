@@ -831,6 +831,9 @@
     <a href="#module-contents">Module Contents</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.records.QUAD_ROW_FIELDS">QUAD_ROW_FIELDS</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.records.KEYED_ROW_FIELDS">KEYED_ROW_FIELDS</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -850,6 +853,9 @@
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.records.record_bytes">record_bytes()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.records.QUAD_ROW_BYTES">QUAD_ROW_BYTES</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.records.KEYED_ROW_BYTES">KEYED_ROW_BYTES</a>
@@ -885,8 +891,8 @@
       <div class="fd-prose">
   <section id="module-dau_core.records">
 <span id="dau-core-records"></span><h1>dau_core.records<a class="headerlink" href="#module-dau_core.records" title="Link to this heading">¶</a></h1>
-<p>Byte layouts of the rows and records the grouped and bar tiles exchange
-with the host.</p>
+<p>Byte layouts of the rows and records the row, grouped and bar tiles
+exchange with the host.</p>
 <p>A layout is a tuple of <code class="docutils literal notranslate"><span class="pre">(field,</span> <span class="pre">kind)</span></code> pairs in wire order, little-endian,
 with <code class="docutils literal notranslate"><span class="pre">kind</span></code> a numpy-style code (<code class="docutils literal notranslate"><span class="pre">i4</span></code>, <code class="docutils literal notranslate"><span class="pre">u4</span></code>, <code class="docutils literal notranslate"><span class="pre">i8</span></code>, <code class="docutils literal notranslate"><span class="pre">u8</span></code>). The tiles’
 registry entries declare the same records in 64-bit words (<code class="docutils literal notranslate"><span class="pre">record_words</span></code>
@@ -899,16 +905,22 @@ their natural alignment.</p>
 <h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.records.KEYED_ROW_FIELDS" title="dau_core.records.KEYED_ROW_FIELDS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KEYED_ROW_FIELDS</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.records.QUAD_ROW_FIELDS" title="dau_core.records.QUAD_ROW_FIELDS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QUAD_ROW_FIELDS</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.records.GROUP_RECORD_FIELDS" title="dau_core.records.GROUP_RECORD_FIELDS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GROUP_RECORD_FIELDS</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.records.KEYED_ROW_FIELDS" title="dau_core.records.KEYED_ROW_FIELDS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KEYED_ROW_FIELDS</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.records.BAR_ROW_FIELDS" title="dau_core.records.BAR_ROW_FIELDS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BAR_ROW_FIELDS</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.records.GROUP_RECORD_FIELDS" title="dau_core.records.GROUP_RECORD_FIELDS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GROUP_RECORD_FIELDS</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.records.BAR_RECORD_FIELDS" title="dau_core.records.BAR_RECORD_FIELDS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BAR_RECORD_FIELDS</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.records.BAR_ROW_FIELDS" title="dau_core.records.BAR_ROW_FIELDS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BAR_ROW_FIELDS</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.records.BAR_RECORD_FIELDS" title="dau_core.records.BAR_RECORD_FIELDS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BAR_RECORD_FIELDS</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.records.QUAD_ROW_BYTES" title="dau_core.records.QUAD_ROW_BYTES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QUAD_ROW_BYTES</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.records.KEYED_ROW_BYTES" title="dau_core.records.KEYED_ROW_BYTES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KEYED_ROW_BYTES</span></code></a></p></td>
@@ -944,6 +956,11 @@ their natural alignment.</p>
 </section>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_core.records.QUAD_ROW_FIELDS">
+<span class="sig-prename descclassname"><span class="pre">dau_core.records.</span></span><span class="sig-name descname"><span class="pre">QUAD_ROW_FIELDS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Layout</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(('key',</span> <span class="pre">'i4'),</span> <span class="pre">('value',</span> <span class="pre">'i4'),</span> <span class="pre">('aux0',</span> <span class="pre">'i4'),</span> <span class="pre">('aux1',</span> <span class="pre">'i4'))</span></em><a class="headerlink" href="#dau_core.records.QUAD_ROW_FIELDS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="py data">
 <dt class="sig sig-object py" id="dau_core.records.KEYED_ROW_FIELDS">
 <span class="sig-prename descclassname"><span class="pre">dau_core.records.</span></span><span class="sig-name descname"><span class="pre">KEYED_ROW_FIELDS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Layout</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(('key',</span> <span class="pre">'i4'),</span> <span class="pre">('value',</span> <span class="pre">'u4'))</span></em><a class="headerlink" href="#dau_core.records.KEYED_ROW_FIELDS" title="Link to this definition">¶</a></dt>
@@ -981,6 +998,11 @@ their natural alignment.</p>
 <span class="sig-prename descclassname"><span class="pre">dau_core.records.</span></span><span class="sig-name descname"><span class="pre">record_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fields</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Layout</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../../_modules/dau_core/records.html#record_bytes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.records.record_bytes" title="Link to this definition">¶</a></dt>
 <dd><p>Bytes per row or record of a layout.</p>
 </dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_core.records.QUAD_ROW_BYTES">
+<span class="sig-prename descclassname"><span class="pre">dau_core.records.</span></span><span class="sig-name descname"><span class="pre">QUAD_ROW_BYTES</span></span><a class="headerlink" href="#dau_core.records.QUAD_ROW_BYTES" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="dau_core.records.KEYED_ROW_BYTES">
@@ -1045,6 +1067,9 @@ their natural alignment.</p>
     <a href="#module-contents">Module Contents</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.records.QUAD_ROW_FIELDS">QUAD_ROW_FIELDS</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.records.KEYED_ROW_FIELDS">KEYED_ROW_FIELDS</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -1064,6 +1089,9 @@ their natural alignment.</p>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.records.record_bytes">record_bytes()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.records.QUAD_ROW_BYTES">QUAD_ROW_BYTES</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.records.KEYED_ROW_BYTES">KEYED_ROW_BYTES</a>

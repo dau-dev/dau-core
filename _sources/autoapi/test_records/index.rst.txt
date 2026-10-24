@@ -26,6 +26,7 @@ Functions
    test_records.test_each_layout_is_as_wide_as_the_registry_says
    test_records.test_each_record_carries_the_goldens_fields_in_order
    test_records.test_the_struct_and_numpy_views_agree
+   test_records.test_the_quad_row_is_the_row_tiles_input_in_field_order
 
 
 Module Contents
@@ -40,4 +41,6 @@ Module Contents
 .. py:function:: test_each_record_carries_the_goldens_fields_in_order(fields, result_type) -> None
 
 .. py:function:: test_the_struct_and_numpy_views_agree() -> None
+
+.. py:function:: test_the_quad_row_is_the_row_tiles_input_in_field_order() -> None
 

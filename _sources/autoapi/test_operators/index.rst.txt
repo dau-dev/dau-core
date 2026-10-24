@@ -161,6 +161,7 @@ Functions
    test_operators.test_divide_at_zero_fractional_bits_is_python_floor_division
    test_operators.test_field_sum_combine_refuses_a_malformed_record_and_an_overflowing_union
    test_operators.test_field_sum_decode_refuses_non_integer_words
+   test_operators.test_row_predicate_terms_counts_the_config_terms
 
 
 Module Contents
@@ -513,4 +514,6 @@ Module Contents
 
 
 .. py:function:: test_field_sum_decode_refuses_non_integer_words() -> None
+
+.. py:function:: test_row_predicate_terms_counts_the_config_terms() -> None
 

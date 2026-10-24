@@ -1288,7 +1288,9 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../autoapi/dau_core/capability_contract/index.html#dau_core.capability_contract.TileCapability">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TileCapability</span><span class="p">(</span><span class="n">CheckedModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""One operator tile instance as the contract describes it: registry</span>
-<span class="sd">    identity, stream contract, HDL opcode truth, and instance config."""</span>
+<span class="sd">    identity, stream contract, HDL opcode truth, instance config, and the</span>
+<span class="sd">    module parameters it was built with (each declared parameter, at its</span>
+<span class="sd">    override or its default)."""</span>
 
     <span class="n">core</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">module</span><span class="p">:</span> <span class="nb">str</span>
@@ -1299,6 +1301,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">unit_kind</span><span class="p">:</span> <span class="n">UnitKind</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">row_capacity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">config</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">params</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">host_opcodes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">OperationCode</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
@@ -1322,6 +1325,7 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">"unit_kind"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">unit_kind</span><span class="o">.</span><span class="n">value</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">unit_kind</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
             <span class="s2">"row_capacity"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">row_capacity</span><span class="p">,</span>
             <span class="s2">"config"</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">),</span>
+            <span class="s2">"params"</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">),</span>
         <span class="p">}</span></div>
 
 
@@ -1339,6 +1343,9 @@ window.runMermaid = runMermaid;</script>
             <span class="n">unit_kind</span><span class="o">=</span><span class="n">UnitKind</span><span class="p">(</span><span class="n">mapping</span><span class="p">[</span><span class="s2">"unit_kind"</span><span class="p">])</span> <span class="k">if</span> <span class="n">mapping</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"unit_kind"</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">row_capacity</span><span class="o">=</span><span class="n">mapping</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"row_capacity"</span><span class="p">),</span>
             <span class="n">config</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">((</span><span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">dict</span><span class="p">(</span><span class="n">mapping</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"config"</span><span class="p">,</span> <span class="p">{}))</span><span class="o">.</span><span class="n">items</span><span class="p">())),</span>
+            <span class="c1"># absent in manifests written before the fact was advertised; a</span>
+            <span class="c1"># reader that needs a parameter treats it as unknown</span>
+            <span class="n">params</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">((</span><span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">))</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">dict</span><span class="p">(</span><span class="n">mapping</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"params"</span><span class="p">,</span> <span class="p">{}))</span><span class="o">.</span><span class="n">items</span><span class="p">())),</span>
         <span class="p">)</span></div>
 </div>
 
@@ -1518,6 +1525,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">unit_kind</span><span class="o">=</span><span class="n">definition</span><span class="o">.</span><span class="n">unit_kind</span><span class="p">,</span>
         <span class="n">row_capacity</span><span class="o">=</span><span class="n">definition</span><span class="o">.</span><span class="n">row_capacity</span><span class="p">,</span>
         <span class="n">config</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">((</span><span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">spec</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">())),</span>
+        <span class="n">params</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">parameter</span><span class="o">.</span><span class="n">default</span><span class="p">))</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">definition</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">items</span><span class="p">())),</span>
     <span class="p">)</span></div>
 
 

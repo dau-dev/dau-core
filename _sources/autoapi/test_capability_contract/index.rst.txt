@@ -32,6 +32,7 @@ Functions
    test_capability_contract.test_the_contract_models_are_ccflow_models_not_dataclasses
    test_capability_contract.test_a_contract_copies_with_a_field_replaced_and_stays_hashable
    test_capability_contract.test_reconfigurable_is_a_manifest_fact
+   test_capability_contract.test_a_tile_capability_carries_the_parameters_it_was_built_with
 
 
 Module Contents
@@ -82,4 +83,6 @@ Module Contents
    flag: a design whose chain configs are runtime registers advertises it,
    and a manifest written before the key existed reads as baked.
 
+
+.. py:function:: test_a_tile_capability_carries_the_parameters_it_was_built_with() -> None
 

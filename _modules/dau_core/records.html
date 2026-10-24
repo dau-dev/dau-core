@@ -1234,8 +1234,8 @@ window.runMermaid = runMermaid;</script>
 </nav>
       <div class="fd-prose">
   <h1>Source code for dau_core.records</h1><div class="highlight"><pre>
-<span></span><span class="sd">"""Byte layouts of the rows and records the grouped and bar tiles exchange</span>
-<span class="sd">with the host.</span>
+<span></span><span class="sd">"""Byte layouts of the rows and records the row, grouped and bar tiles</span>
+<span class="sd">exchange with the host.</span>
 
 <span class="sd">A layout is a tuple of ``(field, kind)`` pairs in wire order, little-endian,</span>
 <span class="sd">with ``kind`` a numpy-style code (``i4``, ``u4``, ``i8``, ``u8``). The tiles'</span>
@@ -1261,6 +1261,8 @@ window.runMermaid = runMermaid;</script>
     <span class="s2">"GROUP_RECORD_FIELDS"</span><span class="p">,</span>
     <span class="s2">"KEYED_ROW_BYTES"</span><span class="p">,</span>
     <span class="s2">"KEYED_ROW_FIELDS"</span><span class="p">,</span>
+    <span class="s2">"QUAD_ROW_BYTES"</span><span class="p">,</span>
+    <span class="s2">"QUAD_ROW_FIELDS"</span><span class="p">,</span>
     <span class="s2">"numpy_dtype_fields"</span><span class="p">,</span>
     <span class="s2">"record_bytes"</span><span class="p">,</span>
     <span class="s2">"struct_format"</span><span class="p">,</span>
@@ -1270,6 +1272,8 @@ window.runMermaid = runMermaid;</script>
 
 <span class="n">_STRUCT_CODES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"i4"</span><span class="p">:</span> <span class="s2">"i"</span><span class="p">,</span> <span class="s2">"u4"</span><span class="p">:</span> <span class="s2">"I"</span><span class="p">,</span> <span class="s2">"i8"</span><span class="p">:</span> <span class="s2">"q"</span><span class="p">,</span> <span class="s2">"u8"</span><span class="p">:</span> <span class="s2">"Q"</span><span class="p">}</span>
 
+<span class="c1"># the row tiles' input: four int32 fields in ``RowField`` order</span>
+<span class="n">QUAD_ROW_FIELDS</span><span class="p">:</span> <span class="n">Layout</span> <span class="o">=</span> <span class="p">((</span><span class="s2">"key"</span><span class="p">,</span> <span class="s2">"i4"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"i4"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"aux0"</span><span class="p">,</span> <span class="s2">"i4"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"aux1"</span><span class="p">,</span> <span class="s2">"i4"</span><span class="p">))</span>
 <span class="c1"># grouped-aggregation input: one (key, value) pair per row</span>
 <span class="n">KEYED_ROW_FIELDS</span><span class="p">:</span> <span class="n">Layout</span> <span class="o">=</span> <span class="p">((</span><span class="s2">"key"</span><span class="p">,</span> <span class="s2">"i4"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">"u4"</span><span class="p">))</span>
 <span class="c1"># grouped-aggregation output: one closed group</span>
@@ -1323,6 +1327,7 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<span class="n">QUAD_ROW_BYTES</span> <span class="o">=</span> <span class="n">record_bytes</span><span class="p">(</span><span class="n">QUAD_ROW_FIELDS</span><span class="p">)</span>
 <span class="n">KEYED_ROW_BYTES</span> <span class="o">=</span> <span class="n">record_bytes</span><span class="p">(</span><span class="n">KEYED_ROW_FIELDS</span><span class="p">)</span>
 <span class="n">GROUP_RECORD_BYTES</span> <span class="o">=</span> <span class="n">record_bytes</span><span class="p">(</span><span class="n">GROUP_RECORD_FIELDS</span><span class="p">)</span>
 <span class="n">BAR_ROW_BYTES</span> <span class="o">=</span> <span class="n">record_bytes</span><span class="p">(</span><span class="n">BAR_ROW_FIELDS</span><span class="p">)</span>

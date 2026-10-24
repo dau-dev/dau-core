@@ -73,7 +73,9 @@ Module Contents
 
 
    One operator tile instance as the contract describes it: registry
-   identity, stream contract, HDL opcode truth, and instance config.
+   identity, stream contract, HDL opcode truth, instance config, and the
+   module parameters it was built with (each declared parameter, at its
+   override or its default).
 
    Create a new model by parsing and validating input data from keyword arguments.
 
@@ -125,6 +127,12 @@ Module Contents
 
    .. py:attribute:: config
       :type:  tuple[tuple[str, str], ...]
+      :value: ()
+
+
+
+   .. py:attribute:: params
+      :type:  tuple[tuple[str, int], ...]
       :value: ()
 
 

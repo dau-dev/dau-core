@@ -10,6 +10,7 @@ Attributes
 .. autoapisummary::
 
    dau_core.operators._INT32_MASK
+   dau_core.operators.ROW_PREDICATE_TERMS
    dau_core.operators.SQRT_FRACTIONAL_BITS
    dau_core.operators.DATETIME_FORMAT_MAX_EPOCH_SECONDS
    dau_core.operators.DATETIME_FORMAT_WIDTH
@@ -502,6 +503,10 @@ Module Contents
 
 
    .. py:method:: matches(row: tuple[int, int, int, int]) -> bool
+
+
+.. py:data:: ROW_PREDICATE_TERMS
+   :value: 3
 
 
 .. py:class:: RowPredicateConfig(/, **data: Any)

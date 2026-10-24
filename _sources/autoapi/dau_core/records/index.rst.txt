@@ -5,8 +5,8 @@ dau_core.records
 
 .. autoapi-nested-parse::
 
-   Byte layouts of the rows and records the grouped and bar tiles exchange
-   with the host.
+   Byte layouts of the rows and records the row, grouped and bar tiles
+   exchange with the host.
 
    A layout is a tuple of ``(field, kind)`` pairs in wire order, little-endian,
    with ``kind`` a numpy-style code (``i4``, ``u4``, ``i8``, ``u8``). The tiles'
@@ -25,10 +25,12 @@ Attributes
 
 .. autoapisummary::
 
+   dau_core.records.QUAD_ROW_FIELDS
    dau_core.records.KEYED_ROW_FIELDS
    dau_core.records.GROUP_RECORD_FIELDS
    dau_core.records.BAR_ROW_FIELDS
    dau_core.records.BAR_RECORD_FIELDS
+   dau_core.records.QUAD_ROW_BYTES
    dau_core.records.KEYED_ROW_BYTES
    dau_core.records.GROUP_RECORD_BYTES
    dau_core.records.BAR_ROW_BYTES
@@ -47,6 +49,11 @@ Functions
 
 Module Contents
 ---------------
+
+.. py:data:: QUAD_ROW_FIELDS
+   :type:  Layout
+   :value: (('key', 'i4'), ('value', 'i4'), ('aux0', 'i4'), ('aux1', 'i4'))
+
 
 .. py:data:: KEYED_ROW_FIELDS
    :type:  Layout
@@ -82,6 +89,8 @@ Module Contents
 
    Bytes per row or record of a layout.
 
+
+.. py:data:: QUAD_ROW_BYTES
 
 .. py:data:: KEYED_ROW_BYTES
 
