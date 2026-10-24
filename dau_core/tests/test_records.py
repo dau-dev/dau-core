@@ -54,4 +54,6 @@ def test_the_struct_and_numpy_views_agree() -> None:
 def test_the_quad_row_is_the_row_tiles_input_in_field_order() -> None:
     assert [name for name, _kind in QUAD_ROW_FIELDS] == [field.name.lower() for field in RowField]
     for tile in ("row-predicate-filter", "row-map-alu", "field-sum-aggregation"):
-        assert QUAD_ROW_BYTES == core(tile).record_words * WORD_BYTES
+        record_words = core(tile).record_words
+        assert record_words is not None
+        assert QUAD_ROW_BYTES == record_words * WORD_BYTES
