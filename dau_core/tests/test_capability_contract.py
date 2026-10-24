@@ -254,4 +254,6 @@ def test_a_tile_capability_carries_the_parameters_it_was_built_with() -> None:
     # a manifest written before the parameters were advertised reads as unknown
     mapping = contract.to_mapping()
     del mapping["partitioner"]["params"]
-    assert CapabilityContract.from_mapping(mapping).partitioner.params == ()
+    restored = CapabilityContract.from_mapping(mapping).partitioner
+    assert restored is not None
+    assert restored.params == ()
