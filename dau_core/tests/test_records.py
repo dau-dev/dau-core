@@ -8,7 +8,7 @@ import struct
 
 import pytest
 
-from dau_core.operators import BarAggregate, GroupAggregate
+from dau_core.operators import BarAggregate, GroupAggregate, RowField
 from dau_core.records import (
     BAR_RECORD_BYTES,
     BAR_RECORD_FIELDS,
@@ -18,6 +18,8 @@ from dau_core.records import (
     GROUP_RECORD_FIELDS,
     KEYED_ROW_BYTES,
     KEYED_ROW_FIELDS,
+    QUAD_ROW_BYTES,
+    QUAD_ROW_FIELDS,
     numpy_dtype_fields,
     struct_format,
 )
@@ -47,3 +49,9 @@ def test_the_struct_and_numpy_views_agree() -> None:
     for fields in (KEYED_ROW_FIELDS, GROUP_RECORD_FIELDS, BAR_ROW_FIELDS, BAR_RECORD_FIELDS):
         assert numpy.dtype(numpy_dtype_fields(fields)).itemsize == struct.calcsize(struct_format(fields))
     assert struct_format(BAR_RECORD_FIELDS) == "<iiiiiiqqQ"
+
+
+def test_the_quad_row_is_the_row_tiles_input_in_field_order() -> None:
+    assert [name for name, _kind in QUAD_ROW_FIELDS] == [field.name.lower() for field in RowField]
+    for tile in ("row-predicate-filter", "row-map-alu", "field-sum-aggregation"):
+        assert QUAD_ROW_BYTES == core(tile).record_words * WORD_BYTES

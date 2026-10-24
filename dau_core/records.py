@@ -1,5 +1,5 @@
-"""Byte layouts of the rows and records the grouped and bar tiles exchange
-with the host.
+"""Byte layouts of the rows and records the row, grouped and bar tiles
+exchange with the host.
 
 A layout is a tuple of ``(field, kind)`` pairs in wire order, little-endian,
 with ``kind`` a numpy-style code (``i4``, ``u4``, ``i8``, ``u8``). The tiles'
@@ -25,6 +25,8 @@ __all__ = (
     "GROUP_RECORD_FIELDS",
     "KEYED_ROW_BYTES",
     "KEYED_ROW_FIELDS",
+    "QUAD_ROW_BYTES",
+    "QUAD_ROW_FIELDS",
     "numpy_dtype_fields",
     "record_bytes",
     "struct_format",
@@ -34,6 +36,8 @@ Layout = tuple[tuple[str, str], ...]
 
 _STRUCT_CODES = {"i4": "i", "u4": "I", "i8": "q", "u8": "Q"}
 
+# the row tiles' input: four int32 fields in ``RowField`` order
+QUAD_ROW_FIELDS: Layout = (("key", "i4"), ("value", "i4"), ("aux0", "i4"), ("aux1", "i4"))
 # grouped-aggregation input: one (key, value) pair per row
 KEYED_ROW_FIELDS: Layout = (("key", "i4"), ("value", "u4"))
 # grouped-aggregation output: one closed group
@@ -78,6 +82,7 @@ def record_bytes(fields: Layout) -> int:
     return struct.calcsize(struct_format(fields))
 
 
+QUAD_ROW_BYTES = record_bytes(QUAD_ROW_FIELDS)
 KEYED_ROW_BYTES = record_bytes(KEYED_ROW_FIELDS)
 GROUP_RECORD_BYTES = record_bytes(GROUP_RECORD_FIELDS)
 BAR_ROW_BYTES = record_bytes(BAR_ROW_FIELDS)

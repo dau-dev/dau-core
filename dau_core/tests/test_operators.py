@@ -1357,3 +1357,9 @@ def test_field_sum_combine_refuses_a_malformed_record_and_an_overflowing_union()
 def test_field_sum_decode_refuses_non_integer_words() -> None:
     with pytest.raises(ValueError, match="unsigned 64-bit integers"):
         FieldSumAggregate.from_record_words(cast(Any, [0, 2.5]), field_mask=0b0001)
+
+
+def test_row_predicate_terms_counts_the_config_terms() -> None:
+    from dau_core.operators import ROW_PREDICATE_TERMS
+
+    assert ROW_PREDICATE_TERMS == len([name for name in RowPredicateConfig.model_fields if name.startswith("term")])
