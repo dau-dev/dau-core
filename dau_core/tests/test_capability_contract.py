@@ -233,3 +233,25 @@ def test_reconfigurable_is_a_manifest_fact() -> None:
     legacy = baked.to_mapping()
     del legacy["reconfigurable"]
     assert CapabilityContract.from_mapping(legacy).reconfigurable is False
+
+
+def test_a_tile_capability_carries_the_parameters_it_was_built_with() -> None:
+    from dau_core.operators import DispatchMode
+
+    dispatcher = TileSpec(core="key-mask-dispatcher", params={"NUM_PARTITIONS": 4, "MODE": int(DispatchMode.EXACT_BRANCH)})
+    lane = LaneSpec(tile=TileSpec(core="field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}))
+    contract = capability_contract(ScanCompositionSpec(name="t", lanes=(lane,) * 4, partitioner=dispatcher))
+
+    assert contract.partitioner is not None
+    params = dict(contract.partitioner.params)
+    # overrides as given, every other declared parameter at its default
+    assert params["MODE"] == DispatchMode.EXACT_BRANCH
+    assert params["NUM_PARTITIONS"] == 4
+    assert params["IN_WIDTH"] == 64
+    assert set(params) == set(dispatcher.definition().parameters)
+    assert CapabilityContract.from_mapping(json.loads(json.dumps(contract.to_mapping()))) == contract
+
+    # a manifest written before the parameters were advertised reads as unknown
+    mapping = contract.to_mapping()
+    del mapping["partitioner"]["params"]
+    assert CapabilityContract.from_mapping(mapping).partitioner.params == ()

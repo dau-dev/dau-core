@@ -47,7 +47,9 @@ def opcode_bitmap(opcodes: tuple[OperationCode, ...]) -> int:
 
 class TileCapability(CheckedModel):
     """One operator tile instance as the contract describes it: registry
-    identity, stream contract, HDL opcode truth, and instance config."""
+    identity, stream contract, HDL opcode truth, instance config, and the
+    module parameters it was built with (each declared parameter, at its
+    override or its default)."""
 
     core: str
     module: str
@@ -58,6 +60,7 @@ class TileCapability(CheckedModel):
     unit_kind: UnitKind | None = None
     row_capacity: int | None = None
     config: tuple[tuple[str, str], ...] = ()
+    params: tuple[tuple[str, int], ...] = ()
 
     @property
     def host_opcodes(self) -> tuple[OperationCode, ...]:
@@ -79,6 +82,7 @@ class TileCapability(CheckedModel):
             "unit_kind": self.unit_kind.value if self.unit_kind is not None else None,
             "row_capacity": self.row_capacity,
             "config": dict(self.config),
+            "params": dict(self.params),
         }
 
     @classmethod
@@ -93,6 +97,9 @@ class TileCapability(CheckedModel):
             unit_kind=UnitKind(mapping["unit_kind"]) if mapping.get("unit_kind") else None,
             row_capacity=mapping.get("row_capacity"),
             config=tuple(sorted((str(key), str(value)) for key, value in dict(mapping.get("config", {})).items())),
+            # absent in manifests written before the fact was advertised; a
+            # reader that needs a parameter treats it as unknown
+            params=tuple(sorted((str(key), int(value)) for key, value in dict(mapping.get("params", {})).items())),
         )
 
 
@@ -247,6 +254,7 @@ def tile_capability(tile: TileSpec | str) -> TileCapability:
         unit_kind=definition.unit_kind,
         row_capacity=definition.row_capacity,
         config=tuple(sorted((str(key), str(value)) for key, value in spec.config.items())),
+        params=tuple(sorted((name, spec.params.get(name, parameter.default)) for name, parameter in definition.parameters.items())),
     )
 
 
