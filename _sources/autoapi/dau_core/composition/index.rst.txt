@@ -45,6 +45,8 @@ Classes
    dau_core.composition.TileSpec
    dau_core.composition.LaneSpec
    dau_core.composition.ScanCompositionSpec
+   dau_core.composition.StageRate
+   dau_core.composition.ThroughputBreakdown
 
 
 Functions
@@ -57,6 +59,7 @@ Functions
    dau_core.composition._validate_tile_params
    dau_core.composition.stream_shape_mismatches
    dau_core.composition.throughput_rows_per_cycle
+   dau_core.composition.throughput_breakdown
    dau_core.composition.estimated_resources
    dau_core.composition.canonical_spec_json
    dau_core.composition.spec_hash
@@ -378,6 +381,61 @@ Module Contents
    when the caller knows the plan; each stage's rate is then charged
    against the rows it actually sees. Selectivity is data-dependent, so
    the composition never guesses it — that is the planner's to supply.
+
+
+.. py:class:: StageRate
+
+   One stage of the composed rate model: its declared ingest floor in
+   rows per job-clock cycle, before selectivity is charged.
+
+
+   .. py:attribute:: role
+      :type:  str
+
+
+   .. py:attribute:: core
+      :type:  str
+
+
+   .. py:attribute:: lane
+      :type:  int | None
+
+
+   .. py:attribute:: rows_per_cycle
+      :type:  fractions.Fraction
+
+
+   .. py:attribute:: binding
+      :type:  bool
+      :value: False
+
+
+
+.. py:class:: ThroughputBreakdown
+
+   :func:`throughput_rows_per_cycle` with the stages it was computed
+   from. Exactly one stage is ``binding``: the one that sets the rate.
+
+
+   .. py:attribute:: rows_per_cycle
+      :type:  fractions.Fraction
+
+
+   .. py:attribute:: stages
+      :type:  tuple[StageRate, ...]
+
+
+   .. py:property:: binding
+      :type: StageRate
+
+
+
+.. py:function:: throughput_breakdown(spec: ScanCompositionSpec, *, stage_pass_fractions: collections.abc.Mapping[int, collections.abc.Sequence[fractions.Fraction]] | None = None) -> ThroughputBreakdown
+
+   The rate :func:`throughput_rows_per_cycle` reports, with every stage's
+   declared floor and the stage that binds. Under a shared partitioner the
+   lane rates sum, so when the lanes bind the first lane's slowest stage is
+   marked.
 
 
 .. py:function:: estimated_resources(spec: ScanCompositionSpec, *, part: str, clock_ns: float) -> dau_core.cores.ResourceEnvelope

@@ -77,6 +77,7 @@ Functions
    test_composition.test_stream_shape_mismatch_names_both_cores_and_shapes
    test_composition.test_stream_shape_mismatches_include_front_feed_and_partitioner
    test_composition.test_selectivity_reconciles_the_model_with_q6_silicon
+   test_composition.test_throughput_breakdown_names_the_binding_stage
    test_composition._record_dispatcher
    test_composition._front_gearbox
    test_composition.test_front_gearbox_reaches_core_names_and_resources
@@ -315,6 +316,8 @@ Module Contents
    reach it restores agreement, and the worst case stays the default
    because selectivity is data-dependent.
 
+
+.. py:function:: test_throughput_breakdown_names_the_binding_stage() -> None
 
 .. py:function:: _record_dispatcher(record_words: int = 3) -> dau_core.composition.TileSpec
 

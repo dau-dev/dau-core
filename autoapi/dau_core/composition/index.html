@@ -939,6 +939,39 @@
     <a href="#dau_core.composition.throughput_rows_per_cycle">throughput_rows_per_cycle()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.composition.StageRate">StageRate</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.composition.StageRate.role">StageRate.role</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.composition.StageRate.core">StageRate.core</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.composition.StageRate.lane">StageRate.lane</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.composition.StageRate.rows_per_cycle">StageRate.rows_per_cycle</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.composition.StageRate.binding">StageRate.binding</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.composition.ThroughputBreakdown">ThroughputBreakdown</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.composition.ThroughputBreakdown.rows_per_cycle">ThroughputBreakdown.rows_per_cycle</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.composition.ThroughputBreakdown.stages">ThroughputBreakdown.stages</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.composition.ThroughputBreakdown.binding">ThroughputBreakdown.binding</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.composition.throughput_breakdown">throughput_breakdown()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.composition.estimated_resources">estimated_resources()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -1029,6 +1062,12 @@ planner-facing cost of a design before it is built.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.composition.ScanCompositionSpec" title="dau_core.composition.ScanCompositionSpec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ScanCompositionSpec</span></code></a></p></td>
 <td><p>One scan fanned to <code class="docutils literal notranslate"><span class="pre">len(lanes)</span></code> lanes with per-lane output</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.composition.StageRate" title="dau_core.composition.StageRate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StageRate</span></code></a></p></td>
+<td><p>One stage of the composed rate model: its declared ingest floor in</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.composition.ThroughputBreakdown" title="dau_core.composition.ThroughputBreakdown"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ThroughputBreakdown</span></code></a></p></td>
+<td><p><a class="reference internal" href="#dau_core.composition.throughput_rows_per_cycle" title="dau_core.composition.throughput_rows_per_cycle"><code class="xref py py-func docutils literal notranslate"><span class="pre">throughput_rows_per_cycle()</span></code></a> with the stages it was computed</p></td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -1051,22 +1090,25 @@ planner-facing cost of a design before it is built.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.composition.throughput_rows_per_cycle" title="dau_core.composition.throughput_rows_per_cycle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">throughput_rows_per_cycle</span></code></a>(→ fractions.Fraction)</p></td>
 <td><p>The composed design's GUARANTEED sustained ingest rate, in rows per</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.composition.estimated_resources" title="dau_core.composition.estimated_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">estimated_resources</span></code></a>(→ dau_core.cores.ResourceEnvelope)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.composition.throughput_breakdown" title="dau_core.composition.throughput_breakdown"><code class="xref py py-obj docutils literal notranslate"><span class="pre">throughput_breakdown</span></code></a>(→ ThroughputBreakdown)</p></td>
+<td><p>The rate <a class="reference internal" href="#dau_core.composition.throughput_rows_per_cycle" title="dau_core.composition.throughput_rows_per_cycle"><code class="xref py py-func docutils literal notranslate"><span class="pre">throughput_rows_per_cycle()</span></code></a> reports, with every stage's</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.composition.estimated_resources" title="dau_core.composition.estimated_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">estimated_resources</span></code></a>(→ dau_core.cores.ResourceEnvelope)</p></td>
 <td><p>Sum the measured resources of every instance the composition places.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.composition.canonical_spec_json" title="dau_core.composition.canonical_spec_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">canonical_spec_json</span></code></a>(→ str)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.composition.canonical_spec_json" title="dau_core.composition.canonical_spec_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">canonical_spec_json</span></code></a>(→ str)</p></td>
 <td><p>The canonical serialized form of a composition spec: deterministic</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.composition.spec_hash" title="dau_core.composition.spec_hash"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spec_hash</span></code></a>(→ str)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.composition.spec_hash" title="dau_core.composition.spec_hash"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spec_hash</span></code></a>(→ str)</p></td>
 <td><p>The content hash of a composition spec: sha256 over the canonical</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.composition.build_id_from_spec_hash" title="dau_core.composition.build_id_from_spec_hash"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_id_from_spec_hash</span></code></a>(→ int)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.composition.build_id_from_spec_hash" title="dau_core.composition.build_id_from_spec_hash"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_id_from_spec_hash</span></code></a>(→ int)</p></td>
 <td><p>The 64-bit identity a shell advertises for a spec, from that spec's</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.composition.canonical_version" title="dau_core.composition.canonical_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">canonical_version</span></code></a>(→ str)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.composition.canonical_version" title="dau_core.composition.canonical_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">canonical_version</span></code></a>(→ str)</p></td>
 <td><p>The canonical-form version a recorded spec hash was written under.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.composition.spec_from_canonical" title="dau_core.composition.spec_from_canonical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spec_from_canonical</span></code></a>(→ ScanCompositionSpec)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.composition.spec_from_canonical" title="dau_core.composition.spec_from_canonical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spec_from_canonical</span></code></a>(→ ScanCompositionSpec)</p></td>
 <td><p>Rebuild a spec from its canonical form. Construction re-validates</p></td>
 </tr>
 </tbody>
@@ -1370,6 +1412,69 @@ against the rows it actually sees. Selectivity is data-dependent, so
 the composition never guesses it — that is the planner’s to supply.</p>
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.composition.StageRate">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.composition.</span></span><span class="sig-name descname"><span class="pre">StageRate</span></span><a class="headerlink" href="#dau_core.composition.StageRate" title="Link to this definition">¶</a></dt>
+<dd><p>One stage of the composed rate model: its declared ingest floor in
+rows per job-clock cycle, before selectivity is charged.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.composition.StageRate.role">
+<span class="sig-name descname"><span class="pre">role</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#dau_core.composition.StageRate.role" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.composition.StageRate.core">
+<span class="sig-name descname"><span class="pre">core</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#dau_core.composition.StageRate.core" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.composition.StageRate.lane">
+<span class="sig-name descname"><span class="pre">lane</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.composition.StageRate.lane" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.composition.StageRate.rows_per_cycle">
+<span class="sig-name descname"><span class="pre">rows_per_cycle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">fractions.Fraction</span></em><a class="headerlink" href="#dau_core.composition.StageRate.rows_per_cycle" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.composition.StageRate.binding">
+<span class="sig-name descname"><span class="pre">binding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#dau_core.composition.StageRate.binding" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.composition.ThroughputBreakdown">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.composition.</span></span><span class="sig-name descname"><span class="pre">ThroughputBreakdown</span></span><a class="headerlink" href="#dau_core.composition.ThroughputBreakdown" title="Link to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#dau_core.composition.throughput_rows_per_cycle" title="dau_core.composition.throughput_rows_per_cycle"><code class="xref py py-func docutils literal notranslate"><span class="pre">throughput_rows_per_cycle()</span></code></a> with the stages it was computed
+from. Exactly one stage is <code class="docutils literal notranslate"><span class="pre">binding</span></code>: the one that sets the rate.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.composition.ThroughputBreakdown.rows_per_cycle">
+<span class="sig-name descname"><span class="pre">rows_per_cycle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">fractions.Fraction</span></em><a class="headerlink" href="#dau_core.composition.ThroughputBreakdown.rows_per_cycle" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.composition.ThroughputBreakdown.stages">
+<span class="sig-name descname"><span class="pre">stages</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#dau_core.composition.StageRate" title="dau_core.composition.StageRate"><span class="pre">StageRate</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#dau_core.composition.ThroughputBreakdown.stages" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dau_core.composition.ThroughputBreakdown.binding">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">binding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#dau_core.composition.StageRate" title="dau_core.composition.StageRate"><span class="pre">StageRate</span></a></em><a class="headerlink" href="#dau_core.composition.ThroughputBreakdown.binding" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.composition.throughput_breakdown">
+<span class="sig-prename descclassname"><span class="pre">dau_core.composition.</span></span><span class="sig-name descname"><span class="pre">throughput_breakdown</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dau_core.composition.ScanCompositionSpec" title="dau_core.composition.ScanCompositionSpec"><span class="pre">ScanCompositionSpec</span></a></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">stage_pass_fractions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">collections.abc.Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">fractions.Fraction</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_core.composition.ThroughputBreakdown" title="dau_core.composition.ThroughputBreakdown"><span class="pre">ThroughputBreakdown</span></a></span></span><a class="headerlink" href="#dau_core.composition.throughput_breakdown" title="Link to this definition">¶</a></dt>
+<dd><p>The rate <a class="reference internal" href="#dau_core.composition.throughput_rows_per_cycle" title="dau_core.composition.throughput_rows_per_cycle"><code class="xref py py-func docutils literal notranslate"><span class="pre">throughput_rows_per_cycle()</span></code></a> reports, with every stage’s
+declared floor and the stage that binds. Under a shared partitioner the
+lane rates sum, so when the lanes bind the first lane’s slowest stage is
+marked.</p>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.composition.estimated_resources">
 <span class="sig-prename descclassname"><span class="pre">dau_core.composition.</span></span><span class="sig-name descname"><span class="pre">estimated_resources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dau_core.composition.ScanCompositionSpec" title="dau_core.composition.ScanCompositionSpec"><span class="pre">ScanCompositionSpec</span></a></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">part</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clock_ns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../cores/index.html#dau_core.cores.ResourceEnvelope" title="dau_core.cores.ResourceEnvelope"><span class="pre">dau_core.cores.ResourceEnvelope</span></a></span></span><a class="headerlink" href="#dau_core.composition.estimated_resources" title="Link to this definition">¶</a></dt>
@@ -1615,6 +1720,39 @@ departed name it meets.</p>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.composition.throughput_rows_per_cycle">throughput_rows_per_cycle()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.composition.StageRate">StageRate</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.composition.StageRate.role">StageRate.role</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.composition.StageRate.core">StageRate.core</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.composition.StageRate.lane">StageRate.lane</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.composition.StageRate.rows_per_cycle">StageRate.rows_per_cycle</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.composition.StageRate.binding">StageRate.binding</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.composition.ThroughputBreakdown">ThroughputBreakdown</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.composition.ThroughputBreakdown.rows_per_cycle">ThroughputBreakdown.rows_per_cycle</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.composition.ThroughputBreakdown.stages">ThroughputBreakdown.stages</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.composition.ThroughputBreakdown.binding">ThroughputBreakdown.binding</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.composition.throughput_breakdown">throughput_breakdown()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.composition.estimated_resources">estimated_resources()</a>
