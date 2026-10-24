@@ -16,6 +16,7 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass, replace
 from fractions import Fraction
 from itertools import pairwise
 from typing import Annotated
@@ -683,6 +684,38 @@ def throughput_rows_per_cycle(spec: ScanCompositionSpec, *, stage_pass_fractions
     against the rows it actually sees. Selectivity is data-dependent, so
     the composition never guesses it — that is the planner's to supply.
     """
+    return throughput_breakdown(spec, stage_pass_fractions=stage_pass_fractions).rows_per_cycle
+
+
+@dataclass(frozen=True)
+class StageRate:
+    """One stage of the composed rate model: its declared ingest floor in
+    rows per job-clock cycle, before selectivity is charged."""
+
+    role: str
+    core: str
+    lane: int | None
+    rows_per_cycle: Fraction
+    binding: bool = False
+
+
+@dataclass(frozen=True)
+class ThroughputBreakdown:
+    """:func:`throughput_rows_per_cycle` with the stages it was computed
+    from. Exactly one stage is ``binding``: the one that sets the rate."""
+
+    rows_per_cycle: Fraction
+    stages: tuple[StageRate, ...]
+
+    @property
+    def binding(self) -> StageRate:
+        return next(stage for stage in self.stages if stage.binding)
+
+
+def throughput_breakdown(spec: ScanCompositionSpec, *, stage_pass_fractions: Mapping[int, Sequence[Fraction]] | None = None) -> ThroughputBreakdown:
+    """The rate :func:`throughput_rows_per_cycle` reports, with every stage's
+    declared floor and the stage that binds. Under a shared partitioner the
+    lane rates sum, so the first lane's slowest stage is marked binding."""
     spec = spec.check()
 
     def _tile_rate(tile: TileSpec, role: str) -> Fraction:
@@ -695,6 +728,7 @@ def throughput_rows_per_cycle(spec: ScanCompositionSpec, *, stage_pass_fractions
         except ValueError as exc:
             raise CompositionError(f"{role} core {tile.core!r}: {exc}") from exc
 
+    front = None
     if spec.front_gearbox is not None:
         # the GEARED feed: a record is `RECORD_WORDS` 64-bit words, so the
         # reader supplies data_width/(64*RECORD_WORDS) whole records per
@@ -709,7 +743,8 @@ def throughput_rows_per_cycle(spec: ScanCompositionSpec, *, stage_pass_fractions
         # where the front sustains 1, and this number is documented as a
         # GUARANTEED floor.
         record_words = spec.front_gearbox.definition().effective_record_words(spec.front_gearbox.params)
-        delivery = min(Fraction(spec.data_width, 64 * record_words), _tile_rate(spec.front_gearbox, "front gearbox"))
+        reader = Fraction(spec.data_width, 64 * record_words)
+        front = StageRate("front gearbox", spec.front_gearbox.core, None, _tile_rate(spec.front_gearbox, "front gearbox"))
     elif spec.front_unpack is not None:
         # the packed feed: the reader supplies data_width/64 packed rows per
         # beat (a packed row is 8 bytes), and the unpacker re-times them at its
@@ -720,11 +755,21 @@ def throughput_rows_per_cycle(spec: ScanCompositionSpec, *, stage_pass_fractions
         # was 64. A packed WIDE feed hands over data_width/64 rows per beat, and
         # the flat cap under-reported the silicon-measured eight-slot lane by
         # 8x, pricing it as no faster than the build it replaced.
-        delivery = min(Fraction(spec.data_width, 64), _tile_rate(spec.front_unpack, "front unpacker"))
+        reader = Fraction(spec.data_width, 64)
+        front = StageRate("front unpacker", spec.front_unpack.core, None, _tile_rate(spec.front_unpack, "front unpacker"))
     elif spec.data_width == 64:
-        delivery = Fraction(1, 2)
+        reader = Fraction(1, 2)
     else:
-        delivery = Fraction(spec.data_width, 128)
+        reader = Fraction(spec.data_width, 128)
+    stages = [StageRate("reader", core_of_role(CoreRole.SCAN_READER).name, None, reader)]
+    if front is not None:
+        stages.append(front)
+    # (charged rate, binding stage index) per factor; the first minimum wins
+    delivery = (front.rows_per_cycle, 1) if front is not None and front.rows_per_cycle <= reader else (reader, 0)
+    partitioner = None
+    if spec.partitioner is not None:
+        stages.append(StageRate("partitioner", spec.partitioner.core, None, _tile_rate(spec.partitioner, "partitioner")))
+        partitioner = (stages[-1].rows_per_cycle, len(stages) - 1)
 
     supplied = stage_pass_fractions or {}
     if supplied and spec.partitioner is not None and len({tuple(v) for v in supplied.values()}) > 1:
@@ -738,6 +783,7 @@ def throughput_rows_per_cycle(spec: ScanCompositionSpec, *, stage_pass_fractions
         )
 
     lane_rates = []
+    lane_binders = []
     for index, lane in enumerate(spec.lanes):
         # one reach fraction per chain stage PLUS one for the terminal (what
         # LEAVES the final stage), so a chain ending in a filter is not
@@ -757,20 +803,32 @@ def throughput_rows_per_cycle(spec: ScanCompositionSpec, *, stage_pass_fractions
         # times slower before it binds. A stage nothing reaches cannot bind.
         limits = []
         for position, tile in enumerate([*lane.chain, lane.tile]):
+            role = "lane terminal" if position == len(lane.chain) else "lane chain stage"
+            stages.append(StageRate(role, tile.core, index, _tile_rate(tile, f"lane {index} {role.removeprefix('lane ')}")))
             reaching = passes[position]
             if reaching == 0:
                 continue
-            role = f"lane {index} terminal" if position == len(lane.chain) else f"lane {index} chain stage"
-            limits.append(_tile_rate(tile, role) / reaching)
+            limits.append((stages[-1].rows_per_cycle / reaching, len(stages) - 1))
+        terminal = len(stages) - 1
         if lane.partition is not None:
-            limits.append(_tile_rate(lane.partition, f"lane {index} partition"))
-        lane_rates.append(min(limits) if limits else _tile_rate(lane.tile, f"lane {index} terminal"))
+            stages.append(StageRate("lane partition", lane.partition.core, index, _tile_rate(lane.partition, f"lane {index} partition")))
+            limits.append((stages[-1].rows_per_cycle, len(stages) - 1))
+        if not limits:
+            limits.append((stages[terminal].rows_per_cycle, terminal))
+        lane_rate = min(limits, key=lambda limit: limit[0])
+        lane_rates.append(lane_rate[0])
+        lane_binders.append(lane_rate[1])
 
     if spec.partitioner is not None:
-        consumption = min(_tile_rate(spec.partitioner, "partitioner"), sum(lane_rates, Fraction(0)))
+        # rows split across lanes, so no one stage sets the summed rate; the
+        # first lane's slowest stage stands for it
+        consumption = (sum(lane_rates, Fraction(0)), lane_binders[0])
     else:
-        consumption = min(lane_rates)
-    return min(delivery, consumption)
+        consumption = min(zip(lane_rates, lane_binders, strict=True), key=lambda limit: limit[0])
+    factors = [consumption, *([] if partitioner is None else [partitioner]), delivery]
+    rate, binding = min(factors, key=lambda factor: factor[0])
+    stages[binding] = replace(stages[binding], binding=True)
+    return ThroughputBreakdown(rate, tuple(stages))
 
 
 def estimated_resources(spec: ScanCompositionSpec, *, part: str, clock_ns: float) -> ResourceEnvelope:
