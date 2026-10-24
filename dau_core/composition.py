@@ -715,7 +715,8 @@ class ThroughputBreakdown:
 def throughput_breakdown(spec: ScanCompositionSpec, *, stage_pass_fractions: Mapping[int, Sequence[Fraction]] | None = None) -> ThroughputBreakdown:
     """The rate :func:`throughput_rows_per_cycle` reports, with every stage's
     declared floor and the stage that binds. Under a shared partitioner the
-    lane rates sum, so the first lane's slowest stage is marked binding."""
+    lane rates sum, so when the lanes bind the first lane's slowest stage is
+    marked."""
     spec = spec.check()
 
     def _tile_rate(tile: TileSpec, role: str) -> Fraction:
@@ -819,13 +820,13 @@ def throughput_breakdown(spec: ScanCompositionSpec, *, stage_pass_fractions: Map
         lane_rates.append(lane_rate[0])
         lane_binders.append(lane_rate[1])
 
-    if spec.partitioner is not None:
-        # rows split across lanes, so no one stage sets the summed rate; the
-        # first lane's slowest stage stands for it
-        consumption = (sum(lane_rates, Fraction(0)), lane_binders[0])
+    if partitioner is not None:
+        # rows split across lanes, so no one stage sets the summed rate: the
+        # first lane's slowest stage stands for it, and loses any tie to a
+        # stage whose own rate is the result
+        factors = [partitioner, delivery, (sum(lane_rates, Fraction(0)), lane_binders[0])]
     else:
-        consumption = min(zip(lane_rates, lane_binders, strict=True), key=lambda limit: limit[0])
-    factors = [consumption, *([] if partitioner is None else [partitioner]), delivery]
+        factors = [min(zip(lane_rates, lane_binders, strict=True), key=lambda limit: limit[0]), delivery]
     rate, binding = min(factors, key=lambda factor: factor[0])
     stages[binding] = replace(stages[binding], binding=True)
     return ThroughputBreakdown(rate, tuple(stages))

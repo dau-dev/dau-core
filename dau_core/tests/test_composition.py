@@ -1064,6 +1064,18 @@ def test_throughput_breakdown_names_the_binding_stage() -> None:
     assert breakdown.binding.role == "partitioner"
     assert sum(stage.binding for stage in breakdown.stages) == 1
 
+    # two half-rate lanes sum to the wide dispatcher's one row per cycle: the
+    # tie goes to the dispatcher, whose own rate is the result
+    wide = ScanCompositionSpec(
+        name="t",
+        lanes=(plain,) * 2,
+        partitioner=TileSpec(core="key-mask-dispatcher", params={"NUM_PARTITIONS": 2, "IN_WIDTH": 512}),
+        data_width=512,
+    )
+    breakdown = throughput_breakdown(wide)
+    assert breakdown.rows_per_cycle == Fraction(1)
+    assert breakdown.binding == StageRate("partitioner", "key-mask-dispatcher", None, Fraction(1), binding=True)
+
 
 def _record_dispatcher(record_words: int = 3) -> TileSpec:
     """The dispatcher as it sits BEHIND a gearbox: its bus is one whole
