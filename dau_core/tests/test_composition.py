@@ -1023,6 +1023,60 @@ def test_selectivity_reconciles_the_model_with_q6_silicon() -> None:
         throughput_rows_per_cycle(dispatched, stage_pass_fractions=uneven)
 
 
+def test_throughput_breakdown_names_the_binding_stage() -> None:
+    from fractions import Fraction
+
+    from dau_core.composition import StageRate, throughput_breakdown, throughput_rows_per_cycle
+
+    terminal = TileSpec(core="field-sum-aggregation", config={"cfg_field_mask": "4'b0010"})
+    mapped = LaneSpec(tile=terminal, chain=(TileSpec(core="row-map-alu", config={}),))
+    plain = LaneSpec(tile=terminal)
+    broadcast = ScanCompositionSpec(name="t", lanes=(mapped, plain))
+
+    breakdown = throughput_breakdown(broadcast)
+    assert breakdown.rows_per_cycle == throughput_rows_per_cycle(broadcast) == Fraction(1, 7)
+    assert breakdown.stages == (
+        StageRate("reader", "axi-burst-reader", None, Fraction(1, 2)),
+        StageRate("lane chain stage", "row-map-alu", 0, Fraction(1, 7), binding=True),
+        StageRate("lane terminal", "field-sum-aggregation", 0, Fraction(1, 2)),
+        StageRate("lane terminal", "field-sum-aggregation", 1, Fraction(1, 2)),
+    )
+
+    # a tenth of the rows reaching the map stage moves the binding to the
+    # other lane's terminal; the stages still report their declared floors
+    filtered = throughput_breakdown(broadcast, stage_pass_fractions={0: (Fraction(1, 10), Fraction(1, 10))})
+    assert filtered.rows_per_cycle == Fraction(1, 2)
+    assert filtered.binding == StageRate("lane terminal", "field-sum-aggregation", 1, Fraction(1, 2), binding=True)
+    assert filtered.stages[1].rows_per_cycle == Fraction(1, 7)
+
+    dispatched = ScanCompositionSpec(
+        name="t",
+        lanes=(plain,) * 4,
+        partitioner=TileSpec(core="key-mask-dispatcher", params={"NUM_PARTITIONS": 4}),
+        front_unpack=TileSpec(core="row-unpack"),
+    )
+    breakdown = throughput_breakdown(dispatched)
+    assert [(stage.role, stage.rows_per_cycle) for stage in breakdown.stages[:3]] == [
+        ("reader", Fraction(1)),
+        ("front unpacker", Fraction(1, 2)),
+        ("partitioner", Fraction(1, 2)),
+    ]
+    assert breakdown.binding.role == "partitioner"
+    assert sum(stage.binding for stage in breakdown.stages) == 1
+
+    # two half-rate lanes sum to the wide dispatcher's one row per cycle: the
+    # tie goes to the dispatcher, whose own rate is the result
+    wide = ScanCompositionSpec(
+        name="t",
+        lanes=(plain,) * 2,
+        partitioner=TileSpec(core="key-mask-dispatcher", params={"NUM_PARTITIONS": 2, "IN_WIDTH": 512}),
+        data_width=512,
+    )
+    breakdown = throughput_breakdown(wide)
+    assert breakdown.rows_per_cycle == Fraction(1)
+    assert breakdown.binding == StageRate("partitioner", "key-mask-dispatcher", None, Fraction(1), binding=True)
+
+
 def _record_dispatcher(record_words: int = 3) -> TileSpec:
     """The dispatcher as it sits BEHIND a gearbox: its bus is one whole
     record wide, so it takes RECORD_INPUT rather than a row framing."""
