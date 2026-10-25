@@ -59,7 +59,7 @@ if TYPE_CHECKING:
         validate_record_batch,
     )
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 
 # {submodule: the names it exports}. ``__all__`` and the lazy resolver both
 # come from this one declaration, so a name cannot be in one and missing
