@@ -157,7 +157,11 @@ def test_every_model_validates_at_use() -> None:
             continue
         loaded = importlib.import_module(module.name)
         for _name, cls in inspect.getmembers(loaded, inspect.isclass):
-            if not issubclass(cls, BaseModel) or cls is BaseModel or cls.__module__ != module.name or cls in seen:
+            if not issubclass(cls, BaseModel) or cls is BaseModel or cls in seen:
+                continue
+            # a parametrized generic belongs to its origin: from pydantic 2.14
+            # its own __module__ is wherever it happened to be parametrized
+            if (cls.__pydantic_generic_metadata__["origin"] or cls).__module__ != module.name:
                 continue
             seen.add(cls)
             if not hasattr(cls, "check") or not cls.model_config.get("frozen"):
