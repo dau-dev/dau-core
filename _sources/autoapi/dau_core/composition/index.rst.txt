@@ -63,7 +63,7 @@ Functions
    dau_core.composition.estimated_resources
    dau_core.composition.canonical_spec_json
    dau_core.composition.spec_hash
-   dau_core.composition.build_id_from_spec_hash
+   dau_core.composition.build_id
    dau_core.composition.canonical_version
    dau_core.composition.spec_from_canonical
 
@@ -474,18 +474,26 @@ Module Contents
    built design that elaborate to the same spec share one hash.
 
 
-.. py:function:: build_id_from_spec_hash(value: str) -> int
+.. py:function:: build_id(spec_hash: str, platform: str) -> int
 
-   The 64-bit identity a shell advertises for a spec, from that spec's
-   hash: the leading 64 bits of the digest.
+   The 64-bit identity a shell advertises: the leading 64 bits of a
+   sha256 over the spec's hash and the name of the platform the shell was
+   built for.
 
    A shell's capability words cannot identify a design. Distinct designs
    routinely advertise the same lane count, operator bitmap, host-opcode
    bitmap and sort capacity -- q19-scan and q19-packed-wide are identical
    across all four -- so a host asking "is the device running the design I
    flashed" gets a yes from a board running something else. The spec hash
-   distinguishes them by construction, and 64 bits of it fits the identity
+   distinguishes them by construction, and 64 bits fits the identity
    block's BUILD_ID register pair.
+
+   The platform is in it because one spec builds for several boards and
+   the images differ (part, clocking, memory, pins). Built from the spec
+   hash alone, a dpv1 and a dpv2 image of one spec advertised the same id,
+   and a design cache holding both manifests could not say which one a
+   board was running. ``platform`` is the platform's name, as the
+   shell-build manifest records it.
 
    Truncation is safe for this use. BUILD_ID answers "is this the design I
    expect", where the alternative is a handful of shells built by the same
@@ -494,15 +502,13 @@ Module Contents
    shell reads back as zero, so the caller must treat it as "not stamped"
    rather than as a design identity.
 
-   KNOW WHAT THIS DOES NOT IDENTIFY. It is the hash of a composition SPEC,
-   so it names the design's inputs, not the image built from them. Two
-   bitstreams built from the same spec at different times — different RTL,
-   generator, constraints or toolchain — carry the SAME id. That is the
-   right granularity for "did my flash take" (the alternative resident
-   image is a different design) and the wrong one for "is this the exact
-   artifact I validated", which only the bitstream digest answers. It also
-   drops the canonical-version prefix, so ``5:<digest>`` and ``6:<digest>``
-   are indistinguishable here while being different cache keys.
+   KNOW WHAT THIS DOES NOT IDENTIFY. It names the design's inputs and its
+   board, not the image built from them. Two bitstreams built from the same
+   spec for the same board at different times — different RTL, generator,
+   constraints or toolchain — carry the SAME id. That is the right
+   granularity for "did my flash take" (the alternative resident image is a
+   different design) and the wrong one for "is this the exact artifact I
+   validated", which only the bitstream digest answers.
 
 
 .. py:function:: canonical_version(value: str) -> str

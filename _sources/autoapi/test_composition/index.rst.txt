@@ -60,6 +60,7 @@ Functions
    test_composition.test_spec_hash_is_config_order_insensitive_and_content_sensitive
    test_composition.test_spec_hash_pinned_fixture
    test_composition.test_spec_from_canonical_revalidates
+   test_composition.test_a_build_id_names_the_board_as_well_as_the_spec
    test_composition.test_canonical_version_reads_the_prefix_a_recorded_hash_carries
    test_composition.test_a_text_recorded_under_an_older_palette_is_refused_by_version_not_by_parse
    test_composition.test_spec_hash_stable_when_defaults_are_explicit
@@ -228,6 +229,13 @@ Module Contents
 .. py:function:: test_spec_from_canonical_revalidates() -> None
 
    A tampered canonical form fails registry validation, never builds.
+
+
+.. py:function:: test_a_build_id_names_the_board_as_well_as_the_spec() -> None
+
+   One spec built for two boards is two images, so two ids; the same
+   spec and board is one id, pinned so a change to the derivation is a
+   deliberate one.
 
 
 .. py:function:: test_canonical_version_reads_the_prefix_a_recorded_hash_carries() -> None
