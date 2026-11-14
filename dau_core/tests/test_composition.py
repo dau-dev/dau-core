@@ -639,6 +639,23 @@ def test_spec_from_canonical_revalidates() -> None:
         spec_from_canonical(tampered)
 
 
+def test_a_build_id_names_the_board_as_well_as_the_spec() -> None:
+    """One spec built for two boards is two images, so two ids; the same
+    spec and board is one id, pinned so a change to the derivation is a
+    deliberate one."""
+    from dau_core.composition import build_id
+
+    spec_hash = "7:8ad964f74ebf680e83774747c8e601278e2fcd19eb50a6ff102b3c487d3e3c7f"
+    assert build_id(spec_hash, "dpv1") != build_id(spec_hash, "dpv2")
+    assert build_id(spec_hash, "dpv1") == build_id(spec_hash, "dpv1")
+    assert build_id("7:" + "0" * 64, "dpv1") != build_id(spec_hash, "dpv1")
+    assert build_id(spec_hash, "dpv2") == 0x005DCCB0003ECD96
+    with pytest.raises(ValueError, match="empty platform"):
+        build_id(spec_hash, "")
+    with pytest.raises(ValueError, match="no canonical-form version prefix"):
+        build_id(spec_hash.split(":", 1)[1], "dpv2")
+
+
 def test_canonical_version_reads_the_prefix_a_recorded_hash_carries() -> None:
     """The prefix is what a reader has instead of the palette that wrote the
     text beside it, so it has to be readable without one."""
