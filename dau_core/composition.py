@@ -885,10 +885,10 @@ def estimated_resources(spec: ScanCompositionSpec, *, part: str, clock_ns: float
         add(spec.partitioner.core, spec.partitioner.params)
     elif spec.stream_job is None and not spec.is_wide_lane():
         add(core_of_role(CoreRole.SCAN_BROADCAST).name)
-    elif spec.wide_fanout_width() is not None:
+    elif (fanout_width := spec.wide_fanout_width()) is not None:
         # several wide lanes share the beat through the broadcast at its
         # width; a single wide lane takes the stream directly
-        add(core_of_role(CoreRole.SCAN_BROADCAST).name, {"DATA_WIDTH": spec.wide_fanout_width()})
+        add(core_of_role(CoreRole.SCAN_BROADCAST).name, {"DATA_WIDTH": fanout_width})
     for lane in spec.lanes:
         # a stream job's records leave through its job core, so there is no
         # per-lane record writer to price. Pricing one anyway inflated every
