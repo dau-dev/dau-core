@@ -3,20 +3,23 @@
 // N-way stream broadcast: every output must accept every beat (taken-bit
 // bookkeeping, so a slow consumer stalls the beat only for consumers that
 // have not yet taken it). Data and last fan out combinationally; the input
-// beat completes when the last straggler accepts.
+// beat completes when the last straggler accepts. DATA_WIDTH is the beat:
+// 64 for the two-beat row stream, SLOTS x 128 for wide lanes, which take a
+// whole beat of quad rows per cycle.
 module dau_stream_broadcast #(
-    parameter int unsigned NUM_OUTPUTS = 2
+    parameter int unsigned NUM_OUTPUTS = 2,
+    parameter int unsigned DATA_WIDTH = 64
 ) (
-    input  wire logic        clk,
-    input  wire logic        rst,
-    input  wire logic        input_valid,
-    output logic             input_ready,
-    input  wire logic [63:0] input_data,
-    input  wire logic        input_last,
-    output logic [NUM_OUTPUTS-1:0] output_valid,
+    input  wire logic                  clk,
+    input  wire logic                  rst,
+    input  wire logic                  input_valid,
+    output logic                       input_ready,
+    input  wire logic [DATA_WIDTH-1:0] input_data,
+    input  wire logic                  input_last,
+    output logic [NUM_OUTPUTS-1:0]     output_valid,
     input  wire logic [NUM_OUTPUTS-1:0] output_ready,
-    output logic [63:0]      output_data,
-    output logic             output_last
+    output logic [DATA_WIDTH-1:0]      output_data,
+    output logic                       output_last
 );
     logic [NUM_OUTPUTS-1:0] taken;
     logic [NUM_OUTPUTS-1:0] accepting;
