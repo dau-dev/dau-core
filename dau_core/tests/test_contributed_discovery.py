@@ -159,3 +159,30 @@ def test_an_unreadable_searchpath_does_not_take_down_composition(tmp_path) -> No
     missing = str(tmp_path / "does-not-exist")
     assert contributed_options(missing) == _with_installed()
     assert len(compose_config().cfg["dau-core"]) > 50
+
+
+def test_a_contributed_group_the_application_composed_is_kept(contrib_dir) -> None:
+    """A CLI may compose the contributions from its own searchpath before
+    anything asks dau-core for a core. Loading dau-core's palette afterwards
+    must keep that group, not fail adding a second one."""
+    from omegaconf import OmegaConf
+
+    from dau_core.config import load_config
+    from dau_core.registry import core
+
+    root = ModelRegistry.root()
+    saved = {name: root.models[name] for name in ("dau-core", CONTRIB_GROUP) if name in root.models}
+    for name in saved:
+        root.remove(name)
+    tile = OmegaConf.load(Path(contrib_dir("vendor-a")) / CONTRIB_GROUP / "vendor-a.yaml")
+    root.load_config(OmegaConf.create({CONTRIB_GROUP: tile}))
+    try:
+        load_config()
+        assert core("vendor-a-tile").source_package == "vendor_a.hdl"
+        assert core("row-map-alu").source_package == "dau_core.hdl"
+    finally:
+        for name in ("dau-core", CONTRIB_GROUP):
+            if name in root.models:
+                root.remove(name)
+        for name, group in saved.items():
+            root.add(name, group)
