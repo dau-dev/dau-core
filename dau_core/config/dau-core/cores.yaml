@@ -3537,12 +3537,18 @@ stream-broadcast:
   module: dau_stream_broadcast
   source: dau_stream_broadcast.sv
   description: N-way stream fanout with taken-bit bookkeeping.
-  # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
-  measured_from: 1:cb48461e4a48d89c481ee6ce5fd897b3b396c7d5146e00dc023a0c19c100f504
+  # DATA_WIDTH is the beat it fans out: 64 for the two-beat row stream,
+  # SLOTS x 128 when it feeds wide lanes
+  parameters:
+    DATA_WIDTH:
+      default: 64
+      choices: [64, 128, 256, 512, 1024]
+  # Measured 2026-11-15 via dau-build task=tasks/build/synthesize-cores.
+  measured_from: 1:ad6c8203cc46c533f4d9139acc85c558f48acb3206e2dd6d66c644006ede2dbd
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
-      params: {}
+      params: {DATA_WIDTH: 64}
       lut: 5
       ff: 2
       bram36: 0.0
@@ -3551,23 +3557,43 @@ stream-broadcast:
       wns_ns: 6.72
     - part: xc7k325tffg900-2
       clock_ns: 8.0
-      params: {}
+      params: {DATA_WIDTH: 64}
       lut: 5
       ff: 2
       bram36: 0.0
       dsp: 0
       timing: met
       wns_ns: 7.188
-    # Measured 2026-08-11 at 100 MHz via dau-build task=tasks/build/synthesize-cores.
+    # at 100 MHz
     - part: xc7a200tfbg484-2
       clock_ns: 10.0
-      params: {}
+      params: {DATA_WIDTH: 64}
       lut: 5
       ff: 2
       bram36: 0.0
       dsp: 0
       timing: met
       wns_ns: 8.72
+    # the wide-lane fan-out beat (SLOTS=4); the data only fans out, so it
+    # costs what the 64-bit beat does
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {DATA_WIDTH: 512}
+      lut: 5
+      ff: 2
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 7.188
+    - part: xc7k325tffg900-2
+      clock_ns: 6.66667
+      params: {DATA_WIDTH: 512}
+      lut: 5
+      ff: 2
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 5.855
 
 axi-random-probe:
   _target_: dau_core.cores.CoreDefinition

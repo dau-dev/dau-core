@@ -831,6 +831,36 @@ def test_the_wide_lane_shape_composes_and_rate_matches():
     assert throughput_rows_per_cycle(narrow) == Fraction(1)
 
 
+def test_several_wide_lanes_share_the_beat_through_the_broadcast():
+    """Wide lanes behind one feed: the stream broadcast fans the whole beat
+    out at its width, every lane sees every row, and the slowest lane sets
+    the rate. One wide lane still takes the stream directly."""
+    from fractions import Fraction
+
+    from dau_core.composition import throughput_rows_per_cycle
+
+    def lane(mask: str) -> LaneSpec:
+        return LaneSpec(
+            tile=TileSpec(core="wide-field-sum-aggregation", config={"cfg_field_mask": mask}, params={"SLOTS": 4}),
+            chain=(TileSpec(core="wide-row-predicate-filter", params={"SLOTS": 4}),),
+        )
+
+    front = TileSpec(core="row-unpack", params={"OUT_WIDTH": 512})
+    spec = ScanCompositionSpec(name="w", lanes=(lane("4'b0110"), lane("4'b1110")), front_unpack=front, data_width=256)
+
+    assert spec.wide_fanout_width() == 512
+    assert "stream-broadcast" in spec.core_names()
+    assert throughput_rows_per_cycle(spec) == Fraction(4)
+    single = ScanCompositionSpec(name="w1", lanes=(lane("4'b0110"),), front_unpack=front, data_width=256)
+    assert single.wide_fanout_width() is None
+    assert "stream-broadcast" not in single.core_names()
+
+    # the fan-out prices from its measured point at the beat width
+    two = estimated_resources(spec, part="xc7k325tffg900-2", clock_ns=8.0)
+    one = estimated_resources(single, part="xc7k325tffg900-2", clock_ns=8.0)
+    assert two.lut > one.lut
+
+
 def test_wide_combinational_tile_pipeline_depth_bounds_are_enforced():
     wide_sum = TileSpec(core="wide-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"})
 
@@ -852,9 +882,16 @@ def test_the_wide_lane_shape_rules_are_enforced():
     # data_width must equal SLOTS x 128
     with pytest.raises(CompositionError, match="SLOTS x 128"):
         ScanCompositionSpec(name="bad", lanes=(wide_lane,))
-    # exactly one lane
-    with pytest.raises(CompositionError, match="exactly one lane"):
-        ScanCompositionSpec(name="bad", lanes=(wide_lane, wide_lane), data_width=512)
+    # every lane wide: a narrow lane cannot share the wide beat
+    with pytest.raises(CompositionError, match="every lane must be wide"):
+        ScanCompositionSpec(name="bad", lanes=(wide_lane, LaneSpec(tile=_BAR)), data_width=512)
+    # SLOTS must agree across lanes
+    with pytest.raises(CompositionError, match="lane 1 terminal has 2"):
+        ScanCompositionSpec(
+            name="bad",
+            lanes=(wide_lane, LaneSpec(tile=TileSpec(core="wide-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}, params={"SLOTS": 2}))),
+            data_width=512,
+        )
     # no partitioner
     with pytest.raises(CompositionError, match="cannot feed it"):
         ScanCompositionSpec(

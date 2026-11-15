@@ -255,15 +255,19 @@ class ScanCompositionSpec(CheckedModel):
         wide_lane = self.lanes[0].tile.definition().contract_kind is ContractKind.WIDE_ROW_STREAM
         if wide_lane:
             # THE WIDE LANE: reader beats wire straight into a chain of
-            # wide-row-stream stages — the lane IS the fan-out (SLOTS rows
-            # per cycle), so no partitioner/broadcast is involved at all
-            if len(self.lanes) != 1:
-                raise CompositionError("a wide lane is the whole datapath: exactly one lane (no wide fan-out exists)")
+            # wide-row-stream stages, SLOTS rows per cycle. One lane takes the
+            # stream directly; several take it through the stream broadcast at
+            # the beat width, each seeing every row, so no partitioner is
+            # involved
             if self.partitioner is not None:
                 raise CompositionError("a wide lane consumes the reader stream directly; a shared partitioner cannot feed it")
-            lane = self.lanes[0]
-            if lane.partition is not None:
-                raise CompositionError("a wide lane takes no per-lane partition filter (it sees every row by construction)")
+            for index, lane in enumerate(self.lanes):
+                if lane.tile.definition().contract_kind is not ContractKind.WIDE_ROW_STREAM:
+                    raise CompositionError(
+                        f"lane {index} terminal {lane.tile.core!r} is not a wide-row-stream core; wide lanes share one beat, so every lane must be wide"
+                    )
+                if lane.partition is not None:
+                    raise CompositionError("a wide lane takes no per-lane partition filter (it sees every row by construction)")
 
             def _slots_of(tile: TileSpec, role: str) -> int:
                 if tile.definition().contract_kind is not ContractKind.WIDE_ROW_STREAM:
@@ -276,11 +280,15 @@ class ScanCompositionSpec(CheckedModel):
                     raise CompositionError(f"{role} {tile.core!r} declares no SLOTS parameter")
                 return int(tile.params.get("SLOTS", declared.default))
 
-            slots = _slots_of(lane.tile, "wide lane terminal")
-            for stage in lane.chain:
-                stage_slots = _slots_of(stage, "wide lane chain stage")
-                if stage_slots != slots:
-                    raise CompositionError(f"wide lane SLOTS disagree: chain stage {stage.core!r} has {stage_slots}, the terminal has {slots}")
+            slots = _slots_of(self.lanes[0].tile, "wide lane terminal")
+            for index, lane in enumerate(self.lanes):
+                lane_slots = _slots_of(lane.tile, "wide lane terminal")
+                if lane_slots != slots:
+                    raise CompositionError(f"wide lane SLOTS disagree: lane {index} terminal has {lane_slots}, lane 0 has {slots}")
+                for stage in lane.chain:
+                    stage_slots = _slots_of(stage, "wide lane chain stage")
+                    if stage_slots != slots:
+                        raise CompositionError(f"wide lane SLOTS disagree: chain stage {stage.core!r} has {stage_slots}, the terminal has {slots}")
             if self.front_unpack is not None:
                 # PACKED wide feed: two different widths, and conflating them
                 # is the whole hazard. data_width is the READ width — SLOTS
@@ -565,11 +573,20 @@ class ScanCompositionSpec(CheckedModel):
             # QUAD_ROWS images are 16-byte build rows — always on the grid
 
     def is_wide_lane(self) -> bool:
-        """Whether this is the wide-lane shape: the single lane's terminal
-        speaks the wide-row-stream contract, so the reader feeds the lane
-        directly — no broadcast, no partitioner (validated at
+        """Whether this is the wide-lane shape: the lanes' terminals speak the
+        wide-row-stream contract, so the reader (or front unpacker) feeds
+        them whole beats of quad rows with no partitioner (validated at
         construction)."""
         return self.lanes[0].tile.definition().contract_kind is ContractKind.WIDE_ROW_STREAM
+
+    def wide_fanout_width(self) -> int | None:
+        """The beat width the stream broadcast fans out to several wide
+        lanes, or None when no wide fan-out is placed (one wide lane takes
+        the stream directly; narrow lanes use the 64-bit broadcast)."""
+        if not self.is_wide_lane() or len(self.lanes) == 1:
+            return None
+        slots = int(self.lanes[0].tile.params.get("SLOTS", self.lanes[0].tile.definition().parameters["SLOTS"].default))
+        return slots * 128
 
     def core_names(self) -> tuple[str, ...]:
         """Every registry core the composition instantiates, infrastructure
@@ -585,7 +602,7 @@ class ScanCompositionSpec(CheckedModel):
             for name in _stream_job_cores(self.stream_job):
                 names.setdefault(name)
         else:
-            no_broadcast = self.partitioner is not None or self.is_wide_lane()
+            no_broadcast = self.partitioner is not None or (self.is_wide_lane() and self.wide_fanout_width() is None)
             for role in _SCAN_SHELL_ROLES:
                 if no_broadcast and role is CoreRole.SCAN_BROADCAST:
                     continue
@@ -867,8 +884,11 @@ def estimated_resources(spec: ScanCompositionSpec, *, part: str, clock_ns: float
     if spec.partitioner is not None:
         add(spec.partitioner.core, spec.partitioner.params)
     elif spec.stream_job is None and not spec.is_wide_lane():
-        # the wide lane feeds the single lane directly: no broadcast placed
         add(core_of_role(CoreRole.SCAN_BROADCAST).name)
+    elif spec.wide_fanout_width() is not None:
+        # several wide lanes share the beat through the broadcast at its
+        # width; a single wide lane takes the stream directly
+        add(core_of_role(CoreRole.SCAN_BROADCAST).name, {"DATA_WIDTH": spec.wide_fanout_width()})
     for lane in spec.lanes:
         # a stream job's records leave through its job core, so there is no
         # per-lane record writer to price. Pricing one anyway inflated every
