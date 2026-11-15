@@ -759,6 +759,11 @@
     </a>
   </li>
   <li class="fd-tree-item">
+    <a class="fd-link" href="../test_expression_lowering/index.html">
+      <span class="fd-link-text">test_expression_lowering</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
     <a class="fd-link" href="../test_aggregation_tile_hdl/index.html">
       <span class="fd-link-text">test_aggregation_tile_hdl</span>
     </a>
@@ -838,6 +843,9 @@
     <a href="#test_contributed_discovery.contrib_dir">contrib_dir()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#test_contributed_discovery._with_installed">_with_installed()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#test_contributed_discovery.test_options_are_discovered_not_named">test_options_are_discovered_not_named()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -915,31 +923,34 @@ vanishing entirely.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_contributed_discovery.contrib_dir" title="test_contributed_discovery.contrib_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">contrib_dir</span></code></a>(tmp_path)</p></td>
 <td><p>A searchpath directory holding contributed tile options.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_contributed_discovery.test_options_are_discovered_not_named" title="test_contributed_discovery.test_options_are_discovered_not_named"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_options_are_discovered_not_named</span></code></a>(contrib_dir) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_contributed_discovery._with_installed" title="test_contributed_discovery._with_installed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_with_installed</span></code></a>(*options) → tuple[str, ...]</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">options</span></code> next to whatever contributing packages this environment</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_contributed_discovery.test_options_are_discovered_not_named" title="test_contributed_discovery.test_options_are_discovered_not_named"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_options_are_discovered_not_named</span></code></a>(contrib_dir) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_contributed_discovery.test_no_contributions_installed_is_silent" title="test_contributed_discovery.test_no_contributions_installed_is_silent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_no_contributions_installed_is_silent</span></code></a>(tmp_path) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_contributed_discovery.test_no_contributions_installed_is_silent" title="test_contributed_discovery.test_no_contributions_installed_is_silent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_no_contributions_installed_is_silent</span></code></a>(tmp_path) → None</p></td>
 <td><p>The common case must cost nothing and say nothing.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_contributed_discovery.test_every_contributor_composes_not_just_the_first" title="test_contributed_discovery.test_every_contributor_composes_not_just_the_first"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_every_contributor_composes_not_just_the_first</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_contributed_discovery.test_every_contributor_composes_not_just_the_first" title="test_contributed_discovery.test_every_contributor_composes_not_just_the_first"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_every_contributor_composes_not_just_the_first</span></code></a>(...) → None</p></td>
 <td><p>The list form is the whole point: selecting one option per group would</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_contributed_discovery.test_our_own_palette_survives_contribution" title="test_contributed_discovery.test_our_own_palette_survives_contribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_our_own_palette_survives_contribution</span></code></a>(contrib_dir) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_contributed_discovery.test_our_own_palette_survives_contribution" title="test_contributed_discovery.test_our_own_palette_survives_contribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_our_own_palette_survives_contribution</span></code></a>(contrib_dir) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_contributed_discovery.test_an_explicit_selection_is_not_overridden" title="test_contributed_discovery.test_an_explicit_selection_is_not_overridden"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_an_explicit_selection_is_not_overridden</span></code></a>(contrib_dir) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_contributed_discovery.test_an_explicit_selection_is_not_overridden" title="test_contributed_discovery.test_an_explicit_selection_is_not_overridden"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_an_explicit_selection_is_not_overridden</span></code></a>(contrib_dir) → None</p></td>
 <td><p>A caller who named the contributions it wants means it.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_contributed_discovery.test_contributed_tiles_reach_the_registry" title="test_contributed_discovery.test_contributed_tiles_reach_the_registry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_contributed_tiles_reach_the_registry</span></code></a>(contrib_dir) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_contributed_discovery.test_contributed_tiles_reach_the_registry" title="test_contributed_discovery.test_contributed_tiles_reach_the_registry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_contributed_tiles_reach_the_registry</span></code></a>(contrib_dir) → None</p></td>
 <td><p>The two halves together: composed AND findable, with the seam intact.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_contributed_discovery.test_discovery_inside_an_existing_initialization_leaves_it_standing" title="test_contributed_discovery.test_discovery_inside_an_existing_initialization_leaves_it_standing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_discovery_inside_an_existing_initialization_leaves_it_standing</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_contributed_discovery.test_discovery_inside_an_existing_initialization_leaves_it_standing" title="test_contributed_discovery.test_discovery_inside_an_existing_initialization_leaves_it_standing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_discovery_inside_an_existing_initialization_leaves_it_standing</span></code></a>(...) → None</p></td>
 <td><p>The regression that broke two downstream suites.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_contributed_discovery.test_discovery_never_registers_anything" title="test_contributed_discovery.test_discovery_never_registers_anything"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_discovery_never_registers_anything</span></code></a>(contrib_dir) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_contributed_discovery.test_discovery_never_registers_anything" title="test_contributed_discovery.test_discovery_never_registers_anything"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_discovery_never_registers_anything</span></code></a>(contrib_dir) → None</p></td>
 <td><p>Initializing hydra runs the searchpath plugin, which LOADS provider</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_contributed_discovery.test_an_unreadable_searchpath_does_not_take_down_composition" title="test_contributed_discovery.test_an_unreadable_searchpath_does_not_take_down_composition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_an_unreadable_searchpath_does_not_take_down_composition</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_contributed_discovery.test_an_unreadable_searchpath_does_not_take_down_composition" title="test_contributed_discovery.test_an_unreadable_searchpath_does_not_take_down_composition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_an_unreadable_searchpath_does_not_take_down_composition</span></code></a>(...) → None</p></td>
 <td><p>Discovery is best-effort. A directory hydra cannot read must cost the</p></td>
 </tr>
 </tbody>
@@ -973,6 +984,13 @@ vanishing entirely.</p>
 <dt class="sig sig-object py" id="test_contributed_discovery.contrib_dir">
 <span class="sig-prename descclassname"><span class="pre">test_contributed_discovery.</span></span><span class="sig-name descname"><span class="pre">contrib_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#test_contributed_discovery.contrib_dir" title="Link to this definition">¶</a></dt>
 <dd><p>A searchpath directory holding contributed tile options.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_contributed_discovery._with_installed">
+<span class="sig-prename descclassname"><span class="pre">test_contributed_discovery.</span></span><span class="sig-name descname"><span class="pre">_with_installed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#test_contributed_discovery._with_installed" title="Link to this definition">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">options</span></code> next to whatever contributing packages this environment
+has installed, which the suite must pass with and without.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1087,6 +1105,9 @@ contributions, not the compose that would otherwise have worked.</p>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_contributed_discovery.contrib_dir">contrib_dir()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_contributed_discovery._with_installed">_with_installed()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_contributed_discovery.test_options_are_discovered_not_named">test_options_are_discovered_not_named()</a>

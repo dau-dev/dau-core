@@ -55,6 +55,7 @@ Classes
    dau_core.cores.IngestRate
    dau_core.cores.ParameterSpec
    dau_core.cores.StorageIntent
+   dau_core.cores.ExpressionLowering
    dau_core.cores.CoreDefinition
 
 
@@ -687,6 +688,68 @@ Module Contents
 
 
 
+.. py:class:: ExpressionLowering(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   The polars expression a row tile computes, declared so a query
+   compiler can reach the tile without being changed for it.
+
+   The tile rewrites one field of each quad row in place,
+   ``row[dst] = golden(row[src], *scalars)``, where the core's ``golden``
+   is that element function and each scalar is a batch-latched config
+   port. ``function`` and ``options`` name the expression as polars
+   serializes it, with the column first and one literal per scalar port
+   after it: ``pl.col("a").clip(lo, hi)`` is ``Clip`` with
+   ``{"has_min": true, "has_max": true}``.
+
+   A compiler lowers the expression only when it can show the tile
+   computes what polars would. Every literal must encode exactly at the
+   column's fixed-point scale and fit the field. A column staged at a
+   nonzero scale also needs ``scale_invariant``, meaning
+   ``f(k*x, k*s...) == k*f(x, s...)`` for k > 0: true of clip, false of a
+   hash or a square.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: function
+      :type:  str
+
+
+   .. py:attribute:: options
+      :type:  Annotated[collections.abc.Mapping[str, bool | int | str], *ReadOnly]
+
+
+   .. py:attribute:: source_port
+      :type:  str
+
+
+   .. py:attribute:: destination_port
+      :type:  str
+
+
+   .. py:attribute:: scalar_ports
+      :type:  tuple[str, ...]
+      :value: ()
+
+
+
+   .. py:attribute:: scale_invariant
+      :type:  bool
+      :value: False
+
+
+
+   .. py:method:: _ports_distinct() -> ExpressionLowering
+
+
 .. py:function:: _same_clock(a: float, b: float) -> bool
 
    Two clock periods naming the same physical clock.
@@ -889,6 +952,12 @@ Module Contents
    .. py:attribute:: storage_intent
       :type:  tuple[StorageIntent, ...]
       :value: ()
+
+
+
+   .. py:attribute:: lowering
+      :type:  ExpressionLowering | None
+      :value: None
 
 
 

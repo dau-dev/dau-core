@@ -1,0 +1,51 @@
+test_expression_lowering
+========================
+
+.. py:module:: test_expression_lowering
+
+.. autoapi-nested-parse::
+
+   A tile declares the polars expression it computes.
+
+   A compiler reaches a contributed tile through this declaration, so it is
+   checked where the tile is declared: a lowering names a quad-row tile that
+   rewrites one field in place, and that tile's golden is the element function
+   the compiler runs on the host to answer the same query.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_expression_lowering._CLIP
+   test_expression_lowering._TILE
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_expression_lowering.test_a_composed_tile_carries_its_lowering
+   test_expression_lowering.test_a_lowering_needs_a_quad_row_tile
+   test_expression_lowering.test_a_lowering_needs_a_golden
+   test_expression_lowering.test_a_lowering_binds_each_port_once
+
+
+Module Contents
+---------------
+
+.. py:data:: _CLIP
+
+.. py:data:: _TILE
+
+.. py:function:: test_a_composed_tile_carries_its_lowering() -> None
+
+.. py:function:: test_a_lowering_needs_a_quad_row_tile() -> None
+
+.. py:function:: test_a_lowering_needs_a_golden() -> None
+
+.. py:function:: test_a_lowering_binds_each_port_once() -> None
+

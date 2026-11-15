@@ -39,6 +39,7 @@ Functions
 .. autoapisummary::
 
    test_contributed_discovery.contrib_dir
+   test_contributed_discovery._with_installed
    test_contributed_discovery.test_options_are_discovered_not_named
    test_contributed_discovery.test_no_contributions_installed_is_silent
    test_contributed_discovery.test_every_contributor_composes_not_just_the_first
@@ -87,6 +88,12 @@ Module Contents
 .. py:function:: contrib_dir(tmp_path)
 
    A searchpath directory holding contributed tile options.
+
+
+.. py:function:: _with_installed(*options: str) -> tuple[str, ...]
+
+   ``options`` next to whatever contributing packages this environment
+   has installed, which the suite must pass with and without.
 
 
 .. py:function:: test_options_are_discovered_not_named(contrib_dir) -> None
