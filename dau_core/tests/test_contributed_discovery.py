@@ -59,15 +59,20 @@ def contrib_dir(tmp_path):
     return write
 
 
+def _with_installed(*options: str) -> tuple[str, ...]:
+    """``options`` next to whatever contributing packages this environment
+    has installed, which the suite must pass with and without."""
+    return tuple(sorted({*contributed_options(), *options}))
+
+
 def test_options_are_discovered_not_named(contrib_dir) -> None:
     path = contrib_dir("vendor-a", "vendor-b")
-    assert contributed_options(path) == ("vendor-a", "vendor-b")
+    assert contributed_options(path) == _with_installed("vendor-a", "vendor-b")
 
 
 def test_no_contributions_installed_is_silent(tmp_path) -> None:
     """The common case must cost nothing and say nothing."""
-    assert contributed_options(str(tmp_path)) == ()
-    assert contributed_options() == ()
+    assert contributed_options(str(tmp_path)) == _with_installed()
 
 
 def test_every_contributor_composes_not_just_the_first(contrib_dir) -> None:
@@ -75,7 +80,7 @@ def test_every_contributor_composes_not_just_the_first(contrib_dir) -> None:
     make a second installed vendor silently disappear."""
     path = contrib_dir("vendor-a", "vendor-b")
     composed = compose_config(config_dir=path).cfg.get(CONTRIB_GROUP)
-    assert set(composed) == {"vendor-a-tile", "vendor-b-tile"}
+    assert {"vendor-a-tile", "vendor-b-tile"} <= set(composed)
 
 
 def test_our_own_palette_survives_contribution(contrib_dir) -> None:
@@ -142,7 +147,7 @@ def test_discovery_never_registers_anything(contrib_dir) -> None:
 
     path = contrib_dir("vendor-a")
     before = set(ModelRegistry.root().models)
-    assert contributed_options(path) == ("vendor-a",)
+    assert contributed_options(path) == _with_installed("vendor-a")
     assert set(ModelRegistry.root().models) == before
 
 
@@ -152,5 +157,5 @@ def test_an_unreadable_searchpath_does_not_take_down_composition(tmp_path) -> No
     from dau_core.config import compose_config, contributed_options
 
     missing = str(tmp_path / "does-not-exist")
-    assert contributed_options(missing) == ()
+    assert contributed_options(missing) == _with_installed()
     assert len(compose_config().cfg["dau-core"]) > 50

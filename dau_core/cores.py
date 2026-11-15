@@ -407,6 +407,41 @@ class StorageIntent(CheckedModel):
     tier_hint: str | None = None
 
 
+class ExpressionLowering(CheckedModel):
+    """The polars expression a row tile computes, declared so a query
+    compiler can reach the tile without being changed for it.
+
+    The tile rewrites one field of each quad row in place,
+    ``row[dst] = golden(row[src], *scalars)``, where the core's ``golden``
+    is that element function and each scalar is a batch-latched config
+    port. ``function`` and ``options`` name the expression as polars
+    serializes it, with the column first and one literal per scalar port
+    after it: ``pl.col("a").clip(lo, hi)`` is ``Clip`` with
+    ``{"has_min": true, "has_max": true}``.
+
+    A compiler lowers the expression only when it can show the tile
+    computes what polars would. Every literal must encode exactly at the
+    column's fixed-point scale and fit the field. A column staged at a
+    nonzero scale also needs ``scale_invariant``, meaning
+    ``f(k*x, k*s...) == k*f(x, s...)`` for k > 0: true of clip, false of a
+    hash or a square.
+    """
+
+    function: str = Field(min_length=1)
+    options: Annotated[Mapping[str, bool | int | str], *ReadOnly] = Field(default_factory=FrozenMapping)
+    source_port: str = Field(min_length=1)
+    destination_port: str = Field(min_length=1)
+    scalar_ports: tuple[str, ...] = ()
+    scale_invariant: bool = False
+
+    @model_validator(mode="after")
+    def _ports_distinct(self) -> ExpressionLowering:
+        ports = (self.source_port, self.destination_port, *self.scalar_ports)
+        if len(set(ports)) != len(ports):
+            raise ValueError(f"lowering of {self.function!r} binds a config port twice: {ports!r}")
+        return self
+
+
 def _same_clock(a: float, b: float) -> bool:
     """Two clock periods naming the same physical clock.
 
@@ -528,6 +563,8 @@ class CoreDefinition(CheckedModel):
     parameters: Annotated[Mapping[str, ParameterSpec], *ReadOnly] = Field(default_factory=FrozenMapping)
     # declared storage needs; the walker wires them, contracts advertise them
     storage_intent: tuple[StorageIntent, ...] = ()
+    # the polars expression this tile computes, for a compiler to discover
+    lowering: ExpressionLowering | None = None
 
     def storage_bytes(self, params: Mapping[str, int]) -> tuple[tuple[StorageIntent, int], ...]:
         """Each intent with its byte cost at the effective parameters
@@ -573,6 +610,13 @@ class CoreDefinition(CheckedModel):
         for role, name in (("input record words", self.record_words_param), ("output record words", self.output_record_words_param)):
             if name is not None and name not in self.parameters:
                 raise ValueError(f"core {self.name!r} {role} follows undeclared parameter {name!r}")
+        if self.lowering is not None:
+            if self.contract_kind != ContractKind.ROW_STREAM or self.record_words != 2:
+                raise ValueError(
+                    f"core {self.name!r} declares a lowering, which rewrites a quad row in place; it must be a row-stream tile of 2 words"
+                )
+            if self.golden is None:
+                raise ValueError(f"core {self.name!r} declares a lowering but no golden element function")
         if self.supports_pipeline_depth and "PIPELINE_DEPTH" not in self.parameters:
             raise ValueError(f"core {self.name!r} supports pipeline depth but declares no PIPELINE_DEPTH parameter")
         for intent in self.storage_intent:

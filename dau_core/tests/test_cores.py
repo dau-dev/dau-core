@@ -577,7 +577,8 @@ def test_registry_is_hydra_composition_not_a_python_literal() -> None:
     assert not hasattr(cores_module, "CORES"), "parallel Python-literal registry reappeared"
     registry = load_config(overwrite=True)
     names = set(registry.models["dau-core"].models)
-    assert names == set(loaded_cores()), "registry path view and accessor view drifted"
+    own = {name for name, definition in loaded_cores().items() if definition.source_package == "dau_core.hdl"}
+    assert names == own, "registry path view and accessor view drifted"
     assert "bar-aggregation" in names
 
 
@@ -600,7 +601,7 @@ def test_silent_on_success_operator_set_is_pinned() -> None:
     cores (chain-stage/partition legal) versus per-batch success close-out
     cores (terminal-tile legal). Changing a core's class changes lane status
     semantics — confirm intent here."""
-    silent = {d.name for d in cores_of_kind(CoreKind.OPERATOR) if not d.success_close_out}
+    silent = {d.name for d in cores_of_kind(CoreKind.OPERATOR) if not d.success_close_out and d.source_package == "dau_core.hdl"}
     assert silent == {
         "datetime-format",
         "fixed-point-ln-light",
