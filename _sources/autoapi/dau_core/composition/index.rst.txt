@@ -312,10 +312,18 @@ Module Contents
 
    .. py:method:: is_wide_lane() -> bool
 
-      Whether this is the wide-lane shape: the single lane's terminal
-      speaks the wide-row-stream contract, so the reader feeds the lane
-      directly — no broadcast, no partitioner (validated at
+      Whether this is the wide-lane shape: the lanes' terminals speak the
+      wide-row-stream contract, so the reader (or front unpacker) feeds
+      them whole beats of quad rows with no partitioner (validated at
       construction).
+
+
+
+   .. py:method:: wide_fanout_width() -> int | None
+
+      The beat width the stream broadcast fans out to several wide
+      lanes, or None when no wide fan-out is placed (one wide lane takes
+      the stream directly; narrow lanes use the 64-bit broadcast).
 
 
 

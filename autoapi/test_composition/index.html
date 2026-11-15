@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>test_composition &#8212; dau core v0.5.0</title>
+    <title>test_composition &#8212; dau core v0.6.0</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/fuma.css?v=ca04d621" />
     <link rel="stylesheet" type="text/css" href="../../_static/fuma-code.css?v=a950e949" />
@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=6a604523" />
     <link rel="stylesheet" type="text/css" href="../../_static/fonts/fuma-fonts.css?v=c2892c73" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/custom.css?v=88c24c6a" />
-    <script src="../../_static/documentation_options.js?v=1dd76d02"></script>
+    <script src="../../_static/documentation_options.js?v=8fa8b3e9"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -49,7 +49,7 @@
   <div class="fd-subnav-inner">
     <button type="button" class="fd-icon-button fd-sidebar-toggle" aria-controls="fd-sidebar" aria-expanded="false" aria-label="Toggle navigation" title="Toggle navigation">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
-    </button><a class="fd-brand" href="../../index.html"><span class="fd-brand-name">dau core v0.5.0</span>
+    </button><a class="fd-brand" href="../../index.html"><span class="fd-brand-name">dau core v0.6.0</span>
 </a>
 
     <div class="fd-nav-actions">
@@ -64,7 +64,7 @@
 
 <aside id="fd-sidebar" aria-label="Documentation">
   <div class="fd-sidebar-header">
-    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../index.html"><span class="fd-brand-name">dau core v0.5.0</span>
+    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../index.html"><span class="fd-brand-name">dau core v0.6.0</span>
 </a>
       <button type="button" class="fd-icon-button fd-sidebar-collapse" aria-label="Collapse sidebar" title="Collapse sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
     </div>
@@ -991,6 +991,9 @@
     <a href="#test_composition.test_the_wide_lane_shape_composes_and_rate_matches">test_the_wide_lane_shape_composes_and_rate_matches()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_several_wide_lanes_share_the_beat_through_the_broadcast">test_several_wide_lanes_share_the_beat_through_the_broadcast()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#test_composition.test_wide_combinational_tile_pipeline_depth_bounds_are_enforced">test_wide_combinational_tile_pipeline_depth_bounds_are_enforced()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -1259,85 +1262,88 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_the_wide_lane_shape_composes_and_rate_matches" title="test_composition.test_the_wide_lane_shape_composes_and_rate_matches"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_wide_lane_shape_composes_and_rate_matches</span></code></a>()</p></td>
 <td><p>The wide lane: one lane of wide-row-stream stages consuming reader</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_wide_combinational_tile_pipeline_depth_bounds_are_enforced" title="test_composition.test_wide_combinational_tile_pipeline_depth_bounds_are_enforced"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_wide_combinational_tile_pipeline_depth_bounds_are_enforced</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_several_wide_lanes_share_the_beat_through_the_broadcast" title="test_composition.test_several_wide_lanes_share_the_beat_through_the_broadcast"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_several_wide_lanes_share_the_beat_through_the_broadcast</span></code></a>()</p></td>
+<td><p>Wide lanes behind one feed: the stream broadcast fans the whole beat</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_wide_combinational_tile_pipeline_depth_bounds_are_enforced" title="test_composition.test_wide_combinational_tile_pipeline_depth_bounds_are_enforced"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_wide_combinational_tile_pipeline_depth_bounds_are_enforced</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_the_wide_lane_shape_rules_are_enforced" title="test_composition.test_the_wide_lane_shape_rules_are_enforced"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_wide_lane_shape_rules_are_enforced</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_the_wide_lane_shape_rules_are_enforced" title="test_composition.test_the_wide_lane_shape_rules_are_enforced"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_wide_lane_shape_rules_are_enforced</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_wide_row_stream_cores_are_refused_in_the_partitioner_slot" title="test_composition.test_wide_row_stream_cores_are_refused_in_the_partitioner_slot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_wide_row_stream_cores_are_refused_in_the_partitioner_slot</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_wide_row_stream_cores_are_refused_in_the_partitioner_slot" title="test_composition.test_wide_row_stream_cores_are_refused_in_the_partitioner_slot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_wide_row_stream_cores_are_refused_in_the_partitioner_slot</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_the_fused_chain_shape_is_declared_not_inferred" title="test_composition.test_the_fused_chain_shape_is_declared_not_inferred"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_fused_chain_shape_is_declared_not_inferred</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_the_fused_chain_shape_is_declared_not_inferred" title="test_composition.test_the_fused_chain_shape_is_declared_not_inferred"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_fused_chain_shape_is_declared_not_inferred</span></code></a>() → None</p></td>
 <td><p>A terminal-shaped tile mid-lane (the temporal hero's as-of join and</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition._temporal_hero_spec" title="test_composition._temporal_hero_spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_temporal_hero_spec</span></code></a>(*[, include_feature_gather]) → dau_core.composition.ScanCompositionSpec</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition._temporal_hero_spec" title="test_composition._temporal_hero_spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_temporal_hero_spec</span></code></a>(*[, include_feature_gather]) → dau_core.composition.ScanCompositionSpec</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_temporal_hero_gathers_reconcile_every_stream_shape" title="test_composition.test_temporal_hero_gathers_reconcile_every_stream_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_temporal_hero_gathers_reconcile_every_stream_shape</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_temporal_hero_gathers_reconcile_every_stream_shape" title="test_composition.test_temporal_hero_gathers_reconcile_every_stream_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_temporal_hero_gathers_reconcile_every_stream_shape</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_stream_shape_mismatch_names_both_cores_and_shapes" title="test_composition.test_stream_shape_mismatch_names_both_cores_and_shapes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_stream_shape_mismatch_names_both_cores_and_shapes</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_stream_shape_mismatch_names_both_cores_and_shapes" title="test_composition.test_stream_shape_mismatch_names_both_cores_and_shapes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_stream_shape_mismatch_names_both_cores_and_shapes</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_stream_shape_mismatches_include_front_feed_and_partitioner" title="test_composition.test_stream_shape_mismatches_include_front_feed_and_partitioner"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_stream_shape_mismatches_include_front_feed_and_partitioner</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_stream_shape_mismatches_include_front_feed_and_partitioner" title="test_composition.test_stream_shape_mismatches_include_front_feed_and_partitioner"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_stream_shape_mismatches_include_front_feed_and_partitioner</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_selectivity_reconciles_the_model_with_q6_silicon" title="test_composition.test_selectivity_reconciles_the_model_with_q6_silicon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_selectivity_reconciles_the_model_with_q6_silicon</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_selectivity_reconciles_the_model_with_q6_silicon" title="test_composition.test_selectivity_reconciles_the_model_with_q6_silicon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_selectivity_reconciles_the_model_with_q6_silicon</span></code></a>() → None</p></td>
 <td><p>The rate benches measured the q6 map stage at one row per SEVEN</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_throughput_breakdown_names_the_binding_stage" title="test_composition.test_throughput_breakdown_names_the_binding_stage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_throughput_breakdown_names_the_binding_stage</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_throughput_breakdown_names_the_binding_stage" title="test_composition.test_throughput_breakdown_names_the_binding_stage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_throughput_breakdown_names_the_binding_stage</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition._record_dispatcher" title="test_composition._record_dispatcher"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_record_dispatcher</span></code></a>([record_words]) → dau_core.composition.TileSpec</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition._record_dispatcher" title="test_composition._record_dispatcher"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_record_dispatcher</span></code></a>([record_words]) → dau_core.composition.TileSpec</p></td>
 <td><p>The dispatcher as it sits BEHIND a gearbox: its bus is one whole</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition._front_gearbox" title="test_composition._front_gearbox"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_front_gearbox</span></code></a>([record_words]) → dau_core.composition.TileSpec</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition._front_gearbox" title="test_composition._front_gearbox"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_front_gearbox</span></code></a>([record_words]) → dau_core.composition.TileSpec</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_front_gearbox_reaches_core_names_and_resources" title="test_composition.test_front_gearbox_reaches_core_names_and_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_front_gearbox_reaches_core_names_and_resources</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_front_gearbox_reaches_core_names_and_resources" title="test_composition.test_front_gearbox_reaches_core_names_and_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_front_gearbox_reaches_core_names_and_resources</span></code></a>() → None</p></td>
 <td><p>The gearbox must appear in core_names: that tuple is what stages the</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_a_geared_design_does_not_share_a_hash_with_an_ungeared_one" title="test_composition.test_a_geared_design_does_not_share_a_hash_with_an_ungeared_one"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_geared_design_does_not_share_a_hash_with_an_ungeared_one</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_a_geared_design_does_not_share_a_hash_with_an_ungeared_one" title="test_composition.test_a_geared_design_does_not_share_a_hash_with_an_ungeared_one"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_geared_design_does_not_share_a_hash_with_an_ungeared_one</span></code></a>() → None</p></td>
 <td><p>The spec hash keys the design cache. If the gearbox were invisible to</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_the_gearbox_is_charged_as_the_front_delivery_it_is" title="test_composition.test_the_gearbox_is_charged_as_the_front_delivery_it_is"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_gearbox_is_charged_as_the_front_delivery_it_is</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_the_gearbox_is_charged_as_the_front_delivery_it_is" title="test_composition.test_the_gearbox_is_charged_as_the_front_delivery_it_is"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_gearbox_is_charged_as_the_front_delivery_it_is</span></code></a>() → None</p></td>
 <td><p>A GUARANTEED floor has to charge the stage that produces the rows.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_a_wider_record_lowers_the_geared_delivery" title="test_composition.test_a_wider_record_lowers_the_geared_delivery"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_wider_record_lowers_the_geared_delivery</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_a_wider_record_lowers_the_geared_delivery" title="test_composition.test_a_wider_record_lowers_the_geared_delivery"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_wider_record_lowers_the_geared_delivery</span></code></a>() → None</p></td>
 <td><p>The record size is the DIVISOR of the reader's supply, so it has to</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_a_gearbox_record_mismatch_is_detected" title="test_composition.test_a_gearbox_record_mismatch_is_detected"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_gearbox_record_mismatch_is_detected</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_a_gearbox_record_mismatch_is_detected" title="test_composition.test_a_gearbox_record_mismatch_is_detected"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_gearbox_record_mismatch_is_detected</span></code></a>() → None</p></td>
 <td><p><cite>stream_shape_mismatches</cite> exists to find exactly this, and the front</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front" title="test_composition.test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front" title="test_composition.test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition._stream_job_spec" title="test_composition._stream_job_spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_stream_job_spec</span></code></a>([job, tile]) → dau_core.composition.ScanCompositionSpec</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition._stream_job_spec" title="test_composition._stream_job_spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_stream_job_spec</span></code></a>([job, tile]) → dau_core.composition.ScanCompositionSpec</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_a_stream_job_composition_declares_its_own_infrastructure" title="test_composition.test_a_stream_job_composition_declares_its_own_infrastructure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_stream_job_composition_declares_its_own_infrastructure</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_a_stream_job_composition_declares_its_own_infrastructure" title="test_composition.test_a_stream_job_composition_declares_its_own_infrastructure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_stream_job_composition_declares_its_own_infrastructure</span></code></a>() → None</p></td>
 <td><p>A stream job stages one tile chain through its job core instead of</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_a_stream_job_composition_refuses_scan_shaped_fields" title="test_composition.test_a_stream_job_composition_refuses_scan_shaped_fields"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_stream_job_composition_refuses_scan_shaped_fields</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_a_stream_job_composition_refuses_scan_shaped_fields" title="test_composition.test_a_stream_job_composition_refuses_scan_shaped_fields"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_stream_job_composition_refuses_scan_shaped_fields</span></code></a>() → None</p></td>
 <td><p>The stream job has no fan-out and no burst feed, so accepting a</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_the_scan_shell_still_requires_a_lane_counter" title="test_composition.test_the_scan_shell_still_requires_a_lane_counter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_scan_shell_still_requires_a_lane_counter</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_the_scan_shell_still_requires_a_lane_counter" title="test_composition.test_the_scan_shell_still_requires_a_lane_counter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_scan_shell_still_requires_a_lane_counter</span></code></a>() → None</p></td>
 <td><p>The count_port waiver is the STREAM job's, not a general relaxation:</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_addr_width_is_32_or_64_only" title="test_composition.test_addr_width_is_32_or_64_only"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_addr_width_is_32_or_64_only</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_addr_width_is_32_or_64_only" title="test_composition.test_addr_width_is_32_or_64_only"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_addr_width_is_32_or_64_only</span></code></a>() → None</p></td>
 <td><p>A job master of some intermediate width is not hardware anyone builds,</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_a_packed_front_can_feed_a_wide_lane" title="test_composition.test_a_packed_front_can_feed_a_wide_lane"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_packed_front_can_feed_a_wide_lane</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_a_packed_front_can_feed_a_wide_lane" title="test_composition.test_a_packed_front_can_feed_a_wide_lane"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_packed_front_can_feed_a_wide_lane</span></code></a>() → None</p></td>
 <td><p>The packed feed and the wide lane compose.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_a_packed_wide_feed_rates_at_the_unpacker_not_at_one_row" title="test_composition.test_a_packed_wide_feed_rates_at_the_unpacker_not_at_one_row"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_packed_wide_feed_rates_at_the_unpacker_not_at_one_row</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_a_packed_wide_feed_rates_at_the_unpacker_not_at_one_row" title="test_composition.test_a_packed_wide_feed_rates_at_the_unpacker_not_at_one_row"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_packed_wide_feed_rates_at_the_unpacker_not_at_one_row</span></code></a>() → None</p></td>
 <td><p>The packed feed's ceiling is the READER's packed-row supply, which is</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_shell_infrastructure_is_selected_by_role_not_by_name" title="test_composition.test_shell_infrastructure_is_selected_by_role_not_by_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_shell_infrastructure_is_selected_by_role_not_by_name</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_shell_infrastructure_is_selected_by_role_not_by_name" title="test_composition.test_shell_infrastructure_is_selected_by_role_not_by_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_shell_infrastructure_is_selected_by_role_not_by_name</span></code></a>() → None</p></td>
 <td><p>Composition IS the registry: the shell cores a composition places are</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_a_stream_job_must_name_a_stream_job_shell" title="test_composition.test_a_stream_job_must_name_a_stream_job_shell"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_stream_job_must_name_a_stream_job_shell</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_a_stream_job_must_name_a_stream_job_shell" title="test_composition.test_a_stream_job_must_name_a_stream_job_shell"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_stream_job_must_name_a_stream_job_shell</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -1658,6 +1664,14 @@ declared ingest — the motivation for the wide-sum lane / distributor.</p>
 <dd><p>The wide lane: one lane of wide-row-stream stages consuming reader
 beats directly — SLOTS rows per cycle, no partitioner. The q6 shape at
 512 rates 4 rows/cycle (the parallel-row target).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_several_wide_lanes_share_the_beat_through_the_broadcast">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_several_wide_lanes_share_the_beat_through_the_broadcast</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#test_composition.test_several_wide_lanes_share_the_beat_through_the_broadcast" title="Link to this definition">¶</a></dt>
+<dd><p>Wide lanes behind one feed: the stream broadcast fans the whole beat
+out at its width, every lane sees every row, and the slowest lane sets
+the rate. One wide lane still takes the stream directly.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -2066,6 +2080,9 @@ placed in is pinned because <code class="docutils literal notranslate"><span cla
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_composition.test_the_wide_lane_shape_composes_and_rate_matches">test_the_wide_lane_shape_composes_and_rate_matches()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_several_wide_lanes_share_the_beat_through_the_broadcast">test_several_wide_lanes_share_the_beat_through_the_broadcast()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_composition.test_wide_combinational_tile_pipeline_depth_bounds_are_enforced">test_wide_combinational_tile_pipeline_depth_bounds_are_enforced()</a>

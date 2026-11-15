@@ -69,6 +69,7 @@ Functions
    test_composition.test_throughput_reproduces_the_measured_rate_ladder
    test_composition.test_throughput_packed_front_re_times_delivery
    test_composition.test_the_wide_lane_shape_composes_and_rate_matches
+   test_composition.test_several_wide_lanes_share_the_beat_through_the_broadcast
    test_composition.test_wide_combinational_tile_pipeline_depth_bounds_are_enforced
    test_composition.test_the_wide_lane_shape_rules_are_enforced
    test_composition.test_wide_row_stream_cores_are_refused_in_the_partitioner_slot
@@ -289,6 +290,13 @@ Module Contents
    The wide lane: one lane of wide-row-stream stages consuming reader
    beats directly — SLOTS rows per cycle, no partitioner. The q6 shape at
    512 rates 4 rows/cycle (the parallel-row target).
+
+
+.. py:function:: test_several_wide_lanes_share_the_beat_through_the_broadcast()
+
+   Wide lanes behind one feed: the stream broadcast fans the whole beat
+   out at its width, every lane sees every row, and the slowest lane sets
+   the rate. One wide lane still takes the stream directly.
 
 
 .. py:function:: test_wide_combinational_tile_pipeline_depth_bounds_are_enforced()
