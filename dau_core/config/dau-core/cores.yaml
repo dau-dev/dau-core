@@ -4120,46 +4120,47 @@ wide-group-table-sum:
   golden: dau_core.operators:group_table_sum_rows
   bench: dau_core.tests.cocotb_benches.dau_wide_group_table_sum_tb
   # Measured 2026-11-15 via dau-build task=tasks/build/synthesize-cores at the
-  # defaults (SLOTS 4, GROUP_BITS 6). The table synthesizes as registers, not
-  # distributed RAM: 4 banks x 5 words x 64 groups x 64 bits is the 82k flops.
-  measured_from: 1:286a587c633916432e45f50d4dec907224be383c2d41f31be7a135b1dff54636
+  # defaults (SLOTS 4, GROUP_BITS 6), with each bank's words in single-port
+  # distributed RAM. The first version, one array written from three
+  # places, synthesized as registers: 48,269 LUTs and 83,929 flops.
+  measured_from: 1:961d942bfe3fc6cd0122339c804a6f498dc77808bba5fd0b064bdbd9bfa2707d
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
       params: {SLOTS: 4, GROUP_BITS: 6}
-      lut: 48270
-      ff: 83929
+      lut: 5655
+      ff: 1745
       bram36: 0.0
       dsp: 0
       timing: met
-      wns_ns: 1.988
+      wns_ns: 1.55
     - part: xc7a200tfbg484-2
       clock_ns: 10.0
       params: {SLOTS: 4, GROUP_BITS: 6}
-      lut: 48270
-      ff: 83929
+      lut: 5655
+      ff: 1745
       bram36: 0.0
       dsp: 0
       timing: met
-      wns_ns: 3.988
+      wns_ns: 3.55
     - part: xc7k325tffg900-2
       clock_ns: 6.66667
       params: {SLOTS: 4, GROUP_BITS: 6}
-      lut: 48269
-      ff: 83929
+      lut: 5655
+      ff: 1745
       bram36: 0.0
       dsp: 0
       timing: met
-      wns_ns: 2.86
+      wns_ns: 2.223
     - part: xc7k325tffg900-2
       clock_ns: 8.0
       params: {SLOTS: 4, GROUP_BITS: 6}
-      lut: 48269
-      ff: 83929
+      lut: 5655
+      ff: 1745
       bram36: 0.0
       dsp: 0
       timing: met
-      wns_ns: 4.193
+      wns_ns: 3.556
   count_port: aggregated_count
   contract_kind: wide-row-stream
   record_words: 2
