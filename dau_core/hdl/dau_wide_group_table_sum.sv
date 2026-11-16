@@ -82,8 +82,7 @@ module dau_wide_group_table_sum #(
     logic                  stage_pad   [SLOTS];
     logic [GROUP_BITS-1:0] stage_group [SLOTS];
 
-    // bank b, word w (0-3 the field sums, 4 the count), group g
-    logic [63:0] table_mem [SLOTS][WORDS][GROUPS];
+    // bank b, word w: 0-3 the field sums, 4 the count
     logic [GROUPS-1:0] occupied;
 
     logic [GROUP_BITS-1:0] emit_group;
@@ -136,27 +135,27 @@ module dau_wide_group_table_sum #(
         has_following = next_occupied(occupied, emit_group, following_group);
     end
 
-    // accumulate the staged beat: each bank's read-modify-write in one cycle
-    always_ff @(posedge clk) begin
-        if (state == STATE_CLEAR) begin
-            for (int b = 0; b < SLOTS; b++) begin
-                for (int w = 0; w < WORDS; w++) begin
-                    table_mem[b][w][clear_group] <= 64'd0;
-                end
-            end
-        end else if (state == STATE_PAIR) begin
-            for (int b = 0; b < SLOTS; b++) begin
-                for (int w = 0; w < WORDS; w++) begin
-                    table_mem[b][w][emit_group] <= 64'd0;
-                end
-            end
-        end else if (stage_valid) begin
-            for (int b = 0; b < SLOTS; b++) begin
-                if (!stage_pad[b]) begin
-                    for (int w = 0; w < 4; w++) begin
-                        table_mem[b][w][stage_group[b]] <= table_mem[b][w][stage_group[b]] + field_extend(stage_row[b], w);
-                    end
-                    table_mem[b][4][stage_group[b]] <= table_mem[b][4][stage_group[b]] + 64'd1;
+    // Each (bank, word) table is one single-port distributed RAM: one address,
+    // read asynchronously and written at the edge, so it maps to RAM64X1S
+    // rather than registers. The address is the clear sweep's group after
+    // reset, the group being merged at close (read, then written to zero),
+    // and otherwise the staged row's group (read, added to, written back).
+    logic [63:0] bank_read [SLOTS][WORDS];
+    for (genvar b = 0; b < SLOTS; b++) begin : g_bank
+        logic [GROUP_BITS-1:0] address;
+        logic                  accumulate;
+        assign address = (state == STATE_CLEAR) ? clear_group : (state == STATE_PAIR) ? emit_group : stage_group[b];
+        assign accumulate = stage_valid && !stage_pad[b];
+        for (genvar w = 0; w < WORDS; w++) begin : g_word
+            (* ram_style = "distributed" *) logic [63:0] memory [GROUPS];
+            logic [63:0] addend;
+            assign bank_read[b][w] = memory[address];
+            assign addend = (w == 4) ? 64'd1 : field_extend(stage_row[b], w);
+            always_ff @(posedge clk) begin
+                if (state == STATE_CLEAR || state == STATE_PAIR) begin
+                    memory[address] <= 64'd0;
+                end else if (accumulate) begin
+                    memory[address] <= bank_read[b][w] + addend;
                 end
             end
         end
@@ -240,7 +239,7 @@ module dau_wide_group_table_sum #(
                 STATE_PAIR: begin
                     for (int p = 0; p < (SLOTS + 1) / 2; p++) begin
                         for (int w = 0; w < WORDS; w++) begin
-                            pair_sum[p][w] <= table_mem[2*p][w][emit_group] + ((2*p + 1 < SLOTS) ? table_mem[2*p+1][w][emit_group] : 64'd0);
+                            pair_sum[p][w] <= bank_read[2*p][w] + ((2*p + 1 < SLOTS) ? bank_read[2*p+1][w] : 64'd0);
                         end
                     end
                     emit_final <= !has_following;
