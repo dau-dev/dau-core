@@ -426,6 +426,21 @@ def _json_size(node: Any) -> int:
     return 0
 
 
+class ColumnBinding(CheckedModel):
+    """Where a tile reads a column: the config port selecting its quad-row
+    field and, for a column packed into a field with others (a key
+    component), the config port taking its bit offset and the module
+    parameter fixing its width. The group code of an aggregate is read the
+    same way; its field is the key's, so it names no field port."""
+
+    field: str | None = None
+    shift: str | None = None
+    width: str | None = None
+
+    def ports(self) -> tuple[str, ...]:
+        return tuple(port for port in (self.field, self.shift, self.width) if port is not None)
+
+
 class ExpressionLowering(CheckedModel):
     """The polars expression a row tile computes, declared so a query
     compiler can reach the tile without being changed for it.
@@ -442,10 +457,16 @@ class ExpressionLowering(CheckedModel):
     ``literals`` matches a literal in the query, any other placeholder
     matches a column or a sub-expression the compiler computes first, and
     every other node must be the same. ``bind`` names the config port each
-    placeholder is wired to: a field select for a column, a value for a
-    literal. The tile writes ``destination_port``'s field of each quad row,
-    ``row[dst] = golden(**args)``, the core's ``golden`` called with the
-    placeholders by name.
+    placeholder is wired to: a value port for a literal, and for a column a
+    field select, or a :class:`ColumnBinding` for a column packed with
+    others into one field.
+
+    A row expression is computed in place: the tile writes
+    ``destination_port``'s field of each quad row, ``row[dst] =
+    golden(**args)``, the core's ``golden`` called with the placeholders by
+    name. An aggregation (``pl.col("value").n_unique()``) makes the tile a
+    lane terminal: it reduces each group's rows, reading the group code
+    where ``group`` says, and emits one record per group.
 
     A compiler lowers the expression only when it can show the tile computes
     what polars would. Every bound column must hold values (not dictionary
@@ -457,8 +478,9 @@ class ExpressionLowering(CheckedModel):
 
     expression: str | dict[str, Any]
     literals: tuple[str, ...] = ()
-    bind: Annotated[Mapping[str, str], *ReadOnly]
-    destination_port: str = Field(min_length=1)
+    bind: Annotated[Mapping[str, str | ColumnBinding], *ReadOnly]
+    destination_port: str | None = None
+    group: ColumnBinding | None = None
     scale_invariant: bool = False
 
     @field_validator("expression", mode="before")
@@ -498,11 +520,25 @@ class ExpressionLowering(CheckedModel):
         """Nodes in the expression: a compiler tries larger patterns first."""
         return _json_size(self.expression_json())
 
+    def is_aggregate(self) -> bool:
+        """Whether the expression is an aggregation, which makes the tile a
+        lane terminal rather than a stage that rewrites a field."""
+        return "Agg" in self.expression_json()
+
+    def binding(self, placeholder: str) -> ColumnBinding:
+        """Where the tile reads a column placeholder."""
+        bound = self.bind[placeholder]
+        return bound if isinstance(bound, ColumnBinding) else ColumnBinding(field=bound)
+
     @model_validator(mode="after")
     def _bound_once(self) -> ExpressionLowering:
-        ports = (*self.bind.values(), self.destination_port)
+        ports = [port for bound in self.bind.values() for port in ((bound,) if isinstance(bound, str) else bound.ports())]
+        ports += [*(self.group.ports() if self.group is not None else ()), *((self.destination_port,) if self.destination_port else ())]
         if len(set(ports)) != len(ports):
-            raise ValueError(f"a config port is bound twice: {ports!r}")
+            raise ValueError(f"a config port is bound twice: {tuple(ports)!r}")
+        for placeholder in self.literals:
+            if not isinstance(self.bind.get(placeholder, ""), str):
+                raise ValueError(f"literal placeholder {placeholder!r} binds to one value port, not a column binding")  # noqa: TRY004  # pydantic reports ValueError
         try:
             placeholders = self.placeholders()
         except ImportError:
@@ -517,6 +553,14 @@ class ExpressionLowering(CheckedModel):
             raise ValueError(f"literals {sorted(set(self.literals) - set(placeholders))} are not placeholders of the expression")
         if not self.columns():
             raise ValueError("the expression needs at least one column placeholder")
+        for placeholder in self.columns():
+            if self.binding(placeholder).field is None:
+                raise ValueError(f"column placeholder {placeholder!r} names no field port")
+        if self.is_aggregate():
+            if self.group is None or self.destination_port is not None:
+                raise ValueError("an aggregation is a lane terminal: it declares where it reads the group code and writes no field")
+        elif self.destination_port is None or self.group is not None:
+            raise ValueError("a row expression writes destination_port's field and reads no group code")
         return self
 
 
@@ -689,9 +733,18 @@ class CoreDefinition(CheckedModel):
             if name is not None and name not in self.parameters:
                 raise ValueError(f"core {self.name!r} {role} follows undeclared parameter {name!r}")
         if self.lowering is not None:
-            if self.contract_kind != ContractKind.ROW_STREAM or self.record_words != 2:
+            try:
+                aggregate = self.lowering.is_aggregate()
+            except ImportError:
+                # text without polars installed: the compiler checks the shape
+                aggregate = None
+            if aggregate is False and (self.contract_kind != ContractKind.ROW_STREAM or self.record_words != 2):
                 raise ValueError(
                     f"core {self.name!r} declares a lowering, which rewrites a quad row in place; it must be a row-stream tile of 2 words"
+                )
+            if aggregate and self.contract_kind not in (ContractKind.ROW_STREAM, ContractKind.WIDE_ROW_STREAM):
+                raise ValueError(
+                    f"core {self.name!r} declares an aggregation, which terminates a lane; it must be a row-stream or wide-row-stream tile"
                 )
             if self.golden is None:
                 raise ValueError(f"core {self.name!r} declares a lowering but no golden element function")
