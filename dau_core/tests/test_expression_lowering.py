@@ -1,39 +1,28 @@
-"""A tile declares the expression it computes, as a pattern over a fixed op
-vocabulary, so a compiler can reach it.
+"""A tile declares the polars expression it computes, so a compiler can
+reach it.
 
-The declaration is checked where the tile is declared: ops are known and
-take their own number of args, every placeholder is bound to one port, and
-the tile is a quad-row tile with a golden element function.
+The expression's columns are placeholders; ``bind`` wires each one to a
+config port, and ``literals`` says which stand for query literals. The
+declaration is checked where the tile is declared, and the tile must be a
+quad-row tile with a golden element function.
 """
 
 from __future__ import annotations
 
+import polars as pl
 import pytest
 from ccflow import ModelRegistry
 from omegaconf import OmegaConf
 
-from dau_core.cores import CoreDefinition, ExpressionLowering, ExpressionOp, ExpressionPattern
+from dau_core.cores import CoreDefinition, ExpressionLowering
 from dau_core.registry import core, lowered_cores
 
 _CLIP = {
-    "pattern": {"op": "clip", "args": [{"column": "value"}, {"literal": "lower"}, {"literal": "upper"}]},
+    "expression": 'pl.col("value").clip(pl.col("lower"), pl.col("upper"))',
+    "literals": ["lower", "upper"],
     "bind": {"value": "cfg_src_field", "lower": "cfg_lower", "upper": "cfg_upper"},
     "destination_port": "cfg_dst_field",
     "scale_invariant": True,
-}
-
-# clip(a * (1 - b), lower, upper): one tile for a whole q1-shaped expression
-_DISCOUNTED_CLIP = {
-    "pattern": {
-        "op": "clip",
-        "args": [
-            {"op": "mul", "args": [{"column": "price"}, {"op": "sub", "args": [{"literal": 1}, {"column": "discount"}]}]},
-            {"literal": "lower"},
-            {"literal": "upper"},
-        ],
-    },
-    "bind": {"price": "cfg_price_field", "discount": "cfg_discount_field", "lower": "cfg_lower", "upper": "cfg_upper"},
-    "destination_port": "cfg_dst_field",
 }
 
 _TILE = {
@@ -58,46 +47,48 @@ def test_a_composed_tile_carries_its_lowering_and_is_found() -> None:
     try:
         lowering = core("vendor-clamp").lowering
         assert lowering is not None
-        assert lowering.pattern.op is ExpressionOp.CLIP
-        assert lowering.pattern.placeholders() == ("value", "lower", "upper")
+        assert lowering.placeholders() == ("value", "lower", "upper")
+        assert lowering.columns() == ("value",)
+        assert lowering.expression_json()["Function"]["function"] == {"Clip": {"has_min": True, "has_max": True}}
         assert [definition.name for definition in lowered_cores()] == [*(definition.name for definition in before), "vendor-clamp"]
     finally:
         root.remove("vendor-tiles")
 
 
-def test_a_compound_pattern_names_its_columns_and_constants() -> None:
-    lowering = ExpressionLowering.model_validate(_DISCOUNTED_CLIP)
-    assert lowering.pattern.columns() == ("price", "discount")
-    assert lowering.pattern.placeholders() == ("price", "discount", "lower", "upper")
-    assert lowering.pattern.size() == 8
-    constant = lowering.pattern.args[0].args[1].args[0]
-    assert constant.literal == 1 and constant.placeholders() == ()
+def test_text_and_a_polars_expression_declare_the_same_pattern() -> None:
+    from_text = ExpressionLowering.model_validate(_CLIP)
+    from_expr = ExpressionLowering.model_validate({**_CLIP, "expression": pl.col("value").clip(pl.col("lower"), pl.col("upper"))})
+    assert isinstance(from_expr.expression, dict)
+    assert from_text.expression_json() == from_expr.expression_json()
+    # the declaration serializes either way, which is what a capture cache keys on
+    assert from_expr.model_dump_json()
 
 
-@pytest.mark.parametrize(
-    ("pattern", "message"),
-    [
-        ({"op": "clamp", "args": [{"column": "x"}]}, "clamp"),
-        ({"op": "clip", "args": [{"column": "x"}, {"literal": "lo"}]}, "clip takes 3 args"),
-        ({"column": "x", "literal": "y"}, "exactly one of op, column or literal"),
-        ({"column": "x", "args": [{"column": "y"}]}, "takes no args"),
-    ],
-)
-def test_a_malformed_pattern_is_refused(pattern: dict, message: str) -> None:
-    with pytest.raises(ValueError, match=message):
-        ExpressionPattern.model_validate(pattern)
+def test_a_compound_expression_names_its_columns_and_constants() -> None:
+    lowering = ExpressionLowering.model_validate(
+        {
+            "expression": '(pl.col("price") * (1 - pl.col("discount"))).clip(pl.col("lower"), pl.col("upper"))',
+            "literals": ["lower", "upper"],
+            "bind": {"price": "cfg_price_field", "discount": "cfg_discount_field", "lower": "cfg_lower", "upper": "cfg_upper"},
+            "destination_port": "cfg_dst_field",
+        }
+    )
+    assert lowering.columns() == ("price", "discount")
+    assert lowering.placeholders() == ("price", "discount", "lower", "upper")
+    assert lowering.size() > ExpressionLowering.model_validate(_CLIP).size()
 
 
-def test_every_placeholder_is_bound_once() -> None:
+def test_a_malformed_declaration_is_refused() -> None:
+    with pytest.raises(ValueError, match="not a polars expression"):
+        ExpressionLowering.model_validate({**_CLIP, "expression": 'pl.col("value").clamp(1, 2)'})
     with pytest.raises(ValueError, match="bind must name every placeholder"):
         ExpressionLowering.model_validate({**_CLIP, "bind": {"value": "cfg_src_field", "lower": "cfg_lower"}})
     with pytest.raises(ValueError, match="config port is bound twice"):
         ExpressionLowering.model_validate({**_CLIP, "bind": {"value": "cfg_src_field", "lower": "cfg_lower", "upper": "cfg_lower"}})
-    twice = {"op": "add", "args": [{"column": "x"}, {"column": "x"}]}
-    with pytest.raises(ValueError, match="placeholder appears twice"):
-        ExpressionLowering.model_validate({"pattern": twice, "bind": {"x": "cfg_a"}, "destination_port": "cfg_dst"})
+    with pytest.raises(ValueError, match="are not placeholders"):
+        ExpressionLowering.model_validate({**_CLIP, "literals": ["lower", "upper", "nope"]})
     with pytest.raises(ValueError, match="at least one column"):
-        ExpressionLowering.model_validate({"pattern": {"literal": "c"}, "bind": {"c": "cfg_c"}, "destination_port": "cfg_dst"})
+        ExpressionLowering.model_validate({**_CLIP, "literals": ["value", "lower", "upper"]})
 
 
 def test_a_lowering_needs_a_quad_row_tile_with_a_golden() -> None:
