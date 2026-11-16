@@ -144,6 +144,7 @@ _STDLIB = {
     "functools",
     "hashlib",
     "importlib",
+    "json",
     "itertools",
     "math",
     "os",

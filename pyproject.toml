@@ -54,6 +54,9 @@ develop = [
     "mdformat-tables>=1",
     # the tests import it directly
     "omegaconf",
+    # a lowering's expression is checked through ccflow's PolarsExpression,
+    # which needs polars; the declaration itself does not
+    "polars",
     "pytest",
     "pytest-cov",
     "ruff",

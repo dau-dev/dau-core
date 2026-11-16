@@ -21,7 +21,7 @@ from enum import Enum
 from fractions import Fraction
 from importlib import import_module
 from pathlib import Path
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import Field, NonNegativeFloat, NonNegativeInt, StrictInt, field_validator, model_validator
 
@@ -407,101 +407,47 @@ class StorageIntent(CheckedModel):
     tier_hint: str | None = None
 
 
-class ExpressionOp(Enum):
-    """The row expressions a tile can declare it computes.
-
-    The names are polars' Python API names (``clip_min`` and ``clip_max``
-    are its one-sided clips), and each has a fixed argument count. A query
-    compiler translates polars' plan into these, so an op a tile declares is
-    one some frontend produces, and a misspelled op fails when the tile is
-    declared rather than never matching."""
-
-    ADD = "add"
-    SUB = "sub"
-    MUL = "mul"
-    FLOORDIV = "floordiv"
-    NEG = "neg"
-    ABS = "abs"
-    CLIP = "clip"
-    CLIP_MIN = "clip_min"
-    CLIP_MAX = "clip_max"
-
-    @property
-    def arity(self) -> int:
-        return _OP_ARITY[self]
+def _column_names(node: Any) -> list[str]:
+    """Every column a serialized polars expression names, in tree order."""
+    if isinstance(node, dict):
+        if set(node) == {"Column"} and isinstance(node["Column"], str):
+            return [node["Column"]]
+        return [name for value in node.values() for name in _column_names(value)]
+    if isinstance(node, list):
+        return [name for value in node for name in _column_names(value)]
+    return []
 
 
-_OP_ARITY = {
-    ExpressionOp.ADD: 2,
-    ExpressionOp.SUB: 2,
-    ExpressionOp.MUL: 2,
-    ExpressionOp.FLOORDIV: 2,
-    ExpressionOp.NEG: 1,
-    ExpressionOp.ABS: 1,
-    ExpressionOp.CLIP: 3,
-    ExpressionOp.CLIP_MIN: 2,
-    ExpressionOp.CLIP_MAX: 2,
-}
-
-
-class ExpressionPattern(CheckedModel):
-    """One node of the expression a tile computes. Exactly one of:
-
-    * ``op`` with ``args``, an operation over sub-patterns;
-    * ``column``, a named placeholder that matches a column or any
-      sub-expression the compiler computes first;
-    * ``literal``, which is a named placeholder for a query literal when it
-      is a string, and a constant the query must contain exactly when it is
-      a number (the ``1`` in ``a * (1 - b)``).
-    """
-
-    op: ExpressionOp | None = None
-    args: tuple[ExpressionPattern, ...] = ()
-    column: str | None = None
-    literal: str | int | float | None = None
-
-    @model_validator(mode="after")
-    def _one_kind(self) -> ExpressionPattern:
-        kinds = [kind for kind, value in (("op", self.op), ("column", self.column), ("literal", self.literal)) if value is not None]
-        if len(kinds) != 1:
-            raise ValueError(f"a pattern node is exactly one of op, column or literal, got {kinds or 'none'}")
-        if self.op is None and self.args:
-            raise ValueError(f"a {kinds[0]} node takes no args")
-        if self.op is not None and len(self.args) != self.op.arity:
-            raise ValueError(f"{self.op.value} takes {self.op.arity} args, got {len(self.args)}")
-        return self
-
-    def placeholders(self) -> tuple[str, ...]:
-        """Every named placeholder, in pattern order."""
-        if self.column is not None:
-            return (self.column,)
-        if isinstance(self.literal, str):
-            return (self.literal,)
-        return tuple(name for arg in self.args for name in arg.placeholders())
-
-    def columns(self) -> tuple[str, ...]:
-        """The column placeholders, in pattern order."""
-        if self.column is not None:
-            return (self.column,)
-        return tuple(name for arg in self.args for name in arg.columns())
-
-    def size(self) -> int:
-        """Nodes in the pattern: a compiler tries larger patterns first."""
-        return 1 + sum(arg.size() for arg in self.args)
+def _json_size(node: Any) -> int:
+    if isinstance(node, dict):
+        return 1 + sum(_json_size(value) for value in node.values())
+    if isinstance(node, list):
+        return sum(_json_size(value) for value in node)
+    return 0
 
 
 class ExpressionLowering(CheckedModel):
-    """The expression a row tile computes, declared so a query compiler can
-    reach the tile without being changed for it.
+    """The polars expression a row tile computes, declared so a query
+    compiler can reach the tile without being changed for it.
 
-    The tile writes one field of each quad row, ``row[dst] = golden(**args)``,
-    where the core's ``golden`` is the element function, called with each
-    placeholder by name: a column placeholder's field value, or a literal
-    placeholder's encoded value. ``bind`` names the config port each
+    ``expression`` is a polars expression over placeholder columns, given as
+    source text (``'pl.col("value").clip(pl.col("lower"), pl.col("upper"))'``,
+    evaluated through ccflow's ``PolarsExpression`` where polars is
+    installed) or as a polars expression, which is kept as polars' own JSON.
+    Text is the portable form: polars' JSON can change between versions, and
+    a pattern only matches a query serialized by the same version.
+
+    Each column the expression names is a placeholder. A compiler matches a
+    query expression against it node for node: a placeholder listed in
+    ``literals`` matches a literal in the query, any other placeholder
+    matches a column or a sub-expression the compiler computes first, and
+    every other node must be the same. ``bind`` names the config port each
     placeholder is wired to: a field select for a column, a value for a
-    literal. Every placeholder is bound exactly once, and no port twice.
+    literal. The tile writes ``destination_port``'s field of each quad row,
+    ``row[dst] = golden(**args)``, the core's ``golden`` called with the
+    placeholders by name.
 
-    A compiler lowers an expression only when it can show the tile computes
+    A compiler lowers the expression only when it can show the tile computes
     what polars would. Every bound column must hold values (not dictionary
     codes) at one shared fixed-point scale, and every literal must encode
     exactly at that scale within the field. A nonzero scale also needs
@@ -509,23 +455,68 @@ class ExpressionLowering(CheckedModel):
     k > 0: true of clip, false of a product or a hash.
     """
 
-    pattern: ExpressionPattern
+    expression: str | dict[str, Any]
+    literals: tuple[str, ...] = ()
     bind: Annotated[Mapping[str, str], *ReadOnly]
     destination_port: str = Field(min_length=1)
     scale_invariant: bool = False
 
+    @field_validator("expression", mode="before")
+    @classmethod
+    def _expression_form(cls, value: Any) -> Any:
+        # a polars expression (or a ccflow PolarsExpression) is kept as the
+        # JSON polars serializes it to, so this module never imports polars
+        meta = getattr(value, "meta", None)
+        if meta is not None and hasattr(meta, "serialize"):
+            import json
+
+            return json.loads(meta.serialize(format="json"))
+        return value
+
+    def expression_json(self) -> dict[str, Any]:
+        """The expression as polars serializes it. Text is evaluated through
+        ccflow's ``PolarsExpression``, which needs polars installed."""
+        if isinstance(self.expression, dict):
+            return self.expression
+        import json
+
+        from ccflow.exttypes.polars import PolarsExpression
+        from pydantic import TypeAdapter
+
+        expression = TypeAdapter(PolarsExpression).validate_python(self.expression)
+        return json.loads(expression.meta.serialize(format="json"))
+
+    def placeholders(self) -> tuple[str, ...]:
+        """Every placeholder, in the order a match binds them."""
+        return tuple(dict.fromkeys(_column_names(self.expression_json())))
+
+    def columns(self) -> tuple[str, ...]:
+        """The placeholders that stand for columns, in match order."""
+        return tuple(name for name in self.placeholders() if name not in self.literals)
+
+    def size(self) -> int:
+        """Nodes in the expression: a compiler tries larger patterns first."""
+        return _json_size(self.expression_json())
+
     @model_validator(mode="after")
     def _bound_once(self) -> ExpressionLowering:
-        placeholders = self.pattern.placeholders()
-        if len(set(placeholders)) != len(placeholders):
-            raise ValueError(f"a placeholder appears twice in the pattern: {placeholders!r}")
-        if not self.pattern.columns():
-            raise ValueError("a pattern needs at least one column placeholder")
-        if set(self.bind) != set(placeholders):
-            raise ValueError(f"bind must name every placeholder exactly: pattern has {sorted(placeholders)}, bind has {sorted(self.bind)}")
         ports = (*self.bind.values(), self.destination_port)
         if len(set(ports)) != len(ports):
             raise ValueError(f"a config port is bound twice: {ports!r}")
+        try:
+            placeholders = self.placeholders()
+        except ImportError:
+            # text without polars installed: the compiler, which has polars,
+            # checks the placeholders when it reads the lowering
+            return self
+        except Exception as error:
+            raise ValueError(f"the lowering's expression is not a polars expression: {error}") from error
+        if set(self.bind) != set(placeholders):
+            raise ValueError(f"bind must name every placeholder exactly: the expression has {sorted(placeholders)}, bind has {sorted(self.bind)}")
+        if not set(self.literals) <= set(placeholders):
+            raise ValueError(f"literals {sorted(set(self.literals) - set(placeholders))} are not placeholders of the expression")
+        if not self.columns():
+            raise ValueError("the expression needs at least one column placeholder")
         return self
 
 
