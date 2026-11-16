@@ -5,12 +5,13 @@ test_expression_lowering
 
 .. autoapi-nested-parse::
 
-   A tile declares the expression it computes, as a pattern over a fixed op
-   vocabulary, so a compiler can reach it.
+   A tile declares the polars expression it computes, so a compiler can
+   reach it.
 
-   The declaration is checked where the tile is declared: ops are known and
-   take their own number of args, every placeholder is bound to one port, and
-   the tile is a quad-row tile with a golden element function.
+   The expression's columns are placeholders; ``bind`` wires each one to a
+   config port, and ``literals`` says which stand for query literals. The
+   declaration is checked where the tile is declared, and the tile must be a
+   quad-row tile with a golden element function.
 
 
 
@@ -20,7 +21,6 @@ Attributes
 .. autoapisummary::
 
    test_expression_lowering._CLIP
-   test_expression_lowering._DISCOUNTED_CLIP
    test_expression_lowering._TILE
 
 
@@ -30,9 +30,9 @@ Functions
 .. autoapisummary::
 
    test_expression_lowering.test_a_composed_tile_carries_its_lowering_and_is_found
-   test_expression_lowering.test_a_compound_pattern_names_its_columns_and_constants
-   test_expression_lowering.test_a_malformed_pattern_is_refused
-   test_expression_lowering.test_every_placeholder_is_bound_once
+   test_expression_lowering.test_text_and_a_polars_expression_declare_the_same_pattern
+   test_expression_lowering.test_a_compound_expression_names_its_columns_and_constants
+   test_expression_lowering.test_a_malformed_declaration_is_refused
    test_expression_lowering.test_a_lowering_needs_a_quad_row_tile_with_a_golden
 
 
@@ -41,17 +41,15 @@ Module Contents
 
 .. py:data:: _CLIP
 
-.. py:data:: _DISCOUNTED_CLIP
-
 .. py:data:: _TILE
 
 .. py:function:: test_a_composed_tile_carries_its_lowering_and_is_found() -> None
 
-.. py:function:: test_a_compound_pattern_names_its_columns_and_constants() -> None
+.. py:function:: test_text_and_a_polars_expression_declare_the_same_pattern() -> None
 
-.. py:function:: test_a_malformed_pattern_is_refused(pattern: dict, message: str) -> None
+.. py:function:: test_a_compound_expression_names_its_columns_and_constants() -> None
 
-.. py:function:: test_every_placeholder_is_bound_once() -> None
+.. py:function:: test_a_malformed_declaration_is_refused() -> None
 
 .. py:function:: test_a_lowering_needs_a_quad_row_tile_with_a_golden() -> None
 

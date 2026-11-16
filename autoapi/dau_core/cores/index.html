@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>dau_core.cores &#8212; dau core v0.8.0</title>
+    <title>dau_core.cores &#8212; dau core v0.9.0</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/fuma.css?v=ca04d621" />
     <link rel="stylesheet" type="text/css" href="../../../_static/fuma-code.css?v=a950e949" />
@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=6a604523" />
     <link rel="stylesheet" type="text/css" href="../../../_static/fonts/fuma-fonts.css?v=c2892c73" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/custom.css?v=88c24c6a" />
-    <script src="../../../_static/documentation_options.js?v=486e5634"></script>
+    <script src="../../../_static/documentation_options.js?v=39bb1c6d"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -49,7 +49,7 @@
   <div class="fd-subnav-inner">
     <button type="button" class="fd-icon-button fd-sidebar-toggle" aria-controls="fd-sidebar" aria-expanded="false" aria-label="Toggle navigation" title="Toggle navigation">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
-    </button><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau core v0.8.0</span>
+    </button><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau core v0.9.0</span>
 </a>
 
     <div class="fd-nav-actions">
@@ -64,7 +64,7 @@
 
 <aside id="fd-sidebar" aria-label="Documentation">
   <div class="fd-sidebar-header">
-    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau core v0.8.0</span>
+    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau core v0.9.0</span>
 </a>
       <button type="button" class="fd-icon-button fd-sidebar-collapse" aria-label="Collapse sidebar" title="Collapse sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
     </div>
@@ -1070,73 +1070,19 @@
     <a href="#dau_core.cores.StorageIntent.tier_hint">StorageIntent.tier_hint</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#dau_core.cores.ExpressionOp">ExpressionOp</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionOp.ADD">ExpressionOp.ADD</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionOp.SUB">ExpressionOp.SUB</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionOp.MUL">ExpressionOp.MUL</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionOp.FLOORDIV">ExpressionOp.FLOORDIV</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionOp.NEG">ExpressionOp.NEG</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionOp.ABS">ExpressionOp.ABS</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionOp.CLIP">ExpressionOp.CLIP</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionOp.CLIP_MIN">ExpressionOp.CLIP_MIN</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionOp.CLIP_MAX">ExpressionOp.CLIP_MAX</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionOp.arity">ExpressionOp.arity</a>
+    <a href="#dau_core.cores._column_names">_column_names()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#dau_core.cores._OP_ARITY">_OP_ARITY</a>
-  </li>
-  <li class="fd-toc-item" data-depth="2">
-    <a href="#dau_core.cores.ExpressionPattern">ExpressionPattern</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionPattern.op">ExpressionPattern.op</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionPattern.args">ExpressionPattern.args</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionPattern.column">ExpressionPattern.column</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionPattern.literal">ExpressionPattern.literal</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionPattern._one_kind">ExpressionPattern._one_kind()</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionPattern.placeholders">ExpressionPattern.placeholders()</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionPattern.columns">ExpressionPattern.columns()</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionPattern.size">ExpressionPattern.size()</a>
+    <a href="#dau_core.cores._json_size">_json_size()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.cores.ExpressionLowering">ExpressionLowering</a>
   </li>
   <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionLowering.pattern">ExpressionLowering.pattern</a>
+    <a href="#dau_core.cores.ExpressionLowering.expression">ExpressionLowering.expression</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ExpressionLowering.literals">ExpressionLowering.literals</a>
   </li>
   <li class="fd-toc-item" data-depth="3">
     <a href="#dau_core.cores.ExpressionLowering.bind">ExpressionLowering.bind</a>
@@ -1146,6 +1092,21 @@
   </li>
   <li class="fd-toc-item" data-depth="3">
     <a href="#dau_core.cores.ExpressionLowering.scale_invariant">ExpressionLowering.scale_invariant</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ExpressionLowering._expression_form">ExpressionLowering._expression_form()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ExpressionLowering.expression_json">ExpressionLowering.expression_json()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ExpressionLowering.placeholders">ExpressionLowering.placeholders()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ExpressionLowering.columns">ExpressionLowering.columns()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ExpressionLowering.size">ExpressionLowering.size()</a>
   </li>
   <li class="fd-toc-item" data-depth="3">
     <a href="#dau_core.cores.ExpressionLowering._bound_once">ExpressionLowering._bound_once()</a>
@@ -1346,13 +1307,10 @@ and module parameters; there is no other shape.</p>
 <h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.cores._OP_ARITY" title="dau_core.cores._OP_ARITY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_OP_ARITY</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.cores.HDL_CLOSURE_DIGEST_VERSION" title="dau_core.cores.HDL_CLOSURE_DIGEST_VERSION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HDL_CLOSURE_DIGEST_VERSION</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.cores.HDL_CLOSURE_DIGEST_VERSION" title="dau_core.cores.HDL_CLOSURE_DIGEST_VERSION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HDL_CLOSURE_DIGEST_VERSION</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.cores._HDL_INCLUDE" title="dau_core.cores._HDL_INCLUDE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_HDL_INCLUDE</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.cores._HDL_INCLUDE" title="dau_core.cores._HDL_INCLUDE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_HDL_INCLUDE</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -1411,14 +1369,8 @@ and module parameters; there is no other shape.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.cores.StorageIntent" title="dau_core.cores.StorageIntent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StorageIntent</span></code></a></p></td>
 <td><p>A core's declared storage need (STORAGE_AND_NOC.md). <code class="docutils literal notranslate"><span class="pre">owned</span></code> = a</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.cores.ExpressionOp" title="dau_core.cores.ExpressionOp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ExpressionOp</span></code></a></p></td>
-<td><p>The row expressions a tile can declare it computes.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.cores.ExpressionPattern" title="dau_core.cores.ExpressionPattern"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ExpressionPattern</span></code></a></p></td>
-<td><p>One node of the expression a tile computes. Exactly one of:</p></td>
-</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.cores.ExpressionLowering" title="dau_core.cores.ExpressionLowering"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ExpressionLowering</span></code></a></p></td>
-<td><p>The expression a row tile computes, declared so a query compiler can</p></td>
+<td><p>The polars expression a row tile computes, declared so a query</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.cores.CoreDefinition" title="dau_core.cores.CoreDefinition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CoreDefinition</span></code></a></p></td>
 <td><p>One HDL building block and its contract surround.</p></td>
@@ -1430,6 +1382,12 @@ and module parameters; there is no other shape.</p>
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.cores._column_names" title="dau_core.cores._column_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_column_names</span></code></a>(node) → list[str]</p></td>
+<td><p>Every column a serialized polars expression names, in tree order.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.cores._json_size" title="dau_core.cores._json_size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_json_size</span></code></a>(node) → int</p></td>
+<td><p></p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.cores._same_clock" title="dau_core.cores._same_clock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_same_clock</span></code></a>(a, b) → bool</p></td>
 <td><p>Two clock periods naming the same physical clock.</p></td>
 </tr>
@@ -2045,148 +2003,39 @@ validated to form a valid model.</p>
 
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="dau_core.cores.ExpressionOp">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.cores.</span></span><span class="sig-name descname"><span class="pre">ExpressionOp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dau_core.cores.ExpressionOp" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
-<p>The row expressions a tile can declare it computes.</p>
-<p>The names are polars’ Python API names (<code class="docutils literal notranslate"><span class="pre">clip_min</span></code> and <code class="docutils literal notranslate"><span class="pre">clip_max</span></code>
-are its one-sided clips), and each has a fixed argument count. A query
-compiler translates polars’ plan into these, so an op a tile declares is
-one some frontend produces, and a misspelled op fails when the tile is
-declared rather than never matching.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="dau_core.cores.ExpressionOp.ADD">
-<span class="sig-name descname"><span class="pre">ADD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'add'</span></em><a class="headerlink" href="#dau_core.cores.ExpressionOp.ADD" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="dau_core.cores.ExpressionOp.SUB">
-<span class="sig-name descname"><span class="pre">SUB</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sub'</span></em><a class="headerlink" href="#dau_core.cores.ExpressionOp.SUB" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="dau_core.cores.ExpressionOp.MUL">
-<span class="sig-name descname"><span class="pre">MUL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'mul'</span></em><a class="headerlink" href="#dau_core.cores.ExpressionOp.MUL" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="dau_core.cores.ExpressionOp.FLOORDIV">
-<span class="sig-name descname"><span class="pre">FLOORDIV</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'floordiv'</span></em><a class="headerlink" href="#dau_core.cores.ExpressionOp.FLOORDIV" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="dau_core.cores.ExpressionOp.NEG">
-<span class="sig-name descname"><span class="pre">NEG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'neg'</span></em><a class="headerlink" href="#dau_core.cores.ExpressionOp.NEG" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="dau_core.cores.ExpressionOp.ABS">
-<span class="sig-name descname"><span class="pre">ABS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'abs'</span></em><a class="headerlink" href="#dau_core.cores.ExpressionOp.ABS" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="dau_core.cores.ExpressionOp.CLIP">
-<span class="sig-name descname"><span class="pre">CLIP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'clip'</span></em><a class="headerlink" href="#dau_core.cores.ExpressionOp.CLIP" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="dau_core.cores.ExpressionOp.CLIP_MIN">
-<span class="sig-name descname"><span class="pre">CLIP_MIN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'clip_min'</span></em><a class="headerlink" href="#dau_core.cores.ExpressionOp.CLIP_MIN" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="dau_core.cores.ExpressionOp.CLIP_MAX">
-<span class="sig-name descname"><span class="pre">CLIP_MAX</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'clip_max'</span></em><a class="headerlink" href="#dau_core.cores.ExpressionOp.CLIP_MAX" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="dau_core.cores.ExpressionOp.arity">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">arity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.cores.ExpressionOp.arity" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.cores._column_names">
+<span class="sig-prename descclassname"><span class="pre">dau_core.cores.</span></span><span class="sig-name descname"><span class="pre">_column_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dau_core.cores._column_names" title="Link to this definition">¶</a></dt>
+<dd><p>Every column a serialized polars expression names, in tree order.</p>
 </dd></dl>
 
-<dl class="py data">
-<dt class="sig sig-object py" id="dau_core.cores._OP_ARITY">
-<span class="sig-prename descclassname"><span class="pre">dau_core.cores.</span></span><span class="sig-name descname"><span class="pre">_OP_ARITY</span></span><a class="headerlink" href="#dau_core.cores._OP_ARITY" title="Link to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.cores._json_size">
+<span class="sig-prename descclassname"><span class="pre">dau_core.cores.</span></span><span class="sig-name descname"><span class="pre">_json_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#dau_core.cores._json_size" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="dau_core.cores.ExpressionPattern">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.cores.</span></span><span class="sig-name descname"><span class="pre">ExpressionPattern</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data:</span> <span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dau_core.cores.ExpressionPattern" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../models/index.html#dau_core.models.CheckedModel" title="dau_core.models.CheckedModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dau_core.models.CheckedModel</span></code></a></p>
-<p>One node of the expression a tile computes. Exactly one of:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">op</span></code> with <code class="docutils literal notranslate"><span class="pre">args</span></code>, an operation over sub-patterns;</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">column</span></code>, a named placeholder that matches a column or any
-sub-expression the compiler computes first;</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">literal</span></code>, which is a named placeholder for a query literal when it
-is a string, and a constant the query must contain exactly when it is
-a number (the <code class="docutils literal notranslate"><span class="pre">1</span></code> in <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">*</span> <span class="pre">(1</span> <span class="pre">-</span> <span class="pre">b)</span></code>).</p></li>
-</ul>
-<p>Create a new model by parsing and validating input data from keyword arguments.</p>
-<p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
-validated to form a valid model.</p>
-<p><cite>self</cite> is explicitly positional-only to allow <cite>self</cite> as a field name.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="dau_core.cores.ExpressionPattern.op">
-<span class="sig-name descname"><span class="pre">op</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#dau_core.cores.ExpressionOp" title="dau_core.cores.ExpressionOp"><span class="pre">ExpressionOp</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.cores.ExpressionPattern.op" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="dau_core.cores.ExpressionPattern.args">
-<span class="sig-name descname"><span class="pre">args</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#dau_core.cores.ExpressionPattern" title="dau_core.cores.ExpressionPattern"><span class="pre">ExpressionPattern</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">()</span></em><a class="headerlink" href="#dau_core.cores.ExpressionPattern.args" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="dau_core.cores.ExpressionPattern.column">
-<span class="sig-name descname"><span class="pre">column</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.cores.ExpressionPattern.column" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="dau_core.cores.ExpressionPattern.literal">
-<span class="sig-name descname"><span class="pre">literal</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.cores.ExpressionPattern.literal" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="dau_core.cores.ExpressionPattern._one_kind">
-<span class="sig-name descname"><span class="pre">_one_kind</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_core.cores.ExpressionPattern" title="dau_core.cores.ExpressionPattern"><span class="pre">ExpressionPattern</span></a></span></span><a class="headerlink" href="#dau_core.cores.ExpressionPattern._one_kind" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="dau_core.cores.ExpressionPattern.placeholders">
-<span class="sig-name descname"><span class="pre">placeholders</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dau_core.cores.ExpressionPattern.placeholders" title="Link to this definition">¶</a></dt>
-<dd><p>Every named placeholder, in pattern order.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="dau_core.cores.ExpressionPattern.columns">
-<span class="sig-name descname"><span class="pre">columns</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dau_core.cores.ExpressionPattern.columns" title="Link to this definition">¶</a></dt>
-<dd><p>The column placeholders, in pattern order.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="dau_core.cores.ExpressionPattern.size">
-<span class="sig-name descname"><span class="pre">size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#dau_core.cores.ExpressionPattern.size" title="Link to this definition">¶</a></dt>
-<dd><p>Nodes in the pattern: a compiler tries larger patterns first.</p>
-</dd></dl>
-
-</dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="dau_core.cores.ExpressionLowering">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.cores.</span></span><span class="sig-name descname"><span class="pre">ExpressionLowering</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data:</span> <span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dau_core.cores.ExpressionLowering" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="../models/index.html#dau_core.models.CheckedModel" title="dau_core.models.CheckedModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dau_core.models.CheckedModel</span></code></a></p>
-<p>The expression a row tile computes, declared so a query compiler can
-reach the tile without being changed for it.</p>
-<p>The tile writes one field of each quad row, <code class="docutils literal notranslate"><span class="pre">row[dst]</span> <span class="pre">=</span> <span class="pre">golden(**args)</span></code>,
-where the core’s <code class="docutils literal notranslate"><span class="pre">golden</span></code> is the element function, called with each
-placeholder by name: a column placeholder’s field value, or a literal
-placeholder’s encoded value. <code class="docutils literal notranslate"><span class="pre">bind</span></code> names the config port each
+<p>The polars expression a row tile computes, declared so a query
+compiler can reach the tile without being changed for it.</p>
+<p><code class="docutils literal notranslate"><span class="pre">expression</span></code> is a polars expression over placeholder columns, given as
+source text (<code class="docutils literal notranslate"><span class="pre">'pl.col(&quot;value&quot;).clip(pl.col(&quot;lower&quot;),</span> <span class="pre">pl.col(&quot;upper&quot;))'</span></code>,
+evaluated through ccflow’s <code class="docutils literal notranslate"><span class="pre">PolarsExpression</span></code> where polars is
+installed) or as a polars expression, which is kept as polars’ own JSON.
+Text is the portable form: polars’ JSON can change between versions, and
+a pattern only matches a query serialized by the same version.</p>
+<p>Each column the expression names is a placeholder. A compiler matches a
+query expression against it node for node: a placeholder listed in
+<code class="docutils literal notranslate"><span class="pre">literals</span></code> matches a literal in the query, any other placeholder
+matches a column or a sub-expression the compiler computes first, and
+every other node must be the same. <code class="docutils literal notranslate"><span class="pre">bind</span></code> names the config port each
 placeholder is wired to: a field select for a column, a value for a
-literal. Every placeholder is bound exactly once, and no port twice.</p>
-<p>A compiler lowers an expression only when it can show the tile computes
+literal. The tile writes <code class="docutils literal notranslate"><span class="pre">destination_port</span></code>’s field of each quad row,
+<code class="docutils literal notranslate"><span class="pre">row[dst]</span> <span class="pre">=</span> <span class="pre">golden(**args)</span></code>, the core’s <code class="docutils literal notranslate"><span class="pre">golden</span></code> called with the
+placeholders by name.</p>
+<p>A compiler lowers the expression only when it can show the tile computes
 what polars would. Every bound column must hold values (not dictionary
 codes) at one shared fixed-point scale, and every literal must encode
 exactly at that scale within the field. A nonzero scale also needs
@@ -2197,8 +2046,13 @@ k &gt; 0: true of clip, false of a product or a hash.</p>
 validated to form a valid model.</p>
 <p><cite>self</cite> is explicitly positional-only to allow <cite>self</cite> as a field name.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="dau_core.cores.ExpressionLowering.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#dau_core.cores.ExpressionPattern" title="dau_core.cores.ExpressionPattern"><span class="pre">ExpressionPattern</span></a></em><a class="headerlink" href="#dau_core.cores.ExpressionLowering.pattern" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="dau_core.cores.ExpressionLowering.expression">
+<span class="sig-name descname"><span class="pre">expression</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#dau_core.cores.ExpressionLowering.expression" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.cores.ExpressionLowering.literals">
+<span class="sig-name descname"><span class="pre">literals</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">()</span></em><a class="headerlink" href="#dau_core.cores.ExpressionLowering.literals" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -2215,6 +2069,36 @@ validated to form a valid model.</p>
 <dt class="sig sig-object py" id="dau_core.cores.ExpressionLowering.scale_invariant">
 <span class="sig-name descname"><span class="pre">scale_invariant</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#dau_core.cores.ExpressionLowering.scale_invariant" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.cores.ExpressionLowering._expression_form">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_expression_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#dau_core.cores.ExpressionLowering._expression_form" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.cores.ExpressionLowering.expression_json">
+<span class="sig-name descname"><span class="pre">expression_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dau_core.cores.ExpressionLowering.expression_json" title="Link to this definition">¶</a></dt>
+<dd><p>The expression as polars serializes it. Text is evaluated through
+ccflow’s <code class="docutils literal notranslate"><span class="pre">PolarsExpression</span></code>, which needs polars installed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.cores.ExpressionLowering.placeholders">
+<span class="sig-name descname"><span class="pre">placeholders</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dau_core.cores.ExpressionLowering.placeholders" title="Link to this definition">¶</a></dt>
+<dd><p>Every placeholder, in the order a match binds them.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.cores.ExpressionLowering.columns">
+<span class="sig-name descname"><span class="pre">columns</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dau_core.cores.ExpressionLowering.columns" title="Link to this definition">¶</a></dt>
+<dd><p>The placeholders that stand for columns, in match order.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.cores.ExpressionLowering.size">
+<span class="sig-name descname"><span class="pre">size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#dau_core.cores.ExpressionLowering.size" title="Link to this definition">¶</a></dt>
+<dd><p>Nodes in the expression: a compiler tries larger patterns first.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dau_core.cores.ExpressionLowering._bound_once">
@@ -2840,73 +2724,19 @@ its own directory so two builds cannot race on one file.</p>
     <a href="#dau_core.cores.StorageIntent.tier_hint">StorageIntent.tier_hint</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#dau_core.cores.ExpressionOp">ExpressionOp</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionOp.ADD">ExpressionOp.ADD</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionOp.SUB">ExpressionOp.SUB</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionOp.MUL">ExpressionOp.MUL</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionOp.FLOORDIV">ExpressionOp.FLOORDIV</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionOp.NEG">ExpressionOp.NEG</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionOp.ABS">ExpressionOp.ABS</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionOp.CLIP">ExpressionOp.CLIP</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionOp.CLIP_MIN">ExpressionOp.CLIP_MIN</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionOp.CLIP_MAX">ExpressionOp.CLIP_MAX</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionOp.arity">ExpressionOp.arity</a>
+    <a href="#dau_core.cores._column_names">_column_names()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#dau_core.cores._OP_ARITY">_OP_ARITY</a>
-  </li>
-  <li class="fd-toc-item" data-depth="2">
-    <a href="#dau_core.cores.ExpressionPattern">ExpressionPattern</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionPattern.op">ExpressionPattern.op</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionPattern.args">ExpressionPattern.args</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionPattern.column">ExpressionPattern.column</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionPattern.literal">ExpressionPattern.literal</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionPattern._one_kind">ExpressionPattern._one_kind()</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionPattern.placeholders">ExpressionPattern.placeholders()</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionPattern.columns">ExpressionPattern.columns()</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionPattern.size">ExpressionPattern.size()</a>
+    <a href="#dau_core.cores._json_size">_json_size()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.cores.ExpressionLowering">ExpressionLowering</a>
   </li>
   <li class="fd-toc-item" data-depth="3">
-    <a href="#dau_core.cores.ExpressionLowering.pattern">ExpressionLowering.pattern</a>
+    <a href="#dau_core.cores.ExpressionLowering.expression">ExpressionLowering.expression</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ExpressionLowering.literals">ExpressionLowering.literals</a>
   </li>
   <li class="fd-toc-item" data-depth="3">
     <a href="#dau_core.cores.ExpressionLowering.bind">ExpressionLowering.bind</a>
@@ -2916,6 +2746,21 @@ its own directory so two builds cannot race on one file.</p>
   </li>
   <li class="fd-toc-item" data-depth="3">
     <a href="#dau_core.cores.ExpressionLowering.scale_invariant">ExpressionLowering.scale_invariant</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ExpressionLowering._expression_form">ExpressionLowering._expression_form()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ExpressionLowering.expression_json">ExpressionLowering.expression_json()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ExpressionLowering.placeholders">ExpressionLowering.placeholders()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ExpressionLowering.columns">ExpressionLowering.columns()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.cores.ExpressionLowering.size">ExpressionLowering.size()</a>
   </li>
   <li class="fd-toc-item" data-depth="3">
     <a href="#dau_core.cores.ExpressionLowering._bound_once">ExpressionLowering._bound_once()</a>

@@ -25,7 +25,6 @@ Attributes
 
 .. autoapisummary::
 
-   dau_core.cores._OP_ARITY
    dau_core.cores.HDL_CLOSURE_DIGEST_VERSION
    dau_core.cores._HDL_INCLUDE
 
@@ -56,8 +55,6 @@ Classes
    dau_core.cores.IngestRate
    dau_core.cores.ParameterSpec
    dau_core.cores.StorageIntent
-   dau_core.cores.ExpressionOp
-   dau_core.cores.ExpressionPattern
    dau_core.cores.ExpressionLowering
    dau_core.cores.CoreDefinition
 
@@ -67,6 +64,8 @@ Functions
 
 .. autoapisummary::
 
+   dau_core.cores._column_names
+   dau_core.cores._json_size
    dau_core.cores._same_clock
    dau_core.cores.package_root
    dau_core.cores.render_root
@@ -691,155 +690,39 @@ Module Contents
 
 
 
-.. py:class:: ExpressionOp(*args, **kwds)
+.. py:function:: _column_names(node: Any) -> list[str]
 
-   Bases: :py:obj:`enum.Enum`
+   Every column a serialized polars expression names, in tree order.
 
 
-   The row expressions a tile can declare it computes.
-
-   The names are polars' Python API names (``clip_min`` and ``clip_max``
-   are its one-sided clips), and each has a fixed argument count. A query
-   compiler translates polars' plan into these, so an op a tile declares is
-   one some frontend produces, and a misspelled op fails when the tile is
-   declared rather than never matching.
-
-
-   .. py:attribute:: ADD
-      :value: 'add'
-
-
-
-   .. py:attribute:: SUB
-      :value: 'sub'
-
-
-
-   .. py:attribute:: MUL
-      :value: 'mul'
-
-
-
-   .. py:attribute:: FLOORDIV
-      :value: 'floordiv'
-
-
-
-   .. py:attribute:: NEG
-      :value: 'neg'
-
-
-
-   .. py:attribute:: ABS
-      :value: 'abs'
-
-
-
-   .. py:attribute:: CLIP
-      :value: 'clip'
-
-
-
-   .. py:attribute:: CLIP_MIN
-      :value: 'clip_min'
-
-
-
-   .. py:attribute:: CLIP_MAX
-      :value: 'clip_max'
-
-
-
-   .. py:property:: arity
-      :type: int
-
-
-
-.. py:data:: _OP_ARITY
-
-.. py:class:: ExpressionPattern(/, **data: Any)
-
-   Bases: :py:obj:`dau_core.models.CheckedModel`
-
-
-   One node of the expression a tile computes. Exactly one of:
-
-   * ``op`` with ``args``, an operation over sub-patterns;
-   * ``column``, a named placeholder that matches a column or any
-     sub-expression the compiler computes first;
-   * ``literal``, which is a named placeholder for a query literal when it
-     is a string, and a constant the query must contain exactly when it is
-     a number (the ``1`` in ``a * (1 - b)``).
-
-   Create a new model by parsing and validating input data from keyword arguments.
-
-   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
-   validated to form a valid model.
-
-   `self` is explicitly positional-only to allow `self` as a field name.
-
-
-   .. py:attribute:: op
-      :type:  ExpressionOp | None
-      :value: None
-
-
-
-   .. py:attribute:: args
-      :type:  tuple[ExpressionPattern, ...]
-      :value: ()
-
-
-
-   .. py:attribute:: column
-      :type:  str | None
-      :value: None
-
-
-
-   .. py:attribute:: literal
-      :type:  str | int | float | None
-      :value: None
-
-
-
-   .. py:method:: _one_kind() -> ExpressionPattern
-
-
-   .. py:method:: placeholders() -> tuple[str, ...]
-
-      Every named placeholder, in pattern order.
-
-
-
-   .. py:method:: columns() -> tuple[str, ...]
-
-      The column placeholders, in pattern order.
-
-
-
-   .. py:method:: size() -> int
-
-      Nodes in the pattern: a compiler tries larger patterns first.
-
-
+.. py:function:: _json_size(node: Any) -> int
 
 .. py:class:: ExpressionLowering(/, **data: Any)
 
    Bases: :py:obj:`dau_core.models.CheckedModel`
 
 
-   The expression a row tile computes, declared so a query compiler can
-   reach the tile without being changed for it.
+   The polars expression a row tile computes, declared so a query
+   compiler can reach the tile without being changed for it.
 
-   The tile writes one field of each quad row, ``row[dst] = golden(**args)``,
-   where the core's ``golden`` is the element function, called with each
-   placeholder by name: a column placeholder's field value, or a literal
-   placeholder's encoded value. ``bind`` names the config port each
+   ``expression`` is a polars expression over placeholder columns, given as
+   source text (``'pl.col("value").clip(pl.col("lower"), pl.col("upper"))'``,
+   evaluated through ccflow's ``PolarsExpression`` where polars is
+   installed) or as a polars expression, which is kept as polars' own JSON.
+   Text is the portable form: polars' JSON can change between versions, and
+   a pattern only matches a query serialized by the same version.
+
+   Each column the expression names is a placeholder. A compiler matches a
+   query expression against it node for node: a placeholder listed in
+   ``literals`` matches a literal in the query, any other placeholder
+   matches a column or a sub-expression the compiler computes first, and
+   every other node must be the same. ``bind`` names the config port each
    placeholder is wired to: a field select for a column, a value for a
-   literal. Every placeholder is bound exactly once, and no port twice.
+   literal. The tile writes ``destination_port``'s field of each quad row,
+   ``row[dst] = golden(**args)``, the core's ``golden`` called with the
+   placeholders by name.
 
-   A compiler lowers an expression only when it can show the tile computes
+   A compiler lowers the expression only when it can show the tile computes
    what polars would. Every bound column must hold values (not dictionary
    codes) at one shared fixed-point scale, and every literal must encode
    exactly at that scale within the field. A nonzero scale also needs
@@ -854,8 +737,14 @@ Module Contents
    `self` is explicitly positional-only to allow `self` as a field name.
 
 
-   .. py:attribute:: pattern
-      :type:  ExpressionPattern
+   .. py:attribute:: expression
+      :type:  str | dict[str, Any]
+
+
+   .. py:attribute:: literals
+      :type:  tuple[str, ...]
+      :value: ()
+
 
 
    .. py:attribute:: bind
@@ -869,6 +758,36 @@ Module Contents
    .. py:attribute:: scale_invariant
       :type:  bool
       :value: False
+
+
+
+   .. py:method:: _expression_form(value: Any) -> Any
+      :classmethod:
+
+
+
+   .. py:method:: expression_json() -> dict[str, Any]
+
+      The expression as polars serializes it. Text is evaluated through
+      ccflow's ``PolarsExpression``, which needs polars installed.
+
+
+
+   .. py:method:: placeholders() -> tuple[str, ...]
+
+      Every placeholder, in the order a match binds them.
+
+
+
+   .. py:method:: columns() -> tuple[str, ...]
+
+      The placeholders that stand for columns, in match order.
+
+
+
+   .. py:method:: size() -> int
+
+      Nodes in the expression: a compiler tries larger patterns first.
 
 
 
