@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>dau_core.operators &#8212; dau core v0.7.0</title>
+    <title>dau_core.operators &#8212; dau core v0.8.0</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/fuma.css?v=ca04d621" />
     <link rel="stylesheet" type="text/css" href="../../_static/fuma-code.css?v=a950e949" />
@@ -15,7 +15,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=6a604523" />
     <link rel="stylesheet" type="text/css" href="../../_static/fonts/fuma-fonts.css?v=c2892c73" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/custom.css?v=88c24c6a" />
-    <script src="../../_static/documentation_options.js?v=fe7df9b0"></script>
+    <script src="../../_static/documentation_options.js?v=486e5634"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -453,7 +453,7 @@ window.runMermaid = runMermaid;</script>
   <div class="fd-subnav-inner">
     <button type="button" class="fd-icon-button fd-sidebar-toggle" aria-controls="fd-sidebar" aria-expanded="false" aria-label="Toggle navigation" title="Toggle navigation">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
-    </button><a class="fd-brand" href="../../index.html"><span class="fd-brand-name">dau core v0.7.0</span>
+    </button><a class="fd-brand" href="../../index.html"><span class="fd-brand-name">dau core v0.8.0</span>
 </a>
 
     <div class="fd-nav-actions">
@@ -468,7 +468,7 @@ window.runMermaid = runMermaid;</script>
 
 <aside id="fd-sidebar" aria-label="Documentation">
   <div class="fd-sidebar-header">
-    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../index.html"><span class="fd-brand-name">dau core v0.7.0</span>
+    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../index.html"><span class="fd-brand-name">dau core v0.8.0</span>
 </a>
       <button type="button" class="fd-icon-button fd-sidebar-collapse" aria-label="Collapse sidebar" title="Collapse sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
     </div>
@@ -1027,6 +1027,11 @@ window.runMermaid = runMermaid;</script>
   <li class="fd-tree-item">
     <a class="fd-link" href="../../autoapi/cocotb_benches/dau_wide_field_sum_aggregation_tb/index.html">
       <span class="fd-link-text">cocotb_benches.dau_wide_field_sum_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/cocotb_benches/dau_wide_group_table_sum_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_group_table_sum_tb</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -2165,6 +2170,37 @@ window.runMermaid = runMermaid;</script>
     <span class="k">if</span> <span class="n">current_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">GroupedFieldSumAggregate</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">current_key</span><span class="p">,</span> <span class="n">field_mask</span><span class="o">=</span><span class="n">field_mask</span><span class="p">,</span> <span class="n">sums</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">sums</span><span class="p">),</span> <span class="n">count</span><span class="o">=</span><span class="n">count</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">results</span></div>
+
+
+
+<div class="viewcode-block" id="group_table_sum_rows">
+<a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.group_table_sum_rows">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">group_table_sum_rows</span><span class="p">(</span>
+    <span class="n">rows</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="o">*</span><span class="p">,</span> <span class="n">field_mask</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">group_shift</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">group_bits</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">GroupedFieldSumAggregate</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Golden semantics for the wide group-table sum tile: each row's group is</span>
+<span class="sd">    ``(key &gt;&gt; group_shift) &amp; (2**group_bits - 1)`` over the key's unsigned</span>
+<span class="sd">    32 bits, and every group that received a row closes with INT64 sums of</span>
+<span class="sd">    the mask-selected fields and its row count, in ascending group order. The</span>
+<span class="sd">    record's key word is the group code. Unlike the ordered grouped tile,</span>
+<span class="sd">    rows of one group need not be adjacent: the table is direct-indexed, so a</span>
+<span class="sd">    group's rows merge wherever they fall in the batch. Rows are the batch's</span>
+<span class="sd">    real rows; the wide lane's all-ones pad never reaches this function."""</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">field_mask</span> <span class="o">&lt;=</span> <span class="mi">15</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"field_mask must select at least one of the four fields"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">group_shift</span> <span class="o">&lt;=</span> <span class="mi">31</span> <span class="ow">or</span> <span class="ow">not</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">group_bits</span> <span class="o">&lt;=</span> <span class="mi">10</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"group_shift must lie in [0, 31] and group_bits in [1, 10]"</span><span class="p">)</span>
+    <span class="n">selected</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="k">if</span> <span class="n">field_mask</span> <span class="o">&amp;</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">)]</span>
+    <span class="n">table</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="p">((</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0xFFFF_FFFF</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="n">group_shift</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">((</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">group_bits</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">entry</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">selected</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">slot</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">selected</span><span class="p">):</span>
+            <span class="n">entry</span><span class="p">[</span><span class="n">slot</span><span class="p">]</span> <span class="o">+=</span> <span class="n">_wrap_int32</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">field</span><span class="p">])</span>
+        <span class="n">entry</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">GroupedFieldSumAggregate</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">group</span><span class="p">,</span> <span class="n">field_mask</span><span class="o">=</span><span class="n">field_mask</span><span class="p">,</span> <span class="n">sums</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">entry</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">count</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">group</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+    <span class="p">]</span></div>
 
 
 

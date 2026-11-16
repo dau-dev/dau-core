@@ -45,6 +45,7 @@ Attributes
    dau_core.hdl.DAU_FIELD_SUM_AGGREGATION_SV
    dau_core.hdl.DAU_GROUPED_FIELD_SUM_AGGREGATION_SV
    dau_core.hdl.DAU_WIDE_FIELD_SUM_AGGREGATION_SV
+   dau_core.hdl.DAU_WIDE_GROUP_TABLE_SUM_SV
    dau_core.hdl.DAU_RECORD_GEARBOX_SV
    dau_core.hdl.DAU_WIDE_ROW_MAP_ALU_SV
    dau_core.hdl.DAU_WIDE_ROW_PREDICATE_FILTER_SV
@@ -140,6 +141,8 @@ Package Contents
 .. py:data:: DAU_GROUPED_FIELD_SUM_AGGREGATION_SV
 
 .. py:data:: DAU_WIDE_FIELD_SUM_AGGREGATION_SV
+
+.. py:data:: DAU_WIDE_GROUP_TABLE_SUM_SV
 
 .. py:data:: DAU_RECORD_GEARBOX_SV
 

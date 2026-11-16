@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>dau_core.operators &#8212; dau core v0.7.0</title>
+    <title>dau_core.operators &#8212; dau core v0.8.0</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/fuma.css?v=ca04d621" />
     <link rel="stylesheet" type="text/css" href="../../../_static/fuma-code.css?v=a950e949" />
@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=6a604523" />
     <link rel="stylesheet" type="text/css" href="../../../_static/fonts/fuma-fonts.css?v=c2892c73" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/custom.css?v=88c24c6a" />
-    <script src="../../../_static/documentation_options.js?v=fe7df9b0"></script>
+    <script src="../../../_static/documentation_options.js?v=486e5634"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -49,7 +49,7 @@
   <div class="fd-subnav-inner">
     <button type="button" class="fd-icon-button fd-sidebar-toggle" aria-controls="fd-sidebar" aria-expanded="false" aria-label="Toggle navigation" title="Toggle navigation">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
-    </button><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau core v0.7.0</span>
+    </button><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau core v0.8.0</span>
 </a>
 
     <div class="fd-nav-actions">
@@ -64,7 +64,7 @@
 
 <aside id="fd-sidebar" aria-label="Documentation">
   <div class="fd-sidebar-header">
-    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau core v0.7.0</span>
+    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau core v0.8.0</span>
 </a>
       <button type="button" class="fd-icon-button fd-sidebar-collapse" aria-label="Collapse sidebar" title="Collapse sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
     </div>
@@ -623,6 +623,11 @@
   <li class="fd-tree-item">
     <a class="fd-link" href="../../cocotb_benches/dau_wide_field_sum_aggregation_tb/index.html">
       <span class="fd-link-text">cocotb_benches.dau_wide_field_sum_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_wide_group_table_sum_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_group_table_sum_tb</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -1270,6 +1275,9 @@
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.operators.grouped_field_sum_rows">grouped_field_sum_rows()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.operators.group_table_sum_rows">group_table_sum_rows()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.operators.MembershipKind">MembershipKind</a>
@@ -2047,97 +2055,100 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.grouped_field_sum_rows" title="dau_core.operators.grouped_field_sum_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grouped_field_sum_rows</span></code></a>(rows, *, field_mask) → list[GroupedFieldSumAggregate]</p></td>
 <td><p>Golden semantics for the ordered grouped field-sum aggregation tile</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.filter_rows_by_membership" title="dau_core.operators.filter_rows_by_membership"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_rows_by_membership</span></code></a>(rows, build_set, *, mode) → list[tuple[int, int, int, int]]</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.group_table_sum_rows" title="dau_core.operators.group_table_sum_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">group_table_sum_rows</span></code></a>(rows, *, field_mask, group_shift, ...) → list[GroupedFieldSumAggregate]</p></td>
+<td><p>Golden semantics for the wide group-table sum tile: each row's group is</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.filter_rows_by_membership" title="dau_core.operators.filter_rows_by_membership"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_rows_by_membership</span></code></a>(rows, build_set, *, mode) → list[tuple[int, int, int, int]]</p></td>
 <td><p>Golden semantics for the key-set membership filter tile (probe phase):</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.count_distinct_rows" title="dau_core.operators.count_distinct_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">count_distinct_rows</span></code></a>(rows, *, key_space[, seen]) → DistinctCount</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.count_distinct_rows" title="dau_core.operators.count_distinct_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">count_distinct_rows</span></code></a>(rows, *, key_space[, seen]) → DistinctCount</p></td>
 <td><p>Golden semantics for the streaming insert-on-probe dedup tile: one pass</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.keyed_asof_join_rows" title="dau_core.operators.keyed_asof_join_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">keyed_asof_join_rows</span></code></a>(records, *[, tolerance]) → list[tuple[int, int, int, int, int, int]]</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.keyed_asof_join_rows" title="dau_core.operators.keyed_asof_join_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">keyed_asof_join_rows</span></code></a>(records, *[, tolerance]) → list[tuple[int, int, int, int, int, int]]</p></td>
 <td><p>Golden semantics for the generic keyed backward as-of join tile: one</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.broadcast_hash_join_rows" title="dau_core.operators.broadcast_hash_join_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">broadcast_hash_join_rows</span></code></a>(build_rows, probe_rows, *, ...) → list[tuple[int, int, int, int]]</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.broadcast_hash_join_rows" title="dau_core.operators.broadcast_hash_join_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">broadcast_hash_join_rows</span></code></a>(build_rows, probe_rows, *, ...) → list[tuple[int, int, int, int]]</p></td>
 <td><p>Golden semantics for the broadcast hash join tile (the join tier's</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.filter_bar_rows_by_key" title="dau_core.operators.filter_bar_rows_by_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_bar_rows_by_key</span></code></a>(rows, *, key_mask, key_match) → list[tuple[int, int, int, int]]</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.filter_bar_rows_by_key" title="dau_core.operators.filter_bar_rows_by_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_bar_rows_by_key</span></code></a>(rows, *, key_mask, key_match) → list[tuple[int, int, int, int]]</p></td>
 <td><p>Golden semantics for the pair-row key partition filter: whole</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.range_partition_bar_rows" title="dau_core.operators.range_partition_bar_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">range_partition_bar_rows</span></code></a>(rows, *, splitters) → list[list[tuple[int, int, int, int]]]</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.range_partition_bar_rows" title="dau_core.operators.range_partition_bar_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">range_partition_bar_rows</span></code></a>(rows, *, splitters) → list[list[tuple[int, int, int, int]]]</p></td>
 <td><p>Golden semantics for the range partitioner: route each</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.gearbox_records" title="dau_core.operators.gearbox_records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gearbox_records</span></code></a>(words, *, record_words, record_count) → list[tuple[int, ...]]</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.gearbox_records" title="dau_core.operators.gearbox_records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gearbox_records</span></code></a>(words, *, record_words, record_count) → list[tuple[int, ...]]</p></td>
 <td><p>Golden semantics for the record gearbox: a pure REFRAMING.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators._dispatch_dest" title="dau_core.operators._dispatch_dest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_dispatch_dest</span></code></a>(key_u32, *, num_partitions, mode) → int | None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators._dispatch_dest" title="dau_core.operators._dispatch_dest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_dispatch_dest</span></code></a>(key_u32, *, num_partitions, mode) → int | None</p></td>
 <td><p>The partition a key routes to, or <code class="docutils literal notranslate"><span class="pre">None</span></code> when the router drops the</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators._check_dispatch_partitions" title="dau_core.operators._check_dispatch_partitions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_check_dispatch_partitions</span></code></a>(num_partitions, mode) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators._check_dispatch_partitions" title="dau_core.operators._check_dispatch_partitions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_check_dispatch_partitions</span></code></a>(num_partitions, mode) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.mask_dispatch_records" title="dau_core.operators.mask_dispatch_records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mask_dispatch_records</span></code></a>(records, *, num_partitions[, mode]) → list[list[tuple[int, ...]]]</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.mask_dispatch_records" title="dau_core.operators.mask_dispatch_records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mask_dispatch_records</span></code></a>(records, *, num_partitions[, mode]) → list[list[tuple[int, ...]]]</p></td>
 <td><p>Golden semantics for the key-mask dispatcher over N-WORD records.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.mask_dispatch_rows" title="dau_core.operators.mask_dispatch_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mask_dispatch_rows</span></code></a>(rows, *, num_partitions[, mode]) → list[list[tuple[int, int, int, int]]]</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.mask_dispatch_rows" title="dau_core.operators.mask_dispatch_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mask_dispatch_rows</span></code></a>(rows, *, num_partitions[, mode]) → list[list[tuple[int, int, int, int]]]</p></td>
 <td><p>Golden semantics for the key-mask dispatcher: route each</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.stride_distribute_rows" title="dau_core.operators.stride_distribute_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stride_distribute_rows</span></code></a>(rows, *, rows_per_beat, ...) → tuple[list[tuple[int, int, int, int]], ...]</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.stride_distribute_rows" title="dau_core.operators.stride_distribute_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stride_distribute_rows</span></code></a>(rows, *, rows_per_beat, ...) → tuple[list[tuple[int, int, int, int]], ...]</p></td>
 <td><p>Route packed rows by static slot position and per-slot round robin.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.pack_splitters" title="dau_core.operators.pack_splitters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pack_splitters</span></code></a>(values) → str</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.pack_splitters" title="dau_core.operators.pack_splitters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pack_splitters</span></code></a>(values) → str</p></td>
 <td><p>Pack range-partitioner splitter constants into the <code class="docutils literal notranslate"><span class="pre">cfg_splitters</span></code> SV</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.sort_bar_rows_by_key" title="dau_core.operators.sort_bar_rows_by_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sort_bar_rows_by_key</span></code></a>(rows) → list[tuple[int, int, int, int]]</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.sort_bar_rows_by_key" title="dau_core.operators.sort_bar_rows_by_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sort_bar_rows_by_key</span></code></a>(rows) → list[tuple[int, int, int, int]]</p></td>
 <td><p>Golden semantics for the batch bitonic sorter: rows ascending by the</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.streaming_top_k" title="dau_core.operators.streaming_top_k"><code class="xref py py-obj docutils literal notranslate"><span class="pre">streaming_top_k</span></code></a>(rows, *, k) → list[tuple[int, int, int, int]]</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.streaming_top_k" title="dau_core.operators.streaming_top_k"><code class="xref py py-obj docutils literal notranslate"><span class="pre">streaming_top_k</span></code></a>(rows, *, k) → list[tuple[int, int, int, int]]</p></td>
 <td><p>Golden semantics for the streaming top-k heap tile: in one pass keep the</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.time_bucket_key_rows" title="dau_core.operators.time_bucket_key_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">time_bucket_key_rows</span></code></a>(rows, *, bucket_shift, bucket_bits) → list[tuple[int, int, int, int]]</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.time_bucket_key_rows" title="dau_core.operators.time_bucket_key_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">time_bucket_key_rows</span></code></a>(rows, *, bucket_shift, bucket_bits) → list[tuple[int, int, int, int]]</p></td>
 <td><p>Golden semantics for the generic time-bucket key tile: rewrite each row's</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.gather_records" title="dau_core.operators.gather_records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gather_records</span></code></a>(words, *, in_words, out_words, selectors) → list[int]</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.gather_records" title="dau_core.operators.gather_records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gather_records</span></code></a>(words, *, in_words, out_words, selectors) → list[int]</p></td>
 <td><p>Gather 32-bit halves from fixed-width records into new records.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.grouped_field_aggregate_rows" title="dau_core.operators.grouped_field_aggregate_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grouped_field_aggregate_rows</span></code></a>(rows) → list[GroupedFieldAggregate]</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.grouped_field_aggregate_rows" title="dau_core.operators.grouped_field_aggregate_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grouped_field_aggregate_rows</span></code></a>(rows) → list[GroupedFieldAggregate]</p></td>
 <td><p>Golden semantics for the generic multi-field grouped aggregator (ordered</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.bars_from_field_aggregate" title="dau_core.operators.bars_from_field_aggregate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bars_from_field_aggregate</span></code></a>(groups) → list[BarAggregate]</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.bars_from_field_aggregate" title="dau_core.operators.bars_from_field_aggregate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bars_from_field_aggregate</span></code></a>(groups) → list[BarAggregate]</p></td>
 <td><p>OHLCV bars as a field/stat SELECTION over the generic multi-field</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.bar_aggregate_rows" title="dau_core.operators.bar_aggregate_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bar_aggregate_rows</span></code></a>(rows) → list[BarAggregate]</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.bar_aggregate_rows" title="dau_core.operators.bar_aggregate_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bar_aggregate_rows</span></code></a>(rows) → list[BarAggregate]</p></td>
 <td><p>Golden semantics for the fused bar-aggregation tile (ordered</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.grouped_aggregate_rows" title="dau_core.operators.grouped_aggregate_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grouped_aggregate_rows</span></code></a>(rows) → list[GroupAggregate]</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.grouped_aggregate_rows" title="dau_core.operators.grouped_aggregate_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grouped_aggregate_rows</span></code></a>(rows) → list[GroupAggregate]</p></td>
 <td><p>Golden semantics for the ordered grouped-aggregation tile</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.aggregate_values" title="dau_core.operators.aggregate_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aggregate_values</span></code></a>(opcode, values, logical_type) → int | float</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.aggregate_values" title="dau_core.operators.aggregate_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aggregate_values</span></code></a>(opcode, values, logical_type) → int | float</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.synthetic_values" title="dau_core.operators.synthetic_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">synthetic_values</span></code></a>(name, logical_type) → list[int | float | bool]</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.synthetic_values" title="dau_core.operators.synthetic_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">synthetic_values</span></code></a>(name, logical_type) → list[int | float | bool]</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators._sum_values" title="dau_core.operators._sum_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_sum_values</span></code></a>(values, logical_type) → int | float</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators._sum_values" title="dau_core.operators._sum_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_sum_values</span></code></a>(values, logical_type) → int | float</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators._bounds_fixture" title="dau_core.operators._bounds_fixture"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_bounds_fixture</span></code></a>(logical_type) → list[int | float | bool]</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators._bounds_fixture" title="dau_core.operators._bounds_fixture"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_bounds_fixture</span></code></a>(logical_type) → list[int | float | bool]</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators._is_nan" title="dau_core.operators._is_nan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_is_nan</span></code></a>(value) → bool</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators._is_nan" title="dau_core.operators._is_nan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_is_nan</span></code></a>(value) → bool</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.keyed_state_scan" title="dau_core.operators.keyed_state_scan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">keyed_state_scan</span></code></a>(rows, *, op, capacity[, initial]) → tuple[list[tuple[int, int]], KeyedStateErrorCode]</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.keyed_state_scan" title="dau_core.operators.keyed_state_scan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">keyed_state_scan</span></code></a>(rows, *, op, capacity[, initial]) → tuple[list[tuple[int, int]], KeyedStateErrorCode]</p></td>
 <td><p>Golden semantics for the keyed state tile: a per-key accumulator updated</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.scratchpad_scan" title="dau_core.operators.scratchpad_scan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scratchpad_scan</span></code></a>(rows, *, granted_words) → tuple[list[tuple[int, int]], ScratchpadErrorCode]</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.scratchpad_scan" title="dau_core.operators.scratchpad_scan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scratchpad_scan</span></code></a>(rows, *, granted_words) → tuple[list[tuple[int, int]], ScratchpadErrorCode]</p></td>
 <td><p>Golden semantics for the scratchpad tile: the deliberately trivial</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.sessionize_scan" title="dau_core.operators.sessionize_scan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sessionize_scan</span></code></a>(rows, *, gap, capacity) → tuple[list[tuple[int, int, int, int]], SessionErrorCode]</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.sessionize_scan" title="dau_core.operators.sessionize_scan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sessionize_scan</span></code></a>(rows, *, gap, capacity) → tuple[list[tuple[int, int, int, int]], SessionErrorCode]</p></td>
 <td><p>Golden semantics for the session-gap tile: the Nexmark-Q11 shape over</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.hash_grouped_field_sum_rows" title="dau_core.operators.hash_grouped_field_sum_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hash_grouped_field_sum_rows</span></code></a>(rows, *, field_mask, capacity) → tuple[list[HashGroupedAggregate], HashGroupedErrorCode]</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.hash_grouped_field_sum_rows" title="dau_core.operators.hash_grouped_field_sum_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hash_grouped_field_sum_rows</span></code></a>(rows, *, field_mask, capacity) → tuple[list[HashGroupedAggregate], HashGroupedErrorCode]</p></td>
 <td><p>Golden semantics for the HASH-mode grouped field-sum aggregation tile:</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.merge_hash_grouped" title="dau_core.operators.merge_hash_grouped"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_hash_grouped</span></code></a>(partials) → list[HashGroupedAggregate]</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.merge_hash_grouped" title="dau_core.operators.merge_hash_grouped"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_hash_grouped</span></code></a>(partials) → list[HashGroupedAggregate]</p></td>
 <td><p>Merge per-batch hash-grouped partials into one key-ascending result —</p></td>
 </tr>
 </tbody>
@@ -3116,6 +3127,19 @@ count. A key that reappears later opens a NEW group — partials merge on
 the host, never in the tile (the partial-bar contract). <code class="docutils literal notranslate"><span class="pre">field_mask</span></code>
 bit i selects field i; at least one field must be selected (a zero mask
 is an unconfigured tile and reports CONFIG on hardware).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.operators.group_table_sum_rows">
+<span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">group_table_sum_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_shift</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#dau_core.operators.GroupedFieldSumAggregate" title="dau_core.operators.GroupedFieldSumAggregate"><span class="pre">GroupedFieldSumAggregate</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#group_table_sum_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.group_table_sum_rows" title="Link to this definition">¶</a></dt>
+<dd><p>Golden semantics for the wide group-table sum tile: each row’s group is
+<code class="docutils literal notranslate"><span class="pre">(key</span> <span class="pre">&gt;&gt;</span> <span class="pre">group_shift)</span> <span class="pre">&amp;</span> <span class="pre">(2**group_bits</span> <span class="pre">-</span> <span class="pre">1)</span></code> over the key’s unsigned
+32 bits, and every group that received a row closes with INT64 sums of
+the mask-selected fields and its row count, in ascending group order. The
+record’s key word is the group code. Unlike the ordered grouped tile,
+rows of one group need not be adjacent: the table is direct-indexed, so a
+group’s rows merge wherever they fall in the batch. Rows are the batch’s
+real rows; the wide lane’s all-ones pad never reaches this function.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -4826,6 +4850,9 @@ test that keeps it honest. Every partial must carry the same
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.operators.grouped_field_sum_rows">grouped_field_sum_rows()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.operators.group_table_sum_rows">group_table_sum_rows()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.operators.MembershipKind">MembershipKind</a>

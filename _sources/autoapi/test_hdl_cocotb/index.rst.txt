@@ -72,6 +72,7 @@ Functions
    test_hdl_cocotb.test_wide_row_predicate_filter_runs_real_cocotb_against_systemverilog
    test_hdl_cocotb.test_wide_row_map_alu_runs_real_cocotb_against_systemverilog
    test_hdl_cocotb.test_wide_field_sum_aggregation_runs_real_cocotb_against_systemverilog
+   test_hdl_cocotb.test_wide_group_table_sum_runs_real_cocotb_against_systemverilog
    test_hdl_cocotb.test_grouped_field_aggregation_runs_real_cocotb_against_systemverilog
    test_hdl_cocotb.test_grouped_field_sum_aggregation_runs_real_cocotb_against_systemverilog
    test_hdl_cocotb.test_key_membership_filter_runs_real_cocotb_against_systemverilog
@@ -258,6 +259,8 @@ Module Contents
 .. py:function:: test_wide_row_map_alu_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path, slots: int, pipeline_depth: int) -> None
 
 .. py:function:: test_wide_field_sum_aggregation_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path, slots: int) -> None
+
+.. py:function:: test_wide_group_table_sum_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path, slots: int) -> None
 
 .. py:function:: test_grouped_field_aggregation_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
 

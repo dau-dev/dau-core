@@ -75,6 +75,7 @@ Submodules
    /autoapi/cocotb_benches/dau_stride_distributor_tb/index
    /autoapi/cocotb_benches/dau_time_bucket_key_tb/index
    /autoapi/cocotb_benches/dau_wide_field_sum_aggregation_tb/index
+   /autoapi/cocotb_benches/dau_wide_group_table_sum_tb/index
    /autoapi/cocotb_benches/dau_wide_ingest_chain_tb/index
    /autoapi/cocotb_benches/dau_wide_row_map_alu_tb/index
    /autoapi/cocotb_benches/dau_wide_row_predicate_filter_tb/index

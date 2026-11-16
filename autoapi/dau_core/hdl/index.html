@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>dau_core.hdl &#8212; dau core v0.7.0</title>
+    <title>dau_core.hdl &#8212; dau core v0.8.0</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/fuma.css?v=ca04d621" />
     <link rel="stylesheet" type="text/css" href="../../../_static/fuma-code.css?v=a950e949" />
@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=6a604523" />
     <link rel="stylesheet" type="text/css" href="../../../_static/fonts/fuma-fonts.css?v=c2892c73" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/custom.css?v=88c24c6a" />
-    <script src="../../../_static/documentation_options.js?v=fe7df9b0"></script>
+    <script src="../../../_static/documentation_options.js?v=486e5634"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -49,7 +49,7 @@
   <div class="fd-subnav-inner">
     <button type="button" class="fd-icon-button fd-sidebar-toggle" aria-controls="fd-sidebar" aria-expanded="false" aria-label="Toggle navigation" title="Toggle navigation">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
-    </button><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau core v0.7.0</span>
+    </button><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau core v0.8.0</span>
 </a>
 
     <div class="fd-nav-actions">
@@ -64,7 +64,7 @@
 
 <aside id="fd-sidebar" aria-label="Documentation">
   <div class="fd-sidebar-header">
-    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau core v0.7.0</span>
+    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau core v0.8.0</span>
 </a>
       <button type="button" class="fd-icon-button fd-sidebar-collapse" aria-label="Collapse sidebar" title="Collapse sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
     </div>
@@ -626,6 +626,11 @@
     </a>
   </li>
   <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_wide_group_table_sum_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_group_table_sum_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
     <a class="fd-link" href="../../cocotb_benches/dau_wide_ingest_chain_tb/index.html">
       <span class="fd-link-text">cocotb_benches.dau_wide_ingest_chain_tb</span>
     </a>
@@ -942,6 +947,9 @@
     <a href="#dau_core.hdl.DAU_WIDE_FIELD_SUM_AGGREGATION_SV">DAU_WIDE_FIELD_SUM_AGGREGATION_SV</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hdl.DAU_WIDE_GROUP_TABLE_SUM_SV">DAU_WIDE_GROUP_TABLE_SUM_SV</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.hdl.DAU_RECORD_GEARBOX_SV">DAU_RECORD_GEARBOX_SV</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -1132,61 +1140,64 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_WIDE_FIELD_SUM_AGGREGATION_SV" title="dau_core.hdl.DAU_WIDE_FIELD_SUM_AGGREGATION_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_WIDE_FIELD_SUM_AGGREGATION_SV</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_RECORD_GEARBOX_SV" title="dau_core.hdl.DAU_RECORD_GEARBOX_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_RECORD_GEARBOX_SV</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_WIDE_GROUP_TABLE_SUM_SV" title="dau_core.hdl.DAU_WIDE_GROUP_TABLE_SUM_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_WIDE_GROUP_TABLE_SUM_SV</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_WIDE_ROW_MAP_ALU_SV" title="dau_core.hdl.DAU_WIDE_ROW_MAP_ALU_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_WIDE_ROW_MAP_ALU_SV</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_RECORD_GEARBOX_SV" title="dau_core.hdl.DAU_RECORD_GEARBOX_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_RECORD_GEARBOX_SV</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_WIDE_ROW_PREDICATE_FILTER_SV" title="dau_core.hdl.DAU_WIDE_ROW_PREDICATE_FILTER_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_WIDE_ROW_PREDICATE_FILTER_SV</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_WIDE_ROW_MAP_ALU_SV" title="dau_core.hdl.DAU_WIDE_ROW_MAP_ALU_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_WIDE_ROW_MAP_ALU_SV</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_GROUPED_FIELD_AGGREGATION_SV" title="dau_core.hdl.DAU_GROUPED_FIELD_AGGREGATION_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_GROUPED_FIELD_AGGREGATION_SV</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_WIDE_ROW_PREDICATE_FILTER_SV" title="dau_core.hdl.DAU_WIDE_ROW_PREDICATE_FILTER_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_WIDE_ROW_PREDICATE_FILTER_SV</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_KEY_MEMBERSHIP_FILTER_SV" title="dau_core.hdl.DAU_KEY_MEMBERSHIP_FILTER_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_KEY_MEMBERSHIP_FILTER_SV</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_GROUPED_FIELD_AGGREGATION_SV" title="dau_core.hdl.DAU_GROUPED_FIELD_AGGREGATION_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_GROUPED_FIELD_AGGREGATION_SV</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_BROADCAST_HASH_JOIN_SV" title="dau_core.hdl.DAU_BROADCAST_HASH_JOIN_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_BROADCAST_HASH_JOIN_SV</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_KEY_MEMBERSHIP_FILTER_SV" title="dau_core.hdl.DAU_KEY_MEMBERSHIP_FILTER_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_KEY_MEMBERSHIP_FILTER_SV</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_ROW_UNPACK_SV" title="dau_core.hdl.DAU_ROW_UNPACK_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_ROW_UNPACK_SV</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_BROADCAST_HASH_JOIN_SV" title="dau_core.hdl.DAU_BROADCAST_HASH_JOIN_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_BROADCAST_HASH_JOIN_SV</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_ASOF_BACKWARD_SV" title="dau_core.hdl.DAU_ASOF_BACKWARD_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_ASOF_BACKWARD_SV</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_ROW_UNPACK_SV" title="dau_core.hdl.DAU_ROW_UNPACK_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_ROW_UNPACK_SV</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_ROLLING_MOMENTS_SV" title="dau_core.hdl.DAU_ROLLING_MOMENTS_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_ROLLING_MOMENTS_SV</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_ASOF_BACKWARD_SV" title="dau_core.hdl.DAU_ASOF_BACKWARD_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_ASOF_BACKWARD_SV</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_ROLLING_EXTREMUM_SV" title="dau_core.hdl.DAU_ROLLING_EXTREMUM_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_ROLLING_EXTREMUM_SV</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_ROLLING_MOMENTS_SV" title="dau_core.hdl.DAU_ROLLING_MOMENTS_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_ROLLING_MOMENTS_SV</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_MARKET_FEATURE_SV" title="dau_core.hdl.DAU_MARKET_FEATURE_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_MARKET_FEATURE_SV</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_ROLLING_EXTREMUM_SV" title="dau_core.hdl.DAU_ROLLING_EXTREMUM_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_ROLLING_EXTREMUM_SV</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_INT32_RECORD_GATHER_SV" title="dau_core.hdl.DAU_INT32_RECORD_GATHER_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_INT32_RECORD_GATHER_SV</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_MARKET_FEATURE_SV" title="dau_core.hdl.DAU_MARKET_FEATURE_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_MARKET_FEATURE_SV</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_TIME_BUCKET_KEY_SV" title="dau_core.hdl.DAU_TIME_BUCKET_KEY_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_TIME_BUCKET_KEY_SV</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_INT32_RECORD_GATHER_SV" title="dau_core.hdl.DAU_INT32_RECORD_GATHER_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_INT32_RECORD_GATHER_SV</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_KEYED_STATE_SV" title="dau_core.hdl.DAU_KEYED_STATE_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_KEYED_STATE_SV</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_TIME_BUCKET_KEY_SV" title="dau_core.hdl.DAU_TIME_BUCKET_KEY_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_TIME_BUCKET_KEY_SV</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_SCRATCHPAD_SV" title="dau_core.hdl.DAU_SCRATCHPAD_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_SCRATCHPAD_SV</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_KEYED_STATE_SV" title="dau_core.hdl.DAU_KEYED_STATE_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_KEYED_STATE_SV</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_HASH_GROUPED_AGGREGATION_SV" title="dau_core.hdl.DAU_HASH_GROUPED_AGGREGATION_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_HASH_GROUPED_AGGREGATION_SV</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_SCRATCHPAD_SV" title="dau_core.hdl.DAU_SCRATCHPAD_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_SCRATCHPAD_SV</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_SESSION_GAP_SV" title="dau_core.hdl.DAU_SESSION_GAP_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_SESSION_GAP_SV</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_HASH_GROUPED_AGGREGATION_SV" title="dau_core.hdl.DAU_HASH_GROUPED_AGGREGATION_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_HASH_GROUPED_AGGREGATION_SV</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_STREAMING_TOP_K_SV" title="dau_core.hdl.DAU_STREAMING_TOP_K_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_STREAMING_TOP_K_SV</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_SESSION_GAP_SV" title="dau_core.hdl.DAU_SESSION_GAP_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_SESSION_GAP_SV</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_STREAMING_DEDUP_SV" title="dau_core.hdl.DAU_STREAMING_DEDUP_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_STREAMING_DEDUP_SV</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_STREAMING_TOP_K_SV" title="dau_core.hdl.DAU_STREAMING_TOP_K_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_STREAMING_TOP_K_SV</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hdl.DAU_STREAMING_DEDUP_SV" title="dau_core.hdl.DAU_STREAMING_DEDUP_SV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_STREAMING_DEDUP_SV</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -1372,6 +1383,11 @@
 <dl class="py data">
 <dt class="sig sig-object py" id="dau_core.hdl.DAU_WIDE_FIELD_SUM_AGGREGATION_SV">
 <span class="sig-prename descclassname"><span class="pre">dau_core.hdl.</span></span><span class="sig-name descname"><span class="pre">DAU_WIDE_FIELD_SUM_AGGREGATION_SV</span></span><a class="headerlink" href="#dau_core.hdl.DAU_WIDE_FIELD_SUM_AGGREGATION_SV" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_core.hdl.DAU_WIDE_GROUP_TABLE_SUM_SV">
+<span class="sig-prename descclassname"><span class="pre">dau_core.hdl.</span></span><span class="sig-name descname"><span class="pre">DAU_WIDE_GROUP_TABLE_SUM_SV</span></span><a class="headerlink" href="#dau_core.hdl.DAU_WIDE_GROUP_TABLE_SUM_SV" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py data">
@@ -1618,6 +1634,9 @@
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.hdl.DAU_WIDE_FIELD_SUM_AGGREGATION_SV">DAU_WIDE_FIELD_SUM_AGGREGATION_SV</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hdl.DAU_WIDE_GROUP_TABLE_SUM_SV">DAU_WIDE_GROUP_TABLE_SUM_SV</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.hdl.DAU_RECORD_GEARBOX_SV">DAU_RECORD_GEARBOX_SV</a>

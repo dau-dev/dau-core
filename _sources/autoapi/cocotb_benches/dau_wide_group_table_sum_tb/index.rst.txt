@@ -1,0 +1,88 @@
+cocotb_benches.dau_wide_group_table_sum_tb
+==========================================
+
+.. py:module:: cocotb_benches.dau_wide_group_table_sum_tb
+
+.. autoapi-nested-parse::
+
+   Wide group-table sum: SLOTS whole quad rows per beat into a direct-indexed
+   table of per-group sums, golden-equal to ``group_table_sum_rows``. Pads are
+   neither summed nor counted; a group's rows merge wherever they fall in the
+   batch, including in the same beat and in consecutive beats; the table is
+   empty again for the next batch.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_wide_group_table_sum_tb._GROUP_BITS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cocotb_benches.dau_wide_group_table_sum_tb._golden_words
+   cocotb_benches.dau_wide_group_table_sum_tb._run
+   cocotb_benches.dau_wide_group_table_sum_tb._rows
+   cocotb_benches.dau_wide_group_table_sum_tb.sustained_ingest_meets_registry_floor
+   cocotb_benches.dau_wide_group_table_sum_tb.groups_merge_wherever_their_rows_fall
+   cocotb_benches.dau_wide_group_table_sum_tb.one_group_in_every_slot_of_consecutive_beats
+   cocotb_benches.dau_wide_group_table_sum_tb.the_group_code_comes_from_the_shifted_key
+   cocotb_benches.dau_wide_group_table_sum_tb.the_table_is_empty_for_the_next_batch
+   cocotb_benches.dau_wide_group_table_sum_tb.backpressured_records_drain_stably
+   cocotb_benches.dau_wide_group_table_sum_tb.an_all_pad_batch_emits_no_record
+   cocotb_benches.dau_wide_group_table_sum_tb.zero_mask_drains_and_reports_config_error
+
+
+Module Contents
+---------------
+
+.. py:data:: _GROUP_BITS
+   :value: 6
+
+
+.. py:function:: _golden_words(rows, *, field_mask: int, group_shift: int) -> list[int]
+
+.. py:function:: _run(dut, rows, *, field_mask: int, group_shift: int = 0, ready_pattern=(1, )) -> list[int]
+   :async:
+
+
+.. py:function:: _rows(rng: random.Random, count: int, *, groups: int, shift: int = 0) -> list[tuple[int, int, int, int]]
+
+.. py:function:: sustained_ingest_meets_registry_floor(dut)
+   :async:
+
+
+.. py:function:: groups_merge_wherever_their_rows_fall(dut)
+   :async:
+
+
+.. py:function:: one_group_in_every_slot_of_consecutive_beats(dut)
+   :async:
+
+
+.. py:function:: the_group_code_comes_from_the_shifted_key(dut)
+   :async:
+
+
+.. py:function:: the_table_is_empty_for_the_next_batch(dut)
+   :async:
+
+
+.. py:function:: backpressured_records_drain_stably(dut)
+   :async:
+
+
+.. py:function:: an_all_pad_batch_emits_no_record(dut)
+   :async:
+
+
+.. py:function:: zero_mask_drains_and_reports_config_error(dut)
+   :async:
+
+

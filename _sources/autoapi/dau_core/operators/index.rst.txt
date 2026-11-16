@@ -114,6 +114,7 @@ Functions
    dau_core.operators._signed_int64
    dau_core.operators.field_sum_rows
    dau_core.operators.grouped_field_sum_rows
+   dau_core.operators.group_table_sum_rows
    dau_core.operators.filter_rows_by_membership
    dau_core.operators.count_distinct_rows
    dau_core.operators.keyed_asof_join_rows
@@ -1135,6 +1136,18 @@ Module Contents
    the host, never in the tile (the partial-bar contract). ``field_mask``
    bit i selects field i; at least one field must be selected (a zero mask
    is an unconfigured tile and reports CONFIG on hardware).
+
+
+.. py:function:: group_table_sum_rows(rows: collections.abc.Iterable[tuple[int, int, int, int]], *, field_mask: int, group_shift: int, group_bits: int) -> list[GroupedFieldSumAggregate]
+
+   Golden semantics for the wide group-table sum tile: each row's group is
+   ``(key >> group_shift) & (2**group_bits - 1)`` over the key's unsigned
+   32 bits, and every group that received a row closes with INT64 sums of
+   the mask-selected fields and its row count, in ascending group order. The
+   record's key word is the group code. Unlike the ordered grouped tile,
+   rows of one group need not be adjacent: the table is direct-indexed, so a
+   group's rows merge wherever they fall in the batch. Rows are the batch's
+   real rows; the wide lane's all-ones pad never reaches this function.
 
 
 .. py:class:: MembershipKind
