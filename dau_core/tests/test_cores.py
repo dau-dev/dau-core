@@ -180,6 +180,7 @@ def test_every_selectable_operator_declares_its_ingest_rate() -> None:
         "wide-row-predicate-filter",
         "wide-row-map-alu",
         "wide-field-sum-aggregation",
+        "wide-group-table-sum",
         "record-gearbox",
     }
     # a rate that scales with a module parameter must name a declared one
@@ -414,6 +415,7 @@ CANONICAL_PALETTE: frozenset[str] = frozenset(
         "stride-distributor",
         "time-bucket-key",
         "wide-field-sum-aggregation",
+        "wide-group-table-sum",
         "wide-row-map-alu",
         "wide-row-predicate-filter",
     }
