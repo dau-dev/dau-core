@@ -49,6 +49,7 @@ Functions
    test_contributed_discovery.test_discovery_inside_an_existing_initialization_leaves_it_standing
    test_contributed_discovery.test_discovery_never_registers_anything
    test_contributed_discovery.test_an_unreadable_searchpath_does_not_take_down_composition
+   test_contributed_discovery.test_a_contributed_group_the_application_composed_is_kept
 
 
 Module Contents
@@ -144,5 +145,12 @@ Module Contents
 
    Discovery is best-effort. A directory hydra cannot read must cost the
    contributions, not the compose that would otherwise have worked.
+
+
+.. py:function:: test_a_contributed_group_the_application_composed_is_kept(contrib_dir) -> None
+
+   A CLI may compose the contributions from its own searchpath before
+   anything asks dau-core for a core. Loading dau-core's palette afterwards
+   must keep that group, not fail adding a second one.
 
 

@@ -41,6 +41,7 @@ Functions
    dau_core.registry._declared_names
    dau_core.registry.core
    dau_core.registry.loaded_cores
+   dau_core.registry.lowered_cores
    dau_core.registry.core_for_module
    dau_core.registry.cores_of_kind
    dau_core.registry.cores_of_role
@@ -129,6 +130,16 @@ Module Contents
    scope themselves by it rather than assuming every registered core is
    theirs. A name collision is raised rather than resolved, because
    silently preferring one definition is the failure this fixes.
+
+
+.. py:function:: lowered_cores() -> tuple[dau_core.cores.CoreDefinition, ...]
+
+   Every composed core that declares an ``ExpressionLowering``, dau-core's
+   own first, building only those.
+
+   A query compiler asks this on every capture, so it must not pay for the
+   whole palette: a pending entry's configuration is read without building
+   the model (building all of them is over half a second).
 
 
 .. py:function:: core_for_module(module: str) -> dau_core.cores.CoreDefinition

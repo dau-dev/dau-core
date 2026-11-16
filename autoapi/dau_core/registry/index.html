@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>dau_core.registry &#8212; dau core v0.6.0</title>
+    <title>dau_core.registry &#8212; dau core v0.7.0</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/fuma.css?v=ca04d621" />
     <link rel="stylesheet" type="text/css" href="../../../_static/fuma-code.css?v=a950e949" />
@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=6a604523" />
     <link rel="stylesheet" type="text/css" href="../../../_static/fonts/fuma-fonts.css?v=c2892c73" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/custom.css?v=88c24c6a" />
-    <script src="../../../_static/documentation_options.js?v=8fa8b3e9"></script>
+    <script src="../../../_static/documentation_options.js?v=fe7df9b0"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -49,7 +49,7 @@
   <div class="fd-subnav-inner">
     <button type="button" class="fd-icon-button fd-sidebar-toggle" aria-controls="fd-sidebar" aria-expanded="false" aria-label="Toggle navigation" title="Toggle navigation">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
-    </button><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau core v0.6.0</span>
+    </button><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau core v0.7.0</span>
 </a>
 
     <div class="fd-nav-actions">
@@ -64,7 +64,7 @@
 
 <aside id="fd-sidebar" aria-label="Documentation">
   <div class="fd-sidebar-header">
-    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau core v0.6.0</span>
+    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau core v0.7.0</span>
 </a>
       <button type="button" class="fd-icon-button fd-sidebar-collapse" aria-label="Collapse sidebar" title="Collapse sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
     </div>
@@ -858,6 +858,9 @@
     <a href="#dau_core.registry.loaded_cores">loaded_cores()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registry.lowered_cores">lowered_cores()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.registry.core_for_module">core_for_module()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -938,19 +941,22 @@ author who does not have this repository – see
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registry.loaded_cores" title="dau_core.registry.loaded_cores"><code class="xref py py-obj docutils literal notranslate"><span class="pre">loaded_cores</span></code></a>() → collections.abc.Mapping[str, dau_core.cores.CoreDefinition]</p></td>
 <td><p>Every composed core, name -&gt; definition, dau-core's own first.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registry.core_for_module" title="dau_core.registry.core_for_module"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_for_module</span></code></a>(module) → dau_core.cores.CoreDefinition</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registry.lowered_cores" title="dau_core.registry.lowered_cores"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lowered_cores</span></code></a>() → tuple[dau_core.cores.CoreDefinition, ...]</p></td>
+<td><p>Every composed core that declares an <code class="docutils literal notranslate"><span class="pre">ExpressionLowering</span></code>, dau-core's</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registry.core_for_module" title="dau_core.registry.core_for_module"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_for_module</span></code></a>(module) → dau_core.cores.CoreDefinition</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registry.cores_of_kind" title="dau_core.registry.cores_of_kind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cores_of_kind</span></code></a>(kind) → tuple[dau_core.cores.CoreDefinition, ...]</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registry.cores_of_kind" title="dau_core.registry.cores_of_kind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cores_of_kind</span></code></a>(kind) → tuple[dau_core.cores.CoreDefinition, ...]</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registry.cores_of_role" title="dau_core.registry.cores_of_role"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cores_of_role</span></code></a>(role) → tuple[dau_core.cores.CoreDefinition, ...]</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registry.cores_of_role" title="dau_core.registry.cores_of_role"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cores_of_role</span></code></a>(role) → tuple[dau_core.cores.CoreDefinition, ...]</p></td>
 <td><p>Every composed core declaring <code class="docutils literal notranslate"><span class="pre">role</span></code>, in registry order.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registry.core_of_role" title="dau_core.registry.core_of_role"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_of_role</span></code></a>(role) → dau_core.cores.CoreDefinition</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registry.core_of_role" title="dau_core.registry.core_of_role"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_of_role</span></code></a>(role) → dau_core.cores.CoreDefinition</p></td>
 <td><p>The one composed core declaring <code class="docutils literal notranslate"><span class="pre">role</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registry.sources_for" title="dau_core.registry.sources_for"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sources_for</span></code></a>(*names) → tuple[pathlib.Path, ...]</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registry.sources_for" title="dau_core.registry.sources_for"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sources_for</span></code></a>(*names) → tuple[pathlib.Path, ...]</p></td>
 <td><p>Dependency-closed, deduplicated source paths for a set of cores —</p></td>
 </tr>
 </tbody>
@@ -1031,6 +1037,16 @@ tells a foreign tile from one of ours, and dau-core’s own guards already
 scope themselves by it rather than assuming every registered core is
 theirs. A name collision is raised rather than resolved, because
 silently preferring one definition is the failure this fixes.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.registry.lowered_cores">
+<span class="sig-prename descclassname"><span class="pre">dau_core.registry.</span></span><span class="sig-name descname"><span class="pre">lowered_cores</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../cores/index.html#dau_core.cores.CoreDefinition" title="dau_core.cores.CoreDefinition"><span class="pre">dau_core.cores.CoreDefinition</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/registry.html#lowered_cores"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registry.lowered_cores" title="Link to this definition">¶</a></dt>
+<dd><p>Every composed core that declares an <code class="docutils literal notranslate"><span class="pre">ExpressionLowering</span></code>, dau-core’s
+own first, building only those.</p>
+<p>A query compiler asks this on every capture, so it must not pay for the
+whole palette: a pending entry’s configuration is read without building
+the model (building all of them is over half a second).</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1132,6 +1148,9 @@ packages and dependencies first, in registry order.</p>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.registry.loaded_cores">loaded_cores()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registry.lowered_cores">lowered_cores()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.registry.core_for_module">core_for_module()</a>

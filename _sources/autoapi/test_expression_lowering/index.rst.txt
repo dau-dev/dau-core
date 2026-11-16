@@ -5,12 +5,12 @@ test_expression_lowering
 
 .. autoapi-nested-parse::
 
-   A tile declares the polars expression it computes.
+   A tile declares the expression it computes, as a pattern over a fixed op
+   vocabulary, so a compiler can reach it.
 
-   A compiler reaches a contributed tile through this declaration, so it is
-   checked where the tile is declared: a lowering names a quad-row tile that
-   rewrites one field in place, and that tile's golden is the element function
-   the compiler runs on the host to answer the same query.
+   The declaration is checked where the tile is declared: ops are known and
+   take their own number of args, every placeholder is bound to one port, and
+   the tile is a quad-row tile with a golden element function.
 
 
 
@@ -20,6 +20,7 @@ Attributes
 .. autoapisummary::
 
    test_expression_lowering._CLIP
+   test_expression_lowering._DISCOUNTED_CLIP
    test_expression_lowering._TILE
 
 
@@ -28,10 +29,11 @@ Functions
 
 .. autoapisummary::
 
-   test_expression_lowering.test_a_composed_tile_carries_its_lowering
-   test_expression_lowering.test_a_lowering_needs_a_quad_row_tile
-   test_expression_lowering.test_a_lowering_needs_a_golden
-   test_expression_lowering.test_a_lowering_binds_each_port_once
+   test_expression_lowering.test_a_composed_tile_carries_its_lowering_and_is_found
+   test_expression_lowering.test_a_compound_pattern_names_its_columns_and_constants
+   test_expression_lowering.test_a_malformed_pattern_is_refused
+   test_expression_lowering.test_every_placeholder_is_bound_once
+   test_expression_lowering.test_a_lowering_needs_a_quad_row_tile_with_a_golden
 
 
 Module Contents
@@ -39,13 +41,17 @@ Module Contents
 
 .. py:data:: _CLIP
 
+.. py:data:: _DISCOUNTED_CLIP
+
 .. py:data:: _TILE
 
-.. py:function:: test_a_composed_tile_carries_its_lowering() -> None
+.. py:function:: test_a_composed_tile_carries_its_lowering_and_is_found() -> None
 
-.. py:function:: test_a_lowering_needs_a_quad_row_tile() -> None
+.. py:function:: test_a_compound_pattern_names_its_columns_and_constants() -> None
 
-.. py:function:: test_a_lowering_needs_a_golden() -> None
+.. py:function:: test_a_malformed_pattern_is_refused(pattern: dict, message: str) -> None
 
-.. py:function:: test_a_lowering_binds_each_port_once() -> None
+.. py:function:: test_every_placeholder_is_bound_once() -> None
+
+.. py:function:: test_a_lowering_needs_a_quad_row_tile_with_a_golden() -> None
 

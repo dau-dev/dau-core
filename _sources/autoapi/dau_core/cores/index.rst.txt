@@ -25,6 +25,7 @@ Attributes
 
 .. autoapisummary::
 
+   dau_core.cores._OP_ARITY
    dau_core.cores.HDL_CLOSURE_DIGEST_VERSION
    dau_core.cores._HDL_INCLUDE
 
@@ -55,6 +56,8 @@ Classes
    dau_core.cores.IngestRate
    dau_core.cores.ParameterSpec
    dau_core.cores.StorageIntent
+   dau_core.cores.ExpressionOp
+   dau_core.cores.ExpressionPattern
    dau_core.cores.ExpressionLowering
    dau_core.cores.CoreDefinition
 
@@ -688,28 +691,85 @@ Module Contents
 
 
 
-.. py:class:: ExpressionLowering(/, **data: Any)
+.. py:class:: ExpressionOp(*args, **kwds)
+
+   Bases: :py:obj:`enum.Enum`
+
+
+   The row expressions a tile can declare it computes.
+
+   The names are polars' Python API names (``clip_min`` and ``clip_max``
+   are its one-sided clips), and each has a fixed argument count. A query
+   compiler translates polars' plan into these, so an op a tile declares is
+   one some frontend produces, and a misspelled op fails when the tile is
+   declared rather than never matching.
+
+
+   .. py:attribute:: ADD
+      :value: 'add'
+
+
+
+   .. py:attribute:: SUB
+      :value: 'sub'
+
+
+
+   .. py:attribute:: MUL
+      :value: 'mul'
+
+
+
+   .. py:attribute:: FLOORDIV
+      :value: 'floordiv'
+
+
+
+   .. py:attribute:: NEG
+      :value: 'neg'
+
+
+
+   .. py:attribute:: ABS
+      :value: 'abs'
+
+
+
+   .. py:attribute:: CLIP
+      :value: 'clip'
+
+
+
+   .. py:attribute:: CLIP_MIN
+      :value: 'clip_min'
+
+
+
+   .. py:attribute:: CLIP_MAX
+      :value: 'clip_max'
+
+
+
+   .. py:property:: arity
+      :type: int
+
+
+
+.. py:data:: _OP_ARITY
+
+.. py:class:: ExpressionPattern(/, **data: Any)
 
    Bases: :py:obj:`dau_core.models.CheckedModel`
 
 
-   The polars expression a row tile computes, declared so a query
-   compiler can reach the tile without being changed for it.
+   One node of the expression a tile computes. Exactly one of:
 
-   The tile rewrites one field of each quad row in place,
-   ``row[dst] = golden(row[src], *scalars)``, where the core's ``golden``
-   is that element function and each scalar is a batch-latched config
-   port. ``function`` and ``options`` name the expression as polars
-   serializes it, with the column first and one literal per scalar port
-   after it: ``pl.col("a").clip(lo, hi)`` is ``Clip`` with
-   ``{"has_min": true, "has_max": true}``.
-
-   A compiler lowers the expression only when it can show the tile
-   computes what polars would. Every literal must encode exactly at the
-   column's fixed-point scale and fit the field. A column staged at a
-   nonzero scale also needs ``scale_invariant``, meaning
-   ``f(k*x, k*s...) == k*f(x, s...)`` for k > 0: true of clip, false of a
-   hash or a square.
+   * ``op`` with ``args``, an operation over sub-patterns;
+   * ``column``, a named placeholder that matches a column or any
+     sub-expression the compiler computes first;
+   * ``literal``, which is a named placeholder for a query literal when it
+     is a string, and a constant the query must contain exactly when it is
+     a number (the ``1`` in ``a * (1 - b)``).
 
    Create a new model by parsing and validating input data from keyword arguments.
 
@@ -719,26 +779,91 @@ Module Contents
    `self` is explicitly positional-only to allow `self` as a field name.
 
 
-   .. py:attribute:: function
-      :type:  str
+   .. py:attribute:: op
+      :type:  ExpressionOp | None
+      :value: None
 
 
-   .. py:attribute:: options
-      :type:  Annotated[collections.abc.Mapping[str, bool | int | str], *ReadOnly]
+
+   .. py:attribute:: args
+      :type:  tuple[ExpressionPattern, ...]
+      :value: ()
 
 
-   .. py:attribute:: source_port
-      :type:  str
+
+   .. py:attribute:: column
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:attribute:: literal
+      :type:  str | int | float | None
+      :value: None
+
+
+
+   .. py:method:: _one_kind() -> ExpressionPattern
+
+
+   .. py:method:: placeholders() -> tuple[str, ...]
+
+      Every named placeholder, in pattern order.
+
+
+
+   .. py:method:: columns() -> tuple[str, ...]
+
+      The column placeholders, in pattern order.
+
+
+
+   .. py:method:: size() -> int
+
+      Nodes in the pattern: a compiler tries larger patterns first.
+
+
+
+.. py:class:: ExpressionLowering(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   The expression a row tile computes, declared so a query compiler can
+   reach the tile without being changed for it.
+
+   The tile writes one field of each quad row, ``row[dst] = golden(**args)``,
+   where the core's ``golden`` is the element function, called with each
+   placeholder by name: a column placeholder's field value, or a literal
+   placeholder's encoded value. ``bind`` names the config port each
+   placeholder is wired to: a field select for a column, a value for a
+   literal. Every placeholder is bound exactly once, and no port twice.
+
+   A compiler lowers an expression only when it can show the tile computes
+   what polars would. Every bound column must hold values (not dictionary
+   codes) at one shared fixed-point scale, and every literal must encode
+   exactly at that scale within the field. A nonzero scale also needs
+   ``scale_invariant``, meaning ``f(k*x, k*s...) == k*f(x, s...)`` for
+   k > 0: true of clip, false of a product or a hash.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: pattern
+      :type:  ExpressionPattern
+
+
+   .. py:attribute:: bind
+      :type:  Annotated[collections.abc.Mapping[str, str], *ReadOnly]
 
 
    .. py:attribute:: destination_port
       :type:  str
-
-
-   .. py:attribute:: scalar_ports
-      :type:  tuple[str, ...]
-      :value: ()
-
 
 
    .. py:attribute:: scale_invariant
@@ -747,7 +872,7 @@ Module Contents
 
 
 
-   .. py:method:: _ports_distinct() -> ExpressionLowering
+   .. py:method:: _bound_once() -> ExpressionLowering
 
 
 .. py:function:: _same_clock(a: float, b: float) -> bool
