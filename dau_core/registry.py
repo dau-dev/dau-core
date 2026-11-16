@@ -20,6 +20,8 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from ccflow import LazyRegistry
+
 from .cores import CoreDefinition, CoreKind, CoreRole
 
 if TYPE_CHECKING:
@@ -143,6 +145,25 @@ def loaded_cores() -> Mapping[str, CoreDefinition]:
                 )
             cores[name] = model
     return cores
+
+
+def lowered_cores() -> tuple[CoreDefinition, ...]:
+    """Every composed core that declares an ``ExpressionLowering``, dau-core's
+    own first, building only those.
+
+    A query compiler asks this on every capture, so it must not pay for the
+    whole palette: a pending entry's configuration is read without building
+    the model (building all of them is over half a second)."""
+    found: list[CoreDefinition] = []
+    for _group_name, group in _groups():
+        for name in _declared_names(group):
+            pending = group.get_pending_config(name) if isinstance(group, LazyRegistry) else None
+            if pending is not None and pending.get("lowering") is None:
+                continue
+            model = _entry(group, name)
+            if model is not None and model.lowering is not None:
+                found.append(model)
+    return tuple(found)
 
 
 def core_for_module(module: str) -> CoreDefinition:

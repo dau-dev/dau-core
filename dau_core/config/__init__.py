@@ -151,5 +151,10 @@ def load_config(
     composed = LazyRegistry()
     composed.load_config(cfg=result.cfg, overwrite=True)
     for name, group in composed.models.items():
+        if not overwrite and name in registry.models:
+            # the application composed this group itself (a CLI that
+            # discovered the contributions on its own searchpath): its
+            # composition is the source of truth, as for /dau-core
+            continue
         registry.add(name, group, overwrite=overwrite)
     return registry

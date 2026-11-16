@@ -407,38 +407,125 @@ class StorageIntent(CheckedModel):
     tier_hint: str | None = None
 
 
-class ExpressionLowering(CheckedModel):
-    """The polars expression a row tile computes, declared so a query
-    compiler can reach the tile without being changed for it.
+class ExpressionOp(Enum):
+    """The row expressions a tile can declare it computes.
 
-    The tile rewrites one field of each quad row in place,
-    ``row[dst] = golden(row[src], *scalars)``, where the core's ``golden``
-    is that element function and each scalar is a batch-latched config
-    port. ``function`` and ``options`` name the expression as polars
-    serializes it, with the column first and one literal per scalar port
-    after it: ``pl.col("a").clip(lo, hi)`` is ``Clip`` with
-    ``{"has_min": true, "has_max": true}``.
+    The names are polars' Python API names (``clip_min`` and ``clip_max``
+    are its one-sided clips), and each has a fixed argument count. A query
+    compiler translates polars' plan into these, so an op a tile declares is
+    one some frontend produces, and a misspelled op fails when the tile is
+    declared rather than never matching."""
 
-    A compiler lowers the expression only when it can show the tile
-    computes what polars would. Every literal must encode exactly at the
-    column's fixed-point scale and fit the field. A column staged at a
-    nonzero scale also needs ``scale_invariant``, meaning
-    ``f(k*x, k*s...) == k*f(x, s...)`` for k > 0: true of clip, false of a
-    hash or a square.
+    ADD = "add"
+    SUB = "sub"
+    MUL = "mul"
+    FLOORDIV = "floordiv"
+    NEG = "neg"
+    ABS = "abs"
+    CLIP = "clip"
+    CLIP_MIN = "clip_min"
+    CLIP_MAX = "clip_max"
+
+    @property
+    def arity(self) -> int:
+        return _OP_ARITY[self]
+
+
+_OP_ARITY = {
+    ExpressionOp.ADD: 2,
+    ExpressionOp.SUB: 2,
+    ExpressionOp.MUL: 2,
+    ExpressionOp.FLOORDIV: 2,
+    ExpressionOp.NEG: 1,
+    ExpressionOp.ABS: 1,
+    ExpressionOp.CLIP: 3,
+    ExpressionOp.CLIP_MIN: 2,
+    ExpressionOp.CLIP_MAX: 2,
+}
+
+
+class ExpressionPattern(CheckedModel):
+    """One node of the expression a tile computes. Exactly one of:
+
+    * ``op`` with ``args``, an operation over sub-patterns;
+    * ``column``, a named placeholder that matches a column or any
+      sub-expression the compiler computes first;
+    * ``literal``, which is a named placeholder for a query literal when it
+      is a string, and a constant the query must contain exactly when it is
+      a number (the ``1`` in ``a * (1 - b)``).
     """
 
-    function: str = Field(min_length=1)
-    options: Annotated[Mapping[str, bool | int | str], *ReadOnly] = Field(default_factory=FrozenMapping)
-    source_port: str = Field(min_length=1)
+    op: ExpressionOp | None = None
+    args: tuple[ExpressionPattern, ...] = ()
+    column: str | None = None
+    literal: str | int | float | None = None
+
+    @model_validator(mode="after")
+    def _one_kind(self) -> ExpressionPattern:
+        kinds = [kind for kind, value in (("op", self.op), ("column", self.column), ("literal", self.literal)) if value is not None]
+        if len(kinds) != 1:
+            raise ValueError(f"a pattern node is exactly one of op, column or literal, got {kinds or 'none'}")
+        if self.op is None and self.args:
+            raise ValueError(f"a {kinds[0]} node takes no args")
+        if self.op is not None and len(self.args) != self.op.arity:
+            raise ValueError(f"{self.op.value} takes {self.op.arity} args, got {len(self.args)}")
+        return self
+
+    def placeholders(self) -> tuple[str, ...]:
+        """Every named placeholder, in pattern order."""
+        if self.column is not None:
+            return (self.column,)
+        if isinstance(self.literal, str):
+            return (self.literal,)
+        return tuple(name for arg in self.args for name in arg.placeholders())
+
+    def columns(self) -> tuple[str, ...]:
+        """The column placeholders, in pattern order."""
+        if self.column is not None:
+            return (self.column,)
+        return tuple(name for arg in self.args for name in arg.columns())
+
+    def size(self) -> int:
+        """Nodes in the pattern: a compiler tries larger patterns first."""
+        return 1 + sum(arg.size() for arg in self.args)
+
+
+class ExpressionLowering(CheckedModel):
+    """The expression a row tile computes, declared so a query compiler can
+    reach the tile without being changed for it.
+
+    The tile writes one field of each quad row, ``row[dst] = golden(**args)``,
+    where the core's ``golden`` is the element function, called with each
+    placeholder by name: a column placeholder's field value, or a literal
+    placeholder's encoded value. ``bind`` names the config port each
+    placeholder is wired to: a field select for a column, a value for a
+    literal. Every placeholder is bound exactly once, and no port twice.
+
+    A compiler lowers an expression only when it can show the tile computes
+    what polars would. Every bound column must hold values (not dictionary
+    codes) at one shared fixed-point scale, and every literal must encode
+    exactly at that scale within the field. A nonzero scale also needs
+    ``scale_invariant``, meaning ``f(k*x, k*s...) == k*f(x, s...)`` for
+    k > 0: true of clip, false of a product or a hash.
+    """
+
+    pattern: ExpressionPattern
+    bind: Annotated[Mapping[str, str], *ReadOnly]
     destination_port: str = Field(min_length=1)
-    scalar_ports: tuple[str, ...] = ()
     scale_invariant: bool = False
 
     @model_validator(mode="after")
-    def _ports_distinct(self) -> ExpressionLowering:
-        ports = (self.source_port, self.destination_port, *self.scalar_ports)
+    def _bound_once(self) -> ExpressionLowering:
+        placeholders = self.pattern.placeholders()
+        if len(set(placeholders)) != len(placeholders):
+            raise ValueError(f"a placeholder appears twice in the pattern: {placeholders!r}")
+        if not self.pattern.columns():
+            raise ValueError("a pattern needs at least one column placeholder")
+        if set(self.bind) != set(placeholders):
+            raise ValueError(f"bind must name every placeholder exactly: pattern has {sorted(placeholders)}, bind has {sorted(self.bind)}")
+        ports = (*self.bind.values(), self.destination_port)
         if len(set(ports)) != len(ports):
-            raise ValueError(f"lowering of {self.function!r} binds a config port twice: {ports!r}")
+            raise ValueError(f"a config port is bound twice: {ports!r}")
         return self
 
 
