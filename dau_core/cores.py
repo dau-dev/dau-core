@@ -733,9 +733,18 @@ class CoreDefinition(CheckedModel):
             if name is not None and name not in self.parameters:
                 raise ValueError(f"core {self.name!r} {role} follows undeclared parameter {name!r}")
         if self.lowering is not None:
-            if self.contract_kind != ContractKind.ROW_STREAM or self.record_words != 2:
+            try:
+                aggregate = self.lowering.is_aggregate()
+            except ImportError:
+                # text without polars installed: the compiler checks the shape
+                aggregate = None
+            if aggregate is False and (self.contract_kind != ContractKind.ROW_STREAM or self.record_words != 2):
                 raise ValueError(
                     f"core {self.name!r} declares a lowering, which rewrites a quad row in place; it must be a row-stream tile of 2 words"
+                )
+            if aggregate and self.contract_kind not in (ContractKind.ROW_STREAM, ContractKind.WIDE_ROW_STREAM):
+                raise ValueError(
+                    f"core {self.name!r} declares an aggregation, which terminates a lane; it must be a row-stream or wide-row-stream tile"
                 )
             if self.golden is None:
                 raise ValueError(f"core {self.name!r} declares a lowering but no golden element function")

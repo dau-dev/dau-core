@@ -128,3 +128,10 @@ def test_a_terminal_and_a_row_stage_are_not_confused() -> None:
         ExpressionLowering.model_validate({**_CLIP, "bind": {"value": "cfg_src_field", "lower": {"field": "cfg_lower"}, "upper": "cfg_upper"}})
     with pytest.raises(ValueError, match="config port is bound twice"):
         ExpressionLowering.model_validate({**_DISTINCT, "group": {"shift": "cfg_value_shift"}})
+
+
+def test_an_aggregating_tile_may_terminate_a_wide_lane() -> None:
+    wide = {**_TILE, "contract_kind": "wide-row-stream", "lowering": _DISTINCT}
+    assert CoreDefinition.model_validate(wide).lowering is not None
+    with pytest.raises(ValueError, match="row-stream tile of 2 words"):
+        CoreDefinition.model_validate({**wide, "lowering": _CLIP})
