@@ -96,3 +96,35 @@ def test_a_lowering_needs_a_quad_row_tile_with_a_golden() -> None:
         CoreDefinition.model_validate({**_TILE, "record_words": 1, "lowering": _CLIP})
     with pytest.raises(ValueError, match="no golden element function"):
         CoreDefinition.model_validate({**_TILE, "golden": None, "lowering": _CLIP})
+
+
+_DISTINCT = {
+    "expression": 'pl.col("value").n_unique()',
+    "bind": {"value": {"field": "cfg_value_field", "shift": "cfg_value_shift", "width": "VALUE_BITS"}},
+    "group": {"shift": "cfg_group_shift", "width": "GROUP_BITS"},
+}
+
+
+def test_an_aggregation_declares_a_lane_terminal_reading_packed_columns() -> None:
+    lowering = ExpressionLowering.model_validate(_DISTINCT)
+    assert lowering.is_aggregate()
+    assert lowering.columns() == ("value",)
+    value = lowering.binding("value")
+    assert (value.field, value.shift, value.width) == ("cfg_value_field", "cfg_value_shift", "VALUE_BITS")
+    # a plain field binding reads as one too
+    assert ExpressionLowering.model_validate(_CLIP).binding("value").field == "cfg_src_field"
+
+
+def test_a_terminal_and_a_row_stage_are_not_confused() -> None:
+    with pytest.raises(ValueError, match="aggregation is a lane terminal"):
+        ExpressionLowering.model_validate({**_DISTINCT, "group": None})
+    with pytest.raises(ValueError, match="aggregation is a lane terminal"):
+        ExpressionLowering.model_validate({**_DISTINCT, "destination_port": "cfg_dst_field"})
+    with pytest.raises(ValueError, match="row expression writes destination_port"):
+        ExpressionLowering.model_validate({**_CLIP, "group": {"shift": "cfg_group_shift"}})
+    with pytest.raises(ValueError, match="names no field port"):
+        ExpressionLowering.model_validate({**_DISTINCT, "bind": {"value": {"shift": "cfg_value_shift"}}})
+    with pytest.raises(ValueError, match="binds to one value port"):
+        ExpressionLowering.model_validate({**_CLIP, "bind": {"value": "cfg_src_field", "lower": {"field": "cfg_lower"}, "upper": "cfg_upper"}})
+    with pytest.raises(ValueError, match="config port is bound twice"):
+        ExpressionLowering.model_validate({**_DISTINCT, "group": {"shift": "cfg_value_shift"}})
