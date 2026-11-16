@@ -22,6 +22,7 @@ Attributes
 
    test_expression_lowering._CLIP
    test_expression_lowering._TILE
+   test_expression_lowering._DISTINCT
 
 
 Functions
@@ -34,6 +35,9 @@ Functions
    test_expression_lowering.test_a_compound_expression_names_its_columns_and_constants
    test_expression_lowering.test_a_malformed_declaration_is_refused
    test_expression_lowering.test_a_lowering_needs_a_quad_row_tile_with_a_golden
+   test_expression_lowering.test_an_aggregation_declares_a_lane_terminal_reading_packed_columns
+   test_expression_lowering.test_a_terminal_and_a_row_stage_are_not_confused
+   test_expression_lowering.test_an_aggregating_tile_may_terminate_a_wide_lane
 
 
 Module Contents
@@ -52,4 +56,12 @@ Module Contents
 .. py:function:: test_a_malformed_declaration_is_refused() -> None
 
 .. py:function:: test_a_lowering_needs_a_quad_row_tile_with_a_golden() -> None
+
+.. py:data:: _DISTINCT
+
+.. py:function:: test_an_aggregation_declares_a_lane_terminal_reading_packed_columns() -> None
+
+.. py:function:: test_a_terminal_and_a_row_stage_are_not_confused() -> None
+
+.. py:function:: test_an_aggregating_tile_may_terminate_a_wide_lane() -> None
 

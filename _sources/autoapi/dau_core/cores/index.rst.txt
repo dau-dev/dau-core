@@ -55,6 +55,7 @@ Classes
    dau_core.cores.IngestRate
    dau_core.cores.ParameterSpec
    dau_core.cores.StorageIntent
+   dau_core.cores.ColumnBinding
    dau_core.cores.ExpressionLowering
    dau_core.cores.CoreDefinition
 
@@ -697,6 +698,46 @@ Module Contents
 
 .. py:function:: _json_size(node: Any) -> int
 
+.. py:class:: ColumnBinding(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   Where a tile reads a column: the config port selecting its quad-row
+   field and, for a column packed into a field with others (a key
+   component), the config port taking its bit offset and the module
+   parameter fixing its width. The group code of an aggregate is read the
+   same way; its field is the key's, so it names no field port.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: field
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:attribute:: shift
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:attribute:: width
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:method:: ports() -> tuple[str, ...]
+
+
 .. py:class:: ExpressionLowering(/, **data: Any)
 
    Bases: :py:obj:`dau_core.models.CheckedModel`
@@ -717,10 +758,16 @@ Module Contents
    ``literals`` matches a literal in the query, any other placeholder
    matches a column or a sub-expression the compiler computes first, and
    every other node must be the same. ``bind`` names the config port each
-   placeholder is wired to: a field select for a column, a value for a
-   literal. The tile writes ``destination_port``'s field of each quad row,
-   ``row[dst] = golden(**args)``, the core's ``golden`` called with the
-   placeholders by name.
+   placeholder is wired to: a value port for a literal, and for a column a
+   field select, or a :class:`ColumnBinding` for a column packed with
+   others into one field.
+
+   A row expression is computed in place: the tile writes
+   ``destination_port``'s field of each quad row, ``row[dst] =
+   golden(**args)``, the core's ``golden`` called with the placeholders by
+   name. An aggregation (``pl.col("value").n_unique()``) makes the tile a
+   lane terminal: it reduces each group's rows, reading the group code
+   where ``group`` says, and emits one record per group.
 
    A compiler lowers the expression only when it can show the tile computes
    what polars would. Every bound column must hold values (not dictionary
@@ -748,11 +795,19 @@ Module Contents
 
 
    .. py:attribute:: bind
-      :type:  Annotated[collections.abc.Mapping[str, str], *ReadOnly]
+      :type:  Annotated[collections.abc.Mapping[str, str | ColumnBinding], *ReadOnly]
 
 
    .. py:attribute:: destination_port
-      :type:  str
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:attribute:: group
+      :type:  ColumnBinding | None
+      :value: None
+
 
 
    .. py:attribute:: scale_invariant
@@ -788,6 +843,19 @@ Module Contents
    .. py:method:: size() -> int
 
       Nodes in the expression: a compiler tries larger patterns first.
+
+
+
+   .. py:method:: is_aggregate() -> bool
+
+      Whether the expression is an aggregation, which makes the tile a
+      lane terminal rather than a stage that rewrites a field.
+
+
+
+   .. py:method:: binding(placeholder: str) -> ColumnBinding
+
+      Where the tile reads a column placeholder.
 
 
 

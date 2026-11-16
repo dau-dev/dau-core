@@ -862,6 +862,18 @@
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_expression_lowering.test_a_lowering_needs_a_quad_row_tile_with_a_golden">test_a_lowering_needs_a_quad_row_tile_with_a_golden()</a>
   </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_expression_lowering._DISTINCT">_DISTINCT</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_expression_lowering.test_an_aggregation_declares_a_lane_terminal_reading_packed_columns">test_an_aggregation_declares_a_lane_terminal_reading_packed_columns()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_expression_lowering.test_a_terminal_and_a_row_stage_are_not_confused">test_a_terminal_and_a_row_stage_are_not_confused()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_expression_lowering.test_an_aggregating_tile_may_terminate_a_wide_lane">test_an_aggregating_tile_may_terminate_a_wide_lane()</a>
+  </li>
 </ul>
 </div>
   </div>
@@ -896,6 +908,9 @@ quad-row tile with a golden element function.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#test_expression_lowering._TILE" title="test_expression_lowering._TILE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_TILE</span></code></a></p></td>
 <td><p></p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_expression_lowering._DISTINCT" title="test_expression_lowering._DISTINCT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_DISTINCT</span></code></a></p></td>
+<td><p></p></td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -916,6 +931,15 @@ quad-row tile with a golden element function.</p>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_expression_lowering.test_a_lowering_needs_a_quad_row_tile_with_a_golden" title="test_expression_lowering.test_a_lowering_needs_a_quad_row_tile_with_a_golden"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_lowering_needs_a_quad_row_tile_with_a_golden</span></code></a>() → None</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_expression_lowering.test_an_aggregation_declares_a_lane_terminal_reading_packed_columns" title="test_expression_lowering.test_an_aggregation_declares_a_lane_terminal_reading_packed_columns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_an_aggregation_declares_a_lane_terminal_reading_packed_columns</span></code></a>() → None</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_expression_lowering.test_a_terminal_and_a_row_stage_are_not_confused" title="test_expression_lowering.test_a_terminal_and_a_row_stage_are_not_confused"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_terminal_and_a_row_stage_are_not_confused</span></code></a>() → None</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_expression_lowering.test_an_aggregating_tile_may_terminate_a_wide_lane" title="test_expression_lowering.test_an_aggregating_tile_may_terminate_a_wide_lane"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_an_aggregating_tile_may_terminate_a_wide_lane</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -956,6 +980,26 @@ quad-row tile with a golden element function.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="test_expression_lowering.test_a_lowering_needs_a_quad_row_tile_with_a_golden">
 <span class="sig-prename descclassname"><span class="pre">test_expression_lowering.</span></span><span class="sig-name descname"><span class="pre">test_a_lowering_needs_a_quad_row_tile_with_a_golden</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_expression_lowering.test_a_lowering_needs_a_quad_row_tile_with_a_golden" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="test_expression_lowering._DISTINCT">
+<span class="sig-prename descclassname"><span class="pre">test_expression_lowering.</span></span><span class="sig-name descname"><span class="pre">_DISTINCT</span></span><a class="headerlink" href="#test_expression_lowering._DISTINCT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_expression_lowering.test_an_aggregation_declares_a_lane_terminal_reading_packed_columns">
+<span class="sig-prename descclassname"><span class="pre">test_expression_lowering.</span></span><span class="sig-name descname"><span class="pre">test_an_aggregation_declares_a_lane_terminal_reading_packed_columns</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_expression_lowering.test_an_aggregation_declares_a_lane_terminal_reading_packed_columns" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_expression_lowering.test_a_terminal_and_a_row_stage_are_not_confused">
+<span class="sig-prename descclassname"><span class="pre">test_expression_lowering.</span></span><span class="sig-name descname"><span class="pre">test_a_terminal_and_a_row_stage_are_not_confused</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_expression_lowering.test_a_terminal_and_a_row_stage_are_not_confused" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_expression_lowering.test_an_aggregating_tile_may_terminate_a_wide_lane">
+<span class="sig-prename descclassname"><span class="pre">test_expression_lowering.</span></span><span class="sig-name descname"><span class="pre">test_an_aggregating_tile_may_terminate_a_wide_lane</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_expression_lowering.test_an_aggregating_tile_may_terminate_a_wide_lane" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </section>
@@ -1023,6 +1067,18 @@ quad-row tile with a golden element function.</p>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_expression_lowering.test_a_lowering_needs_a_quad_row_tile_with_a_golden">test_a_lowering_needs_a_quad_row_tile_with_a_golden()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_expression_lowering._DISTINCT">_DISTINCT</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_expression_lowering.test_an_aggregation_declares_a_lane_terminal_reading_packed_columns">test_an_aggregation_declares_a_lane_terminal_reading_packed_columns()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_expression_lowering.test_a_terminal_and_a_row_stage_are_not_confused">test_a_terminal_and_a_row_stage_are_not_confused()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_expression_lowering.test_an_aggregating_tile_may_terminate_a_wide_lane">test_an_aggregating_tile_may_terminate_a_wide_lane()</a>
   </li>
 </ul>
 
