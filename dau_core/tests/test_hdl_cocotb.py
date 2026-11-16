@@ -56,6 +56,7 @@ from dau_core.hdl import (
     DAU_STRIDE_DISTRIBUTOR_SV,
     DAU_TIME_BUCKET_KEY_SV,
     DAU_WIDE_FIELD_SUM_AGGREGATION_SV,
+    DAU_WIDE_GROUP_TABLE_SUM_SV,
     DAU_WIDE_ROW_MAP_ALU_SV,
     DAU_WIDE_ROW_PREDICATE_FILTER_SV,
 )
@@ -782,6 +783,18 @@ def test_wide_field_sum_aggregation_runs_real_cocotb_against_systemverilog(tmp_p
         sources=(Path(str(DAU_WIDE_FIELD_SUM_AGGREGATION_SV)),),
         hdl_toplevel="dau_wide_field_sum_aggregation",
         test_module=f"{_COCOTB_BENCH_PREFIX}.dau_wide_field_sum_aggregation_tb",
+        tmp_path=tmp_path,
+        parameters={"SLOTS": slots},
+    )
+
+
+@pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
+@pytest.mark.parametrize("slots", [1, 2, 4, 8])
+def test_wide_group_table_sum_runs_real_cocotb_against_systemverilog(tmp_path: Path, slots: int) -> None:
+    _run_cocotb_verilator(
+        sources=(Path(str(DAU_WIDE_GROUP_TABLE_SUM_SV)),),
+        hdl_toplevel="dau_wide_group_table_sum",
+        test_module=f"{_COCOTB_BENCH_PREFIX}.dau_wide_group_table_sum_tb",
         tmp_path=tmp_path,
         parameters={"SLOTS": slots},
     )

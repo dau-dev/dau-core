@@ -44,6 +44,7 @@ DAU_ROW_MAP_ALU_SV = files(__name__).joinpath("dau_row_map_alu.sv")
 DAU_FIELD_SUM_AGGREGATION_SV = files(__name__).joinpath("dau_field_sum_aggregation.sv")
 DAU_GROUPED_FIELD_SUM_AGGREGATION_SV = files(__name__).joinpath("dau_grouped_field_sum_aggregation.sv")
 DAU_WIDE_FIELD_SUM_AGGREGATION_SV = files(__name__).joinpath("dau_wide_field_sum_aggregation.sv")
+DAU_WIDE_GROUP_TABLE_SUM_SV = files(__name__).joinpath("dau_wide_group_table_sum.sv")
 DAU_RECORD_GEARBOX_SV = files(__name__).joinpath("dau_record_gearbox.sv")
 DAU_WIDE_ROW_MAP_ALU_SV = files(__name__).joinpath("dau_wide_row_map_alu.sv")
 DAU_WIDE_ROW_PREDICATE_FILTER_SV = files(__name__).joinpath("dau_wide_row_predicate_filter.sv")
@@ -118,6 +119,7 @@ __all__ = (
     "DAU_TIME_BUCKET_KEY_SV",
     "DAU_TYPES_SVH",
     "DAU_WIDE_FIELD_SUM_AGGREGATION_SV",
+    "DAU_WIDE_GROUP_TABLE_SUM_SV",
     "DAU_WIDE_ROW_MAP_ALU_SV",
     "DAU_WIDE_ROW_PREDICATE_FILTER_SV",
 )

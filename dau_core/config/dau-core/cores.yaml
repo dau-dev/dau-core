@@ -4106,6 +4106,81 @@ wide-row-map-alu:
       minimum: 1
       maximum: 8
 
+wide-group-table-sum:
+  _target_: dau_core.cores.CoreDefinition
+  name: wide-group-table-sum
+  kind: operator
+  module: dau_wide_group_table_sum
+  source: dau_wide_group_table_sum.sv
+  description: 'Wide-lane grouped field sums over a direct-indexed group table: SLOTS whole quad rows per beat, one
+    beat per cycle; a row''s group is (key >> cfg_group_shift) masked to GROUP_BITS; each slot accumulates into its
+    own bank of INT64 sums and a count, so rows of one group may fall anywhere in the batch; at close one record per
+    occupied group in ascending group order (group code, the cfg_field_mask-selected sums, count). Pads are neither
+    summed nor counted.'
+  golden: dau_core.operators:group_table_sum_rows
+  bench: dau_core.tests.cocotb_benches.dau_wide_group_table_sum_tb
+  # Measured 2026-11-15 via dau-build task=tasks/build/synthesize-cores at the
+  # defaults (SLOTS 4, GROUP_BITS 6), with each bank's words in single-port
+  # distributed RAM. The first version, one array written from three
+  # places, synthesized as registers: 48,269 LUTs and 83,929 flops.
+  measured_from: 1:961d942bfe3fc6cd0122339c804a6f498dc77808bba5fd0b064bdbd9bfa2707d
+  resources:
+    - part: xc7a200tfbg484-2
+      clock_ns: 8.0
+      params: {SLOTS: 4, GROUP_BITS: 6}
+      lut: 5655
+      ff: 1745
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 1.55
+    - part: xc7a200tfbg484-2
+      clock_ns: 10.0
+      params: {SLOTS: 4, GROUP_BITS: 6}
+      lut: 5655
+      ff: 1745
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.55
+    - part: xc7k325tffg900-2
+      clock_ns: 6.66667
+      params: {SLOTS: 4, GROUP_BITS: 6}
+      lut: 5655
+      ff: 1745
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 2.223
+    - part: xc7k325tffg900-2
+      clock_ns: 8.0
+      params: {SLOTS: 4, GROUP_BITS: 6}
+      lut: 5655
+      ff: 1745
+      bram36: 0.0
+      dsp: 0
+      timing: met
+      wns_ns: 3.556
+  count_port: aggregated_count
+  contract_kind: wide-row-stream
+  record_words: 2
+  output_record_words_variable: true
+  ingest:
+    rows: 1
+    per_cycles: 1
+    scales_with_param: SLOTS
+  parameters:
+    SLOTS:
+      default: 4
+      choices: [1, 2, 4, 8]
+    GROUP_BITS:
+      # the table holds 2**GROUP_BITS groups per slot bank
+      default: 6
+      minimum: 1
+      maximum: 10
+  unit_kind: aggregation
+  success_close_out: true
+
 wide-field-sum-aggregation:
   _target_: dau_core.cores.CoreDefinition
   name: wide-field-sum-aggregation

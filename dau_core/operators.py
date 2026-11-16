@@ -743,6 +743,34 @@ def grouped_field_sum_rows(rows: Iterable[tuple[int, int, int, int]], *, field_m
     return results
 
 
+def group_table_sum_rows(
+    rows: Iterable[tuple[int, int, int, int]], *, field_mask: int, group_shift: int, group_bits: int
+) -> list[GroupedFieldSumAggregate]:
+    """Golden semantics for the wide group-table sum tile: each row's group is
+    ``(key >> group_shift) & (2**group_bits - 1)`` over the key's unsigned
+    32 bits, and every group that received a row closes with INT64 sums of
+    the mask-selected fields and its row count, in ascending group order. The
+    record's key word is the group code. Unlike the ordered grouped tile,
+    rows of one group need not be adjacent: the table is direct-indexed, so a
+    group's rows merge wherever they fall in the batch. Rows are the batch's
+    real rows; the wide lane's all-ones pad never reaches this function."""
+    if not 1 <= field_mask <= 15:
+        raise ValueError("field_mask must select at least one of the four fields")
+    if not 0 <= group_shift <= 31 or not 1 <= group_bits <= 10:
+        raise ValueError("group_shift must lie in [0, 31] and group_bits in [1, 10]")
+    selected = [i for i in range(4) if field_mask & (1 << i)]
+    table: dict[int, list[int]] = {}
+    for row in rows:
+        group = ((row[0] & 0xFFFF_FFFF) >> group_shift) & ((1 << group_bits) - 1)
+        entry = table.setdefault(group, [0] * (len(selected) + 1))
+        for slot, field in enumerate(selected):
+            entry[slot] += _wrap_int32(row[field])
+        entry[-1] += 1
+    return [
+        GroupedFieldSumAggregate(key=group, field_mask=field_mask, sums=tuple(entry[:-1]), count=entry[-1]) for group, entry in sorted(table.items())
+    ]
+
+
 class MembershipKind(IntEnum):
     """Membership-structure kind for the key-set membership filter tile. Zero
     is reserved so an unconfigured tile fails explicitly. v0 implements only
