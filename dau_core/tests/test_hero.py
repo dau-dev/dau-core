@@ -110,8 +110,31 @@ def test_int64_accumulator_roll_values_are_rejected() -> None:
 
 
 def test_window_below_two_is_rejected() -> None:
-    with pytest.raises(ValueError, match="WINDOW >= 2"):
+    with pytest.raises(ValueError, match="roll_window must be >= 2"):
         _run(bar_width=8, roll_window=1)
+
+
+def test_hero_workflow_validates_its_roll_fields_at_construction() -> None:
+    """An unknown ``roll_value`` or a window below the tile's minimum used to
+    pass construction and fail only when the workflow ran."""
+    from pydantic import ValidationError
+
+    from dau_core.workflows import HeroWorkflow
+
+    with pytest.raises(ValidationError, match="roll_value"):
+        HeroWorkflow.model_validate({"bar_width": 8, "roll_window": 3, "roll_value": "volume"})
+    with pytest.raises(ValidationError, match="roll_window must be >= 2"):
+        HeroWorkflow(bar_width=8, roll_window=1)
+
+
+def test_record_widths_are_the_registry_record_words() -> None:
+    from dau_core import hero
+    from dau_core.registry import core
+
+    asof, bar, roll = core("asof-backward"), core("bar-aggregation"), core("rolling-moments")
+    assert (asof.record_words, asof.output_record_words, bar.output_record_words, roll.record_words, roll.output_record_words) == (3, 4, 6, 1, 3)
+    assert (hero.INPUT_BYTES, hero.MARKET_BYTES, hero.BAR_BYTES, hero.ROLL_INPUT_BYTES, hero.ROLL_BYTES) == (24, 32, 48, 8, 24)
+    assert hero.ROLL_WINDOW_MINIMUM == roll.parameters["WINDOW"].minimum
 
 
 def test_estimate_rejects_invalid_physical_parameters() -> None:

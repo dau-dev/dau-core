@@ -14,7 +14,7 @@ from typing import ClassVar
 
 from ccflow import CallableModel, Flow, GenericContext
 
-from .hero import HeroResult, run_hero_workflow
+from .hero import ROLL_WINDOW_MINIMUM, HeroResult, RollField, run_hero_workflow
 from .models import CheckedMixin
 from .temporal import MarketStream
 
@@ -30,13 +30,14 @@ class HeroWorkflow(CheckedMixin, CallableModel):
     bar_width: int
     roll_window: int
     tolerance: int | None = None
-    roll_value: str = "close"
+    roll_value: RollField = "close"
 
-    def model_post_init(self, _context: object) -> None:
+    def model_post_init(self, context: object) -> None:
+        super().model_post_init(context)
         if self.bar_width <= 0:
             raise ValueError(f"bar_width must be positive, got {self.bar_width}")
-        if self.roll_window <= 0:
-            raise ValueError(f"roll_window must be positive, got {self.roll_window}")
+        if self.roll_window < ROLL_WINDOW_MINIMUM:
+            raise ValueError(f"roll_window must be >= {ROLL_WINDOW_MINIMUM} (the rolling-moments WINDOW minimum), got {self.roll_window}")
         if self.tolerance is not None and self.tolerance < 0:
             raise ValueError(f"tolerance must be non-negative, got {self.tolerance}")
 
