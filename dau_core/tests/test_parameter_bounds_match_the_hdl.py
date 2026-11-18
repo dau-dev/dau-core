@@ -17,6 +17,8 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+import pytest
+
 from dau_core import hdl
 from dau_core.cores import CoreDefinition
 from dau_core.element_types import decode_element_type
@@ -142,3 +144,55 @@ def test_the_python_mirror_of_the_top_k_bound_matches_the_registry() -> None:
 
     parameter = loaded_cores()["streaming-top-k"].parameters["K"]
     assert TOP_K_MAX == parameter.maximum, f"TOP_K_MAX {TOP_K_MAX} != registry maximum {parameter.maximum}"
+
+
+def _golden_bounds() -> list[tuple[str, str, str, int]]:
+    """(core, parameter, attribute, golden value): each bound a golden in
+    ``dau_core.operators`` checks its arguments against, beside the registry
+    parameter it mirrors. The goldens are what the registry's ``golden``
+    entries point at, so they keep a Python copy instead of loading the
+    registry; this keeps the copies equal."""
+    from dau_core import operators
+
+    return [
+        ("keyed-state", "CAPACITY", "maximum", operators.KEYED_STATE_MAX_KEYS),
+        ("session-gap", "CAPACITY", "maximum", operators.SESSION_GAP_MAX_KEYS),
+        ("scratchpad", "CAPACITY", "maximum", operators.SCRATCHPAD_MAX_WORDS),
+        ("hash-grouped-aggregation", "CAPACITY", "maximum", operators.HASH_GROUPED_MAX_GROUPS),
+        ("streaming-dedup", "KEY_SPACE", "maximum", operators.DEDUP_KEY_SPACE_MAX),
+        ("streaming-dedup", "KEY_SPACE", "multiple_of", operators.KEY_SPACE_MULTIPLE),
+        ("key-membership-filter", "KEY_SPACE", "multiple_of", operators.KEY_SPACE_MULTIPLE),
+        ("fixed-point-sqrt", "FRACTIONAL_BITS", "default", operators.SQRT_FRACTIONAL_BITS),
+        ("fixed-point-sqrt", "FRACTIONAL_BITS", "minimum", 0),
+        ("fixed-point-sqrt", "FRACTIONAL_BITS", "maximum", operators.SQRT_MAX_FRACTIONAL_BITS),
+        ("fixed-point-divide", "FRACTIONAL_BITS", "default", operators.DIVIDE_FRACTIONAL_BITS),
+        ("fixed-point-divide", "FRACTIONAL_BITS", "minimum", 0),
+        ("fixed-point-divide", "FRACTIONAL_BITS", "maximum", operators.DIVIDE_MAX_FRACTIONAL_BITS),
+    ]
+
+
+def test_the_golden_bounds_match_the_registry() -> None:
+    cores = loaded_cores()
+    for core_name, parameter_name, attribute, golden in _golden_bounds():
+        declared = getattr(cores[core_name].parameters[parameter_name], attribute)
+        assert golden == declared, f"{core_name}.{parameter_name} {attribute}: golden {golden} != registry {declared}"
+
+
+def test_the_golden_configs_accept_exactly_the_declared_fractional_bits() -> None:
+    from dau_core.operators import RowDivideConfig, RowField, RowSqrtConfig
+
+    def sqrt(bits: int) -> None:
+        RowSqrtConfig(dst=RowField.KEY, src=RowField.VALUE, fractional_bits=bits)
+
+    def divide(bits: int) -> None:
+        RowDivideConfig(dst=RowField.KEY, numerator=RowField.VALUE, denominator=RowField.AUX0, fractional_bits=bits)
+
+    cores = loaded_cores()
+    for core_name, build in (("fixed-point-sqrt", sqrt), ("fixed-point-divide", divide)):
+        parameter = cores[core_name].parameters["FRACTIONAL_BITS"]
+        assert parameter.maximum is not None
+        build(parameter.minimum)
+        build(parameter.maximum)
+        for outside in (parameter.minimum - 1, parameter.maximum + 1):
+            with pytest.raises(ValueError, match="fractional_bits must be in"):
+                build(outside)

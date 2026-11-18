@@ -32,10 +32,15 @@ the temporal goldens.
 
 from __future__ import annotations
 
+from typing import Literal, get_args
+
 from ccflow import ResultBase
 from pydantic import ConfigDict
 
+from .cores import CoreDefinition
 from .models import CheckedMixin, CheckedModel
+from .operators import STREAM_WORD_BYTES
+from .registry import core
 from .temporal import (
     MarketFeatures,
     MarketRow,
@@ -50,21 +55,37 @@ from .temporal import (
     time_bars,
 )
 
-# On-wire record widths (bytes) — the exact tile row formats (8-byte words). Each
-# stage reads its tile's input record and writes its tile's output record; a
-# staged run DMAs both, a fused run DMAs only the pipeline endpoints.
-INPUT_BYTES = 3 * 8  # as-of merged input: {rec_type, symbol}, time, {fieldB, fieldA}
-MARKET_BYTES = 4 * 8  # as-of market row: time, {price, symbol}, {ask, bid}, {_, size}
-BAR_BYTES = 6 * 8  # bar record: OHLC + volume/dollar/signed accumulators + count
-ROLL_INPUT_BYTES = 1 * 8  # rolling-moment input: one {value, symbol} word (a bar projection)
-ROLL_BYTES = 3 * 8  # rolling-moment record: {count, symbol}, total, total_sq
+# On-wire record widths (bytes), from the registry's record words for each
+# stage's tile. Each stage reads its tile's input record and writes its tile's
+# output record; a staged run DMAs both, a fused run DMAs only the pipeline
+# endpoints.
+_ASOF = core("asof-backward")
+_BAR = core("bar-aggregation")
+_ROLL = core("rolling-moments")
+
+
+def _output_record_bytes(definition: CoreDefinition) -> int:
+    words = definition.effective_output_record_words({})
+    if words is None:
+        raise ValueError(f"core {definition.name!r} emits variable-width records; the cost model needs a fixed width")
+    return words * STREAM_WORD_BYTES
+
+
+INPUT_BYTES = _ASOF.effective_record_words({}) * STREAM_WORD_BYTES  # as-of merged input: {rec_type, symbol}, time, {fieldB, fieldA}
+MARKET_BYTES = _output_record_bytes(_ASOF)  # as-of market row: time, {price, symbol}, {ask, bid}, {_, size}
+BAR_BYTES = _output_record_bytes(_BAR)  # bar record: OHLC + volume/dollar/signed accumulators + count
+ROLL_INPUT_BYTES = _ROLL.effective_record_words({}) * STREAM_WORD_BYTES  # rolling-moment input: one {value, symbol} word (a bar projection)
+ROLL_BYTES = _output_record_bytes(_ROLL)  # rolling-moment record: {count, symbol}, total, total_sq
+# the smallest count-based window the rolling-moments tile elaborates
+ROLL_WINDOW_MINIMUM = _ROLL.parameters["WINDOW"].minimum
 
 # The bar fields the int32 rolling-moment tile can window: the OHLC prices are in
 # the int32 price domain and fit the tile's signed-int32 {value, symbol} word.
 # The volume/dollar/signed accumulators are int64 (a bar sums many trades) — they
 # would overflow the int32 tile, so rolling them needs the wide rolling variant
 # (a follow-up), not this model.
-ROLL_FIELDS = ("open", "high", "low", "close")
+RollField = Literal["open", "high", "low", "close"]
+ROLL_FIELDS: tuple[RollField, ...] = get_args(RollField)
 
 
 class WorkflowStage(CheckedModel):
@@ -116,17 +137,17 @@ def run_hero_workflow(
     bar_width: int,
     roll_window: int,
     tolerance: int | None = None,
-    roll_value: str = "close",
+    roll_value: RollField = "close",
 ) -> HeroResult:
     """Run the predeclared workflow end to end over the goldens, recording each
     materializing stage's cardinality. ``roll_value`` selects the per-bar OHLC
     price the roll stage windows (:data:`ROLL_FIELDS`); ``roll_window`` is the
-    count-based window (``>= 2``, the tile's minimum). Both input streams must be
+    count-based window (at least :data:`ROLL_WINDOW_MINIMUM`, the tile's minimum). Both input streams must be
     pre-sorted by ``(symbol_id, time)`` (the shared as-of / bar precondition)."""
     if roll_value not in ROLL_FIELDS:
         raise ValueError(f"roll_value must be one of {ROLL_FIELDS} (the int32 bar prices the tile can window), got {roll_value!r}")
-    if roll_window < 2:
-        raise ValueError(f"roll_window must be >= 2 (rolling-moments requires WINDOW >= 2), got {roll_window}")
+    if roll_window < ROLL_WINDOW_MINIMUM:
+        raise ValueError(f"roll_window must be >= {ROLL_WINDOW_MINIMUM} (the rolling-moments WINDOW minimum), got {roll_window}")
     trades = list(trades)
     quotes = list(quotes)
     n_input = len(trades) + len(quotes)  # the merged stream the as-of tile reads
