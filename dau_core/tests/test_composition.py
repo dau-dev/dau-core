@@ -335,6 +335,53 @@ def test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards() ->
         )
 
 
+@pytest.fixture
+def vendor_core():
+    """Register an unmeasured copy of one of our cores under another name,
+    with its parameters edited, and drop it again afterwards."""
+    from ccflow import ModelRegistry
+
+    registry = ModelRegistry(name="vendor-tiles")
+    ModelRegistry.root().add("vendor-tiles", registry)
+
+    def register(base: str, name: str, **parameters: Any) -> str:
+        definition = core(base)
+        declared = {key: value for key, value in definition.parameters.items() if key not in parameters}
+        declared.update({key: value for key, value in parameters.items() if value is not None})
+        registry.add(name, definition.replace(name=name, parameters=declared, resources=None, measured_from=None))
+        return name
+
+    yield register
+    ModelRegistry.root().remove("vendor-tiles")
+
+
+def test_a_role_parameter_resolves_to_the_declared_default(vendor_core) -> None:
+    """A parameter the composition reads off a tile comes from the core's
+    declared default: a dispatcher whose MODE defaults to
+    EXACT_BRANCH takes three lanes, and one whose RECORD_INPUT defaults on
+    frames whole records rather than the feed."""
+    exact = core("key-mask-dispatcher").parameters["MODE"].replace(default=1)
+    dispatcher = vendor_core("key-mask-dispatcher", "vendor-exact-dispatcher", MODE=exact)
+    ScanCompositionSpec(name="ok", lanes=tuple(LaneSpec(tile=_BAR) for _ in range(3)), partitioner=TileSpec(core=dispatcher))
+
+    record = core("key-mask-dispatcher").parameters["RECORD_INPUT"].replace(default=1)
+    width = core("key-mask-dispatcher").parameters["IN_WIDTH"].replace(default=192)
+    dispatcher = vendor_core("key-mask-dispatcher", "vendor-record-dispatcher", RECORD_INPUT=record, IN_WIDTH=width)
+    ScanCompositionSpec(name="ok", lanes=tuple(LaneSpec(tile=_BAR) for _ in range(4)), partitioner=TileSpec(core=dispatcher))
+
+
+def test_a_role_core_missing_its_contract_parameter_raises(vendor_core) -> None:
+    """A key dispatcher without MODE, or a front unpacker without OUT_WIDTH,
+    used to be treated as MASK mode and as 64 bits wide."""
+    dispatcher = vendor_core("key-mask-dispatcher", "vendor-modeless-dispatcher", MODE=None)
+    with pytest.raises(CompositionError, match="partitioner 'vendor-modeless-dispatcher' declares no MODE parameter"):
+        ScanCompositionSpec(name="bad", lanes=tuple(LaneSpec(tile=_BAR) for _ in range(4)), partitioner=TileSpec(core=dispatcher))
+
+    unpacker = vendor_core("row-unpack", "vendor-widthless-unpack", OUT_WIDTH=None)
+    with pytest.raises(CompositionError, match="front unpacker 'vendor-widthless-unpack' declares no OUT_WIDTH parameter"):
+        ScanCompositionSpec(name="bad", lanes=(LaneSpec(tile=_BAR),), front_unpack=TileSpec(core=unpacker, config=dict(_FRONT_UNPACK_CONFIG)))
+
+
 def test_load_phase_shape_rules() -> None:
     # the two-phase load (v1): membership at chain[0] binding cfg_load to the
     # reserved load_phase symbol is accepted; every malformed shape is

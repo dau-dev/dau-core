@@ -94,6 +94,16 @@ def _validate_tile_params(tile: TileSpec, role: str) -> None:
             raise CompositionError(f"{role} {tile.core!r} parameter {name!r} {reason}")
 
 
+def _contract_param(tile: TileSpec, name: str, role: str) -> int:
+    """A parameter the composition reads off a tile: its override, else the
+    default the core declares. A core whose role requires ``name`` but which
+    does not declare it raises ``CompositionError``."""
+    declared = tile.definition().parameters.get(name)
+    if declared is None:
+        raise CompositionError(f"{role} {tile.core!r} declares no {name} parameter")
+    return int(tile.params.get(name, declared.default))
+
+
 class TileSpec(CheckedModel):
     """One registry core plus its config-port bindings (SystemVerilog
     literals or expressions in terms of the top's signals) and any
@@ -275,10 +285,7 @@ class ScanCompositionSpec(CheckedModel):
                         f"{role} {tile.core!r} speaks the 64-bit row-stream contract inside a wide lane; every stage of a "
                         "wide lane must be a wide-row-stream core (mixed framings cannot wire)"
                     )
-                declared = tile.definition().parameters.get("SLOTS")
-                if declared is None:
-                    raise CompositionError(f"{role} {tile.core!r} declares no SLOTS parameter")
-                return int(tile.params.get("SLOTS", declared.default))
+                return _contract_param(tile, "SLOTS", role)
 
             slots = _slots_of(self.lanes[0].tile, "wide lane terminal")
             for index, lane in enumerate(self.lanes):
@@ -295,8 +302,7 @@ class ScanCompositionSpec(CheckedModel):
                 # packed 64-bit rows per beat — while the lane downstream of
                 # the unpacker sees SLOTS whole 128-bit quad rows, so the
                 # front's OUT_WIDTH is what has to match the lane.
-                out_spec = self.front_unpack.definition().parameters.get("OUT_WIDTH")
-                front_width = self.front_unpack.params.get("OUT_WIDTH", out_spec.default if out_spec else 64)
+                front_width = _contract_param(self.front_unpack, "OUT_WIDTH", "front unpacker")
                 if front_width != slots * 128:
                     raise CompositionError(
                         f"the front unpacker emits {front_width}-bit beats but a wide lane at SLOTS={slots} consumes "
@@ -346,14 +352,14 @@ class ScanCompositionSpec(CheckedModel):
             # two-beat framing only (a wide feed would misframe rows)
             feed_width = self.data_width
             if self.front_unpack is not None:
-                out_spec = self.front_unpack.definition().parameters.get("OUT_WIDTH")
-                feed_width = self.front_unpack.params.get("OUT_WIDTH", out_spec.default if out_spec else 64)
+                feed_width = _contract_param(self.front_unpack, "OUT_WIDTH", "front unpacker")
             # whole-record framing: the partitioner's IN_WIDTH is the RECORD
             # bus, not the feed. A record gearbox in front owns the
             # reconciliation between the reader's beats and that bus (and the
             # RTL elaboration-guards IN_WIDTH == RECORD_WORDS*64), so the
             # feed-framing rule below does not apply.
-            record_input = self.partitioner.params.get("RECORD_INPUT", 0) == 1
+            record_spec = definition.parameters.get("RECORD_INPUT")
+            record_input = record_spec is not None and self.partitioner.params.get("RECORD_INPUT", record_spec.default) == 1
             in_spec = None if record_input else definition.parameters.get("IN_WIDTH")
             if in_spec is None:
                 if feed_width != 64 and not record_input:
@@ -370,7 +376,7 @@ class ScanCompositionSpec(CheckedModel):
             if definition.role is CoreRole.KEY_DISPATCH:
                 # only the exact-branch decode indexes by key directly; MASK
                 # bit-selects and HASH shifts, so both need a power of two
-                mode = int(self.partitioner.params.get("MODE", 0))
+                mode = _contract_param(self.partitioner, "MODE", "partitioner")
                 if mode != int(DispatchMode.EXACT_BRANCH):
                     partitions = self.partitioner.params.get("NUM_PARTITIONS", len(self.lanes))
                     if partitions & (partitions - 1):
@@ -430,8 +436,7 @@ class ScanCompositionSpec(CheckedModel):
             # broadcast in that shape, so this width rule does not apply to it
             # (the lane's own SLOTS check above is what constrains the front)
             if self.partitioner is None and not wide_lane:
-                out_spec = self.front_unpack.definition().parameters.get("OUT_WIDTH")
-                unpack_width = self.front_unpack.params.get("OUT_WIDTH", out_spec.default if out_spec else 64)
+                unpack_width = _contract_param(self.front_unpack, "OUT_WIDTH", "front unpacker")
                 if unpack_width != 64:
                     raise CompositionError(
                         f"front unpacker OUT_WIDTH={unpack_width} feeds the stream broadcast, which is 64-bit only — "
