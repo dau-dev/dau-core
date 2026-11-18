@@ -28,6 +28,10 @@ if TYPE_CHECKING:
     from ccflow import ModelRegistry
 
 
+# every key a pending core entry may carry: the model's fields and hydra's target
+_CORE_ENTRY_KEYS = frozenset(CoreDefinition.model_fields) | {"_target_"}
+
+
 class UnknownCoreError(KeyError):
     pass
 
@@ -153,12 +157,16 @@ def lowered_cores() -> tuple[CoreDefinition, ...]:
 
     A query compiler asks this on every capture, so it must not pay for the
     whole palette: a pending entry's configuration is read without building
-    the model (building all of them is over half a second)."""
+    the model (building all of them is over half a second). An entry is
+    skipped unbuilt only when every key it carries is a ``CoreDefinition``
+    field and ``lowering`` is not among them; any other key is built, so a
+    misspelled ``lowering:`` fails model validation instead of reading as a
+    tile with no lowering."""
     found: list[CoreDefinition] = []
     for _group_name, group in _groups():
         for name in _declared_names(group):
             pending = group.get_pending_config(name) if isinstance(group, LazyRegistry) else None
-            if pending is not None and pending.get("lowering") is None:
+            if pending is not None and pending.get("lowering") is None and pending.keys() <= _CORE_ENTRY_KEYS:
                 continue
             model = _entry(group, name)
             if model is not None and model.lowering is not None:

@@ -36,6 +36,20 @@ from .stream import LogicalType, OperationCode
 
 CAPABILITY_CONTRACT_SCHEMA = 1
 
+# the keys ``CapabilityContract.to_mapping`` writes beside the model's own
+# fields: the envelope and the derived register words
+_CONTRACT_WIRE_KEYS = frozenset({"contract", "schema", "operator_bitmap", "host_opcode_bitmap", "lane_count", "sort_capacity"})
+
+
+def _exact_keys(mapping: Mapping[str, Any], keys: frozenset[str], what: str) -> Mapping[str, Any]:
+    """``mapping`` if it has exactly ``keys``. A missing or misspelled key
+    raises instead of reading as an empty default."""
+    missing = sorted(keys - mapping.keys())
+    unexpected = sorted(mapping.keys() - keys)
+    if missing or unexpected:
+        raise ValueError(f"{what} mapping: missing keys {missing}, unexpected keys {unexpected}")
+    return mapping
+
 
 def opcode_bitmap(opcodes: tuple[OperationCode, ...]) -> int:
     """The register encoding: bit ``1 << opcode`` per OperationCode."""
@@ -87,19 +101,18 @@ class TileCapability(CheckedModel):
 
     @classmethod
     def from_mapping(cls, mapping: Mapping[str, Any]) -> TileCapability:
+        mapping = _exact_keys(mapping, frozenset(cls.model_fields), "tile capability")
         return cls(
             core=mapping["core"],
             module=mapping["module"],
-            contract_kind=ContractKind(mapping["contract_kind"]) if mapping.get("contract_kind") else None,
-            count_port=mapping.get("count_port"),
-            opcodes=tuple(OperationCode[token.upper()] for token in mapping.get("opcodes", ())),
-            input_types=tuple(LogicalType[token.upper()] for token in mapping.get("input_types", ())),
-            unit_kind=UnitKind(mapping["unit_kind"]) if mapping.get("unit_kind") else None,
-            row_capacity=mapping.get("row_capacity"),
-            config=tuple(sorted((str(key), str(value)) for key, value in dict(mapping.get("config", {})).items())),
-            # absent in manifests written before the fact was advertised; a
-            # reader that needs a parameter treats it as unknown
-            params=tuple(sorted((str(key), int(value)) for key, value in dict(mapping.get("params", {})).items())),
+            contract_kind=ContractKind(mapping["contract_kind"]) if mapping["contract_kind"] is not None else None,
+            count_port=mapping["count_port"],
+            opcodes=tuple(OperationCode[token.upper()] for token in mapping["opcodes"]),
+            input_types=tuple(LogicalType[token.upper()] for token in mapping["input_types"]),
+            unit_kind=UnitKind(mapping["unit_kind"]) if mapping["unit_kind"] is not None else None,
+            row_capacity=mapping["row_capacity"],
+            config=tuple(sorted((str(key), str(value)) for key, value in dict(mapping["config"]).items())),
+            params=tuple(sorted((str(key), int(value)) for key, value in dict(mapping["params"]).items())),
         )
 
 
@@ -120,11 +133,12 @@ class LaneCapability(CheckedModel):
 
     @classmethod
     def from_mapping(cls, mapping: Mapping[str, Any]) -> LaneCapability:
-        partition = mapping.get("partition")
+        mapping = _exact_keys(mapping, frozenset(cls.model_fields), "lane capability")
+        partition = mapping["partition"]
         return cls(
             tile=TileCapability.from_mapping(mapping["tile"]),
-            partition=TileCapability.from_mapping(partition) if partition else None,
-            chain=tuple(TileCapability.from_mapping(stage) for stage in mapping.get("chain", ())),
+            partition=TileCapability.from_mapping(partition) if partition is not None else None,
+            chain=tuple(TileCapability.from_mapping(stage) for stage in mapping["chain"]),
         )
 
 
@@ -227,16 +241,15 @@ class CapabilityContract(CheckedModel):
         schema = mapping.get("schema")
         if schema != CAPABILITY_CONTRACT_SCHEMA:
             raise ValueError(f"unsupported capability contract schema {schema!r}")
+        mapping = _exact_keys(mapping, frozenset(cls.model_fields) | _CONTRACT_WIRE_KEYS, "capability contract")
         major, _, minor = str(mapping["register_map_version"]).partition(".")
-        partitioner = mapping.get("partitioner")
+        partitioner = mapping["partitioner"]
         return cls(
             name=mapping["name"],
-            lanes=tuple(LaneCapability.from_mapping(lane) for lane in mapping.get("lanes", ())),
-            partitioner=TileCapability.from_mapping(partitioner) if partitioner else None,
+            lanes=tuple(LaneCapability.from_mapping(lane) for lane in mapping["lanes"]),
+            partitioner=TileCapability.from_mapping(partitioner) if partitioner is not None else None,
             register_map_version=RegisterMapVersion(int(major), int(minor)),
-            # absent in manifests written before the fact was advertised:
-            # every one of those designs binds its configs as literals
-            reconfigurable=bool(mapping.get("reconfigurable", False)),
+            reconfigurable=mapping["reconfigurable"],
         )
 
 

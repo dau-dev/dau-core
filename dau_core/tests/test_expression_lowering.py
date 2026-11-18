@@ -55,6 +55,25 @@ def test_a_composed_tile_carries_its_lowering_and_is_found() -> None:
         root.remove("vendor-tiles")
 
 
+def test_a_misspelled_lowering_raises() -> None:
+    """Composed groups load lazily, and the scan reads a pending entry's raw
+    config to skip tiles without a lowering. A ``lowerin:`` key must not
+    read as "no lowering": the entry is built, and validation fails."""
+    from ccflow import LazyRegistry
+    from hydra.errors import InstantiationException
+
+    entry = {**_TILE, "_target_": "dau_core.cores.CoreDefinition", "lowerin": {**_CLIP, "_target_": "dau_core.cores.ExpressionLowering"}}
+    composed = LazyRegistry()
+    composed.load_config(cfg=OmegaConf.create({"vendor-tiles": {"vendor-clamp": entry}}), overwrite=True)
+    root = ModelRegistry.root()
+    root.add("vendor-tiles", composed.models["vendor-tiles"])
+    try:
+        with pytest.raises(InstantiationException, match="lowerin"):
+            lowered_cores()
+    finally:
+        root.remove("vendor-tiles")
+
+
 def test_text_and_a_polars_expression_declare_the_same_pattern() -> None:
     from_text = ExpressionLowering.model_validate(_CLIP)
     from_expr = ExpressionLowering.model_validate({**_CLIP, "expression": pl.col("value").clip(pl.col("lower"), pl.col("upper"))})

@@ -139,6 +139,8 @@ def test_register_block_snapshot_reads_identity_status_and_counters_as_u32_words
         lane_count=4,
         host_opcode_bitmap=0x20,
         sort_capacity=16,
+        input_row_capacity=1 << 14,
+        output_record_capacity=819,
     )
 
     assert snapshot.read_u32(RegisterOffset.MAGIC) == DAU_MAGIC_WORD
@@ -167,7 +169,16 @@ def test_register_block_snapshot_reads_identity_status_and_counters_as_u32_words
     assert snapshot.read_u32(RegisterOffset.LANE_COUNT) == 4
     assert snapshot.read_u32(RegisterOffset.HOST_OPCODE_BITMAP) == 0x20
     assert snapshot.read_u32(RegisterOffset.SORT_CAPACITY) == 16
+    assert snapshot.read_u32(RegisterOffset.INPUT_ROW_CAPACITY) == 1 << 14
+    assert snapshot.read_u32(RegisterOffset.OUTPUT_RECORD_CAPACITY) == 819
     assert snapshot.read_u32(0x0FFC) == 0xFFFF_FFFF
+
+
+def test_register_block_snapshot_refuses_a_capacity_wider_than_its_word() -> None:
+    with pytest.raises(ValueError, match="input_row_capacity must fit in 32 bits"):
+        RegisterBlockSnapshot(input_row_capacity=1 << 32)
+    with pytest.raises(ValueError, match="output_record_capacity must fit in 32 bits"):
+        RegisterBlockSnapshot(output_record_capacity=1 << 32)
 
 
 def test_register_block_snapshot_models_reset_write_side_effects_only():
