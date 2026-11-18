@@ -1053,7 +1053,7 @@ numbers as a budget.</p>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">role</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">CoreRole</span> <span class="pre">|</span> <span class="pre">None</span></code></p></td>
-<td><p>The composition job this core fills, when a composition rule turns on it. Most cores: unset.</p></td>
+<td><p>The composition or operator job this core fills, when a composition or a planner selects the core by its job.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1065,6 +1065,13 @@ over the record’s key, and is a contract as well as a label: such a core
 has <code class="docutils literal notranslate"><span class="pre">MODE</span></code> (a <code class="docutils literal notranslate"><span class="pre">DispatchMode</span></code>) and <code class="docutils literal notranslate"><span class="pre">NUM_PARTITIONS</span></code>, and the composition
 enforces a power-of-two lane count for every decode but <code class="docutils literal notranslate"><span class="pre">EXACT_BRANCH</span></code>. A
 range partitioner routes by ordered splitters and declares neither.</p>
+<p>The operator roles name the jobs a query planner lowers to: <code class="docutils literal notranslate"><span class="pre">row-filter</span></code>,
+<code class="docutils literal notranslate"><span class="pre">row-map</span></code>, <code class="docutils literal notranslate"><span class="pre">field-sum</span></code>, <code class="docutils literal notranslate"><span class="pre">membership-filter</span></code>, <code class="docutils literal notranslate"><span class="pre">hash-join</span></code>, <code class="docutils literal notranslate"><span class="pre">lane-partition</span></code>,
+<code class="docutils literal notranslate"><span class="pre">fixed-point-divide</span></code>, <code class="docutils literal notranslate"><span class="pre">grouped-sum</span></code>, <code class="docutils literal notranslate"><span class="pre">hash-grouped</span></code>, <code class="docutils literal notranslate"><span class="pre">group-table</span></code>,
+<code class="docutils literal notranslate"><span class="pre">grouped-stats</span></code>, <code class="docutils literal notranslate"><span class="pre">rolling-moments</span></code>, <code class="docutils literal notranslate"><span class="pre">top-k</span></code> and <code class="docutils literal notranslate"><span class="pre">sorter</span></code>. A planner asks for
+the job with <code class="docutils literal notranslate"><span class="pre">core_of_role(role,</span> <span class="pre">contract)</span></code> and never names a tile. The
+filter, map and field-sum jobs each have a narrow and a wide tile, told apart
+by <code class="docutils literal notranslate"><span class="pre">contract_kind</span></code>; every other role has one tile.</p>
 </section>
 <section id="rate">
 <h2>Rate<a class="headerlink" href="#rate" title="Link to this heading">¶</a></h2>

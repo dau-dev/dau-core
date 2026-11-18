@@ -97,6 +97,7 @@ Functions
    test_composition.test_a_packed_wide_feed_rates_at_the_unpacker_not_at_one_row
    test_composition.test_shell_infrastructure_is_selected_by_role_not_by_name
    test_composition.test_a_stream_job_must_name_a_stream_job_shell
+   test_composition.test_a_planner_finds_each_operator_job_by_role
 
 
 Module Contents
@@ -454,4 +455,12 @@ Module Contents
 
 
 .. py:function:: test_a_stream_job_must_name_a_stream_job_shell() -> None
+
+.. py:function:: test_a_planner_finds_each_operator_job_by_role() -> None
+
+   Every operator job a planner lowers to has exactly one tile per
+   contract, so a planner asks for the job and never names the tile. The
+   narrow and wide filter, map and field-sum tiles share a role and are told
+   apart by the contract the lane speaks; asking without one is ambiguous.
+
 
