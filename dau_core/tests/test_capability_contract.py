@@ -18,7 +18,7 @@ from dau_core.design import UnitKind
 from dau_core.registers import CURRENT_REGISTER_MAP_VERSION
 from dau_core.registry import cores_of_kind
 from dau_core.stream import LogicalType, OperationCode
-from dau_core.tests.test_composition import bar_noc_spec, sorted_scan_spec
+from dau_core.tests.test_composition import bar_noc_spec, q6_scan_spec, sorted_scan_spec
 
 _HW_AGGREGATION_OPCODES = (OperationCode.MIN, OperationCode.MAX, OperationCode.SUM, OperationCode.COUNT)
 
@@ -163,8 +163,6 @@ def test_composition_and_hand_built_contracts_share_one_tile_derivation() -> Non
 
 
 def test_chain_lanes_carry_chain_capabilities_and_opcode_truth() -> None:
-    from dau_core.tests.test_composition import q6_scan_spec
-
     contract = capability_contract(q6_scan_spec(lanes=4))
     lane = contract.lanes[0]
     assert [stage.core for stage in lane.chain] == [
@@ -187,13 +185,28 @@ def test_chain_lanes_carry_chain_capabilities_and_opcode_truth() -> None:
     assert restored == contract
 
 
-def test_chainless_lane_mapping_round_trips_without_chain_key() -> None:
-    # older manifests carry no "chain" key: absence decodes as an empty chain
-    contract = capability_contract(bar_noc_spec(lanes=1))
-    mapping = contract.to_mapping()
-    del mapping["lanes"][0]["chain"]
-    restored = CapabilityContract.from_mapping(json.loads(json.dumps(mapping)))
-    assert restored == contract
+def test_a_contract_mapping_with_a_missing_or_unknown_key_raises() -> None:
+    """A missing or misspelled key used to read as its empty default: no
+    ``lanes`` loaded as a valid zero-lane contract, no ``chain`` as a bare
+    lane. Every key the writer emits is required, and nothing else is
+    accepted."""
+    mapping = capability_contract(q6_scan_spec(lanes=1)).to_mapping()
+
+    missing_lanes = {key: value for key, value in mapping.items() if key != "lanes"}
+    with pytest.raises(ValueError, match=r"missing keys \['lanes'\]"):
+        CapabilityContract.from_mapping(missing_lanes)
+    misspelled = {**missing_lanes, "lane": mapping["lanes"]}
+    with pytest.raises(ValueError, match=r"unexpected keys \['lane'\]"):
+        CapabilityContract.from_mapping(misspelled)
+
+    chainless = json.loads(json.dumps(mapping))
+    del chainless["lanes"][0]["chain"]
+    with pytest.raises(ValueError, match=r"lane capability mapping: missing keys \['chain'\]"):
+        CapabilityContract.from_mapping(chainless)
+    paramless = json.loads(json.dumps(mapping))
+    del paramless["lanes"][0]["tile"]["params"]
+    with pytest.raises(ValueError, match=r"tile capability mapping: missing keys \['params'\]"):
+        CapabilityContract.from_mapping(paramless)
 
 
 def test_the_contract_models_are_ccflow_models_not_dataclasses() -> None:
@@ -223,16 +236,17 @@ def test_a_contract_copies_with_a_field_replaced_and_stays_hashable() -> None:
 def test_reconfigurable_is_a_manifest_fact() -> None:
     """The fact rides the contract (and so the manifest), never a caller
     flag: a design whose chain configs are runtime registers advertises it,
-    and a manifest written before the key existed reads as baked."""
+    and a manifest without the key raises instead of reading as baked."""
     baked = capability_contract(sorted_scan_spec(lanes=2))
     assert baked.reconfigurable is False
     registers = baked.model_copy(update={"reconfigurable": True})
     mapping = registers.to_mapping()
     assert mapping["reconfigurable"] is True
     assert CapabilityContract.from_mapping(json.loads(json.dumps(mapping))) == registers
-    legacy = baked.to_mapping()
-    del legacy["reconfigurable"]
-    assert CapabilityContract.from_mapping(legacy).reconfigurable is False
+    unstated = baked.to_mapping()
+    del unstated["reconfigurable"]
+    with pytest.raises(ValueError, match=r"missing keys \['reconfigurable'\]"):
+        CapabilityContract.from_mapping(unstated)
 
 
 def test_a_tile_capability_carries_the_parameters_it_was_built_with() -> None:
@@ -250,10 +264,3 @@ def test_a_tile_capability_carries_the_parameters_it_was_built_with() -> None:
     assert params["IN_WIDTH"] == 64
     assert set(params) == set(dispatcher.definition().parameters)
     assert CapabilityContract.from_mapping(json.loads(json.dumps(contract.to_mapping()))) == contract
-
-    # a manifest written before the parameters were advertised reads as unknown
-    mapping = contract.to_mapping()
-    del mapping["partitioner"]["params"]
-    restored = CapabilityContract.from_mapping(mapping).partitioner
-    assert restored is not None
-    assert restored.params == ()
