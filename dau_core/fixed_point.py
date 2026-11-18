@@ -115,7 +115,7 @@ class ExpDatapath(CheckedModel):
         two in the range reduction. This is what the DSP cost tracks."""
         return self.degree + 1 + 2
 
-    def constants(self) -> dict:
+    def constants(self) -> ExpConstants:
         return _exp_constants(self.internal_bits, self.table_bits, self.degree, self.k_bits)
 
     def evaluate(self, x: int) -> int:
@@ -127,34 +127,46 @@ class ExpDatapath(CheckedModel):
         # and measured as a 13-deep CARRY4 chain between two DSPs -- the
         # critical path of the whole tile. k only picks the table/residue
         # split, so a half-step bias in it is absorbed by the residue.
-        k = (x * c["inv_ln2_narrow"]) >> (self.k_bits + f)
+        k = (x * c.inv_ln2_narrow) >> (self.k_bits + f)
         x_q = x << (q - f)
-        residue = x_q - ((k * c["ln2"]) >> self.table_bits)
+        residue = x_q - ((k * c.ln2) >> self.table_bits)
 
-        acc = c["coefficients"][self.degree]
+        acc = c.coefficients[self.degree]
         for index in range(self.degree - 1, -1, -1):
             product = acc * residue
-            acc = ((product + half) >> q if self.round_steps else product >> q) + c["coefficients"][index]
-        product = acc * c["table"][k & ((1 << self.table_bits) - 1)]
+            acc = ((product + half) >> q if self.round_steps else product >> q) + c.coefficients[index]
+        product = acc * c.table[k & ((1 << self.table_bits) - 1)]
         acc = (product + half) >> q if self.round_steps else product >> q
 
         shift = (q - f) - (k >> self.table_bits)
         return (acc + (1 << (shift - 1))) >> shift if shift > 0 else acc << (-shift)
 
 
+class ExpConstants(CheckedModel):
+    """The exp datapath's constants, at ``internal_bits`` fractional bits
+    unless noted."""
+
+    ln2: int
+    # 2**table_bits / ln2 at k_bits fractional bits: the range reduction's k
+    inv_ln2_narrow: int
+    # 2**(j / 2**table_bits) for each table index j
+    table: tuple[int, ...]
+    # 1/n! for n in 0..degree
+    coefficients: tuple[int, ...]
+
+
 @cache
-def _exp_constants(internal_bits: int, table_bits: int, degree: int, k_bits: int) -> dict:
+def _exp_constants(internal_bits: int, table_bits: int, degree: int, k_bits: int) -> ExpConstants:
     _decimal_context()
     scale = Decimal(2) ** internal_bits
     ln2 = Decimal(2).ln()
     entries = 1 << table_bits
-    return {
-        "ln2": round(scale * ln2),
-        "inv_ln2": round(scale * entries / ln2),
-        "inv_ln2_narrow": round(Decimal(2) ** k_bits * entries / ln2),
-        "table": tuple(round(scale * (Decimal(2) ** (Decimal(j) / entries))) for j in range(entries)),
-        "coefficients": tuple(round(scale / math.factorial(n)) for n in range(degree + 1)),
-    }
+    return ExpConstants(
+        ln2=round(scale * ln2),
+        inv_ln2_narrow=round(Decimal(2) ** k_bits * entries / ln2),
+        table=tuple(round(scale * (Decimal(2) ** (Decimal(j) / entries))) for j in range(entries)),
+        coefficients=tuple(round(scale / math.factorial(n)) for n in range(degree + 1)),
+    )
 
 
 # The registered exp operating points are registry entries (``fixed-point-exp``
@@ -222,7 +234,7 @@ class LnDatapath(CheckedModel):
         """The reciprocal multiply, the Horner chain, and e*ln2."""
         return 1 + self.degree + 1
 
-    def constants(self) -> dict:
+    def constants(self) -> LnConstants:
         return _ln_constants(self.internal_bits, self.table_bits)
 
     def evaluate(self, x: int) -> int:
@@ -240,23 +252,35 @@ class LnDatapath(CheckedModel):
 
         index = (mantissa >> (q - self.table_bits)) & ((1 << self.table_bits) - 1)
         # v = m * recip[index] - 1, small by construction
-        v = ((mantissa * c["reciprocal"][index]) >> q) - (1 << q)
+        v = ((mantissa * c.reciprocal[index]) >> q) - (1 << q)
 
         # ln(1+v) by Horner on the alternating series
-        acc = c["series"][self.degree]
+        acc = c.series[self.degree]
         for term in range(self.degree - 1, 0, -1):
             product = acc * v
-            acc = ((product + half) >> q if self.round_steps else product >> q) + c["series"][term]
+            acc = ((product + half) >> q if self.round_steps else product >> q) + c.series[term]
         product = acc * v
         acc = (product + half) >> q if self.round_steps else product >> q
 
-        total = exponent * c["ln2"] + c["ln_table"][index] + acc
+        total = exponent * c.ln2 + c.ln_table[index] + acc
         shift = q - f
         return (total + (1 << (shift - 1))) >> shift if shift > 0 else total << (-shift)
 
 
+class LnConstants(CheckedModel):
+    """The ln datapath's constants, at ``internal_bits`` fractional bits."""
+
+    ln2: int
+    # ln(1 + j / 2**table_bits) for each table index j
+    ln_table: tuple[int, ...]
+    # 1 / (1 + j / 2**table_bits) for each table index j
+    reciprocal: tuple[int, ...]
+    # index k holds the coefficient of v**k in ln(1+v), k in 0..8
+    series: tuple[int, ...]
+
+
 @cache
-def _ln_constants(internal_bits: int, table_bits: int) -> dict:
+def _ln_constants(internal_bits: int, table_bits: int) -> LnConstants:
     _decimal_context()
     scale = Decimal(2) ** internal_bits
     entries = 1 << table_bits
@@ -268,12 +292,12 @@ def _ln_constants(internal_bits: int, table_bits: int) -> dict:
         reciprocal.append(round(scale / base))
     # ln(1+v) = v - v^2/2 + v^3/3 - ...; index k holds the coefficient of v^k
     series = [0] + [round(scale * (Decimal(-1) ** (k + 1)) / k) for k in range(1, 9)]
-    return {
-        "ln2": round(scale * Decimal(2).ln()),
-        "ln_table": tuple(ln_table),
-        "reciprocal": tuple(reciprocal),
-        "series": tuple(series),
-    }
+    return LnConstants(
+        ln2=round(scale * Decimal(2).ln()),
+        ln_table=tuple(ln_table),
+        reciprocal=tuple(reciprocal),
+        series=tuple(series),
+    )
 
 
 NORMAL_CDF_FRACTIONAL_BITS = 16
@@ -404,7 +428,7 @@ class NormalCdfDatapath(CheckedModel):
         """The Horner chain; the symmetry fold and saturation are free."""
         return self.degree
 
-    def constants(self) -> dict:
+    def constants(self) -> NormalCdfConstants:
         return _normal_cdf_constants(self.internal_bits, self.table_bits, self.degree, self.fractional_bits, self.span_bits)
 
     def evaluate(self, x: int) -> int:
@@ -414,15 +438,15 @@ class NormalCdfDatapath(CheckedModel):
         one = 1 << f
         negative = x < 0
         magnitude = -x if negative else x
-        if magnitude >= c["limit"]:
+        if magnitude >= c.limit:
             return 0 if negative else one
 
         # shift and mask, not divide -- see span_bits
-        index = magnitude >> c["segment_shift"]
-        segment_start = index << c["segment_shift"]
+        index = magnitude >> c.segment_shift
+        segment_start = index << c.segment_shift
         residue = (magnitude - segment_start) << (q - f)
 
-        coefficients = c["coefficients"][index]
+        coefficients = c.coefficients[index]
         acc = coefficients[self.degree]
         for term in range(self.degree - 1, -1, -1):
             acc = ((acc * residue) >> q) + coefficients[term]
@@ -433,8 +457,20 @@ class NormalCdfDatapath(CheckedModel):
         return (one - result) if negative else result
 
 
+class NormalCdfConstants(CheckedModel):
+    """The normal CDF datapath's segment table."""
+
+    # the input magnitude, in fractional_bits ticks, at which the output saturates
+    limit: int
+    segments: int
+    # log2 of a segment's width in input ticks
+    segment_shift: int
+    # per segment, the Taylor coefficients at its start (internal_bits fractional bits)
+    coefficients: tuple[tuple[int, ...], ...]
+
+
 @cache
-def _normal_cdf_constants(internal_bits: int, table_bits: int, degree: int, fractional_bits: int, span_bits: int) -> dict:
+def _normal_cdf_constants(internal_bits: int, table_bits: int, degree: int, fractional_bits: int, span_bits: int) -> NormalCdfConstants:
     _decimal_context()
     scale = Decimal(2) ** internal_bits
     one = 1 << fractional_bits
@@ -461,9 +497,9 @@ def _normal_cdf_constants(internal_bits: int, table_bits: int, degree: int, frac
         ]
         coefficients.append(tuple(round(scale * taylor[term]) for term in range(degree + 1)))
 
-    return {
-        "limit": saturate_at,
-        "segments": segments,
-        "segment_shift": segment_shift,
-        "coefficients": tuple(coefficients),
-    }
+    return NormalCdfConstants(
+        limit=saturate_at,
+        segments=segments,
+        segment_shift=segment_shift,
+        coefficients=tuple(coefficients),
+    )

@@ -45,12 +45,12 @@ class NormalCdfTileGenerator(CoreGenerator):
         point = self.datapath
         constants = point.constants()
         q = point.internal_bits
-        segments = constants["segments"]
-        limit = constants["limit"]
+        segments = constants.segments
+        limit = constants.limit
         wide = q + 3  # coefficients are signed and the constant term reaches 1.0
 
         # one flat coefficient ROM, segment-major: index*(DEGREE+1) + term
-        flat = [value for segment in constants["coefficients"] for value in segment]
+        flat = [value for segment in constants.coefficients for value in segment]
         rom = ",\n".join(f"        {_hex_literal(value, wide)}" for value in flat)
 
         # Horner, one multiply per stage. Stage 3+2i registers the product and
@@ -124,7 +124,7 @@ module {self.module} #(
     localparam int PROD_WIDTH = 2 * WIDE;
     localparam int SEGMENTS = {segments};
     localparam int SEG_BITS = {max(point.table_bits, 1)};
-    localparam int SEGMENT_SHIFT = {constants["segment_shift"]};
+    localparam int SEGMENT_SHIFT = {constants.segment_shift};
     localparam logic signed [31:0] LIMIT = 32'sd{limit};
     localparam logic [31:0] ONE = 32'd{1 << point.fractional_bits};
 

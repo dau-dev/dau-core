@@ -138,3 +138,13 @@ def test_the_light_point_is_faithful_at_the_full_points_known_deviation() -> Non
 
     light = LnDatapath(internal_bits=36)
     assert abs(light.evaluate(3290838) - ln_reference(3290838)) <= 1
+
+
+def test_the_ln_constants_are_a_frozen_model_read_by_name() -> None:
+    from dau_core.fixed_point import LnConstants
+
+    point = LnDatapath()
+    constants = point.constants()
+    assert isinstance(constants, LnConstants)
+    assert len(constants.ln_table) == len(constants.reciprocal) == 1 << point.table_bits
+    assert LnConstants.model_config.get("frozen") is True

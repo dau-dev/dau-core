@@ -56,10 +56,10 @@ class ExpTileGenerator(CoreGenerator):
         # the NARROW reciprocal, matching ExpDatapath.evaluate. Emitting the
         # full-precision one here while the model had moved to the narrow
         # constant put k out by 2**(internal_bits - k_bits).
-        inv_width = constants["inv_ln2_narrow"].bit_length() + 1
+        inv_width = constants.inv_ln2_narrow.bit_length() + 1
 
-        table = ",\n".join(f"        {_hex_literal(value, wide)}" for value in constants["table"])
-        coefficients = ",\n".join(f"        {_hex_literal(value, wide)}" for value in constants["coefficients"])
+        table = ",\n".join(f"        {_hex_literal(value, wide)}" for value in constants.table)
+        coefficients = ",\n".join(f"        {_hex_literal(value, wide)}" for value in constants.coefficients)
 
         # k reaches about +/-4400 over the useful domain; the extra bits keep
         # the intermediate shifts clear of it
@@ -154,8 +154,8 @@ module {self.module} #(
     localparam int K_BITS = {point.k_bits};
     localparam int TABLE_ENTRIES = {entries};
 
-    localparam logic [INV_WIDTH-1:0] INV_LN2 = {_hex_literal(constants["inv_ln2_narrow"], inv_width)};
-    localparam logic [WIDE-1:0] LN2 = {_hex_literal(constants["ln2"], wide)};
+    localparam logic [INV_WIDTH-1:0] INV_LN2 = {_hex_literal(constants.inv_ln2_narrow, inv_width)};
+    localparam logic [WIDE-1:0] LN2 = {_hex_literal(constants.ln2, wide)};
 
     localparam logic [WIDE-1:0] TABLE [TABLE_ENTRIES] = '{{
 {table}
