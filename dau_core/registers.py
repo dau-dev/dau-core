@@ -334,6 +334,8 @@ class RegisterBlockSnapshot:
             "lane_count",
             "host_opcode_bitmap",
             "sort_capacity",
+            "input_row_capacity",
+            "output_record_capacity",
         ):
             _validate_u32(name, getattr(self, name))
         for name in (
@@ -385,6 +387,8 @@ class RegisterBlockSnapshot:
             RegisterOffset.LANE_COUNT: self.lane_count,
             RegisterOffset.HOST_OPCODE_BITMAP: self.host_opcode_bitmap,
             RegisterOffset.SORT_CAPACITY: self.sort_capacity,
+            RegisterOffset.INPUT_ROW_CAPACITY: self.input_row_capacity,
+            RegisterOffset.OUTPUT_RECORD_CAPACITY: self.output_record_capacity,
         }
         try:
             register_offset = RegisterOffset(offset)
