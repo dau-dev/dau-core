@@ -833,6 +833,9 @@
     </button>
     <div id="fd-toc-mobile" hidden><ul class="fd-toc-list">
   <li class="fd-toc-item" data-depth="1">
+    <a href="#attributes">Attributes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
     <a href="#exceptions">Exceptions</a>
   </li>
   <li class="fd-toc-item" data-depth="1">
@@ -840,6 +843,9 @@
   </li>
   <li class="fd-toc-item" data-depth="1">
     <a href="#module-contents">Module Contents</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registry._CORE_ENTRY_KEYS">_CORE_ENTRY_KEYS</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.registry.UnknownCoreError">UnknownCoreError</a>
@@ -914,6 +920,16 @@ never need this module, which knows only about the tiles dau-core itself
 ships. Keeping the two apart is what lets the surface be reachable by an
 author who does not have this repository – see
 <code class="docutils literal notranslate"><span class="pre">tests/test_public_tile_surface.py</span></code>, which enforces the direction.</p>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registry._CORE_ENTRY_KEYS" title="dau_core.registry._CORE_ENTRY_KEYS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_CORE_ENTRY_KEYS</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="exceptions">
 <h2>Exceptions<a class="headerlink" href="#exceptions" title="Link to this heading">¶</a></h2>
 <table class="autosummary longtable docutils align-default">
@@ -969,6 +985,11 @@ author who does not have this repository – see
 </section>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_core.registry._CORE_ENTRY_KEYS">
+<span class="sig-prename descclassname"><span class="pre">dau_core.registry.</span></span><span class="sig-name descname"><span class="pre">_CORE_ENTRY_KEYS</span></span><a class="headerlink" href="#dau_core.registry._CORE_ENTRY_KEYS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="py exception">
 <dt class="sig sig-object py" id="dau_core.registry.UnknownCoreError">
 <em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.registry.</span></span><span class="sig-name descname"><span class="pre">UnknownCoreError</span></span><a class="reference internal" href="../../../_modules/dau_core/registry.html#UnknownCoreError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registry.UnknownCoreError" title="Link to this definition">¶</a></dt>
@@ -1051,7 +1072,11 @@ silently preferring one definition is the failure this fixes.</p>
 own first, building only those.</p>
 <p>A query compiler asks this on every capture, so it must not pay for the
 whole palette: a pending entry’s configuration is read without building
-the model (building all of them is over half a second).</p>
+the model (building all of them is over half a second). An entry is
+skipped unbuilt only when every key it carries is a <code class="docutils literal notranslate"><span class="pre">CoreDefinition</span></code>
+field and <code class="docutils literal notranslate"><span class="pre">lowering</span></code> is not among them; any other key is built, so a
+misspelled <code class="docutils literal notranslate"><span class="pre">lowering:</span></code> fails model validation instead of reading as a
+tile with no lowering.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1127,6 +1152,9 @@ packages and dependencies first, in registry order.</p>
       <path class="fd-toc-thumb" fill="none" />
     </svg><ul class="fd-toc-list">
   <li class="fd-toc-item" data-depth="1">
+    <a href="#attributes">Attributes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
     <a href="#exceptions">Exceptions</a>
   </li>
   <li class="fd-toc-item" data-depth="1">
@@ -1134,6 +1162,9 @@ packages and dependencies first, in registry order.</p>
   </li>
   <li class="fd-toc-item" data-depth="1">
     <a href="#module-contents">Module Contents</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registry._CORE_ENTRY_KEYS">_CORE_ENTRY_KEYS</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.registry.UnknownCoreError">UnknownCoreError</a>

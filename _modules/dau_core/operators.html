@@ -1253,8 +1253,9 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">IntEnum</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">cast</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">.element_types</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_element_type</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">CheckedModel</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.stream</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogicalType</span><span class="p">,</span> <span class="n">OperationCode</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.stream</span><span class="w"> </span><span class="kn">import</span> <span class="n">LOGICAL_TYPE_BYTE_WIDTHS</span><span class="p">,</span> <span class="n">LogicalType</span><span class="p">,</span> <span class="n">OperationCode</span>
 
 
 <div class="viewcode-block" id="PredicateOp">
@@ -1646,6 +1647,7 @@ window.runMermaid = runMermaid;</script>
 <span class="c1"># fractional bits in the tile's fixed-point format. Q16.16 covers prices and</span>
 <span class="c1"># returns in one format; the tile parameterizes it, this is the default.</span>
 <span class="n">SQRT_FRACTIONAL_BITS</span> <span class="o">=</span> <span class="mi">16</span>
+<span class="n">SQRT_MAX_FRACTIONAL_BITS</span> <span class="o">=</span> <span class="mi">31</span>
 
 
 <div class="viewcode-block" id="fixed_point_sqrt">
@@ -1684,8 +1686,8 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.RowSqrtConfig.model_post_init">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">model_post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">model_post_init</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fractional_bits</span> <span class="o">&lt;=</span> <span class="mi">31</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"fractional_bits must be in [0, 31]"</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fractional_bits</span> <span class="o">&lt;=</span> <span class="n">SQRT_MAX_FRACTIONAL_BITS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"fractional_bits must be in [0, </span><span class="si">{</span><span class="n">SQRT_MAX_FRACTIONAL_BITS</span><span class="si">}</span><span class="s2">]"</span><span class="p">)</span></div>
 </div>
 
 
@@ -1797,6 +1799,7 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="n">DIVIDE_FRACTIONAL_BITS</span> <span class="o">=</span> <span class="mi">16</span>
+<span class="n">DIVIDE_MAX_FRACTIONAL_BITS</span> <span class="o">=</span> <span class="mi">31</span>
 
 
 <div class="viewcode-block" id="fixed_point_divide">
@@ -1840,8 +1843,8 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.RowDivideConfig.model_post_init">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">model_post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">model_post_init</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fractional_bits</span> <span class="o">&lt;=</span> <span class="mi">31</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"fractional_bits must be in [0, 31]"</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fractional_bits</span> <span class="o">&lt;=</span> <span class="n">DIVIDE_MAX_FRACTIONAL_BITS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"fractional_bits must be in [0, </span><span class="si">{</span><span class="n">DIVIDE_MAX_FRACTIONAL_BITS</span><span class="si">}</span><span class="s2">]"</span><span class="p">)</span></div>
 </div>
 
 
@@ -1961,6 +1964,9 @@ window.runMermaid = runMermaid;</script>
 <span class="c1">#: a read and a golden encoding a record agree by construction.</span>
 <span class="n">STREAM_WORD_BYTES</span> <span class="o">=</span> <span class="mi">8</span>
 <span class="n">_STREAM_WORD_MASK</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="mi">8</span> <span class="o">*</span> <span class="n">STREAM_WORD_BYTES</span><span class="p">))</span> <span class="o">-</span> <span class="mi">1</span>
+<span class="c1">#: A membership or dedup key space loads as a bitmap of stream words, so it</span>
+<span class="c1">#: is a multiple of one word's bits.</span>
+<span class="n">KEY_SPACE_MULTIPLE</span> <span class="o">=</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">STREAM_WORD_BYTES</span>
 
 
 <div class="viewcode-block" id="FieldSumAggregate">
@@ -2279,8 +2285,8 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.MembershipBuildSet.model_post_init">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">model_post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">model_post_init</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_space</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_space</span> <span class="o">%</span> <span class="mi">64</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">MembershipBuildSetError</span><span class="p">(</span><span class="s2">"key_space must be a positive multiple of 64"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_space</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_space</span> <span class="o">%</span> <span class="n">KEY_SPACE_MULTIPLE</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MembershipBuildSetError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"key_space must be a positive multiple of </span><span class="si">{</span><span class="n">KEY_SPACE_MULTIPLE</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">member</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_space</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">MembershipBuildSetError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"member </span><span class="si">{</span><span class="n">member</span><span class="si">}</span><span class="s2"> outside key space [0, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">key_space</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span></div>
@@ -2434,8 +2440,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    it (count zero, empty bitmap), because rows before the bad one already set</span>
 <span class="sd">    their bits and a half-inserted bitmap is not a state anything can resume</span>
 <span class="sd">    from."""</span>
-    <span class="k">if</span> <span class="n">key_space</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">key_space</span> <span class="o">%</span> <span class="mi">64</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"key_space must be a positive multiple of 64"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">key_space</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">key_space</span> <span class="o">%</span> <span class="n">KEY_SPACE_MULTIPLE</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"key_space must be a positive multiple of </span><span class="si">{</span><span class="n">KEY_SPACE_MULTIPLE</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">key_space</span> <span class="o">&gt;</span> <span class="n">DEDUP_KEY_SPACE_MAX</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"key_space must be &lt;= </span><span class="si">{</span><span class="n">DEDUP_KEY_SPACE_MAX</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="n">bitmap</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">seen</span><span class="p">)</span>
@@ -3145,18 +3151,23 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="n">_INTEGER_RANGES</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">LogicalType</span><span class="o">.</span><span class="n">INT8</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">7</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">7</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
-    <span class="n">LogicalType</span><span class="o">.</span><span class="n">INT16</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">15</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">15</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
-    <span class="n">LogicalType</span><span class="o">.</span><span class="n">INT32</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">31</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">31</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
-    <span class="n">LogicalType</span><span class="o">.</span><span class="n">INT64</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">63</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">63</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
-    <span class="n">LogicalType</span><span class="o">.</span><span class="n">UINT8</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
-    <span class="n">LogicalType</span><span class="o">.</span><span class="n">UINT16</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">16</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
-    <span class="n">LogicalType</span><span class="o">.</span><span class="n">UINT32</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">32</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
-    <span class="n">LogicalType</span><span class="o">.</span><span class="n">UINT64</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">64</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
-<span class="p">}</span>
+<span class="c1"># the stream's fixed-width types, read as element types for sign and kind</span>
+<span class="n">_ELEMENT_TYPES</span> <span class="o">=</span> <span class="p">{</span><span class="n">logical_type</span><span class="p">:</span> <span class="n">parse_element_type</span><span class="p">(</span><span class="n">logical_type</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span> <span class="k">for</span> <span class="n">logical_type</span> <span class="ow">in</span> <span class="n">LOGICAL_TYPE_BYTE_WIDTHS</span><span class="p">}</span>
+<span class="n">_FLOAT_TYPES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">logical_type</span> <span class="k">for</span> <span class="n">logical_type</span><span class="p">,</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">_ELEMENT_TYPES</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">is_float</span><span class="p">)</span>
 
-<span class="n">_FLOAT_TYPES</span> <span class="o">=</span> <span class="p">{</span><span class="n">LogicalType</span><span class="o">.</span><span class="n">FLOAT32</span><span class="p">,</span> <span class="n">LogicalType</span><span class="o">.</span><span class="n">FLOAT64</span><span class="p">}</span>
+
+<div class="viewcode-block" id="_integer_range">
+<a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators._integer_range">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_integer_range</span><span class="p">(</span><span class="n">bits</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">signed</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">bits</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)),</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">bits</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">signed</span> <span class="k">else</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">bits</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span></div>
+
+
+
+<span class="n">_INTEGER_RANGES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">logical_type</span><span class="p">:</span> <span class="n">_integer_range</span><span class="p">(</span><span class="mi">8</span> <span class="o">*</span> <span class="n">LOGICAL_TYPE_BYTE_WIDTHS</span><span class="p">[</span><span class="n">logical_type</span><span class="p">],</span> <span class="n">signed</span><span class="o">=</span><span class="n">element</span><span class="o">.</span><span class="n">signed</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">logical_type</span><span class="p">,</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">_ELEMENT_TYPES</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">element</span><span class="o">.</span><span class="n">is_float</span>
+<span class="p">}</span>
 
 
 <div class="viewcode-block" id="aggregate_values">
@@ -3411,13 +3422,16 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<span class="n">SESSION_GAP_MAX_KEYS</span> <span class="o">=</span> <span class="mi">1024</span>
+
+
 <div class="viewcode-block" id="SessionErrorCode">
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.SessionErrorCode">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SessionErrorCode</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Status codes for the session-gap tile."""</span>
 
     <span class="n">OK</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">BAD_CAPACITY</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># capacity outside [1, KEYED_STATE_MAX_KEYS]</span>
+    <span class="n">BAD_CAPACITY</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># capacity outside [1, SESSION_GAP_MAX_KEYS]</span>
     <span class="n">SESSION_CAPACITY_EXCEEDED</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># a new key past the table's capacity</span>
     <span class="n">BAD_GAP</span> <span class="o">=</span> <span class="mi">3</span>  <span class="c1"># gap must be positive</span>
     <span class="n">TIME_ORDER</span> <span class="o">=</span> <span class="mi">4</span>  <span class="c1"># a row's time ran backwards within the batch</span></div>
@@ -3459,7 +3473,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Returns ``(closed_sessions, error_code)``.</span>
 <span class="sd">    """</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">capacity</span> <span class="o">&lt;=</span> <span class="n">KEYED_STATE_MAX_KEYS</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">capacity</span> <span class="o">&lt;=</span> <span class="n">SESSION_GAP_MAX_KEYS</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[],</span> <span class="n">SessionErrorCode</span><span class="o">.</span><span class="n">BAD_CAPACITY</span>
     <span class="k">if</span> <span class="n">gap</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[],</span> <span class="n">SessionErrorCode</span><span class="o">.</span><span class="n">BAD_GAP</span>

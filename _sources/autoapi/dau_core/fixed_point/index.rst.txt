@@ -45,8 +45,11 @@ Classes
 .. autoapisummary::
 
    dau_core.fixed_point.ExpDatapath
+   dau_core.fixed_point.ExpConstants
    dau_core.fixed_point.LnDatapath
+   dau_core.fixed_point.LnConstants
    dau_core.fixed_point.NormalCdfDatapath
+   dau_core.fixed_point.NormalCdfConstants
 
 
 Functions
@@ -178,7 +181,7 @@ Module Contents
       :type: Multiplies on the datapath
 
 
-   .. py:method:: constants() -> dict
+   .. py:method:: constants() -> ExpConstants
 
 
    .. py:method:: evaluate(x: int) -> int
@@ -187,7 +190,39 @@ Module Contents
 
 
 
-.. py:function:: _exp_constants(internal_bits: int, table_bits: int, degree: int, k_bits: int) -> dict
+.. py:class:: ExpConstants(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   The exp datapath's constants, at ``internal_bits`` fractional bits
+   unless noted.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: ln2
+      :type:  int
+
+
+   .. py:attribute:: inv_ln2_narrow
+      :type:  int
+
+
+   .. py:attribute:: table
+      :type:  tuple[int, ...]
+
+
+   .. py:attribute:: coefficients
+      :type:  tuple[int, ...]
+
+
+.. py:function:: _exp_constants(internal_bits: int, table_bits: int, degree: int, k_bits: int) -> ExpConstants
 
 .. py:data:: LN_FRACTIONAL_BITS
    :value: 16
@@ -275,7 +310,7 @@ Module Contents
       The reciprocal multiply, the Horner chain, and e*ln2.
 
 
-   .. py:method:: constants() -> dict
+   .. py:method:: constants() -> LnConstants
 
 
    .. py:method:: evaluate(x: int) -> int
@@ -284,7 +319,38 @@ Module Contents
 
 
 
-.. py:function:: _ln_constants(internal_bits: int, table_bits: int) -> dict
+.. py:class:: LnConstants(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   The ln datapath's constants, at ``internal_bits`` fractional bits.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: ln2
+      :type:  int
+
+
+   .. py:attribute:: ln_table
+      :type:  tuple[int, ...]
+
+
+   .. py:attribute:: reciprocal
+      :type:  tuple[int, ...]
+
+
+   .. py:attribute:: series
+      :type:  tuple[int, ...]
+
+
+.. py:function:: _ln_constants(internal_bits: int, table_bits: int) -> LnConstants
 
 .. py:data:: NORMAL_CDF_FRACTIONAL_BITS
    :value: 16
@@ -387,7 +453,7 @@ Module Contents
       The Horner chain; the symmetry fold and saturation are free.
 
 
-   .. py:method:: constants() -> dict
+   .. py:method:: constants() -> NormalCdfConstants
 
 
    .. py:method:: evaluate(x: int) -> int
@@ -396,5 +462,36 @@ Module Contents
 
 
 
-.. py:function:: _normal_cdf_constants(internal_bits: int, table_bits: int, degree: int, fractional_bits: int, span_bits: int) -> dict
+.. py:class:: NormalCdfConstants(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   The normal CDF datapath's segment table.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: limit
+      :type:  int
+
+
+   .. py:attribute:: segments
+      :type:  int
+
+
+   .. py:attribute:: segment_shift
+      :type:  int
+
+
+   .. py:attribute:: coefficients
+      :type:  tuple[tuple[int, ...], ...]
+
+
+.. py:function:: _normal_cdf_constants(internal_bits: int, table_bits: int, degree: int, fractional_bits: int, span_bits: int) -> NormalCdfConstants
 

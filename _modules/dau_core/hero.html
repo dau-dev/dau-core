@@ -1279,10 +1279,15 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">get_args</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">ccflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResultBase</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigDict</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">.cores</span><span class="w"> </span><span class="kn">import</span> <span class="n">CoreDefinition</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">CheckedMixin</span><span class="p">,</span> <span class="n">CheckedModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.operators</span><span class="w"> </span><span class="kn">import</span> <span class="n">STREAM_WORD_BYTES</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">core</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.temporal</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">MarketFeatures</span><span class="p">,</span>
     <span class="n">MarketRow</span><span class="p">,</span>
@@ -1297,21 +1302,40 @@ window.runMermaid = runMermaid;</script>
     <span class="n">time_bars</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="c1"># On-wire record widths (bytes) — the exact tile row formats (8-byte words). Each</span>
-<span class="c1"># stage reads its tile's input record and writes its tile's output record; a</span>
-<span class="c1"># staged run DMAs both, a fused run DMAs only the pipeline endpoints.</span>
-<span class="n">INPUT_BYTES</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="mi">8</span>  <span class="c1"># as-of merged input: {rec_type, symbol}, time, {fieldB, fieldA}</span>
-<span class="n">MARKET_BYTES</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="mi">8</span>  <span class="c1"># as-of market row: time, {price, symbol}, {ask, bid}, {_, size}</span>
-<span class="n">BAR_BYTES</span> <span class="o">=</span> <span class="mi">6</span> <span class="o">*</span> <span class="mi">8</span>  <span class="c1"># bar record: OHLC + volume/dollar/signed accumulators + count</span>
-<span class="n">ROLL_INPUT_BYTES</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">*</span> <span class="mi">8</span>  <span class="c1"># rolling-moment input: one {value, symbol} word (a bar projection)</span>
-<span class="n">ROLL_BYTES</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="mi">8</span>  <span class="c1"># rolling-moment record: {count, symbol}, total, total_sq</span>
+<span class="c1"># On-wire record widths (bytes), from the registry's record words for each</span>
+<span class="c1"># stage's tile. Each stage reads its tile's input record and writes its tile's</span>
+<span class="c1"># output record; a staged run DMAs both, a fused run DMAs only the pipeline</span>
+<span class="c1"># endpoints.</span>
+<span class="n">_ASOF</span> <span class="o">=</span> <span class="n">core</span><span class="p">(</span><span class="s2">"asof-backward"</span><span class="p">)</span>
+<span class="n">_BAR</span> <span class="o">=</span> <span class="n">core</span><span class="p">(</span><span class="s2">"bar-aggregation"</span><span class="p">)</span>
+<span class="n">_ROLL</span> <span class="o">=</span> <span class="n">core</span><span class="p">(</span><span class="s2">"rolling-moments"</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="_output_record_bytes">
+<a class="viewcode-back" href="../../autoapi/dau_core/hero/index.html#dau_core.hero._output_record_bytes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_output_record_bytes</span><span class="p">(</span><span class="n">definition</span><span class="p">:</span> <span class="n">CoreDefinition</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="n">words</span> <span class="o">=</span> <span class="n">definition</span><span class="o">.</span><span class="n">effective_output_record_words</span><span class="p">({})</span>
+    <span class="k">if</span> <span class="n">words</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"core </span><span class="si">{</span><span class="n">definition</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> emits variable-width records; the cost model needs a fixed width"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">words</span> <span class="o">*</span> <span class="n">STREAM_WORD_BYTES</span></div>
+
+
+
+<span class="n">INPUT_BYTES</span> <span class="o">=</span> <span class="n">_ASOF</span><span class="o">.</span><span class="n">effective_record_words</span><span class="p">({})</span> <span class="o">*</span> <span class="n">STREAM_WORD_BYTES</span>  <span class="c1"># as-of merged input: {rec_type, symbol}, time, {fieldB, fieldA}</span>
+<span class="n">MARKET_BYTES</span> <span class="o">=</span> <span class="n">_output_record_bytes</span><span class="p">(</span><span class="n">_ASOF</span><span class="p">)</span>  <span class="c1"># as-of market row: time, {price, symbol}, {ask, bid}, {_, size}</span>
+<span class="n">BAR_BYTES</span> <span class="o">=</span> <span class="n">_output_record_bytes</span><span class="p">(</span><span class="n">_BAR</span><span class="p">)</span>  <span class="c1"># bar record: OHLC + volume/dollar/signed accumulators + count</span>
+<span class="n">ROLL_INPUT_BYTES</span> <span class="o">=</span> <span class="n">_ROLL</span><span class="o">.</span><span class="n">effective_record_words</span><span class="p">({})</span> <span class="o">*</span> <span class="n">STREAM_WORD_BYTES</span>  <span class="c1"># rolling-moment input: one {value, symbol} word (a bar projection)</span>
+<span class="n">ROLL_BYTES</span> <span class="o">=</span> <span class="n">_output_record_bytes</span><span class="p">(</span><span class="n">_ROLL</span><span class="p">)</span>  <span class="c1"># rolling-moment record: {count, symbol}, total, total_sq</span>
+<span class="c1"># the smallest count-based window the rolling-moments tile elaborates</span>
+<span class="n">ROLL_WINDOW_MINIMUM</span> <span class="o">=</span> <span class="n">_ROLL</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">"WINDOW"</span><span class="p">]</span><span class="o">.</span><span class="n">minimum</span>
 
 <span class="c1"># The bar fields the int32 rolling-moment tile can window: the OHLC prices are in</span>
 <span class="c1"># the int32 price domain and fit the tile's signed-int32 {value, symbol} word.</span>
 <span class="c1"># The volume/dollar/signed accumulators are int64 (a bar sums many trades) — they</span>
 <span class="c1"># would overflow the int32 tile, so rolling them needs the wide rolling variant</span>
 <span class="c1"># (a follow-up), not this model.</span>
-<span class="n">ROLL_FIELDS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"open"</span><span class="p">,</span> <span class="s2">"high"</span><span class="p">,</span> <span class="s2">"low"</span><span class="p">,</span> <span class="s2">"close"</span><span class="p">)</span>
+<span class="n">RollField</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"open"</span><span class="p">,</span> <span class="s2">"high"</span><span class="p">,</span> <span class="s2">"low"</span><span class="p">,</span> <span class="s2">"close"</span><span class="p">]</span>
+<span class="n">ROLL_FIELDS</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">RollField</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_args</span><span class="p">(</span><span class="n">RollField</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="WorkflowStage">
@@ -1371,17 +1395,17 @@ window.runMermaid = runMermaid;</script>
     <span class="n">bar_width</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">roll_window</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">tolerance</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">roll_value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"close"</span><span class="p">,</span>
+    <span class="n">roll_value</span><span class="p">:</span> <span class="n">RollField</span> <span class="o">=</span> <span class="s2">"close"</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HeroResult</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Run the predeclared workflow end to end over the goldens, recording each</span>
 <span class="sd">    materializing stage's cardinality. ``roll_value`` selects the per-bar OHLC</span>
 <span class="sd">    price the roll stage windows (:data:`ROLL_FIELDS`); ``roll_window`` is the</span>
-<span class="sd">    count-based window (``&gt;= 2``, the tile's minimum). Both input streams must be</span>
+<span class="sd">    count-based window (at least :data:`ROLL_WINDOW_MINIMUM`, the tile's minimum). Both input streams must be</span>
 <span class="sd">    pre-sorted by ``(symbol_id, time)`` (the shared as-of / bar precondition)."""</span>
     <span class="k">if</span> <span class="n">roll_value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ROLL_FIELDS</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"roll_value must be one of </span><span class="si">{</span><span class="n">ROLL_FIELDS</span><span class="si">}</span><span class="s2"> (the int32 bar prices the tile can window), got </span><span class="si">{</span><span class="n">roll_value</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">roll_window</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"roll_window must be &gt;= 2 (rolling-moments requires WINDOW &gt;= 2), got </span><span class="si">{</span><span class="n">roll_window</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">roll_window</span> <span class="o">&lt;</span> <span class="n">ROLL_WINDOW_MINIMUM</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"roll_window must be &gt;= </span><span class="si">{</span><span class="n">ROLL_WINDOW_MINIMUM</span><span class="si">}</span><span class="s2"> (the rolling-moments WINDOW minimum), got </span><span class="si">{</span><span class="n">roll_window</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="n">trades</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">trades</span><span class="p">)</span>
     <span class="n">quotes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">quotes</span><span class="p">)</span>
     <span class="n">n_input</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">trades</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">quotes</span><span class="p">)</span>  <span class="c1"># the merged stream the as-of tile reads</span>

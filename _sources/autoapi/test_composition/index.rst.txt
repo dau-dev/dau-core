@@ -46,6 +46,9 @@ Functions
    test_composition.test_a_declared_zero_minimum_admits_zero
    test_composition.test_maximum_constraint_mirrors_the_bucket_bits_guard
    test_composition.test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards
+   test_composition.vendor_core
+   test_composition.test_a_role_parameter_resolves_to_the_declared_default
+   test_composition.test_a_role_core_missing_its_contract_parameter_raises
    test_composition.test_load_phase_shape_rules
    test_composition.test_param_override_is_validated_on_the_lane_tile_and_partition_slots
    test_composition.test_key_space_override_must_match_the_declared_multiple
@@ -180,6 +183,26 @@ Module Contents
 .. py:function:: test_maximum_constraint_mirrors_the_bucket_bits_guard() -> None
 
 .. py:function:: test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards() -> None
+
+.. py:function:: vendor_core()
+
+   Register an unmeasured copy of one of our cores under another name,
+   with its parameters edited, and drop it again afterwards.
+
+
+.. py:function:: test_a_role_parameter_resolves_to_the_declared_default(vendor_core) -> None
+
+   A parameter the composition reads off a tile comes from the core's
+   declared default: a dispatcher whose MODE defaults to
+   EXACT_BRANCH takes three lanes, and one whose RECORD_INPUT defaults on
+   frames whole records rather than the feed.
+
+
+.. py:function:: test_a_role_core_missing_its_contract_parameter_raises(vendor_core) -> None
+
+   A key dispatcher without MODE, or a front unpacker without OUT_WIDTH,
+   used to be treated as MASK mode and as 64 bits wide.
+
 
 .. py:function:: test_load_phase_shape_rules() -> None
 

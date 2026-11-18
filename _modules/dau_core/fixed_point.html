@@ -1378,7 +1378,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="ExpDatapath.constants">
 <a class="viewcode-back" href="../../autoapi/dau_core/fixed_point/index.html#dau_core.fixed_point.ExpDatapath.constants">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">constants</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">constants</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExpConstants</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_exp_constants</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">internal_bits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_bits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">degree</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_bits</span><span class="p">)</span></div>
 
 
@@ -1393,15 +1393,15 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># and measured as a 13-deep CARRY4 chain between two DSPs -- the</span>
         <span class="c1"># critical path of the whole tile. k only picks the table/residue</span>
         <span class="c1"># split, so a half-step bias in it is absorbed by the residue.</span>
-        <span class="n">k</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">c</span><span class="p">[</span><span class="s2">"inv_ln2_narrow"</span><span class="p">])</span> <span class="o">&gt;&gt;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_bits</span> <span class="o">+</span> <span class="n">f</span><span class="p">)</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">c</span><span class="o">.</span><span class="n">inv_ln2_narrow</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_bits</span> <span class="o">+</span> <span class="n">f</span><span class="p">)</span>
         <span class="n">x_q</span> <span class="o">=</span> <span class="n">x</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">q</span> <span class="o">-</span> <span class="n">f</span><span class="p">)</span>
-        <span class="n">residue</span> <span class="o">=</span> <span class="n">x_q</span> <span class="o">-</span> <span class="p">((</span><span class="n">k</span> <span class="o">*</span> <span class="n">c</span><span class="p">[</span><span class="s2">"ln2"</span><span class="p">])</span> <span class="o">&gt;&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_bits</span><span class="p">)</span>
+        <span class="n">residue</span> <span class="o">=</span> <span class="n">x_q</span> <span class="o">-</span> <span class="p">((</span><span class="n">k</span> <span class="o">*</span> <span class="n">c</span><span class="o">.</span><span class="n">ln2</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_bits</span><span class="p">)</span>
 
-        <span class="n">acc</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s2">"coefficients"</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">degree</span><span class="p">]</span>
+        <span class="n">acc</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">degree</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">degree</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
             <span class="n">product</span> <span class="o">=</span> <span class="n">acc</span> <span class="o">*</span> <span class="n">residue</span>
-            <span class="n">acc</span> <span class="o">=</span> <span class="p">((</span><span class="n">product</span> <span class="o">+</span> <span class="n">half</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="n">q</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">round_steps</span> <span class="k">else</span> <span class="n">product</span> <span class="o">&gt;&gt;</span> <span class="n">q</span><span class="p">)</span> <span class="o">+</span> <span class="n">c</span><span class="p">[</span><span class="s2">"coefficients"</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
-        <span class="n">product</span> <span class="o">=</span> <span class="n">acc</span> <span class="o">*</span> <span class="n">c</span><span class="p">[</span><span class="s2">"table"</span><span class="p">][</span><span class="n">k</span> <span class="o">&amp;</span> <span class="p">((</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_bits</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
+            <span class="n">acc</span> <span class="o">=</span> <span class="p">((</span><span class="n">product</span> <span class="o">+</span> <span class="n">half</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="n">q</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">round_steps</span> <span class="k">else</span> <span class="n">product</span> <span class="o">&gt;&gt;</span> <span class="n">q</span><span class="p">)</span> <span class="o">+</span> <span class="n">c</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="n">product</span> <span class="o">=</span> <span class="n">acc</span> <span class="o">*</span> <span class="n">c</span><span class="o">.</span><span class="n">table</span><span class="p">[</span><span class="n">k</span> <span class="o">&amp;</span> <span class="p">((</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_bits</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
         <span class="n">acc</span> <span class="o">=</span> <span class="p">(</span><span class="n">product</span> <span class="o">+</span> <span class="n">half</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="n">q</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">round_steps</span> <span class="k">else</span> <span class="n">product</span> <span class="o">&gt;&gt;</span> <span class="n">q</span>
 
         <span class="n">shift</span> <span class="o">=</span> <span class="p">(</span><span class="n">q</span> <span class="o">-</span> <span class="n">f</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="n">k</span> <span class="o">&gt;&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_bits</span><span class="p">)</span>
@@ -1410,21 +1410,36 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<div class="viewcode-block" id="ExpConstants">
+<a class="viewcode-back" href="../../autoapi/dau_core/fixed_point/index.html#dau_core.fixed_point.ExpConstants">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ExpConstants</span><span class="p">(</span><span class="n">CheckedModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The exp datapath's constants, at ``internal_bits`` fractional bits</span>
+<span class="sd">    unless noted."""</span>
+
+    <span class="n">ln2</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="c1"># 2**table_bits / ln2 at k_bits fractional bits: the range reduction's k</span>
+    <span class="n">inv_ln2_narrow</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="c1"># 2**(j / 2**table_bits) for each table index j</span>
+    <span class="n">table</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="c1"># 1/n! for n in 0..degree</span>
+    <span class="n">coefficients</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span></div>
+
+
+
 <div class="viewcode-block" id="_exp_constants">
 <a class="viewcode-back" href="../../autoapi/dau_core/fixed_point/index.html#dau_core.fixed_point._exp_constants">[docs]</a>
 <span class="nd">@cache</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">_exp_constants</span><span class="p">(</span><span class="n">internal_bits</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">table_bits</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">degree</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">k_bits</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_exp_constants</span><span class="p">(</span><span class="n">internal_bits</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">table_bits</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">degree</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">k_bits</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExpConstants</span><span class="p">:</span>
     <span class="n">_decimal_context</span><span class="p">()</span>
     <span class="n">scale</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="n">internal_bits</span>
     <span class="n">ln2</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">ln</span><span class="p">()</span>
     <span class="n">entries</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">table_bits</span>
-    <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">"ln2"</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">scale</span> <span class="o">*</span> <span class="n">ln2</span><span class="p">),</span>
-        <span class="s2">"inv_ln2"</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">scale</span> <span class="o">*</span> <span class="n">entries</span> <span class="o">/</span> <span class="n">ln2</span><span class="p">),</span>
-        <span class="s2">"inv_ln2_narrow"</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">Decimal</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="n">k_bits</span> <span class="o">*</span> <span class="n">entries</span> <span class="o">/</span> <span class="n">ln2</span><span class="p">),</span>
-        <span class="s2">"table"</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">scale</span> <span class="o">*</span> <span class="p">(</span><span class="n">Decimal</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="n">Decimal</span><span class="p">(</span><span class="n">j</span><span class="p">)</span> <span class="o">/</span> <span class="n">entries</span><span class="p">)))</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">entries</span><span class="p">)),</span>
-        <span class="s2">"coefficients"</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">scale</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">factorial</span><span class="p">(</span><span class="n">n</span><span class="p">))</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">degree</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)),</span>
-    <span class="p">}</span></div>
+    <span class="k">return</span> <span class="n">ExpConstants</span><span class="p">(</span>
+        <span class="n">ln2</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">scale</span> <span class="o">*</span> <span class="n">ln2</span><span class="p">),</span>
+        <span class="n">inv_ln2_narrow</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">Decimal</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="n">k_bits</span> <span class="o">*</span> <span class="n">entries</span> <span class="o">/</span> <span class="n">ln2</span><span class="p">),</span>
+        <span class="n">table</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">scale</span> <span class="o">*</span> <span class="p">(</span><span class="n">Decimal</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="n">Decimal</span><span class="p">(</span><span class="n">j</span><span class="p">)</span> <span class="o">/</span> <span class="n">entries</span><span class="p">)))</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">entries</span><span class="p">)),</span>
+        <span class="n">coefficients</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">scale</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">factorial</span><span class="p">(</span><span class="n">n</span><span class="p">))</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">degree</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)),</span>
+    <span class="p">)</span></div>
 
 
 
@@ -1503,7 +1518,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="LnDatapath.constants">
 <a class="viewcode-back" href="../../autoapi/dau_core/fixed_point/index.html#dau_core.fixed_point.LnDatapath.constants">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">constants</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">constants</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LnConstants</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_ln_constants</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">internal_bits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_bits</span><span class="p">)</span></div>
 
 
@@ -1524,27 +1539,42 @@ window.runMermaid = runMermaid;</script>
 
         <span class="n">index</span> <span class="o">=</span> <span class="p">(</span><span class="n">mantissa</span> <span class="o">&gt;&gt;</span> <span class="p">(</span><span class="n">q</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_bits</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">((</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_bits</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
         <span class="c1"># v = m * recip[index] - 1, small by construction</span>
-        <span class="n">v</span> <span class="o">=</span> <span class="p">((</span><span class="n">mantissa</span> <span class="o">*</span> <span class="n">c</span><span class="p">[</span><span class="s2">"reciprocal"</span><span class="p">][</span><span class="n">index</span><span class="p">])</span> <span class="o">&gt;&gt;</span> <span class="n">q</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">q</span><span class="p">)</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="p">((</span><span class="n">mantissa</span> <span class="o">*</span> <span class="n">c</span><span class="o">.</span><span class="n">reciprocal</span><span class="p">[</span><span class="n">index</span><span class="p">])</span> <span class="o">&gt;&gt;</span> <span class="n">q</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">q</span><span class="p">)</span>
 
         <span class="c1"># ln(1+v) by Horner on the alternating series</span>
-        <span class="n">acc</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s2">"series"</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">degree</span><span class="p">]</span>
+        <span class="n">acc</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">series</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">degree</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">degree</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
             <span class="n">product</span> <span class="o">=</span> <span class="n">acc</span> <span class="o">*</span> <span class="n">v</span>
-            <span class="n">acc</span> <span class="o">=</span> <span class="p">((</span><span class="n">product</span> <span class="o">+</span> <span class="n">half</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="n">q</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">round_steps</span> <span class="k">else</span> <span class="n">product</span> <span class="o">&gt;&gt;</span> <span class="n">q</span><span class="p">)</span> <span class="o">+</span> <span class="n">c</span><span class="p">[</span><span class="s2">"series"</span><span class="p">][</span><span class="n">term</span><span class="p">]</span>
+            <span class="n">acc</span> <span class="o">=</span> <span class="p">((</span><span class="n">product</span> <span class="o">+</span> <span class="n">half</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="n">q</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">round_steps</span> <span class="k">else</span> <span class="n">product</span> <span class="o">&gt;&gt;</span> <span class="n">q</span><span class="p">)</span> <span class="o">+</span> <span class="n">c</span><span class="o">.</span><span class="n">series</span><span class="p">[</span><span class="n">term</span><span class="p">]</span>
         <span class="n">product</span> <span class="o">=</span> <span class="n">acc</span> <span class="o">*</span> <span class="n">v</span>
         <span class="n">acc</span> <span class="o">=</span> <span class="p">(</span><span class="n">product</span> <span class="o">+</span> <span class="n">half</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="n">q</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">round_steps</span> <span class="k">else</span> <span class="n">product</span> <span class="o">&gt;&gt;</span> <span class="n">q</span>
 
-        <span class="n">total</span> <span class="o">=</span> <span class="n">exponent</span> <span class="o">*</span> <span class="n">c</span><span class="p">[</span><span class="s2">"ln2"</span><span class="p">]</span> <span class="o">+</span> <span class="n">c</span><span class="p">[</span><span class="s2">"ln_table"</span><span class="p">][</span><span class="n">index</span><span class="p">]</span> <span class="o">+</span> <span class="n">acc</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="n">exponent</span> <span class="o">*</span> <span class="n">c</span><span class="o">.</span><span class="n">ln2</span> <span class="o">+</span> <span class="n">c</span><span class="o">.</span><span class="n">ln_table</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">+</span> <span class="n">acc</span>
         <span class="n">shift</span> <span class="o">=</span> <span class="n">q</span> <span class="o">-</span> <span class="n">f</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">total</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">shift</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)))</span> <span class="o">&gt;&gt;</span> <span class="n">shift</span> <span class="k">if</span> <span class="n">shift</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">total</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="o">-</span><span class="n">shift</span><span class="p">)</span></div>
 </div>
 
 
 
+<div class="viewcode-block" id="LnConstants">
+<a class="viewcode-back" href="../../autoapi/dau_core/fixed_point/index.html#dau_core.fixed_point.LnConstants">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LnConstants</span><span class="p">(</span><span class="n">CheckedModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The ln datapath's constants, at ``internal_bits`` fractional bits."""</span>
+
+    <span class="n">ln2</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="c1"># ln(1 + j / 2**table_bits) for each table index j</span>
+    <span class="n">ln_table</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="c1"># 1 / (1 + j / 2**table_bits) for each table index j</span>
+    <span class="n">reciprocal</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="c1"># index k holds the coefficient of v**k in ln(1+v), k in 0..8</span>
+    <span class="n">series</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span></div>
+
+
+
 <div class="viewcode-block" id="_ln_constants">
 <a class="viewcode-back" href="../../autoapi/dau_core/fixed_point/index.html#dau_core.fixed_point._ln_constants">[docs]</a>
 <span class="nd">@cache</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">_ln_constants</span><span class="p">(</span><span class="n">internal_bits</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">table_bits</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_ln_constants</span><span class="p">(</span><span class="n">internal_bits</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">table_bits</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LnConstants</span><span class="p">:</span>
     <span class="n">_decimal_context</span><span class="p">()</span>
     <span class="n">scale</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="n">internal_bits</span>
     <span class="n">entries</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">table_bits</span>
@@ -1556,12 +1586,12 @@ window.runMermaid = runMermaid;</script>
         <span class="n">reciprocal</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">scale</span> <span class="o">/</span> <span class="n">base</span><span class="p">))</span>
     <span class="c1"># ln(1+v) = v - v^2/2 + v^3/3 - ...; index k holds the coefficient of v^k</span>
     <span class="n">series</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">scale</span> <span class="o">*</span> <span class="p">(</span><span class="n">Decimal</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">9</span><span class="p">)]</span>
-    <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">"ln2"</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">scale</span> <span class="o">*</span> <span class="n">Decimal</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">ln</span><span class="p">()),</span>
-        <span class="s2">"ln_table"</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">ln_table</span><span class="p">),</span>
-        <span class="s2">"reciprocal"</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">reciprocal</span><span class="p">),</span>
-        <span class="s2">"series"</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">series</span><span class="p">),</span>
-    <span class="p">}</span></div>
+    <span class="k">return</span> <span class="n">LnConstants</span><span class="p">(</span>
+        <span class="n">ln2</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">scale</span> <span class="o">*</span> <span class="n">Decimal</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">ln</span><span class="p">()),</span>
+        <span class="n">ln_table</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">ln_table</span><span class="p">),</span>
+        <span class="n">reciprocal</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">reciprocal</span><span class="p">),</span>
+        <span class="n">series</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">series</span><span class="p">),</span>
+    <span class="p">)</span></div>
 
 
 
@@ -1712,7 +1742,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="NormalCdfDatapath.constants">
 <a class="viewcode-back" href="../../autoapi/dau_core/fixed_point/index.html#dau_core.fixed_point.NormalCdfDatapath.constants">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">constants</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">constants</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NormalCdfConstants</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_normal_cdf_constants</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">internal_bits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_bits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">degree</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fractional_bits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">span_bits</span><span class="p">)</span></div>
 
 
@@ -1725,15 +1755,15 @@ window.runMermaid = runMermaid;</script>
         <span class="n">one</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">f</span>
         <span class="n">negative</span> <span class="o">=</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="mi">0</span>
         <span class="n">magnitude</span> <span class="o">=</span> <span class="o">-</span><span class="n">x</span> <span class="k">if</span> <span class="n">negative</span> <span class="k">else</span> <span class="n">x</span>
-        <span class="k">if</span> <span class="n">magnitude</span> <span class="o">&gt;=</span> <span class="n">c</span><span class="p">[</span><span class="s2">"limit"</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">magnitude</span> <span class="o">&gt;=</span> <span class="n">c</span><span class="o">.</span><span class="n">limit</span><span class="p">:</span>
             <span class="k">return</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">negative</span> <span class="k">else</span> <span class="n">one</span>
 
         <span class="c1"># shift and mask, not divide -- see span_bits</span>
-        <span class="n">index</span> <span class="o">=</span> <span class="n">magnitude</span> <span class="o">&gt;&gt;</span> <span class="n">c</span><span class="p">[</span><span class="s2">"segment_shift"</span><span class="p">]</span>
-        <span class="n">segment_start</span> <span class="o">=</span> <span class="n">index</span> <span class="o">&lt;&lt;</span> <span class="n">c</span><span class="p">[</span><span class="s2">"segment_shift"</span><span class="p">]</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">magnitude</span> <span class="o">&gt;&gt;</span> <span class="n">c</span><span class="o">.</span><span class="n">segment_shift</span>
+        <span class="n">segment_start</span> <span class="o">=</span> <span class="n">index</span> <span class="o">&lt;&lt;</span> <span class="n">c</span><span class="o">.</span><span class="n">segment_shift</span>
         <span class="n">residue</span> <span class="o">=</span> <span class="p">(</span><span class="n">magnitude</span> <span class="o">-</span> <span class="n">segment_start</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">q</span> <span class="o">-</span> <span class="n">f</span><span class="p">)</span>
 
-        <span class="n">coefficients</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s2">"coefficients"</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
+        <span class="n">coefficients</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
         <span class="n">acc</span> <span class="o">=</span> <span class="n">coefficients</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">degree</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">degree</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
             <span class="n">acc</span> <span class="o">=</span> <span class="p">((</span><span class="n">acc</span> <span class="o">*</span> <span class="n">residue</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="n">q</span><span class="p">)</span> <span class="o">+</span> <span class="n">coefficients</span><span class="p">[</span><span class="n">term</span><span class="p">]</span>
@@ -1746,10 +1776,25 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<div class="viewcode-block" id="NormalCdfConstants">
+<a class="viewcode-back" href="../../autoapi/dau_core/fixed_point/index.html#dau_core.fixed_point.NormalCdfConstants">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">NormalCdfConstants</span><span class="p">(</span><span class="n">CheckedModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The normal CDF datapath's segment table."""</span>
+
+    <span class="c1"># the input magnitude, in fractional_bits ticks, at which the output saturates</span>
+    <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">segments</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="c1"># log2 of a segment's width in input ticks</span>
+    <span class="n">segment_shift</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="c1"># per segment, the Taylor coefficients at its start (internal_bits fractional bits)</span>
+    <span class="n">coefficients</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span></div>
+
+
+
 <div class="viewcode-block" id="_normal_cdf_constants">
 <a class="viewcode-back" href="../../autoapi/dau_core/fixed_point/index.html#dau_core.fixed_point._normal_cdf_constants">[docs]</a>
 <span class="nd">@cache</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">_normal_cdf_constants</span><span class="p">(</span><span class="n">internal_bits</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">table_bits</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">degree</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">fractional_bits</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">span_bits</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_normal_cdf_constants</span><span class="p">(</span><span class="n">internal_bits</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">table_bits</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">degree</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">fractional_bits</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">span_bits</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NormalCdfConstants</span><span class="p">:</span>
     <span class="n">_decimal_context</span><span class="p">()</span>
     <span class="n">scale</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="n">internal_bits</span>
     <span class="n">one</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">fractional_bits</span>
@@ -1776,12 +1821,12 @@ window.runMermaid = runMermaid;</script>
         <span class="p">]</span>
         <span class="n">coefficients</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">scale</span> <span class="o">*</span> <span class="n">taylor</span><span class="p">[</span><span class="n">term</span><span class="p">])</span> <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">degree</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)))</span>
 
-    <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">"limit"</span><span class="p">:</span> <span class="n">saturate_at</span><span class="p">,</span>
-        <span class="s2">"segments"</span><span class="p">:</span> <span class="n">segments</span><span class="p">,</span>
-        <span class="s2">"segment_shift"</span><span class="p">:</span> <span class="n">segment_shift</span><span class="p">,</span>
-        <span class="s2">"coefficients"</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">coefficients</span><span class="p">),</span>
-    <span class="p">}</span></div>
+    <span class="k">return</span> <span class="n">NormalCdfConstants</span><span class="p">(</span>
+        <span class="n">limit</span><span class="o">=</span><span class="n">saturate_at</span><span class="p">,</span>
+        <span class="n">segments</span><span class="o">=</span><span class="n">segments</span><span class="p">,</span>
+        <span class="n">segment_shift</span><span class="o">=</span><span class="n">segment_shift</span><span class="p">,</span>
+        <span class="n">coefficients</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">coefficients</span><span class="p">),</span>
+    <span class="p">)</span></div>
 
 </pre></div>
 

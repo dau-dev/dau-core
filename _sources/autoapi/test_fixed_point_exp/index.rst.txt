@@ -44,6 +44,7 @@ Functions
    test_fixed_point_exp.test_the_light_point_is_actually_lighter
    test_fixed_point_exp.test_rounding_steps_only_help_where_precision_binds
    test_fixed_point_exp.test_the_range_reduction_index_is_deliberately_narrow
+   test_fixed_point_exp.test_the_exp_constants_are_a_frozen_model_read_by_name
 
 
 Module Contents
@@ -120,5 +121,13 @@ Module Contents
    Widening it back is not wrong, only wasteful, so this guards the reason
    rather than the number: more precision here must not change a single
    result.
+
+
+.. py:function:: test_the_exp_constants_are_a_frozen_model_read_by_name() -> None
+
+   The generator once emitted the full-precision reciprocal of ln2 where
+   the model used the narrow one, a mistake a dict read by string key
+   allowed. The constants are a frozen model with only the fields the
+   datapath uses.
 
 

@@ -34,6 +34,8 @@ Functions
    test_hero.test_roll_value_selects_the_windowed_bar_price
    test_hero.test_int64_accumulator_roll_values_are_rejected
    test_hero.test_window_below_two_is_rejected
+   test_hero.test_hero_workflow_validates_its_roll_fields_at_construction
+   test_hero.test_record_widths_are_the_registry_record_words
    test_hero.test_estimate_rejects_invalid_physical_parameters
    test_hero.test_bucket_then_generic_aggregator_composes_to_time_bars
    test_hero.test_hero_workflow_model_matches_the_function
@@ -65,6 +67,14 @@ Module Contents
 .. py:function:: test_int64_accumulator_roll_values_are_rejected() -> None
 
 .. py:function:: test_window_below_two_is_rejected() -> None
+
+.. py:function:: test_hero_workflow_validates_its_roll_fields_at_construction() -> None
+
+   An unknown ``roll_value`` or a window below the tile's minimum used to
+   pass construction and fail only when the workflow ran.
+
+
+.. py:function:: test_record_widths_are_the_registry_record_words() -> None
 
 .. py:function:: test_estimate_rejects_invalid_physical_parameters() -> None
 

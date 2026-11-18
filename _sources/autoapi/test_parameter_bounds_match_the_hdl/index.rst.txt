@@ -42,6 +42,9 @@ Functions
    test_parameter_bounds_match_the_hdl.test_declared_bounds_match_the_tiles_elaboration_guard
    test_parameter_bounds_match_the_hdl.test_unparsed_guards_are_declared_and_still_exist
    test_parameter_bounds_match_the_hdl.test_the_python_mirror_of_the_top_k_bound_matches_the_registry
+   test_parameter_bounds_match_the_hdl._golden_bounds
+   test_parameter_bounds_match_the_hdl.test_the_golden_bounds_match_the_registry
+   test_parameter_bounds_match_the_hdl.test_the_golden_configs_accept_exactly_the_declared_fractional_bits
 
 
 Module Contents
@@ -88,4 +91,17 @@ Module Contents
    out-of-envelope limit against it, the registry prices against its maximum,
    and the tile refuses to elaborate outside its guard.
 
+
+.. py:function:: _golden_bounds() -> list[tuple[str, str, str, int]]
+
+   (core, parameter, attribute, golden value): each bound a golden in
+   ``dau_core.operators`` checks its arguments against, beside the registry
+   parameter it mirrors. The goldens are what the registry's ``golden``
+   entries point at, so they keep a Python copy instead of loading the
+   registry; this keeps the copies equal.
+
+
+.. py:function:: test_the_golden_bounds_match_the_registry() -> None
+
+.. py:function:: test_the_golden_configs_accept_exactly_the_declared_fractional_bits() -> None
 

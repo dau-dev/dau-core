@@ -13,6 +13,7 @@ Functions
    test_registers_and_capabilities.test_handle_table_aperture_is_word_aligned_and_shares_no_address
    test_registers_and_capabilities.test_handle_table_aperture_matches_the_generator_that_emits_it
    test_registers_and_capabilities.test_register_block_snapshot_reads_identity_status_and_counters_as_u32_words
+   test_registers_and_capabilities.test_register_block_snapshot_refuses_a_capacity_wider_than_its_word
    test_registers_and_capabilities.test_register_block_snapshot_models_reset_write_side_effects_only
    test_registers_and_capabilities.test_stream_job_register_contract_names_host_trigger_status_and_result_addresses
    test_registers_and_capabilities.test_packaged_identity_register_hdl_exposes_reset_write_pulse_ports
@@ -54,6 +55,8 @@ Module Contents
 
 
 .. py:function:: test_register_block_snapshot_reads_identity_status_and_counters_as_u32_words()
+
+.. py:function:: test_register_block_snapshot_refuses_a_capacity_wider_than_its_word() -> None
 
 .. py:function:: test_register_block_snapshot_models_reset_write_side_effects_only()
 

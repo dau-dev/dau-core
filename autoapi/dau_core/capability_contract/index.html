@@ -848,6 +848,12 @@
     <a href="#dau_core.capability_contract.CAPABILITY_CONTRACT_SCHEMA">CAPABILITY_CONTRACT_SCHEMA</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.capability_contract._CONTRACT_WIRE_KEYS">_CONTRACT_WIRE_KEYS</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.capability_contract._exact_keys">_exact_keys()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.capability_contract.opcode_bitmap">opcode_bitmap()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -1008,6 +1014,9 @@ protocol level), never in <code class="docutils literal notranslate"><span class
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.capability_contract.CAPABILITY_CONTRACT_SCHEMA" title="dau_core.capability_contract.CAPABILITY_CONTRACT_SCHEMA"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CAPABILITY_CONTRACT_SCHEMA</span></code></a></p></td>
 <td><p></p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.capability_contract._CONTRACT_WIRE_KEYS" title="dau_core.capability_contract._CONTRACT_WIRE_KEYS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_CONTRACT_WIRE_KEYS</span></code></a></p></td>
+<td><p></p></td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -1031,13 +1040,16 @@ protocol level), never in <code class="docutils literal notranslate"><span class
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.capability_contract.opcode_bitmap" title="dau_core.capability_contract.opcode_bitmap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">opcode_bitmap</span></code></a>(opcodes) → int</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.capability_contract._exact_keys" title="dau_core.capability_contract._exact_keys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_exact_keys</span></code></a>(mapping, keys, what) → collections.abc.Mapping[str, Any]</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mapping</span></code> if it has exactly <code class="docutils literal notranslate"><span class="pre">keys</span></code>. A missing or misspelled key</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.capability_contract.opcode_bitmap" title="dau_core.capability_contract.opcode_bitmap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">opcode_bitmap</span></code></a>(opcodes) → int</p></td>
 <td><p>The register encoding: bit <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">&lt;&lt;</span> <span class="pre">opcode</span></code> per OperationCode.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.capability_contract.tile_capability" title="dau_core.capability_contract.tile_capability"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tile_capability</span></code></a>(tile) → TileCapability</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.capability_contract.tile_capability" title="dau_core.capability_contract.tile_capability"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tile_capability</span></code></a>(tile) → TileCapability</p></td>
 <td><p>The registry-declared capability facts of one tile instance.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.capability_contract.capability_contract" title="dau_core.capability_contract.capability_contract"><code class="xref py py-obj docutils literal notranslate"><span class="pre">capability_contract</span></code></a>(spec) → CapabilityContract</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.capability_contract.capability_contract" title="dau_core.capability_contract.capability_contract"><code class="xref py py-obj docutils literal notranslate"><span class="pre">capability_contract</span></code></a>(spec) → CapabilityContract</p></td>
 <td><p>Derive the capability contract from the composition that generates</p></td>
 </tr>
 </tbody>
@@ -1049,6 +1061,18 @@ protocol level), never in <code class="docutils literal notranslate"><span class
 <dt class="sig sig-object py" id="dau_core.capability_contract.CAPABILITY_CONTRACT_SCHEMA">
 <span class="sig-prename descclassname"><span class="pre">dau_core.capability_contract.</span></span><span class="sig-name descname"><span class="pre">CAPABILITY_CONTRACT_SCHEMA</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#dau_core.capability_contract.CAPABILITY_CONTRACT_SCHEMA" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_core.capability_contract._CONTRACT_WIRE_KEYS">
+<span class="sig-prename descclassname"><span class="pre">dau_core.capability_contract.</span></span><span class="sig-name descname"><span class="pre">_CONTRACT_WIRE_KEYS</span></span><a class="headerlink" href="#dau_core.capability_contract._CONTRACT_WIRE_KEYS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.capability_contract._exact_keys">
+<span class="sig-prename descclassname"><span class="pre">dau_core.capability_contract.</span></span><span class="sig-name descname"><span class="pre">_exact_keys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mapping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">frozenset</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">what</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">collections.abc.Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/capability_contract.html#_exact_keys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.capability_contract._exact_keys" title="Link to this definition">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">mapping</span></code> if it has exactly <code class="docutils literal notranslate"><span class="pre">keys</span></code>. A missing or misspelled key
+raises instead of reading as an empty default.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.capability_contract.opcode_bitmap">
@@ -1336,6 +1360,12 @@ reads it.</p>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.capability_contract.CAPABILITY_CONTRACT_SCHEMA">CAPABILITY_CONTRACT_SCHEMA</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.capability_contract._CONTRACT_WIRE_KEYS">_CONTRACT_WIRE_KEYS</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.capability_contract._exact_keys">_exact_keys()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.capability_contract.opcode_bitmap">opcode_bitmap()</a>

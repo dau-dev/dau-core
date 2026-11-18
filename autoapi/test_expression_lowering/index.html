@@ -851,6 +851,9 @@
     <a href="#test_expression_lowering.test_a_composed_tile_carries_its_lowering_and_is_found">test_a_composed_tile_carries_its_lowering_and_is_found()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#test_expression_lowering.test_a_misspelled_lowering_raises">test_a_misspelled_lowering_raises()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#test_expression_lowering.test_text_and_a_polars_expression_declare_the_same_pattern">test_text_and_a_polars_expression_declare_the_same_pattern()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -873,6 +876,9 @@
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_expression_lowering.test_an_aggregating_tile_may_terminate_a_wide_lane">test_an_aggregating_tile_may_terminate_a_wide_lane()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_expression_lowering.test_a_lowering_from_a_polars_expression_is_frozen_and_hashable">test_a_lowering_from_a_polars_expression_is_frozen_and_hashable()</a>
   </li>
 </ul>
 </div>
@@ -921,26 +927,32 @@ quad-row tile with a golden element function.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_expression_lowering.test_a_composed_tile_carries_its_lowering_and_is_found" title="test_expression_lowering.test_a_composed_tile_carries_its_lowering_and_is_found"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_composed_tile_carries_its_lowering_and_is_found</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_expression_lowering.test_text_and_a_polars_expression_declare_the_same_pattern" title="test_expression_lowering.test_text_and_a_polars_expression_declare_the_same_pattern"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_text_and_a_polars_expression_declare_the_same_pattern</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_expression_lowering.test_a_misspelled_lowering_raises" title="test_expression_lowering.test_a_misspelled_lowering_raises"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_misspelled_lowering_raises</span></code></a>() → None</p></td>
+<td><p>Composed groups load lazily, and the scan reads a pending entry's raw</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_expression_lowering.test_text_and_a_polars_expression_declare_the_same_pattern" title="test_expression_lowering.test_text_and_a_polars_expression_declare_the_same_pattern"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_text_and_a_polars_expression_declare_the_same_pattern</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_expression_lowering.test_a_compound_expression_names_its_columns_and_constants" title="test_expression_lowering.test_a_compound_expression_names_its_columns_and_constants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_compound_expression_names_its_columns_and_constants</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_expression_lowering.test_a_compound_expression_names_its_columns_and_constants" title="test_expression_lowering.test_a_compound_expression_names_its_columns_and_constants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_compound_expression_names_its_columns_and_constants</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_expression_lowering.test_a_malformed_declaration_is_refused" title="test_expression_lowering.test_a_malformed_declaration_is_refused"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_malformed_declaration_is_refused</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_expression_lowering.test_a_malformed_declaration_is_refused" title="test_expression_lowering.test_a_malformed_declaration_is_refused"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_malformed_declaration_is_refused</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_expression_lowering.test_a_lowering_needs_a_quad_row_tile_with_a_golden" title="test_expression_lowering.test_a_lowering_needs_a_quad_row_tile_with_a_golden"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_lowering_needs_a_quad_row_tile_with_a_golden</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_expression_lowering.test_a_lowering_needs_a_quad_row_tile_with_a_golden" title="test_expression_lowering.test_a_lowering_needs_a_quad_row_tile_with_a_golden"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_lowering_needs_a_quad_row_tile_with_a_golden</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_expression_lowering.test_an_aggregation_declares_a_lane_terminal_reading_packed_columns" title="test_expression_lowering.test_an_aggregation_declares_a_lane_terminal_reading_packed_columns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_an_aggregation_declares_a_lane_terminal_reading_packed_columns</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_expression_lowering.test_an_aggregation_declares_a_lane_terminal_reading_packed_columns" title="test_expression_lowering.test_an_aggregation_declares_a_lane_terminal_reading_packed_columns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_an_aggregation_declares_a_lane_terminal_reading_packed_columns</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_expression_lowering.test_a_terminal_and_a_row_stage_are_not_confused" title="test_expression_lowering.test_a_terminal_and_a_row_stage_are_not_confused"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_terminal_and_a_row_stage_are_not_confused</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_expression_lowering.test_a_terminal_and_a_row_stage_are_not_confused" title="test_expression_lowering.test_a_terminal_and_a_row_stage_are_not_confused"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_terminal_and_a_row_stage_are_not_confused</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_expression_lowering.test_an_aggregating_tile_may_terminate_a_wide_lane" title="test_expression_lowering.test_an_aggregating_tile_may_terminate_a_wide_lane"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_an_aggregating_tile_may_terminate_a_wide_lane</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_expression_lowering.test_an_aggregating_tile_may_terminate_a_wide_lane" title="test_expression_lowering.test_an_aggregating_tile_may_terminate_a_wide_lane"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_an_aggregating_tile_may_terminate_a_wide_lane</span></code></a>() → None</p></td>
 <td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_expression_lowering.test_a_lowering_from_a_polars_expression_is_frozen_and_hashable" title="test_expression_lowering.test_a_lowering_from_a_polars_expression_is_frozen_and_hashable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_lowering_from_a_polars_expression_is_frozen_and_hashable</span></code></a>() → None</p></td>
+<td><p>polars' JSON was stored as the dict it parsed to and handed out by</p></td>
 </tr>
 </tbody>
 </table>
@@ -961,6 +973,14 @@ quad-row tile with a golden element function.</p>
 <dt class="sig sig-object py" id="test_expression_lowering.test_a_composed_tile_carries_its_lowering_and_is_found">
 <span class="sig-prename descclassname"><span class="pre">test_expression_lowering.</span></span><span class="sig-name descname"><span class="pre">test_a_composed_tile_carries_its_lowering_and_is_found</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_expression_lowering.test_a_composed_tile_carries_its_lowering_and_is_found" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_expression_lowering.test_a_misspelled_lowering_raises">
+<span class="sig-prename descclassname"><span class="pre">test_expression_lowering.</span></span><span class="sig-name descname"><span class="pre">test_a_misspelled_lowering_raises</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_expression_lowering.test_a_misspelled_lowering_raises" title="Link to this definition">¶</a></dt>
+<dd><p>Composed groups load lazily, and the scan reads a pending entry’s raw
+config to skip tiles without a lowering. A <code class="docutils literal notranslate"><span class="pre">lowerin:</span></code> key must not
+read as “no lowering”: the entry is built, and validation fails.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="test_expression_lowering.test_text_and_a_polars_expression_declare_the_same_pattern">
@@ -1001,6 +1021,15 @@ quad-row tile with a golden element function.</p>
 <dt class="sig sig-object py" id="test_expression_lowering.test_an_aggregating_tile_may_terminate_a_wide_lane">
 <span class="sig-prename descclassname"><span class="pre">test_expression_lowering.</span></span><span class="sig-name descname"><span class="pre">test_an_aggregating_tile_may_terminate_a_wide_lane</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_expression_lowering.test_an_aggregating_tile_may_terminate_a_wide_lane" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_expression_lowering.test_a_lowering_from_a_polars_expression_is_frozen_and_hashable">
+<span class="sig-prename descclassname"><span class="pre">test_expression_lowering.</span></span><span class="sig-name descname"><span class="pre">test_a_lowering_from_a_polars_expression_is_frozen_and_hashable</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_expression_lowering.test_a_lowering_from_a_polars_expression_is_frozen_and_hashable" title="Link to this definition">¶</a></dt>
+<dd><p>polars’ JSON was stored as the dict it parsed to and handed out by
+reference: a caller could edit the declaration through
+<code class="docutils literal notranslate"><span class="pre">expression_json()</span></code>, and any core declaring such a lowering was
+unhashable.</p>
+</dd></dl>
 
 </section>
 </section>
@@ -1057,6 +1086,9 @@ quad-row tile with a golden element function.</p>
     <a href="#test_expression_lowering.test_a_composed_tile_carries_its_lowering_and_is_found">test_a_composed_tile_carries_its_lowering_and_is_found()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#test_expression_lowering.test_a_misspelled_lowering_raises">test_a_misspelled_lowering_raises()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#test_expression_lowering.test_text_and_a_polars_expression_declare_the_same_pattern">test_text_and_a_polars_expression_declare_the_same_pattern()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -1079,6 +1111,9 @@ quad-row tile with a golden element function.</p>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_expression_lowering.test_an_aggregating_tile_may_terminate_a_wide_lane">test_an_aggregating_tile_may_terminate_a_wide_lane()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_expression_lowering.test_a_lowering_from_a_polars_expression_is_frozen_and_hashable">test_a_lowering_from_a_polars_expression_is_frozen_and_hashable()</a>
   </li>
 </ul>
 

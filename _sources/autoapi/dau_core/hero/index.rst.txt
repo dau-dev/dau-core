@@ -43,11 +43,16 @@ Attributes
 
 .. autoapisummary::
 
+   dau_core.hero._ASOF
+   dau_core.hero._BAR
+   dau_core.hero._ROLL
    dau_core.hero.INPUT_BYTES
    dau_core.hero.MARKET_BYTES
    dau_core.hero.BAR_BYTES
    dau_core.hero.ROLL_INPUT_BYTES
    dau_core.hero.ROLL_BYTES
+   dau_core.hero.ROLL_WINDOW_MINIMUM
+   dau_core.hero.RollField
    dau_core.hero.ROLL_FIELDS
 
 
@@ -66,6 +71,7 @@ Functions
 
 .. autoapisummary::
 
+   dau_core.hero._output_record_bytes
    dau_core.hero.run_hero_workflow
    dau_core.hero.materialization_cost
 
@@ -73,29 +79,36 @@ Functions
 Module Contents
 ---------------
 
-.. py:data:: INPUT_BYTES
-   :value: 24
+.. py:data:: _ASOF
+   :value: None
 
+
+.. py:data:: _BAR
+   :value: None
+
+
+.. py:data:: _ROLL
+   :value: None
+
+
+.. py:function:: _output_record_bytes(definition: dau_core.cores.CoreDefinition) -> int
+
+.. py:data:: INPUT_BYTES
 
 .. py:data:: MARKET_BYTES
-   :value: 32
-
 
 .. py:data:: BAR_BYTES
-   :value: 48
-
 
 .. py:data:: ROLL_INPUT_BYTES
-   :value: 8
-
 
 .. py:data:: ROLL_BYTES
-   :value: 24
 
+.. py:data:: ROLL_WINDOW_MINIMUM
+
+.. py:data:: RollField
 
 .. py:data:: ROLL_FIELDS
-   :value: ('open', 'high', 'low', 'close')
-
+   :type:  tuple[RollField, ...]
 
 .. py:class:: WorkflowStage(/, **data: Any)
 
@@ -201,12 +214,12 @@ Module Contents
       :type: Row counts down the reduction path
 
 
-.. py:function:: run_hero_workflow(trades: list[dau_core.temporal.TradeRow], quotes: list[dau_core.temporal.QuoteRow], *, bar_width: int, roll_window: int, tolerance: int | None = None, roll_value: str = 'close') -> HeroResult
+.. py:function:: run_hero_workflow(trades: list[dau_core.temporal.TradeRow], quotes: list[dau_core.temporal.QuoteRow], *, bar_width: int, roll_window: int, tolerance: int | None = None, roll_value: RollField = 'close') -> HeroResult
 
    Run the predeclared workflow end to end over the goldens, recording each
    materializing stage's cardinality. ``roll_value`` selects the per-bar OHLC
    price the roll stage windows (:data:`ROLL_FIELDS`); ``roll_window`` is the
-   count-based window (``>= 2``, the tile's minimum). Both input streams must be
+   count-based window (at least :data:`ROLL_WINDOW_MINIMUM`, the tile's minimum). Both input streams must be
    pre-sorted by ``(symbol_id, time)`` (the shared as-of / bar precondition).
 
 

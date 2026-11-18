@@ -39,6 +39,7 @@ Functions
    test_fixed_point_ln.test_the_operating_point_meets_its_recorded_bound
    test_fixed_point_ln.test_the_two_tier_sweep_agrees_with_the_exact_reference
    test_fixed_point_ln.test_the_light_point_is_faithful_at_the_full_points_known_deviation
+   test_fixed_point_ln.test_the_ln_constants_are_a_frozen_model_read_by_name
 
 
 Module Contents
@@ -109,4 +110,6 @@ Module Contents
    full point's 459). Pin the shared boundary case here; the full-domain
    number lives in the registry entry and BENCHMARKS.
 
+
+.. py:function:: test_the_ln_constants_are_a_frozen_model_read_by_name() -> None
 

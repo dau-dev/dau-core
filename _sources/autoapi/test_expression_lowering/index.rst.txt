@@ -31,6 +31,7 @@ Functions
 .. autoapisummary::
 
    test_expression_lowering.test_a_composed_tile_carries_its_lowering_and_is_found
+   test_expression_lowering.test_a_misspelled_lowering_raises
    test_expression_lowering.test_text_and_a_polars_expression_declare_the_same_pattern
    test_expression_lowering.test_a_compound_expression_names_its_columns_and_constants
    test_expression_lowering.test_a_malformed_declaration_is_refused
@@ -38,6 +39,7 @@ Functions
    test_expression_lowering.test_an_aggregation_declares_a_lane_terminal_reading_packed_columns
    test_expression_lowering.test_a_terminal_and_a_row_stage_are_not_confused
    test_expression_lowering.test_an_aggregating_tile_may_terminate_a_wide_lane
+   test_expression_lowering.test_a_lowering_from_a_polars_expression_is_frozen_and_hashable
 
 
 Module Contents
@@ -48,6 +50,13 @@ Module Contents
 .. py:data:: _TILE
 
 .. py:function:: test_a_composed_tile_carries_its_lowering_and_is_found() -> None
+
+.. py:function:: test_a_misspelled_lowering_raises() -> None
+
+   Composed groups load lazily, and the scan reads a pending entry's raw
+   config to skip tiles without a lowering. A ``lowerin:`` key must not
+   read as "no lowering": the entry is built, and validation fails.
+
 
 .. py:function:: test_text_and_a_polars_expression_declare_the_same_pattern() -> None
 
@@ -64,4 +73,12 @@ Module Contents
 .. py:function:: test_a_terminal_and_a_row_stage_are_not_confused() -> None
 
 .. py:function:: test_an_aggregating_tile_may_terminate_a_wide_lane() -> None
+
+.. py:function:: test_a_lowering_from_a_polars_expression_is_frozen_and_hashable() -> None
+
+   polars' JSON was stored as the dict it parsed to and handed out by
+   reference: a caller could edit the declaration through
+   ``expression_json()``, and any core declaring such a lowering was
+   unhashable.
+
 

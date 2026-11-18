@@ -893,6 +893,21 @@
     <a href="#dau_core.fixed_point.ExpDatapath.evaluate">ExpDatapath.evaluate()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.fixed_point.ExpConstants">ExpConstants</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.fixed_point.ExpConstants.ln2">ExpConstants.ln2</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.fixed_point.ExpConstants.inv_ln2_narrow">ExpConstants.inv_ln2_narrow</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.fixed_point.ExpConstants.table">ExpConstants.table</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.fixed_point.ExpConstants.coefficients">ExpConstants.coefficients</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.fixed_point._exp_constants">_exp_constants()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -930,6 +945,21 @@
   </li>
   <li class="fd-toc-item" data-depth="3">
     <a href="#dau_core.fixed_point.LnDatapath.evaluate">LnDatapath.evaluate()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.fixed_point.LnConstants">LnConstants</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.fixed_point.LnConstants.ln2">LnConstants.ln2</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.fixed_point.LnConstants.ln_table">LnConstants.ln_table</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.fixed_point.LnConstants.reciprocal">LnConstants.reciprocal</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.fixed_point.LnConstants.series">LnConstants.series</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.fixed_point._ln_constants">_ln_constants()</a>
@@ -978,6 +1008,21 @@
   </li>
   <li class="fd-toc-item" data-depth="3">
     <a href="#dau_core.fixed_point.NormalCdfDatapath.evaluate">NormalCdfDatapath.evaluate()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.fixed_point.NormalCdfConstants">NormalCdfConstants</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.fixed_point.NormalCdfConstants.limit">NormalCdfConstants.limit</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.fixed_point.NormalCdfConstants.segments">NormalCdfConstants.segments</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.fixed_point.NormalCdfConstants.segment_shift">NormalCdfConstants.segment_shift</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.fixed_point.NormalCdfConstants.coefficients">NormalCdfConstants.coefficients</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.fixed_point._normal_cdf_constants">_normal_cdf_constants()</a>
@@ -1048,11 +1093,20 @@ points were chosen.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.fixed_point.ExpDatapath" title="dau_core.fixed_point.ExpDatapath"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ExpDatapath</span></code></a></p></td>
 <td><p>One operating point of the exp datapath.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.fixed_point.LnDatapath" title="dau_core.fixed_point.LnDatapath"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LnDatapath</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.fixed_point.ExpConstants" title="dau_core.fixed_point.ExpConstants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ExpConstants</span></code></a></p></td>
+<td><p>The exp datapath's constants, at <code class="docutils literal notranslate"><span class="pre">internal_bits</span></code> fractional bits</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.fixed_point.LnDatapath" title="dau_core.fixed_point.LnDatapath"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LnDatapath</span></code></a></p></td>
 <td><p>One operating point of the ln datapath.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.fixed_point.LnConstants" title="dau_core.fixed_point.LnConstants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LnConstants</span></code></a></p></td>
+<td><p>The ln datapath's constants, at <code class="docutils literal notranslate"><span class="pre">internal_bits</span></code> fractional bits.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.fixed_point.NormalCdfDatapath" title="dau_core.fixed_point.NormalCdfDatapath"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NormalCdfDatapath</span></code></a></p></td>
 <td><p>One operating point of the normal-CDF datapath.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.fixed_point.NormalCdfConstants" title="dau_core.fixed_point.NormalCdfConstants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NormalCdfConstants</span></code></a></p></td>
+<td><p>The normal CDF datapath's segment table.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1070,13 +1124,13 @@ points were chosen.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.fixed_point.exp_domain" title="dau_core.fixed_point.exp_domain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exp_domain</span></code></a>(*[, fractional_bits]) → tuple[int, int]</p></td>
 <td><p>The inputs where <code class="docutils literal notranslate"><span class="pre">exp</span></code> is neither 0 nor an overflow, inclusive.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.fixed_point._exp_constants" title="dau_core.fixed_point._exp_constants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_exp_constants</span></code></a>(internal_bits, table_bits, degree, k_bits) → dict</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.fixed_point._exp_constants" title="dau_core.fixed_point._exp_constants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_exp_constants</span></code></a>(internal_bits, table_bits, degree, k_bits) → ExpConstants</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.fixed_point.ln_reference" title="dau_core.fixed_point.ln_reference"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ln_reference</span></code></a>(x, *[, fractional_bits]) → int</p></td>
 <td><p>True <code class="docutils literal notranslate"><span class="pre">ln</span></code> of a Q(32-f).f value, correctly rounded to Q(32-f).f.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.fixed_point._ln_constants" title="dau_core.fixed_point._ln_constants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_ln_constants</span></code></a>(internal_bits, table_bits) → dict</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.fixed_point._ln_constants" title="dau_core.fixed_point._ln_constants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_ln_constants</span></code></a>(internal_bits, table_bits) → LnConstants</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.fixed_point.normal_cdf_reference" title="dau_core.fixed_point.normal_cdf_reference"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normal_cdf_reference</span></code></a>(x, *[, fractional_bits]) → int</p></td>
@@ -1091,7 +1145,7 @@ points were chosen.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.fixed_point.normal_cdf_domain" title="dau_core.fixed_point.normal_cdf_domain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normal_cdf_domain</span></code></a>(*[, fractional_bits]) → tuple[int, int]</p></td>
 <td><p>The inputs where the CDF is neither 0 nor 1 to the last bit.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.fixed_point._normal_cdf_constants" title="dau_core.fixed_point._normal_cdf_constants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_normal_cdf_constants</span></code></a>(internal_bits, table_bits, ...) → dict</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.fixed_point._normal_cdf_constants" title="dau_core.fixed_point._normal_cdf_constants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_normal_cdf_constants</span></code></a>(internal_bits, table_bits, ...) → NormalCdfConstants</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -1201,7 +1255,7 @@ two in the range reduction. This is what the DSP cost tracks.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dau_core.fixed_point.ExpDatapath.constants">
-<span class="sig-name descname"><span class="pre">constants</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../../../_modules/dau_core/fixed_point.html#ExpDatapath.constants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.fixed_point.ExpDatapath.constants" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">constants</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_core.fixed_point.ExpConstants" title="dau_core.fixed_point.ExpConstants"><span class="pre">ExpConstants</span></a></span></span><a class="reference internal" href="../../../_modules/dau_core/fixed_point.html#ExpDatapath.constants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.fixed_point.ExpDatapath.constants" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1212,9 +1266,41 @@ two in the range reduction. This is what the DSP cost tracks.</p>
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.fixed_point.ExpConstants">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.fixed_point.</span></span><span class="sig-name descname"><span class="pre">ExpConstants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data:</span> <span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/dau_core/fixed_point.html#ExpConstants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.fixed_point.ExpConstants" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../models/index.html#dau_core.models.CheckedModel" title="dau_core.models.CheckedModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dau_core.models.CheckedModel</span></code></a></p>
+<p>The exp datapath’s constants, at <code class="docutils literal notranslate"><span class="pre">internal_bits</span></code> fractional bits
+unless noted.</p>
+<p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
+validated to form a valid model.</p>
+<p><cite>self</cite> is explicitly positional-only to allow <cite>self</cite> as a field name.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.fixed_point.ExpConstants.ln2">
+<span class="sig-name descname"><span class="pre">ln2</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.fixed_point.ExpConstants.ln2" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.fixed_point.ExpConstants.inv_ln2_narrow">
+<span class="sig-name descname"><span class="pre">inv_ln2_narrow</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.fixed_point.ExpConstants.inv_ln2_narrow" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.fixed_point.ExpConstants.table">
+<span class="sig-name descname"><span class="pre">table</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#dau_core.fixed_point.ExpConstants.table" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.fixed_point.ExpConstants.coefficients">
+<span class="sig-name descname"><span class="pre">coefficients</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#dau_core.fixed_point.ExpConstants.coefficients" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.fixed_point._exp_constants">
-<span class="sig-prename descclassname"><span class="pre">dau_core.fixed_point.</span></span><span class="sig-name descname"><span class="pre">_exp_constants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">internal_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../../../_modules/dau_core/fixed_point.html#_exp_constants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.fixed_point._exp_constants" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">dau_core.fixed_point.</span></span><span class="sig-name descname"><span class="pre">_exp_constants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">internal_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_core.fixed_point.ExpConstants" title="dau_core.fixed_point.ExpConstants"><span class="pre">ExpConstants</span></a></span></span><a class="reference internal" href="../../../_modules/dau_core/fixed_point.html#_exp_constants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.fixed_point._exp_constants" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py data">
@@ -1291,7 +1377,7 @@ This is useful if you want to do some validation that requires the entire model 
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dau_core.fixed_point.LnDatapath.constants">
-<span class="sig-name descname"><span class="pre">constants</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../../../_modules/dau_core/fixed_point.html#LnDatapath.constants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.fixed_point.LnDatapath.constants" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">constants</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_core.fixed_point.LnConstants" title="dau_core.fixed_point.LnConstants"><span class="pre">LnConstants</span></a></span></span><a class="reference internal" href="../../../_modules/dau_core/fixed_point.html#LnDatapath.constants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.fixed_point.LnDatapath.constants" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1302,9 +1388,40 @@ This is useful if you want to do some validation that requires the entire model 
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.fixed_point.LnConstants">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.fixed_point.</span></span><span class="sig-name descname"><span class="pre">LnConstants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data:</span> <span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/dau_core/fixed_point.html#LnConstants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.fixed_point.LnConstants" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../models/index.html#dau_core.models.CheckedModel" title="dau_core.models.CheckedModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dau_core.models.CheckedModel</span></code></a></p>
+<p>The ln datapath’s constants, at <code class="docutils literal notranslate"><span class="pre">internal_bits</span></code> fractional bits.</p>
+<p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
+validated to form a valid model.</p>
+<p><cite>self</cite> is explicitly positional-only to allow <cite>self</cite> as a field name.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.fixed_point.LnConstants.ln2">
+<span class="sig-name descname"><span class="pre">ln2</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.fixed_point.LnConstants.ln2" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.fixed_point.LnConstants.ln_table">
+<span class="sig-name descname"><span class="pre">ln_table</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#dau_core.fixed_point.LnConstants.ln_table" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.fixed_point.LnConstants.reciprocal">
+<span class="sig-name descname"><span class="pre">reciprocal</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#dau_core.fixed_point.LnConstants.reciprocal" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.fixed_point.LnConstants.series">
+<span class="sig-name descname"><span class="pre">series</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#dau_core.fixed_point.LnConstants.series" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.fixed_point._ln_constants">
-<span class="sig-prename descclassname"><span class="pre">dau_core.fixed_point.</span></span><span class="sig-name descname"><span class="pre">_ln_constants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">internal_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../../../_modules/dau_core/fixed_point.html#_ln_constants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.fixed_point._ln_constants" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">dau_core.fixed_point.</span></span><span class="sig-name descname"><span class="pre">_ln_constants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">internal_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_core.fixed_point.LnConstants" title="dau_core.fixed_point.LnConstants"><span class="pre">LnConstants</span></a></span></span><a class="reference internal" href="../../../_modules/dau_core/fixed_point.html#_ln_constants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.fixed_point._ln_constants" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py data">
@@ -1399,7 +1516,7 @@ This is useful if you want to do some validation that requires the entire model 
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dau_core.fixed_point.NormalCdfDatapath.constants">
-<span class="sig-name descname"><span class="pre">constants</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../../../_modules/dau_core/fixed_point.html#NormalCdfDatapath.constants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.fixed_point.NormalCdfDatapath.constants" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">constants</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_core.fixed_point.NormalCdfConstants" title="dau_core.fixed_point.NormalCdfConstants"><span class="pre">NormalCdfConstants</span></a></span></span><a class="reference internal" href="../../../_modules/dau_core/fixed_point.html#NormalCdfDatapath.constants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.fixed_point.NormalCdfDatapath.constants" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1410,9 +1527,40 @@ This is useful if you want to do some validation that requires the entire model 
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.fixed_point.NormalCdfConstants">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.fixed_point.</span></span><span class="sig-name descname"><span class="pre">NormalCdfConstants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data:</span> <span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/dau_core/fixed_point.html#NormalCdfConstants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.fixed_point.NormalCdfConstants" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../models/index.html#dau_core.models.CheckedModel" title="dau_core.models.CheckedModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dau_core.models.CheckedModel</span></code></a></p>
+<p>The normal CDF datapath’s segment table.</p>
+<p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
+validated to form a valid model.</p>
+<p><cite>self</cite> is explicitly positional-only to allow <cite>self</cite> as a field name.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.fixed_point.NormalCdfConstants.limit">
+<span class="sig-name descname"><span class="pre">limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.fixed_point.NormalCdfConstants.limit" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.fixed_point.NormalCdfConstants.segments">
+<span class="sig-name descname"><span class="pre">segments</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.fixed_point.NormalCdfConstants.segments" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.fixed_point.NormalCdfConstants.segment_shift">
+<span class="sig-name descname"><span class="pre">segment_shift</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.fixed_point.NormalCdfConstants.segment_shift" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.fixed_point.NormalCdfConstants.coefficients">
+<span class="sig-name descname"><span class="pre">coefficients</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#dau_core.fixed_point.NormalCdfConstants.coefficients" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.fixed_point._normal_cdf_constants">
-<span class="sig-prename descclassname"><span class="pre">dau_core.fixed_point.</span></span><span class="sig-name descname"><span class="pre">_normal_cdf_constants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">internal_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fractional_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../../../_modules/dau_core/fixed_point.html#_normal_cdf_constants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.fixed_point._normal_cdf_constants" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">dau_core.fixed_point.</span></span><span class="sig-name descname"><span class="pre">_normal_cdf_constants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">internal_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fractional_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_core.fixed_point.NormalCdfConstants" title="dau_core.fixed_point.NormalCdfConstants"><span class="pre">NormalCdfConstants</span></a></span></span><a class="reference internal" href="../../../_modules/dau_core/fixed_point.html#_normal_cdf_constants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.fixed_point._normal_cdf_constants" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </section>
@@ -1512,6 +1660,21 @@ This is useful if you want to do some validation that requires the entire model 
     <a href="#dau_core.fixed_point.ExpDatapath.evaluate">ExpDatapath.evaluate()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.fixed_point.ExpConstants">ExpConstants</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.fixed_point.ExpConstants.ln2">ExpConstants.ln2</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.fixed_point.ExpConstants.inv_ln2_narrow">ExpConstants.inv_ln2_narrow</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.fixed_point.ExpConstants.table">ExpConstants.table</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.fixed_point.ExpConstants.coefficients">ExpConstants.coefficients</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.fixed_point._exp_constants">_exp_constants()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -1549,6 +1712,21 @@ This is useful if you want to do some validation that requires the entire model 
   </li>
   <li class="fd-toc-item" data-depth="3">
     <a href="#dau_core.fixed_point.LnDatapath.evaluate">LnDatapath.evaluate()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.fixed_point.LnConstants">LnConstants</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.fixed_point.LnConstants.ln2">LnConstants.ln2</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.fixed_point.LnConstants.ln_table">LnConstants.ln_table</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.fixed_point.LnConstants.reciprocal">LnConstants.reciprocal</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.fixed_point.LnConstants.series">LnConstants.series</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.fixed_point._ln_constants">_ln_constants()</a>
@@ -1597,6 +1775,21 @@ This is useful if you want to do some validation that requires the entire model 
   </li>
   <li class="fd-toc-item" data-depth="3">
     <a href="#dau_core.fixed_point.NormalCdfDatapath.evaluate">NormalCdfDatapath.evaluate()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.fixed_point.NormalCdfConstants">NormalCdfConstants</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.fixed_point.NormalCdfConstants.limit">NormalCdfConstants.limit</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.fixed_point.NormalCdfConstants.segments">NormalCdfConstants.segments</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.fixed_point.NormalCdfConstants.segment_shift">NormalCdfConstants.segment_shift</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.fixed_point.NormalCdfConstants.coefficients">NormalCdfConstants.coefficients</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.fixed_point._normal_cdf_constants">_normal_cdf_constants()</a>

@@ -67,6 +67,8 @@ Functions
 
    dau_core.cores._column_names
    dau_core.cores._json_size
+   dau_core.cores._freeze_json
+   dau_core.cores._thaw_json
    dau_core.cores._same_clock
    dau_core.cores.package_root
    dau_core.cores.render_root
@@ -768,6 +770,17 @@ Module Contents
 
 .. py:function:: _json_size(node: Any) -> int
 
+.. py:function:: _freeze_json(node: Any) -> Any
+
+   A JSON tree with every object a ``FrozenMapping`` and every array a
+   tuple: read-only, and hashable.
+
+
+.. py:function:: _thaw_json(node: Any) -> Any
+
+   A fresh plain-JSON copy of a tree :func:`_freeze_json` built.
+
+
 .. py:class:: ColumnBinding(/, **data: Any)
 
    Bases: :py:obj:`dau_core.models.CheckedModel`
@@ -855,7 +868,7 @@ Module Contents
 
 
    .. py:attribute:: expression
-      :type:  str | dict[str, Any]
+      :type:  Annotated[str | collections.abc.Mapping[str, Any], AfterValidator(_freeze_json), PlainSerializer(_thaw_json)]
 
 
    .. py:attribute:: literals
@@ -893,8 +906,9 @@ Module Contents
 
    .. py:method:: expression_json() -> dict[str, Any]
 
-      The expression as polars serializes it. Text is evaluated through
-      ccflow's ``PolarsExpression``, which needs polars installed.
+      The expression as polars serializes it, as a new dict on every
+      call. Text is evaluated through ccflow's ``PolarsExpression``, which
+      needs polars installed.
 
 
 

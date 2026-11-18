@@ -57,6 +57,7 @@ Functions
    dau_core.composition._stream_job_shell
    dau_core.composition._stream_job_cores
    dau_core.composition._validate_tile_params
+   dau_core.composition._contract_param
    dau_core.composition.stream_shape_mismatches
    dau_core.composition.throughput_rows_per_cycle
    dau_core.composition.throughput_breakdown
@@ -102,6 +103,13 @@ Module Contents
    positive integer value (SV sizes are positive; an element type has already
    been resolved to its encoding by then). An unknown name is a typo or a
    param the core does not expose — rejected up front.
+
+
+.. py:function:: _contract_param(tile: TileSpec, name: str, role: str) -> int
+
+   A parameter the composition reads off a tile: its override, else the
+   default the core declares. A core whose role requires ``name`` but which
+   does not declare it raises ``CompositionError``.
 
 
 .. py:class:: TileSpec(/, **data: Any)

@@ -845,6 +845,18 @@
     <a href="#module-contents">Module Contents</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero._ASOF">_ASOF</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero._BAR">_BAR</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero._ROLL">_ROLL</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero._output_record_bytes">_output_record_bytes()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.hero.INPUT_BYTES">INPUT_BYTES</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -858,6 +870,12 @@
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.hero.ROLL_BYTES">ROLL_BYTES</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero.ROLL_WINDOW_MINIMUM">ROLL_WINDOW_MINIMUM</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero.RollField">RollField</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.hero.ROLL_FIELDS">ROLL_FIELDS</a>
@@ -1005,22 +1023,37 @@ the temporal goldens.</p>
 <h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hero.INPUT_BYTES" title="dau_core.hero.INPUT_BYTES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">INPUT_BYTES</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hero._ASOF" title="dau_core.hero._ASOF"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_ASOF</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hero.MARKET_BYTES" title="dau_core.hero.MARKET_BYTES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MARKET_BYTES</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hero._BAR" title="dau_core.hero._BAR"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_BAR</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hero.BAR_BYTES" title="dau_core.hero.BAR_BYTES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BAR_BYTES</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hero._ROLL" title="dau_core.hero._ROLL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_ROLL</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hero.ROLL_INPUT_BYTES" title="dau_core.hero.ROLL_INPUT_BYTES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ROLL_INPUT_BYTES</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hero.INPUT_BYTES" title="dau_core.hero.INPUT_BYTES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">INPUT_BYTES</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hero.ROLL_BYTES" title="dau_core.hero.ROLL_BYTES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ROLL_BYTES</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hero.MARKET_BYTES" title="dau_core.hero.MARKET_BYTES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MARKET_BYTES</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hero.ROLL_FIELDS" title="dau_core.hero.ROLL_FIELDS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ROLL_FIELDS</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hero.BAR_BYTES" title="dau_core.hero.BAR_BYTES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BAR_BYTES</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hero.ROLL_INPUT_BYTES" title="dau_core.hero.ROLL_INPUT_BYTES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ROLL_INPUT_BYTES</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hero.ROLL_BYTES" title="dau_core.hero.ROLL_BYTES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ROLL_BYTES</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hero.ROLL_WINDOW_MINIMUM" title="dau_core.hero.ROLL_WINDOW_MINIMUM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ROLL_WINDOW_MINIMUM</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hero.RollField" title="dau_core.hero.RollField"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RollField</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hero.ROLL_FIELDS" title="dau_core.hero.ROLL_FIELDS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ROLL_FIELDS</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -1046,10 +1079,13 @@ the temporal goldens.</p>
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hero.run_hero_workflow" title="dau_core.hero.run_hero_workflow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_hero_workflow</span></code></a>(trades, quotes, *, bar_width, ...[, ...]) → HeroResult</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hero._output_record_bytes" title="dau_core.hero._output_record_bytes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_output_record_bytes</span></code></a>(definition) → int</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hero.run_hero_workflow" title="dau_core.hero.run_hero_workflow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_hero_workflow</span></code></a>(trades, quotes, *, bar_width, ...[, ...]) → HeroResult</p></td>
 <td><p>Run the predeclared workflow end to end over the goldens, recording each</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.hero.materialization_cost" title="dau_core.hero.materialization_cost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">materialization_cost</span></code></a>(result) → MaterializationCost</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.hero.materialization_cost" title="dau_core.hero.materialization_cost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">materialization_cost</span></code></a>(result) → MaterializationCost</p></td>
 <td><p>Fused vs staged DMA accounting for an executed workflow. Staged pays each</p></td>
 </tr>
 </tbody>
@@ -1058,33 +1094,63 @@ the temporal goldens.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
 <dl class="py data">
+<dt class="sig sig-object py" id="dau_core.hero._ASOF">
+<span class="sig-prename descclassname"><span class="pre">dau_core.hero.</span></span><span class="sig-name descname"><span class="pre">_ASOF</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.hero._ASOF" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_core.hero._BAR">
+<span class="sig-prename descclassname"><span class="pre">dau_core.hero.</span></span><span class="sig-name descname"><span class="pre">_BAR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.hero._BAR" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_core.hero._ROLL">
+<span class="sig-prename descclassname"><span class="pre">dau_core.hero.</span></span><span class="sig-name descname"><span class="pre">_ROLL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.hero._ROLL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.hero._output_record_bytes">
+<span class="sig-prename descclassname"><span class="pre">dau_core.hero.</span></span><span class="sig-name descname"><span class="pre">_output_record_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">definition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../cores/index.html#dau_core.cores.CoreDefinition" title="dau_core.cores.CoreDefinition"><span class="pre">dau_core.cores.CoreDefinition</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../../_modules/dau_core/hero.html#_output_record_bytes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.hero._output_record_bytes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
 <dt class="sig sig-object py" id="dau_core.hero.INPUT_BYTES">
-<span class="sig-prename descclassname"><span class="pre">dau_core.hero.</span></span><span class="sig-name descname"><span class="pre">INPUT_BYTES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">24</span></em><a class="headerlink" href="#dau_core.hero.INPUT_BYTES" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">dau_core.hero.</span></span><span class="sig-name descname"><span class="pre">INPUT_BYTES</span></span><a class="headerlink" href="#dau_core.hero.INPUT_BYTES" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="dau_core.hero.MARKET_BYTES">
-<span class="sig-prename descclassname"><span class="pre">dau_core.hero.</span></span><span class="sig-name descname"><span class="pre">MARKET_BYTES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">32</span></em><a class="headerlink" href="#dau_core.hero.MARKET_BYTES" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">dau_core.hero.</span></span><span class="sig-name descname"><span class="pre">MARKET_BYTES</span></span><a class="headerlink" href="#dau_core.hero.MARKET_BYTES" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="dau_core.hero.BAR_BYTES">
-<span class="sig-prename descclassname"><span class="pre">dau_core.hero.</span></span><span class="sig-name descname"><span class="pre">BAR_BYTES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">48</span></em><a class="headerlink" href="#dau_core.hero.BAR_BYTES" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">dau_core.hero.</span></span><span class="sig-name descname"><span class="pre">BAR_BYTES</span></span><a class="headerlink" href="#dau_core.hero.BAR_BYTES" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="dau_core.hero.ROLL_INPUT_BYTES">
-<span class="sig-prename descclassname"><span class="pre">dau_core.hero.</span></span><span class="sig-name descname"><span class="pre">ROLL_INPUT_BYTES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#dau_core.hero.ROLL_INPUT_BYTES" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">dau_core.hero.</span></span><span class="sig-name descname"><span class="pre">ROLL_INPUT_BYTES</span></span><a class="headerlink" href="#dau_core.hero.ROLL_INPUT_BYTES" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="dau_core.hero.ROLL_BYTES">
-<span class="sig-prename descclassname"><span class="pre">dau_core.hero.</span></span><span class="sig-name descname"><span class="pre">ROLL_BYTES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">24</span></em><a class="headerlink" href="#dau_core.hero.ROLL_BYTES" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">dau_core.hero.</span></span><span class="sig-name descname"><span class="pre">ROLL_BYTES</span></span><a class="headerlink" href="#dau_core.hero.ROLL_BYTES" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_core.hero.ROLL_WINDOW_MINIMUM">
+<span class="sig-prename descclassname"><span class="pre">dau_core.hero.</span></span><span class="sig-name descname"><span class="pre">ROLL_WINDOW_MINIMUM</span></span><a class="headerlink" href="#dau_core.hero.ROLL_WINDOW_MINIMUM" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_core.hero.RollField">
+<span class="sig-prename descclassname"><span class="pre">dau_core.hero.</span></span><span class="sig-name descname"><span class="pre">RollField</span></span><a class="headerlink" href="#dau_core.hero.RollField" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="dau_core.hero.ROLL_FIELDS">
-<span class="sig-prename descclassname"><span class="pre">dau_core.hero.</span></span><span class="sig-name descname"><span class="pre">ROLL_FIELDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('open',</span> <span class="pre">'high',</span> <span class="pre">'low',</span> <span class="pre">'close')</span></em><a class="headerlink" href="#dau_core.hero.ROLL_FIELDS" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">dau_core.hero.</span></span><span class="sig-name descname"><span class="pre">ROLL_FIELDS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">RollField</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#dau_core.hero.ROLL_FIELDS" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py class">
@@ -1199,11 +1265,11 @@ validated to form a valid model.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.hero.run_hero_workflow">
-<span class="sig-prename descclassname"><span class="pre">dau_core.hero.</span></span><span class="sig-name descname"><span class="pre">run_hero_workflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trades</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dau_core.temporal.TradeRow</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quotes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dau_core.temporal.QuoteRow</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">bar_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">roll_window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">roll_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'close'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_core.hero.HeroResult" title="dau_core.hero.HeroResult"><span class="pre">HeroResult</span></a></span></span><a class="reference internal" href="../../../_modules/dau_core/hero.html#run_hero_workflow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.hero.run_hero_workflow" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">dau_core.hero.</span></span><span class="sig-name descname"><span class="pre">run_hero_workflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trades</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dau_core.temporal.TradeRow</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quotes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dau_core.temporal.QuoteRow</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">bar_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">roll_window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">roll_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RollField</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'close'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_core.hero.HeroResult" title="dau_core.hero.HeroResult"><span class="pre">HeroResult</span></a></span></span><a class="reference internal" href="../../../_modules/dau_core/hero.html#run_hero_workflow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.hero.run_hero_workflow" title="Link to this definition">¶</a></dt>
 <dd><p>Run the predeclared workflow end to end over the goldens, recording each
 materializing stage’s cardinality. <code class="docutils literal notranslate"><span class="pre">roll_value</span></code> selects the per-bar OHLC
 price the roll stage windows (<a class="reference internal" href="#dau_core.hero.ROLL_FIELDS" title="dau_core.hero.ROLL_FIELDS"><code class="xref py py-data docutils literal notranslate"><span class="pre">ROLL_FIELDS</span></code></a>); <code class="docutils literal notranslate"><span class="pre">roll_window</span></code> is the
-count-based window (<code class="docutils literal notranslate"><span class="pre">&gt;=</span> <span class="pre">2</span></code>, the tile’s minimum). Both input streams must be
+count-based window (at least <a class="reference internal" href="#dau_core.hero.ROLL_WINDOW_MINIMUM" title="dau_core.hero.ROLL_WINDOW_MINIMUM"><code class="xref py py-data docutils literal notranslate"><span class="pre">ROLL_WINDOW_MINIMUM</span></code></a>, the tile’s minimum). Both input streams must be
 pre-sorted by <code class="docutils literal notranslate"><span class="pre">(symbol_id,</span> <span class="pre">time)</span></code> (the shared as-of / bar precondition).</p>
 </dd></dl>
 
@@ -1335,6 +1401,18 @@ the next); fused pays only the input read and the final write.</p>
     <a href="#module-contents">Module Contents</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero._ASOF">_ASOF</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero._BAR">_BAR</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero._ROLL">_ROLL</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero._output_record_bytes">_output_record_bytes()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.hero.INPUT_BYTES">INPUT_BYTES</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -1348,6 +1426,12 @@ the next); fused pays only the input read and the final write.</p>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.hero.ROLL_BYTES">ROLL_BYTES</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero.ROLL_WINDOW_MINIMUM">ROLL_WINDOW_MINIMUM</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.hero.RollField">RollField</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.hero.ROLL_FIELDS">ROLL_FIELDS</a>

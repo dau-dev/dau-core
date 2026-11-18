@@ -1648,6 +1648,8 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">"lane_count"</span><span class="p">,</span>
             <span class="s2">"host_opcode_bitmap"</span><span class="p">,</span>
             <span class="s2">"sort_capacity"</span><span class="p">,</span>
+            <span class="s2">"input_row_capacity"</span><span class="p">,</span>
+            <span class="s2">"output_record_capacity"</span><span class="p">,</span>
         <span class="p">):</span>
             <span class="n">_validate_u32</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span>
@@ -1702,6 +1704,8 @@ window.runMermaid = runMermaid;</script>
             <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">LANE_COUNT</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lane_count</span><span class="p">,</span>
             <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">HOST_OPCODE_BITMAP</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">host_opcode_bitmap</span><span class="p">,</span>
             <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">SORT_CAPACITY</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_capacity</span><span class="p">,</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">INPUT_ROW_CAPACITY</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_row_capacity</span><span class="p">,</span>
+            <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">OUTPUT_RECORD_CAPACITY</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_record_capacity</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">register_offset</span> <span class="o">=</span> <span class="n">RegisterOffset</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span>

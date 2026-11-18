@@ -1094,6 +1094,9 @@
     <a href="#dau_core.operators.SQRT_FRACTIONAL_BITS">SQRT_FRACTIONAL_BITS</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.operators.SQRT_MAX_FRACTIONAL_BITS">SQRT_MAX_FRACTIONAL_BITS</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.operators.fixed_point_sqrt">fixed_point_sqrt()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -1146,6 +1149,9 @@
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.operators.DIVIDE_FRACTIONAL_BITS">DIVIDE_FRACTIONAL_BITS</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.operators.DIVIDE_MAX_FRACTIONAL_BITS">DIVIDE_MAX_FRACTIONAL_BITS</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.operators.fixed_point_divide">fixed_point_divide()</a>
@@ -1215,6 +1221,9 @@
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.operators._STREAM_WORD_MASK">_STREAM_WORD_MASK</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.operators.KEY_SPACE_MULTIPLE">KEY_SPACE_MULTIPLE</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.operators.FieldSumAggregate">FieldSumAggregate</a>
@@ -1619,10 +1628,16 @@
     <a href="#dau_core.operators.UnsupportedAggregationError">UnsupportedAggregationError</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#dau_core.operators._INTEGER_RANGES">_INTEGER_RANGES</a>
+    <a href="#dau_core.operators._ELEMENT_TYPES">_ELEMENT_TYPES</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.operators._FLOAT_TYPES">_FLOAT_TYPES</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.operators._integer_range">_integer_range()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.operators._INTEGER_RANGES">_INTEGER_RANGES</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.operators.aggregate_values">aggregate_values()</a>
@@ -1689,6 +1704,9 @@
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.operators.scratchpad_scan">scratchpad_scan()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.operators.SESSION_GAP_MAX_KEYS">SESSION_GAP_MAX_KEYS</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.operators.SessionErrorCode">SessionErrorCode</a>
@@ -1791,13 +1809,19 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.SQRT_FRACTIONAL_BITS" title="dau_core.operators.SQRT_FRACTIONAL_BITS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SQRT_FRACTIONAL_BITS</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.DATETIME_FORMAT_MAX_EPOCH_SECONDS" title="dau_core.operators.DATETIME_FORMAT_MAX_EPOCH_SECONDS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DATETIME_FORMAT_MAX_EPOCH_SECONDS</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.SQRT_MAX_FRACTIONAL_BITS" title="dau_core.operators.SQRT_MAX_FRACTIONAL_BITS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SQRT_MAX_FRACTIONAL_BITS</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.DATETIME_FORMAT_WIDTH" title="dau_core.operators.DATETIME_FORMAT_WIDTH"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DATETIME_FORMAT_WIDTH</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.DATETIME_FORMAT_MAX_EPOCH_SECONDS" title="dau_core.operators.DATETIME_FORMAT_MAX_EPOCH_SECONDS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DATETIME_FORMAT_MAX_EPOCH_SECONDS</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.DIVIDE_FRACTIONAL_BITS" title="dau_core.operators.DIVIDE_FRACTIONAL_BITS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DIVIDE_FRACTIONAL_BITS</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.DATETIME_FORMAT_WIDTH" title="dau_core.operators.DATETIME_FORMAT_WIDTH"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DATETIME_FORMAT_WIDTH</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.DIVIDE_FRACTIONAL_BITS" title="dau_core.operators.DIVIDE_FRACTIONAL_BITS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DIVIDE_FRACTIONAL_BITS</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.DIVIDE_MAX_FRACTIONAL_BITS" title="dau_core.operators.DIVIDE_MAX_FRACTIONAL_BITS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DIVIDE_MAX_FRACTIONAL_BITS</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.STREAM_WORD_BYTES" title="dau_core.operators.STREAM_WORD_BYTES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">STREAM_WORD_BYTES</span></code></a></p></td>
@@ -1806,19 +1830,25 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators._STREAM_WORD_MASK" title="dau_core.operators._STREAM_WORD_MASK"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_STREAM_WORD_MASK</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.DEDUP_KEY_SPACE_MAX" title="dau_core.operators.DEDUP_KEY_SPACE_MAX"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEDUP_KEY_SPACE_MAX</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.KEY_SPACE_MULTIPLE" title="dau_core.operators.KEY_SPACE_MULTIPLE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KEY_SPACE_MULTIPLE</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.DISPATCH_HASH_MULTIPLIER" title="dau_core.operators.DISPATCH_HASH_MULTIPLIER"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DISPATCH_HASH_MULTIPLIER</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.DEDUP_KEY_SPACE_MAX" title="dau_core.operators.DEDUP_KEY_SPACE_MAX"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEDUP_KEY_SPACE_MAX</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.TOP_K_MAX" title="dau_core.operators.TOP_K_MAX"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TOP_K_MAX</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.DISPATCH_HASH_MULTIPLIER" title="dau_core.operators.DISPATCH_HASH_MULTIPLIER"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DISPATCH_HASH_MULTIPLIER</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators._INTEGER_RANGES" title="dau_core.operators._INTEGER_RANGES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_INTEGER_RANGES</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.TOP_K_MAX" title="dau_core.operators.TOP_K_MAX"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TOP_K_MAX</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators._FLOAT_TYPES" title="dau_core.operators._FLOAT_TYPES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_FLOAT_TYPES</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators._ELEMENT_TYPES" title="dau_core.operators._ELEMENT_TYPES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_ELEMENT_TYPES</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators._FLOAT_TYPES" title="dau_core.operators._FLOAT_TYPES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_FLOAT_TYPES</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators._INTEGER_RANGES" title="dau_core.operators._INTEGER_RANGES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_INTEGER_RANGES</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.KEYED_STATE_MAX_KEYS" title="dau_core.operators.KEYED_STATE_MAX_KEYS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KEYED_STATE_MAX_KEYS</span></code></a></p></td>
@@ -1827,7 +1857,10 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.SCRATCHPAD_MAX_WORDS" title="dau_core.operators.SCRATCHPAD_MAX_WORDS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SCRATCHPAD_MAX_WORDS</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.HASH_GROUPED_MAX_GROUPS" title="dau_core.operators.HASH_GROUPED_MAX_GROUPS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HASH_GROUPED_MAX_GROUPS</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.SESSION_GAP_MAX_KEYS" title="dau_core.operators.SESSION_GAP_MAX_KEYS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SESSION_GAP_MAX_KEYS</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.HASH_GROUPED_MAX_GROUPS" title="dau_core.operators.HASH_GROUPED_MAX_GROUPS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HASH_GROUPED_MAX_GROUPS</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -2121,34 +2154,37 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.grouped_aggregate_rows" title="dau_core.operators.grouped_aggregate_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grouped_aggregate_rows</span></code></a>(rows) → list[GroupAggregate]</p></td>
 <td><p>Golden semantics for the ordered grouped-aggregation tile</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.aggregate_values" title="dau_core.operators.aggregate_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aggregate_values</span></code></a>(opcode, values, logical_type) → int | float</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators._integer_range" title="dau_core.operators._integer_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_integer_range</span></code></a>(bits, *, signed) → tuple[int, int]</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.synthetic_values" title="dau_core.operators.synthetic_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">synthetic_values</span></code></a>(name, logical_type) → list[int | float | bool]</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.aggregate_values" title="dau_core.operators.aggregate_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aggregate_values</span></code></a>(opcode, values, logical_type) → int | float</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators._sum_values" title="dau_core.operators._sum_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_sum_values</span></code></a>(values, logical_type) → int | float</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.synthetic_values" title="dau_core.operators.synthetic_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">synthetic_values</span></code></a>(name, logical_type) → list[int | float | bool]</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators._bounds_fixture" title="dau_core.operators._bounds_fixture"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_bounds_fixture</span></code></a>(logical_type) → list[int | float | bool]</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators._sum_values" title="dau_core.operators._sum_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_sum_values</span></code></a>(values, logical_type) → int | float</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators._is_nan" title="dau_core.operators._is_nan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_is_nan</span></code></a>(value) → bool</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators._bounds_fixture" title="dau_core.operators._bounds_fixture"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_bounds_fixture</span></code></a>(logical_type) → list[int | float | bool]</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.keyed_state_scan" title="dau_core.operators.keyed_state_scan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">keyed_state_scan</span></code></a>(rows, *, op, capacity[, initial]) → tuple[list[tuple[int, int]], KeyedStateErrorCode]</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators._is_nan" title="dau_core.operators._is_nan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_is_nan</span></code></a>(value) → bool</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.keyed_state_scan" title="dau_core.operators.keyed_state_scan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">keyed_state_scan</span></code></a>(rows, *, op, capacity[, initial]) → tuple[list[tuple[int, int]], KeyedStateErrorCode]</p></td>
 <td><p>Golden semantics for the keyed state tile: a per-key accumulator updated</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.scratchpad_scan" title="dau_core.operators.scratchpad_scan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scratchpad_scan</span></code></a>(rows, *, granted_words) → tuple[list[tuple[int, int]], ScratchpadErrorCode]</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.scratchpad_scan" title="dau_core.operators.scratchpad_scan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scratchpad_scan</span></code></a>(rows, *, granted_words) → tuple[list[tuple[int, int]], ScratchpadErrorCode]</p></td>
 <td><p>Golden semantics for the scratchpad tile: the deliberately trivial</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.sessionize_scan" title="dau_core.operators.sessionize_scan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sessionize_scan</span></code></a>(rows, *, gap, capacity) → tuple[list[tuple[int, int, int, int]], SessionErrorCode]</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.sessionize_scan" title="dau_core.operators.sessionize_scan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sessionize_scan</span></code></a>(rows, *, gap, capacity) → tuple[list[tuple[int, int, int, int]], SessionErrorCode]</p></td>
 <td><p>Golden semantics for the session-gap tile: the Nexmark-Q11 shape over</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.hash_grouped_field_sum_rows" title="dau_core.operators.hash_grouped_field_sum_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hash_grouped_field_sum_rows</span></code></a>(rows, *, field_mask, capacity) → tuple[list[HashGroupedAggregate], HashGroupedErrorCode]</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.hash_grouped_field_sum_rows" title="dau_core.operators.hash_grouped_field_sum_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hash_grouped_field_sum_rows</span></code></a>(rows, *, field_mask, capacity) → tuple[list[HashGroupedAggregate], HashGroupedErrorCode]</p></td>
 <td><p>Golden semantics for the HASH-mode grouped field-sum aggregation tile:</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.merge_hash_grouped" title="dau_core.operators.merge_hash_grouped"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_hash_grouped</span></code></a>(partials) → list[HashGroupedAggregate]</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.merge_hash_grouped" title="dau_core.operators.merge_hash_grouped"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_hash_grouped</span></code></a>(partials) → list[HashGroupedAggregate]</p></td>
 <td><p>Merge per-batch hash-grouped partials into one key-ascending result —</p></td>
 </tr>
 </tbody>
@@ -2662,6 +2698,11 @@ pass through unchanged, order and count preserved.</p>
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">SQRT_FRACTIONAL_BITS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">16</span></em><a class="headerlink" href="#dau_core.operators.SQRT_FRACTIONAL_BITS" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_core.operators.SQRT_MAX_FRACTIONAL_BITS">
+<span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">SQRT_MAX_FRACTIONAL_BITS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">31</span></em><a class="headerlink" href="#dau_core.operators.SQRT_MAX_FRACTIONAL_BITS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.operators.fixed_point_sqrt">
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">fixed_point_sqrt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">fractional_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">SQRT_FRACTIONAL_BITS</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#fixed_point_sqrt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.fixed_point_sqrt" title="Link to this definition">¶</a></dt>
@@ -2795,6 +2836,11 @@ the batch out with <code class="docutils literal notranslate"><span class="pre">
 <dl class="py data">
 <dt class="sig sig-object py" id="dau_core.operators.DIVIDE_FRACTIONAL_BITS">
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">DIVIDE_FRACTIONAL_BITS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">16</span></em><a class="headerlink" href="#dau_core.operators.DIVIDE_FRACTIONAL_BITS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_core.operators.DIVIDE_MAX_FRACTIONAL_BITS">
+<span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">DIVIDE_MAX_FRACTIONAL_BITS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">31</span></em><a class="headerlink" href="#dau_core.operators.DIVIDE_MAX_FRACTIONAL_BITS" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -2966,6 +3012,11 @@ descriptors are unused in this mode (not required, not validated).</p>
 <dl class="py data">
 <dt class="sig sig-object py" id="dau_core.operators._STREAM_WORD_MASK">
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">_STREAM_WORD_MASK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">18446744073709551615</span></em><a class="headerlink" href="#dau_core.operators._STREAM_WORD_MASK" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_core.operators.KEY_SPACE_MULTIPLE">
+<span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">KEY_SPACE_MULTIPLE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">64</span></em><a class="headerlink" href="#dau_core.operators.KEY_SPACE_MULTIPLE" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py class">
@@ -4007,13 +4058,23 @@ opens a NEW group — partials are merged by the host, never the tile.</p>
 </dd></dl>
 
 <dl class="py data">
-<dt class="sig sig-object py" id="dau_core.operators._INTEGER_RANGES">
-<span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">_INTEGER_RANGES</span></span><a class="headerlink" href="#dau_core.operators._INTEGER_RANGES" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="dau_core.operators._ELEMENT_TYPES">
+<span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">_ELEMENT_TYPES</span></span><a class="headerlink" href="#dau_core.operators._ELEMENT_TYPES" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="dau_core.operators._FLOAT_TYPES">
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">_FLOAT_TYPES</span></span><a class="headerlink" href="#dau_core.operators._FLOAT_TYPES" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.operators._integer_range">
+<span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">_integer_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">signed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#_integer_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators._integer_range" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_core.operators._INTEGER_RANGES">
+<span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">_INTEGER_RANGES</span></span><a class="headerlink" href="#dau_core.operators._INTEGER_RANGES" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -4178,6 +4239,11 @@ preserves already-emitted rows, exactly the shape a grow-request replaces
 when the allocator hardens. Addresses and values are int32 wires
 (wrapped); a negative address is never inside any grant.</p>
 </dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_core.operators.SESSION_GAP_MAX_KEYS">
+<span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">SESSION_GAP_MAX_KEYS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1024</span></em><a class="headerlink" href="#dau_core.operators.SESSION_GAP_MAX_KEYS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="dau_core.operators.SessionErrorCode">
@@ -4669,6 +4735,9 @@ test that keeps it honest. Every partial must carry the same
     <a href="#dau_core.operators.SQRT_FRACTIONAL_BITS">SQRT_FRACTIONAL_BITS</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.operators.SQRT_MAX_FRACTIONAL_BITS">SQRT_MAX_FRACTIONAL_BITS</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.operators.fixed_point_sqrt">fixed_point_sqrt()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -4721,6 +4790,9 @@ test that keeps it honest. Every partial must carry the same
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.operators.DIVIDE_FRACTIONAL_BITS">DIVIDE_FRACTIONAL_BITS</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.operators.DIVIDE_MAX_FRACTIONAL_BITS">DIVIDE_MAX_FRACTIONAL_BITS</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.operators.fixed_point_divide">fixed_point_divide()</a>
@@ -4790,6 +4862,9 @@ test that keeps it honest. Every partial must carry the same
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.operators._STREAM_WORD_MASK">_STREAM_WORD_MASK</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.operators.KEY_SPACE_MULTIPLE">KEY_SPACE_MULTIPLE</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.operators.FieldSumAggregate">FieldSumAggregate</a>
@@ -5194,10 +5269,16 @@ test that keeps it honest. Every partial must carry the same
     <a href="#dau_core.operators.UnsupportedAggregationError">UnsupportedAggregationError</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#dau_core.operators._INTEGER_RANGES">_INTEGER_RANGES</a>
+    <a href="#dau_core.operators._ELEMENT_TYPES">_ELEMENT_TYPES</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.operators._FLOAT_TYPES">_FLOAT_TYPES</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.operators._integer_range">_integer_range()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.operators._INTEGER_RANGES">_INTEGER_RANGES</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.operators.aggregate_values">aggregate_values()</a>
@@ -5264,6 +5345,9 @@ test that keeps it honest. Every partial must carry the same
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.operators.scratchpad_scan">scratchpad_scan()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.operators.SESSION_GAP_MAX_KEYS">SESSION_GAP_MAX_KEYS</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.operators.SessionErrorCode">SessionErrorCode</a>

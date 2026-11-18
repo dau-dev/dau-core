@@ -33,6 +33,7 @@ Functions
    test_fixed_point_normal_cdf.test_the_tile_is_total_and_saturates_exactly
    test_fixed_point_normal_cdf.test_symmetry_holds_exactly
    test_fixed_point_normal_cdf.test_a_cheaper_point_is_not_correctly_rounded
+   test_fixed_point_normal_cdf.test_the_normal_cdf_constants_are_a_frozen_model_read_by_name
 
 
 Module Contents
@@ -71,4 +72,6 @@ Module Contents
    configuration misses, so the extra segments are load-bearing rather than
    conservative.
 
+
+.. py:function:: test_the_normal_cdf_constants_are_a_frozen_model_read_by_name() -> None
 

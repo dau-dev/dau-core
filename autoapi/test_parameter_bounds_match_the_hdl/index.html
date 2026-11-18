@@ -871,6 +871,15 @@
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_parameter_bounds_match_the_hdl.test_the_python_mirror_of_the_top_k_bound_matches_the_registry">test_the_python_mirror_of_the_top_k_bound_matches_the_registry()</a>
   </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_parameter_bounds_match_the_hdl._golden_bounds">_golden_bounds()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_parameter_bounds_match_the_hdl.test_the_golden_bounds_match_the_registry">test_the_golden_bounds_match_the_registry()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_parameter_bounds_match_the_hdl.test_the_golden_configs_accept_exactly_the_declared_fractional_bits">test_the_golden_configs_accept_exactly_the_declared_fractional_bits()</a>
+  </li>
 </ul>
 </div>
   </div>
@@ -940,6 +949,15 @@ holdout list that nobody can see is how the last audit went stale.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#test_parameter_bounds_match_the_hdl.test_the_python_mirror_of_the_top_k_bound_matches_the_registry" title="test_parameter_bounds_match_the_hdl.test_the_python_mirror_of_the_top_k_bound_matches_the_registry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_python_mirror_of_the_top_k_bound_matches_the_registry</span></code></a>() → None</p></td>
 <td><p><cite>TOP_K_MAX</cite> is a third copy of the same number: the compiler rejects an</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_parameter_bounds_match_the_hdl._golden_bounds" title="test_parameter_bounds_match_the_hdl._golden_bounds"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_golden_bounds</span></code></a>() → list[tuple[str, str, str, int]]</p></td>
+<td><p>(core, parameter, attribute, golden value): each bound a golden in</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_parameter_bounds_match_the_hdl.test_the_golden_bounds_match_the_registry" title="test_parameter_bounds_match_the_hdl.test_the_golden_bounds_match_the_registry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_golden_bounds_match_the_registry</span></code></a>() → None</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_parameter_bounds_match_the_hdl.test_the_golden_configs_accept_exactly_the_declared_fractional_bits" title="test_parameter_bounds_match_the_hdl.test_the_golden_configs_accept_exactly_the_declared_fractional_bits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_golden_configs_accept_exactly_the_declared_fractional_bits</span></code></a>() → None</p></td>
+<td><p></p></td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -1007,6 +1025,26 @@ against a bound about bits.</p>
 out-of-envelope limit against it, the registry prices against its maximum,
 and the tile refuses to elaborate outside its guard.</p>
 </dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_parameter_bounds_match_the_hdl._golden_bounds">
+<span class="sig-prename descclassname"><span class="pre">test_parameter_bounds_match_the_hdl.</span></span><span class="sig-name descname"><span class="pre">_golden_bounds</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#test_parameter_bounds_match_the_hdl._golden_bounds" title="Link to this definition">¶</a></dt>
+<dd><p>(core, parameter, attribute, golden value): each bound a golden in
+<code class="docutils literal notranslate"><span class="pre">dau_core.operators</span></code> checks its arguments against, beside the registry
+parameter it mirrors. The goldens are what the registry’s <code class="docutils literal notranslate"><span class="pre">golden</span></code>
+entries point at, so they keep a Python copy instead of loading the
+registry; this keeps the copies equal.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_parameter_bounds_match_the_hdl.test_the_golden_bounds_match_the_registry">
+<span class="sig-prename descclassname"><span class="pre">test_parameter_bounds_match_the_hdl.</span></span><span class="sig-name descname"><span class="pre">test_the_golden_bounds_match_the_registry</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_parameter_bounds_match_the_hdl.test_the_golden_bounds_match_the_registry" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_parameter_bounds_match_the_hdl.test_the_golden_configs_accept_exactly_the_declared_fractional_bits">
+<span class="sig-prename descclassname"><span class="pre">test_parameter_bounds_match_the_hdl.</span></span><span class="sig-name descname"><span class="pre">test_the_golden_configs_accept_exactly_the_declared_fractional_bits</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_parameter_bounds_match_the_hdl.test_the_golden_configs_accept_exactly_the_declared_fractional_bits" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </section>
 </section>
@@ -1082,6 +1120,15 @@ and the tile refuses to elaborate outside its guard.</p>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_parameter_bounds_match_the_hdl.test_the_python_mirror_of_the_top_k_bound_matches_the_registry">test_the_python_mirror_of_the_top_k_bound_matches_the_registry()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_parameter_bounds_match_the_hdl._golden_bounds">_golden_bounds()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_parameter_bounds_match_the_hdl.test_the_golden_bounds_match_the_registry">test_the_golden_bounds_match_the_registry()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_parameter_bounds_match_the_hdl.test_the_golden_configs_accept_exactly_the_declared_fractional_bits">test_the_golden_configs_accept_exactly_the_declared_fractional_bits()</a>
   </li>
 </ul>
 

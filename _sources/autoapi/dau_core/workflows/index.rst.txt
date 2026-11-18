@@ -64,12 +64,12 @@ Module Contents
 
 
    .. py:attribute:: roll_value
-      :type:  str
+      :type:  dau_core.hero.RollField
       :value: 'close'
 
 
 
-   .. py:method:: model_post_init(_context: object) -> None
+   .. py:method:: model_post_init(context: object) -> None
 
       Override this method to perform additional initialization after `__init__` and `model_construct`.
       This is useful if you want to do some validation that requires the entire model to be initialized.

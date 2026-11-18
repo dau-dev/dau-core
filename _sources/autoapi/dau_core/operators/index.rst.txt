@@ -12,18 +12,23 @@ Attributes
    dau_core.operators._INT32_MASK
    dau_core.operators.ROW_PREDICATE_TERMS
    dau_core.operators.SQRT_FRACTIONAL_BITS
+   dau_core.operators.SQRT_MAX_FRACTIONAL_BITS
    dau_core.operators.DATETIME_FORMAT_MAX_EPOCH_SECONDS
    dau_core.operators.DATETIME_FORMAT_WIDTH
    dau_core.operators.DIVIDE_FRACTIONAL_BITS
+   dau_core.operators.DIVIDE_MAX_FRACTIONAL_BITS
    dau_core.operators.STREAM_WORD_BYTES
    dau_core.operators._STREAM_WORD_MASK
+   dau_core.operators.KEY_SPACE_MULTIPLE
    dau_core.operators.DEDUP_KEY_SPACE_MAX
    dau_core.operators.DISPATCH_HASH_MULTIPLIER
    dau_core.operators.TOP_K_MAX
-   dau_core.operators._INTEGER_RANGES
+   dau_core.operators._ELEMENT_TYPES
    dau_core.operators._FLOAT_TYPES
+   dau_core.operators._INTEGER_RANGES
    dau_core.operators.KEYED_STATE_MAX_KEYS
    dau_core.operators.SCRATCHPAD_MAX_WORDS
+   dau_core.operators.SESSION_GAP_MAX_KEYS
    dau_core.operators.HASH_GROUPED_MAX_GROUPS
 
 
@@ -136,6 +141,7 @@ Functions
    dau_core.operators.bars_from_field_aggregate
    dau_core.operators.bar_aggregate_rows
    dau_core.operators.grouped_aggregate_rows
+   dau_core.operators._integer_range
    dau_core.operators.aggregate_values
    dau_core.operators.synthetic_values
    dau_core.operators._sum_values
@@ -655,6 +661,10 @@ Module Contents
    :value: 16
 
 
+.. py:data:: SQRT_MAX_FRACTIONAL_BITS
+   :value: 31
+
+
 .. py:function:: fixed_point_sqrt(value: int, *, fractional_bits: int = SQRT_FRACTIONAL_BITS) -> int
 
    Square root of a Q``(32-f)``.``f`` fixed-point value, EXACTLY.
@@ -795,6 +805,10 @@ Module Contents
 
 .. py:data:: DIVIDE_FRACTIONAL_BITS
    :value: 16
+
+
+.. py:data:: DIVIDE_MAX_FRACTIONAL_BITS
+   :value: 31
 
 
 .. py:function:: fixed_point_divide(numerator: int, denominator: int, *, fractional_bits: int = DIVIDE_FRACTIONAL_BITS) -> int
@@ -976,6 +990,10 @@ Module Contents
 
 .. py:data:: _STREAM_WORD_MASK
    :value: 18446744073709551615
+
+
+.. py:data:: KEY_SPACE_MULTIPLE
+   :value: 64
 
 
 .. py:class:: FieldSumAggregate
@@ -1996,9 +2014,13 @@ Module Contents
    Initialize self.  See help(type(self)) for accurate signature.
 
 
-.. py:data:: _INTEGER_RANGES
+.. py:data:: _ELEMENT_TYPES
 
 .. py:data:: _FLOAT_TYPES
+
+.. py:function:: _integer_range(bits: int, *, signed: bool) -> tuple[int, int]
+
+.. py:data:: _INTEGER_RANGES
 
 .. py:function:: aggregate_values(opcode: dau_core.stream.OperationCode, values: collections.abc.Iterable[int | float | bool], logical_type: dau_core.stream.LogicalType) -> int | float
 
@@ -2156,6 +2178,10 @@ Module Contents
    preserves already-emitted rows, exactly the shape a grow-request replaces
    when the allocator hardens. Addresses and values are int32 wires
    (wrapped); a negative address is never inside any grant.
+
+
+.. py:data:: SESSION_GAP_MAX_KEYS
+   :value: 1024
 
 
 .. py:class:: SessionErrorCode

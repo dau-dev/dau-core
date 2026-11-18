@@ -866,6 +866,9 @@
     <a href="#dau_core.composition._validate_tile_params">_validate_tile_params()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.composition._contract_param">_contract_param()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.composition.TileSpec">TileSpec</a>
   </li>
   <li class="fd-toc-item" data-depth="3">
@@ -1098,31 +1101,34 @@ planner-facing cost of a design before it is built.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.composition._validate_tile_params" title="dau_core.composition._validate_tile_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_validate_tile_params</span></code></a>(tile, role) → None</p></td>
 <td><p>Every module-parameter override on a tile must name a parameter the</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.composition.stream_shape_mismatches" title="dau_core.composition.stream_shape_mismatches"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stream_shape_mismatches</span></code></a>(spec) → tuple[str, ...]</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.composition._contract_param" title="dau_core.composition._contract_param"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_contract_param</span></code></a>(tile, name, role) → int</p></td>
+<td><p>A parameter the composition reads off a tile: its override, else the</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.composition.stream_shape_mismatches" title="dau_core.composition.stream_shape_mismatches"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stream_shape_mismatches</span></code></a>(spec) → tuple[str, ...]</p></td>
 <td><p>Describe every known record-width mismatch without rejecting <code class="docutils literal notranslate"><span class="pre">spec</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.composition.throughput_rows_per_cycle" title="dau_core.composition.throughput_rows_per_cycle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">throughput_rows_per_cycle</span></code></a>(spec, *[, stage_pass_fractions]) → fractions.Fraction</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.composition.throughput_rows_per_cycle" title="dau_core.composition.throughput_rows_per_cycle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">throughput_rows_per_cycle</span></code></a>(spec, *[, stage_pass_fractions]) → fractions.Fraction</p></td>
 <td><p>The composed design's GUARANTEED sustained ingest rate, in rows per</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.composition.throughput_breakdown" title="dau_core.composition.throughput_breakdown"><code class="xref py py-obj docutils literal notranslate"><span class="pre">throughput_breakdown</span></code></a>(spec, *[, stage_pass_fractions]) → ThroughputBreakdown</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.composition.throughput_breakdown" title="dau_core.composition.throughput_breakdown"><code class="xref py py-obj docutils literal notranslate"><span class="pre">throughput_breakdown</span></code></a>(spec, *[, stage_pass_fractions]) → ThroughputBreakdown</p></td>
 <td><p>The rate <a class="reference internal" href="#dau_core.composition.throughput_rows_per_cycle" title="dau_core.composition.throughput_rows_per_cycle"><code class="xref py py-func docutils literal notranslate"><span class="pre">throughput_rows_per_cycle()</span></code></a> reports, with every stage's</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.composition.estimated_resources" title="dau_core.composition.estimated_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">estimated_resources</span></code></a>(spec, *, part, clock_ns) → dau_core.cores.ResourceEnvelope</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.composition.estimated_resources" title="dau_core.composition.estimated_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">estimated_resources</span></code></a>(spec, *, part, clock_ns) → dau_core.cores.ResourceEnvelope</p></td>
 <td><p>Sum the measured resources of every instance the composition places.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.composition.canonical_spec_json" title="dau_core.composition.canonical_spec_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">canonical_spec_json</span></code></a>(spec) → str</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.composition.canonical_spec_json" title="dau_core.composition.canonical_spec_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">canonical_spec_json</span></code></a>(spec) → str</p></td>
 <td><p>The canonical serialized form of a composition spec: deterministic</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.composition.spec_hash" title="dau_core.composition.spec_hash"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spec_hash</span></code></a>(spec) → str</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.composition.spec_hash" title="dau_core.composition.spec_hash"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spec_hash</span></code></a>(spec) → str</p></td>
 <td><p>The content hash of a composition spec: sha256 over the canonical</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.composition.build_id" title="dau_core.composition.build_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_id</span></code></a>(spec_hash, platform) → int</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.composition.build_id" title="dau_core.composition.build_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_id</span></code></a>(spec_hash, platform) → int</p></td>
 <td><p>The 64-bit identity a shell advertises: the leading 64 bits of a</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.composition.canonical_version" title="dau_core.composition.canonical_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">canonical_version</span></code></a>(value) → str</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.composition.canonical_version" title="dau_core.composition.canonical_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">canonical_version</span></code></a>(value) → str</p></td>
 <td><p>The canonical-form version a recorded spec hash was written under.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.composition.spec_from_canonical" title="dau_core.composition.spec_from_canonical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spec_from_canonical</span></code></a>(text) → ScanCompositionSpec</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.composition.spec_from_canonical" title="dau_core.composition.spec_from_canonical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spec_from_canonical</span></code></a>(text) → ScanCompositionSpec</p></td>
 <td><p>Rebuild a spec from its canonical form. Construction re-validates</p></td>
 </tr>
 </tbody>
@@ -1168,6 +1174,14 @@ core declares as overridable (<code class="docutils literal notranslate"><span c
 positive integer value (SV sizes are positive; an element type has already
 been resolved to its encoding by then). An unknown name is a typo or a
 param the core does not expose — rejected up front.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.composition._contract_param">
+<span class="sig-prename descclassname"><span class="pre">dau_core.composition.</span></span><span class="sig-name descname"><span class="pre">_contract_param</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dau_core.composition.TileSpec" title="dau_core.composition.TileSpec"><span class="pre">TileSpec</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#dau_core.composition._contract_param" title="Link to this definition">¶</a></dt>
+<dd><p>A parameter the composition reads off a tile: its override, else the
+default the core declares. A core whose role requires <code class="docutils literal notranslate"><span class="pre">name</span></code> but which
+does not declare it raises <code class="docutils literal notranslate"><span class="pre">CompositionError</span></code>.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -1666,6 +1680,9 @@ departed name it meets.</p>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.composition._validate_tile_params">_validate_tile_params()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.composition._contract_param">_contract_param()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.composition.TileSpec">TileSpec</a>

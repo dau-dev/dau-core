@@ -929,6 +929,15 @@
     <a href="#test_composition.test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards">test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.vendor_core">vendor_core()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_a_role_parameter_resolves_to_the_declared_default">test_a_role_parameter_resolves_to_the_declared_default()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_a_role_core_missing_its_contract_parameter_raises">test_a_role_core_missing_its_contract_parameter_raises()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#test_composition.test_load_phase_shape_rules">test_load_phase_shape_rules()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -1206,160 +1215,169 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards" title="test_composition.test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_load_phase_shape_rules" title="test_composition.test_load_phase_shape_rules"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_load_phase_shape_rules</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.vendor_core" title="test_composition.vendor_core"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vendor_core</span></code></a>()</p></td>
+<td><p>Register an unmeasured copy of one of our cores under another name,</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_a_role_parameter_resolves_to_the_declared_default" title="test_composition.test_a_role_parameter_resolves_to_the_declared_default"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_role_parameter_resolves_to_the_declared_default</span></code></a>(...) → None</p></td>
+<td><p>A parameter the composition reads off a tile comes from the core's</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_a_role_core_missing_its_contract_parameter_raises" title="test_composition.test_a_role_core_missing_its_contract_parameter_raises"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_role_core_missing_its_contract_parameter_raises</span></code></a>(...) → None</p></td>
+<td><p>A key dispatcher without MODE, or a front unpacker without OUT_WIDTH,</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_load_phase_shape_rules" title="test_composition.test_load_phase_shape_rules"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_load_phase_shape_rules</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_param_override_is_validated_on_the_lane_tile_and_partition_slots" title="test_composition.test_param_override_is_validated_on_the_lane_tile_and_partition_slots"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_param_override_is_validated_on_the_lane_tile_and_partition_slots</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_param_override_is_validated_on_the_lane_tile_and_partition_slots" title="test_composition.test_param_override_is_validated_on_the_lane_tile_and_partition_slots"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_param_override_is_validated_on_the_lane_tile_and_partition_slots</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_key_space_override_must_match_the_declared_multiple" title="test_composition.test_key_space_override_must_match_the_declared_multiple"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_key_space_override_must_match_the_declared_multiple</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_key_space_override_must_match_the_declared_multiple" title="test_composition.test_key_space_override_must_match_the_declared_multiple"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_key_space_override_must_match_the_declared_multiple</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_shared_partitioner_params_are_validated" title="test_composition.test_shared_partitioner_params_are_validated"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_shared_partitioner_params_are_validated</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_shared_partitioner_params_are_validated" title="test_composition.test_shared_partitioner_params_are_validated"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_shared_partitioner_params_are_validated</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_a_sized_tile_prices_at_its_size_not_its_default" title="test_composition.test_a_sized_tile_prices_at_its_size_not_its_default"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_sized_tile_prices_at_its_size_not_its_default</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_a_sized_tile_prices_at_its_size_not_its_default" title="test_composition.test_a_sized_tile_prices_at_its_size_not_its_default"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_sized_tile_prices_at_its_size_not_its_default</span></code></a>() → None</p></td>
 <td><p>A parameter that changes the hardware has to change the price.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition._front_unpack" title="test_composition._front_unpack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_front_unpack</span></code></a>() → dau_core.composition.TileSpec</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition._front_unpack" title="test_composition._front_unpack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_front_unpack</span></code></a>() → dau_core.composition.TileSpec</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_front_unpack_validates_and_reaches_core_names_and_resources" title="test_composition.test_front_unpack_validates_and_reaches_core_names_and_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_front_unpack_validates_and_reaches_core_names_and_resources</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_front_unpack_validates_and_reaches_core_names_and_resources" title="test_composition.test_front_unpack_validates_and_reaches_core_names_and_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_front_unpack_validates_and_reaches_core_names_and_resources</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_front_unpack_rejects_a_non_unpack_tile" title="test_composition.test_front_unpack_rejects_a_non_unpack_tile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_front_unpack_rejects_a_non_unpack_tile</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_front_unpack_rejects_a_non_unpack_tile" title="test_composition.test_front_unpack_rejects_a_non_unpack_tile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_front_unpack_rejects_a_non_unpack_tile</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_front_unpack_less_composition_is_unchanged" title="test_composition.test_front_unpack_less_composition_is_unchanged"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_front_unpack_less_composition_is_unchanged</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_front_unpack_less_composition_is_unchanged" title="test_composition.test_front_unpack_less_composition_is_unchanged"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_front_unpack_less_composition_is_unchanged</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_exactly_one_success_close_out_per_lane_is_enforced" title="test_composition.test_exactly_one_success_close_out_per_lane_is_enforced"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_exactly_one_success_close_out_per_lane_is_enforced</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_exactly_one_success_close_out_per_lane_is_enforced" title="test_composition.test_exactly_one_success_close_out_per_lane_is_enforced"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_exactly_one_success_close_out_per_lane_is_enforced</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_spec_canonical_round_trip_and_hash_stability" title="test_composition.test_spec_canonical_round_trip_and_hash_stability"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_spec_canonical_round_trip_and_hash_stability</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_spec_canonical_round_trip_and_hash_stability" title="test_composition.test_spec_canonical_round_trip_and_hash_stability"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_spec_canonical_round_trip_and_hash_stability</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_spec_hash_is_config_order_insensitive_and_content_sensitive" title="test_composition.test_spec_hash_is_config_order_insensitive_and_content_sensitive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_spec_hash_is_config_order_insensitive_and_content_sensitive</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_spec_hash_is_config_order_insensitive_and_content_sensitive" title="test_composition.test_spec_hash_is_config_order_insensitive_and_content_sensitive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_spec_hash_is_config_order_insensitive_and_content_sensitive</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_spec_hash_pinned_fixture" title="test_composition.test_spec_hash_pinned_fixture"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_spec_hash_pinned_fixture</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_spec_hash_pinned_fixture" title="test_composition.test_spec_hash_pinned_fixture"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_spec_hash_pinned_fixture</span></code></a>() → None</p></td>
 <td><p>The design-cache key must be stable across releases: ANY change to</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_spec_from_canonical_revalidates" title="test_composition.test_spec_from_canonical_revalidates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_spec_from_canonical_revalidates</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_spec_from_canonical_revalidates" title="test_composition.test_spec_from_canonical_revalidates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_spec_from_canonical_revalidates</span></code></a>() → None</p></td>
 <td><p>A tampered canonical form fails registry validation, never builds.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_a_build_id_names_the_board_as_well_as_the_spec" title="test_composition.test_a_build_id_names_the_board_as_well_as_the_spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_build_id_names_the_board_as_well_as_the_spec</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_a_build_id_names_the_board_as_well_as_the_spec" title="test_composition.test_a_build_id_names_the_board_as_well_as_the_spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_build_id_names_the_board_as_well_as_the_spec</span></code></a>() → None</p></td>
 <td><p>One spec built for two boards is two images, so two ids; the same</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_canonical_version_reads_the_prefix_a_recorded_hash_carries" title="test_composition.test_canonical_version_reads_the_prefix_a_recorded_hash_carries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_canonical_version_reads_the_prefix_a_recorded_hash_carries</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_canonical_version_reads_the_prefix_a_recorded_hash_carries" title="test_composition.test_canonical_version_reads_the_prefix_a_recorded_hash_carries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_canonical_version_reads_the_prefix_a_recorded_hash_carries</span></code></a>() → None</p></td>
 <td><p>The prefix is what a reader has instead of the palette that wrote the</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_a_text_recorded_under_an_older_palette_is_refused_by_version_not_by_parse" title="test_composition.test_a_text_recorded_under_an_older_palette_is_refused_by_version_not_by_parse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_text_recorded_under_an_older_palette_is_refused_by_version_not_by_parse</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_a_text_recorded_under_an_older_palette_is_refused_by_version_not_by_parse" title="test_composition.test_a_text_recorded_under_an_older_palette_is_refused_by_version_not_by_parse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_text_recorded_under_an_older_palette_is_refused_by_version_not_by_parse</span></code></a>() → None</p></td>
 <td><p>The defect this boundary closes, in one place.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_spec_hash_stable_when_defaults_are_explicit" title="test_composition.test_spec_hash_stable_when_defaults_are_explicit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_spec_hash_stable_when_defaults_are_explicit</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_spec_hash_stable_when_defaults_are_explicit" title="test_composition.test_spec_hash_stable_when_defaults_are_explicit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_spec_hash_stable_when_defaults_are_explicit</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_handle_table_capacity_is_design_identity_and_inert_at_zero" title="test_composition.test_handle_table_capacity_is_design_identity_and_inert_at_zero"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_handle_table_capacity_is_design_identity_and_inert_at_zero</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_handle_table_capacity_is_design_identity_and_inert_at_zero" title="test_composition.test_handle_table_capacity_is_design_identity_and_inert_at_zero"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_handle_table_capacity_is_design_identity_and_inert_at_zero</span></code></a>() → None</p></td>
 <td><p>A handle table is HARDWARE — a table of flops and a resolve stage in</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_wide_data_width_composition_rules" title="test_composition.test_wide_data_width_composition_rules"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_wide_data_width_composition_rules</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_wide_data_width_composition_rules" title="test_composition.test_wide_data_width_composition_rules"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_wide_data_width_composition_rules</span></code></a>() → None</p></td>
 <td><p>The canonical spec mirrors the walker's width rules: a wide feed</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_throughput_reproduces_the_measured_rate_ladder" title="test_composition.test_throughput_reproduces_the_measured_rate_ladder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_throughput_reproduces_the_measured_rate_ladder</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_throughput_reproduces_the_measured_rate_ladder" title="test_composition.test_throughput_reproduces_the_measured_rate_ladder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_throughput_reproduces_the_measured_rate_ladder</span></code></a>()</p></td>
 <td><p>The rate model recomputes silicon: 64-bit two-beat = 1/2 row/cycle</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_throughput_packed_front_re_times_delivery" title="test_composition.test_throughput_packed_front_re_times_delivery"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_throughput_packed_front_re_times_delivery</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_throughput_packed_front_re_times_delivery" title="test_composition.test_throughput_packed_front_re_times_delivery"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_throughput_packed_front_re_times_delivery</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_the_wide_lane_shape_composes_and_rate_matches" title="test_composition.test_the_wide_lane_shape_composes_and_rate_matches"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_wide_lane_shape_composes_and_rate_matches</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_the_wide_lane_shape_composes_and_rate_matches" title="test_composition.test_the_wide_lane_shape_composes_and_rate_matches"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_wide_lane_shape_composes_and_rate_matches</span></code></a>()</p></td>
 <td><p>The wide lane: one lane of wide-row-stream stages consuming reader</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_several_wide_lanes_share_the_beat_through_the_broadcast" title="test_composition.test_several_wide_lanes_share_the_beat_through_the_broadcast"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_several_wide_lanes_share_the_beat_through_the_broadcast</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_several_wide_lanes_share_the_beat_through_the_broadcast" title="test_composition.test_several_wide_lanes_share_the_beat_through_the_broadcast"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_several_wide_lanes_share_the_beat_through_the_broadcast</span></code></a>()</p></td>
 <td><p>Wide lanes behind one feed: the stream broadcast fans the whole beat</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_wide_combinational_tile_pipeline_depth_bounds_are_enforced" title="test_composition.test_wide_combinational_tile_pipeline_depth_bounds_are_enforced"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_wide_combinational_tile_pipeline_depth_bounds_are_enforced</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_wide_combinational_tile_pipeline_depth_bounds_are_enforced" title="test_composition.test_wide_combinational_tile_pipeline_depth_bounds_are_enforced"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_wide_combinational_tile_pipeline_depth_bounds_are_enforced</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_the_wide_lane_shape_rules_are_enforced" title="test_composition.test_the_wide_lane_shape_rules_are_enforced"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_wide_lane_shape_rules_are_enforced</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_the_wide_lane_shape_rules_are_enforced" title="test_composition.test_the_wide_lane_shape_rules_are_enforced"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_wide_lane_shape_rules_are_enforced</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_wide_row_stream_cores_are_refused_in_the_partitioner_slot" title="test_composition.test_wide_row_stream_cores_are_refused_in_the_partitioner_slot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_wide_row_stream_cores_are_refused_in_the_partitioner_slot</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_wide_row_stream_cores_are_refused_in_the_partitioner_slot" title="test_composition.test_wide_row_stream_cores_are_refused_in_the_partitioner_slot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_wide_row_stream_cores_are_refused_in_the_partitioner_slot</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_the_fused_chain_shape_is_declared_not_inferred" title="test_composition.test_the_fused_chain_shape_is_declared_not_inferred"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_fused_chain_shape_is_declared_not_inferred</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_the_fused_chain_shape_is_declared_not_inferred" title="test_composition.test_the_fused_chain_shape_is_declared_not_inferred"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_fused_chain_shape_is_declared_not_inferred</span></code></a>() → None</p></td>
 <td><p>A terminal-shaped tile mid-lane (the temporal hero's as-of join and</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition._temporal_hero_spec" title="test_composition._temporal_hero_spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_temporal_hero_spec</span></code></a>(*[, include_feature_gather]) → dau_core.composition.ScanCompositionSpec</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition._temporal_hero_spec" title="test_composition._temporal_hero_spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_temporal_hero_spec</span></code></a>(*[, include_feature_gather]) → dau_core.composition.ScanCompositionSpec</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_temporal_hero_gathers_reconcile_every_stream_shape" title="test_composition.test_temporal_hero_gathers_reconcile_every_stream_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_temporal_hero_gathers_reconcile_every_stream_shape</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_temporal_hero_gathers_reconcile_every_stream_shape" title="test_composition.test_temporal_hero_gathers_reconcile_every_stream_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_temporal_hero_gathers_reconcile_every_stream_shape</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_stream_shape_mismatch_names_both_cores_and_shapes" title="test_composition.test_stream_shape_mismatch_names_both_cores_and_shapes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_stream_shape_mismatch_names_both_cores_and_shapes</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_stream_shape_mismatch_names_both_cores_and_shapes" title="test_composition.test_stream_shape_mismatch_names_both_cores_and_shapes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_stream_shape_mismatch_names_both_cores_and_shapes</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_stream_shape_mismatches_include_front_feed_and_partitioner" title="test_composition.test_stream_shape_mismatches_include_front_feed_and_partitioner"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_stream_shape_mismatches_include_front_feed_and_partitioner</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_stream_shape_mismatches_include_front_feed_and_partitioner" title="test_composition.test_stream_shape_mismatches_include_front_feed_and_partitioner"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_stream_shape_mismatches_include_front_feed_and_partitioner</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_selectivity_reconciles_the_model_with_q6_silicon" title="test_composition.test_selectivity_reconciles_the_model_with_q6_silicon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_selectivity_reconciles_the_model_with_q6_silicon</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_selectivity_reconciles_the_model_with_q6_silicon" title="test_composition.test_selectivity_reconciles_the_model_with_q6_silicon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_selectivity_reconciles_the_model_with_q6_silicon</span></code></a>() → None</p></td>
 <td><p>The rate benches measured the q6 map stage at one row per SEVEN</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_throughput_breakdown_names_the_binding_stage" title="test_composition.test_throughput_breakdown_names_the_binding_stage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_throughput_breakdown_names_the_binding_stage</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_throughput_breakdown_names_the_binding_stage" title="test_composition.test_throughput_breakdown_names_the_binding_stage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_throughput_breakdown_names_the_binding_stage</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition._record_dispatcher" title="test_composition._record_dispatcher"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_record_dispatcher</span></code></a>([record_words]) → dau_core.composition.TileSpec</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition._record_dispatcher" title="test_composition._record_dispatcher"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_record_dispatcher</span></code></a>([record_words]) → dau_core.composition.TileSpec</p></td>
 <td><p>The dispatcher as it sits BEHIND a gearbox: its bus is one whole</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition._front_gearbox" title="test_composition._front_gearbox"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_front_gearbox</span></code></a>([record_words]) → dau_core.composition.TileSpec</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition._front_gearbox" title="test_composition._front_gearbox"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_front_gearbox</span></code></a>([record_words]) → dau_core.composition.TileSpec</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_front_gearbox_reaches_core_names_and_resources" title="test_composition.test_front_gearbox_reaches_core_names_and_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_front_gearbox_reaches_core_names_and_resources</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_front_gearbox_reaches_core_names_and_resources" title="test_composition.test_front_gearbox_reaches_core_names_and_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_front_gearbox_reaches_core_names_and_resources</span></code></a>() → None</p></td>
 <td><p>The gearbox must appear in core_names: that tuple is what stages the</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_a_geared_design_does_not_share_a_hash_with_an_ungeared_one" title="test_composition.test_a_geared_design_does_not_share_a_hash_with_an_ungeared_one"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_geared_design_does_not_share_a_hash_with_an_ungeared_one</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_a_geared_design_does_not_share_a_hash_with_an_ungeared_one" title="test_composition.test_a_geared_design_does_not_share_a_hash_with_an_ungeared_one"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_geared_design_does_not_share_a_hash_with_an_ungeared_one</span></code></a>() → None</p></td>
 <td><p>The spec hash keys the design cache. If the gearbox were invisible to</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_the_gearbox_is_charged_as_the_front_delivery_it_is" title="test_composition.test_the_gearbox_is_charged_as_the_front_delivery_it_is"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_gearbox_is_charged_as_the_front_delivery_it_is</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_the_gearbox_is_charged_as_the_front_delivery_it_is" title="test_composition.test_the_gearbox_is_charged_as_the_front_delivery_it_is"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_gearbox_is_charged_as_the_front_delivery_it_is</span></code></a>() → None</p></td>
 <td><p>A GUARANTEED floor has to charge the stage that produces the rows.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_a_wider_record_lowers_the_geared_delivery" title="test_composition.test_a_wider_record_lowers_the_geared_delivery"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_wider_record_lowers_the_geared_delivery</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_a_wider_record_lowers_the_geared_delivery" title="test_composition.test_a_wider_record_lowers_the_geared_delivery"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_wider_record_lowers_the_geared_delivery</span></code></a>() → None</p></td>
 <td><p>The record size is the DIVISOR of the reader's supply, so it has to</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_a_gearbox_record_mismatch_is_detected" title="test_composition.test_a_gearbox_record_mismatch_is_detected"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_gearbox_record_mismatch_is_detected</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_a_gearbox_record_mismatch_is_detected" title="test_composition.test_a_gearbox_record_mismatch_is_detected"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_gearbox_record_mismatch_is_detected</span></code></a>() → None</p></td>
 <td><p><cite>stream_shape_mismatches</cite> exists to find exactly this, and the front</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front" title="test_composition.test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front" title="test_composition.test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition._stream_job_spec" title="test_composition._stream_job_spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_stream_job_spec</span></code></a>([job, tile]) → dau_core.composition.ScanCompositionSpec</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition._stream_job_spec" title="test_composition._stream_job_spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_stream_job_spec</span></code></a>([job, tile]) → dau_core.composition.ScanCompositionSpec</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_a_stream_job_composition_declares_its_own_infrastructure" title="test_composition.test_a_stream_job_composition_declares_its_own_infrastructure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_stream_job_composition_declares_its_own_infrastructure</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_a_stream_job_composition_declares_its_own_infrastructure" title="test_composition.test_a_stream_job_composition_declares_its_own_infrastructure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_stream_job_composition_declares_its_own_infrastructure</span></code></a>() → None</p></td>
 <td><p>A stream job stages one tile chain through its job core instead of</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_a_stream_job_composition_refuses_scan_shaped_fields" title="test_composition.test_a_stream_job_composition_refuses_scan_shaped_fields"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_stream_job_composition_refuses_scan_shaped_fields</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_a_stream_job_composition_refuses_scan_shaped_fields" title="test_composition.test_a_stream_job_composition_refuses_scan_shaped_fields"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_stream_job_composition_refuses_scan_shaped_fields</span></code></a>() → None</p></td>
 <td><p>The stream job has no fan-out and no burst feed, so accepting a</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_the_scan_shell_still_requires_a_lane_counter" title="test_composition.test_the_scan_shell_still_requires_a_lane_counter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_scan_shell_still_requires_a_lane_counter</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_the_scan_shell_still_requires_a_lane_counter" title="test_composition.test_the_scan_shell_still_requires_a_lane_counter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_scan_shell_still_requires_a_lane_counter</span></code></a>() → None</p></td>
 <td><p>The count_port waiver is the STREAM job's, not a general relaxation:</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_addr_width_is_32_or_64_only" title="test_composition.test_addr_width_is_32_or_64_only"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_addr_width_is_32_or_64_only</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_addr_width_is_32_or_64_only" title="test_composition.test_addr_width_is_32_or_64_only"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_addr_width_is_32_or_64_only</span></code></a>() → None</p></td>
 <td><p>A job master of some intermediate width is not hardware anyone builds,</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_a_packed_front_can_feed_a_wide_lane" title="test_composition.test_a_packed_front_can_feed_a_wide_lane"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_packed_front_can_feed_a_wide_lane</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_a_packed_front_can_feed_a_wide_lane" title="test_composition.test_a_packed_front_can_feed_a_wide_lane"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_packed_front_can_feed_a_wide_lane</span></code></a>() → None</p></td>
 <td><p>The packed feed and the wide lane compose.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_a_packed_wide_feed_rates_at_the_unpacker_not_at_one_row" title="test_composition.test_a_packed_wide_feed_rates_at_the_unpacker_not_at_one_row"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_packed_wide_feed_rates_at_the_unpacker_not_at_one_row</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_a_packed_wide_feed_rates_at_the_unpacker_not_at_one_row" title="test_composition.test_a_packed_wide_feed_rates_at_the_unpacker_not_at_one_row"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_packed_wide_feed_rates_at_the_unpacker_not_at_one_row</span></code></a>() → None</p></td>
 <td><p>The packed feed's ceiling is the READER's packed-row supply, which is</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_shell_infrastructure_is_selected_by_role_not_by_name" title="test_composition.test_shell_infrastructure_is_selected_by_role_not_by_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_shell_infrastructure_is_selected_by_role_not_by_name</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_shell_infrastructure_is_selected_by_role_not_by_name" title="test_composition.test_shell_infrastructure_is_selected_by_role_not_by_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_shell_infrastructure_is_selected_by_role_not_by_name</span></code></a>() → None</p></td>
 <td><p>Composition IS the registry: the shell cores a composition places are</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_a_stream_job_must_name_a_stream_job_shell" title="test_composition.test_a_stream_job_must_name_a_stream_job_shell"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_stream_job_must_name_a_stream_job_shell</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_a_stream_job_must_name_a_stream_job_shell" title="test_composition.test_a_stream_job_must_name_a_stream_job_shell"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_stream_job_must_name_a_stream_job_shell</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_a_planner_finds_each_operator_job_by_role" title="test_composition.test_a_planner_finds_each_operator_job_by_role"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_planner_finds_each_operator_job_by_role</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_a_planner_finds_each_operator_job_by_role" title="test_composition.test_a_planner_finds_each_operator_job_by_role"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_planner_finds_each_operator_job_by_role</span></code></a>() → None</p></td>
 <td><p>Every operator job a planner lowers to has exactly one tile per</p></td>
 </tr>
 </tbody>
@@ -1519,6 +1537,29 @@ a design cache that missed on spelling would rebuild an identical shell.</p>
 <dt class="sig sig-object py" id="test_composition.test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards">
 <span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.vendor_core">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">vendor_core</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#test_composition.vendor_core" title="Link to this definition">¶</a></dt>
+<dd><p>Register an unmeasured copy of one of our cores under another name,
+with its parameters edited, and drop it again afterwards.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_a_role_parameter_resolves_to_the_declared_default">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_a_role_parameter_resolves_to_the_declared_default</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vendor_core</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_a_role_parameter_resolves_to_the_declared_default" title="Link to this definition">¶</a></dt>
+<dd><p>A parameter the composition reads off a tile comes from the core’s
+declared default: a dispatcher whose MODE defaults to
+EXACT_BRANCH takes three lanes, and one whose RECORD_INPUT defaults on
+frames whole records rather than the feed.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_composition.test_a_role_core_missing_its_contract_parameter_raises">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_a_role_core_missing_its_contract_parameter_raises</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vendor_core</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_a_role_core_missing_its_contract_parameter_raises" title="Link to this definition">¶</a></dt>
+<dd><p>A key dispatcher without MODE, or a front unpacker without OUT_WIDTH,
+used to be treated as MASK mode and as 64 bits wide.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="test_composition.test_load_phase_shape_rules">
@@ -2033,6 +2074,15 @@ apart by the contract the lane speaks; asking without one is ambiguous.</p>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_composition.test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards">test_choices_and_power_of_two_constraints_mirror_the_elaboration_guards()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.vendor_core">vendor_core()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_a_role_parameter_resolves_to_the_declared_default">test_a_role_parameter_resolves_to_the_declared_default()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_composition.test_a_role_core_missing_its_contract_parameter_raises">test_a_role_core_missing_its_contract_parameter_raises()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_composition.test_load_phase_shape_rules">test_load_phase_shape_rules()</a>

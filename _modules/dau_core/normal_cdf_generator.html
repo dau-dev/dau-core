@@ -1296,12 +1296,12 @@ window.runMermaid = runMermaid;</script>
         <span class="n">point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">datapath</span>
         <span class="n">constants</span> <span class="o">=</span> <span class="n">point</span><span class="o">.</span><span class="n">constants</span><span class="p">()</span>
         <span class="n">q</span> <span class="o">=</span> <span class="n">point</span><span class="o">.</span><span class="n">internal_bits</span>
-        <span class="n">segments</span> <span class="o">=</span> <span class="n">constants</span><span class="p">[</span><span class="s2">"segments"</span><span class="p">]</span>
-        <span class="n">limit</span> <span class="o">=</span> <span class="n">constants</span><span class="p">[</span><span class="s2">"limit"</span><span class="p">]</span>
+        <span class="n">segments</span> <span class="o">=</span> <span class="n">constants</span><span class="o">.</span><span class="n">segments</span>
+        <span class="n">limit</span> <span class="o">=</span> <span class="n">constants</span><span class="o">.</span><span class="n">limit</span>
         <span class="n">wide</span> <span class="o">=</span> <span class="n">q</span> <span class="o">+</span> <span class="mi">3</span>  <span class="c1"># coefficients are signed and the constant term reaches 1.0</span>
 
         <span class="c1"># one flat coefficient ROM, segment-major: index*(DEGREE+1) + term</span>
-        <span class="n">flat</span> <span class="o">=</span> <span class="p">[</span><span class="n">value</span> <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">constants</span><span class="p">[</span><span class="s2">"coefficients"</span><span class="p">]</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">segment</span><span class="p">]</span>
+        <span class="n">flat</span> <span class="o">=</span> <span class="p">[</span><span class="n">value</span> <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">constants</span><span class="o">.</span><span class="n">coefficients</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">segment</span><span class="p">]</span>
         <span class="n">rom</span> <span class="o">=</span> <span class="s2">",</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">"        </span><span class="si">{</span><span class="n">_hex_literal</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">wide</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">flat</span><span class="p">)</span>
 
         <span class="c1"># Horner, one multiply per stage. Stage 3+2i registers the product and</span>
@@ -1375,7 +1375,7 @@ window.runMermaid = runMermaid;</script>
 <span class="s2">    localparam int PROD_WIDTH = 2 * WIDE;</span>
 <span class="s2">    localparam int SEGMENTS = </span><span class="si">{</span><span class="n">segments</span><span class="si">}</span><span class="s2">;</span>
 <span class="s2">    localparam int SEG_BITS = </span><span class="si">{</span><span class="nb">max</span><span class="p">(</span><span class="n">point</span><span class="o">.</span><span class="n">table_bits</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="si">}</span><span class="s2">;</span>
-<span class="s2">    localparam int SEGMENT_SHIFT = </span><span class="si">{</span><span class="n">constants</span><span class="p">[</span><span class="s2">"segment_shift"</span><span class="p">]</span><span class="si">}</span><span class="s2">;</span>
+<span class="s2">    localparam int SEGMENT_SHIFT = </span><span class="si">{</span><span class="n">constants</span><span class="o">.</span><span class="n">segment_shift</span><span class="si">}</span><span class="s2">;</span>
 <span class="s2">    localparam logic signed [31:0] LIMIT = 32'sd</span><span class="si">{</span><span class="n">limit</span><span class="si">}</span><span class="s2">;</span>
 <span class="s2">    localparam logic [31:0] ONE = 32'd</span><span class="si">{</span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">point</span><span class="o">.</span><span class="n">fractional_bits</span><span class="si">}</span><span class="s2">;</span>
 

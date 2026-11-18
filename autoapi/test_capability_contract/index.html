@@ -878,7 +878,7 @@
     <a href="#test_capability_contract.test_chain_lanes_carry_chain_capabilities_and_opcode_truth">test_chain_lanes_carry_chain_capabilities_and_opcode_truth()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_capability_contract.test_chainless_lane_mapping_round_trips_without_chain_key">test_chainless_lane_mapping_round_trips_without_chain_key()</a>
+    <a href="#test_capability_contract.test_a_contract_mapping_with_a_missing_or_unknown_key_raises">test_a_contract_mapping_with_a_missing_or_unknown_key_raises()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_capability_contract.test_the_contract_models_are_ccflow_models_not_dataclasses">test_the_contract_models_are_ccflow_models_not_dataclasses()</a>
@@ -957,8 +957,8 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_capability_contract.test_chain_lanes_carry_chain_capabilities_and_opcode_truth" title="test_capability_contract.test_chain_lanes_carry_chain_capabilities_and_opcode_truth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_chain_lanes_carry_chain_capabilities_and_opcode_truth</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_capability_contract.test_chainless_lane_mapping_round_trips_without_chain_key" title="test_capability_contract.test_chainless_lane_mapping_round_trips_without_chain_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_chainless_lane_mapping_round_trips_without_chain_key</span></code></a>() → None</p></td>
-<td><p></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_capability_contract.test_a_contract_mapping_with_a_missing_or_unknown_key_raises" title="test_capability_contract.test_a_contract_mapping_with_a_missing_or_unknown_key_raises"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_contract_mapping_with_a_missing_or_unknown_key_raises</span></code></a>() → None</p></td>
+<td><p>A missing or misspelled key used to read as its empty default: no</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_capability_contract.test_the_contract_models_are_ccflow_models_not_dataclasses" title="test_capability_contract.test_the_contract_models_are_ccflow_models_not_dataclasses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_contract_models_are_ccflow_models_not_dataclasses</span></code></a>() → None</p></td>
 <td><p>The contract is config data -- what a manifest carries and a planner</p></td>
@@ -1040,9 +1040,13 @@ protocol-level (host divide) and must never be declared as hardware.</p>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="test_capability_contract.test_chainless_lane_mapping_round_trips_without_chain_key">
-<span class="sig-prename descclassname"><span class="pre">test_capability_contract.</span></span><span class="sig-name descname"><span class="pre">test_chainless_lane_mapping_round_trips_without_chain_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_capability_contract.test_chainless_lane_mapping_round_trips_without_chain_key" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="test_capability_contract.test_a_contract_mapping_with_a_missing_or_unknown_key_raises">
+<span class="sig-prename descclassname"><span class="pre">test_capability_contract.</span></span><span class="sig-name descname"><span class="pre">test_a_contract_mapping_with_a_missing_or_unknown_key_raises</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_capability_contract.test_a_contract_mapping_with_a_missing_or_unknown_key_raises" title="Link to this definition">¶</a></dt>
+<dd><p>A missing or misspelled key used to read as its empty default: no
+<code class="docutils literal notranslate"><span class="pre">lanes</span></code> loaded as a valid zero-lane contract, no <code class="docutils literal notranslate"><span class="pre">chain</span></code> as a bare
+lane. Every key the writer emits is required, and nothing else is
+accepted.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="test_capability_contract.test_the_contract_models_are_ccflow_models_not_dataclasses">
@@ -1062,7 +1066,7 @@ declaration is. Pinned so it cannot drift back to a dataclass.</p>
 <span class="sig-prename descclassname"><span class="pre">test_capability_contract.</span></span><span class="sig-name descname"><span class="pre">test_reconfigurable_is_a_manifest_fact</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_capability_contract.test_reconfigurable_is_a_manifest_fact" title="Link to this definition">¶</a></dt>
 <dd><p>The fact rides the contract (and so the manifest), never a caller
 flag: a design whose chain configs are runtime registers advertises it,
-and a manifest written before the key existed reads as baked.</p>
+and a manifest without the key raises instead of reading as baked.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1152,7 +1156,7 @@ and a manifest written before the key existed reads as baked.</p>
     <a href="#test_capability_contract.test_chain_lanes_carry_chain_capabilities_and_opcode_truth">test_chain_lanes_carry_chain_capabilities_and_opcode_truth()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_capability_contract.test_chainless_lane_mapping_round_trips_without_chain_key">test_chainless_lane_mapping_round_trips_without_chain_key()</a>
+    <a href="#test_capability_contract.test_a_contract_mapping_with_a_missing_or_unknown_key_raises">test_a_contract_mapping_with_a_missing_or_unknown_key_raises()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_capability_contract.test_the_contract_models_are_ccflow_models_not_dataclasses">test_the_contract_models_are_ccflow_models_not_dataclasses()</a>

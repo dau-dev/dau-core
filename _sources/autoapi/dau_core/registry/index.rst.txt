@@ -22,6 +22,14 @@ dau_core.registry
 
 
 
+Attributes
+----------
+
+.. autoapisummary::
+
+   dau_core.registry._CORE_ENTRY_KEYS
+
+
 Exceptions
 ----------
 
@@ -51,6 +59,8 @@ Functions
 
 Module Contents
 ---------------
+
+.. py:data:: _CORE_ENTRY_KEYS
 
 .. py:exception:: UnknownCoreError
 
@@ -139,7 +149,11 @@ Module Contents
 
    A query compiler asks this on every capture, so it must not pay for the
    whole palette: a pending entry's configuration is read without building
-   the model (building all of them is over half a second).
+   the model (building all of them is over half a second). An entry is
+   skipped unbuilt only when every key it carries is a ``CoreDefinition``
+   field and ``lowering`` is not among them; any other key is built, so a
+   misspelled ``lowering:`` fails model validation instead of reading as a
+   tile with no lowering.
 
 
 .. py:function:: core_for_module(module: str) -> dau_core.cores.CoreDefinition
