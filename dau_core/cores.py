@@ -23,7 +23,7 @@ from importlib import import_module
 from pathlib import Path
 from typing import Annotated, Any, Literal
 
-from pydantic import Field, NonNegativeFloat, NonNegativeInt, StrictInt, field_validator, model_validator
+from pydantic import AfterValidator, Field, NonNegativeFloat, NonNegativeInt, PlainSerializer, StrictInt, field_validator, model_validator
 
 from .design import UnitKind
 from .element_types import ElementTypeError, decode_element_type, element_code, element_type
@@ -443,6 +443,25 @@ def _json_size(node: Any) -> int:
     return 0
 
 
+def _freeze_json(node: Any) -> Any:
+    """A JSON tree with every object a ``FrozenMapping`` and every array a
+    tuple: read-only, and hashable."""
+    if isinstance(node, Mapping):
+        return FrozenMapping({key: _freeze_json(value) for key, value in node.items()})
+    if isinstance(node, (list, tuple)):
+        return tuple(_freeze_json(value) for value in node)
+    return node
+
+
+def _thaw_json(node: Any) -> Any:
+    """A fresh plain-JSON copy of a tree :func:`_freeze_json` built."""
+    if isinstance(node, Mapping):
+        return {key: _thaw_json(value) for key, value in node.items()}
+    if isinstance(node, tuple):
+        return [_thaw_json(value) for value in node]
+    return node
+
+
 class ColumnBinding(CheckedModel):
     """Where a tile reads a column: the config port selecting its quad-row
     field and, for a column packed into a field with others (a key
@@ -493,7 +512,8 @@ class ExpressionLowering(CheckedModel):
     k > 0: true of clip, false of a product or a hash.
     """
 
-    expression: str | dict[str, Any]
+    # polars' JSON is stored frozen and serialized back as plain JSON
+    expression: Annotated[str | Mapping[str, Any], AfterValidator(_freeze_json), PlainSerializer(_thaw_json)]
     literals: tuple[str, ...] = ()
     bind: Annotated[Mapping[str, str | ColumnBinding], *ReadOnly]
     destination_port: str | None = None
@@ -513,10 +533,11 @@ class ExpressionLowering(CheckedModel):
         return value
 
     def expression_json(self) -> dict[str, Any]:
-        """The expression as polars serializes it. Text is evaluated through
-        ccflow's ``PolarsExpression``, which needs polars installed."""
-        if isinstance(self.expression, dict):
-            return self.expression
+        """The expression as polars serializes it, as a new dict on every
+        call. Text is evaluated through ccflow's ``PolarsExpression``, which
+        needs polars installed."""
+        if not isinstance(self.expression, str):
+            return _thaw_json(self.expression)
         import json
 
         from ccflow.exttypes.polars import PolarsExpression

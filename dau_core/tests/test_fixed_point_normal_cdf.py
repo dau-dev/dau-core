@@ -70,3 +70,14 @@ def test_a_cheaper_point_is_not_correctly_rounded(table_bits: int, degree: int) 
     conservative."""
     worst, wrong, _ = _sweep(NormalCdfDatapath(table_bits=table_bits, degree=degree))
     assert wrong > 0 and worst >= 1, "the cheaper point now passes -- re-measure and lower the registered one"
+
+
+def test_the_normal_cdf_constants_are_a_frozen_model_read_by_name() -> None:
+    from dau_core.fixed_point import NormalCdfConstants
+
+    point = NormalCdfDatapath()
+    constants = point.constants()
+    assert isinstance(constants, NormalCdfConstants)
+    assert len(constants.coefficients) == constants.segments == 1 << point.table_bits
+    assert all(len(segment) == point.degree + 1 for segment in constants.coefficients)
+    assert NormalCdfConstants.model_config.get("frozen") is True

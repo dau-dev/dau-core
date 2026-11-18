@@ -143,3 +143,20 @@ def test_the_range_reduction_index_is_deliberately_narrow() -> None:
     low, high = exp_domain()
     for x in range(low, high + 1, _STRIDE):
         assert exact.evaluate(x) == wide.evaluate(x), f"widening k changed the result at x={x}"
+
+
+def test_the_exp_constants_are_a_frozen_model_read_by_name() -> None:
+    """The generator once emitted the full-precision reciprocal of ln2 where
+    the model used the narrow one, a mistake a dict read by string key
+    allowed. The constants are a frozen model with only the fields the
+    datapath uses."""
+    from dau_core.fixed_point import ExpConstants
+
+    point = ExpDatapath()
+    constants = point.constants()
+    assert isinstance(constants, ExpConstants)
+    assert set(ExpConstants.model_fields) == {"ln2", "inv_ln2_narrow", "table", "coefficients"}
+    assert len(constants.table) == 1 << point.table_bits
+    assert len(constants.coefficients) == point.degree + 1
+    assert ExpConstants.model_config.get("frozen") is True
+    assert hash(constants) == hash(point.constants())

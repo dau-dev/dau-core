@@ -71,9 +71,9 @@ class LnTileGenerator(CoreGenerator):
         # largest value on the datapath that is not a product
         wide = q + 2
 
-        reciprocal = ",\n".join(f"        {_hex_literal(value, mant_width)}" for value in constants["reciprocal"])
-        ln_table = ",\n".join(f"        {_hex_literal(value, wide)}" for value in constants["ln_table"])
-        series = ",\n".join(f"        {_hex_literal(constants['series'][k], wide)}" for k in range(point.degree + 1))
+        reciprocal = ",\n".join(f"        {_hex_literal(value, mant_width)}" for value in constants.reciprocal)
+        ln_table = ",\n".join(f"        {_hex_literal(value, wide)}" for value in constants.ln_table)
+        series = ",\n".join(f"        {_hex_literal(constants.series[k], wide)}" for k in range(point.degree + 1))
 
         # A product must be formed at FULL width. In SystemVerilog the
         # operands of `a * b` are sized by the expression context, so
@@ -185,7 +185,7 @@ module {self.module} #(
 
     localparam logic [E_WIDTH-1:0]        Q_BITS = E_WIDTH'(INTERNAL_BITS);
     localparam logic signed [E_WIDTH-1:0] F_BITS = E_WIDTH'(FRACTIONAL_BITS);
-    localparam logic signed [WIDE-1:0]    LN2 = {_hex_literal(constants["ln2"], wide)};
+    localparam logic signed [WIDE-1:0]    LN2 = {_hex_literal(constants.ln2, wide)};
 
     localparam logic [MANT_WIDTH-1:0] RECIPROCAL [TABLE_ENTRIES] = '{{
 {reciprocal}
