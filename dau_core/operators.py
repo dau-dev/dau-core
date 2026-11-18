@@ -6,8 +6,9 @@ from dataclasses import dataclass
 from enum import IntEnum
 from typing import cast
 
+from .element_types import parse_element_type
 from .models import CheckedModel
-from .stream import LogicalType, OperationCode
+from .stream import LOGICAL_TYPE_BYTE_WIDTHS, LogicalType, OperationCode
 
 
 class PredicateOp(IntEnum):
@@ -303,6 +304,7 @@ class SqrtErrorCode(IntEnum):
 # fractional bits in the tile's fixed-point format. Q16.16 covers prices and
 # returns in one format; the tile parameterizes it, this is the default.
 SQRT_FRACTIONAL_BITS = 16
+SQRT_MAX_FRACTIONAL_BITS = 31
 
 
 def fixed_point_sqrt(value: int, *, fractional_bits: int = SQRT_FRACTIONAL_BITS) -> int:
@@ -334,8 +336,8 @@ class RowSqrtConfig(CheckedModel):
 
     def model_post_init(self, context) -> None:
         super().model_post_init(context)
-        if not 0 <= self.fractional_bits <= 31:
-            raise ValueError("fractional_bits must be in [0, 31]")
+        if not 0 <= self.fractional_bits <= SQRT_MAX_FRACTIONAL_BITS:
+            raise ValueError(f"fractional_bits must be in [0, {SQRT_MAX_FRACTIONAL_BITS}]")
 
 
 def sqrt_row_fields(rows: Iterable[tuple[int, int, int, int]], config: RowSqrtConfig) -> list[tuple[int, int, int, int]]:
@@ -430,6 +432,7 @@ class DivideErrorCode(IntEnum):
 
 
 DIVIDE_FRACTIONAL_BITS = 16
+DIVIDE_MAX_FRACTIONAL_BITS = 31
 
 
 def fixed_point_divide(numerator: int, denominator: int, *, fractional_bits: int = DIVIDE_FRACTIONAL_BITS) -> int:
@@ -466,8 +469,8 @@ class RowDivideConfig(CheckedModel):
 
     def model_post_init(self, context) -> None:
         super().model_post_init(context)
-        if not 0 <= self.fractional_bits <= 31:
-            raise ValueError("fractional_bits must be in [0, 31]")
+        if not 0 <= self.fractional_bits <= DIVIDE_MAX_FRACTIONAL_BITS:
+            raise ValueError(f"fractional_bits must be in [0, {DIVIDE_MAX_FRACTIONAL_BITS}]")
 
 
 def divide_row_fields(rows: Iterable[tuple[int, int, int, int]], config: RowDivideConfig) -> list[tuple[int, int, int, int]]:
@@ -564,6 +567,9 @@ class FieldSumErrorCode(IntEnum):
 #: a read and a golden encoding a record agree by construction.
 STREAM_WORD_BYTES = 8
 _STREAM_WORD_MASK = (1 << (8 * STREAM_WORD_BYTES)) - 1
+#: A membership or dedup key space loads as a bitmap of stream words, so it
+#: is a multiple of one word's bits.
+KEY_SPACE_MULTIPLE = 8 * STREAM_WORD_BYTES
 
 
 @dataclass(frozen=True)
@@ -830,8 +836,8 @@ class MembershipBuildSet(CheckedModel):
 
     def model_post_init(self, context) -> None:
         super().model_post_init(context)
-        if self.key_space <= 0 or self.key_space % 64 != 0:
-            raise MembershipBuildSetError("key_space must be a positive multiple of 64")
+        if self.key_space <= 0 or self.key_space % KEY_SPACE_MULTIPLE != 0:
+            raise MembershipBuildSetError(f"key_space must be a positive multiple of {KEY_SPACE_MULTIPLE}")
         for member in self.members:
             if not 0 <= member < self.key_space:
                 raise MembershipBuildSetError(f"member {member} outside key space [0, {self.key_space})")
@@ -957,8 +963,8 @@ def count_distinct_rows(
     it (count zero, empty bitmap), because rows before the bad one already set
     their bits and a half-inserted bitmap is not a state anything can resume
     from."""
-    if key_space <= 0 or key_space % 64 != 0:
-        raise ValueError("key_space must be a positive multiple of 64")
+    if key_space <= 0 or key_space % KEY_SPACE_MULTIPLE != 0:
+        raise ValueError(f"key_space must be a positive multiple of {KEY_SPACE_MULTIPLE}")
     if key_space > DEDUP_KEY_SPACE_MAX:
         raise ValueError(f"key_space must be <= {DEDUP_KEY_SPACE_MAX}")
     bitmap = set(seen)
@@ -1565,18 +1571,20 @@ class UnsupportedAggregationError(ValueError):
     pass
 
 
-_INTEGER_RANGES = {
-    LogicalType.INT8: (-(1 << 7), (1 << 7) - 1),
-    LogicalType.INT16: (-(1 << 15), (1 << 15) - 1),
-    LogicalType.INT32: (-(1 << 31), (1 << 31) - 1),
-    LogicalType.INT64: (-(1 << 63), (1 << 63) - 1),
-    LogicalType.UINT8: (0, (1 << 8) - 1),
-    LogicalType.UINT16: (0, (1 << 16) - 1),
-    LogicalType.UINT32: (0, (1 << 32) - 1),
-    LogicalType.UINT64: (0, (1 << 64) - 1),
-}
+# the stream's fixed-width types, read as element types for sign and kind
+_ELEMENT_TYPES = {logical_type: parse_element_type(logical_type.name.lower()) for logical_type in LOGICAL_TYPE_BYTE_WIDTHS}
+_FLOAT_TYPES = frozenset(logical_type for logical_type, element in _ELEMENT_TYPES.items() if element.is_float)
 
-_FLOAT_TYPES = {LogicalType.FLOAT32, LogicalType.FLOAT64}
+
+def _integer_range(bits: int, *, signed: bool) -> tuple[int, int]:
+    return (-(1 << (bits - 1)), (1 << (bits - 1)) - 1) if signed else (0, (1 << bits) - 1)
+
+
+_INTEGER_RANGES = {
+    logical_type: _integer_range(8 * LOGICAL_TYPE_BYTE_WIDTHS[logical_type], signed=element.signed)
+    for logical_type, element in _ELEMENT_TYPES.items()
+    if not element.is_float
+}
 
 
 def aggregate_values(opcode: OperationCode, values: Iterable[int | float | bool], logical_type: LogicalType) -> int | float:
@@ -1801,11 +1809,14 @@ def scratchpad_scan(
     return emitted, ScratchpadErrorCode.OK
 
 
+SESSION_GAP_MAX_KEYS = 1024
+
+
 class SessionErrorCode(IntEnum):
     """Status codes for the session-gap tile."""
 
     OK = 0
-    BAD_CAPACITY = 1  # capacity outside [1, KEYED_STATE_MAX_KEYS]
+    BAD_CAPACITY = 1  # capacity outside [1, SESSION_GAP_MAX_KEYS]
     SESSION_CAPACITY_EXCEEDED = 2  # a new key past the table's capacity
     BAD_GAP = 3  # gap must be positive
     TIME_ORDER = 4  # a row's time ran backwards within the batch
@@ -1844,7 +1855,7 @@ def sessionize_scan(
 
     Returns ``(closed_sessions, error_code)``.
     """
-    if not 1 <= capacity <= KEYED_STATE_MAX_KEYS:
+    if not 1 <= capacity <= SESSION_GAP_MAX_KEYS:
         return [], SessionErrorCode.BAD_CAPACITY
     if gap <= 0:
         return [], SessionErrorCode.BAD_GAP
