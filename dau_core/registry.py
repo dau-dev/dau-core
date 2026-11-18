@@ -22,7 +22,7 @@ from typing import TYPE_CHECKING
 
 from ccflow import LazyRegistry
 
-from .cores import CoreDefinition, CoreKind, CoreRole
+from .cores import ContractKind, CoreDefinition, CoreKind, CoreRole
 
 if TYPE_CHECKING:
     from ccflow import ModelRegistry
@@ -182,19 +182,22 @@ def cores_of_role(role: CoreRole) -> tuple[CoreDefinition, ...]:
     return tuple(definition for definition in loaded_cores().values() if definition.role is role)
 
 
-def core_of_role(role: CoreRole) -> CoreDefinition:
-    """The one composed core declaring ``role``.
+def core_of_role(role: CoreRole, contract: ContractKind | None = None) -> CoreDefinition:
+    """The one composed core declaring ``role`` (and speaking ``contract``,
+    when given).
 
     The shell-infrastructure roles are jobs exactly one core fills, and a
-    composition selects the core by asking for the job. Zero is a palette
-    with a hole in it; two is an ambiguity nothing here can resolve, and
-    silently taking the first would make the answer depend on registry
-    order, so both refuse.
+    composition selects the core by asking for the job. An operator job with
+    a narrow and a wide tile is asked for with the contract the lane speaks.
+    Zero is a palette with a hole in it; two is an ambiguity nothing here can
+    resolve, and silently taking the first would make the answer depend on
+    registry order, so both refuse.
     """
-    found = cores_of_role(role)
+    found = tuple(definition for definition in cores_of_role(role) if contract is None or definition.contract_kind is contract)
     if len(found) != 1:
         names = [definition.name for definition in found]
-        raise UnknownCoreError(f"expected exactly one composed core with role {role.value!r}, found {len(found)}: {names}")
+        speaking = "" if contract is None else f" speaking {contract.value!r}"
+        raise UnknownCoreError(f"expected exactly one composed core with role {role.value!r}{speaking}, found {len(found)}: {names}")
     return found[0]
 
 

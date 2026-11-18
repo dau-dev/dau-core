@@ -86,6 +86,23 @@ class CoreRole(Enum):
     SHELL_REGISTERS = "shell-registers"
     STREAM_JOB_SHELL = "stream-job-shell"
     FRONT_GEARBOX = "front-gearbox"
+    # The operator jobs a planner fills when it lowers a query, asked for by
+    # job rather than by tile name. A job with a narrow and a wide tile
+    # (filter, map, field sum) is told apart by the tile's contract_kind.
+    ROW_FILTER = "row-filter"  # passes the rows a predicate tree accepts
+    ROW_MAP = "row-map"  # derives a field from two fields with an ALU op
+    FIELD_SUM = "field-sum"  # sums selected fields and counts rows: the ungrouped terminal
+    MEMBERSHIP_FILTER = "membership-filter"  # passes rows whose key is in a loaded set
+    HASH_JOIN = "hash-join"  # joins each probe row to a loaded build table
+    LANE_PARTITION = "lane-partition"  # keeps the rows of one lane's key partition
+    FIXED_POINT_DIVIDE = "fixed-point-divide"  # divides two fields on a fixed-point grid
+    GROUPED_SUM = "grouped-sum"  # per-group field sums over a dense key range
+    HASH_GROUPED = "hash-grouped"  # per-group field sums over hashed keys
+    GROUP_TABLE = "group-table"  # per-group sums in a table over packed wide rows
+    GROUPED_STATS = "grouped-stats"  # per-group first/last/min/max/sum
+    ROLLING_MOMENTS = "rolling-moments"  # windowed moments per symbol
+    TOP_K = "top-k"  # the k best rows by a key
+    SORTER = "sorter"  # sorts a batch of rows
 
 
 class ContractKind(Enum):

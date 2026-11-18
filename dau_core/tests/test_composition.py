@@ -1448,3 +1448,38 @@ def test_shell_infrastructure_is_selected_by_role_not_by_name() -> None:
 def test_a_stream_job_must_name_a_stream_job_shell() -> None:
     with pytest.raises(CompositionError, match="stream-job-shell"):
         ScanCompositionSpec(name="bad", stream_job="axi-burst-reader", lanes=(LaneSpec(tile=_BAR),))
+
+
+def test_a_planner_finds_each_operator_job_by_role() -> None:
+    """Every operator job a planner lowers to has exactly one tile per
+    contract, so a planner asks for the job and never names the tile. The
+    narrow and wide filter, map and field-sum tiles share a role and are told
+    apart by the contract the lane speaks; asking without one is ambiguous."""
+    from dau_core.cores import ContractKind, CoreRole
+    from dau_core.registry import UnknownCoreError, core_of_role, cores_of_role
+
+    operator_roles = (
+        CoreRole.ROW_FILTER,
+        CoreRole.ROW_MAP,
+        CoreRole.FIELD_SUM,
+        CoreRole.MEMBERSHIP_FILTER,
+        CoreRole.HASH_JOIN,
+        CoreRole.LANE_PARTITION,
+        CoreRole.FIXED_POINT_DIVIDE,
+        CoreRole.GROUPED_SUM,
+        CoreRole.HASH_GROUPED,
+        CoreRole.GROUP_TABLE,
+        CoreRole.GROUPED_STATS,
+        CoreRole.ROLLING_MOMENTS,
+        CoreRole.TOP_K,
+        CoreRole.SORTER,
+    )
+    for role in operator_roles:
+        assert cores_of_role(role), f"no tile fills {role.value}"
+    for role in (CoreRole.ROW_FILTER, CoreRole.ROW_MAP, CoreRole.FIELD_SUM):
+        narrow = core_of_role(role, ContractKind.ROW_STREAM)
+        wide = core_of_role(role, ContractKind.WIDE_ROW_STREAM)
+        assert narrow.contract_kind is ContractKind.ROW_STREAM and wide.contract_kind is ContractKind.WIDE_ROW_STREAM
+        with pytest.raises(UnknownCoreError, match="exactly one"):
+            core_of_role(role)
+    assert core_of_role(CoreRole.GROUP_TABLE).name == "wide-group-table-sum"
