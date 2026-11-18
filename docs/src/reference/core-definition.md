@@ -77,9 +77,9 @@ numbers as a budget.
 
 ## Composition role
 
-| Field  | Type               | Description                                                                                  |
-| ------ | ------------------ | -------------------------------------------------------------------------------------------- |
-| `role` | `CoreRole \| None` | The composition job this core fills, when a composition rule turns on it. Most cores: unset. |
+| Field  | Type               | Description                                                                                                   |
+| ------ | ------------------ | ------------------------------------------------------------------------------------------------------------- |
+| `role` | `CoreRole \| None` | The composition or operator job this core fills, when a composition or a planner selects the core by its job. |
 
 Two rules cannot be read off a tile's ports, so the registry states them.
 `front-unpack` marks a core admissible in the optional front-stage feed
@@ -89,6 +89,14 @@ over the record's key, and is a contract as well as a label: such a core
 has `MODE` (a `DispatchMode`) and `NUM_PARTITIONS`, and the composition
 enforces a power-of-two lane count for every decode but `EXACT_BRANCH`. A
 range partitioner routes by ordered splitters and declares neither.
+
+The operator roles name the jobs a query planner lowers to: `row-filter`,
+`row-map`, `field-sum`, `membership-filter`, `hash-join`, `lane-partition`,
+`fixed-point-divide`, `grouped-sum`, `hash-grouped`, `group-table`,
+`grouped-stats`, `rolling-moments`, `top-k` and `sorter`. A planner asks for
+the job with `core_of_role(role, contract)` and never names a tile. The
+filter, map and field-sum jobs each have a narrow and a wide tile, told apart
+by `contract_kind`; every other role has one tile.
 
 ## Rate
 

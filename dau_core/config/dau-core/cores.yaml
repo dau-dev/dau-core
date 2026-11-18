@@ -343,6 +343,7 @@ grouped-aggregation:
 grouped-field-aggregation:
   _target_: dau_core.cores.CoreDefinition
   name: grouped-field-aggregation
+  role: grouped-stats
   kind: operator
   module: dau_grouped_field_aggregation
   source: dau_grouped_field_aggregation.sv
@@ -559,6 +560,7 @@ asof-backward:
 rolling-moments:
   _target_: dau_core.cores.CoreDefinition
   name: rolling-moments
+  role: rolling-moments
   kind: operator
   module: dau_rolling_moments
   source: dau_rolling_moments.sv
@@ -1005,6 +1007,7 @@ int32-record-gather:
 hash-grouped-aggregation:
   _target_: dau_core.cores.CoreDefinition
   name: hash-grouped-aggregation
+  role: hash-grouped
   kind: operator
   module: dau_hash_grouped_aggregation
   source: dau_hash_grouped_aggregation.sv
@@ -1157,6 +1160,7 @@ hash-grouped-aggregation:
 streaming-top-k:
   _target_: dau_core.cores.CoreDefinition
   name: streaming-top-k
+  role: top-k
   kind: operator
   module: dau_streaming_top_k
   source: dau_streaming_top_k.sv
@@ -1334,6 +1338,7 @@ streaming-top-k:
 pair-key-filter:
   _target_: dau_core.cores.CoreDefinition
   name: pair-key-filter
+  role: lane-partition
   kind: operator
   module: dau_pair_key_filter
   source: dau_pair_key_filter.sv
@@ -1788,6 +1793,7 @@ stride-distributor:
 bitonic-sorter:
   _target_: dau_core.cores.CoreDefinition
   name: bitonic-sorter
+  role: sorter
   kind: operator
   module: dau_bitonic_sorter
   source: dau_bitonic_sorter.sv
@@ -1863,6 +1869,7 @@ bitonic-sorter:
 row-predicate-filter:
   _target_: dau_core.cores.CoreDefinition
   name: row-predicate-filter
+  role: row-filter
   kind: operator
   module: dau_row_predicate_filter
   source: dau_row_predicate_filter.sv
@@ -2289,6 +2296,7 @@ fixed-point-ln-light:
 fixed-point-divide:
   _target_: dau_core.cores.CoreDefinition
   name: fixed-point-divide
+  role: fixed-point-divide
   kind: operator
   module: dau_fixed_point_divide
   source: dau_fixed_point_divide.sv
@@ -2427,6 +2435,7 @@ fixed-point-sqrt:
 row-map-alu:
   _target_: dau_core.cores.CoreDefinition
   name: row-map-alu
+  role: row-map
   kind: operator
   module: dau_row_map_alu
   source: dau_row_map_alu.sv
@@ -2696,6 +2705,7 @@ row-unpack:
 field-sum-aggregation:
   _target_: dau_core.cores.CoreDefinition
   name: field-sum-aggregation
+  role: field-sum
   kind: operator
   module: dau_field_sum_aggregation
   source: dau_field_sum_aggregation.sv
@@ -2775,6 +2785,7 @@ field-sum-aggregation:
 grouped-field-sum-aggregation:
   _target_: dau_core.cores.CoreDefinition
   name: grouped-field-sum-aggregation
+  role: grouped-sum
   kind: operator
   module: dau_grouped_field_sum_aggregation
   source: dau_grouped_field_sum_aggregation.sv
@@ -2855,6 +2866,7 @@ grouped-field-sum-aggregation:
 key-membership-filter:
   _target_: dau_core.cores.CoreDefinition
   name: key-membership-filter
+  role: membership-filter
   kind: operator
   module: dau_key_membership_filter
   source: dau_key_membership_filter.sv
@@ -3107,6 +3119,7 @@ streaming-dedup:
 broadcast-hash-join:
   _target_: dau_core.cores.CoreDefinition
   name: broadcast-hash-join
+  role: hash-join
   kind: operator
   module: dau_broadcast_hash_join
   source: dau_broadcast_hash_join.sv
@@ -3889,6 +3902,7 @@ identity-registers:
 wide-row-predicate-filter:
   _target_: dau_core.cores.CoreDefinition
   name: wide-row-predicate-filter
+  role: row-filter
   kind: operator
   module: dau_wide_row_predicate_filter
   source: dau_wide_row_predicate_filter.sv
@@ -3986,6 +4000,7 @@ wide-row-predicate-filter:
 wide-row-map-alu:
   _target_: dau_core.cores.CoreDefinition
   name: wide-row-map-alu
+  role: row-map
   kind: operator
   module: dau_wide_row_map_alu
   source: dau_wide_row_map_alu.sv
@@ -4109,6 +4124,7 @@ wide-row-map-alu:
 wide-group-table-sum:
   _target_: dau_core.cores.CoreDefinition
   name: wide-group-table-sum
+  role: group-table
   kind: operator
   module: dau_wide_group_table_sum
   source: dau_wide_group_table_sum.sv
@@ -4184,6 +4200,7 @@ wide-group-table-sum:
 wide-field-sum-aggregation:
   _target_: dau_core.cores.CoreDefinition
   name: wide-field-sum-aggregation
+  role: field-sum
   kind: operator
   module: dau_wide_field_sum_aggregation
   source: dau_wide_field_sum_aggregation.sv
