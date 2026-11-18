@@ -9,6 +9,8 @@ quad-row tile with a golden element function.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
+
 import polars as pl
 import pytest
 from ccflow import ModelRegistry
@@ -58,7 +60,7 @@ def test_a_composed_tile_carries_its_lowering_and_is_found() -> None:
 def test_text_and_a_polars_expression_declare_the_same_pattern() -> None:
     from_text = ExpressionLowering.model_validate(_CLIP)
     from_expr = ExpressionLowering.model_validate({**_CLIP, "expression": pl.col("value").clip(pl.col("lower"), pl.col("upper"))})
-    assert isinstance(from_expr.expression, dict)
+    assert isinstance(from_expr.expression, Mapping)
     assert from_text.expression_json() == from_expr.expression_json()
     # the declaration serializes either way, which is what a capture cache keys on
     assert from_expr.model_dump_json()
@@ -135,3 +137,22 @@ def test_an_aggregating_tile_may_terminate_a_wide_lane() -> None:
     assert CoreDefinition.model_validate(wide).lowering is not None
     with pytest.raises(ValueError, match="row-stream tile of 2 words"):
         CoreDefinition.model_validate({**wide, "lowering": _CLIP})
+
+
+def test_a_lowering_from_a_polars_expression_is_frozen_and_hashable() -> None:
+    """polars' JSON was stored as the dict it parsed to and handed out by
+    reference: a caller could edit the declaration through
+    ``expression_json()``, and any core declaring such a lowering was
+    unhashable."""
+    lowering = ExpressionLowering.model_validate({**_CLIP, "expression": pl.col("value").clip(pl.col("lower"), pl.col("upper"))})
+    serialized = lowering.model_dump_json()
+
+    edited = lowering.expression_json()
+    edited["Function"]["input"].append({"Column": "extra"})
+    assert lowering.expression_json() != edited
+    assert lowering.columns() == ("value",)
+    assert lowering.model_dump_json() == serialized
+    assert ExpressionLowering.model_validate_json(serialized) == lowering
+
+    definition = CoreDefinition.model_validate({**_TILE, "lowering": lowering})
+    assert hash(definition) == hash(definition.replace())
