@@ -1201,7 +1201,7 @@ Module Contents
 
 
 
-   .. py:method:: source_path() -> pathlib.Path
+   .. py:method:: source_path(*, rendered_into: pathlib.Path | None = None) -> pathlib.Path
 
       The HDL this core synthesizes from.
 
@@ -1211,6 +1211,11 @@ Module Contents
       rendering behind a read would hide which parameters produced it, and
       the whole reason this core is generated is that its constants are a
       function of those parameters.
+
+      ``rendered_into`` is the directory a generated core was rendered to
+      (``render(into=)``); it defaults to :func:`render_root`. A build tree
+      renders into its own directory and passes it here, so two builds never
+      share one file.
 
 
 
@@ -1315,8 +1320,8 @@ Module Contents
 
    Where generated cores are materialized.
 
-   Defaults beside the declaring package so a checkout behaves like one
-   with the files committed; a build tree points DAU_CORE_RENDER_ROOT at
-   its own directory so two builds cannot race on one file.
+   Beside the declaring package, so a checkout behaves like one with the
+   files committed. A build tree renders elsewhere and passes that directory
+   to :meth:`CoreDefinition.source_path`.
 
 

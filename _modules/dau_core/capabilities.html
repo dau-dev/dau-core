@@ -1252,16 +1252,6 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.registers</span><span class="w"> </span><span class="kn">import</span> <span class="n">RegisterMapVersion</span><span class="p">,</span> <span class="n">StreamProtocolVersion</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.stream</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogicalType</span><span class="p">,</span> <span class="n">OperationCode</span>
 
-<span class="c1"># DAU platform variant 1 (dpv1) identity — the single home for these</span>
-<span class="c1"># values; drivers, orchestration, and tooling import them rather than</span>
-<span class="c1"># repeating literals. The wire identity word is the platform-variant name</span>
-<span class="c1"># "DPV1" (the board's own product name is an implementation detail); shells</span>
-<span class="c1"># report it in the PLATFORM_ID register.</span>
-<span class="n">DPV1_PLATFORM_ID</span> <span class="o">=</span> <span class="s2">"DPV1"</span>
-<span class="n">XILINX_VENDOR_ID</span> <span class="o">=</span> <span class="mh">0x10EE</span>
-<span class="n">DPV1_DEVICE_ID</span> <span class="o">=</span> <span class="mh">0x7011</span>
-<span class="n">DPV1_PCI_ID</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">XILINX_VENDOR_ID</span><span class="si">:</span><span class="s2">04x</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">DPV1_DEVICE_ID</span><span class="si">:</span><span class="s2">04x</span><span class="si">}</span><span class="s2">"</span>
-
 
 <div class="viewcode-block" id="DmaConstraints">
 <a class="viewcode-back" href="../../autoapi/dau_core/capabilities/index.html#dau_core.capabilities.DmaConstraints">[docs]</a>

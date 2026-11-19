@@ -2565,7 +2565,7 @@ are more than a nanosecond apart, so this cannot reach a neighbour.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dau_core.cores.CoreDefinition.source_path">
-<span class="sig-name descname"><span class="pre">source_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pathlib.Path</span></span></span><a class="headerlink" href="#dau_core.cores.CoreDefinition.source_path" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">source_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rendered_into</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pathlib.Path</span></span></span><a class="headerlink" href="#dau_core.cores.CoreDefinition.source_path" title="Link to this definition">¶</a></dt>
 <dd><p>The HDL this core synthesizes from.</p>
 <p>A GENERATED core (one declaring a <code class="docutils literal notranslate"><span class="pre">generator</span></code>) has no checked-in
 file, so it refuses until it has been rendered rather than rendering
@@ -2573,6 +2573,10 @@ implicitly on first read. What sits on disk is what gets synthesized;
 rendering behind a read would hide which parameters produced it, and
 the whole reason this core is generated is that its constants are a
 function of those parameters.</p>
+<p><code class="docutils literal notranslate"><span class="pre">rendered_into</span></code> is the directory a generated core was rendered to
+(<code class="docutils literal notranslate"><span class="pre">render(into=)</span></code>); it defaults to <a class="reference internal" href="#dau_core.cores.render_root" title="dau_core.cores.render_root"><code class="xref py py-func docutils literal notranslate"><span class="pre">render_root()</span></code></a>. A build tree
+renders into its own directory and passes it here, so two builds never
+share one file.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -2668,9 +2672,9 @@ so a core contributed by another distribution finds its own tree.</p>
 <dt class="sig sig-object py" id="dau_core.cores.render_root">
 <span class="sig-prename descclassname"><span class="pre">dau_core.cores.</span></span><span class="sig-name descname"><span class="pre">render_root</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">package</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'dau_core.hdl'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pathlib.Path</span></span></span><a class="headerlink" href="#dau_core.cores.render_root" title="Link to this definition">¶</a></dt>
 <dd><p>Where generated cores are materialized.</p>
-<p>Defaults beside the declaring package so a checkout behaves like one
-with the files committed; a build tree points DAU_CORE_RENDER_ROOT at
-its own directory so two builds cannot race on one file.</p>
+<p>Beside the declaring package, so a checkout behaves like one with the
+files committed. A build tree renders elsewhere and passes that directory
+to <a class="reference internal" href="#dau_core.cores.CoreDefinition.source_path" title="dau_core.cores.CoreDefinition.source_path"><code class="xref py py-meth docutils literal notranslate"><span class="pre">CoreDefinition.source_path()</span></code></a>.</p>
 </dd></dl>
 
 </section>

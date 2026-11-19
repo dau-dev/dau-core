@@ -933,9 +933,9 @@ mutating them raises an error. <code class="docutils literal notranslate"><span 
 another model holds it, because it is a field type and validating a
 subclass against the base would drop the subclass’s own fields.</p>
 <p><code class="docutils literal notranslate"><span class="pre">CoreDefinition.render(into=)</span></code> writes a generated core’s source;
-<code class="docutils literal notranslate"><span class="pre">render_root()</span></code> is the default destination, overridable with the
-<code class="docutils literal notranslate"><span class="pre">DAU_CORE_RENDER_ROOT</span></code> environment variable. Rendering a checked-in core
-raises an error.</p>
+<code class="docutils literal notranslate"><span class="pre">render_root()</span></code> is the default destination. A caller that renders
+elsewhere passes the same directory to <code class="docutils literal notranslate"><span class="pre">source_path(rendered_into=)</span></code>.
+Rendering a checked-in core raises an error.</p>
 </section>
 <section id="semantics-and-verification">
 <h2>Semantics and verification<a class="headerlink" href="#semantics-and-verification" title="Link to this heading">¶</a></h2>

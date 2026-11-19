@@ -4,17 +4,6 @@ dau_core.capabilities
 .. py:module:: dau_core.capabilities
 
 
-Attributes
-----------
-
-.. autoapisummary::
-
-   dau_core.capabilities.DPV1_PLATFORM_ID
-   dau_core.capabilities.XILINX_VENDOR_ID
-   dau_core.capabilities.DPV1_DEVICE_ID
-   dau_core.capabilities.DPV1_PCI_ID
-
-
 Classes
 -------
 
@@ -27,22 +16,6 @@ Classes
 
 Module Contents
 ---------------
-
-.. py:data:: DPV1_PLATFORM_ID
-   :value: 'DPV1'
-
-
-.. py:data:: XILINX_VENDOR_ID
-   :value: 4334
-
-
-.. py:data:: DPV1_DEVICE_ID
-   :value: 28689
-
-
-.. py:data:: DPV1_PCI_ID
-   :value: '10ee:7011'
-
 
 .. py:class:: DmaConstraints
 

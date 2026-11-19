@@ -860,6 +860,9 @@
     <a href="#test_generated_cores.test_a_generated_core_refuses_its_source_until_rendered">test_a_generated_core_refuses_its_source_until_rendered()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#test_generated_cores.test_a_generated_core_reads_its_source_from_the_render_directory">test_a_generated_core_reads_its_source_from_the_render_directory()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#test_generated_cores.test_rendering_writes_the_source_the_entry_names">test_rendering_writes_the_source_the_entry_names()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -933,19 +936,22 @@ already use.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_generated_cores.test_a_generated_core_refuses_its_source_until_rendered" title="test_generated_cores.test_a_generated_core_refuses_its_source_until_rendered"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_generated_core_refuses_its_source_until_rendered</span></code></a>(...) → None</p></td>
 <td><p>Rendering implicitly on read would hide which parameters produced the</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_generated_cores.test_rendering_writes_the_source_the_entry_names" title="test_generated_cores.test_rendering_writes_the_source_the_entry_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_rendering_writes_the_source_the_entry_names</span></code></a>(tmp_path) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_generated_cores.test_a_generated_core_reads_its_source_from_the_render_directory" title="test_generated_cores.test_a_generated_core_reads_its_source_from_the_render_directory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_generated_core_reads_its_source_from_the_render_directory</span></code></a>(...) → None</p></td>
+<td><p>The render directory is an argument, not process state: a variable left</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_generated_cores.test_rendering_writes_the_source_the_entry_names" title="test_generated_cores.test_rendering_writes_the_source_the_entry_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_rendering_writes_the_source_the_entry_names</span></code></a>(tmp_path) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_generated_cores.test_a_checked_in_core_refuses_to_be_rendered" title="test_generated_cores.test_a_checked_in_core_refuses_to_be_rendered"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_checked_in_core_refuses_to_be_rendered</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_generated_cores.test_a_checked_in_core_refuses_to_be_rendered" title="test_generated_cores.test_a_checked_in_core_refuses_to_be_rendered"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_checked_in_core_refuses_to_be_rendered</span></code></a>() → None</p></td>
 <td><p>The inverse mistake: rendering over a hand-written tile would replace</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_generated_cores.test_the_operating_point_comes_from_configuration" title="test_generated_cores.test_the_operating_point_comes_from_configuration"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_operating_point_comes_from_configuration</span></code></a>(tmp_path) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_generated_cores.test_the_operating_point_comes_from_configuration" title="test_generated_cores.test_the_operating_point_comes_from_configuration"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_operating_point_comes_from_configuration</span></code></a>(tmp_path) → None</p></td>
 <td><p>The parameters are hydra-injected, not Python literals — the same rule</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_generated_cores.test_each_operating_point_renders_a_different_source" title="test_generated_cores.test_each_operating_point_renders_a_different_source"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_each_operating_point_renders_a_different_source</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_generated_cores.test_each_operating_point_renders_a_different_source" title="test_generated_cores.test_each_operating_point_renders_a_different_source"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_each_operating_point_renders_a_different_source</span></code></a>() → None</p></td>
 <td><p>Two points must not render identical HDL, or the spec hash could not</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_generated_cores.test_the_rendered_source_carries_the_parameters_that_made_it" title="test_generated_cores.test_the_rendered_source_carries_the_parameters_that_made_it"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_rendered_source_carries_the_parameters_that_made_it</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_generated_cores.test_the_rendered_source_carries_the_parameters_that_made_it" title="test_generated_cores.test_the_rendered_source_carries_the_parameters_that_made_it"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_rendered_source_carries_the_parameters_that_made_it</span></code></a>() → None</p></td>
 <td><p>A generated file with no record of its inputs is untraceable back to</p></td>
 </tr>
 </tbody>
@@ -980,12 +986,19 @@ already use.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="test_generated_cores.test_a_generated_core_refuses_its_source_until_rendered">
-<span class="sig-prename descclassname"><span class="pre">test_generated_cores.</span></span><span class="sig-name descname"><span class="pre">test_a_generated_core_refuses_its_source_until_rendered</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monkeypatch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_generated_cores.test_a_generated_core_refuses_its_source_until_rendered" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">test_generated_cores.</span></span><span class="sig-name descname"><span class="pre">test_a_generated_core_refuses_its_source_until_rendered</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_generated_cores.test_a_generated_core_refuses_its_source_until_rendered" title="Link to this definition">¶</a></dt>
 <dd><p>Rendering implicitly on read would hide which parameters produced the
 file that then gets synthesized.</p>
-<p>Points the render root at an empty directory: the session fixture renders
-the real palette, and without this isolation that fixture would satisfy
-the very refusal under test.</p>
+<p>Reads from an empty directory: the session fixture renders the real
+palette into the default root, and that would satisfy the very refusal
+under test.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_generated_cores.test_a_generated_core_reads_its_source_from_the_render_directory">
+<span class="sig-prename descclassname"><span class="pre">test_generated_cores.</span></span><span class="sig-name descname"><span class="pre">test_a_generated_core_reads_its_source_from_the_render_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monkeypatch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_generated_cores.test_a_generated_core_reads_its_source_from_the_render_directory" title="Link to this definition">¶</a></dt>
+<dd><p>The render directory is an argument, not process state: a variable left
+set by an earlier build must not redirect where a later caller reads.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1084,6 +1097,9 @@ the configuration that produced it.</p>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_generated_cores.test_a_generated_core_refuses_its_source_until_rendered">test_a_generated_core_refuses_its_source_until_rendered()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_generated_cores.test_a_generated_core_reads_its_source_from_the_render_directory">test_a_generated_core_reads_its_source_from_the_render_directory()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_generated_cores.test_rendering_writes_the_source_the_entry_names">test_rendering_writes_the_source_the_entry_names()</a>
