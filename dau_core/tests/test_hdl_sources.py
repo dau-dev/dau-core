@@ -1,14 +1,13 @@
 from __future__ import annotations
 
-from dau_core.hdl import DAU_IDENTITY_AXIL_V, DAU_IDENTITY_REGISTERS_SV
+from dau_core.hdl import DAU_HDL_INCLUDE_DIR
 
 
 def test_packaged_identity_axi_lite_wrapper_instantiates_register_block() -> None:
-    source = DAU_IDENTITY_AXIL_V.read_text()
+    source = (DAU_HDL_INCLUDE_DIR / "dau_identity_axil.v").read_text()
 
-    assert DAU_IDENTITY_REGISTERS_SV.is_file()
+    assert (DAU_HDL_INCLUDE_DIR / "dau_identity_registers.sv").is_file()
     assert "module dau_identity_axil" in source
-    assert DAU_IDENTITY_AXIL_V.name == "dau_identity_axil.v"
     assert "dau_identity_registers #(" in source
     assert ".addr(identity_addr)" in source
     assert ".wen(write_fire)" in source
@@ -20,7 +19,7 @@ def test_packaged_identity_axi_lite_wrapper_instantiates_register_block() -> Non
 
 
 def test_identity_registers_inputs_have_explicit_net_types() -> None:
-    source = DAU_IDENTITY_REGISTERS_SV.read_text()
+    source = (DAU_HDL_INCLUDE_DIR / "dau_identity_registers.sv").read_text()
 
     assert "input  wire logic [15:0] addr" in source
     assert "input  wire logic        wen" in source
@@ -28,7 +27,7 @@ def test_identity_registers_inputs_have_explicit_net_types() -> None:
 
 
 def test_identity_axi_lite_wrapper_exposes_expected_axil_ports() -> None:
-    source = DAU_IDENTITY_AXIL_V.read_text()
+    source = (DAU_HDL_INCLUDE_DIR / "dau_identity_axil.v").read_text()
 
     for port in (
         "s_axi_awaddr",
