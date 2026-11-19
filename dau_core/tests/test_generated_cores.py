@@ -56,18 +56,27 @@ def _definition(**overrides) -> CoreDefinition:
     return CoreDefinition(**{**_BASE, **overrides})
 
 
-def test_a_generated_core_refuses_its_source_until_rendered(tmp_path: Path, monkeypatch) -> None:
+def test_a_generated_core_refuses_its_source_until_rendered(tmp_path: Path) -> None:
     """Rendering implicitly on read would hide which parameters produced the
     file that then gets synthesized.
 
-    Points the render root at an empty directory: the session fixture renders
-    the real palette, and without this isolation that fixture would satisfy
-    the very refusal under test.
+    Reads from an empty directory: the session fixture renders the real
+    palette into the default root, and that would satisfy the very refusal
+    under test.
     """
-    monkeypatch.setenv("DAU_CORE_RENDER_ROOT", str(tmp_path / "empty"))
     core = _definition(generator=ExpTileGenerator(datapath=EXP_EXACT))
     with pytest.raises(UnrenderedCoreError, match="render-cores"):
-        core.source_path()
+        core.source_path(rendered_into=tmp_path / "empty")
+
+
+def test_a_generated_core_reads_its_source_from_the_render_directory(tmp_path: Path, monkeypatch) -> None:
+    """The render directory is an argument, not process state: a variable left
+    set by an earlier build must not redirect where a later caller reads."""
+    monkeypatch.setenv("DAU_CORE_RENDER_ROOT", str(tmp_path / "stale"))
+    core = _definition(generator=ExpTileGenerator(datapath=EXP_EXACT))
+    written = core.render(into=tmp_path / "build")
+    assert core.source_path(rendered_into=tmp_path / "build") == written
+    assert core.source_path().parent != tmp_path / "stale"
 
 
 def test_rendering_writes_the_source_the_entry_names(tmp_path: Path) -> None:

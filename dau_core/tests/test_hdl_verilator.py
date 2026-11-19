@@ -6,19 +6,8 @@ from shutil import which
 import pytest
 
 from dau_core.hdl import (
-    DAU_AGGREGATION_PKG_SV,
-    DAU_ARROW_LITE_STREAM_AGGREGATION_SV,
     DAU_AXI_RAM_SIM_SV,
-    DAU_AXI_STREAM_JOB_SV,
-    DAU_BAR_AGGREGATION_SV,
-    DAU_GROUPED_AGGREGATION_SV,
     DAU_HDL_INCLUDE_DIR,
-    DAU_INT32_MAP_ALU_SV,
-    DAU_INT32_PREDICATE_FILTER_SV,
-    DAU_MAP_ALU_PKG_SV,
-    DAU_PREDICATE_PKG_SV,
-    DAU_RECORD_BATCH_AGGREGATION_SV,
-    DAU_STREAM_AGGREGATION_SV,
 )
 
 _SV_DIR = Path(__file__).parent / "sv"
@@ -28,8 +17,8 @@ _SV_DIR = Path(__file__).parent / "sv"
 def test_int32_stream_aggregation_systemverilog_bench_runs_under_verilator(tmp_path: Path) -> None:
     result = _run_verilator_testbench(
         sources=(
-            Path(str(DAU_AGGREGATION_PKG_SV)),
-            Path(str(DAU_STREAM_AGGREGATION_SV)),
+            DAU_HDL_INCLUDE_DIR / "dau_aggregation_pkg.sv",
+            DAU_HDL_INCLUDE_DIR / "dau_stream_aggregation.sv",
             _SV_DIR / "dau_stream_aggregation_tb.sv",
         ),
         top_module="dau_stream_aggregation_tb",
@@ -43,8 +32,8 @@ def test_int32_stream_aggregation_systemverilog_bench_runs_under_verilator(tmp_p
 def test_arrow_lite_stream_aggregation_systemverilog_bench_runs_under_verilator(tmp_path: Path) -> None:
     result = _run_verilator_testbench(
         sources=(
-            Path(str(DAU_AGGREGATION_PKG_SV)),
-            Path(str(DAU_ARROW_LITE_STREAM_AGGREGATION_SV)),
+            DAU_HDL_INCLUDE_DIR / "dau_aggregation_pkg.sv",
+            DAU_HDL_INCLUDE_DIR / "dau_arrow_lite_stream_aggregation.sv",
             _SV_DIR / "dau_arrow_lite_stream_aggregation_tb.sv",
         ),
         top_module="dau_arrow_lite_stream_aggregation_tb",
@@ -58,7 +47,7 @@ def test_arrow_lite_stream_aggregation_systemverilog_bench_runs_under_verilator(
 def test_bar_aggregation_systemverilog_bench_runs_under_verilator(tmp_path: Path) -> None:
     result = _run_verilator_testbench(
         sources=(
-            Path(str(DAU_BAR_AGGREGATION_SV)),
+            DAU_HDL_INCLUDE_DIR / "dau_bar_aggregation.sv",
             _SV_DIR / "dau_bar_aggregation_tb.sv",
         ),
         top_module="dau_bar_aggregation_tb",
@@ -72,8 +61,8 @@ def test_bar_aggregation_systemverilog_bench_runs_under_verilator(tmp_path: Path
 def test_axi_bar_job_systemverilog_bench_runs_under_verilator(tmp_path: Path) -> None:
     result = _run_verilator_testbench(
         sources=(
-            Path(str(DAU_AXI_STREAM_JOB_SV)),
-            Path(str(DAU_BAR_AGGREGATION_SV)),
+            DAU_HDL_INCLUDE_DIR / "dau_axi_stream_job.sv",
+            DAU_HDL_INCLUDE_DIR / "dau_bar_aggregation.sv",
             Path(str(DAU_AXI_RAM_SIM_SV)),
             _SV_DIR / "dau_axi_bar_job_sim.sv",
             _SV_DIR / "dau_axi_bar_job_tb.sv",
@@ -89,7 +78,7 @@ def test_axi_bar_job_systemverilog_bench_runs_under_verilator(tmp_path: Path) ->
 def test_grouped_aggregation_systemverilog_bench_runs_under_verilator(tmp_path: Path) -> None:
     result = _run_verilator_testbench(
         sources=(
-            Path(str(DAU_GROUPED_AGGREGATION_SV)),
+            DAU_HDL_INCLUDE_DIR / "dau_grouped_aggregation.sv",
             _SV_DIR / "dau_grouped_aggregation_tb.sv",
         ),
         top_module="dau_grouped_aggregation_tb",
@@ -103,8 +92,8 @@ def test_grouped_aggregation_systemverilog_bench_runs_under_verilator(tmp_path: 
 def test_map_alu_systemverilog_bench_runs_under_verilator(tmp_path: Path) -> None:
     result = _run_verilator_testbench(
         sources=(
-            Path(str(DAU_MAP_ALU_PKG_SV)),
-            Path(str(DAU_INT32_MAP_ALU_SV)),
+            DAU_HDL_INCLUDE_DIR / "dau_map_alu_pkg.sv",
+            DAU_HDL_INCLUDE_DIR / "dau_int32_map_alu.sv",
             _SV_DIR / "dau_int32_map_alu_tb.sv",
         ),
         top_module="dau_int32_map_alu_tb",
@@ -118,8 +107,8 @@ def test_map_alu_systemverilog_bench_runs_under_verilator(tmp_path: Path) -> Non
 def test_predicate_filter_systemverilog_bench_runs_under_verilator(tmp_path: Path) -> None:
     result = _run_verilator_testbench(
         sources=(
-            Path(str(DAU_PREDICATE_PKG_SV)),
-            Path(str(DAU_INT32_PREDICATE_FILTER_SV)),
+            DAU_HDL_INCLUDE_DIR / "dau_predicate_pkg.sv",
+            DAU_HDL_INCLUDE_DIR / "dau_int32_predicate_filter.sv",
             _SV_DIR / "dau_int32_predicate_filter_tb.sv",
         ),
         top_module="dau_int32_predicate_filter_tb",
@@ -133,8 +122,8 @@ def test_predicate_filter_systemverilog_bench_runs_under_verilator(tmp_path: Pat
 def test_record_batch_aggregation_systemverilog_bench_runs_under_verilator(tmp_path: Path) -> None:
     result = _run_verilator_testbench(
         sources=(
-            Path(str(DAU_AGGREGATION_PKG_SV)),
-            Path(str(DAU_RECORD_BATCH_AGGREGATION_SV)),
+            DAU_HDL_INCLUDE_DIR / "dau_aggregation_pkg.sv",
+            DAU_HDL_INCLUDE_DIR / "dau_record_batch_aggregation.sv",
             _SV_DIR / "dau_record_batch_aggregation_tb.sv",
         ),
         top_module="dau_record_batch_aggregation_tb",

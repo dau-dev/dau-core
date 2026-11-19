@@ -872,7 +872,7 @@ class CoreDefinition(CheckedModel):
         )
         raise UnmeasuredResourceError(f"core {self.name!r} has unmeasured {gap}; measured points: {available or 'none'}")
 
-    def source_path(self) -> Path:
+    def source_path(self, *, rendered_into: Path | None = None) -> Path:
         """The HDL this core synthesizes from.
 
         A GENERATED core (one declaring a ``generator``) has no checked-in
@@ -881,9 +881,14 @@ class CoreDefinition(CheckedModel):
         rendering behind a read would hide which parameters produced it, and
         the whole reason this core is generated is that its constants are a
         function of those parameters.
+
+        ``rendered_into`` is the directory a generated core was rendered to
+        (``render(into=)``); it defaults to :func:`render_root`. A build tree
+        renders into its own directory and passes it here, so two builds never
+        share one file.
         """
         if self.generator is not None:
-            rendered = render_root(self.source_package) / self.source
+            rendered = (rendered_into if rendered_into is not None else render_root(self.source_package)) / self.source
             if not rendered.is_file():
                 raise UnrenderedCoreError(
                     f"core {self.name!r} is generated and has not been rendered to {rendered}. "
@@ -1040,13 +1045,8 @@ def package_root(package: str) -> Path:
 def render_root(package: str = "dau_core.hdl") -> Path:
     """Where generated cores are materialized.
 
-    Defaults beside the declaring package so a checkout behaves like one
-    with the files committed; a build tree points DAU_CORE_RENDER_ROOT at
-    its own directory so two builds cannot race on one file.
+    Beside the declaring package, so a checkout behaves like one with the
+    files committed. A build tree renders elsewhere and passes that directory
+    to :meth:`CoreDefinition.source_path`.
     """
-    import os
-
-    override = os.environ.get("DAU_CORE_RENDER_ROOT")
-    if override:
-        return Path(override)
     return package_root(package) / "generated"

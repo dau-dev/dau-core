@@ -15,11 +15,10 @@ from __future__ import annotations
 import random
 import re
 from datetime import UTC, datetime, timedelta
-from pathlib import Path
 
 import pytest
 
-from dau_core.hdl import DAU_DATETIME_FORMAT_SV
+from dau_core.hdl import DAU_HDL_INCLUDE_DIR
 from dau_core.operators import (
     DATETIME_FORMAT_MAX_EPOCH_SECONDS,
     DATETIME_FORMAT_WIDTH,
@@ -50,7 +49,7 @@ MULTIPLY_SHIFT_SITES = (
 
 
 def _hdl_constants() -> dict[str, int]:
-    text = Path(str(DAU_DATETIME_FORMAT_SV)).read_text()
+    text = (DAU_HDL_INCLUDE_DIR / "dau_datetime_format.sv").read_text()
     found: dict[str, int] = {}
     for name, value in re.findall(r"localparam\s+(?:logic\s*\[[^\]]+\]|int)\s+(MAGIC_\w+|SHIFT_\w+|PRE_\w+)\s*=\s*(?:\d+')?d?(\d+)", text):
         found[name] = int(value)

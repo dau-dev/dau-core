@@ -30,9 +30,9 @@ another model holds it, because it is a field type and validating a
 subclass against the base would drop the subclass's own fields.
 
 `CoreDefinition.render(into=)` writes a generated core's source;
-`render_root()` is the default destination, overridable with the
-`DAU_CORE_RENDER_ROOT` environment variable. Rendering a checked-in core
-raises an error.
+`render_root()` is the default destination. A caller that renders
+elsewhere passes the same directory to `source_path(rendered_into=)`.
+Rendering a checked-in core raises an error.
 
 ## Semantics and verification
 

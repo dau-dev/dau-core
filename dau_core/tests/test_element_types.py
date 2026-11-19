@@ -10,7 +10,6 @@ hold them to the same numbers. That is what the last test here does.
 from __future__ import annotations
 
 import re
-from pathlib import Path
 
 import pytest
 
@@ -24,7 +23,7 @@ from dau_core.element_types import (
     parse_element_type,
 )
 
-_TYPES_SVH = Path(str(hdl.DAU_TYPES_SVH))
+_TYPES_SVH = hdl.DAU_HDL_INCLUDE_DIR / "types.svh"
 
 
 def test_a_plain_signed_integer_encodes_as_its_own_width() -> None:

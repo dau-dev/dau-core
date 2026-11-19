@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from dau_core.hdl import DAU_ARROW_LITE_STREAM_AGGREGATION_SV, DAU_STREAM_AGGREGATION_SV
+from dau_core.hdl import DAU_HDL_INCLUDE_DIR
 
 
 def test_packaged_int32_stream_aggregation_exposes_descriptor_ports() -> None:
-    source = DAU_STREAM_AGGREGATION_SV.read_text()
+    source = (DAU_HDL_INCLUDE_DIR / "dau_stream_aggregation.sv").read_text()
 
-    assert DAU_STREAM_AGGREGATION_SV.is_file()
+    assert (DAU_HDL_INCLUDE_DIR / "dau_stream_aggregation.sv").is_file()
     assert "module dau_stream_aggregation" in source
     for port in (
         "input  wire logic              descriptor_valid",
@@ -26,7 +26,7 @@ def test_packaged_int32_stream_aggregation_exposes_descriptor_ports() -> None:
 
 
 def test_packaged_int32_stream_aggregation_names_stream_protocol_constants() -> None:
-    source = DAU_STREAM_AGGREGATION_SV.read_text()
+    source = (DAU_HDL_INCLUDE_DIR / "dau_stream_aggregation.sv").read_text()
 
     # the INPUT column's logical type is now DERIVED from the element type the
     # tile is built for (int8/16/32/64 are 10, 11, 12, 13), so the constant
@@ -40,9 +40,9 @@ def test_packaged_int32_stream_aggregation_names_stream_protocol_constants() -> 
 
 
 def test_packaged_arrow_lite_stream_aggregation_exposes_packed_ready_valid_ports() -> None:
-    source = DAU_ARROW_LITE_STREAM_AGGREGATION_SV.read_text()
+    source = (DAU_HDL_INCLUDE_DIR / "dau_arrow_lite_stream_aggregation.sv").read_text()
 
-    assert DAU_ARROW_LITE_STREAM_AGGREGATION_SV.is_file()
+    assert (DAU_HDL_INCLUDE_DIR / "dau_arrow_lite_stream_aggregation.sv").is_file()
     assert "module dau_arrow_lite_stream_aggregation" in source
     for port in (
         "input  wire logic        input_valid",
@@ -62,7 +62,7 @@ def test_packaged_arrow_lite_stream_aggregation_exposes_packed_ready_valid_ports
 
 
 def test_packaged_arrow_lite_stream_aggregation_names_protocol_layout_constants() -> None:
-    source = DAU_ARROW_LITE_STREAM_AGGREGATION_SV.read_text()
+    source = (DAU_HDL_INCLUDE_DIR / "dau_arrow_lite_stream_aggregation.sv").read_text()
 
     assert "localparam logic [31:0] DAU_MAGIC = 32'h44415531;" in source
     assert "localparam logic [63:0] INPUT_PAYLOAD_OFFSET = 64'd192;" in source
