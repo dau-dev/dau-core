@@ -76,7 +76,7 @@ Package Contents
 
 
 .. py:data:: __version__
-   :value: '0.10.0'
+   :value: '0.11.0'
 
 
 .. py:data:: _EXPORTS
