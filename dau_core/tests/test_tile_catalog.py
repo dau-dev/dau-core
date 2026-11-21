@@ -11,9 +11,12 @@ from __future__ import annotations
 import re
 
 import pytest
+from ccflow import ModelRegistry
+from omegaconf import OmegaConf
 
+from dau_core.composition import LOAD_PHASE_BINDING
 from dau_core.cores import ContractKind
-from dau_core.registry import UnknownTileError, core, loaded_tiles, sources_for, tile
+from dau_core.registry import DuplicateTileError, UnknownTileError, contributed_tiles, core, loaded_tiles, sources_for, tile
 from dau_core.tiles import TileDefinition
 
 _COMPARE = {
@@ -97,6 +100,67 @@ def test_a_miswired_tile_is_refused(changes: dict[str, object], message: str) ->
         TileDefinition.model_validate(_declared(**changes))
 
 
+def test_a_packed_column_names_its_field_offset_and_width() -> None:
+    declared = TileDefinition.model_validate(
+        {
+            "name": "distinct-count",
+            "kind": "grouped-aggregate",
+            "description": "distinct values per group",
+            "expressions": [{"frame": 'frame.group_by("group").agg(pl.col("value").n_unique())'}],
+            "cores": [
+                {
+                    "core": "vendor-distinct-count",
+                    "inputs": {
+                        "value": {"ports": ["cfg_value_field"], "shift": "cfg_value_shift", "width": "VALUE_BITS"},
+                        "group": {"shift": "cfg_group_shift", "width": "GROUP_BITS"},
+                    },
+                }
+            ],
+            "result": "one record per group",
+        }
+    )
+    value = declared.cores[0].taken("value")
+    assert value.config_ports() == ("cfg_value_field", "cfg_value_shift")
+    assert declared.cores[0].parameters() == ("VALUE_BITS", "GROUP_BITS")
+    assert declared.scale_invariant is False
+
+
+def test_a_contributed_tile_is_found_apart_from_the_catalog() -> None:
+    """A tile composed under another package's group is a tile, and a
+    compiler can ask for the ones dau-core did not declare."""
+    entry = {
+        **_COMPARE,
+        "_target_": "dau_core.tiles.TileDefinition",
+        "name": "vendor-clamp",
+        "kind": "map",
+        "literals": ["lower", "upper"],
+        "expressions": [{"expression": 'pl.col("value").clip(pl.col("lower"), pl.col("upper"))'}],
+        "cores": [
+            {
+                "core": "vendor-clamp",
+                "inputs": {"value": "cfg_src_field", "lower": "cfg_lower", "upper": "cfg_upper"},
+                "output": {"name": "clamped", "ports": ["cfg_dst_field"]},
+            }
+        ],
+        "scale_invariant": True,
+    }
+    root = ModelRegistry.root()
+    assert contributed_tiles() == {}
+    root.load_config(OmegaConf.create({"vendor-tiles": {"vendor-clamp": entry}}))
+    try:
+        assert list(contributed_tiles()) == ["vendor-clamp"]
+        assert contributed_tiles()["vendor-clamp"].scale_invariant
+        assert "vendor-clamp" in loaded_tiles() and "compare" in loaded_tiles()
+    finally:
+        root.remove("vendor-tiles")
+    root.load_config(OmegaConf.create({"vendor-tiles": {"compare": {**entry, "name": "compare"}}}))
+    try:
+        with pytest.raises(DuplicateTileError, match="compare"):
+            loaded_tiles()
+    finally:
+        root.remove("vendor-tiles")
+
+
 def test_two_uses_of_one_core_need_labels_and_qualified_config() -> None:
     chain = [
         {
@@ -149,3 +213,20 @@ def test_a_tile_names_cores_ports_and_parameters_that_exist(name: str, used) -> 
         assert parameters <= set(core(core_name).parameters), (
             f"{core_name} declares no parameter {sorted(parameters - set(core(core_name).parameters))}"
         )
+
+
+@pytest.mark.parametrize(("name", "used"), _USES, ids=[f"{name}:{used.label}" for name, used in _USES])
+def test_a_fixed_config_value_is_one_of_the_ports_operators(name: str, used) -> None:
+    """A tile fixes a port by the operator's name. The core says which
+    operator the port takes, so the name is checked, on the wide sibling
+    too."""
+    declared = loaded_tiles()[name]
+    for expression in declared.expressions:
+        for port, value in declared.config_for(expression)[used.label].items():
+            for named in value if isinstance(value, tuple) else (value,):
+                if isinstance(named, int) or named == LOAD_PHASE_BINDING:
+                    continue
+                for core_name in filter(None, (used.core, used.wide)):
+                    operator = core(core_name).config_operator(port)
+                    assert operator is not None, f"{core_name} declares no operator for {port}, which {name} fixes to {named!r}"
+                    assert named in operator.__members__, f"{named!r} is not a {operator.__name__}"

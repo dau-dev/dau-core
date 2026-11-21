@@ -29,10 +29,6 @@ if TYPE_CHECKING:
     from ccflow import ModelRegistry
 
 
-# every key a pending core entry may carry: the model's fields and hydra's target
-_CORE_ENTRY_KEYS = frozenset(CoreDefinition.model_fields) | {"_target_"}
-
-
 # the hydra target of a catalog tile, which shares the composed groups with cores
 _TILE_TARGET = f"{TileDefinition.__module__}.{TileDefinition.__qualname__}"
 
@@ -164,31 +160,6 @@ def loaded_cores() -> Mapping[str, CoreDefinition]:
     return cores
 
 
-def lowered_cores() -> tuple[CoreDefinition, ...]:
-    """Every composed core that declares an ``ExpressionLowering``, dau-core's
-    own first, building only those.
-
-    A query compiler asks this on every capture, so it must not pay for the
-    whole palette: a pending entry's configuration is read without building
-    the model (building all of them is over half a second). An entry is
-    skipped unbuilt only when every key it carries is a ``CoreDefinition``
-    field and ``lowering`` is not among them; any other key is built, so a
-    misspelled ``lowering:`` fails model validation instead of reading as a
-    tile with no lowering."""
-    found: list[CoreDefinition] = []
-    for _group_name, group in _groups():
-        for name in _declared_names(group):
-            pending = group.get_pending_config(name) if isinstance(group, LazyRegistry) else None
-            if pending is not None and pending.get("lowering") is None and pending.keys() <= _CORE_ENTRY_KEYS:
-                continue
-            if pending is not None and pending.get("_target_") == _TILE_TARGET:
-                continue  # a tile of the catalog, not a core
-            model = _entry(group, name)
-            if model is not None and model.lowering is not None:
-                found.append(model)
-    return tuple(found)
-
-
 def core_for_module(module: str) -> CoreDefinition:
     for definition in loaded_cores().values():
         if definition.module == module:
@@ -241,6 +212,28 @@ def sources_for(*names: str) -> tuple[Path, ...]:
     return tuple(definition.source_path() for definition in ordered)
 
 
+# the group dau-core's own tiles are composed under
+_OWN_TILES = "dau-tiles"
+
+
+def _composed_tiles() -> dict[str, tuple[str, TileDefinition]]:
+    """Every composed tile with the group that declares it, dau-core's own
+    first. A name declared twice is refused."""
+    tiles: dict[str, tuple[str, TileDefinition]] = {}
+    for group_name, group in _groups():
+        for name in _declared_names(group):
+            pending = group.get_pending_config(name) if isinstance(group, LazyRegistry) else None
+            if pending is not None and pending.get("_target_") != _TILE_TARGET:
+                continue  # a core; do not build it to find that out
+            model = group[name]
+            if not isinstance(model, TileDefinition):
+                continue
+            if name in tiles and tiles[name][1] is not model:
+                raise DuplicateTileError(f"tile {name!r} is declared by more than one composed group (the second under {group_name!r})")
+            tiles[name] = (group_name, model)
+    return tiles
+
+
 def loaded_tiles() -> Mapping[str, TileDefinition]:
     """Every composed tile of the catalog, name -> definition, dau-core's
     own first.
@@ -250,19 +243,18 @@ def loaded_tiles() -> Mapping[str, TileDefinition]:
     composed under its own group is returned too, as a contributed core is;
     a name declared twice is refused.
     """
-    tiles: dict[str, TileDefinition] = {}
-    for group_name, group in _groups():
-        for name in _declared_names(group):
-            pending = group.get_pending_config(name) if isinstance(group, LazyRegistry) else None
-            if pending is not None and pending.get("_target_") != _TILE_TARGET:
-                continue  # a core; do not build it to find that out
-            model = group[name]
-            if not isinstance(model, TileDefinition):
-                continue
-            if name in tiles and tiles[name] is not model:
-                raise DuplicateTileError(f"tile {name!r} is declared by more than one composed group (the second under {group_name!r})")
-            tiles[name] = model
-    return tiles
+    return {name: declared for name, (_group, declared) in _composed_tiles().items()}
+
+
+def contributed_tiles() -> Mapping[str, TileDefinition]:
+    """The composed tiles declared outside dau-core's own catalog, name ->
+    definition.
+
+    A query compiler lowers dau-core's tiles with code written for them. A
+    contributed tile it has never seen is lowered from its declaration
+    alone, so the compiler asks for these separately.
+    """
+    return {name: declared for name, (group, declared) in _composed_tiles().items() if group != _OWN_TILES}
 
 
 def tile(name: str) -> TileDefinition:

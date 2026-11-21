@@ -18,16 +18,17 @@ unpacker are chosen when a design is priced.
 
 ## `TileDefinition`
 
-| Field         | Type                         | Description                                                                                                                                            |
-| ------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `name`        | `str`                        | Registry key.                                                                                                                                          |
-| `kind`        | `TileKind`                   | `filter`, `map`, `aggregate`, `grouped-aggregate`, `join`, `order` or `window`.                                                                        |
-| `description` | `str`                        | What the tile does and what it needs from the staging.                                                                                                 |
-| `literals`    | `tuple[str, ...]`            | Placeholder columns that match a literal in the query. Any other placeholder column matches a column, or a sub-expression another tile computes first. |
-| `arguments`   | `tuple[str, ...]`            | Bare names a shape reads where polars takes a number (a window size, a row limit).                                                                     |
-| `expressions` | `tuple[TileExpression, ...]` | The polars shapes the tile answers. All of them run on the same chain.                                                                                 |
-| `cores`       | `tuple[TileCore, ...]`       | The chain, in order.                                                                                                                                   |
-| `result`      | `str \| None`                | What a lane ending in the tile returns to the host, and anything the host finishes. Required for the kinds that end a lane.                            |
+| Field             | Type                         | Description                                                                                                                                                                                                                                     |
+| ----------------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`            | `str`                        | Registry key.                                                                                                                                                                                                                                   |
+| `kind`            | `TileKind`                   | `filter`, `map`, `aggregate`, `grouped-aggregate`, `join`, `order` or `window`.                                                                                                                                                                 |
+| `description`     | `str`                        | What the tile does and what it needs from the staging.                                                                                                                                                                                          |
+| `literals`        | `tuple[str, ...]`            | Placeholder columns that match a literal in the query. Any other placeholder column matches a column, or a sub-expression another tile computes first.                                                                                          |
+| `arguments`       | `tuple[str, ...]`            | Bare names a shape reads where polars takes a number (a window size, a row limit).                                                                                                                                                              |
+| `expressions`     | `tuple[TileExpression, ...]` | The polars shapes the tile answers. All of them run on the same chain.                                                                                                                                                                          |
+| `cores`           | `tuple[TileCore, ...]`       | The chain, in order.                                                                                                                                                                                                                            |
+| `result`          | `str \| None`                | What a lane ending in the tile returns to the host, and anything the host finishes. Required for the kinds that end a lane.                                                                                                                     |
+| `scale_invariant` | `bool`                       | Whether a row expression computes the same on fixed-point columns: `f(k*x, k*s...) == k*f(x, s...)` for k > 0. True of a clip, false of a product. A compiler lowering a contributed tile needs it before it runs the tile over scaled columns. |
 
 ## `TileExpression`
 
@@ -54,14 +55,14 @@ A shape is polars source text, in one of two forms.
 
 An input arrives one way:
 
-| Form                       | Meaning                                                                                                                                                       |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cfg_field0`               | One config port: a field select for a column, a value port for a literal.                                                                                     |
-| `[cfg_field0, cfg_field1]` | Several ports, for a column tested more than once or a literal list.                                                                                          |
-| `{mask: cfg_field_mask}`   | A config port with one bit per row field.                                                                                                                     |
-| `{shift: ..., width: ...}` | A column packed into a field with others: the port taking its bit offset and the parameter fixing its width.                                                  |
-| `{parameter: WINDOW}`      | A module parameter the value fixes when the design is built.                                                                                                  |
-| `{source: row-key}`        | No config port: `row-key`, `row-value`, `load-image` (streamed in the LOAD phase) or `predicate` (configured by whichever filter tile answers the condition). |
+| Form                                     | Meaning                                                                                                                                                       |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cfg_field0`                             | One config port: a field select for a column, a value port for a literal.                                                                                     |
+| `[cfg_field0, cfg_field1]`               | Several ports, for a column tested more than once or a literal list.                                                                                          |
+| `{mask: cfg_field_mask}`                 | A config port with one bit per row field.                                                                                                                     |
+| `{ports: [...], shift: ..., width: ...}` | A column packed into a field with others: the port taking its bit offset and the parameter fixing its width, beside the field select when the core has one.   |
+| `{parameter: WINDOW}`                    | A module parameter the value fixes when the design is built.                                                                                                  |
+| `{source: row-key}`                      | No config port: `row-key`, `row-value`, `load-image` (streamed in the LOAD phase) or `predicate` (configured by whichever filter tile answers the condition). |
 
 ## Accessors
 
@@ -82,13 +83,21 @@ print(len(loaded_tiles()))
 22
 ```
 
+`contributed_tiles()` returns the tiles declared outside dau-core's own
+catalog. A package contributes a tile the way it contributes a core: a
+`TileDefinition` entry in its own composed group. A query compiler lowers
+dau-core's tiles with code written for them, and a contributed tile from its
+declaration alone.
+
 ## What is checked
 
 A `TileDefinition` checks its own wiring where it is declared: every
 placeholder reaches a core, every input is a placeholder or an earlier
 core's output, and no port is both wired and fixed. The test suite checks
 the composed catalog against the registry and the HDL: each named core
-exists, and each config port and parameter is one its module declares.
+exists, each config port and parameter is one its module declares, and each
+fixed value is a member of the operator the core says the port takes
+(`CoreDefinition.config_operators`).
 
 ## See also
 

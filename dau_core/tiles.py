@@ -26,7 +26,6 @@ from typing import Annotated, Any
 
 from pydantic import Field, StrictInt, model_validator
 
-from .cores import _column_names
 from .models import CheckedModel, ReadOnly
 
 __all__ = ("InputSource", "TileCore", "TileDefinition", "TileExpression", "TileInput", "TileKind", "TileOutput")
@@ -35,6 +34,18 @@ __all__ = ("InputSource", "TileCore", "TileDefinition", "TileExpression", "TileI
 # a config port's fixed value: an operator's name, an integer, or the values
 # the staging chooses between
 ConfigValue = str | StrictInt | tuple[str | StrictInt, ...]
+
+
+def _column_names(node: Any) -> list[str]:
+    """Every column a serialized polars plan or expression names, in tree
+    order."""
+    if isinstance(node, dict):
+        if set(node) == {"Column"} and isinstance(node["Column"], str):
+            return [node["Column"]]
+        return [name for value in node.values() for name in _column_names(value)]
+    if isinstance(node, list):
+        return [name for value in node for name in _column_names(value)]
+    return []
 
 
 class TileKind(Enum):
@@ -66,9 +77,9 @@ class TileInput(CheckedModel):
     port per use. ``mask`` is a config port with one bit per row field.
     ``shift`` and ``width`` place a column packed into a field with others:
     the config port taking its bit offset and the module parameter fixing
-    its width. ``parameter`` is a module parameter the value fixes when the
-    design is built. ``source`` is an input that arrives without a config
-    port.
+    its width, beside the field select in ``ports`` when the core has one.
+    ``parameter`` is a module parameter the value fixes when the design is
+    built. ``source`` is an input that arrives without a config port.
 
     In the catalog a single port is written as its name and several as a
     list (:meth:`TileCore.taken`).
@@ -83,15 +94,10 @@ class TileInput(CheckedModel):
 
     @model_validator(mode="after")
     def _one_way_in(self) -> TileInput:
-        ways = [
-            bool(self.ports),
-            self.mask is not None,
-            self.shift is not None or self.width is not None,
-            self.parameter is not None,
-            self.source is not None,
-        ]
+        packed = self.shift is not None or self.width is not None
+        ways = [bool(self.ports) or packed, self.mask is not None, self.parameter is not None, self.source is not None]
         if sum(ways) != 1:
-            raise ValueError("an input arrives one way: on ports, in a mask, at a shift and width, as a parameter, or from a source")
+            raise ValueError("an input arrives one way: on ports (packed or not), in a mask, as a parameter, or from a source")
         return self
 
     def config_ports(self) -> tuple[str, ...]:
@@ -233,6 +239,11 @@ class TileDefinition(CheckedModel):
     names a shape reads where polars takes a number (a window size, a row
     limit). ``result`` says what a lane ending in this tile returns to the
     host and anything the host finishes.
+
+    ``scale_invariant`` is a promise a compiler needs before it runs a row
+    expression over fixed-point columns: ``f(k*x, k*s...) == k*f(x, s...)``
+    for k > 0, so computing on the staged integers and decoding gives what
+    polars computes on the values. True of a clip, false of a product.
     """
 
     name: str = Field(min_length=1)
@@ -243,6 +254,7 @@ class TileDefinition(CheckedModel):
     expressions: tuple[TileExpression, ...] = Field(min_length=1)
     cores: tuple[TileCore, ...] = Field(min_length=1)
     result: str | None = None
+    scale_invariant: bool = False
 
     def core_named(self, label: str) -> TileCore:
         for used in self.cores:

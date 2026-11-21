@@ -152,9 +152,10 @@ a parameter set, validating overrides against the declared parameter specs.
 
 ## Parameters
 
-| Field        | Type                          | Description                                            |
-| ------------ | ----------------------------- | ------------------------------------------------------ |
-| `parameters` | `Mapping[str, ParameterSpec]` | Module parameters that may be overridden per instance. |
+| Field              | Type                          | Description                                                                                                                                                                                            |
+| ------------------ | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `parameters`       | `Mapping[str, ParameterSpec]` | Module parameters that may be overridden per instance.                                                                                                                                                 |
+| `config_operators` | `Mapping[str, str]`           | The operator each config port takes, as `module:Enum`, for the ports that select one (a comparison, an ALU op, a membership mode). A [tile](tile-catalog.md) fixes such a port by the operator's name. |
 
 A `ParameterSpec` has a `default`, and optionally `minimum`, `maximum`,
 `multiple_of`, `choices`, `power_of_two`, and `element_type`. These mirror
