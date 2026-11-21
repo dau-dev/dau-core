@@ -779,11 +779,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_expression_lowering/index.html">
-      <span class="fd-link-text">test_expression_lowering</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../test_aggregation_tile_hdl/index.html">
       <span class="fd-link-text">test_aggregation_tile_hdl</span>
     </a>
@@ -872,6 +867,12 @@
     <a href="#test_tile_catalog.test_a_miswired_tile_is_refused">test_a_miswired_tile_is_refused()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#test_tile_catalog.test_a_packed_column_names_its_field_offset_and_width">test_a_packed_column_names_its_field_offset_and_width()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_tile_catalog.test_a_contributed_tile_is_found_apart_from_the_catalog">test_a_contributed_tile_is_found_apart_from_the_catalog()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#test_tile_catalog.test_two_uses_of_one_core_need_labels_and_qualified_config">test_two_uses_of_one_core_need_labels_and_qualified_config()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -885,6 +886,9 @@
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_tile_catalog.test_a_tile_names_cores_ports_and_parameters_that_exist">test_a_tile_names_cores_ports_and_parameters_that_exist()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_tile_catalog.test_a_fixed_config_value_is_one_of_the_ports_operators">test_a_fixed_config_value_is_one_of_the_ports_operators()</a>
   </li>
 </ul>
 </div>
@@ -938,6 +942,12 @@ that exist, on config ports and parameters their modules declare.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#test_tile_catalog.test_a_miswired_tile_is_refused" title="test_tile_catalog.test_a_miswired_tile_is_refused"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_miswired_tile_is_refused</span></code></a>(changes, message) → None</p></td>
 <td><p></p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_tile_catalog.test_a_packed_column_names_its_field_offset_and_width" title="test_tile_catalog.test_a_packed_column_names_its_field_offset_and_width"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_packed_column_names_its_field_offset_and_width</span></code></a>() → None</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_tile_catalog.test_a_contributed_tile_is_found_apart_from_the_catalog" title="test_tile_catalog.test_a_contributed_tile_is_found_apart_from_the_catalog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_contributed_tile_is_found_apart_from_the_catalog</span></code></a>() → None</p></td>
+<td><p>A tile composed under another package's group is a tile, and a</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_tile_catalog.test_two_uses_of_one_core_need_labels_and_qualified_config" title="test_tile_catalog.test_two_uses_of_one_core_need_labels_and_qualified_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_two_uses_of_one_core_need_labels_and_qualified_config</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
@@ -949,6 +959,9 @@ that exist, on config ports and parameters their modules declare.</p>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#test_tile_catalog.test_a_tile_names_cores_ports_and_parameters_that_exist" title="test_tile_catalog.test_a_tile_names_cores_ports_and_parameters_that_exist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_tile_names_cores_ports_and_parameters_that_exist</span></code></a>(...) → None</p></td>
 <td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_tile_catalog.test_a_fixed_config_value_is_one_of_the_ports_operators" title="test_tile_catalog.test_a_fixed_config_value_is_one_of_the_ports_operators"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_fixed_config_value_is_one_of_the_ports_operators</span></code></a>(...) → None</p></td>
+<td><p>A tile fixes a port by the operator's name. The core says which</p></td>
 </tr>
 </tbody>
 </table>
@@ -981,6 +994,18 @@ that exist, on config ports and parameters their modules declare.</p>
 <dd></dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="test_tile_catalog.test_a_packed_column_names_its_field_offset_and_width">
+<span class="sig-prename descclassname"><span class="pre">test_tile_catalog.</span></span><span class="sig-name descname"><span class="pre">test_a_packed_column_names_its_field_offset_and_width</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_tile_catalog.test_a_packed_column_names_its_field_offset_and_width" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_tile_catalog.test_a_contributed_tile_is_found_apart_from_the_catalog">
+<span class="sig-prename descclassname"><span class="pre">test_tile_catalog.</span></span><span class="sig-name descname"><span class="pre">test_a_contributed_tile_is_found_apart_from_the_catalog</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_tile_catalog.test_a_contributed_tile_is_found_apart_from_the_catalog" title="Link to this definition">¶</a></dt>
+<dd><p>A tile composed under another package’s group is a tile, and a
+compiler can ask for the ones dau-core did not declare.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="test_tile_catalog.test_two_uses_of_one_core_need_labels_and_qualified_config">
 <span class="sig-prename descclassname"><span class="pre">test_tile_catalog.</span></span><span class="sig-name descname"><span class="pre">test_two_uses_of_one_core_need_labels_and_qualified_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_tile_catalog.test_two_uses_of_one_core_need_labels_and_qualified_config" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -1005,6 +1030,14 @@ that exist, on config ports and parameters their modules declare.</p>
 <dt class="sig sig-object py" id="test_tile_catalog.test_a_tile_names_cores_ports_and_parameters_that_exist">
 <span class="sig-prename descclassname"><span class="pre">test_tile_catalog.</span></span><span class="sig-name descname"><span class="pre">test_a_tile_names_cores_ports_and_parameters_that_exist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">used</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_tile_catalog.test_a_tile_names_cores_ports_and_parameters_that_exist" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_tile_catalog.test_a_fixed_config_value_is_one_of_the_ports_operators">
+<span class="sig-prename descclassname"><span class="pre">test_tile_catalog.</span></span><span class="sig-name descname"><span class="pre">test_a_fixed_config_value_is_one_of_the_ports_operators</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">used</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_tile_catalog.test_a_fixed_config_value_is_one_of_the_ports_operators" title="Link to this definition">¶</a></dt>
+<dd><p>A tile fixes a port by the operator’s name. The core says which
+operator the port takes, so the name is checked, on the wide sibling
+too.</p>
+</dd></dl>
 
 </section>
 </section>
@@ -1067,6 +1100,12 @@ that exist, on config ports and parameters their modules declare.</p>
     <a href="#test_tile_catalog.test_a_miswired_tile_is_refused">test_a_miswired_tile_is_refused()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#test_tile_catalog.test_a_packed_column_names_its_field_offset_and_width">test_a_packed_column_names_its_field_offset_and_width()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_tile_catalog.test_a_contributed_tile_is_found_apart_from_the_catalog">test_a_contributed_tile_is_found_apart_from_the_catalog()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#test_tile_catalog.test_two_uses_of_one_core_need_labels_and_qualified_config">test_two_uses_of_one_core_need_labels_and_qualified_config()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -1080,6 +1119,9 @@ that exist, on config ports and parameters their modules declare.</p>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_tile_catalog.test_a_tile_names_cores_ports_and_parameters_that_exist">test_a_tile_names_cores_ports_and_parameters_that_exist()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_tile_catalog.test_a_fixed_config_value_is_one_of_the_ports_operators">test_a_fixed_config_value_is_one_of_the_ports_operators()</a>
   </li>
 </ul>
 

@@ -27,8 +27,8 @@ Attributes
 
 .. autoapisummary::
 
-   dau_core.registry._CORE_ENTRY_KEYS
    dau_core.registry._TILE_TARGET
+   dau_core.registry._OWN_TILES
 
 
 Exceptions
@@ -52,20 +52,19 @@ Functions
    dau_core.registry._declared_names
    dau_core.registry.core
    dau_core.registry.loaded_cores
-   dau_core.registry.lowered_cores
    dau_core.registry.core_for_module
    dau_core.registry.cores_of_kind
    dau_core.registry.cores_of_role
    dau_core.registry.core_of_role
    dau_core.registry.sources_for
+   dau_core.registry._composed_tiles
    dau_core.registry.loaded_tiles
+   dau_core.registry.contributed_tiles
    dau_core.registry.tile
 
 
 Module Contents
 ---------------
-
-.. py:data:: _CORE_ENTRY_KEYS
 
 .. py:data:: _TILE_TARGET
    :value: 'dau_core.tiles.dau_core.tiles.TileDefinition'
@@ -171,20 +170,6 @@ Module Contents
    silently preferring one definition is the failure this fixes.
 
 
-.. py:function:: lowered_cores() -> tuple[dau_core.cores.CoreDefinition, ...]
-
-   Every composed core that declares an ``ExpressionLowering``, dau-core's
-   own first, building only those.
-
-   A query compiler asks this on every capture, so it must not pay for the
-   whole palette: a pending entry's configuration is read without building
-   the model (building all of them is over half a second). An entry is
-   skipped unbuilt only when every key it carries is a ``CoreDefinition``
-   field and ``lowering`` is not among them; any other key is built, so a
-   misspelled ``lowering:`` fails model validation instead of reading as a
-   tile with no lowering.
-
-
 .. py:function:: core_for_module(module: str) -> dau_core.cores.CoreDefinition
 
 .. py:function:: cores_of_kind(kind: dau_core.cores.CoreKind) -> tuple[dau_core.cores.CoreDefinition, ...]
@@ -213,6 +198,16 @@ Module Contents
    packages and dependencies first, in registry order.
 
 
+.. py:data:: _OWN_TILES
+   :value: 'dau-tiles'
+
+
+.. py:function:: _composed_tiles() -> dict[str, tuple[str, dau_core.tiles.TileDefinition]]
+
+   Every composed tile with the group that declares it, dau-core's own
+   first. A name declared twice is refused.
+
+
 .. py:function:: loaded_tiles() -> collections.abc.Mapping[str, dau_core.tiles.TileDefinition]
 
    Every composed tile of the catalog, name -> definition, dau-core's
@@ -222,6 +217,16 @@ Module Contents
    ``dau-tiles/tiles.yaml``. A ``TileDefinition`` a contributing package
    composed under its own group is returned too, as a contributed core is;
    a name declared twice is refused.
+
+
+.. py:function:: contributed_tiles() -> collections.abc.Mapping[str, dau_core.tiles.TileDefinition]
+
+   The composed tiles declared outside dau-core's own catalog, name ->
+   definition.
+
+   A query compiler lowers dau-core's tiles with code written for them. A
+   contributed tile it has never seen is lowered from its declaration
+   alone, so the compiler asks for these separately.
 
 
 .. py:function:: tile(name: str) -> dau_core.tiles.TileDefinition

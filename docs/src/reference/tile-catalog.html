@@ -779,11 +779,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../autoapi/test_expression_lowering/index.html">
-      <span class="fd-link-text">test_expression_lowering</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../../autoapi/test_aggregation_tile_hdl/index.html">
       <span class="fd-link-text">test_aggregation_tile_hdl</span>
     </a>
@@ -929,6 +924,10 @@ unpacker are chosen when a design is priced.</p>
 <td><p><code class="docutils literal notranslate"><span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span></code></p></td>
 <td><p>What a lane ending in the tile returns to the host, and anything the host finishes. Required for the kinds that end a lane.</p></td>
 </tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">scale_invariant</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bool</span></code></p></td>
+<td><p>Whether a row expression computes the same on fixed-point columns: <code class="docutils literal notranslate"><span class="pre">f(k*x,</span> <span class="pre">k*s...)</span> <span class="pre">==</span> <span class="pre">k*f(x,</span> <span class="pre">s...)</span></code> for k &gt; 0. True of a clip, false of a product. A compiler lowering a contributed tile needs it before it runs the tile over scaled columns.</p></td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -1019,8 +1018,8 @@ unpacker are chosen when a design is priced.</p>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{mask:</span> <span class="pre">cfg_field_mask}</span></code></p></td>
 <td><p>A config port with one bit per row field.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">{shift:</span> <span class="pre">...,</span> <span class="pre">width:</span> <span class="pre">...}</span></code></p></td>
-<td><p>A column packed into a field with others: the port taking its bit offset and the parameter fixing its width.</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">{ports:</span> <span class="pre">[...],</span> <span class="pre">shift:</span> <span class="pre">...,</span> <span class="pre">width:</span> <span class="pre">...}</span></code></p></td>
+<td><p>A column packed into a field with others: the port taking its bit offset and the parameter fixing its width, beside the field select when the core has one.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{parameter:</span> <span class="pre">WINDOW}</span></code></p></td>
 <td><p>A module parameter the value fixes when the design is built.</p></td>
@@ -1048,6 +1047,11 @@ unpacker are chosen when a design is priced.</p>
 <span class="mi">22</span>
 </pre></div>
 </div>
+<p><code class="docutils literal notranslate"><span class="pre">contributed_tiles()</span></code> returns the tiles declared outside dau-core’s own
+catalog. A package contributes a tile the way it contributes a core: a
+<code class="docutils literal notranslate"><span class="pre">TileDefinition</span></code> entry in its own composed group. A query compiler lowers
+dau-core’s tiles with code written for them, and a contributed tile from its
+declaration alone.</p>
 </section>
 <section id="what-is-checked">
 <h2>What is checked<a class="headerlink" href="#what-is-checked" title="Link to this heading">¶</a></h2>
@@ -1055,7 +1059,9 @@ unpacker are chosen when a design is priced.</p>
 placeholder reaches a core, every input is a placeholder or an earlier
 core’s output, and no port is both wired and fixed. The test suite checks
 the composed catalog against the registry and the HDL: each named core
-exists, and each config port and parameter is one its module declares.</p>
+exists, each config port and parameter is one its module declares, and each
+fixed value is a member of the operator the core says the port takes
+(<code class="docutils literal notranslate"><span class="pre">CoreDefinition.config_operators</span></code>).</p>
 </section>
 <section id="see-also">
 <h2>See also<a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h2>

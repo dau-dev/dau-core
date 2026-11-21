@@ -124,9 +124,9 @@ Module Contents
    port per use. ``mask`` is a config port with one bit per row field.
    ``shift`` and ``width`` place a column packed into a field with others:
    the config port taking its bit offset and the module parameter fixing
-   its width. ``parameter`` is a module parameter the value fixes when the
-   design is built. ``source`` is an input that arrives without a config
-   port.
+   its width, beside the field select in ``ports`` when the core has one.
+   ``parameter`` is a module parameter the value fixes when the design is
+   built. ``source`` is an input that arrives without a config port.
 
    In the catalog a single port is written as its name and several as a
    list (:meth:`TileCore.taken`).
@@ -395,6 +395,11 @@ Module Contents
    limit). ``result`` says what a lane ending in this tile returns to the
    host and anything the host finishes.
 
+   ``scale_invariant`` is a promise a compiler needs before it runs a row
+   expression over fixed-point columns: ``f(k*x, k*s...) == k*f(x, s...)``
+   for k > 0, so computing on the staged integers and decoding gives what
+   polars computes on the values. True of a clip, false of a product.
+
    Create a new model by parsing and validating input data from keyword arguments.
 
    Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
@@ -438,6 +443,12 @@ Module Contents
    .. py:attribute:: result
       :type:  str | None
       :value: None
+
+
+
+   .. py:attribute:: scale_invariant
+      :type:  bool
+      :value: False
 
 
 

@@ -55,8 +55,6 @@ Classes
    dau_core.cores.IngestRate
    dau_core.cores.ParameterSpec
    dau_core.cores.StorageIntent
-   dau_core.cores.ColumnBinding
-   dau_core.cores.ExpressionLowering
    dau_core.cores.CoreDefinition
 
 
@@ -65,10 +63,6 @@ Functions
 
 .. autoapisummary::
 
-   dau_core.cores._column_names
-   dau_core.cores._json_size
-   dau_core.cores._freeze_json
-   dau_core.cores._thaw_json
    dau_core.cores._same_clock
    dau_core.cores.package_root
    dau_core.cores.render_root
@@ -763,189 +757,6 @@ Module Contents
 
 
 
-.. py:function:: _column_names(node: Any) -> list[str]
-
-   Every column a serialized polars expression names, in tree order.
-
-
-.. py:function:: _json_size(node: Any) -> int
-
-.. py:function:: _freeze_json(node: Any) -> Any
-
-   A JSON tree with every object a ``FrozenMapping`` and every array a
-   tuple: read-only, and hashable.
-
-
-.. py:function:: _thaw_json(node: Any) -> Any
-
-   A fresh plain-JSON copy of a tree :func:`_freeze_json` built.
-
-
-.. py:class:: ColumnBinding(/, **data: Any)
-
-   Bases: :py:obj:`dau_core.models.CheckedModel`
-
-
-   Where a tile reads a column: the config port selecting its quad-row
-   field and, for a column packed into a field with others (a key
-   component), the config port taking its bit offset and the module
-   parameter fixing its width. The group code of an aggregate is read the
-   same way; its field is the key's, so it names no field port.
-
-   Create a new model by parsing and validating input data from keyword arguments.
-
-   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
-   validated to form a valid model.
-
-   `self` is explicitly positional-only to allow `self` as a field name.
-
-
-   .. py:attribute:: field
-      :type:  str | None
-      :value: None
-
-
-
-   .. py:attribute:: shift
-      :type:  str | None
-      :value: None
-
-
-
-   .. py:attribute:: width
-      :type:  str | None
-      :value: None
-
-
-
-   .. py:method:: ports() -> tuple[str, ...]
-
-
-.. py:class:: ExpressionLowering(/, **data: Any)
-
-   Bases: :py:obj:`dau_core.models.CheckedModel`
-
-
-   The polars expression a row tile computes, declared so a query
-   compiler can reach the tile without being changed for it.
-
-   ``expression`` is a polars expression over placeholder columns, given as
-   source text (``'pl.col("value").clip(pl.col("lower"), pl.col("upper"))'``,
-   evaluated through ccflow's ``PolarsExpression`` where polars is
-   installed) or as a polars expression, which is kept as polars' own JSON.
-   Text is the portable form: polars' JSON can change between versions, and
-   a pattern only matches a query serialized by the same version.
-
-   Each column the expression names is a placeholder. A compiler matches a
-   query expression against it node for node: a placeholder listed in
-   ``literals`` matches a literal in the query, any other placeholder
-   matches a column or a sub-expression the compiler computes first, and
-   every other node must be the same. ``bind`` names the config port each
-   placeholder is wired to: a value port for a literal, and for a column a
-   field select, or a :class:`ColumnBinding` for a column packed with
-   others into one field.
-
-   A row expression is computed in place: the tile writes
-   ``destination_port``'s field of each quad row, ``row[dst] =
-   golden(**args)``, the core's ``golden`` called with the placeholders by
-   name. An aggregation (``pl.col("value").n_unique()``) makes the tile a
-   lane terminal: it reduces each group's rows, reading the group code
-   where ``group`` says, and emits one record per group.
-
-   A compiler lowers the expression only when it can show the tile computes
-   what polars would. Every bound column must hold values (not dictionary
-   codes) at one shared fixed-point scale, and every literal must encode
-   exactly at that scale within the field. A nonzero scale also needs
-   ``scale_invariant``, meaning ``f(k*x, k*s...) == k*f(x, s...)`` for
-   k > 0: true of clip, false of a product or a hash.
-
-   Create a new model by parsing and validating input data from keyword arguments.
-
-   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
-   validated to form a valid model.
-
-   `self` is explicitly positional-only to allow `self` as a field name.
-
-
-   .. py:attribute:: expression
-      :type:  Annotated[str | collections.abc.Mapping[str, Any], AfterValidator(_freeze_json), PlainSerializer(_thaw_json)]
-
-
-   .. py:attribute:: literals
-      :type:  tuple[str, ...]
-      :value: ()
-
-
-
-   .. py:attribute:: bind
-      :type:  Annotated[collections.abc.Mapping[str, str | ColumnBinding], *ReadOnly]
-
-
-   .. py:attribute:: destination_port
-      :type:  str | None
-      :value: None
-
-
-
-   .. py:attribute:: group
-      :type:  ColumnBinding | None
-      :value: None
-
-
-
-   .. py:attribute:: scale_invariant
-      :type:  bool
-      :value: False
-
-
-
-   .. py:method:: _expression_form(value: Any) -> Any
-      :classmethod:
-
-
-
-   .. py:method:: expression_json() -> dict[str, Any]
-
-      The expression as polars serializes it, as a new dict on every
-      call. Text is evaluated through ccflow's ``PolarsExpression``, which
-      needs polars installed.
-
-
-
-   .. py:method:: placeholders() -> tuple[str, ...]
-
-      Every placeholder, in the order a match binds them.
-
-
-
-   .. py:method:: columns() -> tuple[str, ...]
-
-      The placeholders that stand for columns, in match order.
-
-
-
-   .. py:method:: size() -> int
-
-      Nodes in the expression: a compiler tries larger patterns first.
-
-
-
-   .. py:method:: is_aggregate() -> bool
-
-      Whether the expression is an aggregation, which makes the tile a
-      lane terminal rather than a stage that rewrites a field.
-
-
-
-   .. py:method:: binding(placeholder: str) -> ColumnBinding
-
-      Where the tile reads a column placeholder.
-
-
-
-   .. py:method:: _bound_once() -> ExpressionLowering
-
-
 .. py:function:: _same_clock(a: float, b: float) -> bool
 
    Two clock periods naming the same physical clock.
@@ -1151,10 +962,8 @@ Module Contents
 
 
 
-   .. py:attribute:: lowering
-      :type:  ExpressionLowering | None
-      :value: None
-
+   .. py:attribute:: config_operators
+      :type:  Annotated[collections.abc.Mapping[str, str], *ReadOnly]
 
 
    .. py:method:: storage_bytes(params: collections.abc.Mapping[str, int]) -> tuple[tuple[StorageIntent, int], ...]
@@ -1262,6 +1071,13 @@ Module Contents
    .. py:method:: render(*, into: pathlib.Path | None = None) -> pathlib.Path
 
       Render this core's HDL, returning the written path.
+
+
+
+   .. py:method:: config_operator(port: str) -> type[enum.Enum] | None
+
+      The operator enum ``port`` takes, or None for a port that takes a
+      field select, a value or a mask.
 
 
 

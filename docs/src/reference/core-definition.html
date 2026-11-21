@@ -779,11 +779,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../autoapi/test_expression_lowering/index.html">
-      <span class="fd-link-text">test_expression_lowering</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../../autoapi/test_aggregation_tile_hdl/index.html">
       <span class="fd-link-text">test_aggregation_tile_hdl</span>
     </a>
@@ -1208,6 +1203,10 @@ a parameter set, validating overrides against the declared parameter specs.</p>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">parameters</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Mapping[str,</span> <span class="pre">ParameterSpec]</span></code></p></td>
 <td><p>Module parameters that may be overridden per instance.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">config_operators</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Mapping[str,</span> <span class="pre">str]</span></code></p></td>
+<td><p>The operator each config port takes, as <code class="docutils literal notranslate"><span class="pre">module:Enum</span></code>, for the ports that select one (a comparison, an ALU op, a membership mode). A <a class="reference internal" href="tile-catalog.html"><span class="std std-doc">tile</span></a> fixes such a port by the operator’s name.</p></td>
 </tr>
 </tbody>
 </table>

@@ -779,11 +779,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_expression_lowering/index.html">
-      <span class="fd-link-text">test_expression_lowering</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../test_aggregation_tile_hdl/index.html">
       <span class="fd-link-text">test_aggregation_tile_hdl</span>
     </a>
@@ -1025,6 +1020,9 @@
     <a href="#dau_core.tiles.TileDefinition.result">TileDefinition.result</a>
   </li>
   <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileDefinition.scale_invariant">TileDefinition.scale_invariant</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
     <a href="#dau_core.tiles.TileDefinition.core_named">TileDefinition.core_named()</a>
   </li>
   <li class="fd-toc-item" data-depth="3">
@@ -1183,9 +1181,9 @@ a literal. A literal list or a column tested more than once names one
 port per use. <code class="docutils literal notranslate"><span class="pre">mask</span></code> is a config port with one bit per row field.
 <code class="docutils literal notranslate"><span class="pre">shift</span></code> and <code class="docutils literal notranslate"><span class="pre">width</span></code> place a column packed into a field with others:
 the config port taking its bit offset and the module parameter fixing
-its width. <code class="docutils literal notranslate"><span class="pre">parameter</span></code> is a module parameter the value fixes when the
-design is built. <code class="docutils literal notranslate"><span class="pre">source</span></code> is an input that arrives without a config
-port.</p>
+its width, beside the field select in <code class="docutils literal notranslate"><span class="pre">ports</span></code> when the core has one.
+<code class="docutils literal notranslate"><span class="pre">parameter</span></code> is a module parameter the value fixes when the design is
+built. <code class="docutils literal notranslate"><span class="pre">source</span></code> is an input that arrives without a config port.</p>
 <p>In the catalog a single port is written as its name and several as a
 list (<a class="reference internal" href="#dau_core.tiles.TileCore.taken" title="dau_core.tiles.TileCore.taken"><code class="xref py py-meth docutils literal notranslate"><span class="pre">TileCore.taken()</span></code></a>).</p>
 <p>Create a new model by parsing and validating input data from keyword arguments.</p>
@@ -1436,6 +1434,10 @@ sub-expression another tile computes first. <code class="docutils literal notran
 names a shape reads where polars takes a number (a window size, a row
 limit). <code class="docutils literal notranslate"><span class="pre">result</span></code> says what a lane ending in this tile returns to the
 host and anything the host finishes.</p>
+<p><code class="docutils literal notranslate"><span class="pre">scale_invariant</span></code> is a promise a compiler needs before it runs a row
+expression over fixed-point columns: <code class="docutils literal notranslate"><span class="pre">f(k*x,</span> <span class="pre">k*s...)</span> <span class="pre">==</span> <span class="pre">k*f(x,</span> <span class="pre">s...)</span></code>
+for k &gt; 0, so computing on the staged integers and decoding gives what
+polars computes on the values. True of a clip, false of a product.</p>
 <p>Create a new model by parsing and validating input data from keyword arguments.</p>
 <p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
 validated to form a valid model.</p>
@@ -1478,6 +1480,11 @@ validated to form a valid model.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dau_core.tiles.TileDefinition.result">
 <span class="sig-name descname"><span class="pre">result</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.tiles.TileDefinition.result" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileDefinition.scale_invariant">
+<span class="sig-name descname"><span class="pre">scale_invariant</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#dau_core.tiles.TileDefinition.scale_invariant" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1722,6 +1729,9 @@ answers <code class="docutils literal notranslate"><span class="pre">expression<
   </li>
   <li class="fd-toc-item" data-depth="3">
     <a href="#dau_core.tiles.TileDefinition.result">TileDefinition.result</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileDefinition.scale_invariant">TileDefinition.scale_invariant</a>
   </li>
   <li class="fd-toc-item" data-depth="3">
     <a href="#dau_core.tiles.TileDefinition.core_named">TileDefinition.core_named()</a>

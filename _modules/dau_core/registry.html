@@ -1183,11 +1183,6 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../autoapi/test_expression_lowering/index.html">
-      <span class="fd-link-text">test_expression_lowering</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../autoapi/test_aggregation_tile_hdl/index.html">
       <span class="fd-link-text">test_aggregation_tile_hdl</span>
     </a>
@@ -1289,10 +1284,6 @@ window.runMermaid = runMermaid;</script>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">ccflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelRegistry</span>
-
-
-<span class="c1"># every key a pending core entry may carry: the model's fields and hydra's target</span>
-<span class="n">_CORE_ENTRY_KEYS</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">CoreDefinition</span><span class="o">.</span><span class="n">model_fields</span><span class="p">)</span> <span class="o">|</span> <span class="p">{</span><span class="s2">"_target_"</span><span class="p">}</span>
 
 
 <span class="c1"># the hydra target of a catalog tile, which shares the composed groups with cores</span>
@@ -1453,34 +1444,6 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<div class="viewcode-block" id="lowered_cores">
-<a class="viewcode-back" href="../../autoapi/dau_core/registry/index.html#dau_core.registry.lowered_cores">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">lowered_cores</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">CoreDefinition</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Every composed core that declares an ``ExpressionLowering``, dau-core's</span>
-<span class="sd">    own first, building only those.</span>
-
-<span class="sd">    A query compiler asks this on every capture, so it must not pay for the</span>
-<span class="sd">    whole palette: a pending entry's configuration is read without building</span>
-<span class="sd">    the model (building all of them is over half a second). An entry is</span>
-<span class="sd">    skipped unbuilt only when every key it carries is a ``CoreDefinition``</span>
-<span class="sd">    field and ``lowering`` is not among them; any other key is built, so a</span>
-<span class="sd">    misspelled ``lowering:`` fails model validation instead of reading as a</span>
-<span class="sd">    tile with no lowering."""</span>
-    <span class="n">found</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CoreDefinition</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">_group_name</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">_groups</span><span class="p">():</span>
-        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">_declared_names</span><span class="p">(</span><span class="n">group</span><span class="p">):</span>
-            <span class="n">pending</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">get_pending_config</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">LazyRegistry</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
-            <span class="k">if</span> <span class="n">pending</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">pending</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"lowering"</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">pending</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">_CORE_ENTRY_KEYS</span><span class="p">:</span>
-                <span class="k">continue</span>
-            <span class="k">if</span> <span class="n">pending</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">pending</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"_target_"</span><span class="p">)</span> <span class="o">==</span> <span class="n">_TILE_TARGET</span><span class="p">:</span>
-                <span class="k">continue</span>  <span class="c1"># a tile of the catalog, not a core</span>
-            <span class="n">model</span> <span class="o">=</span> <span class="n">_entry</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">model</span><span class="o">.</span><span class="n">lowering</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">found</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">found</span><span class="p">)</span></div>
-
-
-
 <div class="viewcode-block" id="core_for_module">
 <a class="viewcode-back" href="../../autoapi/dau_core/registry/index.html#dau_core.registry.core_for_module">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">core_for_module</span><span class="p">(</span><span class="n">module</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CoreDefinition</span><span class="p">:</span>
@@ -1548,6 +1511,31 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<span class="c1"># the group dau-core's own tiles are composed under</span>
+<span class="n">_OWN_TILES</span> <span class="o">=</span> <span class="s2">"dau-tiles"</span>
+
+
+<div class="viewcode-block" id="_composed_tiles">
+<a class="viewcode-back" href="../../autoapi/dau_core/registry/index.html#dau_core.registry._composed_tiles">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_composed_tiles</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TileDefinition</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Every composed tile with the group that declares it, dau-core's own</span>
+<span class="sd">    first. A name declared twice is refused."""</span>
+    <span class="n">tiles</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TileDefinition</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">_groups</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">_declared_names</span><span class="p">(</span><span class="n">group</span><span class="p">):</span>
+            <span class="n">pending</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">get_pending_config</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">LazyRegistry</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">pending</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">pending</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"_target_"</span><span class="p">)</span> <span class="o">!=</span> <span class="n">_TILE_TARGET</span><span class="p">:</span>
+                <span class="k">continue</span>  <span class="c1"># a core; do not build it to find that out</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">TileDefinition</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">tiles</span> <span class="ow">and</span> <span class="n">tiles</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">model</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">DuplicateTileError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"tile </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> is declared by more than one composed group (the second under </span><span class="si">{</span><span class="n">group_name</span><span class="si">!r}</span><span class="s2">)"</span><span class="p">)</span>
+            <span class="n">tiles</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">group_name</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tiles</span></div>
+
+
+
 <div class="viewcode-block" id="loaded_tiles">
 <a class="viewcode-back" href="../../autoapi/dau_core/registry/index.html#dau_core.registry.loaded_tiles">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">loaded_tiles</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TileDefinition</span><span class="p">]:</span>
@@ -1559,19 +1547,21 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    composed under its own group is returned too, as a contributed core is;</span>
 <span class="sd">    a name declared twice is refused.</span>
 <span class="sd">    """</span>
-    <span class="n">tiles</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TileDefinition</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">_groups</span><span class="p">():</span>
-        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">_declared_names</span><span class="p">(</span><span class="n">group</span><span class="p">):</span>
-            <span class="n">pending</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">get_pending_config</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">LazyRegistry</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
-            <span class="k">if</span> <span class="n">pending</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">pending</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"_target_"</span><span class="p">)</span> <span class="o">!=</span> <span class="n">_TILE_TARGET</span><span class="p">:</span>
-                <span class="k">continue</span>  <span class="c1"># a core; do not build it to find that out</span>
-            <span class="n">model</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">TileDefinition</span><span class="p">):</span>
-                <span class="k">continue</span>
-            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">tiles</span> <span class="ow">and</span> <span class="n">tiles</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">model</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">DuplicateTileError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"tile </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> is declared by more than one composed group (the second under </span><span class="si">{</span><span class="n">group_name</span><span class="si">!r}</span><span class="s2">)"</span><span class="p">)</span>
-            <span class="n">tiles</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span>
-    <span class="k">return</span> <span class="n">tiles</span></div>
+    <span class="k">return</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">declared</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="n">_group</span><span class="p">,</span> <span class="n">declared</span><span class="p">)</span> <span class="ow">in</span> <span class="n">_composed_tiles</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div>
+
+
+
+<div class="viewcode-block" id="contributed_tiles">
+<a class="viewcode-back" href="../../autoapi/dau_core/registry/index.html#dau_core.registry.contributed_tiles">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">contributed_tiles</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TileDefinition</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""The composed tiles declared outside dau-core's own catalog, name -&gt;</span>
+<span class="sd">    definition.</span>
+
+<span class="sd">    A query compiler lowers dau-core's tiles with code written for them. A</span>
+<span class="sd">    contributed tile it has never seen is lowered from its declaration</span>
+<span class="sd">    alone, so the compiler asks for these separately.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">declared</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">declared</span><span class="p">)</span> <span class="ow">in</span> <span class="n">_composed_tiles</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">group</span> <span class="o">!=</span> <span class="n">_OWN_TILES</span><span class="p">}</span></div>
 
 
 

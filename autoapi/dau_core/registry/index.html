@@ -779,11 +779,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_expression_lowering/index.html">
-      <span class="fd-link-text">test_expression_lowering</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../test_aggregation_tile_hdl/index.html">
       <span class="fd-link-text">test_aggregation_tile_hdl</span>
     </a>
@@ -860,9 +855,6 @@
     <a href="#module-contents">Module Contents</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#dau_core.registry._CORE_ENTRY_KEYS">_CORE_ENTRY_KEYS</a>
-  </li>
-  <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.registry._TILE_TARGET">_TILE_TARGET</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -893,9 +885,6 @@
     <a href="#dau_core.registry.loaded_cores">loaded_cores()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#dau_core.registry.lowered_cores">lowered_cores()</a>
-  </li>
-  <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.registry.core_for_module">core_for_module()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -911,7 +900,16 @@
     <a href="#dau_core.registry.sources_for">sources_for()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registry._OWN_TILES">_OWN_TILES</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registry._composed_tiles">_composed_tiles()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.registry.loaded_tiles">loaded_tiles()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registry.contributed_tiles">contributed_tiles()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.registry.tile">tile()</a>
@@ -954,10 +952,10 @@ author who does not have this repository – see
 <h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registry._CORE_ENTRY_KEYS" title="dau_core.registry._CORE_ENTRY_KEYS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_CORE_ENTRY_KEYS</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registry._TILE_TARGET" title="dau_core.registry._TILE_TARGET"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_TILE_TARGET</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registry._TILE_TARGET" title="dau_core.registry._TILE_TARGET"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_TILE_TARGET</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registry._OWN_TILES" title="dau_core.registry._OWN_TILES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_OWN_TILES</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -1001,28 +999,31 @@ author who does not have this repository – see
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registry.loaded_cores" title="dau_core.registry.loaded_cores"><code class="xref py py-obj docutils literal notranslate"><span class="pre">loaded_cores</span></code></a>() → collections.abc.Mapping[str, dau_core.cores.CoreDefinition]</p></td>
 <td><p>Every composed core, name -&gt; definition, dau-core's own first.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registry.lowered_cores" title="dau_core.registry.lowered_cores"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lowered_cores</span></code></a>() → tuple[dau_core.cores.CoreDefinition, ...]</p></td>
-<td><p>Every composed core that declares an <code class="docutils literal notranslate"><span class="pre">ExpressionLowering</span></code>, dau-core's</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registry.core_for_module" title="dau_core.registry.core_for_module"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_for_module</span></code></a>(module) → dau_core.cores.CoreDefinition</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registry.core_for_module" title="dau_core.registry.core_for_module"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_for_module</span></code></a>(module) → dau_core.cores.CoreDefinition</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registry.cores_of_kind" title="dau_core.registry.cores_of_kind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cores_of_kind</span></code></a>(kind) → tuple[dau_core.cores.CoreDefinition, ...]</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registry.cores_of_kind" title="dau_core.registry.cores_of_kind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cores_of_kind</span></code></a>(kind) → tuple[dau_core.cores.CoreDefinition, ...]</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registry.cores_of_role" title="dau_core.registry.cores_of_role"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cores_of_role</span></code></a>(role) → tuple[dau_core.cores.CoreDefinition, ...]</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registry.cores_of_role" title="dau_core.registry.cores_of_role"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cores_of_role</span></code></a>(role) → tuple[dau_core.cores.CoreDefinition, ...]</p></td>
 <td><p>Every composed core declaring <code class="docutils literal notranslate"><span class="pre">role</span></code>, in registry order.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registry.core_of_role" title="dau_core.registry.core_of_role"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_of_role</span></code></a>(role[, contract]) → dau_core.cores.CoreDefinition</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registry.core_of_role" title="dau_core.registry.core_of_role"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_of_role</span></code></a>(role[, contract]) → dau_core.cores.CoreDefinition</p></td>
 <td><p>The one composed core declaring <code class="docutils literal notranslate"><span class="pre">role</span></code> (and speaking <code class="docutils literal notranslate"><span class="pre">contract</span></code>,</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registry.sources_for" title="dau_core.registry.sources_for"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sources_for</span></code></a>(*names) → tuple[pathlib.Path, ...]</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registry.sources_for" title="dau_core.registry.sources_for"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sources_for</span></code></a>(*names) → tuple[pathlib.Path, ...]</p></td>
 <td><p>Dependency-closed, deduplicated source paths for a set of cores —</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registry._composed_tiles" title="dau_core.registry._composed_tiles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_composed_tiles</span></code></a>() → dict[str, tuple[str, dau_core.tiles.TileDefinition]]</p></td>
+<td><p>Every composed tile with the group that declares it, dau-core's own</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registry.loaded_tiles" title="dau_core.registry.loaded_tiles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">loaded_tiles</span></code></a>() → collections.abc.Mapping[str, dau_core.tiles.TileDefinition]</p></td>
 <td><p>Every composed tile of the catalog, name -&gt; definition, dau-core's</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registry.tile" title="dau_core.registry.tile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tile</span></code></a>(name) → dau_core.tiles.TileDefinition</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registry.contributed_tiles" title="dau_core.registry.contributed_tiles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">contributed_tiles</span></code></a>() → collections.abc.Mapping[str, dau_core.tiles.TileDefinition]</p></td>
+<td><p>The composed tiles declared outside dau-core's own catalog, name -&gt;</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registry.tile" title="dau_core.registry.tile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tile</span></code></a>(name) → dau_core.tiles.TileDefinition</p></td>
 <td><p>The composed tile called <code class="docutils literal notranslate"><span class="pre">name</span></code>.</p></td>
 </tr>
 </tbody>
@@ -1030,11 +1031,6 @@ author who does not have this repository – see
 </section>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
-<dl class="py data">
-<dt class="sig sig-object py" id="dau_core.registry._CORE_ENTRY_KEYS">
-<span class="sig-prename descclassname"><span class="pre">dau_core.registry.</span></span><span class="sig-name descname"><span class="pre">_CORE_ENTRY_KEYS</span></span><a class="headerlink" href="#dau_core.registry._CORE_ENTRY_KEYS" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="py data">
 <dt class="sig sig-object py" id="dau_core.registry._TILE_TARGET">
 <span class="sig-prename descclassname"><span class="pre">dau_core.registry.</span></span><span class="sig-name descname"><span class="pre">_TILE_TARGET</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'dau_core.tiles.dau_core.tiles.TileDefinition'</span></em><a class="headerlink" href="#dau_core.registry._TILE_TARGET" title="Link to this definition">¶</a></dt>
@@ -1132,20 +1128,6 @@ silently preferring one definition is the failure this fixes.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="dau_core.registry.lowered_cores">
-<span class="sig-prename descclassname"><span class="pre">dau_core.registry.</span></span><span class="sig-name descname"><span class="pre">lowered_cores</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../cores/index.html#dau_core.cores.CoreDefinition" title="dau_core.cores.CoreDefinition"><span class="pre">dau_core.cores.CoreDefinition</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/registry.html#lowered_cores"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registry.lowered_cores" title="Link to this definition">¶</a></dt>
-<dd><p>Every composed core that declares an <code class="docutils literal notranslate"><span class="pre">ExpressionLowering</span></code>, dau-core’s
-own first, building only those.</p>
-<p>A query compiler asks this on every capture, so it must not pay for the
-whole palette: a pending entry’s configuration is read without building
-the model (building all of them is over half a second). An entry is
-skipped unbuilt only when every key it carries is a <code class="docutils literal notranslate"><span class="pre">CoreDefinition</span></code>
-field and <code class="docutils literal notranslate"><span class="pre">lowering</span></code> is not among them; any other key is built, so a
-misspelled <code class="docutils literal notranslate"><span class="pre">lowering:</span></code> fails model validation instead of reading as a
-tile with no lowering.</p>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="dau_core.registry.core_for_module">
 <span class="sig-prename descclassname"><span class="pre">dau_core.registry.</span></span><span class="sig-name descname"><span class="pre">core_for_module</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../cores/index.html#dau_core.cores.CoreDefinition" title="dau_core.cores.CoreDefinition"><span class="pre">dau_core.cores.CoreDefinition</span></a></span></span><a class="reference internal" href="../../../_modules/dau_core/registry.html#core_for_module"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registry.core_for_module" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -1181,6 +1163,18 @@ registry order, so both refuse.</p>
 packages and dependencies first, in registry order.</p>
 </dd></dl>
 
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_core.registry._OWN_TILES">
+<span class="sig-prename descclassname"><span class="pre">dau_core.registry.</span></span><span class="sig-name descname"><span class="pre">_OWN_TILES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'dau-tiles'</span></em><a class="headerlink" href="#dau_core.registry._OWN_TILES" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.registry._composed_tiles">
+<span class="sig-prename descclassname"><span class="pre">dau_core.registry.</span></span><span class="sig-name descname"><span class="pre">_composed_tiles</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../tiles/index.html#dau_core.tiles.TileDefinition" title="dau_core.tiles.TileDefinition"><span class="pre">dau_core.tiles.TileDefinition</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/registry.html#_composed_tiles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registry._composed_tiles" title="Link to this definition">¶</a></dt>
+<dd><p>Every composed tile with the group that declares it, dau-core’s own
+first. A name declared twice is refused.</p>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.registry.loaded_tiles">
 <span class="sig-prename descclassname"><span class="pre">dau_core.registry.</span></span><span class="sig-name descname"><span class="pre">loaded_tiles</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">collections.abc.Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../tiles/index.html#dau_core.tiles.TileDefinition" title="dau_core.tiles.TileDefinition"><span class="pre">dau_core.tiles.TileDefinition</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/registry.html#loaded_tiles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registry.loaded_tiles" title="Link to this definition">¶</a></dt>
@@ -1190,6 +1184,16 @@ own first.</p>
 <code class="docutils literal notranslate"><span class="pre">dau-tiles/tiles.yaml</span></code>. A <code class="docutils literal notranslate"><span class="pre">TileDefinition</span></code> a contributing package
 composed under its own group is returned too, as a contributed core is;
 a name declared twice is refused.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.registry.contributed_tiles">
+<span class="sig-prename descclassname"><span class="pre">dau_core.registry.</span></span><span class="sig-name descname"><span class="pre">contributed_tiles</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">collections.abc.Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../tiles/index.html#dau_core.tiles.TileDefinition" title="dau_core.tiles.TileDefinition"><span class="pre">dau_core.tiles.TileDefinition</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/registry.html#contributed_tiles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registry.contributed_tiles" title="Link to this definition">¶</a></dt>
+<dd><p>The composed tiles declared outside dau-core’s own catalog, name -&gt;
+definition.</p>
+<p>A query compiler lowers dau-core’s tiles with code written for them. A
+contributed tile it has never seen is lowered from its declaration
+alone, so the compiler asks for these separately.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1247,9 +1251,6 @@ a name declared twice is refused.</p>
     <a href="#module-contents">Module Contents</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#dau_core.registry._CORE_ENTRY_KEYS">_CORE_ENTRY_KEYS</a>
-  </li>
-  <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.registry._TILE_TARGET">_TILE_TARGET</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -1280,9 +1281,6 @@ a name declared twice is refused.</p>
     <a href="#dau_core.registry.loaded_cores">loaded_cores()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#dau_core.registry.lowered_cores">lowered_cores()</a>
-  </li>
-  <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.registry.core_for_module">core_for_module()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -1298,7 +1296,16 @@ a name declared twice is refused.</p>
     <a href="#dau_core.registry.sources_for">sources_for()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registry._OWN_TILES">_OWN_TILES</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registry._composed_tiles">_composed_tiles()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.registry.loaded_tiles">loaded_tiles()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registry.contributed_tiles">contributed_tiles()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.registry.tile">tile()</a>

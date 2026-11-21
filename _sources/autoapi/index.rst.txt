@@ -41,7 +41,6 @@ This page contains auto-generated API reference documentation [#f1]_.
    /autoapi/test_public_tile_surface/index
    /autoapi/test_capability_contract/index
    /autoapi/test_aggregation_goldens/index
-   /autoapi/test_expression_lowering/index
    /autoapi/test_aggregation_tile_hdl/index
    /autoapi/test_contributed_discovery/index
    /autoapi/test_fixed_point_normal_cdf/index
