@@ -1,0 +1,66 @@
+test_tile_catalog
+=================
+
+.. py:module:: test_tile_catalog
+
+.. autoapi-nested-parse::
+
+   The tile catalog states which polars expressions the device answers and
+   which cores compute each one.
+
+   The model checks a tile's own wiring where it is declared. These tests check
+   the composed catalog against the registry and the HDL: a tile names cores
+   that exist, on config ports and parameters their modules declare.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_tile_catalog._COMPARE
+   test_tile_catalog._USES
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_tile_catalog._declared
+   test_tile_catalog.test_a_tile_resolves_each_expression_to_per_core_config
+   test_tile_catalog.test_a_frame_shape_names_its_columns_and_arguments
+   test_tile_catalog.test_a_miswired_tile_is_refused
+   test_tile_catalog.test_two_uses_of_one_core_need_labels_and_qualified_config
+   test_tile_catalog.test_the_catalog_composes_and_an_unknown_tile_is_refused
+   test_tile_catalog._input_ports
+   test_tile_catalog.test_a_tile_names_cores_ports_and_parameters_that_exist
+
+
+Module Contents
+---------------
+
+.. py:data:: _COMPARE
+
+.. py:function:: _declared(**changes: object) -> dict[str, object]
+
+.. py:function:: test_a_tile_resolves_each_expression_to_per_core_config() -> None
+
+.. py:function:: test_a_frame_shape_names_its_columns_and_arguments() -> None
+
+.. py:function:: test_a_miswired_tile_is_refused(changes: dict[str, object], message: str) -> None
+
+.. py:function:: test_two_uses_of_one_core_need_labels_and_qualified_config() -> None
+
+.. py:function:: test_the_catalog_composes_and_an_unknown_tile_is_refused() -> None
+
+.. py:function:: _input_ports(name: str) -> set[str]
+
+   The input ports the core's module declares.
+
+
+.. py:data:: _USES
+
+.. py:function:: test_a_tile_names_cores_ports_and_parameters_that_exist(name: str, used) -> None
+

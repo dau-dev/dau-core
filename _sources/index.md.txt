@@ -18,6 +18,8 @@ docs/src/how-to/develop.md
 
 docs/src/reference/core-definition.md
 
+docs/src/reference/tile-catalog.md
+
 docs/src/reference/registry-guards.md
 
 docs/src/explanation/why-cores-are-declared-in-config.md
@@ -71,6 +73,7 @@ The full documentation is at
   [Measure a resource envelope](docs/src/how-to/measure-a-resource-envelope.md), the one
   step that needs a synthesis host · [Develop and contribute](docs/src/how-to/develop.md).
 - **Reference**: [`CoreDefinition` fields](docs/src/reference/core-definition.md) ·
+  [Tile catalog](docs/src/reference/tile-catalog.md) ·
   [Registry guards](docs/src/reference/registry-guards.md) and what each one checks.
 - **Explanation**: [Why cores are declared in config](docs/src/explanation/why-cores-are-declared-in-config.md) ·
   [Why each tile has a golden model](docs/src/explanation/why-each-tile-has-a-golden-model.md) ·

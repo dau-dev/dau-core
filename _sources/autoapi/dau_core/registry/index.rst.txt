@@ -28,6 +28,7 @@ Attributes
 .. autoapisummary::
 
    dau_core.registry._CORE_ENTRY_KEYS
+   dau_core.registry._TILE_TARGET
 
 
 Exceptions
@@ -36,6 +37,8 @@ Exceptions
 .. autoapisummary::
 
    dau_core.registry.UnknownCoreError
+   dau_core.registry.UnknownTileError
+   dau_core.registry.DuplicateTileError
    dau_core.registry.DuplicateCoreError
 
 
@@ -55,6 +58,8 @@ Functions
    dau_core.registry.cores_of_role
    dau_core.registry.core_of_role
    dau_core.registry.sources_for
+   dau_core.registry.loaded_tiles
+   dau_core.registry.tile
 
 
 Module Contents
@@ -62,12 +67,36 @@ Module Contents
 
 .. py:data:: _CORE_ENTRY_KEYS
 
+.. py:data:: _TILE_TARGET
+   :value: 'dau_core.tiles.dau_core.tiles.TileDefinition'
+
+
 .. py:exception:: UnknownCoreError
 
    Bases: :py:obj:`KeyError`
 
 
    Mapping key not found.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+.. py:exception:: UnknownTileError
+
+   Bases: :py:obj:`KeyError`
+
+
+   Mapping key not found.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+.. py:exception:: DuplicateTileError
+
+   Bases: :py:obj:`ValueError`
+
+
+   Two composed groups declare the same tile name.
 
    Initialize self.  See help(type(self)) for accurate signature.
 
@@ -182,5 +211,21 @@ Module Contents
 
    Dependency-closed, deduplicated source paths for a set of cores —
    packages and dependencies first, in registry order.
+
+
+.. py:function:: loaded_tiles() -> collections.abc.Mapping[str, dau_core.tiles.TileDefinition]
+
+   Every composed tile of the catalog, name -> definition, dau-core's
+   own first.
+
+   dau-core's tiles are composed at ``/dau-tiles/<tile-name>`` from
+   ``dau-tiles/tiles.yaml``. A ``TileDefinition`` a contributing package
+   composed under its own group is returned too, as a contributed core is;
+   a name declared twice is refused.
+
+
+.. py:function:: tile(name: str) -> dau_core.tiles.TileDefinition
+
+   The composed tile called ``name``.
 
 

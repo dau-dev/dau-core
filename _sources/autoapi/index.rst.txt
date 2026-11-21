@@ -25,6 +25,7 @@ This page contains auto-generated API reference documentation [#f1]_.
    /autoapi/test_record_batch/index
    /autoapi/test_lazy_exports/index
    /autoapi/test_hash_grouped/index
+   /autoapi/test_tile_catalog/index
    /autoapi/test_element_types/index
    /autoapi/test_core_contract/index
    /autoapi/test_hdl_verilator/index

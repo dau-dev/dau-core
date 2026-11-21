@@ -42,6 +42,7 @@ Submodules
    /autoapi/dau_core/registry/index
    /autoapi/dau_core/stream/index
    /autoapi/dau_core/temporal/index
+   /autoapi/dau_core/tiles/index
    /autoapi/dau_core/workflows/index
 
 

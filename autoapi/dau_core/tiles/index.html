@@ -1,0 +1,1763 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>dau_core.tiles &#8212; dau core v0.11.0</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fuma.css?v=ca04d621" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fuma-code.css?v=a950e949" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fonts/fuma-fonts.css?v=c2892c73" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/custom.css?v=88c24c6a" />
+    <script src="../../../_static/documentation_options.js?v=f3b36f1a"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../../../_static/design-tabs.js?v=fcb327ea"></script>
+    <script data-searchlite-index="searchlite-index.json" defer="defer" src="../../../_static/searchlite.js?v=a5320898"></script>
+    <script defer="defer" src="../../../_static/fuma.js?v=9c325f6c"></script>
+    <script src="../../../_static/js/custom.js?v=956e5d78"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="dau_core.workflows" href="../workflows/index.html" />
+    <link rel="prev" title="dau_core.temporal" href="../temporal/index.html" />
+    <script>
+      (function () {
+        var root = document.documentElement;
+        try {
+          var stored = localStorage.getItem("fuma-theme");
+          if (stored) {
+            root.classList.add(stored === "dark" ? "dark" : "light");
+            root.style.colorScheme = stored === "dark" ? "dark" : "light";
+          }
+          if (localStorage.getItem("fuma-sidebar") === "collapsed") root.dataset.sidebarCollapsed = "true";
+          if (localStorage.getItem("fuma-toc") === "collapsed") root.dataset.tocCollapsed = "true";
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+<body class="fd-body" data-layout="docs" data-toc-style="normal" data-open-level="0">
+<div id="fd-layout"><header id="fd-subnav">
+  <div class="fd-subnav-inner">
+    <button type="button" class="fd-icon-button fd-sidebar-toggle" aria-controls="fd-sidebar" aria-expanded="false" aria-label="Toggle navigation" title="Toggle navigation">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
+    </button><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau core v0.11.0</span>
+</a>
+
+    <div class="fd-nav-actions">
+      <button type="button" class="fd-icon-button" data-fd-search-open aria-label="Search" title="Search"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+      <a class="fd-icon-button" href="https://github.com/dau-dev/dau-core" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <button type="button" class="fd-icon-button fd-theme-toggle" aria-label="Toggle theme" title="Toggle theme">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-light"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-dark"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<aside id="fd-sidebar" aria-label="Documentation">
+  <div class="fd-sidebar-header">
+    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau core v0.11.0</span>
+</a>
+      <button type="button" class="fd-icon-button fd-sidebar-collapse" aria-label="Collapse sidebar" title="Collapse sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+    </div>
+    <button type="button" class="fd-search-trigger" data-fd-search-open title="Search">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><span>Search</span><kbd class="fd-kbd">/</kbd>
+    </button>
+  </div>
+
+  <nav class="fd-sidebar-nav">
+    <div class="fd-sidebar-group">
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/tutorial/read-a-tile-contract.html">
+      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-tile.html">
+      <span class="fd-link-text">How to add an operator tile</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/how-to/test-a-core.html">
+      <span class="fd-link-text">How to test a core</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/how-to/measure-a-resource-envelope.html">
+      <span class="fd-link-text">How to measure a resource envelope</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/how-to/develop.html">
+      <span class="fd-link-text">Develop and contribute</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/reference/core-definition.html">
+      <span class="fd-link-text">CoreDefinition fields</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/reference/tile-catalog.html">
+      <span class="fd-link-text">Tile catalog</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/reference/registry-guards.html">
+      <span class="fd-link-text">Registry-wide guards</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/explanation/why-cores-are-declared-in-config.html">
+      <span class="fd-link-text">Why cores are declared in config</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
+      <span class="fd-link-text">Why each tile has a golden model</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/explanation/why-resources-are-measured.html">
+      <span class="fd-link-text">Why resource costs are measured</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder" open>
+      <summary class="fd-folder-summary" title="Toggle section: API Reference">
+        <a class="fd-link" href="../../index.html">
+          <span class="fd-link-text">API Reference</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <details class="fd-folder" open>
+      <summary class="fd-folder-summary" title="Toggle section: dau_core">
+        <a class="fd-link" href="../index.html">
+          <span class="fd-link-text">dau_core</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../_lazy/index.html">
+      <span class="fd-link-text">dau_core._lazy</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../capabilities/index.html">
+      <span class="fd-link-text">dau_core.capabilities</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../capability_contract/index.html">
+      <span class="fd-link-text">dau_core.capability_contract</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../composition/index.html">
+      <span class="fd-link-text">dau_core.composition</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../config/index.html">
+      <span class="fd-link-text">dau_core.config</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../cores/index.html">
+      <span class="fd-link-text">dau_core.cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../design/index.html">
+      <span class="fd-link-text">dau_core.design</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../element_types/index.html">
+      <span class="fd-link-text">dau_core.element_types</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../exp_generator/index.html">
+      <span class="fd-link-text">dau_core.exp_generator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../fixed_point/index.html">
+      <span class="fd-link-text">dau_core.fixed_point</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../generators/index.html">
+      <span class="fd-link-text">dau_core.generators</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../hdl/index.html">
+      <span class="fd-link-text">dau_core.hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../hero/index.html">
+      <span class="fd-link-text">dau_core.hero</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../ln_generator/index.html">
+      <span class="fd-link-text">dau_core.ln_generator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../models/index.html">
+      <span class="fd-link-text">dau_core.models</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../normal_cdf_generator/index.html">
+      <span class="fd-link-text">dau_core.normal_cdf_generator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../operators/index.html">
+      <span class="fd-link-text">dau_core.operators</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../records/index.html">
+      <span class="fd-link-text">dau_core.records</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../registers/index.html">
+      <span class="fd-link-text">dau_core.registers</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../registry/index.html">
+      <span class="fd-link-text">dau_core.registry</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../stream/index.html">
+      <span class="fd-link-text">dau_core.stream</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../temporal/index.html">
+      <span class="fd-link-text">dau_core.temporal</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link fd-current" href="#">
+      <span class="fd-link-text">dau_core.tiles</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../workflows/index.html">
+      <span class="fd-link-text">dau_core.workflows</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../conftest/index.html">
+      <span class="fd-link-text">conftest</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hero/index.html">
+      <span class="fd-link-text">test_hero</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_docs/index.html">
+      <span class="fd-link-text">test_docs</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_cores/index.html">
+      <span class="fd-link-text">test_cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_stream/index.html">
+      <span class="fd-link-text">test_stream</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_design/index.html">
+      <span class="fd-link-text">test_design</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_readme/index.html">
+      <span class="fd-link-text">test_readme</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_records/index.html">
+      <span class="fd-link-text">test_records</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_temporal/index.html">
+      <span class="fd-link-text">test_temporal</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_operators/index.html">
+      <span class="fd-link-text">test_operators</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder">
+      <summary class="fd-folder-summary" title="Toggle section: cocotb_benches">
+        <a class="fd-link" href="../../cocotb_benches/index.html">
+          <span class="fd-link-text">cocotb_benches</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_arrow_lite_stream_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_arrow_lite_stream_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_asof_backward_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_asof_backward_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_asof_feature_chain_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_asof_feature_chain_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_axi_bar_job_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_bar_job_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_axi_bar_noc_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_bar_noc_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_axi_burst_reader_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_burst_reader_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_axi_random_probe_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_random_probe_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_axi_sort_noc_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_axi_sort_noc_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_bar_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_bar_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_bitonic_sorter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_bitonic_sorter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_broadcast_hash_join_small_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_broadcast_hash_join_small_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_broadcast_hash_join_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_broadcast_hash_join_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_bucket_agg_chain_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_bucket_agg_chain_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_datetime_format_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_datetime_format_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_field_sum_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_field_sum_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_fixed_point_divide_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_divide_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_fixed_point_exp_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_exp_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_fixed_point_ln_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_ln_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_fixed_point_sqrt_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_fixed_point_sqrt_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_grouped_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_grouped_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_grouped_field_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_grouped_field_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_grouped_field_sum_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_grouped_field_sum_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_hash_grouped_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_hash_grouped_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_hero_datapath_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_hero_datapath_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_int32_keyed_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_keyed_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_int32_keyed_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_keyed_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_int32_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_int32_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_int32_record_gather_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_int32_record_gather_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_mask_dispatcher_exact_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_exact_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_mask_dispatcher_hash_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_hash_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_mask_dispatcher_multi_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_multi_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_mask_dispatcher_records_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_records_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_mask_dispatcher_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_mask_dispatcher_wide_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_mask_dispatcher_wide_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_membership_filter_single_word_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_membership_filter_single_word_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_key_membership_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_key_membership_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_keyed_state_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_keyed_state_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_market_feature_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_market_feature_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_normal_cdf_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_normal_cdf_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_pair_key_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_pair_key_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_range_partitioner_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_range_partitioner_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_record_batch_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_record_batch_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_record_gearbox_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_record_gearbox_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_rolling_extremum_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_rolling_extremum_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_rolling_moments_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_rolling_moments_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_row_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_row_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_row_predicate_filter_width_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_predicate_filter_width_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_row_unpack_slots_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_unpack_slots_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_row_unpack_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_unpack_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_row_unpack_wide_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_row_unpack_wide_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_scratchpad_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_scratchpad_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_session_gap_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_session_gap_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_stream_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_stream_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_streaming_dedup_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_streaming_dedup_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_streaming_top_k_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_streaming_top_k_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_stride_distributor_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_stride_distributor_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_time_bucket_key_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_time_bucket_key_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_wide_field_sum_aggregation_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_field_sum_aggregation_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_wide_group_table_sum_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_group_table_sum_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_wide_ingest_chain_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_ingest_chain_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_wide_row_map_alu_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_row_map_alu_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/dau_wide_row_predicate_filter_tb/index.html">
+      <span class="fd-link-text">cocotb_benches.dau_wide_row_predicate_filter_tb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../cocotb_benches/rate_probe/index.html">
+      <span class="fd-link-text">cocotb_benches.rate_probe</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hdl_cocotb/index.html">
+      <span class="fd-link-text">test_hdl_cocotb</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_composition/index.html">
+      <span class="fd-link-text">test_composition</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../exhaustive_sweep/index.html">
+      <span class="fd-link-text">exhaustive_sweep</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hdl_sources/index.html">
+      <span class="fd-link-text">test_hdl_sources</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_record_batch/index.html">
+      <span class="fd-link-text">test_record_batch</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_lazy_exports/index.html">
+      <span class="fd-link-text">test_lazy_exports</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hash_grouped/index.html">
+      <span class="fd-link-text">test_hash_grouped</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_tile_catalog/index.html">
+      <span class="fd-link-text">test_tile_catalog</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_element_types/index.html">
+      <span class="fd-link-text">test_element_types</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_core_contract/index.html">
+      <span class="fd-link-text">test_core_contract</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hdl_verilator/index.html">
+      <span class="fd-link-text">test_hdl_verilator</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_fixed_point_ln/index.html">
+      <span class="fd-link-text">test_fixed_point_ln</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_ohlcv_fixtures/index.html">
+      <span class="fd-link-text">test_ohlcv_fixtures</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hdl_elaboration/index.html">
+      <span class="fd-link-text">test_hdl_elaboration</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_datetime_format/index.html">
+      <span class="fd-link-text">test_datetime_format</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_generated_cores/index.html">
+      <span class="fd-link-text">test_generated_cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_fixed_point_exp/index.html">
+      <span class="fd-link-text">test_fixed_point_exp</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_benches_can_fail/index.html">
+      <span class="fd-link-text">test_benches_can_fail</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_contributed_cores/index.html">
+      <span class="fd-link-text">test_contributed_cores</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_validation_at_use/index.html">
+      <span class="fd-link-text">test_validation_at_use</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_public_tile_surface/index.html">
+      <span class="fd-link-text">test_public_tile_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_capability_contract/index.html">
+      <span class="fd-link-text">test_capability_contract</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_aggregation_goldens/index.html">
+      <span class="fd-link-text">test_aggregation_goldens</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_expression_lowering/index.html">
+      <span class="fd-link-text">test_expression_lowering</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_aggregation_tile_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_contributed_discovery/index.html">
+      <span class="fd-link-text">test_contributed_discovery</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_fixed_point_normal_cdf/index.html">
+      <span class="fd-link-text">test_fixed_point_normal_cdf</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_output_beat_declarations/index.html">
+      <span class="fd-link-text">test_output_beat_declarations</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_registers_and_capabilities/index.html">
+      <span class="fd-link-text">test_registers_and_capabilities</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_measured_from_matches_the_hdl/index.html">
+      <span class="fd-link-text">test_measured_from_matches_the_hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_parameter_bounds_match_the_hdl/index.html">
+      <span class="fd-link-text">test_parameter_bounds_match_the_hdl</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_hdl_parameter_bindings_resolve/index.html">
+      <span class="fd-link-text">test_hdl_parameter_bindings_resolve</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+</ul>
+    </div>
+  </nav>
+
+  <div class="fd-sidebar-footer">
+    <div class="fd-toolbar">
+      <a class="fd-toolbar-item" href="https://github.com/dau-dev/dau-core" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <div class="fd-theme-switch" role="group" aria-label="Theme">
+        <button type="button" class="fd-theme-option" data-fd-theme="light" aria-label="Light theme" title="Light theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></button>
+        <button type="button" class="fd-theme-option" data-fd-theme="dark" aria-label="Dark theme" title="Dark theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg></button>
+      </div>
+    </div>
+  </div>
+</aside>
+<button type="button" id="fd-sidebar-restore" class="fd-icon-button" aria-label="Expand sidebar" title="Expand sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+<div class="fd-sidebar-scrim" hidden></div>
+  <div id="fd-toc-popover">
+    <button type="button" class="fd-toc-trigger" aria-expanded="false" aria-controls="fd-toc-mobile" title="On this page">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg><span>On this page</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <div id="fd-toc-mobile" hidden><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#classes">Classes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#module-contents">Module Contents</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.tiles.TileKind">TileKind</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileKind.FILTER">TileKind.FILTER</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileKind.MAP">TileKind.MAP</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileKind.AGGREGATE">TileKind.AGGREGATE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileKind.GROUPED_AGGREGATE">TileKind.GROUPED_AGGREGATE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileKind.JOIN">TileKind.JOIN</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileKind.ORDER">TileKind.ORDER</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileKind.WINDOW">TileKind.WINDOW</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.tiles.InputSource">InputSource</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.InputSource.ROW_KEY">InputSource.ROW_KEY</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.InputSource.ROW_VALUE">InputSource.ROW_VALUE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.InputSource.LOAD_IMAGE">InputSource.LOAD_IMAGE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.InputSource.PREDICATE">InputSource.PREDICATE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.tiles.TileInput">TileInput</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileInput.ports">TileInput.ports</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileInput.mask">TileInput.mask</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileInput.shift">TileInput.shift</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileInput.width">TileInput.width</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileInput.parameter">TileInput.parameter</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileInput.source">TileInput.source</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileInput._one_way_in">TileInput._one_way_in()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileInput.config_ports">TileInput.config_ports()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileInput.parameters">TileInput.parameters()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.tiles.TileOutput">TileOutput</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileOutput.name">TileOutput.name</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileOutput.ports">TileOutput.ports</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.tiles.TileCore">TileCore</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileCore.core">TileCore.core</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileCore.wide">TileCore.wide</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileCore.as_">TileCore.as_</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileCore.inputs">TileCore.inputs</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileCore.output">TileCore.output</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileCore.config">TileCore.config</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileCore.derived">TileCore.derived</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileCore.params">TileCore.params</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileCore.label">TileCore.label</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileCore.taken">TileCore.taken()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileCore.wired_ports">TileCore.wired_ports()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileCore.parameters">TileCore.parameters()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.tiles.TileExpression">TileExpression</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileExpression.expression">TileExpression.expression</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileExpression.frame">TileExpression.frame</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileExpression.config">TileExpression.config</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileExpression._one_form">TileExpression._one_form()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileExpression.text">TileExpression.text</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileExpression.evaluate">TileExpression.evaluate()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileExpression.plan_json">TileExpression.plan_json()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileExpression.placeholders">TileExpression.placeholders()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.tiles.TileDefinition">TileDefinition</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileDefinition.name">TileDefinition.name</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileDefinition.kind">TileDefinition.kind</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileDefinition.description">TileDefinition.description</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileDefinition.literals">TileDefinition.literals</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileDefinition.arguments">TileDefinition.arguments</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileDefinition.expressions">TileDefinition.expressions</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileDefinition.cores">TileDefinition.cores</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileDefinition.result">TileDefinition.result</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileDefinition.core_named">TileDefinition.core_named()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileDefinition.placeholders">TileDefinition.placeholders()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileDefinition.config_for">TileDefinition.config_for()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileDefinition._config_target">TileDefinition._config_target()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileDefinition._chain_is_wired">TileDefinition._chain_is_wired()</a>
+  </li>
+</ul>
+</div>
+  </div>
+
+  <main id="fd-main">
+    <article class="fd-page">
+<nav class="fd-breadcrumbs" aria-label="Breadcrumbs">
+  <ol>
+    <li>
+      <a href="../../index.html">API Reference</a>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+    </li>
+    <li>
+      <a href="../index.html">dau_core</a>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+    </li>
+    <li aria-current="page">dau_core.tiles</li>
+  </ol>
+</nav>
+      <div class="fd-prose">
+  <section id="module-dau_core.tiles">
+<span id="dau-core-tiles"></span><h1>dau_core.tiles<a class="headerlink" href="#module-dau_core.tiles" title="Link to this heading">¶</a></h1>
+<p>Tile catalog models: what a query can ask the device for.</p>
+<p>A tile is a logical operation. It states the polars shapes it answers and
+the chain of cores that computes them, with the config port each input
+arrives on and the field each core writes. A core is one HDL building block
+(<a class="reference internal" href="../cores/index.html#dau_core.cores.CoreDefinition" title="dau_core.cores.CoreDefinition"><code class="xref py py-class docutils literal notranslate"><span class="pre">dau_core.cores.CoreDefinition</span></code></a>); the same core serves several
+tiles, and a tile may chain several cores.</p>
+<p>The catalog lives in dau-core’s hydra config tree
+(<code class="docutils literal notranslate"><span class="pre">dau_core/config/dau-tiles/tiles.yaml</span></code>), composed into the ccflow
+<code class="docutils literal notranslate"><span class="pre">ModelRegistry</span></code> at <code class="docutils literal notranslate"><span class="pre">/dau-tiles/&lt;name&gt;</span></code>. A contributing package declares
+its tiles in its own composed group, as it does its cores.</p>
+<p>How lanes are arranged is not a tile: replication behind the key
+dispatcher, the range partitioner ahead of sorter lanes and the front
+unpacker are chosen when a design is priced.</p>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.tiles.TileKind" title="dau_core.tiles.TileKind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TileKind</span></code></a></p></td>
+<td><p>What a tile does to the rows of a lane.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.tiles.InputSource" title="dau_core.tiles.InputSource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InputSource</span></code></a></p></td>
+<td><p>An input a core takes without a config port.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.tiles.TileInput" title="dau_core.tiles.TileInput"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TileInput</span></code></a></p></td>
+<td><p>Where a core takes one input.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.tiles.TileOutput" title="dau_core.tiles.TileOutput"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TileOutput</span></code></a></p></td>
+<td><p>What a core hands on: a name later cores (or the query) read it by,</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.tiles.TileCore" title="dau_core.tiles.TileCore"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TileCore</span></code></a></p></td>
+<td><p>One core in a tile's chain.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.tiles.TileExpression" title="dau_core.tiles.TileExpression"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TileExpression</span></code></a></p></td>
+<td><p>One polars shape a tile answers, as polars source text.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.tiles.TileDefinition" title="dau_core.tiles.TileDefinition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TileDefinition</span></code></a></p></td>
+<td><p>One logical operation: the polars shapes it answers and the cores</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.tiles.TileKind">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.tiles.</span></span><span class="sig-name descname"><span class="pre">TileKind</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dau_core.tiles.TileKind" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>What a tile does to the rows of a lane.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileKind.FILTER">
+<span class="sig-name descname"><span class="pre">FILTER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'filter'</span></em><a class="headerlink" href="#dau_core.tiles.TileKind.FILTER" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileKind.MAP">
+<span class="sig-name descname"><span class="pre">MAP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'map'</span></em><a class="headerlink" href="#dau_core.tiles.TileKind.MAP" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileKind.AGGREGATE">
+<span class="sig-name descname"><span class="pre">AGGREGATE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'aggregate'</span></em><a class="headerlink" href="#dau_core.tiles.TileKind.AGGREGATE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileKind.GROUPED_AGGREGATE">
+<span class="sig-name descname"><span class="pre">GROUPED_AGGREGATE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'grouped-aggregate'</span></em><a class="headerlink" href="#dau_core.tiles.TileKind.GROUPED_AGGREGATE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileKind.JOIN">
+<span class="sig-name descname"><span class="pre">JOIN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'join'</span></em><a class="headerlink" href="#dau_core.tiles.TileKind.JOIN" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileKind.ORDER">
+<span class="sig-name descname"><span class="pre">ORDER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'order'</span></em><a class="headerlink" href="#dau_core.tiles.TileKind.ORDER" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileKind.WINDOW">
+<span class="sig-name descname"><span class="pre">WINDOW</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'window'</span></em><a class="headerlink" href="#dau_core.tiles.TileKind.WINDOW" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.tiles.InputSource">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.tiles.</span></span><span class="sig-name descname"><span class="pre">InputSource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dau_core.tiles.InputSource" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>An input a core takes without a config port.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.InputSource.ROW_KEY">
+<span class="sig-name descname"><span class="pre">ROW_KEY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'row-key'</span></em><a class="headerlink" href="#dau_core.tiles.InputSource.ROW_KEY" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.InputSource.ROW_VALUE">
+<span class="sig-name descname"><span class="pre">ROW_VALUE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'row-value'</span></em><a class="headerlink" href="#dau_core.tiles.InputSource.ROW_VALUE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.InputSource.LOAD_IMAGE">
+<span class="sig-name descname"><span class="pre">LOAD_IMAGE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'load-image'</span></em><a class="headerlink" href="#dau_core.tiles.InputSource.LOAD_IMAGE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.InputSource.PREDICATE">
+<span class="sig-name descname"><span class="pre">PREDICATE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'predicate'</span></em><a class="headerlink" href="#dau_core.tiles.InputSource.PREDICATE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.tiles.TileInput">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.tiles.</span></span><span class="sig-name descname"><span class="pre">TileInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data:</span> <span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dau_core.tiles.TileInput" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../models/index.html#dau_core.models.CheckedModel" title="dau_core.models.CheckedModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dau_core.models.CheckedModel</span></code></a></p>
+<p>Where a core takes one input.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ports</span></code> are config ports: field selects for a column, value ports for
+a literal. A literal list or a column tested more than once names one
+port per use. <code class="docutils literal notranslate"><span class="pre">mask</span></code> is a config port with one bit per row field.
+<code class="docutils literal notranslate"><span class="pre">shift</span></code> and <code class="docutils literal notranslate"><span class="pre">width</span></code> place a column packed into a field with others:
+the config port taking its bit offset and the module parameter fixing
+its width. <code class="docutils literal notranslate"><span class="pre">parameter</span></code> is a module parameter the value fixes when the
+design is built. <code class="docutils literal notranslate"><span class="pre">source</span></code> is an input that arrives without a config
+port.</p>
+<p>In the catalog a single port is written as its name and several as a
+list (<a class="reference internal" href="#dau_core.tiles.TileCore.taken" title="dau_core.tiles.TileCore.taken"><code class="xref py py-meth docutils literal notranslate"><span class="pre">TileCore.taken()</span></code></a>).</p>
+<p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
+validated to form a valid model.</p>
+<p><cite>self</cite> is explicitly positional-only to allow <cite>self</cite> as a field name.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileInput.ports">
+<span class="sig-name descname"><span class="pre">ports</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">()</span></em><a class="headerlink" href="#dau_core.tiles.TileInput.ports" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileInput.mask">
+<span class="sig-name descname"><span class="pre">mask</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.tiles.TileInput.mask" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileInput.shift">
+<span class="sig-name descname"><span class="pre">shift</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.tiles.TileInput.shift" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileInput.width">
+<span class="sig-name descname"><span class="pre">width</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.tiles.TileInput.width" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileInput.parameter">
+<span class="sig-name descname"><span class="pre">parameter</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.tiles.TileInput.parameter" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileInput.source">
+<span class="sig-name descname"><span class="pre">source</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#dau_core.tiles.InputSource" title="dau_core.tiles.InputSource"><span class="pre">InputSource</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.tiles.TileInput.source" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.tiles.TileInput._one_way_in">
+<span class="sig-name descname"><span class="pre">_one_way_in</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_core.tiles.TileInput" title="dau_core.tiles.TileInput"><span class="pre">TileInput</span></a></span></span><a class="headerlink" href="#dau_core.tiles.TileInput._one_way_in" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.tiles.TileInput.config_ports">
+<span class="sig-name descname"><span class="pre">config_ports</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dau_core.tiles.TileInput.config_ports" title="Link to this definition">¶</a></dt>
+<dd><p>The config ports this input is wired to.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.tiles.TileInput.parameters">
+<span class="sig-name descname"><span class="pre">parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dau_core.tiles.TileInput.parameters" title="Link to this definition">¶</a></dt>
+<dd><p>The module parameters this input sets.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.tiles.TileOutput">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.tiles.</span></span><span class="sig-name descname"><span class="pre">TileOutput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data:</span> <span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dau_core.tiles.TileOutput" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../models/index.html#dau_core.models.CheckedModel" title="dau_core.models.CheckedModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dau_core.models.CheckedModel</span></code></a></p>
+<p>What a core hands on: a name later cores (or the query) read it by,
+and the config ports selecting the row fields it is written to.</p>
+<p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
+validated to form a valid model.</p>
+<p><cite>self</cite> is explicitly positional-only to allow <cite>self</cite> as a field name.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileOutput.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#dau_core.tiles.TileOutput.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileOutput.ports">
+<span class="sig-name descname"><span class="pre">ports</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#dau_core.tiles.TileOutput.ports" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.tiles.TileCore">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.tiles.</span></span><span class="sig-name descname"><span class="pre">TileCore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data:</span> <span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dau_core.tiles.TileCore" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../models/index.html#dau_core.models.CheckedModel" title="dau_core.models.CheckedModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dau_core.models.CheckedModel</span></code></a></p>
+<p>One core in a tile’s chain.</p>
+<p><code class="docutils literal notranslate"><span class="pre">wide</span></code> is the core doing the same job on the wide row stream, with the
+same config ports. <code class="docutils literal notranslate"><span class="pre">as</span></code> tells two uses of one core apart
+(<a class="reference internal" href="#dau_core.tiles.TileCore.label" title="dau_core.tiles.TileCore.label"><code class="xref py py-attr docutils literal notranslate"><span class="pre">label</span></code></a>). <code class="docutils literal notranslate"><span class="pre">inputs</span></code> maps a placeholder of the tile’s shapes, or
+an earlier core’s output, to where this core takes it: a config port’s
+name, a list of them, or a <a class="reference internal" href="#dau_core.tiles.TileInput" title="dau_core.tiles.TileInput"><code class="xref py py-class docutils literal notranslate"><span class="pre">TileInput</span></code></a>. <code class="docutils literal notranslate"><span class="pre">config</span></code> holds config
+ports at a fixed value, by the operator’s name or as an integer; a list
+is the values the staging chooses between. <code class="docutils literal notranslate"><span class="pre">derived</span></code> are config ports
+set from how the table is staged and <code class="docutils literal notranslate"><span class="pre">params</span></code> module parameters sized
+from the staged data, each with what sets it.</p>
+<p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
+validated to form a valid model.</p>
+<p><cite>self</cite> is explicitly positional-only to allow <cite>self</cite> as a field name.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileCore.core">
+<span class="sig-name descname"><span class="pre">core</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#dau_core.tiles.TileCore.core" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileCore.wide">
+<span class="sig-name descname"><span class="pre">wide</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.tiles.TileCore.wide" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileCore.as_">
+<span class="sig-name descname"><span class="pre">as_</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.tiles.TileCore.as_" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileCore.inputs">
+<span class="sig-name descname"><span class="pre">inputs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Annotated[collections.abc.Mapping[str,</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">tuple[str,</span> <span class="pre">...]</span> <span class="pre">|</span> <span class="pre">TileInput],</span> <span class="pre">*ReadOnly]</span></em><a class="headerlink" href="#dau_core.tiles.TileCore.inputs" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileCore.output">
+<span class="sig-name descname"><span class="pre">output</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#dau_core.tiles.TileOutput" title="dau_core.tiles.TileOutput"><span class="pre">TileOutput</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.tiles.TileCore.output" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileCore.config">
+<span class="sig-name descname"><span class="pre">config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Annotated[collections.abc.Mapping[str,</span> <span class="pre">ConfigValue],</span> <span class="pre">*ReadOnly]</span></em><a class="headerlink" href="#dau_core.tiles.TileCore.config" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileCore.derived">
+<span class="sig-name descname"><span class="pre">derived</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Annotated[collections.abc.Mapping[str,</span> <span class="pre">str],</span> <span class="pre">*ReadOnly]</span></em><a class="headerlink" href="#dau_core.tiles.TileCore.derived" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileCore.params">
+<span class="sig-name descname"><span class="pre">params</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Annotated[collections.abc.Mapping[str,</span> <span class="pre">str],</span> <span class="pre">*ReadOnly]</span></em><a class="headerlink" href="#dau_core.tiles.TileCore.params" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dau_core.tiles.TileCore.label">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">label</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#dau_core.tiles.TileCore.label" title="Link to this definition">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">as</span></code>, or the core’s
+name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>What the tile calls this use of the core</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.tiles.TileCore.taken">
+<span class="sig-name descname"><span class="pre">taken</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_core.tiles.TileInput" title="dau_core.tiles.TileInput"><span class="pre">TileInput</span></a></span></span><a class="headerlink" href="#dau_core.tiles.TileCore.taken" title="Link to this definition">¶</a></dt>
+<dd><p>Where this core takes the input called <code class="docutils literal notranslate"><span class="pre">name</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.tiles.TileCore.wired_ports">
+<span class="sig-name descname"><span class="pre">wired_ports</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dau_core.tiles.TileCore.wired_ports" title="Link to this definition">¶</a></dt>
+<dd><p>The config ports wired to an input or the output, or derived
+from the staging.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.tiles.TileCore.parameters">
+<span class="sig-name descname"><span class="pre">parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dau_core.tiles.TileCore.parameters" title="Link to this definition">¶</a></dt>
+<dd><p>The module parameters this use of the core sets.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.tiles.TileExpression">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.tiles.</span></span><span class="sig-name descname"><span class="pre">TileExpression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data:</span> <span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dau_core.tiles.TileExpression" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../models/index.html#dau_core.models.CheckedModel" title="dau_core.models.CheckedModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dau_core.models.CheckedModel</span></code></a></p>
+<p>One polars shape a tile answers, as polars source text.</p>
+<p><code class="docutils literal notranslate"><span class="pre">expression</span></code> is an expression over placeholder columns
+(<code class="docutils literal notranslate"><span class="pre">'pl.col(&quot;value&quot;)</span> <span class="pre">&lt;</span> <span class="pre">pl.col(&quot;bound&quot;)'</span></code>). <code class="docutils literal notranslate"><span class="pre">frame</span></code> is a query over a
+placeholder frame, for a shape an expression cannot state: a group-by,
+a join against <code class="docutils literal notranslate"><span class="pre">other</span></code>, a sort or a row limit
+(<code class="docutils literal notranslate"><span class="pre">'frame.sort(&quot;key&quot;,</span> <span class="pre">descending=True).head(k)'</span></code>). Either may read the
+tile’s arguments as bare names. <code class="docutils literal notranslate"><span class="pre">config</span></code> holds the config values this
+shape selects (the operator), keyed by port, or by <code class="docutils literal notranslate"><span class="pre">label.port</span></code> in a
+tile with more than one core.</p>
+<p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
+validated to form a valid model.</p>
+<p><cite>self</cite> is explicitly positional-only to allow <cite>self</cite> as a field name.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileExpression.expression">
+<span class="sig-name descname"><span class="pre">expression</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.tiles.TileExpression.expression" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileExpression.frame">
+<span class="sig-name descname"><span class="pre">frame</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.tiles.TileExpression.frame" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileExpression.config">
+<span class="sig-name descname"><span class="pre">config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Annotated[collections.abc.Mapping[str,</span> <span class="pre">ConfigValue],</span> <span class="pre">*ReadOnly]</span></em><a class="headerlink" href="#dau_core.tiles.TileExpression.config" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.tiles.TileExpression._one_form">
+<span class="sig-name descname"><span class="pre">_one_form</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_core.tiles.TileExpression" title="dau_core.tiles.TileExpression"><span class="pre">TileExpression</span></a></span></span><a class="headerlink" href="#dau_core.tiles.TileExpression._one_form" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dau_core.tiles.TileExpression.text">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">text</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#dau_core.tiles.TileExpression.text" title="Link to this definition">¶</a></dt>
+<dd><p>The shape’s polars source.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.tiles.TileExpression.evaluate">
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#dau_core.tiles.TileExpression.evaluate" title="Link to this definition">¶</a></dt>
+<dd><p>The shape as polars builds it: a <code class="docutils literal notranslate"><span class="pre">pl.Expr</span></code>, or a <code class="docutils literal notranslate"><span class="pre">LazyFrame</span></code>
+for a frame query. <code class="docutils literal notranslate"><span class="pre">names</span></code> binds what the text reads besides
+<code class="docutils literal notranslate"><span class="pre">pl</span></code>: the frames and the arguments. Needs polars installed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.tiles.TileExpression.plan_json">
+<span class="sig-name descname"><span class="pre">plan_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arguments</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dau_core.tiles.TileExpression.plan_json" title="Link to this definition">¶</a></dt>
+<dd><p>The shape as polars serializes it, over empty frames and with
+every argument at a sample value.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.tiles.TileExpression.placeholders">
+<span class="sig-name descname"><span class="pre">placeholders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arguments</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dau_core.tiles.TileExpression.placeholders" title="Link to this definition">¶</a></dt>
+<dd><p>Every placeholder the shape names: its columns in tree order,
+then the arguments it reads.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_core.tiles.TileDefinition">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.tiles.</span></span><span class="sig-name descname"><span class="pre">TileDefinition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data:</span> <span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dau_core.tiles.TileDefinition" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../models/index.html#dau_core.models.CheckedModel" title="dau_core.models.CheckedModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dau_core.models.CheckedModel</span></code></a></p>
+<p>One logical operation: the polars shapes it answers and the cores
+that compute them.</p>
+<p>Every shape of a tile runs on the same chain; they differ in the config
+values they select. Two chains answering the same shape are two tiles,
+and the compiler chooses between them.</p>
+<p><code class="docutils literal notranslate"><span class="pre">literals</span></code> are the placeholder columns that match a literal in the
+query; any other placeholder column matches a column, or a
+sub-expression another tile computes first. <code class="docutils literal notranslate"><span class="pre">arguments</span></code> are the bare
+names a shape reads where polars takes a number (a window size, a row
+limit). <code class="docutils literal notranslate"><span class="pre">result</span></code> says what a lane ending in this tile returns to the
+host and anything the host finishes.</p>
+<p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
+validated to form a valid model.</p>
+<p><cite>self</cite> is explicitly positional-only to allow <cite>self</cite> as a field name.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileDefinition.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#dau_core.tiles.TileDefinition.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileDefinition.kind">
+<span class="sig-name descname"><span class="pre">kind</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#dau_core.tiles.TileKind" title="dau_core.tiles.TileKind"><span class="pre">TileKind</span></a></em><a class="headerlink" href="#dau_core.tiles.TileDefinition.kind" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileDefinition.description">
+<span class="sig-name descname"><span class="pre">description</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#dau_core.tiles.TileDefinition.description" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileDefinition.literals">
+<span class="sig-name descname"><span class="pre">literals</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">()</span></em><a class="headerlink" href="#dau_core.tiles.TileDefinition.literals" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileDefinition.arguments">
+<span class="sig-name descname"><span class="pre">arguments</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">()</span></em><a class="headerlink" href="#dau_core.tiles.TileDefinition.arguments" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileDefinition.expressions">
+<span class="sig-name descname"><span class="pre">expressions</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#dau_core.tiles.TileExpression" title="dau_core.tiles.TileExpression"><span class="pre">TileExpression</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#dau_core.tiles.TileDefinition.expressions" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileDefinition.cores">
+<span class="sig-name descname"><span class="pre">cores</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#dau_core.tiles.TileCore" title="dau_core.tiles.TileCore"><span class="pre">TileCore</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#dau_core.tiles.TileDefinition.cores" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_core.tiles.TileDefinition.result">
+<span class="sig-name descname"><span class="pre">result</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_core.tiles.TileDefinition.result" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.tiles.TileDefinition.core_named">
+<span class="sig-name descname"><span class="pre">core_named</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_core.tiles.TileCore" title="dau_core.tiles.TileCore"><span class="pre">TileCore</span></a></span></span><a class="headerlink" href="#dau_core.tiles.TileDefinition.core_named" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.tiles.TileDefinition.placeholders">
+<span class="sig-name descname"><span class="pre">placeholders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expression</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dau_core.tiles.TileExpression" title="dau_core.tiles.TileExpression"><span class="pre">TileExpression</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dau_core.tiles.TileDefinition.placeholders" title="Link to this definition">¶</a></dt>
+<dd><p>The placeholders <code class="docutils literal notranslate"><span class="pre">expression</span></code> names, arguments included.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.tiles.TileDefinition.config_for">
+<span class="sig-name descname"><span class="pre">config_for</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expression</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dau_core.tiles.TileExpression" title="dau_core.tiles.TileExpression"><span class="pre">TileExpression</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ConfigValue</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dau_core.tiles.TileDefinition.config_for" title="Link to this definition">¶</a></dt>
+<dd><p>The fixed config values of each core, by label, when the tile
+answers <code class="docutils literal notranslate"><span class="pre">expression</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.tiles.TileDefinition._config_target">
+<span class="sig-name descname"><span class="pre">_config_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dau_core.tiles.TileDefinition._config_target" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_core.tiles.TileDefinition._chain_is_wired">
+<span class="sig-name descname"><span class="pre">_chain_is_wired</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_core.tiles.TileDefinition" title="dau_core.tiles.TileDefinition"><span class="pre">TileDefinition</span></a></span></span><a class="headerlink" href="#dau_core.tiles.TileDefinition._chain_is_wired" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+      </div>
+<nav class="fd-pagination" aria-label="Pagination">
+  <a class="fd-pagination-card fd-pagination-prev" href="../temporal/index.html" title="Previous: dau_core.temporal">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m15 18-6-6 6-6"/></svg>
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Previous</span>
+      <span class="fd-pagination-title">dau_core.temporal</span>
+    </span>
+  </a>
+  <a class="fd-pagination-card fd-pagination-next" href="../workflows/index.html" title="Next: dau_core.workflows">
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Next</span>
+      <span class="fd-pagination-title">dau_core.workflows</span>
+    </span>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+  </a>
+</nav>
+<footer id="fd-footer">
+  <p class="fd-footer-meta"><span>&#169; the dau-core authors</span><span>Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.</span>
+  </p>
+</footer>
+    </article>
+  </main>
+<nav id="fd-toc" aria-label="On this page">
+  <div class="fd-toc-header">
+    <p class="fd-toc-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>On this page</p>
+    <button type="button" class="fd-icon-button fd-toc-collapse" aria-label="Collapse page navigation" title="Collapse page navigation" aria-controls="fd-toc" aria-expanded="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/></svg></button>
+  </div>
+  <div class="fd-toc-body"><svg class="fd-toc-rail" aria-hidden="true" preserveAspectRatio="none">
+      <path class="fd-toc-track" fill="none" />
+      <path class="fd-toc-thumb" fill="none" />
+    </svg><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#classes">Classes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#module-contents">Module Contents</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.tiles.TileKind">TileKind</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileKind.FILTER">TileKind.FILTER</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileKind.MAP">TileKind.MAP</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileKind.AGGREGATE">TileKind.AGGREGATE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileKind.GROUPED_AGGREGATE">TileKind.GROUPED_AGGREGATE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileKind.JOIN">TileKind.JOIN</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileKind.ORDER">TileKind.ORDER</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileKind.WINDOW">TileKind.WINDOW</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.tiles.InputSource">InputSource</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.InputSource.ROW_KEY">InputSource.ROW_KEY</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.InputSource.ROW_VALUE">InputSource.ROW_VALUE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.InputSource.LOAD_IMAGE">InputSource.LOAD_IMAGE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.InputSource.PREDICATE">InputSource.PREDICATE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.tiles.TileInput">TileInput</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileInput.ports">TileInput.ports</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileInput.mask">TileInput.mask</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileInput.shift">TileInput.shift</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileInput.width">TileInput.width</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileInput.parameter">TileInput.parameter</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileInput.source">TileInput.source</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileInput._one_way_in">TileInput._one_way_in()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileInput.config_ports">TileInput.config_ports()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileInput.parameters">TileInput.parameters()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.tiles.TileOutput">TileOutput</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileOutput.name">TileOutput.name</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileOutput.ports">TileOutput.ports</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.tiles.TileCore">TileCore</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileCore.core">TileCore.core</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileCore.wide">TileCore.wide</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileCore.as_">TileCore.as_</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileCore.inputs">TileCore.inputs</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileCore.output">TileCore.output</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileCore.config">TileCore.config</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileCore.derived">TileCore.derived</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileCore.params">TileCore.params</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileCore.label">TileCore.label</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileCore.taken">TileCore.taken()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileCore.wired_ports">TileCore.wired_ports()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileCore.parameters">TileCore.parameters()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.tiles.TileExpression">TileExpression</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileExpression.expression">TileExpression.expression</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileExpression.frame">TileExpression.frame</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileExpression.config">TileExpression.config</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileExpression._one_form">TileExpression._one_form()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileExpression.text">TileExpression.text</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileExpression.evaluate">TileExpression.evaluate()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileExpression.plan_json">TileExpression.plan_json()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileExpression.placeholders">TileExpression.placeholders()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.tiles.TileDefinition">TileDefinition</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileDefinition.name">TileDefinition.name</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileDefinition.kind">TileDefinition.kind</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileDefinition.description">TileDefinition.description</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileDefinition.literals">TileDefinition.literals</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileDefinition.arguments">TileDefinition.arguments</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileDefinition.expressions">TileDefinition.expressions</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileDefinition.cores">TileDefinition.cores</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileDefinition.result">TileDefinition.result</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileDefinition.core_named">TileDefinition.core_named()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileDefinition.placeholders">TileDefinition.placeholders()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileDefinition.config_for">TileDefinition.config_for()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileDefinition._config_target">TileDefinition._config_target()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_core.tiles.TileDefinition._chain_is_wired">TileDefinition._chain_is_wired()</a>
+  </li>
+</ul>
+
+  </div>
+  <div class="fd-toc-actions">
+    <a class="fd-toc-action" href="https://github.com/dau-dev/dau-core/edit/HEAD/autoapi/dau_core/tiles/index.rst" target="_blank" rel="noopener" title="Edit this page"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span>Edit this page</span></a>
+    <a class="fd-toc-action" href="../../../_sources/autoapi/dau_core/tiles/index.rst.txt" rel="nofollow" title="View source"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><span>View source</span></a>
+  </div>
+</nav>
+<button type="button" id="fd-toc-restore" class="fd-icon-button" aria-label="Expand page navigation" title="Expand page navigation" aria-controls="fd-toc" aria-expanded="false"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/></svg></button>
+</div>
+<dialog id="fd-search-dialog" aria-label="Search">
+  <form class="fd-search-panel" method="dialog" role="search">
+    <div class="fd-search-field">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="search" id="fd-search-input" autocomplete="off" spellcheck="false" placeholder="Search documentation..." aria-label="Search" />
+      <kbd class="fd-kbd">Esc</kbd>
+    </div>
+    <div id="fd-search-results" role="listbox" aria-label="Search results"></div>
+    <p id="fd-search-empty" class="fd-search-empty" hidden>No results found.</p>
+  </form>
+</dialog>
+  </body>
+</html>

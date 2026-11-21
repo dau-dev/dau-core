@@ -512,6 +512,11 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/reference/tile-catalog.html">
+      <span class="fd-link-text">Tile catalog</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
     <a class="fd-link" href="../../docs/src/reference/registry-guards.html">
       <span class="fd-link-text">Registry-wide guards</span>
     </a>
@@ -659,6 +664,11 @@ window.runMermaid = runMermaid;</script>
   <li class="fd-tree-item">
     <a class="fd-link" href="../../autoapi/dau_core/temporal/index.html">
       <span class="fd-link-text">dau_core.temporal</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_core/tiles/index.html">
+      <span class="fd-link-text">dau_core.tiles</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -1093,6 +1103,11 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_tile_catalog/index.html">
+      <span class="fd-link-text">test_tile_catalog</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
     <a class="fd-link" href="../../autoapi/test_element_types/index.html">
       <span class="fd-link-text">test_element_types</span>
     </a>
@@ -1270,6 +1285,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">ccflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">LazyRegistry</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.cores</span><span class="w"> </span><span class="kn">import</span> <span class="n">ContractKind</span><span class="p">,</span> <span class="n">CoreDefinition</span><span class="p">,</span> <span class="n">CoreKind</span><span class="p">,</span> <span class="n">CoreRole</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.tiles</span><span class="w"> </span><span class="kn">import</span> <span class="n">TileDefinition</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">ccflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelRegistry</span>
@@ -1279,10 +1295,28 @@ window.runMermaid = runMermaid;</script>
 <span class="n">_CORE_ENTRY_KEYS</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">CoreDefinition</span><span class="o">.</span><span class="n">model_fields</span><span class="p">)</span> <span class="o">|</span> <span class="p">{</span><span class="s2">"_target_"</span><span class="p">}</span>
 
 
+<span class="c1"># the hydra target of a catalog tile, which shares the composed groups with cores</span>
+<span class="n">_TILE_TARGET</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">TileDefinition</span><span class="o">.</span><span class="vm">__module__</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">TileDefinition</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2">"</span>
+
+
 <div class="viewcode-block" id="UnknownCoreError">
 <a class="viewcode-back" href="../../autoapi/dau_core/registry/index.html#dau_core.registry.UnknownCoreError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">UnknownCoreError</span><span class="p">(</span><span class="ne">KeyError</span><span class="p">):</span>
     <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="UnknownTileError">
+<a class="viewcode-back" href="../../autoapi/dau_core/registry/index.html#dau_core.registry.UnknownTileError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">UnknownTileError</span><span class="p">(</span><span class="ne">KeyError</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="DuplicateTileError">
+<a class="viewcode-back" href="../../autoapi/dau_core/registry/index.html#dau_core.registry.DuplicateTileError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DuplicateTileError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Two composed groups declare the same tile name."""</span></div>
 
 
 
@@ -1367,7 +1401,7 @@ window.runMermaid = runMermaid;</script>
             <span class="p">)</span>
         <span class="n">found</span><span class="p">,</span> <span class="n">found_in</span> <span class="o">=</span> <span class="n">model</span><span class="p">,</span> <span class="n">group_name</span>
     <span class="k">if</span> <span class="n">found</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">known</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">({</span><span class="n">entry</span> <span class="k">for</span> <span class="n">_name</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">_groups</span><span class="p">()</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">_declared_names</span><span class="p">(</span><span class="n">group</span><span class="p">)})</span>
+        <span class="n">known</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">loaded_cores</span><span class="p">())</span>
         <span class="k">raise</span> <span class="n">UnknownCoreError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"unknown core </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2">; known: </span><span class="si">{</span><span class="n">known</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">found</span></div>
 
@@ -1438,6 +1472,8 @@ window.runMermaid = runMermaid;</script>
             <span class="n">pending</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">get_pending_config</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">LazyRegistry</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="n">pending</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">pending</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"lowering"</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">pending</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">_CORE_ENTRY_KEYS</span><span class="p">:</span>
                 <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">pending</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">pending</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"_target_"</span><span class="p">)</span> <span class="o">==</span> <span class="n">_TILE_TARGET</span><span class="p">:</span>
+                <span class="k">continue</span>  <span class="c1"># a tile of the catalog, not a core</span>
             <span class="n">model</span> <span class="o">=</span> <span class="n">_entry</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">model</span><span class="o">.</span><span class="n">lowering</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">found</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
@@ -1509,6 +1545,44 @@ window.runMermaid = runMermaid;</script>
         <span class="n">visit</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
     <span class="n">ordered</span> <span class="o">=</span> <span class="p">[</span><span class="n">definition</span> <span class="k">for</span> <span class="n">definition</span> <span class="ow">in</span> <span class="n">loaded_cores</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">definition</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">selected</span><span class="p">]</span>
     <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">definition</span><span class="o">.</span><span class="n">source_path</span><span class="p">()</span> <span class="k">for</span> <span class="n">definition</span> <span class="ow">in</span> <span class="n">ordered</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="loaded_tiles">
+<a class="viewcode-back" href="../../autoapi/dau_core/registry/index.html#dau_core.registry.loaded_tiles">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">loaded_tiles</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TileDefinition</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Every composed tile of the catalog, name -&gt; definition, dau-core's</span>
+<span class="sd">    own first.</span>
+
+<span class="sd">    dau-core's tiles are composed at ``/dau-tiles/&lt;tile-name&gt;`` from</span>
+<span class="sd">    ``dau-tiles/tiles.yaml``. A ``TileDefinition`` a contributing package</span>
+<span class="sd">    composed under its own group is returned too, as a contributed core is;</span>
+<span class="sd">    a name declared twice is refused.</span>
+<span class="sd">    """</span>
+    <span class="n">tiles</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TileDefinition</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">_groups</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">_declared_names</span><span class="p">(</span><span class="n">group</span><span class="p">):</span>
+            <span class="n">pending</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">get_pending_config</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">LazyRegistry</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">pending</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">pending</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"_target_"</span><span class="p">)</span> <span class="o">!=</span> <span class="n">_TILE_TARGET</span><span class="p">:</span>
+                <span class="k">continue</span>  <span class="c1"># a core; do not build it to find that out</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">TileDefinition</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">tiles</span> <span class="ow">and</span> <span class="n">tiles</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">model</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">DuplicateTileError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"tile </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> is declared by more than one composed group (the second under </span><span class="si">{</span><span class="n">group_name</span><span class="si">!r}</span><span class="s2">)"</span><span class="p">)</span>
+            <span class="n">tiles</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span>
+    <span class="k">return</span> <span class="n">tiles</span></div>
+
+
+
+<div class="viewcode-block" id="tile">
+<a class="viewcode-back" href="../../autoapi/dau_core/registry/index.html#dau_core.registry.tile">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">tile</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TileDefinition</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The composed tile called ``name``."""</span>
+    <span class="n">tiles</span> <span class="o">=</span> <span class="n">loaded_tiles</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">tiles</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">UnknownTileError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"unknown tile </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2">; known: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">tiles</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tiles</span><span class="p">[</span><span class="n">name</span><span class="p">]</span></div>
 
 </pre></div>
 

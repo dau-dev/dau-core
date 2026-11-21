@@ -1,0 +1,465 @@
+dau_core.tiles
+==============
+
+.. py:module:: dau_core.tiles
+
+.. autoapi-nested-parse::
+
+   Tile catalog models: what a query can ask the device for.
+
+   A tile is a logical operation. It states the polars shapes it answers and
+   the chain of cores that computes them, with the config port each input
+   arrives on and the field each core writes. A core is one HDL building block
+   (:class:`dau_core.cores.CoreDefinition`); the same core serves several
+   tiles, and a tile may chain several cores.
+
+   The catalog lives in dau-core's hydra config tree
+   (``dau_core/config/dau-tiles/tiles.yaml``), composed into the ccflow
+   ``ModelRegistry`` at ``/dau-tiles/<name>``. A contributing package declares
+   its tiles in its own composed group, as it does its cores.
+
+   How lanes are arranged is not a tile: replication behind the key
+   dispatcher, the range partitioner ahead of sorter lanes and the front
+   unpacker are chosen when a design is priced.
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   dau_core.tiles.TileKind
+   dau_core.tiles.InputSource
+   dau_core.tiles.TileInput
+   dau_core.tiles.TileOutput
+   dau_core.tiles.TileCore
+   dau_core.tiles.TileExpression
+   dau_core.tiles.TileDefinition
+
+
+Module Contents
+---------------
+
+.. py:class:: TileKind(*args, **kwds)
+
+   Bases: :py:obj:`enum.Enum`
+
+
+   What a tile does to the rows of a lane.
+
+
+   .. py:attribute:: FILTER
+      :value: 'filter'
+
+
+
+   .. py:attribute:: MAP
+      :value: 'map'
+
+
+
+   .. py:attribute:: AGGREGATE
+      :value: 'aggregate'
+
+
+
+   .. py:attribute:: GROUPED_AGGREGATE
+      :value: 'grouped-aggregate'
+
+
+
+   .. py:attribute:: JOIN
+      :value: 'join'
+
+
+
+   .. py:attribute:: ORDER
+      :value: 'order'
+
+
+
+   .. py:attribute:: WINDOW
+      :value: 'window'
+
+
+
+.. py:class:: InputSource(*args, **kwds)
+
+   Bases: :py:obj:`enum.Enum`
+
+
+   An input a core takes without a config port.
+
+
+   .. py:attribute:: ROW_KEY
+      :value: 'row-key'
+
+
+
+   .. py:attribute:: ROW_VALUE
+      :value: 'row-value'
+
+
+
+   .. py:attribute:: LOAD_IMAGE
+      :value: 'load-image'
+
+
+
+   .. py:attribute:: PREDICATE
+      :value: 'predicate'
+
+
+
+.. py:class:: TileInput(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   Where a core takes one input.
+
+   ``ports`` are config ports: field selects for a column, value ports for
+   a literal. A literal list or a column tested more than once names one
+   port per use. ``mask`` is a config port with one bit per row field.
+   ``shift`` and ``width`` place a column packed into a field with others:
+   the config port taking its bit offset and the module parameter fixing
+   its width. ``parameter`` is a module parameter the value fixes when the
+   design is built. ``source`` is an input that arrives without a config
+   port.
+
+   In the catalog a single port is written as its name and several as a
+   list (:meth:`TileCore.taken`).
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: ports
+      :type:  tuple[str, ...]
+      :value: ()
+
+
+
+   .. py:attribute:: mask
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:attribute:: shift
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:attribute:: width
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:attribute:: parameter
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:attribute:: source
+      :type:  InputSource | None
+      :value: None
+
+
+
+   .. py:method:: _one_way_in() -> TileInput
+
+
+   .. py:method:: config_ports() -> tuple[str, ...]
+
+      The config ports this input is wired to.
+
+
+
+   .. py:method:: parameters() -> tuple[str, ...]
+
+      The module parameters this input sets.
+
+
+
+.. py:class:: TileOutput(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   What a core hands on: a name later cores (or the query) read it by,
+   and the config ports selecting the row fields it is written to.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: name
+      :type:  str
+
+
+   .. py:attribute:: ports
+      :type:  tuple[str, ...]
+
+
+.. py:class:: TileCore(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   One core in a tile's chain.
+
+   ``wide`` is the core doing the same job on the wide row stream, with the
+   same config ports. ``as`` tells two uses of one core apart
+   (:attr:`label`). ``inputs`` maps a placeholder of the tile's shapes, or
+   an earlier core's output, to where this core takes it: a config port's
+   name, a list of them, or a :class:`TileInput`. ``config`` holds config
+   ports at a fixed value, by the operator's name or as an integer; a list
+   is the values the staging chooses between. ``derived`` are config ports
+   set from how the table is staged and ``params`` module parameters sized
+   from the staged data, each with what sets it.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: core
+      :type:  str
+
+
+   .. py:attribute:: wide
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:attribute:: as_
+      :type:  str | None
+
+
+   .. py:attribute:: inputs
+      :type:  Annotated[collections.abc.Mapping[str, str | tuple[str, ...] | TileInput], *ReadOnly]
+
+
+   .. py:attribute:: output
+      :type:  TileOutput | None
+      :value: None
+
+
+
+   .. py:attribute:: config
+      :type:  Annotated[collections.abc.Mapping[str, ConfigValue], *ReadOnly]
+
+
+   .. py:attribute:: derived
+      :type:  Annotated[collections.abc.Mapping[str, str], *ReadOnly]
+
+
+   .. py:attribute:: params
+      :type:  Annotated[collections.abc.Mapping[str, str], *ReadOnly]
+
+
+   .. py:property:: label
+      :type: str
+
+
+      ``as``, or the core's
+      name.
+
+      :type: What the tile calls this use of the core
+
+
+   .. py:method:: taken(name: str) -> TileInput
+
+      Where this core takes the input called ``name``.
+
+
+
+   .. py:method:: wired_ports() -> tuple[str, ...]
+
+      The config ports wired to an input or the output, or derived
+      from the staging.
+
+
+
+   .. py:method:: parameters() -> tuple[str, ...]
+
+      The module parameters this use of the core sets.
+
+
+
+.. py:class:: TileExpression(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   One polars shape a tile answers, as polars source text.
+
+   ``expression`` is an expression over placeholder columns
+   (``'pl.col("value") < pl.col("bound")'``). ``frame`` is a query over a
+   placeholder frame, for a shape an expression cannot state: a group-by,
+   a join against ``other``, a sort or a row limit
+   (``'frame.sort("key", descending=True).head(k)'``). Either may read the
+   tile's arguments as bare names. ``config`` holds the config values this
+   shape selects (the operator), keyed by port, or by ``label.port`` in a
+   tile with more than one core.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: expression
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:attribute:: frame
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:attribute:: config
+      :type:  Annotated[collections.abc.Mapping[str, ConfigValue], *ReadOnly]
+
+
+   .. py:method:: _one_form() -> TileExpression
+
+
+   .. py:property:: text
+      :type: str
+
+
+      The shape's polars source.
+
+
+   .. py:method:: evaluate(**names: Any) -> Any
+
+      The shape as polars builds it: a ``pl.Expr``, or a ``LazyFrame``
+      for a frame query. ``names`` binds what the text reads besides
+      ``pl``: the frames and the arguments. Needs polars installed.
+
+
+
+   .. py:method:: plan_json(arguments: tuple[str, ...] = ()) -> dict[str, Any]
+
+      The shape as polars serializes it, over empty frames and with
+      every argument at a sample value.
+
+
+
+   .. py:method:: placeholders(arguments: tuple[str, ...] = ()) -> tuple[str, ...]
+
+      Every placeholder the shape names: its columns in tree order,
+      then the arguments it reads.
+
+
+
+.. py:class:: TileDefinition(/, **data: Any)
+
+   Bases: :py:obj:`dau_core.models.CheckedModel`
+
+
+   One logical operation: the polars shapes it answers and the cores
+   that compute them.
+
+   Every shape of a tile runs on the same chain; they differ in the config
+   values they select. Two chains answering the same shape are two tiles,
+   and the compiler chooses between them.
+
+   ``literals`` are the placeholder columns that match a literal in the
+   query; any other placeholder column matches a column, or a
+   sub-expression another tile computes first. ``arguments`` are the bare
+   names a shape reads where polars takes a number (a window size, a row
+   limit). ``result`` says what a lane ending in this tile returns to the
+   host and anything the host finishes.
+
+   Create a new model by parsing and validating input data from keyword arguments.
+
+   Raises [`ValidationError`][pydantic_core.ValidationError] if the input data cannot be
+   validated to form a valid model.
+
+   `self` is explicitly positional-only to allow `self` as a field name.
+
+
+   .. py:attribute:: name
+      :type:  str
+
+
+   .. py:attribute:: kind
+      :type:  TileKind
+
+
+   .. py:attribute:: description
+      :type:  str
+
+
+   .. py:attribute:: literals
+      :type:  tuple[str, ...]
+      :value: ()
+
+
+
+   .. py:attribute:: arguments
+      :type:  tuple[str, ...]
+      :value: ()
+
+
+
+   .. py:attribute:: expressions
+      :type:  tuple[TileExpression, ...]
+
+
+   .. py:attribute:: cores
+      :type:  tuple[TileCore, ...]
+
+
+   .. py:attribute:: result
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:method:: core_named(label: str) -> TileCore
+
+
+   .. py:method:: placeholders(expression: TileExpression) -> tuple[str, ...]
+
+      The placeholders ``expression`` names, arguments included.
+
+
+
+   .. py:method:: config_for(expression: TileExpression) -> dict[str, dict[str, ConfigValue]]
+
+      The fixed config values of each core, by label, when the tile
+      answers ``expression``.
+
+
+
+   .. py:method:: _config_target(key: str) -> tuple[str, str]
+
+
+   .. py:method:: _chain_is_wired() -> TileDefinition
+
+

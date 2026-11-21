@@ -108,6 +108,11 @@
     </a>
   </li>
   <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/reference/tile-catalog.html">
+      <span class="fd-link-text">Tile catalog</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
     <a class="fd-link" href="../../../docs/src/reference/registry-guards.html">
       <span class="fd-link-text">Registry-wide guards</span>
     </a>
@@ -255,6 +260,11 @@
   <li class="fd-tree-item">
     <a class="fd-link" href="../temporal/index.html">
       <span class="fd-link-text">dau_core.temporal</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../tiles/index.html">
+      <span class="fd-link-text">dau_core.tiles</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -689,6 +699,11 @@
     </a>
   </li>
   <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_tile_catalog/index.html">
+      <span class="fd-link-text">test_tile_catalog</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
     <a class="fd-link" href="../../test_element_types/index.html">
       <span class="fd-link-text">test_element_types</span>
     </a>
@@ -848,7 +863,16 @@
     <a href="#dau_core.registry._CORE_ENTRY_KEYS">_CORE_ENTRY_KEYS</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registry._TILE_TARGET">_TILE_TARGET</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.registry.UnknownCoreError">UnknownCoreError</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registry.UnknownTileError">UnknownTileError</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registry.DuplicateTileError">DuplicateTileError</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.registry.DuplicateCoreError">DuplicateCoreError</a>
@@ -885,6 +909,12 @@
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.registry.sources_for">sources_for()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registry.loaded_tiles">loaded_tiles()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registry.tile">tile()</a>
   </li>
 </ul>
 </div>
@@ -927,6 +957,9 @@ author who does not have this repository – see
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registry._CORE_ENTRY_KEYS" title="dau_core.registry._CORE_ENTRY_KEYS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_CORE_ENTRY_KEYS</span></code></a></p></td>
 <td><p></p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registry._TILE_TARGET" title="dau_core.registry._TILE_TARGET"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_TILE_TARGET</span></code></a></p></td>
+<td><p></p></td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -936,6 +969,12 @@ author who does not have this repository – see
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registry.UnknownCoreError" title="dau_core.registry.UnknownCoreError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UnknownCoreError</span></code></a></p></td>
 <td><p>Mapping key not found.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registry.UnknownTileError" title="dau_core.registry.UnknownTileError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UnknownTileError</span></code></a></p></td>
+<td><p>Mapping key not found.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registry.DuplicateTileError" title="dau_core.registry.DuplicateTileError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DuplicateTileError</span></code></a></p></td>
+<td><p>Two composed groups declare the same tile name.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registry.DuplicateCoreError" title="dau_core.registry.DuplicateCoreError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DuplicateCoreError</span></code></a></p></td>
 <td><p>Two composed groups declare the same core name.</p></td>
@@ -980,6 +1019,12 @@ author who does not have this repository – see
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registry.sources_for" title="dau_core.registry.sources_for"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sources_for</span></code></a>(*names) → tuple[pathlib.Path, ...]</p></td>
 <td><p>Dependency-closed, deduplicated source paths for a set of cores —</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_core.registry.loaded_tiles" title="dau_core.registry.loaded_tiles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">loaded_tiles</span></code></a>() → collections.abc.Mapping[str, dau_core.tiles.TileDefinition]</p></td>
+<td><p>Every composed tile of the catalog, name -&gt; definition, dau-core's</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.registry.tile" title="dau_core.registry.tile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tile</span></code></a>(name) → dau_core.tiles.TileDefinition</p></td>
+<td><p>The composed tile called <code class="docutils literal notranslate"><span class="pre">name</span></code>.</p></td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -990,11 +1035,32 @@ author who does not have this repository – see
 <span class="sig-prename descclassname"><span class="pre">dau_core.registry.</span></span><span class="sig-name descname"><span class="pre">_CORE_ENTRY_KEYS</span></span><a class="headerlink" href="#dau_core.registry._CORE_ENTRY_KEYS" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_core.registry._TILE_TARGET">
+<span class="sig-prename descclassname"><span class="pre">dau_core.registry.</span></span><span class="sig-name descname"><span class="pre">_TILE_TARGET</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'dau_core.tiles.dau_core.tiles.TileDefinition'</span></em><a class="headerlink" href="#dau_core.registry._TILE_TARGET" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="py exception">
 <dt class="sig sig-object py" id="dau_core.registry.UnknownCoreError">
 <em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.registry.</span></span><span class="sig-name descname"><span class="pre">UnknownCoreError</span></span><a class="reference internal" href="../../../_modules/dau_core/registry.html#UnknownCoreError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registry.UnknownCoreError" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">KeyError</span></code></p>
 <p>Mapping key not found.</p>
+<p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="dau_core.registry.UnknownTileError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.registry.</span></span><span class="sig-name descname"><span class="pre">UnknownTileError</span></span><a class="reference internal" href="../../../_modules/dau_core/registry.html#UnknownTileError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registry.UnknownTileError" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">KeyError</span></code></p>
+<p>Mapping key not found.</p>
+<p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="dau_core.registry.DuplicateTileError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.registry.</span></span><span class="sig-name descname"><span class="pre">DuplicateTileError</span></span><a class="reference internal" href="../../../_modules/dau_core/registry.html#DuplicateTileError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registry.DuplicateTileError" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">ValueError</span></code></p>
+<p>Two composed groups declare the same tile name.</p>
 <p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -1115,6 +1181,23 @@ registry order, so both refuse.</p>
 packages and dependencies first, in registry order.</p>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.registry.loaded_tiles">
+<span class="sig-prename descclassname"><span class="pre">dau_core.registry.</span></span><span class="sig-name descname"><span class="pre">loaded_tiles</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">collections.abc.Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../tiles/index.html#dau_core.tiles.TileDefinition" title="dau_core.tiles.TileDefinition"><span class="pre">dau_core.tiles.TileDefinition</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/registry.html#loaded_tiles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registry.loaded_tiles" title="Link to this definition">¶</a></dt>
+<dd><p>Every composed tile of the catalog, name -&gt; definition, dau-core’s
+own first.</p>
+<p>dau-core’s tiles are composed at <code class="docutils literal notranslate"><span class="pre">/dau-tiles/&lt;tile-name&gt;</span></code> from
+<code class="docutils literal notranslate"><span class="pre">dau-tiles/tiles.yaml</span></code>. A <code class="docutils literal notranslate"><span class="pre">TileDefinition</span></code> a contributing package
+composed under its own group is returned too, as a contributed core is;
+a name declared twice is refused.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_core.registry.tile">
+<span class="sig-prename descclassname"><span class="pre">dau_core.registry.</span></span><span class="sig-name descname"><span class="pre">tile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../tiles/index.html#dau_core.tiles.TileDefinition" title="dau_core.tiles.TileDefinition"><span class="pre">dau_core.tiles.TileDefinition</span></a></span></span><a class="reference internal" href="../../../_modules/dau_core/registry.html#tile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registry.tile" title="Link to this definition">¶</a></dt>
+<dd><p>The composed tile called <code class="docutils literal notranslate"><span class="pre">name</span></code>.</p>
+</dd></dl>
+
 </section>
 </section>
 
@@ -1167,7 +1250,16 @@ packages and dependencies first, in registry order.</p>
     <a href="#dau_core.registry._CORE_ENTRY_KEYS">_CORE_ENTRY_KEYS</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registry._TILE_TARGET">_TILE_TARGET</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.registry.UnknownCoreError">UnknownCoreError</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registry.UnknownTileError">UnknownTileError</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registry.DuplicateTileError">DuplicateTileError</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.registry.DuplicateCoreError">DuplicateCoreError</a>
@@ -1204,6 +1296,12 @@ packages and dependencies first, in registry order.</p>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_core.registry.sources_for">sources_for()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registry.loaded_tiles">loaded_tiles()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_core.registry.tile">tile()</a>
   </li>
 </ul>
 
