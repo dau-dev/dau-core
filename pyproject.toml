@@ -189,6 +189,7 @@ pages = [
     "docs/src/how-to/measure-a-resource-envelope.md",
     "docs/src/how-to/develop.md",
     "docs/src/reference/core-definition.md",
+    "docs/src/reference/tile-catalog.md",
     "docs/src/reference/registry-guards.md",
     "docs/src/explanation/why-cores-are-declared-in-config.md",
     "docs/src/explanation/why-each-tile-has-a-golden-model.md",
