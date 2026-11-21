@@ -23,6 +23,7 @@ from typing import TYPE_CHECKING
 from ccflow import LazyRegistry
 
 from .cores import ContractKind, CoreDefinition, CoreKind, CoreRole
+from .tiles import TileDefinition
 
 if TYPE_CHECKING:
     from ccflow import ModelRegistry
@@ -32,8 +33,20 @@ if TYPE_CHECKING:
 _CORE_ENTRY_KEYS = frozenset(CoreDefinition.model_fields) | {"_target_"}
 
 
+# the hydra target of a catalog tile, which shares the composed groups with cores
+_TILE_TARGET = f"{TileDefinition.__module__}.{TileDefinition.__qualname__}"
+
+
 class UnknownCoreError(KeyError):
     pass
+
+
+class UnknownTileError(KeyError):
+    pass
+
+
+class DuplicateTileError(ValueError):
+    """Two composed groups declare the same tile name."""
 
 
 class DuplicateCoreError(ValueError):
@@ -103,7 +116,7 @@ def core(name: str) -> CoreDefinition:
             )
         found, found_in = model, group_name
     if found is None:
-        known = sorted({entry for _name, group in _groups() for entry in _declared_names(group)})
+        known = sorted(loaded_cores())
         raise UnknownCoreError(f"unknown core {name!r}; known: {known}")
     return found
 
@@ -168,6 +181,8 @@ def lowered_cores() -> tuple[CoreDefinition, ...]:
             pending = group.get_pending_config(name) if isinstance(group, LazyRegistry) else None
             if pending is not None and pending.get("lowering") is None and pending.keys() <= _CORE_ENTRY_KEYS:
                 continue
+            if pending is not None and pending.get("_target_") == _TILE_TARGET:
+                continue  # a tile of the catalog, not a core
             model = _entry(group, name)
             if model is not None and model.lowering is not None:
                 found.append(model)
@@ -224,3 +239,35 @@ def sources_for(*names: str) -> tuple[Path, ...]:
         visit(name)
     ordered = [definition for definition in loaded_cores().values() if definition.name in selected]
     return tuple(definition.source_path() for definition in ordered)
+
+
+def loaded_tiles() -> Mapping[str, TileDefinition]:
+    """Every composed tile of the catalog, name -> definition, dau-core's
+    own first.
+
+    dau-core's tiles are composed at ``/dau-tiles/<tile-name>`` from
+    ``dau-tiles/tiles.yaml``. A ``TileDefinition`` a contributing package
+    composed under its own group is returned too, as a contributed core is;
+    a name declared twice is refused.
+    """
+    tiles: dict[str, TileDefinition] = {}
+    for group_name, group in _groups():
+        for name in _declared_names(group):
+            pending = group.get_pending_config(name) if isinstance(group, LazyRegistry) else None
+            if pending is not None and pending.get("_target_") != _TILE_TARGET:
+                continue  # a core; do not build it to find that out
+            model = group[name]
+            if not isinstance(model, TileDefinition):
+                continue
+            if name in tiles and tiles[name] is not model:
+                raise DuplicateTileError(f"tile {name!r} is declared by more than one composed group (the second under {group_name!r})")
+            tiles[name] = model
+    return tiles
+
+
+def tile(name: str) -> TileDefinition:
+    """The composed tile called ``name``."""
+    tiles = loaded_tiles()
+    if name not in tiles:
+        raise UnknownTileError(f"unknown tile {name!r}; known: {sorted(tiles)}")
+    return tiles[name]

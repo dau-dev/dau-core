@@ -1,3 +1,4 @@
 defaults:
   - dau-core: cores
+  - dau-tiles: tiles
   - _self_

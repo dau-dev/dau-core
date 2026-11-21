@@ -1,0 +1,421 @@
+# @package dau-tiles
+# The tile catalog: what a query can ask the device for, loaded into the
+# ccflow ModelRegistry at /dau-tiles/<tile-name>.
+#
+# A tile is a logical operation. It states the polars shapes it answers and
+# the cores that compute them. A core is one HDL building block
+# (/dau-core/<core-name>); several tiles use the same core, and a tile may
+# chain several cores. Two chains that answer the same shape are two tiles
+# (in-list, in-range and in-set all answer is_in), and the compiler picks
+# one from how the table is staged.
+#
+# literals     placeholder columns that match a literal in the query. Any
+#              other placeholder column matches a column, or a
+#              sub-expression another tile computes first.
+# arguments    bare names a shape reads where polars takes a number.
+# expressions  the polars shapes the tile answers, as polars source:
+#   expression   an expression over placeholder columns
+#   frame        a query over a placeholder `frame`, for a shape an
+#                expression cannot state (a group-by, a join against
+#                `other`, a sort, a row limit)
+#   config       the config values this shape selects (the operator)
+# cores        the chain that computes it, in order. `wide` is the core that
+#              does the same job on the wide row stream; a tile that needs
+#              more than one lane has none, because the wide stream feeds
+#              one lane.
+#   inputs     placeholder (or an earlier core's output) -> where the core
+#              takes it: a config port (a field select for a column, a
+#              value port for a literal) or a list of them; `mask`, a port
+#              with one bit per field; `shift` and `width`, which place a
+#              packed column; `parameter`, a module parameter the value
+#              fixes; `source`, an input that arrives without a config port
+#   output     the name of what the core produces and the config ports that
+#              select the fields it is written to; a filter writes no field
+#   config     config ports held at a fixed value, by the operator's name;
+#              a list means the staging decides which
+#   derived    config ports set from how the table is staged
+#   params     module parameters sized from the staged data
+# result       what a lane ending in the tile returns to the host, and
+#              anything the host finishes
+#
+# How lanes are arranged is not a tile: replication behind the key
+# dispatcher, the range partitioner ahead of sorter lanes and the front
+# unpacker are chosen when a design is priced.
+
+compare:
+  _target_: dau_core.tiles.TileDefinition
+  name: compare
+  kind: filter
+  description: Keeps the rows where a column compares true against a constant. A string constant is compared by its
+    dictionary id, and the constant may be a scalar an earlier pass computed.
+  literals: [bound]
+  expressions:
+    - {expression: 'pl.col("value") == pl.col("bound")', config: {cfg_op0: EQ}}
+    - {expression: 'pl.col("value") != pl.col("bound")', config: {cfg_op0: NE}}
+    - {expression: 'pl.col("value") < pl.col("bound")', config: {cfg_op0: LT}}
+    - {expression: 'pl.col("value") <= pl.col("bound")', config: {cfg_op0: LE}}
+    - {expression: 'pl.col("value") > pl.col("bound")', config: {cfg_op0: GT}}
+    - {expression: 'pl.col("value") >= pl.col("bound")', config: {cfg_op0: GE}}
+  cores:
+    - core: row-predicate-filter
+      wide: wide-row-predicate-filter
+      inputs: {value: cfg_field0, bound: cfg_constant0}
+
+between:
+  _target_: dau_core.tiles.TileDefinition
+  name: between
+  kind: filter
+  description: Keeps the rows where a column is inside a closed constant range.
+  literals: [low, high]
+  expressions:
+    - expression: pl.col("value").is_between(pl.col("low"), pl.col("high"))
+  cores:
+    - core: row-predicate-filter
+      wide: wide-row-predicate-filter
+      inputs:
+        value: [cfg_field0, cfg_field1]
+        low: cfg_constant0
+        high: cfg_constant1
+      config: {cfg_op0: GE, cfg_op1: LE, cfg_combine01: AND}
+
+in-list:
+  _target_: dau_core.tiles.TileDefinition
+  name: in-list
+  kind: filter
+  description: Keeps the rows whose column equals one of up to three constants. A string match on a dictionary column
+    is answered here when the pattern matches up to three entries.
+  literals: [values, pattern]
+  expressions:
+    - expression: pl.col("value").is_in(pl.col("values"))
+    - expression: pl.col("value").str.starts_with(pl.col("pattern"))
+    - expression: pl.col("value").str.ends_with(pl.col("pattern"))
+    - expression: pl.col("value").str.contains(pl.col("pattern"), literal=True)
+  cores:
+    - core: row-predicate-filter
+      wide: wide-row-predicate-filter
+      inputs:
+        value: [cfg_field0, cfg_field1, cfg_field2]
+        values: [cfg_constant0, cfg_constant1, cfg_constant2]
+        pattern: [cfg_constant0, cfg_constant1, cfg_constant2]    # the ids of the entries it matches
+      config: {cfg_op0: EQ, cfg_op1: EQ, cfg_op2: EQ, cfg_combine01: OR, cfg_combine2: OR}
+
+in-range:
+  _target_: dau_core.tiles.TileDefinition
+  name: in-range
+  kind: filter
+  description: Keeps the rows whose dictionary id is in one unbroken run of ids. Answers a set, or a string match,
+    whose entries are neighbours in the dictionary.
+  literals: [values, pattern]
+  expressions:
+    - expression: pl.col("value").is_in(pl.col("values"))
+    - expression: pl.col("value").str.starts_with(pl.col("pattern"))
+    - expression: pl.col("value").str.ends_with(pl.col("pattern"))
+    - expression: pl.col("value").str.contains(pl.col("pattern"), literal=True)
+  cores:
+    - core: row-predicate-filter
+      wide: wide-row-predicate-filter
+      inputs:
+        value: [cfg_field0, cfg_field1]
+        values: [cfg_constant0, cfg_constant1]     # the lowest and highest id
+        pattern: [cfg_constant0, cfg_constant1]
+      config: {cfg_op0: GE, cfg_op1: LE, cfg_combine01: AND}
+
+in-set:
+  _target_: dau_core.tiles.TileDefinition
+  name: in-set
+  kind: filter
+  description: Keeps (or drops) the rows whose dictionary-encoded key is in a set loaded before the scan. The set is a
+    literal list too wide for the predicate filter, or the keys of another table.
+  literals: [values]
+  expressions:
+    - {expression: 'pl.col("key").is_in(pl.col("values"))', config: {cfg_mode: SEMI}}
+    - {expression: '~pl.col("key").is_in(pl.col("values"))', config: {cfg_mode: ANTI}}
+    - {frame: 'frame.join(other, left_on="key", right_on="other_key", how="semi")', config: {cfg_mode: SEMI}}
+    - {frame: 'frame.join(other, left_on="key", right_on="other_key", how="anti")', config: {cfg_mode: ANTI}}
+  cores:
+    - core: key-membership-filter
+      inputs:
+        key: {source: row-key}
+        values: {source: load-image}       # streamed in the LOAD phase as a bitmap
+        other_key: {source: load-image}
+      config: {cfg_kind: EXACT_BITMAP, cfg_load: load_phase}
+      params: {KEY_SPACE: the size of the key's dictionary}
+
+compare-columns:
+  _target_: dau_core.tiles.TileDefinition
+  name: compare-columns
+  kind: filter
+  description: Keeps the rows where one column compares true against another, by testing their difference against zero.
+  expressions:
+    - {expression: 'pl.col("left") == pl.col("right")', config: {row-predicate-filter.cfg_op0: EQ}}
+    - {expression: 'pl.col("left") != pl.col("right")', config: {row-predicate-filter.cfg_op0: NE}}
+    - {expression: 'pl.col("left") < pl.col("right")', config: {row-predicate-filter.cfg_op0: LT}}
+    - {expression: 'pl.col("left") <= pl.col("right")', config: {row-predicate-filter.cfg_op0: LE}}
+    - {expression: 'pl.col("left") > pl.col("right")', config: {row-predicate-filter.cfg_op0: GT}}
+    - {expression: 'pl.col("left") >= pl.col("right")', config: {row-predicate-filter.cfg_op0: GE}}
+  cores:
+    - core: row-map-alu
+      wide: wide-row-map-alu
+      inputs: {left: cfg_src_a_field, right: cfg_src_b_field}
+      output: {name: difference, ports: [cfg_dst_field]}
+      config: {cfg_op: SUB}
+    - core: row-predicate-filter
+      wide: wide-row-predicate-filter
+      inputs: {difference: cfg_field0}
+      config: {cfg_constant0: 0}
+
+all-of:
+  _target_: dau_core.tiles.TileDefinition
+  name: all-of
+  kind: filter
+  description: Keeps the rows every condition accepts. Up to three comparisons share one filter stage; more chain a
+    second stage.
+  expressions:
+    - expression: pl.col("first") & pl.col("second")
+  cores:
+    - core: row-predicate-filter
+      wide: wide-row-predicate-filter
+      inputs: {first: {source: predicate}, second: {source: predicate}}
+      config: {cfg_combine01: AND}
+
+any-of:
+  _target_: dau_core.tiles.TileDefinition
+  name: any-of
+  kind: filter
+  description: Keeps the rows either condition accepts. Each condition filters a lane of its own and the host adds the
+    lanes, so the conditions must be provably disjoint.
+  expressions:
+    - expression: pl.col("first") | pl.col("second")
+  cores:
+    - core: row-predicate-filter
+      inputs: {first: {source: predicate}, second: {source: predicate}}
+
+arithmetic:
+  _target_: dau_core.tiles.TileDefinition
+  name: arithmetic
+  kind: map
+  description: Derives a column from two columns. A product of fixed-point columns is shifted back to one scale.
+  expressions:
+    - {expression: 'pl.col("left") + pl.col("right")', config: {cfg_op: ADD}}
+    - {expression: 'pl.col("left") - pl.col("right")', config: {cfg_op: SUB}}
+    - {expression: 'pl.col("left") * pl.col("right")', config: {cfg_op: [MUL, MULSHR]}}
+  cores:
+    - core: row-map-alu
+      wide: wide-row-map-alu
+      inputs: {left: cfg_src_a_field, right: cfg_src_b_field}
+      output: {name: result, ports: [cfg_dst_field]}
+      derived: {cfg_shift: the fractional bits a fixed-point product is shifted down by}
+
+scale-by-rate:
+  _target_: dau_core.tiles.TileDefinition
+  name: scale-by-rate
+  kind: map
+  description: Applies a rate to a base column as base -/+ floor(base * rate), so the literal one never reaches the
+    datapath.
+  expressions:
+    - {expression: 'pl.col("base") * (1 - pl.col("rate"))', config: {apply.cfg_op: SUB}}
+    - {expression: 'pl.col("base") * (1 + pl.col("rate"))', config: {apply.cfg_op: ADD}}
+  cores:
+    - core: row-map-alu
+      wide: wide-row-map-alu
+      as: product
+      inputs: {base: cfg_src_a_field, rate: cfg_src_b_field}
+      output: {name: product, ports: [cfg_dst_field]}
+      config: {cfg_op: [MUL, MULSHR]}
+      derived: {cfg_shift: the rate's fractional bits}
+    - core: row-map-alu
+      wide: wide-row-map-alu
+      as: apply
+      inputs: {base: cfg_src_a_field, product: cfg_src_b_field}
+      output: {name: result, ports: [cfg_dst_field]}
+
+floor-divide:
+  _target_: dau_core.tiles.TileDefinition
+  name: floor-divide
+  kind: map
+  description: Derives the floor of one column divided by another. The query must rule out a zero denominator.
+  expressions:
+    - expression: pl.col("numerator") // pl.col("denominator")
+  cores:
+    - core: fixed-point-divide
+      inputs: {numerator: cfg_numerator_field, denominator: cfg_denominator_field}
+      output: {name: quotient, ports: [cfg_dst_field]}
+      params: {FRACTIONAL_BITS: the denominator's scale less the numerator's}
+
+sum:
+  _target_: dau_core.tiles.TileDefinition
+  name: sum
+  kind: aggregate
+  description: Sums a column over the rows that reach the end of the lane, and counts them.
+  expressions:
+    - expression: pl.col("value").sum()
+    - expression: pl.col("value").count()
+    - expression: pl.len()
+  cores:
+    - core: field-sum-aggregation
+      wide: wide-field-sum-aggregation
+      inputs: {value: {mask: cfg_field_mask}}
+  result: one record per lane with a sum for each masked field and the row count; the host combines sums (a ratio of
+    two sums)
+
+sum-where:
+  _target_: dau_core.tiles.TileDefinition
+  name: sum-where
+  kind: aggregate
+  description: Sums a column over the rows a condition accepts. The condition is any filter tile; it runs in a lane of
+    its own.
+  expressions:
+    - expression: pl.when(pl.col("condition")).then(pl.col("value")).otherwise(0).sum()
+  cores:
+    - core: row-predicate-filter
+      inputs: {condition: {source: predicate}}
+    - core: field-sum-aggregation
+      inputs: {value: {mask: cfg_field_mask}}
+  result: one record for the lane with the masked field's sum
+
+group-sum:
+  _target_: dau_core.tiles.TileDefinition
+  name: group-sum
+  kind: grouped-aggregate
+  description: Per-group sums, counts and means over a table staged in group-key order.
+  expressions:
+    - frame: frame.group_by("group").agg(pl.col("value").sum())
+    - frame: frame.group_by("group").agg(pl.col("value").mean())
+    - frame: frame.group_by("group").agg(pl.len())
+  cores:
+    - core: grouped-field-sum-aggregation
+      inputs: {value: {mask: cfg_field_mask}, group: {source: row-key}}
+  result: one record per group with the key, a sum for each masked field and the row count; the host divides a mean
+
+group-sum-hashed:
+  _target_: dau_core.tiles.TileDefinition
+  name: group-sum-hashed
+  kind: grouped-aggregate
+  description: Per-group sums, counts and means over a table in any order.
+  expressions:
+    - frame: frame.group_by("group").agg(pl.col("value").sum())
+    - frame: frame.group_by("group").agg(pl.col("value").mean())
+    - frame: frame.group_by("group").agg(pl.len())
+  cores:
+    - core: hash-grouped-aggregation
+      inputs: {value: {mask: cfg_field_mask}, group: {source: row-key}}
+      params: {CAPACITY: the number of groups the table can hold}
+  result: one record per group with the key, a sum for each masked field and the row count; the host divides a mean
+
+group-sum-table:
+  _target_: dau_core.tiles.TileDefinition
+  name: group-sum-table
+  kind: grouped-aggregate
+  description: Per-group sums, counts and means where the group key packs into at most ten bits.
+  expressions:
+    - frame: frame.group_by("group").agg(pl.col("value").sum())
+    - frame: frame.group_by("group").agg(pl.col("value").mean())
+    - frame: frame.group_by("group").agg(pl.len())
+  cores:
+    - core: wide-group-table-sum
+      inputs:
+        value: {mask: cfg_field_mask}
+        group: {shift: cfg_group_shift, width: GROUP_BITS}
+  result: one record per group with the key, a sum for each masked field and the row count; the host divides a mean
+
+group-lanes:
+  _target_: dau_core.tiles.TileDefinition
+  name: group-lanes
+  kind: grouped-aggregate
+  description: Per-group sums, counts and means where the staging names every group. Each group gets a lane that keeps
+    its rows and sums them.
+  expressions:
+    - frame: frame.group_by("group").agg(pl.col("value").sum())
+    - frame: frame.group_by("group").agg(pl.col("value").mean())
+    - frame: frame.group_by("group").agg(pl.len())
+  cores:
+    - core: row-predicate-filter
+      inputs: {group: [cfg_field0, cfg_field1]}
+      config: {cfg_op0: GE, cfg_op1: LE, cfg_combine01: AND}
+      derived:
+        cfg_constant0: the lowest packed key of the lane's group
+        cfg_constant1: the highest packed key of the lane's group
+    - core: field-sum-aggregation
+      inputs: {value: {mask: cfg_field_mask}}
+  result: one record per lane with a sum for each masked field and the row count; the host labels each lane with its
+    group and divides a mean
+
+group-stats:
+  _target_: dau_core.tiles.TileDefinition
+  name: group-stats
+  kind: grouped-aggregate
+  description: Per-group first, last, minimum, maximum and sum over a table staged in group-key order.
+  expressions:
+    - frame: frame.group_by("group").agg(pl.col("value").min())
+    - frame: frame.group_by("group").agg(pl.col("value").max())
+    - frame: frame.group_by("group").agg(pl.col("value").first())
+    - frame: frame.group_by("group").agg(pl.col("value").last())
+  cores:
+    - core: grouped-field-aggregation
+      inputs: {value: {source: row-value}, group: {source: row-key}}
+  result: one eleven-word record per group; the host picks the statistics it asked for
+
+hash-join:
+  _target_: dau_core.tiles.TileDefinition
+  name: hash-join
+  kind: join
+  description: Joins each row to the row of a loaded table with the same dictionary-encoded key, and drops rows with no
+    match.
+  expressions:
+    - frame: frame.join(other, left_on="key", right_on="other_key", how="inner")
+  cores:
+    - core: broadcast-hash-join
+      inputs:
+        key: {source: row-key}
+        other_key: {source: load-image}    # the other table, streamed in the LOAD phase as quad rows
+      output: {name: joined, ports: [cfg_out0_sel, cfg_out1_sel, cfg_out2_sel]}
+      config: {cfg_load: load_phase}
+      params: {KEY_SPACE: the size of the join key's dictionary}
+
+top-k:
+  _target_: dau_core.tiles.TileDefinition
+  name: top-k
+  kind: order
+  description: Keeps the k rows with the largest key.
+  arguments: [k]
+  expressions:
+    - frame: frame.sort("key", descending=True).head(k)
+  cores:
+    - core: streaming-top-k
+      inputs: {key: {source: row-key}, k: {parameter: K}}
+  result: the k rows with the largest key, largest first, ties by arrival
+
+sort:
+  _target_: dau_core.tiles.TileDefinition
+  name: sort
+  kind: order
+  description: Returns the rows in key order. Splitters chosen at staging fan the rows out to one sorter lane per key
+    range.
+  expressions:
+    - frame: frame.sort("key")
+    - frame: frame.sort("key", descending=True)
+  cores:
+    - core: bitonic-sorter
+      inputs: {key: {source: row-key}}
+  result: the rows of each lane in key order, ties by arrival; the lanes concatenate into the sorted table
+
+rolling:
+  _target_: dau_core.tiles.TileDefinition
+  name: rolling
+  kind: window
+  description: Sum, mean, variance and standard deviation of a column over the last rows of each partition, for a table
+    staged grouped by partition.
+  arguments: [window]
+  expressions:
+    - expression: pl.col("value").rolling_sum(window_size=window).over("partition")
+    - expression: pl.col("value").rolling_mean(window_size=window).over("partition")
+    - expression: pl.col("value").rolling_var(window_size=window).over("partition")
+    - expression: pl.col("value").rolling_std(window_size=window).over("partition")
+  cores:
+    - core: rolling-moments
+      inputs:
+        value: {source: row-value}
+        partition: {source: row-key}
+        window: {parameter: WINDOW}
+  result: one record per full window with its count, sum and sum of squares; the host divides for the mean, variance
+    and standard deviation
