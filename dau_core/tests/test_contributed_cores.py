@@ -73,6 +73,9 @@ def test_a_name_collision_is_raised_not_resolved(registry_group) -> None:
     registry_group("vendor-tiles", "int32-map-alu")
     with pytest.raises(DuplicateCoreError, match="declared by more than one composed group"):
         loaded_cores()
+    # the keyed lookup refuses it too, without building the whole palette
+    with pytest.raises(DuplicateCoreError, match="declared by more than one composed group"):
+        core("int32-map-alu")
 
 
 def test_an_absent_core_still_reports_unknown() -> None:

@@ -256,12 +256,6 @@ class TileDefinition(CheckedModel):
     result: str | None = None
     scale_invariant: bool = False
 
-    def core_named(self, label: str) -> TileCore:
-        for used in self.cores:
-            if used.label == label:
-                return used
-        raise KeyError(label)
-
     def placeholders(self, expression: TileExpression) -> tuple[str, ...]:
         """The placeholders ``expression`` names, arguments included."""
         return expression.placeholders(self.arguments)
@@ -290,9 +284,10 @@ class TileDefinition(CheckedModel):
         labels = [used.label for used in self.cores]
         if len(set(labels)) != len(labels):
             raise ValueError(f"two uses of one core need distinct labels (as): {labels}")
+        by_label = dict(zip(labels, self.cores, strict=True))
         for expression in self.expressions:
             for label, values in self.config_for(expression).items():
-                wired = set(values) & set(self.core_named(label).wired_ports())
+                wired = set(values) & set(by_label[label].wired_ports())
                 if wired:
                     raise ValueError(f"{label}: {sorted(wired)} are wired or derived and cannot also hold a fixed value")
         if self.kind is TileKind.MAP and self.cores[-1].output is None:

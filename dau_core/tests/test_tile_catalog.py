@@ -161,6 +161,20 @@ def test_a_contributed_tile_is_found_apart_from_the_catalog() -> None:
         root.remove("vendor-tiles")
 
 
+def test_a_tile_validates_where_polars_is_not_installed(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Reading a shape's placeholders needs polars. Without it the
+    declaration still loads, and a compiler, which has polars, checks the
+    wiring."""
+    from dau_core.tiles import TileExpression
+
+    def unavailable(self: TileExpression, arguments: tuple[str, ...] = ()) -> dict:
+        raise ImportError("polars")
+
+    monkeypatch.setattr(TileExpression, "plan_json", unavailable)
+    unwired = _declared(cores=[{"core": "row-predicate-filter", "inputs": {"value": "cfg_field0"}}])
+    assert TileDefinition.model_validate(unwired).name == "compare"
+
+
 def test_two_uses_of_one_core_need_labels_and_qualified_config() -> None:
     chain = [
         {
