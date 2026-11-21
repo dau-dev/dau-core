@@ -34,6 +34,7 @@ Functions
    test_tile_catalog.test_a_miswired_tile_is_refused
    test_tile_catalog.test_a_packed_column_names_its_field_offset_and_width
    test_tile_catalog.test_a_contributed_tile_is_found_apart_from_the_catalog
+   test_tile_catalog.test_a_tile_validates_where_polars_is_not_installed
    test_tile_catalog.test_two_uses_of_one_core_need_labels_and_qualified_config
    test_tile_catalog.test_the_catalog_composes_and_an_unknown_tile_is_refused
    test_tile_catalog._input_ports
@@ -60,6 +61,13 @@ Module Contents
 
    A tile composed under another package's group is a tile, and a
    compiler can ask for the ones dau-core did not declare.
+
+
+.. py:function:: test_a_tile_validates_where_polars_is_not_installed(monkeypatch: pytest.MonkeyPatch) -> None
+
+   Reading a shape's placeholders needs polars. Without it the
+   declaration still loads, and a compiler, which has polars, checks the
+   wiring.
 
 
 .. py:function:: test_two_uses_of_one_core_need_labels_and_qualified_config() -> None

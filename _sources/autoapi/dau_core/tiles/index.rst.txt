@@ -452,9 +452,6 @@ Module Contents
 
 
 
-   .. py:method:: core_named(label: str) -> TileCore
-
-
    .. py:method:: placeholders(expression: TileExpression) -> tuple[str, ...]
 
       The placeholders ``expression`` names, arguments included.
