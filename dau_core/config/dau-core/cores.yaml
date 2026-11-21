@@ -1868,6 +1868,12 @@ bitonic-sorter:
 
 row-predicate-filter:
   _target_: dau_core.cores.CoreDefinition
+  config_operators:
+    cfg_op0: dau_core.operators:PredicateOp
+    cfg_op1: dau_core.operators:PredicateOp
+    cfg_op2: dau_core.operators:PredicateOp
+    cfg_combine01: dau_core.operators:PredicateCombine
+    cfg_combine2: dau_core.operators:PredicateCombine
   name: row-predicate-filter
   role: row-filter
   kind: operator
@@ -2434,6 +2440,8 @@ fixed-point-sqrt:
       wns_ns: 7.591
 row-map-alu:
   _target_: dau_core.cores.CoreDefinition
+  config_operators:
+    cfg_op: dau_core.operators:MapOp
   name: row-map-alu
   role: row-map
   kind: operator
@@ -2865,6 +2873,9 @@ grouped-field-sum-aggregation:
 
 key-membership-filter:
   _target_: dau_core.cores.CoreDefinition
+  config_operators:
+    cfg_kind: dau_core.operators:MembershipKind
+    cfg_mode: dau_core.operators:MembershipMode
   name: key-membership-filter
   role: membership-filter
   kind: operator
@@ -3901,6 +3912,12 @@ identity-registers:
 
 wide-row-predicate-filter:
   _target_: dau_core.cores.CoreDefinition
+  config_operators:
+    cfg_op0: dau_core.operators:PredicateOp
+    cfg_op1: dau_core.operators:PredicateOp
+    cfg_op2: dau_core.operators:PredicateOp
+    cfg_combine01: dau_core.operators:PredicateCombine
+    cfg_combine2: dau_core.operators:PredicateCombine
   name: wide-row-predicate-filter
   role: row-filter
   kind: operator
@@ -3999,6 +4016,8 @@ wide-row-predicate-filter:
 
 wide-row-map-alu:
   _target_: dau_core.cores.CoreDefinition
+  config_operators:
+    cfg_op: dau_core.operators:MapOp
   name: wide-row-map-alu
   role: row-map
   kind: operator
