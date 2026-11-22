@@ -19,7 +19,6 @@ Functions
 
 .. autoapisummary::
 
-   test_hdl_cocotb._lane_models
    test_hdl_cocotb._bar_noc_sim_sv
    test_hdl_cocotb._sort_noc_sim_sv
    test_hdl_cocotb.test_int32_stream_aggregation_runs_real_cocotb_against_systemverilog
@@ -107,13 +106,6 @@ Module Contents
 
 
 .. py:data:: _SV_TB_DIR
-
-.. py:function:: _lane_models(scan_composition)
-
-   dau-build's lane and core instance models. dau-build is released after
-   dau-core, so its current release still names them LaneTile and
-   TileInstance.
-
 
 .. py:function:: _bar_noc_sim_sv(tmp_path: pathlib.Path) -> pathlib.Path
 
