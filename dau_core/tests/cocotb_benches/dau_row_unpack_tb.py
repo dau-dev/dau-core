@@ -461,7 +461,7 @@ async def bypass_waits_for_backpressured_unpack_tail(dut):
 async def bypass_torn_row_reports_stream_error(dut):
     # a bypass batch ending on a w0 (odd word count) is a torn quad row: the
     # torn w0 is never forwarded (nor tagged last) and the batch is invalidated
-    # with ERR_STREAM -- the quad-row-tile convention (input_last legal only on
+    # with ERR_STREAM -- the quad-row-core convention (input_last legal only on
     # a w1)
     await _start(dut)
     dut.cfg_bypass.value = 1

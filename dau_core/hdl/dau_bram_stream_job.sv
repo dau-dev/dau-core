@@ -1,6 +1,6 @@
 `default_nettype none
 
-// BRAM-staged stream job runner (reusable primitive, tile-agnostic).
+// BRAM-staged stream job runner (reusable primitive, core-agnostic).
 //
 // The host stages an encoded record batch in the input BRAM (via XDMA MM
 // writes), sets the input length, and pulses start. This runner streams the

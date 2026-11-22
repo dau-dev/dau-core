@@ -26,7 +26,7 @@ from typing import Any
 
 from pydantic import Field
 
-from .composition import ScanCompositionSpec, CoreSpec
+from .composition import CoreSpec, ScanCompositionSpec
 from .cores import ContractKind
 from .design import DauDesign, OperatorUnit, UnitKind
 from .models import CheckedModel
@@ -170,14 +170,14 @@ class CapabilityContract(CheckedModel):
     def hardware_opcodes(self) -> tuple[OperationCode, ...]:
         """Union of the lanes' HDL opcodes (terminal cores and chain
         stages), ordered by opcode value."""
-        opcodes = {opcode for lane in self.lanes for core in (lane.sink, *lane.chain) for opcode in core.opcodes}
+        opcodes = {opcode for lane in self.lanes for capability in (lane.sink, *lane.chain) for opcode in capability.opcodes}
         return tuple(sorted(opcodes, key=int))
 
     @property
     def host_opcodes(self) -> tuple[OperationCode, ...]:
         """Protocol-level opcodes derivable host-side (AVERAGE when a core
         provides both SUM and COUNT); explicitly not hardware opcodes."""
-        opcodes = {opcode for lane in self.lanes for core in (lane.sink, *lane.chain) for opcode in core.host_opcodes}
+        opcodes = {opcode for lane in self.lanes for capability in (lane.sink, *lane.chain) for opcode in capability.host_opcodes}
         return tuple(sorted(opcodes, key=int))
 
     @property
@@ -212,9 +212,9 @@ class CapabilityContract(CheckedModel):
             )
             counts[key] = counts.get(key, 0) + 1
         unit_list: list[OperatorUnit] = []
-        for core, count in counts.items():
-            if core.unit_kind is not None:
-                unit_list.append(OperatorUnit(kind=core.unit_kind, count=count, opcodes=core.opcodes, input_types=core.input_types))
+        for capability, count in counts.items():
+            if capability.unit_kind is not None:
+                unit_list.append(OperatorUnit(kind=capability.unit_kind, count=count, opcodes=capability.opcodes, input_types=capability.input_types))
         units = tuple(unit_list)
         return DauDesign(name=self.name, units=units)
 
@@ -253,9 +253,9 @@ class CapabilityContract(CheckedModel):
         )
 
 
-def core_capability(core: CoreSpec | str) -> CoreCapability:
+def core_capability(core_spec: CoreSpec | str) -> CoreCapability:
     """The registry-declared capability facts of one core instance."""
-    spec = CoreSpec(core=core) if isinstance(core, str) else core
+    spec = CoreSpec(core=core_spec) if isinstance(core_spec, str) else core_spec
     definition = core(spec.core)
     return CoreCapability(
         core=definition.name,
@@ -285,7 +285,7 @@ def capability_contract(spec: ScanCompositionSpec) -> CapabilityContract:
         name=spec.name,
         lanes=tuple(
             LaneCapability(
-                core=core_capability(lane.sink),
+                sink=core_capability(lane.sink),
                 partition=core_capability(lane.partition) if lane.partition is not None else None,
                 chain=tuple(core_capability(stage) for stage in lane.chain),
             )

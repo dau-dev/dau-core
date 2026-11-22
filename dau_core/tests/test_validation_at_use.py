@@ -14,7 +14,7 @@ import pytest
 from pydantic import ValidationError
 
 from dau_core.capability_contract import capability_contract
-from dau_core.composition import CompositionError, LaneSpec, ScanCompositionSpec, CoreSpec, canonical_spec_json, spec_hash
+from dau_core.composition import CompositionError, CoreSpec, LaneSpec, ScanCompositionSpec, canonical_spec_json, spec_hash
 from dau_core.cores import ResourceMeasurement
 from dau_core.models import CheckedModel, FrozenMapping
 from dau_core.operators import RowField
@@ -26,7 +26,7 @@ def _spec() -> ScanCompositionSpec:
         name="checked",
         lanes=(
             LaneSpec(
-                core=CoreSpec(core="field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}),
+                sink=CoreSpec(core="field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}),
                 partition=CoreSpec(core="pair-key-filter", config={"cfg_key_mask": "32'd3", "cfg_key_match": "32'd1"}),
             ),
         ),
@@ -67,33 +67,33 @@ def test_a_frozen_model_holds_no_mutable_mapping() -> None:
     would have been the weaker design -- ``dict.__setitem__(m, k, v)`` reaches
     past any override -- so that bypass is pinned here too.
     """
-    core = CoreSpec(core="field-sum-aggregation", config={"cfg_field_mask": "4'b0010"})
-    assert isinstance(core.config, FrozenMapping)
+    core_spec = CoreSpec(core="field-sum-aggregation", config={"cfg_field_mask": "4'b0010"})
+    assert isinstance(core_spec.config, FrozenMapping)
     for method in ("__setitem__", "__delitem__", "update", "pop", "popitem", "clear", "setdefault"):
-        assert not hasattr(core.config, method), method
+        assert not hasattr(core_spec.config, method), method
     # through getattr because a type checker refuses the call outright, which
     # is the other half of the answer
     with pytest.raises(TypeError, match="requires a 'dict' object"):
-        getattr(dict, "__setitem__")(core.config, "cfg_field_mask", "4'b1111")  # noqa: B009
+        getattr(dict, "__setitem__")(core_spec.config, "cfg_field_mask", "4'b1111")  # noqa: B009
     # merging builds a new mapping and leaves this one alone
-    merged = core.config | {"cfg_other": "1"}
-    assert set(merged) == {"cfg_field_mask", "cfg_other"} and set(core.config) == {"cfg_field_mask"}
+    merged = core_spec.config | {"cfg_other": "1"}
+    assert set(merged) == {"cfg_field_mask", "cfg_other"} and set(core_spec.config) == {"cfg_field_mask"}
     assert isinstance(core("streaming-top-k").parameters, FrozenMapping)
 
 
 def test_a_read_only_mapping_still_behaves_like_the_dict_it_was() -> None:
     """The freeze is invisible to everything that reads: equality against a
     plain dict, membership, serialization, and the hash a frozen model needs."""
-    core = CoreSpec(core="field-sum-aggregation", config={"cfg_field_mask": "4'b0010"})
-    assert core.config == {"cfg_field_mask": "4'b0010"}
-    assert dict(core.config) == {"cfg_field_mask": "4'b0010"}
-    assert "cfg_field_mask" in core.config
-    assert core.model_dump()["config"] == {"cfg_field_mask": "4'b0010"}
-    assert json.loads(core.model_dump_json())["config"] == {"cfg_field_mask": "4'b0010"}
-    assert hash(core) == hash(CoreSpec(core="field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}))
+    core_spec = CoreSpec(core="field-sum-aggregation", config={"cfg_field_mask": "4'b0010"})
+    assert core_spec.config == {"cfg_field_mask": "4'b0010"}
+    assert dict(core_spec.config) == {"cfg_field_mask": "4'b0010"}
+    assert "cfg_field_mask" in core_spec.config
+    assert core_spec.model_dump()["config"] == {"cfg_field_mask": "4'b0010"}
+    assert json.loads(core_spec.model_dump_json())["config"] == {"cfg_field_mask": "4'b0010"}
+    assert hash(core_spec) == hash(CoreSpec(core="field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}))
     # an unset mapping field is frozen too: a default is never validated, so
     # its factory is what has to produce the read-only form
-    assert isinstance(core.params, FrozenMapping)
+    assert isinstance(core_spec.params, FrozenMapping)
     assert hash(CoreSpec(core="field-sum-aggregation")) == hash(CoreSpec(core="field-sum-aggregation"))
 
 

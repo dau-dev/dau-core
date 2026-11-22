@@ -509,7 +509,7 @@ class CoreDefinition(CheckedModel):
     row_capacity: int | None = None  # batch row capacity for buffered cores (bitonic sorter CAPACITY)
     unit_kind: UnitKind | None = None  # the design-inventory unit an instance of this core contributes
     # HDL status truth: True when the core emits a status close-out after
-    # every successfully completed batch (terminal-tile behavior — the record
+    # every successfully completed batch (terminal-core behavior — the record
     # writer's done waits on it); False when the core is silent on success
     # and raises status only for what the downstream cannot see (zero-rows
     # compaction, torn row, bad config — the chain-stage/partition contract,

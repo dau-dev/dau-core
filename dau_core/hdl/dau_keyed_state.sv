@@ -12,7 +12,7 @@
 // One 64-bit word per row: {value[FIELD_BITS-1:0], key[FIELD_BITS-1:0]}.
 // Output mirrors it: {post_update, key}. The op (SET/ADD/MAX/MIN), the
 // initial accumulator, and the KEY GRANT latch from config ports on each
-// batch's first beat — host-written today, allocator-tile-driven tomorrow,
+// batch's first beat — host-written today, allocator-core-driven tomorrow,
 // the core cannot tell.
 //
 // THE KEY AND THE VALUE ARE THE SAME ELEMENT TYPE, because they share the

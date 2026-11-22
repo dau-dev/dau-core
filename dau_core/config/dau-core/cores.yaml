@@ -2511,7 +2511,7 @@ row-unpack:
   module: dau_row_unpack
   source: dau_row_unpack.sv
   description: 'Row-unpack front-end feed over <=64-bit packed rows: bit-extracts four configured fields (offset/width/signed)
-    from one packed word and widens them into the standard 16-byte int32 quad row (field 0 = key = w0.lo) the operator tiles
+    from one packed word and widens them into the standard 16-byte int32 quad row (field 0 = key = w0.lo) the operator cores
     consume. The compact-row feed answer to the DDR-byte-bandwidth-bound scan (~2x rows/sec off DDR, half the host DMA,
     operators unchanged). Covers the SF1 q6 (56-bit) and q1 (41-bit) packings. The batch-latched cfg_bypass config port selects
     the mode: 0 = unpack (packed word in, quad row out); 1 = a zero-added-latency passthrough of pre-widened 16-byte quad
@@ -3816,7 +3816,7 @@ bram-stream-job:
   role: stream-job-shell
   module: dau_bram_stream_job
   source: dau_bram_stream_job.sv
-  description: BRAM-staged tile-agnostic job runner.
+  description: BRAM-staged core-agnostic job runner.
   # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
   measured_from: 1:0cca61e1c7c4414c64d60f6fb114d3716fb700abd666d5844ed37ce9c54a472a
   resources:

@@ -15,11 +15,11 @@ if TYPE_CHECKING:
     from .capability_contract import (
         CAPABILITY_CONTRACT_SCHEMA,
         CapabilityContract,
-        LaneCapability,
         CoreCapability,
+        LaneCapability,
         capability_contract,
-        opcode_bitmap,
         core_capability,
+        opcode_bitmap,
     )
     from .design import DauDesign, OperatorUnit, UnitKind, format_units, parse_units
     from .operators import (
@@ -70,11 +70,11 @@ _EXPORTS = {
     "capability_contract": (
         "CAPABILITY_CONTRACT_SCHEMA",
         "CapabilityContract",
-        "LaneCapability",
         "CoreCapability",
+        "LaneCapability",
         "capability_contract",
-        "opcode_bitmap",
         "core_capability",
+        "opcode_bitmap",
     ),
     "design": ("DauDesign", "OperatorUnit", "UnitKind", "format_units", "parse_units"),
     "operators": (

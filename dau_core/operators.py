@@ -499,7 +499,7 @@ def divide_row_fields(rows: Iterable[tuple[int, int, int, int]], config: RowDivi
 class UnpackErrorCode(IntEnum):
     CONFIG = 1
     # bypass mode consumes 16-byte quad rows (two words each); input_last on a
-    # w0 is a torn row, invalidating the batch — the quad-row-tile convention
+    # w0 is a torn row, invalidating the batch — the quad-row-core convention
     STREAM = 2
 
 

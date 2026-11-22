@@ -4,7 +4,7 @@ from typing import Any
 
 import pytest
 
-from dau_core.composition import CompositionError, LaneSpec, ScanCompositionSpec, CoreSpec, estimated_resources, stream_shape_mismatches
+from dau_core.composition import CompositionError, CoreSpec, LaneSpec, ScanCompositionSpec, estimated_resources, stream_shape_mismatches
 from dau_core.registry import core
 
 _BAR = CoreSpec(core="bar-aggregation", config={"cfg_mode": "2'd0", "cfg_row_count": "64'd0"})
@@ -405,7 +405,7 @@ def test_load_phase_shape_rules() -> None:
         name="ok",
         lanes=(
             LaneSpec(
-                core=_BAR,
+                sink=_BAR,
                 partition=CoreSpec(core="pair-key-filter", config={"cfg_key_mask": "32'd0", "cfg_key_match": "32'd0"}),
                 chain=(membership(cfg_load="1'b0"),),
             ),
@@ -421,7 +421,7 @@ def test_load_phase_shape_rules() -> None:
             name="bad",
             lanes=(
                 LaneSpec(
-                    core=_BAR,
+                    sink=_BAR,
                     chain=(
                         CoreSpec(
                             core="row-map-alu",
@@ -447,7 +447,7 @@ def test_load_phase_shape_rules() -> None:
             name="bad",
             lanes=(
                 LaneSpec(
-                    core=_BAR,
+                    sink=_BAR,
                     partition=CoreSpec(core="pair-key-filter", config={"cfg_key_mask": "32'd0", "cfg_key_match": "32'd0"}),
                     chain=(membership(),),
                 ),
@@ -477,7 +477,7 @@ def test_load_phase_shape_rules() -> None:
             name="bad",
             lanes=(
                 LaneSpec(
-                    core=_BAR,
+                    sink=_BAR,
                     chain=(
                         CoreSpec(
                             core="row-map-alu",
@@ -500,7 +500,7 @@ def test_load_phase_shape_rules() -> None:
         name="ok",
         lanes=(
             LaneSpec(
-                core=_BAR,
+                sink=_BAR,
                 chain=(CoreSpec(core="broadcast-hash-join", config={"cfg_load": "load_phase", "cfg_out_sel": "2'd0"}, params={"KEY_SPACE": 192}),),
             ),
         ),
@@ -508,8 +508,8 @@ def test_load_phase_shape_rules() -> None:
 
 
 def test_param_override_is_validated_on_the_lane_core_and_partition_slots() -> None:
-    # the lane-tile slot validates its params
-    with pytest.raises(CompositionError, match="lane core 'bar-aggregation' has no overridable parameter 'KEY_SPACE'"):
+    # the lane-core slot validates its params
+    with pytest.raises(CompositionError, match="lane sink 'bar-aggregation' has no overridable parameter 'KEY_SPACE'"):
         ScanCompositionSpec(name="bad", lanes=(LaneSpec(sink=CoreSpec(core="bar-aggregation", config=dict(_BAR.config), params={"KEY_SPACE": 8})),))
     # the partition slot validates its params too
     with pytest.raises(CompositionError, match="lane partition 'pair-key-filter' has no overridable parameter 'KEY_SPACE'"):
@@ -610,7 +610,7 @@ def test_exactly_one_success_close_out_per_lane_is_enforced() -> None:
         ScanCompositionSpec(name="bad", lanes=(LaneSpec(sink=_BAR, chain=(CoreSpec(core="int32-keyed-predicate-filter"),)),))
     # a silent-on-success terminal would leave the record writer waiting for
     # a close-out that never comes on any batch that forwards rows
-    with pytest.raises(CompositionError, match="core 'row-predicate-filter' is silent on success"):
+    with pytest.raises(CompositionError, match="sink 'row-predicate-filter' is silent on success"):
         ScanCompositionSpec(name="bad", lanes=(LaneSpec(sink=CoreSpec(core="row-predicate-filter")),))
     # the same one-close-out rule holds for the partition slot
     with pytest.raises(CompositionError, match="partition 'int32-keyed-predicate-filter' emits a success close-out"):
@@ -653,7 +653,7 @@ def test_spec_hash_pinned_fixture() -> None:
         name="pinned",
         lanes=(
             LaneSpec(
-                core=CoreSpec(core="bar-aggregation", config={"cfg_mode": "2'd0", "cfg_row_count": "64'd0"}),
+                sink=CoreSpec(core="bar-aggregation", config={"cfg_mode": "2'd0", "cfg_row_count": "64'd0"}),
                 partition=CoreSpec(core="pair-key-filter", config={"cfg_key_mask": "32'd3", "cfg_key_match": "32'd1"}),
             ),
         ),
@@ -673,7 +673,7 @@ def test_spec_hash_pinned_fixture() -> None:
     # never used. That cost is real, bounded, and the smaller half of the
     # asymmetry: a design nobody can look up is rebuilt once, where a design
     # read against the wrong palette is mis-recognized every time.
-    assert spec_hash(spec) == "7:8ad964f74ebf680e83774747c8e601278e2fcd19eb50a6ff102b3c487d3e3c7f"
+    assert spec_hash(spec) == "8:8cfe406fb650aba91ae085dab90493cb0506d7c82345732ae42a6cd804f04c78"
 
 
 def test_spec_from_canonical_revalidates() -> None:
@@ -806,7 +806,7 @@ def test_throughput_reproduces_the_measured_rate_ladder():
     declared ingest — the motivation for the wide-sum lane / distributor."""
     from fractions import Fraction
 
-    from dau_core.composition import LaneSpec, ScanCompositionSpec, CoreSpec, throughput_rows_per_cycle
+    from dau_core.composition import CoreSpec, LaneSpec, ScanCompositionSpec, throughput_rows_per_cycle
 
     lane = LaneSpec(sink=CoreSpec(core="field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}))
     dispatcher = CoreSpec(core="key-mask-dispatcher", params={"NUM_PARTITIONS": 4})
@@ -833,7 +833,7 @@ def test_throughput_reproduces_the_measured_rate_ladder():
 def test_throughput_packed_front_re_times_delivery():
     from fractions import Fraction
 
-    from dau_core.composition import LaneSpec, ScanCompositionSpec, CoreSpec, throughput_rows_per_cycle
+    from dau_core.composition import CoreSpec, LaneSpec, ScanCompositionSpec, throughput_rows_per_cycle
 
     lane = LaneSpec(sink=CoreSpec(core="field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}))
     dispatcher = CoreSpec(core="key-mask-dispatcher", params={"NUM_PARTITIONS": 4})
@@ -888,7 +888,7 @@ def test_several_wide_lanes_share_the_beat_through_the_broadcast():
 
     def lane(mask: str) -> LaneSpec:
         return LaneSpec(
-            core=CoreSpec(core="wide-field-sum-aggregation", config={"cfg_field_mask": mask}, params={"SLOTS": 4}),
+            sink=CoreSpec(core="wide-field-sum-aggregation", config={"cfg_field_mask": mask}, params={"SLOTS": 4}),
             chain=(CoreSpec(core="wide-row-predicate-filter", params={"SLOTS": 4}),),
         )
 
@@ -985,7 +985,7 @@ def test_the_fused_chain_shape_is_declared_not_inferred() -> None:
     accident, while the declaration says the caller accepts that mid-stage
     close-outs are drained and only their errors reach the lane status."""
     lane = LaneSpec(
-        core=CoreSpec(core="rolling-moments", params={"WINDOW": 3}),
+        sink=CoreSpec(core="rolling-moments", params={"WINDOW": 3}),
         chain=(
             CoreSpec(core="asof-backward"),
             CoreSpec(core="time-bucket-key"),
@@ -1083,7 +1083,7 @@ def test_selectivity_reconciles_the_model_with_q6_silicon() -> None:
         "cfg_shift": "5'd15",
     }
     lane = LaneSpec(
-        core=CoreSpec(core="field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}),
+        sink=CoreSpec(core="field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}),
         chain=(
             CoreSpec(core="row-predicate-filter", config=predicate),
             CoreSpec(core="row-predicate-filter", config=predicate),
@@ -1315,8 +1315,8 @@ def test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front() -> None:
         )
 
 
-def _stream_job_spec(job: str = "bram-stream-job", core: str = "bar-aggregation") -> ScanCompositionSpec:
-    return ScanCompositionSpec(name="stream", stream_job=job, lanes=(LaneSpec(sink=CoreSpec(core=core)),))
+def _stream_job_spec(job: str = "bram-stream-job", core_name: str = "bar-aggregation") -> ScanCompositionSpec:
+    return ScanCompositionSpec(name="stream", stream_job=job, lanes=(LaneSpec(sink=CoreSpec(core=core_name)),))
 
 
 def test_a_stream_job_composition_declares_its_own_infrastructure() -> None:
@@ -1396,7 +1396,7 @@ def test_a_packed_front_can_feed_a_wide_lane() -> None:
     """
     chain = (CoreSpec(core="wide-row-predicate-filter", params={"SLOTS": 8}),)
     lane = LaneSpec(
-        core=CoreSpec(core="wide-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}, params={"SLOTS": 8}),
+        sink=CoreSpec(core="wide-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}, params={"SLOTS": 8}),
         chain=chain,
     )
     front = CoreSpec(core="row-unpack", params={"OUT_WIDTH": 1024})
@@ -1428,11 +1428,11 @@ def test_a_packed_wide_feed_rates_at_the_unpacker_not_at_one_row() -> None:
     """
     from fractions import Fraction
 
-    from dau_core.composition import LaneSpec, ScanCompositionSpec, CoreSpec, throughput_rows_per_cycle
+    from dau_core.composition import CoreSpec, LaneSpec, ScanCompositionSpec, throughput_rows_per_cycle
 
     chain = (CoreSpec(core="wide-row-predicate-filter", params={"SLOTS": 8}),)
     lane = LaneSpec(
-        core=CoreSpec(core="wide-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}, params={"SLOTS": 8}),
+        sink=CoreSpec(core="wide-field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}, params={"SLOTS": 8}),
         chain=chain,
     )
     spec = ScanCompositionSpec(

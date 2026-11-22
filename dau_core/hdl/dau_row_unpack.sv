@@ -38,7 +38,7 @@
 // overtaken across a mode change (the emit-drain re-arm gate holds in both
 // modes). Because a bypass row is two words, input_last is only legal on a
 // row's w1 (odd word); input_last on a w0 is a torn row that invalidates the
-// batch and reports ERR_STREAM — the quad-row-tile convention (pair-key
+// batch and reports ERR_STREAM — the quad-row-core convention (pair-key
 // filter, row filter/map, field-sum), never emitting a w0 tagged last.
 //
 // A composed-pipeline front-end stage: silent on success (the downstream

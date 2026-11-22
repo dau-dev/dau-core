@@ -9,10 +9,10 @@ from dau_core.capability_contract import (
     CapabilityContract,
     LaneCapability,
     capability_contract,
-    opcode_bitmap,
     core_capability,
+    opcode_bitmap,
 )
-from dau_core.composition import LaneSpec, ScanCompositionSpec, CoreSpec
+from dau_core.composition import CoreSpec, LaneSpec, ScanCompositionSpec
 from dau_core.cores import ContractKind, CoreKind
 from dau_core.design import UnitKind
 from dau_core.registers import CURRENT_REGISTER_MAP_VERSION

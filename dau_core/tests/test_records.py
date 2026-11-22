@@ -29,11 +29,11 @@ WORD_BYTES = 8
 
 
 @pytest.mark.parametrize(
-    ("core", "row_bytes", "record_bytes"),
+    ("core_name", "row_bytes", "record_bytes"),
     [("grouped-aggregation", KEYED_ROW_BYTES, GROUP_RECORD_BYTES), ("bar-aggregation", BAR_ROW_BYTES, BAR_RECORD_BYTES)],
 )
-def test_each_layout_is_as_wide_as_the_registry_says(core: str, row_bytes: int, record_bytes: int) -> None:
-    definition = core(core)
+def test_each_layout_is_as_wide_as_the_registry_says(core_name: str, row_bytes: int, record_bytes: int) -> None:
+    definition = core(core_name)
     assert definition.record_words is not None and definition.output_record_words is not None
     assert row_bytes == definition.record_words * WORD_BYTES
     assert record_bytes == definition.output_record_words * WORD_BYTES
@@ -53,7 +53,7 @@ def test_the_struct_and_numpy_views_agree() -> None:
 
 def test_the_quad_row_is_the_row_cores_input_in_field_order() -> None:
     assert [name for name, _kind in QUAD_ROW_FIELDS] == [field.name.lower() for field in RowField]
-    for core in ("row-predicate-filter", "row-map-alu", "field-sum-aggregation"):
-        record_words = core(core).record_words
+    for core_name in ("row-predicate-filter", "row-map-alu", "field-sum-aggregation"):
+        record_words = core(core_name).record_words
         assert record_words is not None
         assert QUAD_ROW_BYTES == record_words * WORD_BYTES

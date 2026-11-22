@@ -23,7 +23,7 @@ materializing stages are align → bar → roll. ``market_features`` is still ru
 returned as the feature output branch (not discarded).
 
 Both paths are DMA-bound (compute overlapped), so the model computes each from
-the exact golden cardinalities and the measured per-tile record widths — a
+the exact golden cardinalities and the measured per-core record widths — a
 first-order estimate the silicon run validates, not a measured result.
 
 No dataframe or numerical-runtime dependency: pure integer arithmetic over

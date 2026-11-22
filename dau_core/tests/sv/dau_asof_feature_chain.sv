@@ -2,7 +2,7 @@
 
 // Fused align -> derive chain: the as-of alignment core streams its market rows
 // directly into the market-feature map core with no reformatting, because the
-// as-of output record and the feature-tile input record are the same 4-word
+// as-of output record and the feature-core input record are the same 4-word
 // market row by construction. The chain proves the first fusion stage
 // golden-equal in simulation: the aligned+derived features never touch DDR
 // between the two cores.

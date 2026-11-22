@@ -156,8 +156,8 @@ emsdk
 /multirun/
 
 # Rendered output of generated cores. This is the default render root, so a
-# test run or a render-cores task materializes tiles here; committing them
-# leaves a second copy of a tile that only the operating point defines, and
+# test run or a render-cores task materializes cores here; committing them
+# leaves a second copy of a core that only the operating point defines, and
 # whichever of the two is stale is the one that gets synthesized.
 dau_core/hdl/generated/
 

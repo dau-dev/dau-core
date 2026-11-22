@@ -8,7 +8,7 @@ config-port bindings; a generator walks it to emit the shell top, and
 ``estimated_resources`` sums the registry's measured envelopes — the
 planner-facing cost of a design before it is built.
 
-N=1 with no filter degenerates to the single-tile DDR scan.
+N=1 with no filter degenerates to the single-core DDR scan.
 """
 
 from __future__ import annotations
@@ -71,37 +71,37 @@ class CompositionError(Exception):
     pass
 
 
-def _validate_core_params(core: CoreSpec, role: str) -> None:
+def _validate_core_params(core_spec: CoreSpec, role: str) -> None:
     """Every module-parameter override on a core must name a parameter the
     core declares as overridable (``CoreDefinition.parameters``) and carry a
     positive integer value (SV sizes are positive; an element type has already
     been resolved to its encoding by then). An unknown name is a typo or a
     param the core does not expose — rejected up front."""
-    if not core.params:
+    if not core_spec.params:
         return
-    declared = core.definition().parameters
-    for name, value in core.params.items():
+    declared = core_spec.definition().parameters
+    for name, value in core_spec.params.items():
         if name not in declared:
             known = ", ".join(sorted(declared)) or "none"
-            raise CompositionError(f"{role} {core.core!r} has no overridable parameter {name!r} (declared: {known})")
+            raise CompositionError(f"{role} {core_spec.core!r} has no overridable parameter {name!r} (declared: {known})")
         spec = declared[name]
         if isinstance(value, bool) or not isinstance(value, int):
-            raise CompositionError(f"{role} {core.core!r} parameter {name!r} must be a positive int, got {value!r}")
+            raise CompositionError(f"{role} {core_spec.core!r} parameter {name!r} must be a positive int, got {value!r}")
         # the constraint itself lives on ParameterSpec.violation -- one
         # statement of the rule, shared with the spec's own coherence check
         reason = spec.violation(value)
         if reason is not None:
-            raise CompositionError(f"{role} {core.core!r} parameter {name!r} {reason}")
+            raise CompositionError(f"{role} {core_spec.core!r} parameter {name!r} {reason}")
 
 
-def _contract_param(core: CoreSpec, name: str, role: str) -> int:
+def _contract_param(core_spec: CoreSpec, name: str, role: str) -> int:
     """A parameter the composition reads off a core: its override, else the
     default the core declares. A core whose role requires ``name`` but which
     does not declare it raises ``CompositionError``."""
-    declared = core.definition().parameters.get(name)
+    declared = core_spec.definition().parameters.get(name)
     if declared is None:
-        raise CompositionError(f"{role} {core.core!r} declares no {name} parameter")
-    return int(core.params.get(name, declared.default))
+        raise CompositionError(f"{role} {core_spec.core!r} declares no {name} parameter")
+    return int(core_spec.params.get(name, declared.default))
 
 
 class CoreSpec(CheckedModel):
@@ -279,13 +279,13 @@ class ScanCompositionSpec(CheckedModel):
                 if lane.partition is not None:
                     raise CompositionError("a wide lane takes no per-lane partition filter (it sees every row by construction)")
 
-            def _slots_of(core: CoreSpec, role: str) -> int:
-                if core.definition().contract_kind is not ContractKind.WIDE_ROW_STREAM:
+            def _slots_of(core_spec: CoreSpec, role: str) -> int:
+                if core_spec.definition().contract_kind is not ContractKind.WIDE_ROW_STREAM:
                     raise CompositionError(
-                        f"{role} {core.core!r} speaks the 64-bit row-stream contract inside a wide lane; every stage of a "
+                        f"{role} {core_spec.core!r} speaks the 64-bit row-stream contract inside a wide lane; every stage of a "
                         "wide lane must be a wide-row-stream core (mixed framings cannot wire)"
                     )
-                return _contract_param(core, "SLOTS", role)
+                return _contract_param(core_spec, "SLOTS", role)
 
             slots = _slots_of(self.lanes[0].sink, "wide lane terminal")
             for index, lane in enumerate(self.lanes):
@@ -445,7 +445,7 @@ class ScanCompositionSpec(CheckedModel):
         for lane in self.lanes:
             if not wide_lane:
                 for slot_core, slot_role in (
-                    (lane.sink, "lane core"),
+                    (lane.sink, "lane sink"),
                     (lane.partition, "lane partition"),
                     *((stage, "lane chain stage") for stage in lane.chain),
                 ):
@@ -456,9 +456,9 @@ class ScanCompositionSpec(CheckedModel):
                             f"{slot_role} {slot_core.core!r} speaks the wide-row-stream contract; this lane's fan-out delivers 64-bit "
                             "two-beat rows — a wide core rides only the wide-lane shape (a lane whose TERMINAL is wide)"
                         )
-            core = lane.sink.definition()
-            if core.kind != CoreKind.OPERATOR:
-                raise CompositionError(f"lane core {lane.sink.core!r} is {core.kind.value}, not an operator")
+            definition = lane.sink.definition()
+            if definition.kind != CoreKind.OPERATOR:
+                raise CompositionError(f"lane sink {lane.sink.core!r} is {definition.kind.value}, not an operator")
             # the SCAN walker wires this port into the lane's register readback
             # latch, so a scan lane without one cannot be lowered.
             #
@@ -469,16 +469,16 @@ class ScanCompositionSpec(CheckedModel):
             # hold is that each top and its declared core agree, and that is
             # pinned where the tops live (dau: the stream-job correspondence
             # tests). Do not read this waiver as "stream jobs need no counter".
-            if core.count_port is None and self.stream_job is None:
-                raise CompositionError(f"lane core {lane.sink.core!r} does not expose a status counter")
-            if not core.success_close_out:
+            if definition.count_port is None and self.stream_job is None:
+                raise CompositionError(f"lane sink {lane.sink.core!r} does not expose a status counter")
+            if not definition.success_close_out:
                 raise CompositionError(
-                    f"lane core {lane.sink.core!r} is silent on success; the record writer's done waits on a consumed close-out, "
+                    f"lane sink {lane.sink.core!r} is silent on success; the record writer's done waits on a consumed close-out, "
                     "so the terminal core must emit one per batch"
                 )
-            _validate_core_params(lane.sink, "lane core")
+            _validate_core_params(lane.sink, "lane sink")
             if lane.partition is not None and self.partitioner is not None:
-                raise CompositionError(f"lane core {lane.sink.core!r} carries a partition filter but the scan already has a shared partitioner")
+                raise CompositionError(f"lane sink {lane.sink.core!r} carries a partition filter but the scan already has a shared partitioner")
             if lane.partition is not None:
                 partition = lane.partition.definition()
                 if partition.kind != CoreKind.OPERATOR:
@@ -516,18 +516,20 @@ class ScanCompositionSpec(CheckedModel):
         ``KEY_SPACE/64``-word image lands on the 16-byte input length grid
         (QUAD_ROWS images are 16-byte rows, always on the grid)."""
 
-        def binds_load(core: CoreSpec | None) -> bool:
-            return core is not None and core.config.get("cfg_load") == LOAD_PHASE_BINDING
+        def binds_load(core_spec: CoreSpec | None) -> bool:
+            return core_spec is not None and core_spec.config.get("cfg_load") == LOAD_PHASE_BINDING
 
-        def stray(core: CoreSpec | None, role: str) -> None:
-            if core is None:
+        def stray(core_spec: CoreSpec | None, role: str) -> None:
+            if core_spec is None:
                 return
-            for key, value in core.config.items():
+            for key, value in core_spec.config.items():
                 if value == LOAD_PHASE_BINDING and key != "cfg_load":
-                    raise CompositionError(f"{role} {core.core!r} binds {key!r} to the reserved {LOAD_PHASE_BINDING!r} symbol; only cfg_load may")
-            if binds_load(core) and role != "lane chain stage 0":
+                    raise CompositionError(
+                        f"{role} {core_spec.core!r} binds {key!r} to the reserved {LOAD_PHASE_BINDING!r} symbol; only cfg_load may"
+                    )
+            if binds_load(core_spec) and role != "lane chain stage 0":
                 raise CompositionError(
-                    f"{role} {core.core!r} binds cfg_load to {LOAD_PHASE_BINDING!r}; a load core must be the first chain stage "
+                    f"{role} {core_spec.core!r} binds cfg_load to {LOAD_PHASE_BINDING!r}; a load core must be the first chain stage "
                     "(the LOAD image must reach it unmolested)"
                 )
 
@@ -535,7 +537,7 @@ class ScanCompositionSpec(CheckedModel):
         stray(self.front_unpack, "front unpacker")
         stray(self.front_gearbox, "front gearbox")
         for lane in self.lanes:
-            stray(lane.sink, "lane core")
+            stray(lane.sink, "lane sink")
             stray(lane.partition, "lane partition")
             for index, stage in enumerate(lane.chain):
                 stray(stage, "lane chain stage 0" if index == 0 else "lane chain stage")
@@ -741,15 +743,15 @@ def throughput_breakdown(spec: ScanCompositionSpec, *, stage_pass_fractions: Map
     marked."""
     spec = spec.check()
 
-    def _core_rate(core: CoreSpec, role: str) -> Fraction:
-        definition = core.definition()
+    def _core_rate(core_spec: CoreSpec, role: str) -> Fraction:
+        definition = core_spec.definition()
         ingest = definition.ingest
         if ingest is None:
-            raise CompositionError(f"{role} core {core.core!r} declares no ingest rate (required public interface for stream operators)")
+            raise CompositionError(f"{role} core {core_spec.core!r} declares no ingest rate (required public interface for stream operators)")
         try:
-            return ingest.effective(core.params, definition.parameters)
+            return ingest.effective(core_spec.params, definition.parameters)
         except ValueError as exc:
-            raise CompositionError(f"{role} core {core.core!r}: {exc}") from exc
+            raise CompositionError(f"{role} core {core_spec.core!r}: {exc}") from exc
 
     front = None
     if spec.front_gearbox is not None:
@@ -825,9 +827,9 @@ def throughput_breakdown(spec: ScanCompositionSpec, *, stage_pass_fractions: Map
         # rows that reach it: a stage seeing a tenth of the rows can be ten
         # times slower before it binds. A stage nothing reaches cannot bind.
         limits = []
-        for position, core in enumerate([*lane.chain, lane.sink]):
+        for position, core_spec in enumerate([*lane.chain, lane.sink]):
             role = "lane terminal" if position == len(lane.chain) else "lane chain stage"
-            stages.append(StageRate(role, core.core, index, _core_rate(core, f"lane {index} {role.removeprefix('lane ')}")))
+            stages.append(StageRate(role, core_spec.core, index, _core_rate(core_spec, f"lane {index} {role.removeprefix('lane ')}")))
             reaching = passes[position]
             if reaching == 0:
                 continue
@@ -929,7 +931,7 @@ def estimated_resources(spec: ScanCompositionSpec, *, part: str, clock_ns: float
 #      can name a core this registry cannot resolve (2026-08-24)
 #   6: handle_table_capacity joined the canonical form (a table is hardware,
 #      so it is design identity, 2026-08-14)
-SPEC_CANONICAL_VERSION = "7"
+SPEC_CANONICAL_VERSION = "8"
 
 
 def canonical_spec_json(spec: ScanCompositionSpec) -> str:

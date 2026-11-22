@@ -113,7 +113,7 @@ with the sign of its `wns_ns` is rejected at load.
 
 `measured_from` is what checks the numbers after they are written.
 `dau_core/tests/test_measured_from_matches_the_hdl.py` recomputes the digest
-from the HDL in the tree, so an edit to the tile or to anything it imports or
+from the HDL in the tree, so an edit to the core or to anything it imports or
 includes fails that test, naming the core, until the core is measured again
 and re-stamped.
 

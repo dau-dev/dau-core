@@ -358,7 +358,7 @@ def test_the_width_named_cores_are_exactly_the_declared_ones() -> None:
 # DEPARTURES ARE NOT: a rename or a removal must bump SPEC_CANONICAL_VERSION
 # in the SAME change, so recorded texts can be refused by version rather than
 # by whatever the registry says about the first departed name a reader meets.
-CANONICAL_PALETTE_VERSION = "7"
+CANONICAL_PALETTE_VERSION = "8"
 CANONICAL_PALETTE: frozenset[str] = frozenset(
     {
         "arrow-lite-stream-aggregation",
@@ -601,7 +601,7 @@ def test_accessors_defer_to_a_composed_registry() -> None:
 def test_silent_on_success_operator_set_is_pinned() -> None:
     """The status contract's two classes are registry truth: silent-on-success
     cores (chain-stage/partition legal) versus per-batch success close-out
-    cores (terminal-tile legal). Changing a core's class changes lane status
+    cores (terminal-core legal). Changing a core's class changes lane status
     semantics — confirm intent here."""
     silent = {d.name for d in cores_of_kind(CoreKind.OPERATOR) if not d.success_close_out and d.source_package == "dau_core.hdl"}
     assert silent == {

@@ -9,7 +9,7 @@
 // increments the distinct count, a row whose bit is already set changes
 // nothing. Rows are not forwarded — at input_last the core emits ONE 64-bit
 // word, the distinct count, with output_last set, then a success close-out
-// status (the terminal-tile convention: the record writer's done waits on a
+// status (the terminal-core convention: the record writer's done waits on a
 // consumed producer status). N keys in, one count out is the whole point:
 // this is the rare operator whose output does not cross the bus.
 // dau_core.operators.count_distinct_rows is the golden.
