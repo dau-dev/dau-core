@@ -9,9 +9,9 @@ test_contributed_cores
 
    A third party composing a ``CoreDefinition`` under its own registry group
    used to compose successfully, register, and then be invisible: every
-   consumer reaches tiles through :func:`loaded_cores`, which read ``/dau-core``
+   consumer reaches cores through :func:`loaded_cores`, which read ``/dau-core``
    and nothing else. The author did everything the authoring surface asks for
-   and their tile silently vanished, with no error naming the cause -- the
+   and their core silently vanished, with no error naming the cause -- the
    worst shape a failure can take, because there is nothing to search for.
 
    The seam that keeps packages apart is ``source_package``, not invisibility.
@@ -26,7 +26,7 @@ Attributes
 
 .. autoapisummary::
 
-   test_contributed_cores._VENDOR_TILE
+   test_contributed_cores._VENDOR_CORE
 
 
 Functions
@@ -46,7 +46,7 @@ Functions
 Module Contents
 ---------------
 
-.. py:data:: _VENDOR_TILE
+.. py:data:: _VENDOR_CORE
 
 .. py:function:: registry_group()
 
@@ -57,14 +57,14 @@ Module Contents
 
 .. py:function:: test_contribution_does_not_disturb_our_own_cores(registry_group) -> None
 
-   The seam still works: ours remain identifiable, and a foreign tile
+   The seam still works: ours remain identifiable, and a foreign core
    does not become one of ours by being visible.
 
 
 .. py:function:: test_a_name_collision_is_raised_not_resolved(registry_group) -> None
 
    A core name is how every design, spec hash and cached manifest refers
-   to a tile. Silently preferring one definition would let a design mean two
+   to a core. Silently preferring one definition would let a design mean two
    different things depending on what else was installed.
 
 
@@ -72,7 +72,7 @@ Module Contents
 
 .. py:function:: test_a_single_core_lookup_builds_a_single_model() -> None
 
-   The point of loading the palette lazily: asking for one tile builds
+   The point of loading the palette lazily: asking for one core builds
    one ``CoreDefinition``. Reading the group's items builds all of them, so
    ``core()`` must not go through ``loaded_cores()``, which is what it used
    to do.

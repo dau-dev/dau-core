@@ -27,7 +27,7 @@
     <script src="_static/js/custom.js?v=956e5d78"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Tutorial: read a tile’s contract end to end" href="docs/src/tutorial/read-a-tile-contract.html" />
+    <link rel="next" title="Tutorial: read a core’s contract end to end" href="docs/src/tutorial/read-a-core-contract.html" />
     <script>
       (function () {
         var root = document.documentElement;
@@ -77,13 +77,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -122,8 +122,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -763,11 +763,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="autoapi/test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="autoapi/test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -778,8 +773,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="autoapi/test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="autoapi/test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="autoapi/test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -892,20 +892,20 @@
 <p><code class="docutils literal notranslate"><span class="pre">dau-core</span></code> holds the definitions the other DAU packages share:</p>
 <ul class="simple">
 <li><p><strong>The core registry.</strong> Every HDL building block (streaming operator
-tiles, AXI stream infrastructure, shell adapters, shared packages) is
+cores, AXI stream infrastructure, shell adapters, shared packages) is
 described by a <code class="docutils literal notranslate"><span class="pre">CoreDefinition</span></code>: its module, sources, dependencies,
 golden model, testbench, measured resources, module parameters, and
 stream-contract facts.</p></li>
 <li><p><strong>Golden models.</strong> Each operator has a pure-Python reference
 implementation. Hardware results are compared byte for byte against it,
-so the golden defines what the tile computes.</p></li>
+so the golden defines what the core computes.</p></li>
 <li><p><strong>Wire contracts.</strong> Register maps, stream framing structs, DMA
 constraints, capability advertisement, and composition specs.</p></li>
 </ul>
 <p>The package also ships the SystemVerilog for every registered core.
-Every operator tile has a golden, a cocotb bench under Verilator, and
+Every operator core has a golden, a cocotb bench under Verilator, and
 measured resource points. The stream infrastructure and shell adapters
-are tested inside the composed shells instead of one by one. Five tiles
+are tested inside the composed shells instead of one by one. Five cores
 generate their source from their parameters when rendered.</p>
 </section>
 <section id="documentation">
@@ -913,9 +913,9 @@ generate their source from their parameters when rendered.</p>
 <p>The full documentation is at
 <a class="reference external" href="https://dau-dev.github.io/dau-core/">dau-dev.github.io/dau-core</a>.</p>
 <ul class="simple">
-<li><p><strong>Tutorial</strong>: <a class="reference internal" href="docs/src/tutorial/read-a-tile-contract.html"><span class="std std-doc">Read a tile’s contract end to end</span></a>
+<li><p><strong>Tutorial</strong>: <a class="reference internal" href="docs/src/tutorial/read-a-core-contract.html"><span class="std std-doc">Read a core’s contract end to end</span></a>
 follows one operator through the five places its definition lives.</p></li>
-<li><p><strong>How-to guides</strong>: <a class="reference internal" href="docs/src/how-to/add-an-operator-tile.html"><span class="std std-doc">Add an operator tile</span></a> ·
+<li><p><strong>How-to guides</strong>: <a class="reference internal" href="docs/src/how-to/add-an-operator-core.html"><span class="std std-doc">Add an operator core</span></a> ·
 <a class="reference internal" href="docs/src/how-to/test-a-core.html"><span class="std std-doc">Test a core</span></a> ·
 <a class="reference internal" href="docs/src/how-to/measure-a-resource-envelope.html"><span class="std std-doc">Measure a resource envelope</span></a>, the one
 step that needs a synthesis host · <a class="reference internal" href="docs/src/how-to/develop.html"><span class="std std-doc">Develop and contribute</span></a>.</p></li>
@@ -923,7 +923,7 @@ step that needs a synthesis host · <a class="reference internal" href="docs/src
 <a class="reference internal" href="docs/src/reference/tile-catalog.html"><span class="std std-doc">Tile catalog</span></a> ·
 <a class="reference internal" href="docs/src/reference/registry-guards.html"><span class="std std-doc">Registry guards</span></a> and what each one checks.</p></li>
 <li><p><strong>Explanation</strong>: <a class="reference internal" href="docs/src/explanation/why-cores-are-declared-in-config.html"><span class="std std-doc">Why cores are declared in config</span></a> ·
-<a class="reference internal" href="docs/src/explanation/why-each-tile-has-a-golden-model.html"><span class="std std-doc">Why each tile has a golden model</span></a> ·
+<a class="reference internal" href="docs/src/explanation/why-each-core-has-a-golden-model.html"><span class="std std-doc">Why each core has a golden model</span></a> ·
 <a class="reference internal" href="docs/src/explanation/why-resources-are-measured.html"><span class="std std-doc">Why resource costs are measured</span></a>.</p></li>
 </ul>
 </section>
@@ -939,15 +939,15 @@ application that composes Hydra configs finds the cores without importing
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">loaded_cores</span><span class="p">,</span> <span class="n">core</span><span class="p">,</span> <span class="n">sources_for</span>
 
 <span class="n">cores</span> <span class="o">=</span> <span class="n">loaded_cores</span><span class="p">()</span>                     <span class="c1"># name -&gt; CoreDefinition, registry order</span>
-<span class="n">tile</span> <span class="o">=</span> <span class="n">core</span><span class="p">(</span><span class="s2">"int32-predicate-filter"</span><span class="p">)</span>      <span class="c1"># one core</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">tile</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>                     <span class="c1"># "operator"</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">tile</span><span class="o">.</span><span class="n">golden</span><span class="p">)</span>                         <span class="c1"># "dau_core.operators:filter_values"</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">tile</span><span class="o">.</span><span class="n">resources</span><span class="p">)</span>                      <span class="c1"># measured LUT/FF/BRAM/DSP envelope</span>
+<span class="n">core_spec</span> <span class="o">=</span> <span class="n">core</span><span class="p">(</span><span class="s2">"int32-predicate-filter"</span><span class="p">)</span> <span class="c1"># one core</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">core_spec</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>                <span class="c1"># "operator"</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">core_spec</span><span class="o">.</span><span class="n">golden</span><span class="p">)</span>                    <span class="c1"># "dau_core.operators:filter_values"</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">core_spec</span><span class="o">.</span><span class="n">resources</span><span class="p">)</span>                 <span class="c1"># measured LUT/FF/BRAM/DSP envelope</span>
 
 <span class="n">sources_for</span><span class="p">(</span><span class="s2">"stream-aggregation"</span><span class="p">)</span>    <span class="c1"># dependency-closed HDL paths, in order</span>
 </pre></div>
 </div>
-<p>The palette has 46 operator tiles (filters, maps, ordered and hash-mode
+<p>The palette has 46 operator cores (filters, maps, ordered and hash-mode
 aggregations, joins, membership, sorters, partitioners, dispatchers,
 temporal operators, top-k, fixed-point transcendentals, and the stateful
 group), 5 stream-infrastructure blocks (AXI burst reader, broadcast, record
@@ -959,9 +959,9 @@ the packaged defaults.</p>
 </section>
 <section id="golden-models">
 <h2>Golden models<a class="headerlink" href="#golden-models" title="Link to this heading">¶</a></h2>
-<p>Each operator tile’s behavior is defined by a pure function or small model
-in <code class="docutils literal notranslate"><span class="pre">dau_core.operators</span></code> or <code class="docutils literal notranslate"><span class="pre">dau_core.temporal</span></code>. Tile configurations are
-frozen <a class="reference external" href="https://docs.pydantic.dev">pydantic</a> models that mirror the tile’s
+<p>Each operator core’s behavior is defined by a pure function or small model
+in <code class="docutils literal notranslate"><span class="pre">dau_core.operators</span></code> or <code class="docutils literal notranslate"><span class="pre">dau_core.temporal</span></code>. Core configurations are
+frozen <a class="reference external" href="https://docs.pydantic.dev">pydantic</a> models that mirror the core’s
 config ports, and the same object drives the golden, the testbench, and
 design emission. Their mapping fields are read-only, <code class="docutils literal notranslate"><span class="pre">replace()</span></code> is a
 <code class="docutils literal notranslate"><span class="pre">model_copy</span></code> that validates the result, and <code class="docutils literal notranslate"><span class="pre">check()</span></code> validates a model
@@ -994,14 +994,14 @@ for a one-scan-N-lanes design. Construction validates everything against
 the registry (operator kinds, status-contract roles, declared parameter
 bounds) and raises <code class="docutils literal notranslate"><span class="pre">CompositionError</span></code> before any HDL is generated;
 <code class="docutils literal notranslate"><span class="pre">estimated_resources</span></code> prices a spec from the measured envelopes.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.composition</span><span class="w"> </span><span class="kn">import</span> <span class="n">LaneSpec</span><span class="p">,</span> <span class="n">ScanCompositionSpec</span><span class="p">,</span> <span class="n">TileSpec</span><span class="p">,</span> <span class="n">estimated_resources</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.composition</span><span class="w"> </span><span class="kn">import</span> <span class="n">LaneSpec</span><span class="p">,</span> <span class="n">ScanCompositionSpec</span><span class="p">,</span> <span class="n">CoreSpec</span><span class="p">,</span> <span class="n">estimated_resources</span>
 
 <span class="n">spec</span> <span class="o">=</span> <span class="n">ScanCompositionSpec</span><span class="p">(</span>
     <span class="n">name</span><span class="o">=</span><span class="s2">"bar-noc-4"</span><span class="p">,</span>
     <span class="n">lanes</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span>
         <span class="n">LaneSpec</span><span class="p">(</span>
-            <span class="n">tile</span><span class="o">=</span><span class="n">TileSpec</span><span class="p">(</span><span class="n">core</span><span class="o">=</span><span class="s2">"bar-aggregation"</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="p">{</span><span class="s2">"cfg_mode"</span><span class="p">:</span> <span class="s2">"2'd0"</span><span class="p">}),</span>
-            <span class="n">partition</span><span class="o">=</span><span class="n">TileSpec</span><span class="p">(</span><span class="n">core</span><span class="o">=</span><span class="s2">"pair-key-filter"</span><span class="p">,</span>
+            <span class="n">sink</span><span class="o">=</span><span class="n">CoreSpec</span><span class="p">(</span><span class="n">core</span><span class="o">=</span><span class="s2">"bar-aggregation"</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="p">{</span><span class="s2">"cfg_mode"</span><span class="p">:</span> <span class="s2">"2'd0"</span><span class="p">}),</span>
+            <span class="n">partition</span><span class="o">=</span><span class="n">CoreSpec</span><span class="p">(</span><span class="n">core</span><span class="o">=</span><span class="s2">"pair-key-filter"</span><span class="p">,</span>
                                <span class="n">config</span><span class="o">=</span><span class="p">{</span><span class="s2">"cfg_key_mask"</span><span class="p">:</span> <span class="s2">"32'd3"</span><span class="p">,</span> <span class="s2">"cfg_key_match"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"32'd</span><span class="si">{</span><span class="n">lane</span><span class="si">}</span><span class="s2">"</span><span class="p">}),</span>
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">lane</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
@@ -1018,7 +1018,7 @@ interpolated.</p>
 <h3>Wide lanes<a class="headerlink" href="#wide-lanes" title="Link to this heading">¶</a></h3>
 <p>A quad-row operator core takes one row per beat at the rate its <code class="docutils literal notranslate"><span class="pre">ingest</span></code>
 contract declares (one row per cycle or per two cycles, depending on the
-tile). A <code class="docutils literal notranslate"><span class="pre">wide-row-stream</span></code> core takes the reader’s whole beat,
+core). A <code class="docutils literal notranslate"><span class="pre">wide-row-stream</span></code> core takes the reader’s whole beat,
 <code class="docutils literal notranslate"><span class="pre">SLOTS</span> <span class="pre">=</span> <span class="pre">data_width</span> <span class="pre">/</span> <span class="pre">128</span></code> quad rows every cycle, with no dispatcher and no
 fan-out. The three row operators have wide counterparts
 (<code class="docutils literal notranslate"><span class="pre">wide-row-predicate-filter</span></code>, <code class="docutils literal notranslate"><span class="pre">wide-row-map-alu</span></code>,
@@ -1028,25 +1028,25 @@ only the core names change.</p>
 <code class="docutils literal notranslate"><span class="pre">CompositionError</span></code>. A wide lane cannot use the packed front unpacker,
 because packing saves DMA bytes at the cost of job time and a wide lane
 needs whole rows.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.composition</span><span class="w"> </span><span class="kn">import</span> <span class="n">LaneSpec</span><span class="p">,</span> <span class="n">ScanCompositionSpec</span><span class="p">,</span> <span class="n">TileSpec</span><span class="p">,</span> <span class="n">estimated_resources</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.composition</span><span class="w"> </span><span class="kn">import</span> <span class="n">LaneSpec</span><span class="p">,</span> <span class="n">ScanCompositionSpec</span><span class="p">,</span> <span class="n">CoreSpec</span><span class="p">,</span> <span class="n">estimated_resources</span>
 
 <span class="n">spec</span> <span class="o">=</span> <span class="n">ScanCompositionSpec</span><span class="p">(</span>
     <span class="n">name</span><span class="o">=</span><span class="s2">"q6-wide"</span><span class="p">,</span>
     <span class="n">data_width</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>   <span class="c1"># SLOTS=4: four quad rows per cycle</span>
     <span class="n">lanes</span><span class="o">=</span><span class="p">(</span>
         <span class="n">LaneSpec</span><span class="p">(</span>
-            <span class="n">tile</span><span class="o">=</span><span class="n">TileSpec</span><span class="p">(</span><span class="n">core</span><span class="o">=</span><span class="s2">"wide-field-sum-aggregation"</span><span class="p">,</span>
+            <span class="n">sink</span><span class="o">=</span><span class="n">CoreSpec</span><span class="p">(</span><span class="n">core</span><span class="o">=</span><span class="s2">"wide-field-sum-aggregation"</span><span class="p">,</span>
                           <span class="n">config</span><span class="o">=</span><span class="p">{</span><span class="s2">"cfg_field_mask"</span><span class="p">:</span> <span class="s2">"4'b0010"</span><span class="p">}),</span>
             <span class="n">chain</span><span class="o">=</span><span class="p">(</span>
                 <span class="c1"># shipdate &gt;= 8766 AND shipdate &lt; 9131</span>
-                <span class="n">TileSpec</span><span class="p">(</span><span class="n">core</span><span class="o">=</span><span class="s2">"wide-row-predicate-filter"</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="p">{</span>
+                <span class="n">CoreSpec</span><span class="p">(</span><span class="n">core</span><span class="o">=</span><span class="s2">"wide-row-predicate-filter"</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="p">{</span>
                     <span class="s2">"cfg_field0"</span><span class="p">:</span> <span class="s2">"2'd0"</span><span class="p">,</span> <span class="s2">"cfg_op0"</span><span class="p">:</span> <span class="s2">"3'd6"</span><span class="p">,</span> <span class="s2">"cfg_constant0"</span><span class="p">:</span> <span class="s2">"32'd8766"</span><span class="p">,</span>
                     <span class="s2">"cfg_combine01"</span><span class="p">:</span> <span class="s2">"2'd1"</span><span class="p">,</span>
                     <span class="s2">"cfg_field1"</span><span class="p">:</span> <span class="s2">"2'd0"</span><span class="p">,</span> <span class="s2">"cfg_op1"</span><span class="p">:</span> <span class="s2">"3'd3"</span><span class="p">,</span> <span class="s2">"cfg_constant1"</span><span class="p">:</span> <span class="s2">"32'd9131"</span><span class="p">,</span>
                     <span class="s2">"cfg_combine2"</span><span class="p">:</span> <span class="s2">"2'd0"</span><span class="p">,</span>
                     <span class="s2">"cfg_field2"</span><span class="p">:</span> <span class="s2">"2'd0"</span><span class="p">,</span> <span class="s2">"cfg_op2"</span><span class="p">:</span> <span class="s2">"3'd0"</span><span class="p">,</span> <span class="s2">"cfg_constant2"</span><span class="p">:</span> <span class="s2">"32'd0"</span><span class="p">}),</span>
                 <span class="c1"># value = value * aux0 &gt;&gt; 15</span>
-                <span class="n">TileSpec</span><span class="p">(</span><span class="n">core</span><span class="o">=</span><span class="s2">"wide-row-map-alu"</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="p">{</span>
+                <span class="n">CoreSpec</span><span class="p">(</span><span class="n">core</span><span class="o">=</span><span class="s2">"wide-row-map-alu"</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="p">{</span>
                     <span class="s2">"cfg_op"</span><span class="p">:</span> <span class="s2">"3'd4"</span><span class="p">,</span> <span class="s2">"cfg_dst_field"</span><span class="p">:</span> <span class="s2">"2'd1"</span><span class="p">,</span>
                     <span class="s2">"cfg_src_a_field"</span><span class="p">:</span> <span class="s2">"2'd1"</span><span class="p">,</span> <span class="s2">"cfg_src_b_field"</span><span class="p">:</span> <span class="s2">"2'd2"</span><span class="p">,</span>
                     <span class="s2">"cfg_shift"</span><span class="p">:</span> <span class="s2">"5'd15"</span><span class="p">}),</span>
@@ -1100,15 +1100,15 @@ synthesized design’s manifest.</p></li>
 <section id="hdl-and-verification">
 <h2>HDL and verification<a class="headerlink" href="#hdl-and-verification" title="Link to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">dau_core/hdl/</span></code> holds the SystemVerilog for every registered core, five of
-them generated at render time. Tiles share a 64-bit valid/ready stream and
-status contract: <code class="docutils literal notranslate"><span class="pre">input_last</span></code> ends a batch, a terminal tile closes out with
+them generated at render time. Cores share a 64-bit valid/ready stream and
+status contract: <code class="docutils literal notranslate"><span class="pre">input_last</span></code> ends a batch, a terminal core closes out with
 a status word and count, and mid-lane stages stay silent on success. The
 tests run at three levels, all from <code class="docutils literal notranslate"><span class="pre">pytest</span></code>:</p>
 <ul class="simple">
 <li><p>text-contract checks over the packaged sources;</p></li>
 <li><p>standalone Verilator benches;</p></li>
 <li><p>cocotb-on-Verilator benches, golden-equal against the registered
-reference for each tile.</p></li>
+reference for each core.</p></li>
 </ul>
 </section>
 <section id="installation">
@@ -1133,10 +1133,10 @@ pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </s
 
       </div>
 <nav class="fd-pagination" aria-label="Pagination"><span></span>
-  <a class="fd-pagination-card fd-pagination-next" href="docs/src/tutorial/read-a-tile-contract.html" title="Next: Tutorial: read a tile’s contract end to end">
+  <a class="fd-pagination-card fd-pagination-next" href="docs/src/tutorial/read-a-core-contract.html" title="Next: Tutorial: read a core’s contract end to end">
     <span class="fd-pagination-text">
       <span class="fd-pagination-label">Next</span>
-      <span class="fd-pagination-title">Tutorial: read a tile’s contract end to end</span>
+      <span class="fd-pagination-title">Tutorial: read a core’s contract end to end</span>
     </span>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
   </a>

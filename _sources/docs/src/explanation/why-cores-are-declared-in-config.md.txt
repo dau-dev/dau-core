@@ -12,8 +12,8 @@ composing the stack to be able to change it without forking this package.
 
 ## A Python list would keep the palette inside the package
 
-If the registry were a module-level dict, every fact about every tile would
-sit behind an import. Changing a tile's declared clock, adding a tile, or
+If the registry were a module-level dict, every fact about every core would
+sit behind an import. Changing a core's declared clock, adding a core, or
 pointing an envelope at a different part would each mean editing installed
 library source. A consuming application would have to monkey-patch, vendor
 a fork, or go without the change.
@@ -37,14 +37,14 @@ disagree.
 
 ## The authoring surface and the accessors are kept separate
 
-A third party adding a tile needs the models, not the accessors. The
+A third party adding a core needs the models, not the accessors. The
 authoring surface is six modules: `dau_core.cores` (`CoreDefinition`,
 `IngestRate`, `StorageIntent`, `ParameterSpec`), `dau_core.design`,
 `dau_core.element_types`, `dau_core.generators`, `dau_core.models`, and
 `dau_core.stream` (the row-stream ABI). `dau_core.registry` is not part of
-it, because the accessors only know about the tiles this package ships.
+it, because the accessors only know about the cores this package ships.
 
-`dau_core/tests/test_public_tile_surface.py` checks the separation
+`dau_core/tests/test_public_core_surface.py` checks the separation
 statically by listing exactly which imports the surface may make. Each
 module added to that list is one more module that would have to move with
 the surface if it were ever published on its own.
@@ -60,7 +60,7 @@ That is the price of letting more than one party edit the palette.
 
 ## See also
 
-- [How to add an operator tile](../how-to/add-an-operator-tile.md): the steps a new entry
+- [How to add an operator core](../how-to/add-an-operator-core.md): the steps a new entry
   goes through.
 - [`CoreDefinition` fields](../reference/core-definition.md): what an entry can declare.
 - [Why resource costs are measured](why-resources-are-measured.md): why the

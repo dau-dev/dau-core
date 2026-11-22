@@ -441,7 +441,7 @@ Module Contents
    -- these mean the datapath is untouched, not that it produced garbage.
 
    They sit at the top of the code space, below the shell's own 0xFE
-   length-gate fault, because that space is the shell's: a tile's error codes
+   length-gate fault, because that space is the shell's: a core's error codes
    are small and per-core (dau_core.operators), and a fault that refuses the
    job outright is not one of them.
 

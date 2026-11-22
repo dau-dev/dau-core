@@ -75,7 +75,7 @@ dau-build task=tasks/build/synthesize-cores \
 With `execute=true` the task runs Vivado per core, parses utilization and
 timing, and reports one line per core with `lut`, `ff`, `bram36`, `dsp`,
 the worst negative slack, whether timing was met, and `measured_from`: a
-digest of the HDL the run read (the tile's source, the packages it imports
+digest of the HDL the run read (the core's source, the packages it imports
 and the headers it includes). It also compares the numbers and the digest
 against whatever the registry already declares, and flags drift in
 either.
@@ -113,8 +113,8 @@ with the sign of its `wns_ns` is rejected at load.
 
 `measured_from` is what checks the numbers after they are written.
 `dau_core/tests/test_measured_from_matches_the_hdl.py` recomputes the digest
-from the HDL in the tree, so an edit to the tile or to anything it imports or
-includes fails that test, naming the tile, until the core is measured again
+from the HDL in the tree, so an edit to the core or to anything it imports or
+includes fails that test, naming the core, until the core is measured again
 and re-stamped.
 
 Confirm the entry loads and resolves at the coordinate you measured:
@@ -127,7 +127,7 @@ python -c "from dau_core.registry import core; print(core('<name>').resource_mea
 
 An out-of-context margin is measured with the core alone. Composed into a
 shell it shares routing and placement pressure with everything else, and
-the margin moves: one tile measured +0.410 ns standalone and −0.348 ns
+the margin moves: one core measured +0.410 ns standalone and −0.348 ns
 composed. Treat anything under about half a nanosecond as a risk for the
 composed build, not headroom, and budget a retime before composing it.
 

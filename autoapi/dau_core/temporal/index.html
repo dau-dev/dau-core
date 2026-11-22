@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -1079,13 +1079,13 @@ express dollar-bar thresholds in the same units. Division is <strong>deferred</s
 discipline): bars and rolling windows emit exact integer accumulators
 (sum / sum-of-squares / count) and the host divides once, so every value on the
 wire is exact.</p>
-<p>State is <strong>bounded and per-symbol</strong>: the as-of tile holds one current quote per
-symbol partition; a bar tile holds one open bar; a rolling tile holds one
+<p>State is <strong>bounded and per-symbol</strong>: the as-of core holds one current quote per
+symbol partition; a bar core holds one open bar; a rolling core holds one
 window. The pre-sort precondition (both streams ordered by <code class="docutils literal notranslate"><span class="pre">(symbol_id,</span> <span class="pre">time)</span></code>)
-is the same one the sorted-scan tiles already require — the host sorts, or the
+is the same one the sorted-scan cores already require — the host sorts, or the
 range-partitioner + sorter path does.</p>
 <p>These are semantic references, ahead of the HDL. The <code class="docutils literal notranslate"><span class="pre">int64</span></code> timestamp / sum
-tiles and the as-of / windowed-stat tiles byte-compare against them.</p>
+cores and the as-of / windowed-stat cores byte-compare against them.</p>
 <section id="attributes">
 <h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h2>
 <table class="autosummary longtable docutils align-default">
@@ -1245,7 +1245,7 @@ trade, in input order — a matched <code class="docutils literal notranslate"><
 residue; <a class="reference internal" href="#dau_core.temporal.matched_rows" title="dau_core.temporal.matched_rows"><code class="xref py py-func docutils literal notranslate"><span class="pre">matched_rows()</span></code></a> drops them).</p>
 <p>Matches <code class="docutils literal notranslate"><span class="pre">polars.DataFrame.join_asof(strategy=&quot;backward&quot;,</span> <span class="pre">by=&quot;symbol&quot;,</span>
 <span class="pre">tolerance=...)</span></code>: on equal timestamps the <em>last</em> qualifying quote wins.
-Both streams must be pre-sorted by <code class="docutils literal notranslate"><span class="pre">(symbol_id,</span> <span class="pre">time)</span></code>. The tile holds one
+Both streams must be pre-sorted by <code class="docutils literal notranslate"><span class="pre">(symbol_id,</span> <span class="pre">time)</span></code>. The core holds one
 current quote per symbol partition and advances it monotonically — bounded
 state, one pass.</p>
 </dd></dl>
@@ -1519,9 +1519,9 @@ variance divide once on the host (<a class="reference internal" href="#dau_core.
 <dd><p>Per-symbol rolling <code class="docutils literal notranslate"><span class="pre">(count,</span> <span class="pre">sum,</span> <span class="pre">sum_of_squares)</span></code> over the last
 <code class="docutils literal notranslate"><span class="pre">window</span></code> values — the deferred-division form of rolling mean/variance.</p>
 <p>REFUSES a window whose sum of squares leaves a signed 64-bit accumulator.
-That is the tile’s arithmetic precondition, and it binds inside the int32
+That is the core’s arithmetic precondition, and it binds inside the int32
 domain: <code class="docutils literal notranslate"><span class="pre">(2**31-1)**2</span></code> is already <code class="docutils literal notranslate"><span class="pre">2**61</span></code>, so a full-range int32 column
-overflows <code class="docutils literal notranslate"><span class="pre">sum_sq</span></code> from window 3. The tile cannot check it — it sees one
+overflows <code class="docutils literal notranslate"><span class="pre">sum_sq</span></code> from window 3. The core cannot check it — it sees one
 row at a time and has no bound to compare against — and it wraps silently
 into a wrong variance rather than erroring. Python integers do not wrap, so
 a golden that computed the exact value would DISAGREE with the hardware
@@ -1559,7 +1559,7 @@ values near <code class="docutils literal notranslate"><span class="pre">1e9</sp
 rather than independently: polars’ <code class="docutils literal notranslate"><span class="pre">rolling_std</span></code> is the root of its
 <code class="docutils literal notranslate"><span class="pre">rolling_var</span></code>, so any other formulation would disagree with the
 reference in the last place for no benefit.</p>
-<p>On device this is where the divide and sqrt tiles land – variance
+<p>On device this is where the divide and sqrt cores land – variance
 divides before it roots – which is why the numerator stays exact
 integers right up to the single divide.</p>
 </dd></dl>
@@ -1570,7 +1570,7 @@ integers right up to the single divide.</p>
 <dd><p>Per-symbol exponentially weighted moving average, non-adjusted recursion
 (<code class="docutils literal notranslate"><span class="pre">e[0]</span> <span class="pre">=</span> <span class="pre">x[0]</span></code>; <code class="docutils literal notranslate"><span class="pre">e[i]</span> <span class="pre">=</span> <span class="pre">alpha*x[i]</span> <span class="pre">+</span> <span class="pre">(1-alpha)*e[i-1]</span></code>) — matches
 <code class="docutils literal notranslate"><span class="pre">pl.col(x).ewm_mean(alpha=alpha,</span> <span class="pre">adjust=False).over(&quot;symbol&quot;)</span></code>. Float: the
-reference real-valued semantics the fixed-point tile approximates under its
+reference real-valued semantics the fixed-point core approximates under its
 declared error budget.</p>
 </dd></dl>
 

@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -960,9 +960,9 @@
       <div class="fd-prose">
   <section id="module-cocotb_benches.dau_fixed_point_sqrt_tb">
 <span id="cocotb-benches-dau-fixed-point-sqrt-tb"></span><h1>cocotb_benches.dau_fixed_point_sqrt_tb<a class="headerlink" href="#module-cocotb_benches.dau_fixed_point_sqrt_tb" title="Link to this heading">¶</a></h1>
-<p>The fixed-point sqrt tile against its golden, with NO tolerance.</p>
+<p>The fixed-point sqrt core against its golden, with NO tolerance.</p>
 <p>The root is exact by construction – <cite>isqrt(X &lt;&lt; F)</cite> – so every comparison
-here is equality against <cite>sqrt_row_fields</cite>. If this tile ever grows a
+here is equality against <cite>sqrt_row_fields</cite>. If this core ever grows a
 polynomial approximation, these tests are what will refuse it, and that is
 deliberate: an approximate root would need an error bound nobody in the
 stack currently has a way to state.</p>
@@ -1014,7 +1014,7 @@ stack currently has a way to state.</p>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#cocotb_benches.dau_fixed_point_sqrt_tb.negative_source_drains_batch_then_reports_domain_error" title="cocotb_benches.dau_fixed_point_sqrt_tb.negative_source_drains_batch_then_reports_domain_error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">negative_source_drains_batch_then_reports_domain_error</span></code></a>(dut)</p></td>
-<td><p>The whole reason the tile has its own error code: sqrt of a negative</p></td>
+<td><p>The whole reason the core has its own error code: sqrt of a negative</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#cocotb_benches.dau_fixed_point_sqrt_tb.negative_row_never_escapes_while_the_close_out_waits" title="cocotb_benches.dau_fixed_point_sqrt_tb.negative_row_never_escapes_while_the_close_out_waits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">negative_row_never_escapes_while_the_close_out_waits</span></code></a>(dut)</p></td>
 <td><p>The domain guard is only load-bearing under status backpressure.</p></td>
@@ -1136,7 +1136,7 @@ neighbours put the recurrence’s remainder at its extremes.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cocotb_benches.dau_fixed_point_sqrt_tb.negative_source_drains_batch_then_reports_domain_error">
 <em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cocotb_benches.dau_fixed_point_sqrt_tb.</span></span><span class="sig-name descname"><span class="pre">negative_source_drains_batch_then_reports_domain_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dut</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cocotb_benches.dau_fixed_point_sqrt_tb.negative_source_drains_batch_then_reports_domain_error" title="Link to this definition">¶</a></dt>
-<dd><p>The whole reason the tile has its own error code: sqrt of a negative
+<dd><p>The whole reason the core has its own error code: sqrt of a negative
 has no answer, and emitting one anyway would be a wrong number that
 looks right.</p>
 </dd></dl>
@@ -1149,7 +1149,7 @@ looks right.</p>
 negative row that entered would be dropped before it retired and the
 guard would look redundant. Hold status_ready low for longer than the
 pipeline is deep and the row reaches the output instead – which is
-exactly the case that must not emit a root the tile does not have.</p>
+exactly the case that must not emit a root the core does not have.</p>
 </dd></dl>
 
 <dl class="py function">

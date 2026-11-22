@@ -75,7 +75,7 @@ Module Contents
 
    What a probed device advertises.
 
-   ``operators`` are hardware capabilities — opcodes some tile executes in
+   ``operators`` are hardware capabilities — opcodes some core executes in
    HDL. ``host_operators`` are protocol-level capabilities the host derives
    from hardware results (AVERAGE = host divide of SUM/COUNT); they must
    never be submitted to the device as operations.

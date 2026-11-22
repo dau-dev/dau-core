@@ -482,13 +482,13 @@ window.runMermaid = runMermaid;</script>
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -527,8 +527,8 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -1168,11 +1168,6 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../autoapi/test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../autoapi/test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -1183,8 +1178,13 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../autoapi/test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../autoapi/test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -1275,14 +1275,14 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">(sum / sum-of-squares / count) and the host divides once, so every value on the</span>
 <span class="sd">wire is exact.</span>
 
-<span class="sd">State is **bounded and per-symbol**: the as-of tile holds one current quote per</span>
-<span class="sd">symbol partition; a bar tile holds one open bar; a rolling tile holds one</span>
+<span class="sd">State is **bounded and per-symbol**: the as-of core holds one current quote per</span>
+<span class="sd">symbol partition; a bar core holds one open bar; a rolling core holds one</span>
 <span class="sd">window. The pre-sort precondition (both streams ordered by ``(symbol_id, time)``)</span>
-<span class="sd">is the same one the sorted-scan tiles already require — the host sorts, or the</span>
+<span class="sd">is the same one the sorted-scan cores already require — the host sorts, or the</span>
 <span class="sd">range-partitioner + sorter path does.</span>
 
 <span class="sd">These are semantic references, ahead of the HDL. The ``int64`` timestamp / sum</span>
-<span class="sd">tiles and the as-of / windowed-stat tiles byte-compare against them.</span>
+<span class="sd">cores and the as-of / windowed-stat cores byte-compare against them.</span>
 <span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -1320,7 +1320,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Matches ``polars.DataFrame.join_asof(strategy="backward", by="symbol",</span>
 <span class="sd">    tolerance=...)``: on equal timestamps the *last* qualifying quote wins.</span>
-<span class="sd">    Both streams must be pre-sorted by ``(symbol_id, time)``. The tile holds one</span>
+<span class="sd">    Both streams must be pre-sorted by ``(symbol_id, time)``. The core holds one</span>
 <span class="sd">    current quote per symbol partition and advances it monotonically — bounded</span>
 <span class="sd">    state, one pass.</span>
 <span class="sd">    """</span>
@@ -1682,9 +1682,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    ``window`` values — the deferred-division form of rolling mean/variance.</span>
 
 <span class="sd">    REFUSES a window whose sum of squares leaves a signed 64-bit accumulator.</span>
-<span class="sd">    That is the tile's arithmetic precondition, and it binds inside the int32</span>
+<span class="sd">    That is the core's arithmetic precondition, and it binds inside the int32</span>
 <span class="sd">    domain: ``(2**31-1)**2`` is already ``2**61``, so a full-range int32 column</span>
-<span class="sd">    overflows ``sum_sq`` from window 3. The tile cannot check it — it sees one</span>
+<span class="sd">    overflows ``sum_sq`` from window 3. The core cannot check it — it sees one</span>
 <span class="sd">    row at a time and has no bound to compare against — and it wraps silently</span>
 <span class="sd">    into a wrong variance rather than erroring. Python integers do not wrap, so</span>
 <span class="sd">    a golden that computed the exact value would DISAGREE with the hardware</span>
@@ -1704,7 +1704,7 @@ window.runMermaid = runMermaid;</script>
         <span class="k">if</span> <span class="ow">not</span> <span class="o">-</span><span class="n">limit</span> <span class="o">&lt;=</span> <span class="n">total_sq</span> <span class="o">&lt;=</span> <span class="n">limit</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"rolling window of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span><span class="si">}</span><span class="s2"> values needs </span><span class="si">{</span><span class="n">total_sq</span><span class="o">.</span><span class="n">bit_length</span><span class="p">()</span><span class="si">}</span><span class="s2"> bits of sum_sq, "</span>
-                <span class="sa">f</span><span class="s2">"more than the tile's INT64; reduce the window or rescale the column"</span>
+                <span class="sa">f</span><span class="s2">"more than the core's INT64; reduce the window or rescale the column"</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">RollingMoment</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">buf</span><span class="p">),</span> <span class="n">total</span><span class="o">=</span><span class="nb">sum</span><span class="p">(</span><span class="n">buf</span><span class="p">),</span> <span class="n">total_sq</span><span class="o">=</span><span class="n">total_sq</span><span class="p">)</span>
 
@@ -1748,7 +1748,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    ``rolling_var``, so any other formulation would disagree with the</span>
 <span class="sd">    reference in the last place for no benefit.</span>
 
-<span class="sd">    On device this is where the divide and sqrt tiles land -- variance</span>
+<span class="sd">    On device this is where the divide and sqrt cores land -- variance</span>
 <span class="sd">    divides before it roots -- which is why the numerator stays exact</span>
 <span class="sd">    integers right up to the single divide.</span>
 <span class="sd">    """</span>
@@ -1762,7 +1762,7 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">"""Per-symbol exponentially weighted moving average, non-adjusted recursion</span>
 <span class="sd">    (``e[0] = x[0]``; ``e[i] = alpha*x[i] + (1-alpha)*e[i-1]``) — matches</span>
 <span class="sd">    ``pl.col(x).ewm_mean(alpha=alpha, adjust=False).over("symbol")``. Float: the</span>
-<span class="sd">    reference real-valued semantics the fixed-point tile approximates under its</span>
+<span class="sd">    reference real-valued semantics the fixed-point core approximates under its</span>
 <span class="sd">    declared error budget."""</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="mf">0.0</span> <span class="o">&lt;</span> <span class="n">alpha</span> <span class="o">&lt;=</span> <span class="mf">1.0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"alpha must be in (0, 1], got </span><span class="si">{</span><span class="n">alpha</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>

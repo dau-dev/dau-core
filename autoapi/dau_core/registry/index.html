@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -936,18 +936,18 @@
       <div class="fd-prose">
   <section id="module-dau_core.registry">
 <span id="dau-core-registry"></span><h1>dau_core.registry<a class="headerlink" href="#module-dau_core.registry" title="Link to this heading">¶</a></h1>
-<p>Read-through access to THIS package’s registry of tiles.</p>
+<p>Read-through access to THIS package’s registry of cores.</p>
 <p>Composition IS the registry: the definitions live in dau-core’s hydra
 config tree (<code class="docutils literal notranslate"><span class="pre">dau-core/cores.yaml</span></code>) composed into the ccflow
 <code class="docutils literal notranslate"><span class="pre">ModelRegistry</span></code> at <code class="docutils literal notranslate"><span class="pre">/dau-core/&lt;core-name&gt;</span></code>, and there is no
 Python-literal core list anywhere. These accessors are thin views for
 in-process consumers – tests, shell walking, source staging.</p>
-<p>They are deliberately NOT part of the tile authoring surface. A third
-party declaring a tile needs the models in <a class="reference internal" href="../cores/index.html#module-dau_core.cores" title="dau_core.cores"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dau_core.cores</span></code></a>; it must
-never need this module, which knows only about the tiles dau-core itself
+<p>They are deliberately NOT part of the core authoring surface. A third
+party declaring a core needs the models in <a class="reference internal" href="../cores/index.html#module-dau_core.cores" title="dau_core.cores"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dau_core.cores</span></code></a>; it must
+never need this module, which knows only about the cores dau-core itself
 ships. Keeping the two apart is what lets the surface be reachable by an
 author who does not have this repository – see
-<code class="docutils literal notranslate"><span class="pre">tests/test_public_tile_surface.py</span></code>, which enforces the direction.</p>
+<code class="docutils literal notranslate"><span class="pre">tests/test_public_core_surface.py</span></code>, which enforces the direction.</p>
 <section id="attributes">
 <h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h2>
 <table class="autosummary longtable docutils align-default">
@@ -1096,7 +1096,7 @@ where reading the group’s items would materialize all of them.</p>
 <dt class="sig sig-object py" id="dau_core.registry.core">
 <span class="sig-prename descclassname"><span class="pre">dau_core.registry.</span></span><span class="sig-name descname"><span class="pre">core</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../cores/index.html#dau_core.cores.CoreDefinition" title="dau_core.cores.CoreDefinition"><span class="pre">dau_core.cores.CoreDefinition</span></a></span></span><a class="reference internal" href="../../../_modules/dau_core/registry.html#core"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registry.core" title="Link to this definition">¶</a></dt>
 <dd><p>The composed core called <code class="docutils literal notranslate"><span class="pre">name</span></code>.</p>
-<p>A keyed lookup per group, so asking for one tile builds one model. The
+<p>A keyed lookup per group, so asking for one core builds one model. The
 duplicate check still runs: a name declared by two composed groups is
 refused here exactly as <a class="reference internal" href="#dau_core.registry.loaded_cores" title="dau_core.registry.loaded_cores"><code class="xref py py-func docutils literal notranslate"><span class="pre">loaded_cores()</span></code></a> refuses it, because a core
 name is how every design, spec hash and cached manifest refers to it.</p>
@@ -1106,7 +1106,7 @@ name is how every design, spec hash and cached manifest refers to it.</p>
 <dt class="sig sig-object py" id="dau_core.registry.loaded_cores">
 <span class="sig-prename descclassname"><span class="pre">dau_core.registry.</span></span><span class="sig-name descname"><span class="pre">loaded_cores</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">collections.abc.Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../cores/index.html#dau_core.cores.CoreDefinition" title="dau_core.cores.CoreDefinition"><span class="pre">dau_core.cores.CoreDefinition</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/registry.html#loaded_cores"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registry.loaded_cores" title="Link to this definition">¶</a></dt>
 <dd><p>Every composed core, name -&gt; definition, dau-core’s own first.</p>
-<p>dau-core’s tiles come from its hydra config tree
+<p>dau-core’s cores come from its hydra config tree
 (<code class="docutils literal notranslate"><span class="pre">dau-core/cores.yaml</span></code>) composed into the ccflow <code class="docutils literal notranslate"><span class="pre">ModelRegistry</span></code> at
 <code class="docutils literal notranslate"><span class="pre">/dau-core/&lt;core-name&gt;</span></code>. Composition IS the registry — there is no
 Python-literal core list; these accessors are thin read-through views
@@ -1117,11 +1117,11 @@ defaults load only when it is absent.</p>
 <p><strong>A CONTRIBUTED core is a core.</strong> A third party composing a
 <code class="docutils literal notranslate"><span class="pre">CoreDefinition</span></code> under its own group used to compose successfully,
 register, and then be invisible to every consumer, because this only
-ever read <code class="docutils literal notranslate"><span class="pre">/dau-core</span></code>: the author did everything right and their tile
+ever read <code class="docutils literal notranslate"><span class="pre">/dau-core</span></code>: the author did everything right and their core
 silently vanished, with no error to explain it. Any <code class="docutils literal notranslate"><span class="pre">CoreDefinition</span></code>
 the application composed is returned, whichever group holds it.</p>
 <p>This does not blur the packages. <code class="docutils literal notranslate"><span class="pre">source_package</span></code> is the seam that
-tells a foreign tile from one of ours, and dau-core’s own guards already
+tells a foreign core from one of ours, and dau-core’s own guards already
 scope themselves by it rather than assuming every registered core is
 theirs. A name collision is raised rather than resolved, because
 silently preferring one definition is the failure this fixes.</p>

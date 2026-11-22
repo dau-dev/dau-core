@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../autoapi/test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../../autoapi/test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../autoapi/test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../../autoapi/test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -864,7 +864,7 @@
     <a href="#test-capability-contract-py">test_capability_contract.py</a>
   </li>
   <li class="fd-toc-item" data-depth="1">
-    <a href="#test-public-tile-surface-py">test_public_tile_surface.py</a>
+    <a href="#test-public-core-surface-py">test_public_core_surface.py</a>
   </li>
   <li class="fd-toc-item" data-depth="1">
     <a href="#test-benches-can-fail-py">test_benches_can_fail.py</a>
@@ -889,7 +889,7 @@ core. They run with <code class="docutils literal notranslate"><span class="pre"
 Vivado, and only the elaboration guard needs <code class="docutils literal notranslate"><span class="pre">verilator</span></code>.</p>
 <p>Four of them compare an <em>exact set</em> rather than a predicate. Those are
 scoped to <code class="docutils literal notranslate"><span class="pre">source_package</span> <span class="pre">==</span> <span class="pre">&quot;dau_core.hdl&quot;</span></code> so that an installed
-third-party tile does not read as drift in this package’s palette.</p>
+third-party core does not read as drift in this package’s palette.</p>
 <section id="test-cores-py">
 <h2><code class="docutils literal notranslate"><span class="pre">test_cores.py</span></code><a class="headerlink" href="#test-cores-py" title="Link to this heading">¶</a></h2>
 <p>Registry shape, declaration completeness, and the resource-pricing
@@ -914,7 +914,7 @@ contract.</p>
 <td><p>A <code class="docutils literal notranslate"><span class="pre">bench</span></code> string naming a module that fails to import.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_every_operator_has_a_golden</span></code></p></td>
-<td><p>An operator tile with no reference semantics.</p></td>
+<td><p>An operator core with no reference semantics.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_every_selectable_operator_declares_its_ingest_rate</span></code></p></td>
 <td><p>A missing <code class="docutils literal notranslate"><span class="pre">ingest</span></code>, an unproven faster-than-1-row-per-cycle claim, or a <code class="docutils literal notranslate"><span class="pre">scales_with_param</span></code> naming an undeclared parameter.</p></td>
@@ -929,10 +929,10 @@ contract.</p>
 <td><p><code class="docutils literal notranslate"><span class="pre">effective_record_words</span></code> drifting for the parameterized cores.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_only_combinational_per_beat_cores_support_pipeline_depth</span></code></p></td>
-<td><p>A stateful or multi-word tile claiming the generic elastic-depth axis.</p></td>
+<td><p>A stateful or multi-word core claiming the generic elastic-depth axis.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_wide_combinational_tiles_declare_pipeline_depth_without_changing_ingest</span></code></p></td>
-<td><p>The wide combinational tiles silently moving their depth bounds or their per-slot rate.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_wide_combinational_cores_declare_pipeline_depth_without_changing_ingest</span></code></p></td>
+<td><p>The wide combinational cores silently moving their depth bounds or their per-slot rate.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_sources_for_closes_dependencies_in_order</span></code></p></td>
 <td><p>A dependency closure that emits a package after its consumer, or duplicates a source.</p></td>
@@ -941,7 +941,7 @@ contract.</p>
 <td><p><code class="docutils literal notranslate"><span class="pre">core()</span></code> or <code class="docutils literal notranslate"><span class="pre">core_for_module()</span></code> raising a bare <code class="docutils literal notranslate"><span class="pre">KeyError</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_synthesizable_cores_carry_measured_envelopes</span></code></p></td>
-<td><p>A synthesizable operator or stream-infra tile with no envelope, an unmeasured estimate, or a zero-LUT point.</p></td>
+<td><p>A synthesizable operator or stream-infra core with no envelope, an unmeasured estimate, or a zero-LUT point.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_exact_resource_measurement_resolves_with_parameter_defaults</span></code></p></td>
 <td><p>Coordinate lookup ignoring a declared parameter default.</p></td>
@@ -995,10 +995,10 @@ contract.</p>
 <td><p>Pricing an override that no buildable design could use.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_a_core_resolves_hdl_from_the_package_that_declares_it</span></code></p></td>
-<td><p>A third-party tile being forced to vendor its SystemVerilog into <code class="docutils literal notranslate"><span class="pre">dau_core.hdl</span></code>.</p></td>
+<td><p>A third-party core being forced to vendor its SystemVerilog into <code class="docutils literal notranslate"><span class="pre">dau_core.hdl</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards</span></code></p></td>
-<td><p>An installed third-party tile failing this package’s exact-set guards.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_a_well_formed_vendor_core_does_not_trip_our_palette_guards</span></code></p></td>
+<td><p>An installed third-party core failing this package’s exact-set guards.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_a_core_naming_an_uninstalled_hdl_package_refuses_clearly</span></code></p></td>
 <td><p>A raw <code class="docutils literal notranslate"><span class="pre">ImportError</span></code> where the message should name the missing distribution.</p></td>
@@ -1018,12 +1018,12 @@ contract.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_every_operator_conforms_to_the_stream_tile_contract</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_every_operator_conforms_to_the_stream_core_contract</span></code></p></td>
 <td><p>A <code class="docutils literal notranslate"><span class="pre">row-stream</span></code> operator whose real SystemVerilog port list drifts from the stream and status contract. Ports are parsed from the source rather than assumed.</p></td>
 </tr>
 </tbody>
 </table>
-<p>The check runs through <code class="docutils literal notranslate"><span class="pre">dau_build.sv_contract.validate_stream_tile</span></code>. In CI a
+<p>The check runs through <code class="docutils literal notranslate"><span class="pre">dau_build.sv_contract.validate_stream_core</span></code>. In CI a
 missing <code class="docutils literal notranslate"><span class="pre">dau_build</span></code> fails the guard; anywhere else it skips.</p>
 </section>
 <section id="test-measured-from-matches-the-hdl-py">
@@ -1036,7 +1036,7 @@ missing <code class="docutils literal notranslate"><span class="pre">dau_build</
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_every_stamped_envelope_matches_its_hdl_closure</span></code></p></td>
-<td><p>An edit to a tile’s source, or to a package it imports or a header it includes, without re-measuring and re-stamping its <code class="docutils literal notranslate"><span class="pre">measured_from</span></code>.</p></td>
+<td><p>An edit to a core’s source, or to a package it imports or a header it includes, without re-measuring and re-stamping its <code class="docutils literal notranslate"><span class="pre">measured_from</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_the_unstamped_envelopes_are_exactly_the_declared_ones</span></code></p></td>
 <td><p>A measured core without a <code class="docutils literal notranslate"><span class="pre">measured_from</span></code>, beyond the pinned unstamped set, which can only shrink.</p></td>
@@ -1074,8 +1074,8 @@ missing <code class="docutils literal notranslate"><span class="pre">dau_build</
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_declared_bounds_match_the_tiles_elaboration_guard</span></code></p></td>
-<td><p>A registry <code class="docutils literal notranslate"><span class="pre">minimum</span></code>, <code class="docutils literal notranslate"><span class="pre">maximum</span></code>, or <code class="docutils literal notranslate"><span class="pre">choices</span></code> that disagrees with the bound stated in the tile’s own <code class="docutils literal notranslate"><span class="pre">$error</span></code> text.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_declared_bounds_match_the_cores_elaboration_guard</span></code></p></td>
+<td><p>A registry <code class="docutils literal notranslate"><span class="pre">minimum</span></code>, <code class="docutils literal notranslate"><span class="pre">maximum</span></code>, or <code class="docutils literal notranslate"><span class="pre">choices</span></code> that disagrees with the bound stated in the core’s own <code class="docutils literal notranslate"><span class="pre">$error</span></code> text.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_unparsed_guards_are_declared_and_still_exist</span></code></p></td>
 <td><p>The unparsed-guard holdout list outliving its holdouts, in either direction.</p></td>
@@ -1118,14 +1118,14 @@ machine-readable text, not a comment. The recognized forms are
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_registry_declares_hardware_opcodes_only_for_opcode_driven_tiles</span></code></p></td>
-<td><p>A tile declaring an opcode it cannot execute, or declaring a host-computed operation as hardware.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_registry_declares_hardware_opcodes_only_for_opcode_driven_cores</span></code></p></td>
+<td><p>A core declaring an opcode it cannot execute, or declaring a host-computed operation as hardware.</p></td>
 </tr>
 </tbody>
 </table>
 </section>
-<section id="test-public-tile-surface-py">
-<h2><code class="docutils literal notranslate"><span class="pre">test_public_tile_surface.py</span></code><a class="headerlink" href="#test-public-tile-surface-py" title="Link to this heading">¶</a></h2>
+<section id="test-public-core-surface-py">
+<h2><code class="docutils literal notranslate"><span class="pre">test_public_core_surface.py</span></code><a class="headerlink" href="#test-public-core-surface-py" title="Link to this heading">¶</a></h2>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Guard</p></th>
@@ -1156,7 +1156,7 @@ an import-time check passes on a dependency reached only inside a function.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_a_bench_fails_when_its_tile_is_made_wrong</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_a_bench_fails_when_its_core_is_made_wrong</span></code></p></td>
 <td><p>A bench that always passes. Each mutation edits a copy of the HDL and asserts the bench fails, and that it failed in the <em>run</em> rather than at compile time.</p></td>
 </tr>
 </tbody>
@@ -1198,8 +1198,8 @@ in an autouse fixture, so registry-walking guards see real files.</p>
 <h2>See also<a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference internal" href="../how-to/test-a-core.html"><span class="std std-doc">How to test a core</span></a>: the order to run these in while
-developing a tile.</p></li>
-<li><p><a class="reference internal" href="../how-to/add-an-operator-tile.html"><span class="std std-doc">How to add an operator tile</span></a>: the steps these
+developing a core.</p></li>
+<li><p><a class="reference internal" href="../how-to/add-an-operator-core.html"><span class="std std-doc">How to add an operator core</span></a>: the steps these
 guards check.</p></li>
 <li><p><a class="reference internal" href="core-definition.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">CoreDefinition</span></code> fields</span></a>: the declarations most of these
 guards read.</p></li>
@@ -1262,7 +1262,7 @@ guards read.</p></li>
     <a href="#test-capability-contract-py">test_capability_contract.py</a>
   </li>
   <li class="fd-toc-item" data-depth="1">
-    <a href="#test-public-tile-surface-py">test_public_tile_surface.py</a>
+    <a href="#test-public-core-surface-py">test_public_core_surface.py</a>
   </li>
   <li class="fd-toc-item" data-depth="1">
     <a href="#test-benches-can-fail-py">test_benches_can_fail.py</a>

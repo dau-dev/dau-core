@@ -31,9 +31,9 @@ Module Contents
 
    Measure continuous-valid input handshakes against the registry floor.
 
-   SCOPE: this measures INPUT ACCEPTANCE for a STREAMING tile, ending at
-   the last accepted beat. A tile that buffers a whole batch and works
-   afterward could accept quickly and still be slow overall; such a tile
+   SCOPE: this measures INPUT ACCEPTANCE for a STREAMING core, ending at
+   the last accepted beat. A core that buffers a whole batch and works
+   afterward could accept quickly and still be slow overall; such a core
    needs a measurement spanning its drain and re-arm instead. Every core
    probed here consumes and emits continuously.
 

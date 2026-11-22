@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -852,7 +852,7 @@
     <a href="#module-contents">Module Contents</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_contributed_cores._VENDOR_TILE">_VENDOR_TILE</a>
+    <a href="#test_contributed_cores._VENDOR_CORE">_VENDOR_CORE</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_contributed_cores.registry_group">registry_group()</a>
@@ -896,9 +896,9 @@
 <p>A core someone else declared is still a core.</p>
 <p>A third party composing a <code class="docutils literal notranslate"><span class="pre">CoreDefinition</span></code> under its own registry group
 used to compose successfully, register, and then be invisible: every
-consumer reaches tiles through <code class="xref py py-func docutils literal notranslate"><span class="pre">loaded_cores()</span></code>, which read <code class="docutils literal notranslate"><span class="pre">/dau-core</span></code>
+consumer reaches cores through <code class="xref py py-func docutils literal notranslate"><span class="pre">loaded_cores()</span></code>, which read <code class="docutils literal notranslate"><span class="pre">/dau-core</span></code>
 and nothing else. The author did everything the authoring surface asks for
-and their tile silently vanished, with no error naming the cause – the
+and their core silently vanished, with no error naming the cause – the
 worst shape a failure can take, because there is nothing to search for.</p>
 <p>The seam that keeps packages apart is <code class="docutils literal notranslate"><span class="pre">source_package</span></code>, not invisibility.
 dau-core’s own guards already scope themselves by it rather than assuming
@@ -908,7 +908,7 @@ loosen a single one of them.</p>
 <h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_contributed_cores._VENDOR_TILE" title="test_contributed_cores._VENDOR_TILE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_VENDOR_TILE</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_contributed_cores._VENDOR_CORE" title="test_contributed_cores._VENDOR_CORE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_VENDOR_CORE</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -925,7 +925,7 @@ loosen a single one of them.</p>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_contributed_cores.test_contribution_does_not_disturb_our_own_cores" title="test_contributed_cores.test_contribution_does_not_disturb_our_own_cores"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_contribution_does_not_disturb_our_own_cores</span></code></a>(...) → None</p></td>
-<td><p>The seam still works: ours remain identifiable, and a foreign tile</p></td>
+<td><p>The seam still works: ours remain identifiable, and a foreign core</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#test_contributed_cores.test_a_name_collision_is_raised_not_resolved" title="test_contributed_cores.test_a_name_collision_is_raised_not_resolved"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_name_collision_is_raised_not_resolved</span></code></a>(...) → None</p></td>
 <td><p>A core name is how every design, spec hash and cached manifest refers</p></td>
@@ -934,7 +934,7 @@ loosen a single one of them.</p>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#test_contributed_cores.test_a_single_core_lookup_builds_a_single_model" title="test_contributed_cores.test_a_single_core_lookup_builds_a_single_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_single_core_lookup_builds_a_single_model</span></code></a>() → None</p></td>
-<td><p>The point of loading the palette lazily: asking for one tile builds</p></td>
+<td><p>The point of loading the palette lazily: asking for one core builds</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_contributed_cores.test_the_whole_palette_is_still_available_to_the_consumers_that_need_it" title="test_contributed_cores.test_the_whole_palette_is_still_available_to_the_consumers_that_need_it"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_whole_palette_is_still_available_to_the_consumers_that_need_it</span></code></a>() → None</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">loaded_cores</span></code> is the whole-palette path -- the guards, source</p></td>
@@ -945,8 +945,8 @@ loosen a single one of them.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
 <dl class="py data">
-<dt class="sig sig-object py" id="test_contributed_cores._VENDOR_TILE">
-<span class="sig-prename descclassname"><span class="pre">test_contributed_cores.</span></span><span class="sig-name descname"><span class="pre">_VENDOR_TILE</span></span><a class="headerlink" href="#test_contributed_cores._VENDOR_TILE" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="test_contributed_cores._VENDOR_CORE">
+<span class="sig-prename descclassname"><span class="pre">test_contributed_cores.</span></span><span class="sig-name descname"><span class="pre">_VENDOR_CORE</span></span><a class="headerlink" href="#test_contributed_cores._VENDOR_CORE" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -963,7 +963,7 @@ loosen a single one of them.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="test_contributed_cores.test_contribution_does_not_disturb_our_own_cores">
 <span class="sig-prename descclassname"><span class="pre">test_contributed_cores.</span></span><span class="sig-name descname"><span class="pre">test_contribution_does_not_disturb_our_own_cores</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">registry_group</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_contributed_cores.test_contribution_does_not_disturb_our_own_cores" title="Link to this definition">¶</a></dt>
-<dd><p>The seam still works: ours remain identifiable, and a foreign tile
+<dd><p>The seam still works: ours remain identifiable, and a foreign core
 does not become one of ours by being visible.</p>
 </dd></dl>
 
@@ -971,7 +971,7 @@ does not become one of ours by being visible.</p>
 <dt class="sig sig-object py" id="test_contributed_cores.test_a_name_collision_is_raised_not_resolved">
 <span class="sig-prename descclassname"><span class="pre">test_contributed_cores.</span></span><span class="sig-name descname"><span class="pre">test_a_name_collision_is_raised_not_resolved</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">registry_group</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_contributed_cores.test_a_name_collision_is_raised_not_resolved" title="Link to this definition">¶</a></dt>
 <dd><p>A core name is how every design, spec hash and cached manifest refers
-to a tile. Silently preferring one definition would let a design mean two
+to a core. Silently preferring one definition would let a design mean two
 different things depending on what else was installed.</p>
 </dd></dl>
 
@@ -983,7 +983,7 @@ different things depending on what else was installed.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="test_contributed_cores.test_a_single_core_lookup_builds_a_single_model">
 <span class="sig-prename descclassname"><span class="pre">test_contributed_cores.</span></span><span class="sig-name descname"><span class="pre">test_a_single_core_lookup_builds_a_single_model</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_contributed_cores.test_a_single_core_lookup_builds_a_single_model" title="Link to this definition">¶</a></dt>
-<dd><p>The point of loading the palette lazily: asking for one tile builds
+<dd><p>The point of loading the palette lazily: asking for one core builds
 one <code class="docutils literal notranslate"><span class="pre">CoreDefinition</span></code>. Reading the group’s items builds all of them, so
 <code class="docutils literal notranslate"><span class="pre">core()</span></code> must not go through <code class="docutils literal notranslate"><span class="pre">loaded_cores()</span></code>, which is what it used
 to do.</p>
@@ -1042,7 +1042,7 @@ staging, the role scans – and pays for it.</p>
     <a href="#module-contents">Module Contents</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_contributed_cores._VENDOR_TILE">_VENDOR_TILE</a>
+    <a href="#test_contributed_cores._VENDOR_CORE">_VENDOR_CORE</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_contributed_cores.registry_group">registry_group()</a>

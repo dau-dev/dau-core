@@ -482,13 +482,13 @@ window.runMermaid = runMermaid;</script>
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -527,8 +527,8 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -1168,11 +1168,6 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../autoapi/test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../autoapi/test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -1183,8 +1178,13 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../autoapi/test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../autoapi/test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -1255,12 +1255,12 @@ window.runMermaid = runMermaid;</script>
 </nav>
       <div class="fd-prose">
   <h1>Source code for dau_core.exp_generator</h1><div class="highlight"><pre>
-<span></span><span class="sd">"""Renders the fixed-point exp tile from a declared operating point.</span>
+<span></span><span class="sd">"""Renders the fixed-point exp core from a declared operating point.</span>
 
 <span class="sd">The datapath is :class:`dau_core.fixed_point.ExpDatapath` and the emitted</span>
 <span class="sd">SystemVerilog mirrors :meth:`ExpDatapath.evaluate` step for step, so the</span>
 <span class="sd">cocotb bench can compare against it with zero tolerance like every other</span>
-<span class="sd">tile. The operating point -- internal precision, table size, polynomial</span>
+<span class="sd">core. The operating point -- internal precision, table size, polynomial</span>
 <span class="sd">degree, whether Horner steps round -- arrives as configuration, which is why</span>
 <span class="sd">this is a generator and not a checked-in file: the 256-entry table of</span>
 <span class="sd">``2**(j/256)`` is a function of those parameters and SystemVerilog cannot</span>
@@ -1272,7 +1272,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">DSP48s at the exact point and 20 at the light one, against 740 on the part.</span>
 <span class="sd">Folding onto a shared multiplier</span>
 <span class="sd">would cut that to roughly a ninth, but at one row per nine cycles against</span>
-<span class="sd">sqrt's and divide's one per three -- the tile would become the bottleneck of</span>
+<span class="sd">sqrt's and divide's one per three -- the core would become the bottleneck of</span>
 <span class="sd">any chain it joined.</span>
 <span class="sd">"""</span>
 
@@ -1284,16 +1284,16 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.fixed_point</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExpDatapath</span><span class="p">,</span> <span class="n">exp_domain</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.generators</span><span class="w"> </span><span class="kn">import</span> <span class="n">CoreGenerator</span><span class="p">,</span> <span class="n">RenderContext</span><span class="p">,</span> <span class="n">RenderedCore</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"ExpTileGenerator"</span><span class="p">,)</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"ExpCoreGenerator"</span><span class="p">,)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_hex_literal</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">width</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">width</span><span class="si">}</span><span class="s2">'h</span><span class="si">{</span><span class="n">value</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="p">((</span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">width</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="si">:</span><span class="s2">0</span><span class="si">{</span><span class="p">(</span><span class="n">width</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="mi">4</span><span class="si">}</span><span class="s2">x</span><span class="si">}</span><span class="s2">"</span>
 
 
-<div class="viewcode-block" id="ExpTileGenerator">
-<a class="viewcode-back" href="../../autoapi/dau_core/exp_generator/index.html#dau_core.exp_generator.ExpTileGenerator">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">ExpTileGenerator</span><span class="p">(</span><span class="n">CoreGenerator</span><span class="p">):</span>
+<div class="viewcode-block" id="ExpCoreGenerator">
+<a class="viewcode-back" href="../../autoapi/dau_core/exp_generator/index.html#dau_core.exp_generator.ExpCoreGenerator">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ExpCoreGenerator</span><span class="p">(</span><span class="n">CoreGenerator</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Renders ``dau_fixed_point_exp`` for one operating point."""</span>
 
     <span class="n">module</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"dau_fixed_point_exp"</span>
@@ -1303,8 +1303,8 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">source_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="si">}</span><span class="s2">.sv"</span>
 
-<div class="viewcode-block" id="ExpTileGenerator.__call__">
-<a class="viewcode-back" href="../../autoapi/dau_core/exp_generator/index.html#dau_core.exp_generator.ExpTileGenerator.__call__">[docs]</a>
+<div class="viewcode-block" id="ExpCoreGenerator.__call__">
+<a class="viewcode-back" href="../../autoapi/dau_core/exp_generator/index.html#dau_core.exp_generator.ExpCoreGenerator.__call__">[docs]</a>
     <span class="nd">@Flow</span><span class="o">.</span><span class="n">call</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">RenderContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RenderedCore</span><span class="p">:</span>  <span class="c1"># noqa: ARG002 (ccflow interface)</span>
         <span class="n">point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">datapath</span>
@@ -1363,13 +1363,13 @@ window.runMermaid = runMermaid;</script>
 
         <span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"""`default_nettype none</span>
 
-<span class="s2">// GENERATED by dau_core.exp_generator.ExpTileGenerator -- do not edit.</span>
+<span class="s2">// GENERATED by dau_core.exp_generator.ExpCoreGenerator -- do not edit.</span>
 <span class="s2">//</span>
 <span class="s2">// Fixed-point exp over 16-byte quad rows, rendered for ONE operating point:</span>
 <span class="s2">//   internal bits </span><span class="si">{</span><span class="n">q</span><span class="si">}</span><span class="s2">, table </span><span class="si">{</span><span class="n">entries</span><span class="si">}</span><span class="s2"> entries, degree </span><span class="si">{</span><span class="n">point</span><span class="o">.</span><span class="n">degree</span><span class="si">}</span><span class="s2">,</span>
 <span class="s2">//   Horner steps </span><span class="si">{</span><span class="s2">"rounded"</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">point</span><span class="o">.</span><span class="n">round_steps</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">"truncated"</span><span class="si">}</span>
 <span class="s2">//</span>
-<span class="s2">// This tile is generated because its </span><span class="si">{</span><span class="n">entries</span><span class="si">}</span><span class="s2">-entry table of 2**(j/</span><span class="si">{</span><span class="n">entries</span><span class="si">}</span><span class="s2">) and</span>
+<span class="s2">// This core is generated because its </span><span class="si">{</span><span class="n">entries</span><span class="si">}</span><span class="s2">-entry table of 2**(j/</span><span class="si">{</span><span class="n">entries</span><span class="si">}</span><span class="s2">) and</span>
 <span class="s2">// its polynomial coefficients are transcendental constants at </span><span class="si">{</span><span class="n">q</span><span class="si">}</span><span class="s2"> fractional</span>
 <span class="s2">// bits, and SystemVerilog cannot compute those at elaboration. The registry</span>
 <span class="s2">// entry names the generator and the operating point; nothing here is hand</span>
@@ -1570,7 +1570,7 @@ window.runMermaid = runMermaid;</script>
 <span class="s2">                // stage 1 overrides: k</span>
 <span class="s2">                // truncated, not rounded: the rounding add spanned the whole</span>
 <span class="s2">                // product and measured as a 13-deep CARRY4 chain between two</span>
-<span class="s2">                // DSPs, which was the tile's critical path</span>
+<span class="s2">                // DSPs, which was the core's critical path</span>
 <span class="s2">                stage_k[1] &lt;= K_WIDTH'(k_product &gt;&gt;&gt; (K_BITS + FRACTIONAL_BITS));</span>
 <span class="s2">                // stage 2 overrides: the residue replaces the carried x</span>
 <span class="s2">                // the shifted product is registered, so the subtract no longer</span>

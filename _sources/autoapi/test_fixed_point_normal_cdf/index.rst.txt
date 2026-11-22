@@ -30,7 +30,7 @@ Functions
 
    test_fixed_point_normal_cdf._sweep
    test_fixed_point_normal_cdf.test_the_registered_point_is_correctly_rounded_over_every_input
-   test_fixed_point_normal_cdf.test_the_tile_is_total_and_saturates_exactly
+   test_fixed_point_normal_cdf.test_the_core_is_total_and_saturates_exactly
    test_fixed_point_normal_cdf.test_symmetry_holds_exactly
    test_fixed_point_normal_cdf.test_a_cheaper_point_is_not_correctly_rounded
    test_fixed_point_normal_cdf.test_the_normal_cdf_constants_are_a_frozen_model_read_by_name
@@ -54,7 +54,7 @@ Module Contents
 
 .. py:function:: test_the_registered_point_is_correctly_rounded_over_every_input() -> None
 
-.. py:function:: test_the_tile_is_total_and_saturates_exactly() -> None
+.. py:function:: test_the_core_is_total_and_saturates_exactly() -> None
 
    No error path: every int32 input has an answer, and the saturation IS
    the correctly rounded value rather than a clamp.

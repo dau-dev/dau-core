@@ -482,13 +482,13 @@ window.runMermaid = runMermaid;</script>
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -527,8 +527,8 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -1168,11 +1168,6 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../autoapi/test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../autoapi/test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -1183,8 +1178,13 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../autoapi/test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../autoapi/test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -1281,10 +1281,10 @@ window.runMermaid = runMermaid;</script>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"CONTRIB_GROUP"</span><span class="p">,</span> <span class="s2">"compose_config"</span><span class="p">,</span> <span class="s2">"contributed_options"</span><span class="p">,</span> <span class="s2">"load_config"</span><span class="p">)</span>
 
-<span class="c1"># Where a contributing package puts its tiles. `dau-core` itself cannot be</span>
+<span class="c1"># Where a contributing package puts its cores. `dau-core` itself cannot be</span>
 <span class="c1"># that place: `base.yaml` selects ONE option from it, so a second package</span>
 <span class="c1"># shipping `dau-core/&lt;theirs&gt;.yaml` adds an option that is never composed --</span>
-<span class="c1"># no error, no warning, the tile simply is not there. Hydra actively refuses</span>
+<span class="c1"># no error, no warning, the core simply is not there. Hydra actively refuses</span>
 <span class="c1"># the additive form for a single-select group, and `override` would REPLACE</span>
 <span class="c1"># our palette with theirs.</span>
 <span class="n">CONTRIB_GROUP</span> <span class="o">=</span> <span class="s2">"dau-core-contrib"</span>
@@ -1293,7 +1293,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="contributed_options">
 <a class="viewcode-back" href="../../autoapi/dau_core/config/index.html#dau_core.config.contributed_options">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">contributed_options</span><span class="p">(</span><span class="n">config_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">version_base</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Contributed tile options installed on the searchpath, discovered.</span>
+<span class="w">    </span><span class="sd">"""Contributed core options installed on the searchpath, discovered.</span>
 
 <span class="sd">    A consumer should not have to name the vendors it happens to have</span>
 <span class="sd">    installed -- that is the difference between a package being installable</span>
@@ -1320,7 +1320,7 @@ window.runMermaid = runMermaid;</script>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">options</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="n">config_loader</span><span class="p">())</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>  <span class="c1"># noqa: BLE001  # discovery is best-effort; never fail a compose over it</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">"contributed tile discovery failed; composing dau-core's own palette only: </span><span class="si">{</span><span class="n">error</span><span class="si">!r}</span><span class="s2">"</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">"contributed core discovery failed; composing dau-core's own palette only: </span><span class="si">{</span><span class="n">error</span><span class="si">!r}</span><span class="s2">"</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
             <span class="k">return</span> <span class="p">()</span>
 
     <span class="c1"># Initializing hydra runs the searchpath plugin, which LOADS provider</span>
@@ -1336,8 +1336,8 @@ window.runMermaid = runMermaid;</script>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>  <span class="c1"># noqa: BLE001</span>
         <span class="c1"># discovery is best-effort: a searchpath hydra cannot read must not</span>
         <span class="c1"># take down composition that would otherwise have worked, but a</span>
-        <span class="c1"># contributor whose tiles vanish deserves to be told why</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">"contributed tile discovery failed; composing dau-core's own palette only: </span><span class="si">{</span><span class="n">error</span><span class="si">!r}</span><span class="s2">"</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="c1"># contributor whose cores vanish deserves to be told why</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">"contributed core discovery failed; composing dau-core's own palette only: </span><span class="si">{</span><span class="n">error</span><span class="si">!r}</span><span class="s2">"</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">()</span>
     <span class="k">finally</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">added</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">models</span><span class="p">)</span> <span class="o">-</span> <span class="n">before</span><span class="p">:</span>
@@ -1359,7 +1359,7 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">"""Compose dau-core's own config tree (group ``dau-core``, option</span>
 <span class="sd">    ``cores``) with raw overrides.</span>
 
-<span class="sd">    Contributed tiles are composed too, without the caller naming them: the</span>
+<span class="sd">    Contributed cores are composed too, without the caller naming them: the</span>
 <span class="sd">    options of :data:`CONTRIB_GROUP` are discovered across the searchpath and</span>
 <span class="sd">    selected together as a list, which is the form that admits more than one</span>
 <span class="sd">    (a bare ``+group=option`` selects exactly one, so two installed vendors</span>
@@ -1404,7 +1404,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    The composed groups are loaded as ccflow ``LazyRegistry`` children, so a</span>
 <span class="sd">    ``CoreDefinition`` is built when something asks for that core rather than</span>
 <span class="sd">    all 59 at load. Loading the palette eagerly cost 164 ms and every</span>
-<span class="sd">    consumer paid it to reach one tile; lazily it is 10 ms plus about 4 ms</span>
+<span class="sd">    consumer paid it to reach one core; lazily it is 10 ms plus about 4 ms</span>
 <span class="sd">    per core actually used (:func:`dau_core.registry.core`). A consumer that</span>
 <span class="sd">    does need the whole palette -- the guards, source staging -- asks for it</span>
 <span class="sd">    through :func:`dau_core.registry.loaded_cores` and pays for it there.</span>

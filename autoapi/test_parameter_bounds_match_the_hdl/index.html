@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -873,7 +873,7 @@
     <a href="#test_parameter_bounds_match_the_hdl._magnitude">_magnitude()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_parameter_bounds_match_the_hdl.test_declared_bounds_match_the_tiles_elaboration_guard">test_declared_bounds_match_the_tiles_elaboration_guard()</a>
+    <a href="#test_parameter_bounds_match_the_hdl.test_declared_bounds_match_the_cores_elaboration_guard">test_declared_bounds_match_the_cores_elaboration_guard()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_parameter_bounds_match_the_hdl.test_unparsed_guards_are_declared_and_still_exist">test_unparsed_guards_are_declared_and_still_exist()</a>
@@ -909,12 +909,12 @@
   <section id="module-test_parameter_bounds_match_the_hdl">
 <span id="test-parameter-bounds-match-the-hdl"></span><h1>test_parameter_bounds_match_the_hdl<a class="headerlink" href="#module-test_parameter_bounds_match_the_hdl" title="Link to this heading">¶</a></h1>
 <p>A parameter bound stated twice is a bound that can disagree with itself.</p>
-<p>The registry declares what a tile’s parameters may be; the tile’s own
+<p>The registry declares what a core’s parameters may be; the core’s own
 elaboration guard declares the same thing in SystemVerilog, because Verilog
 cannot read the registry. Both are necessary. Nothing made them agree, so
-the registry could offer a K the tile refuses to elaborate, or – worse –
-accept one the tile elaborates into something unmeasured.</p>
-<p>The tiles state their bounds in a small set of conventional forms, which is
+the registry could offer a K the core refuses to elaborate, or – worse –
+accept one the core elaborates into something unmeasured.</p>
+<p>The cores state their bounds in a small set of conventional forms, which is
 what makes this checkable. A form this cannot parse is listed explicitly
 rather than skipped silently: an unparsed guard is an unchecked guard, and a
 holdout list that nobody can see is how the last audit went stale.</p>
@@ -948,9 +948,9 @@ holdout list that nobody can see is how the last audit went stale.</p>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_parameter_bounds_match_the_hdl._magnitude" title="test_parameter_bounds_match_the_hdl._magnitude"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_magnitude</span></code></a>(parameter, value) → int</p></td>
-<td><p>What the tile's guard is a bound ON.</p></td>
+<td><p>What the core's guard is a bound ON.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_parameter_bounds_match_the_hdl.test_declared_bounds_match_the_tiles_elaboration_guard" title="test_parameter_bounds_match_the_hdl.test_declared_bounds_match_the_tiles_elaboration_guard"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_declared_bounds_match_the_tiles_elaboration_guard</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_parameter_bounds_match_the_hdl.test_declared_bounds_match_the_cores_elaboration_guard" title="test_parameter_bounds_match_the_hdl.test_declared_bounds_match_the_cores_elaboration_guard"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_declared_bounds_match_the_cores_elaboration_guard</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_parameter_bounds_match_the_hdl.test_unparsed_guards_are_declared_and_still_exist" title="test_parameter_bounds_match_the_hdl.test_unparsed_guards_are_declared_and_still_exist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_unparsed_guards_are_declared_and_still_exist</span></code></a>() → None</p></td>
@@ -1007,7 +1007,7 @@ holdout list that nobody can see is how the last audit went stale.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="test_parameter_bounds_match_the_hdl._magnitude">
 <span class="sig-prename descclassname"><span class="pre">test_parameter_bounds_match_the_hdl.</span></span><span class="sig-name descname"><span class="pre">_magnitude</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#test_parameter_bounds_match_the_hdl._magnitude" title="Link to this definition">¶</a></dt>
-<dd><p>What the tile’s guard is a bound ON.</p>
+<dd><p>What the core’s guard is a bound ON.</p>
 <p>An element-type parameter carries a type encoding, and a guard reading
 “must divide 128 and lie in [8, 64]” bounds the type’s WIDTH – the
 encoding itself is not a quantity anything is measured in. For a plain
@@ -1018,8 +1018,8 @@ against a bound about bits.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="test_parameter_bounds_match_the_hdl.test_declared_bounds_match_the_tiles_elaboration_guard">
-<span class="sig-prename descclassname"><span class="pre">test_parameter_bounds_match_the_hdl.</span></span><span class="sig-name descname"><span class="pre">test_declared_bounds_match_the_tiles_elaboration_guard</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_parameter_bounds_match_the_hdl.test_declared_bounds_match_the_tiles_elaboration_guard" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="test_parameter_bounds_match_the_hdl.test_declared_bounds_match_the_cores_elaboration_guard">
+<span class="sig-prename descclassname"><span class="pre">test_parameter_bounds_match_the_hdl.</span></span><span class="sig-name descname"><span class="pre">test_declared_bounds_match_the_cores_elaboration_guard</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_parameter_bounds_match_the_hdl.test_declared_bounds_match_the_cores_elaboration_guard" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -1033,7 +1033,7 @@ against a bound about bits.</p>
 <span class="sig-prename descclassname"><span class="pre">test_parameter_bounds_match_the_hdl.</span></span><span class="sig-name descname"><span class="pre">test_the_python_mirror_of_the_top_k_bound_matches_the_registry</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_parameter_bounds_match_the_hdl.test_the_python_mirror_of_the_top_k_bound_matches_the_registry" title="Link to this definition">¶</a></dt>
 <dd><p><cite>TOP_K_MAX</cite> is a third copy of the same number: the compiler rejects an
 out-of-envelope limit against it, the registry prices against its maximum,
-and the tile refuses to elaborate outside its guard.</p>
+and the core refuses to elaborate outside its guard.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1123,7 +1123,7 @@ registry; this keeps the copies equal.</p>
     <a href="#test_parameter_bounds_match_the_hdl._magnitude">_magnitude()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_parameter_bounds_match_the_hdl.test_declared_bounds_match_the_tiles_elaboration_guard">test_declared_bounds_match_the_tiles_elaboration_guard()</a>
+    <a href="#test_parameter_bounds_match_the_hdl.test_declared_bounds_match_the_cores_elaboration_guard">test_declared_bounds_match_the_cores_elaboration_guard()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_parameter_bounds_match_the_hdl.test_unparsed_guards_are_declared_and_still_exist">test_unparsed_guards_are_declared_and_still_exist()</a>

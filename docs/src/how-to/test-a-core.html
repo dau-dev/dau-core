@@ -28,7 +28,7 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="How to measure a resource envelope" href="measure-a-resource-envelope.html" />
-    <link rel="prev" title="How to add an operator tile" href="add-an-operator-tile.html" />
+    <link rel="prev" title="How to add an operator core" href="add-an-operator-core.html" />
     <script>
       (function () {
         var root = document.documentElement;
@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../autoapi/test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../../autoapi/test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../autoapi/test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../../autoapi/test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -875,9 +875,9 @@
       <div class="fd-prose">
   <section class="tex2jax_ignore mathjax_ignore" id="how-to-test-a-core">
 <h1>How to test a core<a class="headerlink" href="#how-to-test-a-core" title="Link to this heading">¶</a></h1>
-<p>This guide shows you how to check that a tile does what its registry entry
-says. It assumes the tile already has a golden, HDL, and an entry; see
-<a class="reference internal" href="add-an-operator-tile.html"><span class="std std-doc">how to add an operator tile</span></a> for the order those
+<p>This guide shows you how to check that a core does what its registry entry
+says. It assumes the core already has a golden, HDL, and an entry; see
+<a class="reference internal" href="add-an-operator-core.html"><span class="std std-doc">how to add an operator core</span></a> for the order those
 come in.</p>
 <p>Nothing here needs Vivado. The bench steps need <code class="docutils literal notranslate"><span class="pre">verilator</span></code> on <code class="docutils literal notranslate"><span class="pre">PATH</span></code> and
 the develop extras, which bring in the cocotb integration:</p>
@@ -888,7 +888,7 @@ the develop extras, which bring in the cocotb integration:</p>
 a kind of failure the next one would report in a more confusing way.</p>
 <section id="prove-the-golden-against-itself">
 <h2>1. Prove the golden against itself<a class="headerlink" href="#prove-the-golden-against-itself" title="Link to this heading">¶</a></h2>
-<p>The golden defines the tile, so it cannot be checked against the hardware;
+<p>The golden defines the core, so it cannot be checked against the hardware;
 the hardware is checked against it. Test the golden against properties
 instead, in <code class="docutils literal notranslate"><span class="pre">dau_core/tests/test_&lt;name&gt;.py</span></code>:</p>
 <ul class="simple">
@@ -896,7 +896,7 @@ instead, in <code class="docutils literal notranslate"><span class="pre">dau_cor
 <li><p>agreement with an existing golden wherever the two overlap;</p></li>
 <li><p>boundary values, including the int32 wire identity (<code class="docutils literal notranslate"><span class="pre">-1</span></code> and
 <code class="docutils literal notranslate"><span class="pre">0xFFFFFFFF</span></code> are the same key);</p></li>
-<li><p>the algebra, if the tile has a host-side counterpart:
+<li><p>the algebra, if the core has a host-side counterpart:
 <code class="docutils literal notranslate"><span class="pre">merge(split(rows))</span> <span class="pre">==</span> <span class="pre">one_shot(rows)</span></code>.</p></li>
 </ul>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w"> </span>dau_core/tests/test_&lt;name&gt;.py<span class="w"> </span>-q
@@ -907,7 +907,7 @@ instead, in <code class="docutils literal notranslate"><span class="pre">dau_cor
 <h2>2. Prove the HDL equal to the golden<a class="headerlink" href="#prove-the-hdl-equal-to-the-golden" title="Link to this heading">¶</a></h2>
 <p>The cocotb bench in <code class="docutils literal notranslate"><span class="pre">dau_core/tests/cocotb_benches/dau_&lt;name&gt;_tb.py</span></code>
 drives the DUT and compares its output with the golden’s, using no
-hand-written expected values. Build the tile’s config object once and pass the same
+hand-written expected values. Build the core’s config object once and pass the same
 object to both sides, so a misread config cannot cancel itself out:</p>
 <!-- excerpt -->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">predicate</span> <span class="o">=</span> <span class="n">FilterPredicate</span><span class="p">(</span><span class="n">op0</span><span class="o">=</span><span class="n">PredicateOp</span><span class="o">.</span><span class="n">GT</span><span class="p">,</span> <span class="n">constant0</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
@@ -924,7 +924,7 @@ parameter value, then:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w"> </span>dau_core/tests/test_hdl_cocotb.py<span class="w"> </span>-q<span class="w"> </span>-k<span class="w"> </span>&lt;name&gt;
 </pre></div>
 </div>
-<p>For a parameterized tile the runner sets two coupled channels from the same
+<p>For a parameterized core the runner sets two coupled channels from the same
 pytest parameter: <code class="docutils literal notranslate"><span class="pre">parameters={&quot;SLOTS&quot;:</span> <span class="pre">slots}</span></code> tells Verilator how to
 elaborate, and an environment variable tells the bench how to shape its
 stimulus. Set both, or the bench will exercise the default shape against a
@@ -932,7 +932,7 @@ differently elaborated DUT.</p>
 </section>
 <section id="prove-the-bench-can-fail">
 <h2>3. Prove the bench can fail<a class="headerlink" href="#prove-the-bench-can-fail" title="Link to this heading">¶</a></h2>
-<p>A bench that compares nothing always passes. Add your tile’s failure mode
+<p>A bench that compares nothing always passes. Add your core’s failure mode
 to the mutation list in <code class="docutils literal notranslate"><span class="pre">dau_core/tests/test_benches_can_fail.py</span></code>. Each
 entry edits a copy of the HDL, runs the bench, and asserts that it fails,
 and that it failed while running rather than at compile time.</p>
@@ -955,14 +955,14 @@ probe instead of trusting it:</p>
 forbids gaps in input valid, and fails when the measured rate is more than
 one percent short, with a message suggesting either lowering the
 declaration or fixing the RTL. It measures <em>input acceptance</em>, ending at the
-last accepted beat, so a tile that buffers a whole batch and does its work
+last accepted beat, so a core that buffers a whole batch and does its work
 afterwards needs a measurement that covers its drain instead.</p>
 </section>
 <section id="prove-the-declared-parameter-space-elaborates">
 <h2>5. Prove the declared parameter space elaborates<a class="headerlink" href="#prove-the-declared-parameter-space-elaborates" title="Link to this heading">¶</a></h2>
 <p>The registry advertises a parameter’s bounds; the RTL enforces them in a
 generate-scope <code class="docutils literal notranslate"><span class="pre">$error</span></code>. Two guards keep those from drifting, and both are
-already parametrized over the palette, so a new tile is covered as soon as
+already parametrized over the palette, so a new core is covered as soon as
 it is registered:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w"> </span>dau_core/tests/test_hdl_elaboration.py<span class="w"> </span>-q<span class="w"> </span>-k<span class="w"> </span>&lt;name&gt;
 python<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w"> </span>dau_core/tests/test_parameter_bounds_match_the_hdl.py<span class="w"> </span>-q
@@ -988,14 +988,14 @@ CI sets it, which is what makes the tier usable as a gate:</p>
 </section>
 <section id="run-the-registry-wide-guards">
 <h2>6. Run the registry-wide guards<a class="headerlink" href="#run-the-registry-wide-guards" title="Link to this heading">¶</a></h2>
-<p>These walk the whole registry instead of your tile, and they catch
+<p>These walk the whole registry instead of your core, and they catch
 declarations that are well formed but wrong: an entry with no envelope, a
 golden that does not import, a source file no entry claims.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w"> </span>dau_core/tests/test_cores.py<span class="w"> </span>-q
 </pre></div>
 </div>
 <p>See the <a class="reference internal" href="../reference/registry-guards.html"><span class="std std-doc">registry guard reference</span></a> for what each one
-checks. Four of them compare exact sets instead of predicates. If your tile
+checks. Four of them compare exact sets instead of predicates. If your core
 belongs in one, a new silent-on-success stage for example, adding it to the
 pinned set is part of the change, so a reviewer sees it in the diff.</p>
 </section>
@@ -1013,7 +1013,7 @@ python<span class="w"> </span>-m<span class="w"> </span>ruff<span class="w"> </s
 that needs a synthesis host.</p></li>
 <li><p><a class="reference internal" href="../reference/registry-guards.html"><span class="std std-doc">Registry-wide guards</span></a>: the full list, and what each one
 checks.</p></li>
-<li><p><a class="reference internal" href="../explanation/why-each-tile-has-a-golden-model.html"><span class="std std-doc">Why each tile has a golden model</span></a>: why
+<li><p><a class="reference internal" href="../explanation/why-each-core-has-a-golden-model.html"><span class="std std-doc">Why each core has a golden model</span></a>: why
 step 1 comes first.</p></li>
 </ul>
 </section>
@@ -1022,11 +1022,11 @@ step 1 comes first.</p></li>
 
       </div>
 <nav class="fd-pagination" aria-label="Pagination">
-  <a class="fd-pagination-card fd-pagination-prev" href="add-an-operator-tile.html" title="Previous: How to add an operator tile">
+  <a class="fd-pagination-card fd-pagination-prev" href="add-an-operator-core.html" title="Previous: How to add an operator core">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m15 18-6-6 6-6"/></svg>
     <span class="fd-pagination-text">
       <span class="fd-pagination-label">Previous</span>
-      <span class="fd-pagination-title">How to add an operator tile</span>
+      <span class="fd-pagination-title">How to add an operator core</span>
     </span>
   </a>
   <a class="fd-pagination-card fd-pagination-next" href="measure-a-resource-envelope.html" title="Next: How to measure a resource envelope">

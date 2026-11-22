@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -1074,8 +1074,8 @@ previous symbol’s values, however extreme they were.</p>
 <dt class="sig sig-object py" id="cocotb_benches.dau_rolling_extremum_tb.rolling_extremum_all_warmup_emits_nothing_and_closes_out">
 <em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cocotb_benches.dau_rolling_extremum_tb.</span></span><span class="sig-name descname"><span class="pre">rolling_extremum_all_warmup_emits_nothing_and_closes_out</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dut</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cocotb_benches.dau_rolling_extremum_tb.rolling_extremum_all_warmup_emits_nothing_and_closes_out" title="Link to this definition">¶</a></dt>
 <dd><p>A stream that forwards NOTHING still closes out. Zero forwarded rows is
-the one outcome a downstream tile cannot tell apart from a stall, which is
-why this tile is silent on success only while it is forwarding.</p>
+the one outcome a downstream core cannot tell apart from a stall, which is
+why this core is silent on success only while it is forwarding.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1090,7 +1090,7 @@ stream ends.</p>
 <dt class="sig sig-object py" id="cocotb_benches.dau_rolling_extremum_tb.rolling_extremum_reuses_across_batches">
 <em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cocotb_benches.dau_rolling_extremum_tb.</span></span><span class="sig-name descname"><span class="pre">rolling_extremum_reuses_across_batches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dut</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cocotb_benches.dau_rolling_extremum_tb.rolling_extremum_reuses_across_batches" title="Link to this definition">¶</a></dt>
 <dd><p>A SECOND batch after input_last must be a fresh window.</p>
-<p>Every other test resets first, which is exactly how a tile that carries
+<p>Every other test resets first, which is exactly how a core that carries
 its segment state across a batch boundary passes a whole bench. Here the
 second batch opens with the SAME symbol the first one closed on: if the
 run length survived, its first rows emit during what should be warm-up.</p>

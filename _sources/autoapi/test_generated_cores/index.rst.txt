@@ -7,11 +7,11 @@ test_generated_cores
 
    Generated cores go through the same seams as checked-in ones.
 
-   A tile whose HDL is rendered is the first thing in this registry that has no
+   A core whose HDL is rendered is the first thing in this registry that has no
    file beside its entry. That is a place where a parallel mechanism could
    easily grow -- a build-layer side channel that renders somewhere the registry
    cannot see. The rule against it is the one already learned the hard way: a
-   tile known only to the build layer never reaches ``core_names``, so its HDL
+   core known only to the build layer never reaches ``core_names``, so its HDL
    goes unstaged, its spec hash collides with its siblings, and its resources
    go unpriced.
 
@@ -82,7 +82,7 @@ Module Contents
 
 .. py:function:: test_a_checked_in_core_refuses_to_be_rendered() -> None
 
-   The inverse mistake: rendering over a hand-written tile would replace
+   The inverse mistake: rendering over a hand-written core would replace
    reviewed HDL with generated text.
 
 

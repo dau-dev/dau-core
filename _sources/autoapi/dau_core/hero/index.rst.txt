@@ -24,13 +24,13 @@ dau_core.hero
    the intermediate the bar reduction discards.
 
    The per-row market-feature derivation (midpoint/spread/sign/signed_volume/dollar)
-   is a map that fuses into the bar tile's front chain stage (the q1/q6 shape) — it
+   is a map that fuses into the bar core's front chain stage (the q1/q6 shape) — it
    adds no materialized intermediate in either execution — so the cost model's
    materializing stages are align → bar → roll. ``market_features`` is still run and
    returned as the feature output branch (not discarded).
 
    Both paths are DMA-bound (compute overlapped), so the model computes each from
-   the exact golden cardinalities and the measured per-tile record widths — a
+   the exact golden cardinalities and the measured per-core record widths — a
    first-order estimate the silicon run validates, not a measured result.
 
    No dataframe or numerical-runtime dependency: pure integer arithmetic over
@@ -116,7 +116,7 @@ Module Contents
 
 
    One materializing stage and its cardinality: ``in_rows`` records of
-   ``in_bytes`` in, ``out_rows`` records of ``out_bytes`` out (the tile's own
+   ``in_bytes`` in, ``out_rows`` records of ``out_bytes`` out (the core's own
    input/output record widths). A staged run DMAs both; a fused run DMAs
    neither (except the pipeline endpoints).
 
@@ -219,7 +219,7 @@ Module Contents
    Run the predeclared workflow end to end over the goldens, recording each
    materializing stage's cardinality. ``roll_value`` selects the per-bar OHLC
    price the roll stage windows (:data:`ROLL_FIELDS`); ``roll_window`` is the
-   count-based window (at least :data:`ROLL_WINDOW_MINIMUM`, the tile's minimum). Both input streams must be
+   count-based window (at least :data:`ROLL_WINDOW_MINIMUM`, the core's minimum). Both input streams must be
    pre-sorted by ``(symbol_id, time)`` (the shared as-of / bar precondition).
 
 

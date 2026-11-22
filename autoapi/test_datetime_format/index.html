@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -861,7 +861,7 @@
     <a href="#test_datetime_format._hdl_constants">_hdl_constants()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_datetime_format.test_the_tiles_multiply_shift_constants_are_exact_over_their_declared_range">test_the_tiles_multiply_shift_constants_are_exact_over_their_declared_range()</a>
+    <a href="#test_datetime_format.test_the_cores_multiply_shift_constants_are_exact_over_their_declared_range">test_the_cores_multiply_shift_constants_are_exact_over_their_declared_range()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_datetime_format.test_the_golden_agrees_with_the_standard_library_at_the_boundaries">test_the_golden_agrees_with_the_standard_library_at_the_boundaries()</a>
@@ -893,8 +893,8 @@
       <div class="fd-prose">
   <section id="module-test_datetime_format">
 <span id="test-datetime-format"></span><h1>test_datetime_format<a class="headerlink" href="#module-test_datetime_format" title="Link to this heading">¶</a></h1>
-<p>The datetime formatter’s golden, and the constants the tile divides by.</p>
-<p>The tile has no divider: every division in it is a multiply-shift by a
+<p>The datetime formatter’s golden, and the constants the core divides by.</p>
+<p>The core has no divider: every division in it is a multiply-shift by a
 compile-time constant, and a multiply-shift identity is only valid over a
 bounded input range. Those bounds are the whole correctness argument for the
 arithmetic, and they live in the HDL as bare magic numbers – so this reads
@@ -922,7 +922,7 @@ here rather than in a rendered date.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_datetime_format._hdl_constants" title="test_datetime_format._hdl_constants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_hdl_constants</span></code></a>() → dict[str, int]</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_datetime_format.test_the_tiles_multiply_shift_constants_are_exact_over_their_declared_range" title="test_datetime_format.test_the_tiles_multiply_shift_constants_are_exact_over_their_declared_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_tiles_multiply_shift_constants_are_exact_over_their_declared_range</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_datetime_format.test_the_cores_multiply_shift_constants_are_exact_over_their_declared_range" title="test_datetime_format.test_the_cores_multiply_shift_constants_are_exact_over_their_declared_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_cores_multiply_shift_constants_are_exact_over_their_declared_range</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_datetime_format.test_the_golden_agrees_with_the_standard_library_at_the_boundaries" title="test_datetime_format.test_the_golden_agrees_with_the_standard_library_at_the_boundaries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_golden_agrees_with_the_standard_library_at_the_boundaries</span></code></a>() → None</p></td>
@@ -958,8 +958,8 @@ here rather than in a rendered date.</p>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="test_datetime_format.test_the_tiles_multiply_shift_constants_are_exact_over_their_declared_range">
-<span class="sig-prename descclassname"><span class="pre">test_datetime_format.</span></span><span class="sig-name descname"><span class="pre">test_the_tiles_multiply_shift_constants_are_exact_over_their_declared_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pre_shift</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">divisor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_datetime_format.test_the_tiles_multiply_shift_constants_are_exact_over_their_declared_range" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="test_datetime_format.test_the_cores_multiply_shift_constants_are_exact_over_their_declared_range">
+<span class="sig-prename descclassname"><span class="pre">test_datetime_format.</span></span><span class="sig-name descname"><span class="pre">test_the_cores_multiply_shift_constants_are_exact_over_their_declared_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pre_shift</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">divisor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_datetime_format.test_the_cores_multiply_shift_constants_are_exact_over_their_declared_range" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -1039,7 +1039,7 @@ here rather than in a rendered date.</p>
     <a href="#test_datetime_format._hdl_constants">_hdl_constants()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_datetime_format.test_the_tiles_multiply_shift_constants_are_exact_over_their_declared_range">test_the_tiles_multiply_shift_constants_are_exact_over_their_declared_range()</a>
+    <a href="#test_datetime_format.test_the_cores_multiply_shift_constants_are_exact_over_their_declared_range">test_the_cores_multiply_shift_constants_are_exact_over_their_declared_range()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_datetime_format.test_the_golden_agrees_with_the_standard_library_at_the_boundaries">test_the_golden_agrees_with_the_standard_library_at_the_boundaries()</a>

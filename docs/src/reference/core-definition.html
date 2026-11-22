@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../autoapi/test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../../autoapi/test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../autoapi/test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../../autoapi/test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -900,7 +900,7 @@ loaded into the ccflow <code class="docutils literal notranslate"><span class="p
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">str</span></code></p></td>
-<td><p>Registry key, named for what the tile computes. A width belongs in the parameters, not the name; see <a class="reference internal" href="../how-to/add-an-operator-tile.html"><span class="std std-doc">Add an operator tile</span></a>.</p></td>
+<td><p>Registry key, named for what the core computes. A width belongs in the parameters, not the name; see <a class="reference internal" href="../how-to/add-an-operator-core.html"><span class="std std-doc">Add an operator core</span></a>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kind</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">CoreKind</span></code></p></td>
@@ -984,11 +984,11 @@ Rendering a checked-in core raises an error.</p>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">measured_from</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span></code></p></td>
-<td><p>Digest of the HDL closure the points were measured from (<code class="docutils literal notranslate"><span class="pre">hdl_closure_digest()</span></code>): the tile’s source, the packages it imports and the headers it includes. A stamp with no <code class="docutils literal notranslate"><span class="pre">resources</span></code> is rejected.</p></td>
+<td><p>Digest of the HDL closure the points were measured from (<code class="docutils literal notranslate"><span class="pre">hdl_closure_digest()</span></code>): the core’s source, the packages it imports and the headers it includes. A stamp with no <code class="docutils literal notranslate"><span class="pre">resources</span></code> is rejected.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">accuracy_ulp</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span></code></p></td>
-<td><p>For a tile whose golden is a mathematical reference (the transcendentals): the worst deviation from the correctly rounded answer, in ULP, over an exhaustive sweep. <code class="docutils literal notranslate"><span class="pre">0</span></code> means correctly rounded.</p></td>
+<td><p>For a core whose golden is a mathematical reference (the transcendentals): the worst deviation from the correctly rounded answer, in ULP, over an exhaustive sweep. <code class="docutils literal notranslate"><span class="pre">0</span></code> means correctly rounded.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1042,7 +1042,7 @@ numbers as a budget.</p>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">success_close_out</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">bool</span></code></p></td>
-<td><p>Whether this core raises the batch’s single success close-out. Terminal tiles do; mid-chain tiles are silent on success.</p></td>
+<td><p>Whether this core raises the batch’s single success close-out. Terminal cores do; mid-chain cores are silent on success.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">supports_pipeline_depth</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">bool</span></code></p></td>
@@ -1067,7 +1067,7 @@ numbers as a budget.</p>
 </tr>
 </tbody>
 </table>
-<p>Two rules cannot be read off a tile’s ports, so the registry states them.
+<p>Two rules cannot be read off a core’s ports, so the registry states them.
 <code class="docutils literal notranslate"><span class="pre">front-unpack</span></code> marks a core admissible in the optional front-stage feed
 transform slot, which widens packed rows into the quad rows the lanes consume.
 <code class="docutils literal notranslate"><span class="pre">key-dispatch</span></code> marks a core that routes whole records to lanes by a decode
@@ -1228,19 +1228,19 @@ as type spellings, and a composition may override it the same way:</p>
 <p>The spellings are <code class="docutils literal notranslate"><span class="pre">intN</span></code>/<code class="docutils literal notranslate"><span class="pre">uintN</span></code>, <code class="docutils literal notranslate"><span class="pre">float32</span></code>/<code class="docutils literal notranslate"><span class="pre">float64</span></code>, and the fixed-point
 form <code class="docutils literal notranslate"><span class="pre">qI.F</span></code> (I integer bits including the sign, F fractional, I+F total, so
 <code class="docutils literal notranslate"><span class="pre">q16.16</span></code> is 32 bits). They resolve to the encoding in
-<code class="docutils literal notranslate"><span class="pre">dau_core/hdl/types.svh</span></code>, which tiles include to decode a type’s width,
+<code class="docutils literal notranslate"><span class="pre">dau_core/hdl/types.svh</span></code>, which cores include to decode a type’s width,
 signedness, fractional bits and float-ness. A plain signed integer encodes
 as its own width, so <code class="docutils literal notranslate"><span class="pre">int32</span></code> and <code class="docutils literal notranslate"><span class="pre">32</span></code> are the same declaration and an entry
-migrated from a width names exactly the tile it always did.</p>
+migrated from a width names exactly the core it always did.</p>
 <p>Bounds on such a parameter constrain the type’s width, because that is what
 the RTL guard they mirror checks; <code class="docutils literal notranslate"><span class="pre">choices</span></code> match the whole type, so
 <code class="docutils literal notranslate"><span class="pre">int32</span></code> and <code class="docutils literal notranslate"><span class="pre">q16.16</span></code> are not interchangeable despite both being 32 bits.</p>
 <p>Bus and beat widths (<code class="docutils literal notranslate"><span class="pre">IN_WIDTH</span></code>, <code class="docutils literal notranslate"><span class="pre">OUT_WIDTH</span></code>, <code class="docutils literal notranslate"><span class="pre">DATA_WIDTH</span></code>) count bits per
 handshake and are <strong>not</strong> element types. Leave <code class="docutils literal notranslate"><span class="pre">element_type</span></code> unset for them.</p>
-<p>A tile that includes <code class="docutils literal notranslate"><span class="pre">types.svh</span></code> needs its directory on the include path;
+<p>A core that includes <code class="docutils literal notranslate"><span class="pre">types.svh</span></code> needs its directory on the include path;
 <code class="docutils literal notranslate"><span class="pre">dau_core.hdl.DAU_HDL_INCLUDE_DIR</span></code> is that directory. Verilator does not
 search the including file’s own directory, so a bench or lint run that omits
-<code class="docutils literal notranslate"><span class="pre">-I</span></code> fails on the include rather than on anything to do with the tile.</p>
+<code class="docutils literal notranslate"><span class="pre">-I</span></code> fails on the include rather than on anything to do with the core.</p>
 </section>
 </section>
 <section id="accessors">
@@ -1250,7 +1250,7 @@ search the including file’s own directory, so a bench or lint run that omits
 
 <span class="n">loaded_cores</span><span class="p">()</span>                       <span class="c1"># name -&gt; CoreDefinition, registry order</span>
 <span class="n">core</span><span class="p">(</span><span class="s2">"streaming-top-k"</span><span class="p">)</span>              <span class="c1"># one definition</span>
-<span class="n">cores_of_kind</span><span class="p">(</span><span class="n">CoreKind</span><span class="o">.</span><span class="n">OPERATOR</span><span class="p">)</span>     <span class="c1"># every operator tile</span>
+<span class="n">cores_of_kind</span><span class="p">(</span><span class="n">CoreKind</span><span class="o">.</span><span class="n">OPERATOR</span><span class="p">)</span>     <span class="c1"># every operator core</span>
 <span class="n">sources_for</span><span class="p">(</span><span class="s2">"streaming-top-k"</span><span class="p">)</span>       <span class="c1"># dependency-closed HDL paths, in order</span>
 </pre></div>
 </div>

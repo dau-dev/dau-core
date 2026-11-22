@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Tutorial: read a tile’s contract end to end &#8212; dau core v0.13.0</title>
+    <title>Tutorial: read a core’s contract end to end &#8212; dau core v0.13.0</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/fuma.css?v=ca04d621" />
     <link rel="stylesheet" type="text/css" href="../../../_static/fuma-code.css?v=a950e949" />
@@ -27,7 +27,7 @@
     <script src="../../../_static/js/custom.js?v=956e5d78"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="How to add an operator tile" href="../how-to/add-an-operator-tile.html" />
+    <link rel="next" title="How to add an operator core" href="../how-to/add-an-operator-core.html" />
     <link rel="prev" title="dau core" href="../../../index.html" />
     <script>
       (function () {
@@ -79,12 +79,12 @@
 <ul class="fd-tree">
   <li class="fd-tree-item">
     <a class="fd-link fd-current" href="#">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../autoapi/test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../../autoapi/test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../autoapi/test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../../autoapi/test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -843,7 +843,7 @@
     </button>
     <div id="fd-toc-mobile" hidden><ul class="fd-toc-list">
   <li class="fd-toc-item" data-depth="1">
-    <a href="#step-1-look-the-tile-up-in-the-registry">Step 1: look the tile up in the registry</a>
+    <a href="#step-1-look-the-core-up-in-the-registry">Step 1: look the core up in the registry</a>
   </li>
   <li class="fd-toc-item" data-depth="1">
     <a href="#step-2-find-its-meaning">Step 2: find its meaning</a>
@@ -867,25 +867,25 @@
   <main id="fd-main">
     <article class="fd-page">
       <div class="fd-prose">
-  <section class="tex2jax_ignore mathjax_ignore" id="tutorial-read-a-tile-s-contract-end-to-end">
-<h1>Tutorial: read a tile’s contract end to end<a class="headerlink" href="#tutorial-read-a-tile-s-contract-end-to-end" title="Link to this heading">¶</a></h1>
-<p>In this tutorial you will take one operator tile and follow it through
+  <section class="tex2jax_ignore mathjax_ignore" id="tutorial-read-a-core-s-contract-end-to-end">
+<h1>Tutorial: read a core’s contract end to end<a class="headerlink" href="#tutorial-read-a-core-s-contract-end-to-end" title="Link to this heading">¶</a></h1>
+<p>In this tutorial you will take one operator core and follow it through
 every layer that defines it: its registry entry, its golden model, its
 measured cost, and the HDL those describe. By the end you will know where
-each kind of fact about a tile lives, which you need before adding or
+each kind of fact about a core lives, which you need before adding or
 changing one.</p>
-<p>We will use <code class="docutils literal notranslate"><span class="pre">streaming-top-k</span></code>, the tile that keeps the K largest rows
+<p>We will use <code class="docutils literal notranslate"><span class="pre">streaming-top-k</span></code>, the core that keeps the K largest rows
 by sort key.</p>
 <p>You need <code class="docutils literal notranslate"><span class="pre">dau-core</span></code> installed. Nothing here needs hardware or a simulator.</p>
-<section id="step-1-look-the-tile-up-in-the-registry">
-<h2>Step 1: look the tile up in the registry<a class="headerlink" href="#step-1-look-the-tile-up-in-the-registry" title="Link to this heading">¶</a></h2>
+<section id="step-1-look-the-core-up-in-the-registry">
+<h2>Step 1: look the core up in the registry<a class="headerlink" href="#step-1-look-the-core-up-in-the-registry" title="Link to this heading">¶</a></h2>
 <p>Open a Python prompt and ask the registry for it:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">core</span>
 
-<span class="n">tile</span> <span class="o">=</span> <span class="n">core</span><span class="p">(</span><span class="s2">"streaming-top-k"</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">tile</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">tile</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">tile</span><span class="o">.</span><span class="n">module</span><span class="p">)</span>
+<span class="n">core</span> <span class="o">=</span> <span class="n">core</span><span class="p">(</span><span class="s2">"streaming-top-k"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">core</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">core</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">core</span><span class="o">.</span><span class="n">module</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>You should see:</p>
@@ -900,8 +900,8 @@ composed.</p>
 </section>
 <section id="step-2-find-its-meaning">
 <h2>Step 2: find its meaning<a class="headerlink" href="#step-2-find-its-meaning" title="Link to this heading">¶</a></h2>
-<p>The tile’s <code class="docutils literal notranslate"><span class="pre">golden</span></code> field names the function that defines what it computes:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">tile</span><span class="o">.</span><span class="n">golden</span><span class="p">)</span>
+<p>The core’s <code class="docutils literal notranslate"><span class="pre">golden</span></code> field names the function that defines what it computes:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">core</span><span class="o">.</span><span class="n">golden</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dau_core</span><span class="o">.</span><span class="n">operators</span><span class="p">:</span><span class="n">streaming_top_k</span>
@@ -924,7 +924,7 @@ The golden’s docstring states it, and the HDL has to reproduce it exactly.</p>
 <section id="step-3-see-what-it-costs">
 <h2>Step 3: see what it costs<a class="headerlink" href="#step-3-see-what-it-costs" title="Link to this heading">¶</a></h2>
 <p>Ask for the resource measurement at a specific coordinate:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">measurement</span> <span class="o">=</span> <span class="n">tile</span><span class="o">.</span><span class="n">resource_measurement</span><span class="p">(</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">measurement</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">resource_measurement</span><span class="p">(</span>
     <span class="n">part</span><span class="o">=</span><span class="s2">"xc7a200tfbg484-2"</span><span class="p">,</span> <span class="n">clock_ns</span><span class="o">=</span><span class="mf">8.0</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">"K"</span><span class="p">:</span> <span class="mi">8</span><span class="p">}</span>
 <span class="p">)</span>
 <span class="n">envelope</span> <span class="o">=</span> <span class="n">measurement</span><span class="o">.</span><span class="n">usable_envelope</span><span class="p">()</span>
@@ -940,7 +940,7 @@ The golden’s docstring states it, and the HDL has to reproduce it exactly.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.cores</span><span class="w"> </span><span class="kn">import</span> <span class="n">UnmeasuredResourceError</span>
 
 <span class="k">try</span><span class="p">:</span>
-    <span class="n">tile</span><span class="o">.</span><span class="n">resource_measurement</span><span class="p">(</span><span class="n">part</span><span class="o">=</span><span class="s2">"xc7a200tfbg484-2"</span><span class="p">,</span> <span class="n">clock_ns</span><span class="o">=</span><span class="mf">8.0</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">"K"</span><span class="p">:</span> <span class="mi">3</span><span class="p">})</span>
+    <span class="n">core</span><span class="o">.</span><span class="n">resource_measurement</span><span class="p">(</span><span class="n">part</span><span class="o">=</span><span class="s2">"xc7a200tfbg484-2"</span><span class="p">,</span> <span class="n">clock_ns</span><span class="o">=</span><span class="mf">8.0</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">"K"</span><span class="p">:</span> <span class="mi">3</span><span class="p">})</span>
 <span class="k">except</span> <span class="n">UnmeasuredResourceError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">"refused:"</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span>
 </pre></div>
@@ -952,7 +952,7 @@ the wrong hardware.</p>
 </section>
 <section id="step-4-find-the-hdl-those-facts-describe">
 <h2>Step 4: find the HDL those facts describe<a class="headerlink" href="#step-4-find-the-hdl-those-facts-describe" title="Link to this heading">¶</a></h2>
-<p>The registry knows which sources the tile needs, in compile order:</p>
+<p>The registry knows which sources the core needs, in compile order:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">sources_for</span>
 
 <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">sources_for</span><span class="p">(</span><span class="s2">"streaming-top-k"</span><span class="p">):</span>
@@ -962,7 +962,7 @@ the wrong hardware.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dau_streaming_top_k</span><span class="o">.</span><span class="n">sv</span>
 </pre></div>
 </div>
-<p>This tile has no dependencies. A tile that used a shared package would
+<p>This core has no dependencies. A core that used a shared package would
 list that package first; <code class="docutils literal notranslate"><span class="pre">sources_for</span></code> resolves the dependencies so a build
 does not have to.</p>
 <p>Open that file and read its header comment. It describes the same contract
@@ -972,7 +972,7 @@ is <em>why</em> equal keys keep the earliest arrival without needing a counter.<
 </section>
 <section id="step-5-find-the-proof-that-they-agree">
 <h2>Step 5: find the proof that they agree<a class="headerlink" href="#step-5-find-the-proof-that-they-agree" title="Link to this heading">¶</a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">tile</span><span class="o">.</span><span class="n">bench</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">core</span><span class="o">.</span><span class="n">bench</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dau_core</span><span class="o">.</span><span class="n">tests</span><span class="o">.</span><span class="n">cocotb_benches</span><span class="o">.</span><span class="n">dau_streaming_top_k_tb</span>
@@ -981,7 +981,7 @@ is <em>why</em> equal keys keep the earliest arrival without needing a counter.<
 <p>That bench drives the HDL and compares its output against
 <code class="docutils literal notranslate"><span class="pre">streaming_top_k</span></code>, the same function you ran in step 2, over generated
 inputs. It does not use hand-written expected values, so the test author’s
-assumptions about the tile cannot take the place of the contract.</p>
+assumptions about the core cannot take the place of the contract.</p>
 <p>Run it if you have <code class="docutils literal notranslate"><span class="pre">verilator</span></code> installed:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w"> </span>dau_core/tests/test_hdl_cocotb.py<span class="w"> </span>-q<span class="w"> </span>-k<span class="w"> </span>streaming_top_k
 </pre></div>
@@ -989,7 +989,7 @@ assumptions about the tile cannot take the place of the contract.</p>
 </section>
 <section id="what-you-now-know">
 <h2>What you now know<a class="headerlink" href="#what-you-now-know" title="Link to this heading">¶</a></h2>
-<p>Five facts about a tile live in five places:</p>
+<p>Five facts about a core live in five places:</p>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Fact</p></th>
@@ -1014,8 +1014,8 @@ assumptions about the tile cannot take the place of the contract.</p>
 </tr>
 </tbody>
 </table>
-<p>Adding a tile means producing all five, in that order. That is the subject
-of <a class="reference internal" href="../how-to/add-an-operator-tile.html"><span class="std std-doc">how to add an operator tile</span></a>.</p>
+<p>Adding a core means producing all five, in that order. That is the subject
+of <a class="reference internal" href="../how-to/add-an-operator-core.html"><span class="std std-doc">how to add an operator core</span></a>.</p>
 </section>
 </section>
 
@@ -1029,10 +1029,10 @@ of <a class="reference internal" href="../how-to/add-an-operator-tile.html"><spa
       <span class="fd-pagination-title">dau core</span>
     </span>
   </a>
-  <a class="fd-pagination-card fd-pagination-next" href="../how-to/add-an-operator-tile.html" title="Next: How to add an operator tile">
+  <a class="fd-pagination-card fd-pagination-next" href="../how-to/add-an-operator-core.html" title="Next: How to add an operator core">
     <span class="fd-pagination-text">
       <span class="fd-pagination-label">Next</span>
-      <span class="fd-pagination-title">How to add an operator tile</span>
+      <span class="fd-pagination-title">How to add an operator core</span>
     </span>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
   </a>
@@ -1053,7 +1053,7 @@ of <a class="reference internal" href="../how-to/add-an-operator-tile.html"><spa
       <path class="fd-toc-thumb" fill="none" />
     </svg><ul class="fd-toc-list">
   <li class="fd-toc-item" data-depth="1">
-    <a href="#step-1-look-the-tile-up-in-the-registry">Step 1: look the tile up in the registry</a>
+    <a href="#step-1-look-the-core-up-in-the-registry">Step 1: look the core up in the registry</a>
   </li>
   <li class="fd-toc-item" data-depth="1">
     <a href="#step-2-find-its-meaning">Step 2: find its meaning</a>
@@ -1074,8 +1074,8 @@ of <a class="reference internal" href="../how-to/add-an-operator-tile.html"><spa
 
   </div>
   <div class="fd-toc-actions">
-    <a class="fd-toc-action" href="https://github.com/dau-dev/dau-core/edit/HEAD/docs/src/tutorial/read-a-tile-contract.md" target="_blank" rel="noopener" title="Edit this page"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span>Edit this page</span></a>
-    <a class="fd-toc-action" href="../../../_sources/docs/src/tutorial/read-a-tile-contract.md.txt" rel="nofollow" title="View source"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><span>View source</span></a>
+    <a class="fd-toc-action" href="https://github.com/dau-dev/dau-core/edit/HEAD/docs/src/tutorial/read-a-core-contract.md" target="_blank" rel="noopener" title="Edit this page"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span>Edit this page</span></a>
+    <a class="fd-toc-action" href="../../../_sources/docs/src/tutorial/read-a-core-contract.md.txt" rel="nofollow" title="View source"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><span>View source</span></a>
   </div>
 </nav>
 <button type="button" id="fd-toc-restore" class="fd-icon-button" aria-label="Expand page navigation" title="Expand page navigation" aria-controls="fd-toc" aria-expanded="false"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/></svg></button>

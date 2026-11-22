@@ -144,7 +144,7 @@ Module Contents
    Bases: :py:obj:`enum.Enum`
 
 
-   What a load-capable tile's LOAD-phase input stream is (the two-phase
+   What a load-capable core's LOAD-phase input stream is (the two-phase
    load: cfg_load=1 streams the build image, cfg_load=0 probes). The
    composition validates image/length-grid rules per kind; a core without
    this marker has no cfg_load port and can never be phase-bound.
@@ -168,13 +168,13 @@ Module Contents
    What a core is FOR where a composition has to know, declared by the
    registry rather than recognized by its name.
 
-   Two composition rules cannot be read off a tile's ports: that the core in
+   Two composition rules cannot be read off a core's ports: that the core in
    the optional front-stage feed-transform slot is one that widens packed
    rows, and that a key-routing partitioner's lane count satisfies the decode
    its ``MODE`` selects. Both were exact-name comparisons, which is the one
    thing "composition IS the registry" forbids -- a second unpacker or a
    second router could not be written without editing this package, and a
-   tile rename silently turned the check into dead code. A core says here
+   core rename silently turned the check into dead code. A core says here
    what job it does; the composition asks.
 
    ``KEY_DISPATCH`` is a contract as well as a label: a core declaring it
@@ -234,7 +234,7 @@ Module Contents
    Bases: :py:obj:`enum.Enum`
 
 
-   Which streaming interface contract an operator tile speaks. Contract
+   Which streaming interface contract an operator core speaks. Contract
    tests select their validator from this tag; a new core declares its
    contract here rather than being special-cased in test code.
 
@@ -605,7 +605,7 @@ Module Contents
 
       Why ``value`` is not a legal override, or ``None`` when it is.
       This is the ONE statement of the constraint -- composition wraps it
-      with tile context, and the model's own coherence check runs the
+      with core context, and the model's own coherence check runs the
       default through it, so the rule cannot drift between the two.
 
 
@@ -971,8 +971,8 @@ Module Contents
       then along the other source directories, which is exactly the
       ``-include_dirs`` list the synthesis task builds. A header nothing
       includes is NOT in the closure, so adding a second one to the palette
-      does not re-measure every tile that ignores it; and a package a tile
-      imports IS, so an edit there reaches every tile that reads it.
+      does not re-measure every core that ignores it; and a package a core
+      imports IS, so an edit there reaches every core that reads it.
 
       ``resolve`` maps a core name to its definition. It is a parameter
       rather than a registry import because the build package reaches these

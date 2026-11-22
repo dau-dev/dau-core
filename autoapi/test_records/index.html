@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -864,7 +864,7 @@
     <a href="#test_records.test_the_struct_and_numpy_views_agree">test_the_struct_and_numpy_views_agree()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_records.test_the_quad_row_is_the_row_tiles_input_in_field_order">test_the_quad_row_is_the_row_tiles_input_in_field_order()</a>
+    <a href="#test_records.test_the_quad_row_is_the_row_cores_input_in_field_order">test_the_quad_row_is_the_row_cores_input_in_field_order()</a>
   </li>
 </ul>
 </div>
@@ -884,7 +884,7 @@
       <div class="fd-prose">
   <section id="module-test_records">
 <span id="test-records"></span><h1>test_records<a class="headerlink" href="#module-test_records" title="Link to this heading">¶</a></h1>
-<p>The host’s record layouts agree with what the registry says the tiles read
+<p>The host’s record layouts agree with what the registry says the cores read
 and write, and with the goldens’ result types.</p>
 <section id="attributes">
 <h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h2>
@@ -900,7 +900,7 @@ and write, and with the goldens’ result types.</p>
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_records.test_each_layout_is_as_wide_as_the_registry_says" title="test_records.test_each_layout_is_as_wide_as_the_registry_says"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_each_layout_is_as_wide_as_the_registry_says</span></code></a>(tile, ...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_records.test_each_layout_is_as_wide_as_the_registry_says" title="test_records.test_each_layout_is_as_wide_as_the_registry_says"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_each_layout_is_as_wide_as_the_registry_says</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#test_records.test_each_record_carries_the_goldens_fields_in_order" title="test_records.test_each_record_carries_the_goldens_fields_in_order"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_each_record_carries_the_goldens_fields_in_order</span></code></a>(...) → None</p></td>
@@ -909,7 +909,7 @@ and write, and with the goldens’ result types.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_records.test_the_struct_and_numpy_views_agree" title="test_records.test_the_struct_and_numpy_views_agree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_struct_and_numpy_views_agree</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_records.test_the_quad_row_is_the_row_tiles_input_in_field_order" title="test_records.test_the_quad_row_is_the_row_tiles_input_in_field_order"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_quad_row_is_the_row_tiles_input_in_field_order</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_records.test_the_quad_row_is_the_row_cores_input_in_field_order" title="test_records.test_the_quad_row_is_the_row_cores_input_in_field_order"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_quad_row_is_the_row_cores_input_in_field_order</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -924,7 +924,7 @@ and write, and with the goldens’ result types.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="test_records.test_each_layout_is_as_wide_as_the_registry_says">
-<span class="sig-prename descclassname"><span class="pre">test_records.</span></span><span class="sig-name descname"><span class="pre">test_each_layout_is_as_wide_as_the_registry_says</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_bytes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">record_bytes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_records.test_each_layout_is_as_wide_as_the_registry_says" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">test_records.</span></span><span class="sig-name descname"><span class="pre">test_each_layout_is_as_wide_as_the_registry_says</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">core_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_bytes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">record_bytes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_records.test_each_layout_is_as_wide_as_the_registry_says" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -938,8 +938,8 @@ and write, and with the goldens’ result types.</p>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="test_records.test_the_quad_row_is_the_row_tiles_input_in_field_order">
-<span class="sig-prename descclassname"><span class="pre">test_records.</span></span><span class="sig-name descname"><span class="pre">test_the_quad_row_is_the_row_tiles_input_in_field_order</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_records.test_the_quad_row_is_the_row_tiles_input_in_field_order" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="test_records.test_the_quad_row_is_the_row_cores_input_in_field_order">
+<span class="sig-prename descclassname"><span class="pre">test_records.</span></span><span class="sig-name descname"><span class="pre">test_the_quad_row_is_the_row_cores_input_in_field_order</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_records.test_the_quad_row_is_the_row_cores_input_in_field_order" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </section>
@@ -1000,7 +1000,7 @@ and write, and with the goldens’ result types.</p>
     <a href="#test_records.test_the_struct_and_numpy_views_agree">test_the_struct_and_numpy_views_agree()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_records.test_the_quad_row_is_the_row_tiles_input_in_field_order">test_the_quad_row_is_the_row_tiles_input_in_field_order()</a>
+    <a href="#test_records.test_the_quad_row_is_the_row_cores_input_in_field_order">test_the_quad_row_is_the_row_cores_input_in_field_order()</a>
   </li>
 </ul>
 

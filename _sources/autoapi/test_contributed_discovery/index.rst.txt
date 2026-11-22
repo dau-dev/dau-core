@@ -5,16 +5,16 @@ test_contributed_discovery
 
 .. autoapi-nested-parse::
 
-   A contributing package's tiles compose without anyone naming them.
+   A contributing package's cores compose without anyone naming them.
 
    Two things had to be true for contribution to work and neither was:
 
-   * the tiles must ARRIVE. ``base.yaml`` selects one option from the group
+   * the cores must ARRIVE. ``base.yaml`` selects one option from the group
      ``dau-core``, so a package shipping ``dau-core/<theirs>.yaml`` adds an
      option that is never composed — no error, no warning. Hydra refuses the
      additive form for a single-select group, and ``override`` would replace
      our palette with theirs.
-   * the tiles must be FOUND once composed, which is :mod:`dau_core.registry`'s
+   * the cores must be FOUND once composed, which is :mod:`dau_core.registry`'s
      half (see ``test_contributed_cores.py``).
 
    This covers the first. Contributions live in their own group, and its
@@ -30,7 +30,7 @@ Attributes
 
 .. autoapisummary::
 
-   test_contributed_discovery._TILE
+   test_contributed_discovery._CORE
 
 
 Functions
@@ -45,7 +45,7 @@ Functions
    test_contributed_discovery.test_every_contributor_composes_not_just_the_first
    test_contributed_discovery.test_our_own_palette_survives_contribution
    test_contributed_discovery.test_an_explicit_selection_is_not_overridden
-   test_contributed_discovery.test_contributed_tiles_reach_the_registry
+   test_contributed_discovery.test_contributed_cores_reach_the_registry
    test_contributed_discovery.test_discovery_inside_an_existing_initialization_leaves_it_standing
    test_contributed_discovery.test_discovery_never_registers_anything
    test_contributed_discovery.test_an_unreadable_searchpath_does_not_take_down_composition
@@ -55,7 +55,7 @@ Functions
 Module Contents
 ---------------
 
-.. py:data:: _TILE
+.. py:data:: _CORE
    :value: Multiline-String
 
    .. raw:: html
@@ -71,7 +71,7 @@ Module Contents
         module: {module}
         source: {module}.sv
         source_package: {package}.hdl
-        description: a contributed tile
+        description: a contributed core
         contract_kind: row-stream
         record_words: 1
         ingest:
@@ -88,7 +88,7 @@ Module Contents
 
 .. py:function:: contrib_dir(tmp_path)
 
-   A searchpath directory holding contributed tile options.
+   A searchpath directory holding contributed core options.
 
 
 .. py:function:: _with_installed(*options: str) -> tuple[str, ...]
@@ -117,7 +117,7 @@ Module Contents
    A caller who named the contributions it wants means it.
 
 
-.. py:function:: test_contributed_tiles_reach_the_registry(contrib_dir) -> None
+.. py:function:: test_contributed_cores_reach_the_registry(contrib_dir) -> None
 
    The two halves together: composed AND findable, with the seam intact.
 

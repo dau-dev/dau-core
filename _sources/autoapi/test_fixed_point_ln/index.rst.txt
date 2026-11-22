@@ -68,7 +68,7 @@ Module Contents
 
 .. py:function:: test_ln_of_a_non_positive_value_is_refused() -> None
 
-   Same position the sqrt tile takes: no value exists, and substituting
+   Same position the sqrt core takes: no value exists, and substituting
    one would be a wrong number that looks right.
 
 

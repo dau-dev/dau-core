@@ -482,13 +482,13 @@ window.runMermaid = runMermaid;</script>
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -527,8 +527,8 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -1168,11 +1168,6 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../autoapi/test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../autoapi/test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -1183,8 +1178,13 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../autoapi/test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../autoapi/test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -1255,7 +1255,7 @@ window.runMermaid = runMermaid;</script>
 </nav>
       <div class="fd-prose">
   <h1>Source code for dau_core.registry</h1><div class="highlight"><pre>
-<span></span><span class="sd">"""Read-through access to THIS package's registry of tiles.</span>
+<span></span><span class="sd">"""Read-through access to THIS package's registry of cores.</span>
 
 <span class="sd">Composition IS the registry: the definitions live in dau-core's hydra</span>
 <span class="sd">config tree (``dau-core/cores.yaml``) composed into the ccflow</span>
@@ -1263,12 +1263,12 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">Python-literal core list anywhere. These accessors are thin views for</span>
 <span class="sd">in-process consumers -- tests, shell walking, source staging.</span>
 
-<span class="sd">They are deliberately NOT part of the tile authoring surface. A third</span>
-<span class="sd">party declaring a tile needs the models in :mod:`dau_core.cores`; it must</span>
-<span class="sd">never need this module, which knows only about the tiles dau-core itself</span>
+<span class="sd">They are deliberately NOT part of the core authoring surface. A third</span>
+<span class="sd">party declaring a core needs the models in :mod:`dau_core.cores`; it must</span>
+<span class="sd">never need this module, which knows only about the cores dau-core itself</span>
 <span class="sd">ships. Keeping the two apart is what lets the surface be reachable by an</span>
 <span class="sd">author who does not have this repository -- see</span>
-<span class="sd">``tests/test_public_tile_surface.py``, which enforces the direction.</span>
+<span class="sd">``tests/test_public_core_surface.py``, which enforces the direction.</span>
 <span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -1371,7 +1371,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">core</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CoreDefinition</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""The composed core called ``name``.</span>
 
-<span class="sd">    A keyed lookup per group, so asking for one tile builds one model. The</span>
+<span class="sd">    A keyed lookup per group, so asking for one core builds one model. The</span>
 <span class="sd">    duplicate check still runs: a name declared by two composed groups is</span>
 <span class="sd">    refused here exactly as :func:`loaded_cores` refuses it, because a core</span>
 <span class="sd">    name is how every design, spec hash and cached manifest refers to it.</span>
@@ -1403,7 +1403,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">loaded_cores</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CoreDefinition</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Every composed core, name -&gt; definition, dau-core's own first.</span>
 
-<span class="sd">    dau-core's tiles come from its hydra config tree</span>
+<span class="sd">    dau-core's cores come from its hydra config tree</span>
 <span class="sd">    (``dau-core/cores.yaml``) composed into the ccflow ``ModelRegistry`` at</span>
 <span class="sd">    ``/dau-core/&lt;core-name&gt;``. Composition IS the registry — there is no</span>
 <span class="sd">    Python-literal core list; these accessors are thin read-through views</span>
@@ -1415,12 +1415,12 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    **A CONTRIBUTED core is a core.** A third party composing a</span>
 <span class="sd">    ``CoreDefinition`` under its own group used to compose successfully,</span>
 <span class="sd">    register, and then be invisible to every consumer, because this only</span>
-<span class="sd">    ever read ``/dau-core``: the author did everything right and their tile</span>
+<span class="sd">    ever read ``/dau-core``: the author did everything right and their core</span>
 <span class="sd">    silently vanished, with no error to explain it. Any ``CoreDefinition``</span>
 <span class="sd">    the application composed is returned, whichever group holds it.</span>
 
 <span class="sd">    This does not blur the packages. ``source_package`` is the seam that</span>
-<span class="sd">    tells a foreign tile from one of ours, and dau-core's own guards already</span>
+<span class="sd">    tells a foreign core from one of ours, and dau-core's own guards already</span>
 <span class="sd">    scope themselves by it rather than assuming every registered core is</span>
 <span class="sd">    theirs. A name collision is raised rather than resolved, because</span>
 <span class="sd">    silently preferring one definition is the failure this fixes.</span>

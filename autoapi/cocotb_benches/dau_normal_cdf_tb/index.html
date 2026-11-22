@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -909,7 +909,7 @@
       <div class="fd-prose">
   <section id="module-cocotb_benches.dau_normal_cdf_tb">
 <span id="cocotb-benches-dau-normal-cdf-tb"></span><h1>cocotb_benches.dau_normal_cdf_tb<a class="headerlink" href="#module-cocotb_benches.dau_normal_cdf_tb" title="Link to this heading">¶</a></h1>
-<p>The rendered normal-CDF tile against the model it was rendered from.</p>
+<p>The rendered normal-CDF core against the model it was rendered from.</p>
 <p>Zero tolerance. That model is correctly rounded over every representable
 input, so a mismatch here is a defect in the HDL, not an accuracy question.</p>
 <section id="attributes">
@@ -936,7 +936,7 @@ input, so a mismatch here is a defect in the HDL, not an accuracy question.</p>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#cocotb_benches.dau_normal_cdf_tb.saturation_is_exact_and_needs_no_error_path" title="cocotb_benches.dau_normal_cdf_tb.saturation_is_exact_and_needs_no_error_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">saturation_is_exact_and_needs_no_error_path</span></code></a>(dut)</p></td>
-<td><p>Beyond the domain the answer IS 0 or 1.0; the tile must emit it and</p></td>
+<td><p>Beyond the domain the answer IS 0 or 1.0; the core must emit it and</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#cocotb_benches.dau_normal_cdf_tb.matches_the_model_across_the_domain" title="cocotb_benches.dau_normal_cdf_tb.matches_the_model_across_the_domain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">matches_the_model_across_the_domain</span></code></a>(dut)</p></td>
 <td><p></p></td>
@@ -987,7 +987,7 @@ input, so a mismatch here is a defect in the HDL, not an accuracy question.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cocotb_benches.dau_normal_cdf_tb.saturation_is_exact_and_needs_no_error_path">
 <em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cocotb_benches.dau_normal_cdf_tb.</span></span><span class="sig-name descname"><span class="pre">saturation_is_exact_and_needs_no_error_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dut</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cocotb_benches.dau_normal_cdf_tb.saturation_is_exact_and_needs_no_error_path" title="Link to this definition">¶</a></dt>
-<dd><p>Beyond the domain the answer IS 0 or 1.0; the tile must emit it and
+<dd><p>Beyond the domain the answer IS 0 or 1.0; the core must emit it and
 stay silent rather than raising anything.</p>
 </dd></dl>
 
@@ -1028,7 +1028,7 @@ negative input at once.</p>
 <em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cocotb_benches.dau_normal_cdf_tb.</span></span><span class="sig-name descname"><span class="pre">_collect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dut</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">expect</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ready_pattern</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cocotb_benches.dau_normal_cdf_tb._collect" title="Link to this definition">¶</a></dt>
 <dd><p>The proven quad-row collector: drive ready, sample in ReadOnly, and
 only count a beat that actually fired. Sampling without checking the
-handshake is what made this harness report zeros against a tile the
+handshake is what made this harness report zeros against a core the
 waveform showed was correct.</p>
 </dd></dl>
 

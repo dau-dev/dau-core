@@ -418,7 +418,7 @@ Module Contents
 
 .. py:function:: _heap_top_k(rows, k)
 
-   Operational model of the size-k min-heap tile: fill k, then replace the
+   Operational model of the size-k min-heap core: fill k, then replace the
    current worst-kept row (smallest key, latest arrival among ties) only when a
    new key is STRICTLY greater. Emit sorted key-desc, arrival-asc. This is the
    algorithm the hardware runs; the equivalence test proves it matches the
@@ -497,12 +497,12 @@ Module Contents
 
    The bridge a `col_a // col_b` lowering rests on.
 
-   polars integer `//` floors, and so does this tile at FRACTIONAL_BITS=0 --
+   polars integer `//` floors, and so does this core at FRACTIONAL_BITS=0 --
    `(A << 0) // B` is just `A // B`. That equivalence is what lets a
-   column-by-column floor divide lower onto the divide tile with no host
+   column-by-column floor divide lower onto the divide core with no host
    correction, so it is pinned rather than left as a reading of the code.
 
-   The negative cases are the ones that matter: a tile truncating toward
+   The negative cases are the ones that matter: a core truncating toward
    zero would agree on every positive pair and disagree on half the rest.
 
 

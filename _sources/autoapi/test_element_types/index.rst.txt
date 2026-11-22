@@ -72,7 +72,7 @@ Module Contents
 .. py:function:: test_q_notation_counts_the_sign_bit_in_the_integer_part() -> None
 
    Q notation is ambiguous in the wild, so the convention is pinned: qI.F
-   occupies I+F bits. q16.16 is the 32-bit format the fixed-point tiles
+   occupies I+F bits. q16.16 is the 32-bit format the fixed-point cores
    compute in, which they spell today as FRACTIONAL_BITS=16.
 
 
@@ -80,7 +80,7 @@ Module Contents
 
    One interpretation of an integer, and it is the RTL's.
 
-   A Python side that read 4128 as "4128 bits wide" while the tile it
+   A Python side that read 4128 as "4128 bits wide" while the core it
    configures read it as q16.16 would be precisely the confusion this module
    exists to end.
 
@@ -90,7 +90,7 @@ Module Contents
 .. py:function:: test_float_widths_are_the_ieee_interchange_formats() -> None
 
    "float24" would name a format with no defined exponent split; refusing
-   it is better than inventing one a tile would then have to guess at.
+   it is better than inventing one a core would then have to guess at.
 
 
 .. py:function:: test_a_fraction_that_fills_the_field_leaves_no_integer_part() -> None
@@ -128,6 +128,6 @@ Module Contents
 .. py:function:: test_the_header_accessors_extract_what_python_stores() -> None
 
    The accessor macros are bit arithmetic; run that arithmetic against
-   every spelling and check it recovers the four facts a tile decodes.
+   every spelling and check it recovers the four facts a core decodes.
 
 

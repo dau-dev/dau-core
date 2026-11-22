@@ -9,13 +9,13 @@ Functions
 
 .. autoapisummary::
 
-   test_core_contract.test_every_operator_conforms_to_the_stream_tile_contract
+   test_core_contract.test_every_operator_conforms_to_the_stream_core_contract
 
 
 Module Contents
 ---------------
 
-.. py:function:: test_every_operator_conforms_to_the_stream_tile_contract() -> None
+.. py:function:: test_every_operator_conforms_to_the_stream_core_contract() -> None
 
    Slang-parsed conformance: each row-stream operator's real port
    interface matches the stream+status contract its registry entry promises

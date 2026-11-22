@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -904,7 +904,7 @@
   <section id="module-cocotb_benches.dau_row_predicate_filter_width_tb">
 <span id="cocotb-benches-dau-row-predicate-filter-width-tb"></span><h1>cocotb_benches.dau_row_predicate_filter_width_tb<a class="headerlink" href="#module-cocotb_benches.dau_row_predicate_filter_width_tb" title="Link to this heading">¶</a></h1>
 <p>The row predicate filter at element types other than int32.</p>
-<p>The tile’s row is a fixed 128-bit transport unit; the field TYPE says how
+<p>The core’s row is a fixed 128-bit transport unit; the field TYPE says how
 many fields that row carries. So int16 packs eight values per row where
 int32 packs four, which is the reason to support narrow types at all – more
 values per beat, not a smaller beat.</p>
@@ -920,7 +920,7 @@ a composition would ask for are the same value. q16.16 is exercised
 alongside the integers because it is the case a width cannot express: 32
 bits wide like int32 but a different type, ordered by the identical
 comparator (scaling by 2**-F preserves order), which is exactly the claim
-the tile’s fixed-point guard makes.</p>
+the core’s fixed-point guard makes.</p>
 <section id="attributes">
 <h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h2>
 <table class="autosummary longtable docutils align-default">

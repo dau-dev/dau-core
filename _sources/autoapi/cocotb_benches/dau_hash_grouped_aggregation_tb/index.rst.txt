@@ -5,10 +5,10 @@ cocotb_benches.dau_hash_grouped_aggregation_tb
 
 .. autoapi-nested-parse::
 
-   Hash-mode grouped field-sum aggregation tile against its golden: one
+   Hash-mode grouped field-sum aggregation core against its golden: one
    record per DISTINCT key with input in any order, a signed-key-ascending
    drain, overflow as a defined close-out, and fresh state per batch — plus
-   the randomized-delay patience harness that binds every stateful tile.
+   the randomized-delay patience harness that binds every stateful core.
 
 
 
@@ -82,7 +82,7 @@ Module Contents
    :async:
 
 
-   The property the ordered tile cannot have: the answer does not
+   The property the ordered core cannot have: the answer does not
    depend on arrival order.
 
 
@@ -126,7 +126,7 @@ Module Contents
 
    group_count reads the batch's emitted groups, and exactly one
    close-out is raised — checked by stalling status_ready first, so a
-   tile that dropped or repeated it would fail here.
+   core that dropped or repeated it would fail here.
 
 
 .. py:function:: hash_grouped_full_table_without_a_new_key_succeeds(dut)

@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -1897,7 +1897,7 @@
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.PredicateOp" title="dau_core.operators.PredicateOp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PredicateOp</span></code></a></p></td>
-<td><p>Comparison opcodes for the predicate filter tile. Zero is reserved so an</p></td>
+<td><p>Comparison opcodes for the predicate filter core. Zero is reserved so an</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.PredicateCombine" title="dau_core.operators.PredicateCombine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PredicateCombine</span></code></a></p></td>
 <td><p>Enum where members are also (and must be) ints</p></td>
@@ -1909,7 +1909,7 @@
 <td><p>Predicate configuration: <code class="docutils literal notranslate"><span class="pre">value</span> <span class="pre">&lt;op0&gt;</span> <span class="pre">constant0</span></code> optionally combined</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.MapOp" title="dau_core.operators.MapOp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MapOp</span></code></a></p></td>
-<td><p>ALU opcodes for the map tile. Zero is reserved so an unconfigured tile</p></td>
+<td><p>ALU opcodes for the map core. Zero is reserved so an unconfigured core</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.MapErrorCode" title="dau_core.operators.MapErrorCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MapErrorCode</span></code></a></p></td>
 <td><p>Enum where members are also (and must be) ints</p></td>
@@ -1954,7 +1954,7 @@
 <td><p>Enum where members are also (and must be) ints</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.FieldSumAggregate" title="dau_core.operators.FieldSumAggregate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FieldSumAggregate</span></code></a></p></td>
-<td><p>The one record the field-sum aggregation tile emits per batch: exact</p></td>
+<td><p>The one record the field-sum aggregation core emits per batch: exact</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.GroupedFieldSumErrorCode" title="dau_core.operators.GroupedFieldSumErrorCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GroupedFieldSumErrorCode</span></code></a></p></td>
 <td><p>Enum where members are also (and must be) ints</p></td>
@@ -1963,7 +1963,7 @@
 <td><p>One closed group from the ordered grouped field-sum aggregation</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.MembershipKind" title="dau_core.operators.MembershipKind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MembershipKind</span></code></a></p></td>
-<td><p>Membership-structure kind for the key-set membership filter tile. Zero</p></td>
+<td><p>Membership-structure kind for the key-set membership filter core. Zero</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.MembershipMode" title="dau_core.operators.MembershipMode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MembershipMode</span></code></a></p></td>
 <td><p>Probe-phase disposition — one config bit: keep members (semi/IN) or keep</p></td>
@@ -1975,13 +1975,13 @@
 <td><p>The membership memory: a direct-mapped EXACT bitmap over the configured</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.DedupErrorCode" title="dau_core.operators.DedupErrorCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DedupErrorCode</span></code></a></p></td>
-<td><p>Status codes for the streaming dedup tile. Code 1 — <code class="docutils literal notranslate"><span class="pre">CONFIG</span></code> in every</p></td>
+<td><p>Status codes for the streaming dedup core. Code 1 — <code class="docutils literal notranslate"><span class="pre">CONFIG</span></code> in every</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.DistinctCount" title="dau_core.operators.DistinctCount"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DistinctCount</span></code></a></p></td>
-<td><p>What the streaming dedup tile holds after a batch: the running distinct</p></td>
+<td><p>What the streaming dedup core holds after a batch: the running distinct</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.JoinSource" title="dau_core.operators.JoinSource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">JoinSource</span></code></a></p></td>
-<td><p>Output field-select sources for the broadcast hash join tile: the six</p></td>
+<td><p>Output field-select sources for the broadcast hash join core: the six</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.JoinErrorCode" title="dau_core.operators.JoinErrorCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">JoinErrorCode</span></code></a></p></td>
 <td><p>Enum where members are also (and must be) ints</p></td>
@@ -1993,10 +1993,10 @@
 <td><p>Enum where members are also (and must be) ints</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.GroupAggregate" title="dau_core.operators.GroupAggregate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GroupAggregate</span></code></a></p></td>
-<td><p>One closed group from the ordered grouped-aggregation tile: every</p></td>
+<td><p>One closed group from the ordered grouped-aggregation core: every</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.BarAggregate" title="dau_core.operators.BarAggregate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BarAggregate</span></code></a></p></td>
-<td><p>One closed bar from the fused single-pass bar-aggregation tile: price</p></td>
+<td><p>One closed bar from the fused single-pass bar-aggregation core: price</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.FieldStats" title="dau_core.operators.FieldStats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FieldStats</span></code></a></p></td>
 <td><p>The single-pass statistics of one data field over a group: first/last in</p></td>
@@ -2011,25 +2011,25 @@
 <td><p>Enum where members are also (and must be) ints</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.TopKErrorCode" title="dau_core.operators.TopKErrorCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TopKErrorCode</span></code></a></p></td>
-<td><p>Status codes for the streaming top-k heap tile.</p></td>
+<td><p>Status codes for the streaming top-k heap core.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.KeyedStateErrorCode" title="dau_core.operators.KeyedStateErrorCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KeyedStateErrorCode</span></code></a></p></td>
-<td><p>Status codes for the keyed state tile.</p></td>
+<td><p>Status codes for the keyed state core.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.KeyedStateOp" title="dau_core.operators.KeyedStateOp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KeyedStateOp</span></code></a></p></td>
 <td><p>What a row does to its key's accumulator.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.ScratchpadErrorCode" title="dau_core.operators.ScratchpadErrorCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ScratchpadErrorCode</span></code></a></p></td>
-<td><p>Status codes for the scratchpad owned-arena tile.</p></td>
+<td><p>Status codes for the scratchpad owned-arena core.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.SessionErrorCode" title="dau_core.operators.SessionErrorCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SessionErrorCode</span></code></a></p></td>
-<td><p>Status codes for the session-gap tile.</p></td>
+<td><p>Status codes for the session-gap core.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.HashGroupedErrorCode" title="dau_core.operators.HashGroupedErrorCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HashGroupedErrorCode</span></code></a></p></td>
-<td><p>Status codes for the hash-mode grouped field-sum aggregation tile.</p></td>
+<td><p>Status codes for the hash-mode grouped field-sum aggregation core.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.HashGroupedAggregate" title="dau_core.operators.HashGroupedAggregate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HashGroupedAggregate</span></code></a></p></td>
-<td><p>One group from the hash-mode grouped field-sum aggregation tile:</p></td>
+<td><p>One group from the hash-mode grouped field-sum aggregation core:</p></td>
 </tr>
 </tbody>
 </table>
@@ -2039,79 +2039,79 @@
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.filter_values" title="dau_core.operators.filter_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_values</span></code></a>(values, predicate) → list[int]</p></td>
-<td><p>Golden semantics for the compacting predicate filter tile: emit the</p></td>
+<td><p>Golden semantics for the compacting predicate filter core: emit the</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators._compare" title="dau_core.operators._compare"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_compare</span></code></a>(op, value, constant) → bool</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators._apply_map_op" title="dau_core.operators._apply_map_op"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_map_op</span></code></a>(op, value, constant, shift) → int</p></td>
-<td><p>The tile ALU: shared by the scalar and row map configs (a plain</p></td>
+<td><p>The core ALU: shared by the scalar and row map configs (a plain</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.map_values" title="dau_core.operators.map_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_values</span></code></a>(values, config) → list[int]</p></td>
-<td><p>Golden semantics for the map/ALU tile: apply the configured ALU</p></td>
+<td><p>Golden semantics for the map/ALU core: apply the configured ALU</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators._wrap_int32" title="dau_core.operators._wrap_int32"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_wrap_int32</span></code></a>(value) → int</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.filter_rows" title="dau_core.operators.filter_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_rows</span></code></a>(rows, predicate, *[, on_key]) → list[tuple[int, int]]</p></td>
-<td><p>Golden semantics for the keyed predicate-filter tile: the predicate is</p></td>
+<td><p>Golden semantics for the keyed predicate-filter core: the predicate is</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.map_rows" title="dau_core.operators.map_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_rows</span></code></a>(rows, config, *[, on_key]) → list[tuple[int, int]]</p></td>
-<td><p>Golden semantics for the keyed map/ALU tile: the ALU operation applies</p></td>
+<td><p>Golden semantics for the keyed map/ALU core: the ALU operation applies</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.filter_rows_by_predicate" title="dau_core.operators.filter_rows_by_predicate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_rows_by_predicate</span></code></a>(rows, config) → list[tuple[int, int, int, int]]</p></td>
-<td><p>Golden semantics for the row predicate filter tile: whole</p></td>
+<td><p>Golden semantics for the row predicate filter core: whole</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators._quad" title="dau_core.operators._quad"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_quad</span></code></a>(values) → tuple[int, int, int, int]</p></td>
 <td><p>Four ints as the quad-row tuple, from any four-element iterable.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.map_row_fields" title="dau_core.operators.map_row_fields"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_row_fields</span></code></a>(rows, config) → list[tuple[int, int, int, int]]</p></td>
-<td><p>Golden semantics for the row map/ALU tile: the configured destination</p></td>
+<td><p>Golden semantics for the row map/ALU core: the configured destination</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.fixed_point_sqrt" title="dau_core.operators.fixed_point_sqrt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fixed_point_sqrt</span></code></a>(value, *[, fractional_bits]) → int</p></td>
 <td><p>Square root of a Q``(32-f)``.``f`` fixed-point value, EXACTLY.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.sqrt_row_fields" title="dau_core.operators.sqrt_row_fields"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sqrt_row_fields</span></code></a>(rows, config) → list[tuple[int, int, int, int]]</p></td>
-<td><p>Golden semantics for the fixed-point sqrt tile: the destination field</p></td>
+<td><p>Golden semantics for the fixed-point sqrt core: the destination field</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.format_datetime" title="dau_core.operators.format_datetime"><code class="xref py py-obj docutils literal notranslate"><span class="pre">format_datetime</span></code></a>(epoch_seconds) → str</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">epoch_seconds</span></code> rendered as <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span> <span class="pre">HH:MM:SS</span></code>, in UTC.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.format_datetime_rows" title="dau_core.operators.format_datetime_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">format_datetime_rows</span></code></a>(rows) → list[str]</p></td>
-<td><p>Golden semantics for the datetime formatter tile: one int64 epoch-second</p></td>
+<td><p>Golden semantics for the datetime formatter core: one int64 epoch-second</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.fixed_point_divide" title="dau_core.operators.fixed_point_divide"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fixed_point_divide</span></code></a>(numerator, denominator, *[, ...]) → int</p></td>
 <td><p>Quotient of two Q``(32-f)``.``f`` fixed-point values, EXACTLY.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.divide_row_fields" title="dau_core.operators.divide_row_fields"><code class="xref py py-obj docutils literal notranslate"><span class="pre">divide_row_fields</span></code></a>(rows, config) → list[tuple[int, int, int, int]]</p></td>
-<td><p>Golden semantics for the fixed-point divide tile: the destination field</p></td>
+<td><p>Golden semantics for the fixed-point divide core: the destination field</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.unpack_rows" title="dau_core.operators.unpack_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unpack_rows</span></code></a>(rows[, field_specs, bypass]) → list[tuple[int, int, int, int]]</p></td>
-<td><p>Golden semantics for the row-unpack front-end feed tile.</p></td>
+<td><p>Golden semantics for the row-unpack front-end feed core.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators._signed_int64" title="dau_core.operators._signed_int64"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_signed_int64</span></code></a>(word) → int</p></td>
 <td><p>Two's-complement read of one unsigned stream word.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.field_sum_rows" title="dau_core.operators.field_sum_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">field_sum_rows</span></code></a>(rows, *, field_mask) → FieldSumAggregate</p></td>
-<td><p>Golden semantics for the batch field-sum aggregation tile: one pass</p></td>
+<td><p>Golden semantics for the batch field-sum aggregation core: one pass</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.grouped_field_sum_rows" title="dau_core.operators.grouped_field_sum_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grouped_field_sum_rows</span></code></a>(rows, *, field_mask) → list[GroupedFieldSumAggregate]</p></td>
-<td><p>Golden semantics for the ordered grouped field-sum aggregation tile</p></td>
+<td><p>Golden semantics for the ordered grouped field-sum aggregation core</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.group_table_sum_rows" title="dau_core.operators.group_table_sum_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">group_table_sum_rows</span></code></a>(rows, *, field_mask, group_shift, ...) → list[GroupedFieldSumAggregate]</p></td>
-<td><p>Golden semantics for the wide group-table sum tile: each row's group is</p></td>
+<td><p>Golden semantics for the wide group-table sum core: each row's group is</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.filter_rows_by_membership" title="dau_core.operators.filter_rows_by_membership"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_rows_by_membership</span></code></a>(rows, build_set, *, mode) → list[tuple[int, int, int, int]]</p></td>
-<td><p>Golden semantics for the key-set membership filter tile (probe phase):</p></td>
+<td><p>Golden semantics for the key-set membership filter core (probe phase):</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.count_distinct_rows" title="dau_core.operators.count_distinct_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">count_distinct_rows</span></code></a>(rows, *, key_space[, seen]) → DistinctCount</p></td>
-<td><p>Golden semantics for the streaming insert-on-probe dedup tile: one pass</p></td>
+<td><p>Golden semantics for the streaming insert-on-probe dedup core: one pass</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.keyed_asof_join_rows" title="dau_core.operators.keyed_asof_join_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">keyed_asof_join_rows</span></code></a>(records, *[, tolerance]) → list[tuple[int, int, int, int, int, int]]</p></td>
-<td><p>Golden semantics for the generic keyed backward as-of join tile: one</p></td>
+<td><p>Golden semantics for the generic keyed backward as-of join core: one</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.broadcast_hash_join_rows" title="dau_core.operators.broadcast_hash_join_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">broadcast_hash_join_rows</span></code></a>(build_rows, probe_rows, *, ...) → list[tuple[int, int, int, int]]</p></td>
-<td><p>Golden semantics for the broadcast hash join tile (the join tier's</p></td>
+<td><p>Golden semantics for the broadcast hash join core (the join tier's</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.filter_bar_rows_by_key" title="dau_core.operators.filter_bar_rows_by_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_bar_rows_by_key</span></code></a>(rows, *, key_mask, key_match) → list[tuple[int, int, int, int]]</p></td>
 <td><p>Golden semantics for the pair-row key partition filter: whole</p></td>
@@ -2144,10 +2144,10 @@
 <td><p>Golden semantics for the batch bitonic sorter: rows ascending by the</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.streaming_top_k" title="dau_core.operators.streaming_top_k"><code class="xref py py-obj docutils literal notranslate"><span class="pre">streaming_top_k</span></code></a>(rows, *, k) → list[tuple[int, int, int, int]]</p></td>
-<td><p>Golden semantics for the streaming top-k heap tile: in one pass keep the</p></td>
+<td><p>Golden semantics for the streaming top-k heap core: in one pass keep the</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.time_bucket_key_rows" title="dau_core.operators.time_bucket_key_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">time_bucket_key_rows</span></code></a>(rows, *, bucket_shift, bucket_bits) → list[tuple[int, int, int, int]]</p></td>
-<td><p>Golden semantics for the generic time-bucket key tile: rewrite each row's</p></td>
+<td><p>Golden semantics for the generic time-bucket key core: rewrite each row's</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.gather_records" title="dau_core.operators.gather_records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gather_records</span></code></a>(words, *, in_words, out_words, selectors) → list[int]</p></td>
 <td><p>Gather 32-bit halves from fixed-width records into new records.</p></td>
@@ -2159,10 +2159,10 @@
 <td><p>OHLCV bars as a field/stat SELECTION over the generic multi-field</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.bar_aggregate_rows" title="dau_core.operators.bar_aggregate_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bar_aggregate_rows</span></code></a>(rows) → list[BarAggregate]</p></td>
-<td><p>Golden semantics for the fused bar-aggregation tile (ordered</p></td>
+<td><p>Golden semantics for the fused bar-aggregation core (ordered</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.grouped_aggregate_rows" title="dau_core.operators.grouped_aggregate_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grouped_aggregate_rows</span></code></a>(rows) → list[GroupAggregate]</p></td>
-<td><p>Golden semantics for the ordered grouped-aggregation tile</p></td>
+<td><p>Golden semantics for the ordered grouped-aggregation core</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators._integer_range" title="dau_core.operators._integer_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_integer_range</span></code></a>(bits, *, signed) → tuple[int, int]</p></td>
 <td><p></p></td>
@@ -2183,16 +2183,16 @@
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.keyed_state_scan" title="dau_core.operators.keyed_state_scan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">keyed_state_scan</span></code></a>(rows, *, op, capacity[, initial]) → tuple[list[tuple[int, int]], KeyedStateErrorCode]</p></td>
-<td><p>Golden semantics for the keyed state tile: a per-key accumulator updated</p></td>
+<td><p>Golden semantics for the keyed state core: a per-key accumulator updated</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.scratchpad_scan" title="dau_core.operators.scratchpad_scan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scratchpad_scan</span></code></a>(rows, *, granted_words) → tuple[list[tuple[int, int]], ScratchpadErrorCode]</p></td>
-<td><p>Golden semantics for the scratchpad tile: the deliberately trivial</p></td>
+<td><p>Golden semantics for the scratchpad core: the deliberately trivial</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.sessionize_scan" title="dau_core.operators.sessionize_scan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sessionize_scan</span></code></a>(rows, *, gap, capacity) → tuple[list[tuple[int, int, int, int]], SessionErrorCode]</p></td>
-<td><p>Golden semantics for the session-gap tile: the Nexmark-Q11 shape over</p></td>
+<td><p>Golden semantics for the session-gap core: the Nexmark-Q11 shape over</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.operators.hash_grouped_field_sum_rows" title="dau_core.operators.hash_grouped_field_sum_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hash_grouped_field_sum_rows</span></code></a>(rows, *, field_mask, capacity) → tuple[list[HashGroupedAggregate], HashGroupedErrorCode]</p></td>
-<td><p>Golden semantics for the HASH-mode grouped field-sum aggregation tile:</p></td>
+<td><p>Golden semantics for the HASH-mode grouped field-sum aggregation core:</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.operators.merge_hash_grouped" title="dau_core.operators.merge_hash_grouped"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_hash_grouped</span></code></a>(partials) → list[HashGroupedAggregate]</p></td>
 <td><p>Merge per-batch hash-grouped partials into one key-ascending result —</p></td>
@@ -2206,8 +2206,8 @@
 <dt class="sig sig-object py" id="dau_core.operators.PredicateOp">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">PredicateOp</span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#PredicateOp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.PredicateOp" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.IntEnum</span></code></p>
-<p>Comparison opcodes for the predicate filter tile. Zero is reserved so an
-unconfigured tile fails explicitly.</p>
+<p>Comparison opcodes for the predicate filter core. Zero is reserved so an
+unconfigured core fails explicitly.</p>
 <p>Initialize self.  See help(type(self)) for accurate signature.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dau_core.operators.PredicateOp.EQ">
@@ -2287,7 +2287,7 @@ unconfigured tile fails explicitly.</p>
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">FilterPredicate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data:</span> <span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/dau_core/operators.html#FilterPredicate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.FilterPredicate" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="../models/index.html#dau_core.models.CheckedModel" title="dau_core.models.CheckedModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dau_core.models.CheckedModel</span></code></a></p>
 <p>Predicate configuration: <code class="docutils literal notranslate"><span class="pre">value</span> <span class="pre">&lt;op0&gt;</span> <span class="pre">constant0</span></code> optionally combined
-with <code class="docutils literal notranslate"><span class="pre">value</span> <span class="pre">&lt;op1&gt;</span> <span class="pre">constant1</span></code> by AND/OR. Matches the tile’s config ports.</p>
+with <code class="docutils literal notranslate"><span class="pre">value</span> <span class="pre">&lt;op1&gt;</span> <span class="pre">constant1</span></code> by AND/OR. Matches the core’s config ports.</p>
 <p>Create a new model by parsing and validating input data from keyword arguments.</p>
 <p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
 validated to form a valid model.</p>
@@ -2334,7 +2334,7 @@ This is useful if you want to do some validation that requires the entire model 
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.operators.filter_values">
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">filter_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predicate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dau_core.operators.FilterPredicate" title="dau_core.operators.FilterPredicate"><span class="pre">FilterPredicate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#filter_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.filter_values" title="Link to this definition">¶</a></dt>
-<dd><p>Golden semantics for the compacting predicate filter tile: emit the
+<dd><p>Golden semantics for the compacting predicate filter core: emit the
 matching values in input order.</p>
 </dd></dl>
 
@@ -2352,7 +2352,7 @@ matching values in input order.</p>
 <dt class="sig sig-object py" id="dau_core.operators.MapOp">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">MapOp</span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#MapOp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.MapOp" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.IntEnum</span></code></p>
-<p>ALU opcodes for the map tile. Zero is reserved so an unconfigured tile
+<p>ALU opcodes for the map core. Zero is reserved so an unconfigured core
 fails explicitly.</p>
 <p>Initialize self.  See help(type(self)) for accurate signature.</p>
 <dl class="py attribute">
@@ -2413,7 +2413,7 @@ fails explicitly.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.operators._apply_map_op">
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">_apply_map_op</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dau_core.operators.MapOp" title="dau_core.operators.MapOp"><span class="pre">MapOp</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shift</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#_apply_map_op"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators._apply_map_op" title="Link to this definition">¶</a></dt>
-<dd><p>The tile ALU: shared by the scalar and row map configs (a plain
+<dd><p>The core ALU: shared by the scalar and row map configs (a plain
 function so per-row golden loops never construct a model).</p>
 </dd></dl>
 
@@ -2423,7 +2423,7 @@ function so per-row golden loops never construct a model).</p>
 <dd><p>Bases: <a class="reference internal" href="../models/index.html#dau_core.models.CheckedModel" title="dau_core.models.CheckedModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dau_core.models.CheckedModel</span></code></a></p>
 <p>Per-row ALU configuration: <code class="docutils literal notranslate"><span class="pre">value</span> <span class="pre">&lt;op&gt;</span> <span class="pre">constant</span></code> (MULSHR/SHL also use
 <code class="docutils literal notranslate"><span class="pre">shift</span></code>). All arithmetic is INT32 two’s-complement wraparound — the
-golden and the tile agree bit-for-bit. Matches the tile’s config ports.</p>
+golden and the core agree bit-for-bit. Matches the core’s config ports.</p>
 <p>Create a new model by parsing and validating input data from keyword arguments.</p>
 <p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
 validated to form a valid model.</p>
@@ -2460,7 +2460,7 @@ This is useful if you want to do some validation that requires the entire model 
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.operators.map_values">
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">map_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dau_core.operators.MapConfig" title="dau_core.operators.MapConfig"><span class="pre">MapConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#map_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.map_values" title="Link to this definition">¶</a></dt>
-<dd><p>Golden semantics for the map/ALU tile: apply the configured ALU
+<dd><p>Golden semantics for the map/ALU core: apply the configured ALU
 operation to every value, preserving order and count.</p>
 </dd></dl>
 
@@ -2472,7 +2472,7 @@ operation to every value, preserving order and count.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.operators.filter_rows">
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">filter_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predicate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dau_core.operators.FilterPredicate" title="dau_core.operators.FilterPredicate"><span class="pre">FilterPredicate</span></a></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#filter_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.filter_rows" title="Link to this definition">¶</a></dt>
-<dd><p>Golden semantics for the keyed predicate-filter tile: the predicate is
+<dd><p>Golden semantics for the keyed predicate-filter core: the predicate is
 evaluated on the value lane (or the key lane with <code class="docutils literal notranslate"><span class="pre">on_key</span></code>) and whole
 <code class="docutils literal notranslate"><span class="pre">(key,</span> <span class="pre">value)</span></code> rows pass or drop together — compaction never misaligns
 the lanes.</p>
@@ -2481,7 +2481,7 @@ the lanes.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.operators.map_rows">
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">map_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dau_core.operators.MapConfig" title="dau_core.operators.MapConfig"><span class="pre">MapConfig</span></a></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#map_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.map_rows" title="Link to this definition">¶</a></dt>
-<dd><p>Golden semantics for the keyed map/ALU tile: the ALU operation applies
+<dd><p>Golden semantics for the keyed map/ALU core: the ALU operation applies
 to the value lane (or the key lane with <code class="docutils literal notranslate"><span class="pre">on_key</span></code> — e.g. time→bucket
 derivation); the other lane passes through unchanged, order and count
 preserved.</p>
@@ -2522,7 +2522,7 @@ in row order (key, value, aux0, aux1).</p>
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">RowPredicateTerm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data:</span> <span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/dau_core/operators.html#RowPredicateTerm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.RowPredicateTerm" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="../models/index.html#dau_core.models.CheckedModel" title="dau_core.models.CheckedModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dau_core.models.CheckedModel</span></code></a></p>
 <p>One comparison term of a row predicate: <code class="docutils literal notranslate"><span class="pre">field</span> <span class="pre">&lt;op&gt;</span> <span class="pre">constant</span></code>
-(signed 32-bit). Matches one term’s config-port triple on the tile.</p>
+(signed 32-bit). Matches one term’s config-port triple on the core.</p>
 <p>Create a new model by parsing and validating input data from keyword arguments.</p>
 <p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
 validated to form a valid model.</p>
@@ -2568,7 +2568,7 @@ This is useful if you want to do some validation that requires the entire model 
 <p>Compound row predicate: up to three terms combined by the two-level
 tree <code class="docutils literal notranslate"><span class="pre">(term0</span> <span class="pre">&lt;combine01&gt;</span> <span class="pre">term1)</span> <span class="pre">&lt;combine2&gt;</span> <span class="pre">term2</span></code>. <code class="docutils literal notranslate"><span class="pre">SINGLE</span></code> at a
 level ignores the right-hand term (the 2-term filter’s combine,
-extended to three terms). Matches the tile’s config ports.</p>
+extended to three terms). Matches the core’s config ports.</p>
 <p>Create a new model by parsing and validating input data from keyword arguments.</p>
 <p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
 validated to form a valid model.</p>
@@ -2615,7 +2615,7 @@ This is useful if you want to do some validation that requires the entire model 
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.operators.filter_rows_by_predicate">
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">filter_rows_by_predicate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dau_core.operators.RowPredicateConfig" title="dau_core.operators.RowPredicateConfig"><span class="pre">RowPredicateConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#filter_rows_by_predicate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.filter_rows_by_predicate" title="Link to this definition">¶</a></dt>
-<dd><p>Golden semantics for the row predicate filter tile: whole
+<dd><p>Golden semantics for the row predicate filter core: whole
 (key, value, aux0, aux1) rows pass when the compound predicate over the
 selected fields matches (signed 32-bit compares), order preserved.</p>
 </dd></dl>
@@ -2627,7 +2627,7 @@ selected fields matches (signed 32-bit compares), order preserved.</p>
 <p>Per-row field ALU configuration: <code class="docutils literal notranslate"><span class="pre">dst</span> <span class="pre">=</span> <span class="pre">src_a</span> <span class="pre">&lt;op&gt;</span> <span class="pre">src_b</span></code> over the
 four row fields (MULSHR/SHL also use <code class="docutils literal notranslate"><span class="pre">shift</span></code>; SHL ignores <code class="docutils literal notranslate"><span class="pre">src_b</span></code>).
 All arithmetic is INT32 two’s-complement wraparound — the golden and the
-tile agree bit-for-bit. Matches the tile’s config ports.</p>
+core agree bit-for-bit. Matches the core’s config ports.</p>
 <p>Create a new model by parsing and validating input data from keyword arguments.</p>
 <p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
 validated to form a valid model.</p>
@@ -2680,7 +2680,7 @@ This is useful if you want to do some validation that requires the entire model 
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.operators.map_row_fields">
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">map_row_fields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dau_core.operators.RowMapConfig" title="dau_core.operators.RowMapConfig"><span class="pre">RowMapConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#map_row_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.map_row_fields" title="Link to this definition">¶</a></dt>
-<dd><p>Golden semantics for the row map/ALU tile: the configured destination
+<dd><p>Golden semantics for the row map/ALU core: the configured destination
 field is rewritten from the two source-field operands; the other fields
 pass through unchanged, order and count preserved.</p>
 </dd></dl>
@@ -2724,8 +2724,8 @@ this package (the multiply-shift convention).</p>
 <p>This is worth stating because the obvious implementation is a polynomial
 approximation, which would need an error bound and would still be wrong in
 the last place. There is no approximation here and no tolerance in the
-bench: the tile either matches this or it is broken.</p>
-<p>Raises on a negative input; the tile reports <code class="docutils literal notranslate"><span class="pre">DOMAIN</span></code> for the same case.</p>
+bench: the core either matches this or it is broken.</p>
+<p>Raises on a negative input; the core reports <code class="docutils literal notranslate"><span class="pre">DOMAIN</span></code> for the same case.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -2764,11 +2764,11 @@ This is useful if you want to do some validation that requires the entire model 
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.operators.sqrt_row_fields">
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">sqrt_row_fields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dau_core.operators.RowSqrtConfig" title="dau_core.operators.RowSqrtConfig"><span class="pre">RowSqrtConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#sqrt_row_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.sqrt_row_fields" title="Link to this definition">¶</a></dt>
-<dd><p>Golden semantics for the fixed-point sqrt tile: the destination field
+<dd><p>Golden semantics for the fixed-point sqrt core: the destination field
 is rewritten with the root of the source field, the other fields pass
 through unchanged, order and count preserved.</p>
 <p>A negative source value raises here and closes the batch out with
-<code class="docutils literal notranslate"><span class="pre">DOMAIN</span></code> on the tile — the row is not emitted with a substituted value,
+<code class="docutils literal notranslate"><span class="pre">DOMAIN</span></code> on the core — the row is not emitted with a substituted value,
 because a wrong number that looks right is the failure this avoids.</p>
 </dd></dl>
 
@@ -2800,22 +2800,22 @@ because a wrong number that looks right is the failure this avoids.</p>
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">format_datetime</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epoch_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#format_datetime"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.format_datetime" title="Link to this definition">¶</a></dt>
 <dd><p><code class="docutils literal notranslate"><span class="pre">epoch_seconds</span></code> rendered as <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span> <span class="pre">HH:MM:SS</span></code>, in UTC.</p>
 <p>The civil date comes from Howard Hinnant’s <code class="docutils literal notranslate"><span class="pre">civil_from_days</span></code>, written
-here in the same shape the tile implements it: every division is by a
+here in the same shape the core implements it: every division is by a
 CONSTANT, which is what lets the hardware do all of them as multiply-shift
 with no divider. Leap years are exact, all three rules (4, 100, 400) –
 they are not special-cased anywhere, they fall out of the 400-year era
 arithmetic.</p>
-<p>Raises outside the representable range; the tile reports <code class="docutils literal notranslate"><span class="pre">DOMAIN</span></code> for
+<p>Raises outside the representable range; the core reports <code class="docutils literal notranslate"><span class="pre">DOMAIN</span></code> for
 the same case rather than emitting a truncated year.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.operators.format_datetime_rows">
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">format_datetime_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#format_datetime_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.format_datetime_rows" title="Link to this definition">¶</a></dt>
-<dd><p>Golden semantics for the datetime formatter tile: one int64 epoch-second
+<dd><p>Golden semantics for the datetime formatter core: one int64 epoch-second
 value in, one fixed-width 19-character rendering out, order and count
 preserved.</p>
-<p>The tile emits the ASCII of each string in one 152-bit beat, character i
+<p>The core emits the ASCII of each string in one 152-bit beat, character i
 in bits <code class="docutils literal notranslate"><span class="pre">[8*i+7:8*i]</span></code>. An out-of-range value is not rendered: it closes
 the batch out with <code class="docutils literal notranslate"><span class="pre">DOMAIN</span></code>.</p>
 </dd></dl>
@@ -2863,10 +2863,10 @@ approximate and the bench compares with no tolerance.</p>
 <p>FLOOR, not truncation toward zero. That is the convention the rest of the
 package already uses: <code class="docutils literal notranslate"><span class="pre">MULSHR</span></code> divides by a power of two with an
 arithmetic shift, which floors, and <code class="docutils literal notranslate"><span class="pre">-7</span> <span class="pre">&gt;&gt;</span> <span class="pre">1</span></code> is <code class="docutils literal notranslate"><span class="pre">-4</span></code>. Python’s <code class="docutils literal notranslate"><span class="pre">//</span></code>
-floors too, so this is simply that operator. A tile that truncated toward
+floors too, so this is simply that operator. A core that truncated toward
 zero would disagree with the existing map ALU on every negative operand.</p>
 <p>Raises on a zero divisor, and on a quotient that does not fit int32; the
-tile reports <code class="docutils literal notranslate"><span class="pre">DOMAIN</span></code> and <code class="docutils literal notranslate"><span class="pre">RANGE</span></code> for those cases.</p>
+core reports <code class="docutils literal notranslate"><span class="pre">DOMAIN</span></code> and <code class="docutils literal notranslate"><span class="pre">RANGE</span></code> for those cases.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -2910,7 +2910,7 @@ This is useful if you want to do some validation that requires the entire model 
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.operators.divide_row_fields">
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">divide_row_fields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dau_core.operators.RowDivideConfig" title="dau_core.operators.RowDivideConfig"><span class="pre">RowDivideConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#divide_row_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.divide_row_fields" title="Link to this definition">¶</a></dt>
-<dd><p>Golden semantics for the fixed-point divide tile: the destination field
+<dd><p>Golden semantics for the fixed-point divide core: the destination field
 is rewritten with the quotient of the two source fields, the others pass
 through unchanged, order and count preserved.</p>
 <p>This is what retires the deferred-division convention. Means, VWAP and
@@ -2943,7 +2943,7 @@ stays on the device.</p>
 <dd><p>Bases: <a class="reference internal" href="../models/index.html#dau_core.models.CheckedModel" title="dau_core.models.CheckedModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dau_core.models.CheckedModel</span></code></a></p>
 <p>One output field’s slice of a packed row: the <code class="docutils literal notranslate"><span class="pre">width</span></code>-bit field at bit
 <code class="docutils literal notranslate"><span class="pre">offset</span></code> of the (&lt;=64-bit) packed word, sign-extended (<code class="docutils literal notranslate"><span class="pre">signed</span></code>) or
-zero-extended to int32. Matches the tile’s
+zero-extended to int32. Matches the core’s
 <code class="docutils literal notranslate"><span class="pre">cfg_field{i}_{offset,width,signed}</span></code> config ports.</p>
 <p>Create a new model by parsing and validating input data from keyword arguments.</p>
 <p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
@@ -2975,7 +2975,7 @@ This is useful if you want to do some validation that requires the entire model 
 <dt class="sig sig-object py" id="dau_core.operators.UnpackFieldSpec.extract">
 <span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">packed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#UnpackFieldSpec.extract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.UnpackFieldSpec.extract" title="Link to this definition">¶</a></dt>
 <dd><p>Extract this field from <code class="docutils literal notranslate"><span class="pre">packed</span></code> as an int32-domain signed value
-(the exact 32-bit pattern the tile emits, read back as signed int32).</p>
+(the exact 32-bit pattern the core emits, read back as signed int32).</p>
 </dd></dl>
 
 </dd></dl>
@@ -2983,15 +2983,15 @@ This is useful if you want to do some validation that requires the entire model 
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.operators.unpack_rows">
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">unpack_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_specs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Sequence</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#dau_core.operators.UnpackFieldSpec" title="dau_core.operators.UnpackFieldSpec"><span class="pre">UnpackFieldSpec</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">bypass</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#unpack_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.unpack_rows" title="Link to this definition">¶</a></dt>
-<dd><p>Golden semantics for the row-unpack front-end feed tile.</p>
+<dd><p>Golden semantics for the row-unpack front-end feed core.</p>
 <p>UNPACK (<code class="docutils literal notranslate"><span class="pre">bypass=False</span></code>, the default): widen each packed input word (one
 &lt;=64-bit packed row per word in <code class="docutils literal notranslate"><span class="pre">rows</span></code>) into a 16-byte int32 quad row.
 Output field i is <code class="docutils literal notranslate"><span class="pre">packed[offset_i</span> <span class="pre">+:</span> <span class="pre">width_i]</span></code> sign/zero extended to
 int32; the four fields map to (key, value, aux0, aux1) — the exact quad-row
-layout downstream row tiles consume (field 0 = key = w0.lo). One packed word
+layout downstream row cores consume (field 0 = key = w0.lo). One packed word
 in, one quad row out, order and count preserved.</p>
 <p>BYPASS (<code class="docutils literal notranslate"><span class="pre">bypass=True</span></code>): the input is already 16-byte int32 quad rows
-(<code class="docutils literal notranslate"><span class="pre">rows</span></code> is an iterable of (key, value, aux0, aux1) tuples); the tile
+(<code class="docutils literal notranslate"><span class="pre">rows</span></code> is an iterable of (key, value, aux0, aux1) tuples); the core
 forwards them byte-identically, so the golden is the identity. Field
 descriptors are unused in this mode (not required, not validated).</p>
 </dd></dl>
@@ -3032,7 +3032,7 @@ descriptors are unused in this mode (not required, not validated).</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="dau_core.operators.FieldSumAggregate">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">FieldSumAggregate</span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#FieldSumAggregate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.FieldSumAggregate" title="Link to this definition">¶</a></dt>
-<dd><p>The one record the field-sum aggregation tile emits per batch: exact
+<dd><p>The one record the field-sum aggregation core emits per batch: exact
 INT64 sums of the mask-selected fields (ascending field order) plus the
 row count. Record format on the wire: one 64-bit word per selected
 field (two’s-complement sum, ascending field index), then the count
@@ -3090,7 +3090,7 @@ and come back signed; the count does not.</p>
 <dd><p>The record one lane would have emitted over the union of the
 rows several lanes each saw a DISJOINT share of: sums add, counts
 add.</p>
-<p>This is the partition algebra of the tile – what makes a key-mask
+<p>This is the partition algebra of the core – what makes a key-mask
 dispatcher’s replicas, or a complete pair-key partition group,
 answer as one lane – and it holds only under a partition. Folding
 two lanes that each saw every row counts every row twice, which is
@@ -3109,11 +3109,11 @@ that knows the fan-out decides what is combined.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.operators.field_sum_rows">
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">field_sum_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_core.operators.FieldSumAggregate" title="dau_core.operators.FieldSumAggregate"><span class="pre">FieldSumAggregate</span></a></span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#field_sum_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.field_sum_rows" title="Link to this definition">¶</a></dt>
-<dd><p>Golden semantics for the batch field-sum aggregation tile: one pass
+<dd><p>Golden semantics for the batch field-sum aggregation core: one pass
 over (key, value, aux0, aux1) rows accumulating an INT64 sum per
 mask-selected field plus the row count. <code class="docutils literal notranslate"><span class="pre">field_mask</span></code> bit i selects
 field i; at least one field must be selected (a zero mask is an
-unconfigured tile and reports CONFIG on hardware).</p>
+unconfigured core and reports CONFIG on hardware).</p>
 </dd></dl>
 
 <dl class="py class">
@@ -3138,14 +3138,14 @@ unconfigured tile and reports CONFIG on hardware).</p>
 <dt class="sig sig-object py" id="dau_core.operators.GroupedFieldSumAggregate">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">GroupedFieldSumAggregate</span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#GroupedFieldSumAggregate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.GroupedFieldSumAggregate" title="Link to this definition">¶</a></dt>
 <dd><p>One closed group from the ordered grouped field-sum aggregation
-tile: INT64 sums of the mask-selected fields (ascending field order)
+core: INT64 sums of the mask-selected fields (ascending field order)
 plus the group’s row count — exact for every feasible batch (an INT64
 accumulator of int32 addends cannot overflow below 2**32 rows in one
 group, far past any stageable batch). Record format on the wire: the
 group key sign-extended to one 64-bit word, one 64-bit word per
 selected field (two’s-complement sum, ascending field index), then the
 count word. <code class="docutils literal notranslate"><span class="pre">output_last</span></code> is set only on the final group’s count
-word — the batch’s group records form one record stream and the tile
+word — the batch’s group records form one record stream and the core
 closes out once per batch, after the last group (the composition
 invariant: exactly one success close-out per lane per batch).</p>
 <dl class="py attribute">
@@ -3180,24 +3180,24 @@ key, sums re-encoded to two’s complement, count last.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.operators.grouped_field_sum_rows">
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">grouped_field_sum_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#dau_core.operators.GroupedFieldSumAggregate" title="dau_core.operators.GroupedFieldSumAggregate"><span class="pre">GroupedFieldSumAggregate</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#grouped_field_sum_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.grouped_field_sum_rows" title="Link to this definition">¶</a></dt>
-<dd><p>Golden semantics for the ordered grouped field-sum aggregation tile
+<dd><p>Golden semantics for the ordered grouped field-sum aggregation core
 (close-out mode): consecutive (key, value, aux0, aux1) rows with equal
 signed 32-bit keys form a group; a group closes when the key changes or
 input ends, emitting an INT64 sum per mask-selected field plus the row
 count. A key that reappears later opens a NEW group — partials merge on
-the host, never in the tile (the partial-bar contract). <code class="docutils literal notranslate"><span class="pre">field_mask</span></code>
+the host, never in the core (the partial-bar contract). <code class="docutils literal notranslate"><span class="pre">field_mask</span></code>
 bit i selects field i; at least one field must be selected (a zero mask
-is an unconfigured tile and reports CONFIG on hardware).</p>
+is an unconfigured core and reports CONFIG on hardware).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.operators.group_table_sum_rows">
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">group_table_sum_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_shift</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#dau_core.operators.GroupedFieldSumAggregate" title="dau_core.operators.GroupedFieldSumAggregate"><span class="pre">GroupedFieldSumAggregate</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#group_table_sum_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.group_table_sum_rows" title="Link to this definition">¶</a></dt>
-<dd><p>Golden semantics for the wide group-table sum tile: each row’s group is
+<dd><p>Golden semantics for the wide group-table sum core: each row’s group is
 <code class="docutils literal notranslate"><span class="pre">(key</span> <span class="pre">&gt;&gt;</span> <span class="pre">group_shift)</span> <span class="pre">&amp;</span> <span class="pre">(2**group_bits</span> <span class="pre">-</span> <span class="pre">1)</span></code> over the key’s unsigned
 32 bits, and every group that received a row closes with INT64 sums of
 the mask-selected fields and its row count, in ascending group order. The
-record’s key word is the group code. Unlike the ordered grouped tile,
+record’s key word is the group code. Unlike the ordered grouped core,
 rows of one group need not be adjacent: the table is direct-indexed, so a
 group’s rows merge wherever they fall in the batch. Rows are the batch’s
 real rows; the wide lane’s all-ones pad never reaches this function.</p>
@@ -3207,12 +3207,12 @@ real rows; the wide lane’s all-ones pad never reaches this function.</p>
 <dt class="sig sig-object py" id="dau_core.operators.MembershipKind">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">MembershipKind</span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#MembershipKind"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.MembershipKind" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.IntEnum</span></code></p>
-<p>Membership-structure kind for the key-set membership filter tile. Zero
-is reserved so an unconfigured tile fails explicitly. v0 implements only
+<p>Membership-structure kind for the key-set membership filter core. Zero
+is reserved so an unconfigured core fails explicitly. v0 implements only
 <code class="docutils literal notranslate"><span class="pre">EXACT_BITMAP</span></code> — a direct-mapped bitmap over the configured dictionary-id
 key space, with no false positives. <code class="docutils literal notranslate"><span class="pre">BLOOM</span></code> is a reserved future config (a
 hashed bitmap trading exactness for an unbounded key space, its false
-positives verified host-side); the v0 tile rejects it with a config
+positives verified host-side); the v0 core rejects it with a config
 error.</p>
 <p>Initialize self.  See help(type(self)) for accurate signature.</p>
 <dl class="py attribute">
@@ -3354,7 +3354,7 @@ member.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.operators.filter_rows_by_membership">
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">filter_rows_by_membership</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">build_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dau_core.operators.MembershipBuildSet" title="dau_core.operators.MembershipBuildSet"><span class="pre">MembershipBuildSet</span></a></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dau_core.operators.MembershipMode" title="dau_core.operators.MembershipMode"><span class="pre">MembershipMode</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#filter_rows_by_membership"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.filter_rows_by_membership" title="Link to this definition">¶</a></dt>
-<dd><p>Golden semantics for the key-set membership filter tile (probe phase):
+<dd><p>Golden semantics for the key-set membership filter core (probe phase):
 whole (key, value, aux0, aux1) rows pass by whether the row key (<code class="docutils literal notranslate"><span class="pre">w0.lo</span></code>,
 signed int32) is a member of <code class="docutils literal notranslate"><span class="pre">build_set</span></code>. <code class="docutils literal notranslate"><span class="pre">SEMI</span></code> keeps members, <code class="docutils literal notranslate"><span class="pre">ANTI</span></code>
 keeps non-members; order preserved. Exact bitmap membership — no false
@@ -3370,9 +3370,9 @@ positives.</p>
 <dt class="sig sig-object py" id="dau_core.operators.DedupErrorCode">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">DedupErrorCode</span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#DedupErrorCode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.DedupErrorCode" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.IntEnum</span></code></p>
-<p>Status codes for the streaming dedup tile. Code 1 — <code class="docutils literal notranslate"><span class="pre">CONFIG</span></code> in every
-tile that has one — is deliberately absent: <code class="docutils literal notranslate"><span class="pre">cfg_clear</span></code> is a single bit
-with no invalid encoding, so there is no configuration this tile can
+<p>Status codes for the streaming dedup core. Code 1 — <code class="docutils literal notranslate"><span class="pre">CONFIG</span></code> in every
+core that has one — is deliberately absent: <code class="docutils literal notranslate"><span class="pre">cfg_clear</span></code> is a single bit
+with no invalid encoding, so there is no configuration this core can
 reject. <code class="docutils literal notranslate"><span class="pre">STREAM</span></code> keeps the palette-wide value 2 and <code class="docutils literal notranslate"><span class="pre">RANGE</span></code> the value
 the broadcast hash join gives the same condition.</p>
 <p>Initialize self.  See help(type(self)) for accurate signature.</p>
@@ -3396,10 +3396,10 @@ the broadcast hash join gives the same condition.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="dau_core.operators.DistinctCount">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">DistinctCount</span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#DistinctCount"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.DistinctCount" title="Link to this definition">¶</a></dt>
-<dd><p>What the streaming dedup tile holds after a batch: the running distinct
+<dd><p>What the streaming dedup core holds after a batch: the running distinct
 count it emits as its one-word close-out record, and the bitmap that count
 was taken from.</p>
-<p><code class="docutils literal notranslate"><span class="pre">seen</span></code> is carried rather than derived because the tile’s bitmap SURVIVES
+<p><code class="docutils literal notranslate"><span class="pre">seen</span></code> is carried rather than derived because the core’s bitmap SURVIVES
 a batch boundary. A scan split into overlapped batches is one dedup, and
 summing per-batch counts would count a key once per batch it appears in —
 so the accumulation runs until the host asks for a fresh one (<code class="docutils literal notranslate"><span class="pre">cfg_clear</span></code>
@@ -3438,7 +3438,7 @@ count and nothing else — N keys in, ONE count out.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.operators.count_distinct_rows">
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">count_distinct_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">key_space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seen</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_core.operators.DistinctCount" title="dau_core.operators.DistinctCount"><span class="pre">DistinctCount</span></a></span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#count_distinct_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.count_distinct_rows" title="Link to this definition">¶</a></dt>
-<dd><p>Golden semantics for the streaming insert-on-probe dedup tile: one pass
+<dd><p>Golden semantics for the streaming insert-on-probe dedup core: one pass
 over (key, value, aux0, aux1) rows counting each key the FIRST time it is
 seen — <code class="docutils literal notranslate"><span class="pre">COUNT(DISTINCT</span> <span class="pre">key)</span></code> over the dictionary-id space
 <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">key_space)</span></code>.</p>
@@ -3447,7 +3447,7 @@ probed read-only. This one is written as it is probed — if the row key’s
 bit is clear, set it and count the row; otherwise the key has been seen
 and the row changes nothing. That single difference (insert on probe) is
 what a <code class="docutils literal notranslate"><span class="pre">distinct</span></code> needs and what a static bitmap cannot do, and it is
-why the tile pays a read-modify-write per row where the filter pays a
+why the core pays a read-modify-write per row where the filter pays a
 read.</p>
 <p>Sized by CARDINALITY, not by row count: the bitmap holds one bit per
 distinct key, so the memory is set by how many distinct keys exist, not by
@@ -3458,7 +3458,7 @@ is in the membership filter. A filter can honestly answer “not a member”
 for a key the build set could never hold; a dedup cannot answer “have I
 seen this” for a key it has nowhere to record, and silently wrapping it
 into another key’s bit would merge two distinct keys into one count. The
-tile drains the batch and closes out <code class="docutils literal notranslate"><span class="pre">RANGE</span></code>; the accumulation goes with
+core drains the batch and closes out <code class="docutils literal notranslate"><span class="pre">RANGE</span></code>; the accumulation goes with
 it (count zero, empty bitmap), because rows before the bad one already set
 their bits and a half-inserted bitmap is not a state anything can resume
 from.</p>
@@ -3468,10 +3468,10 @@ from.</p>
 <dt class="sig sig-object py" id="dau_core.operators.JoinSource">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">JoinSource</span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#JoinSource"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.JoinSource" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.IntEnum</span></code></p>
-<p>Output field-select sources for the broadcast hash join tile: the six
+<p>Output field-select sources for the broadcast hash join core: the six
 32-bit operands an emitted output field may carry — the matched build row’s
 three data fields (<code class="docutils literal notranslate"><span class="pre">b0</span></code>/<code class="docutils literal notranslate"><span class="pre">b1</span></code>/<code class="docutils literal notranslate"><span class="pre">b2</span></code>) and the probe row’s three
-(<code class="docutils literal notranslate"><span class="pre">v0</span></code>/<code class="docutils literal notranslate"><span class="pre">v1</span></code>/<code class="docutils literal notranslate"><span class="pre">v2</span></code>). Selectors 6 and 7 are reserved (the tile rejects
+(<code class="docutils literal notranslate"><span class="pre">v0</span></code>/<code class="docutils literal notranslate"><span class="pre">v1</span></code>/<code class="docutils literal notranslate"><span class="pre">v2</span></code>). Selectors 6 and 7 are reserved (the core rejects
 them as <code class="docutils literal notranslate"><span class="pre">ERR_CONFIG</span></code>). The emitted row’s key is always the matched key,
 so it is not a selectable source.</p>
 <p>Initialize self.  See help(type(self)) for accurate signature.</p>
@@ -3537,7 +3537,7 @@ so it is not a selectable source.</p>
 <p>Output field-select for the broadcast hash join: each of the emitted
 row’s three data fields (<code class="docutils literal notranslate"><span class="pre">out0</span></code>, <code class="docutils literal notranslate"><span class="pre">out1</span></code>, <code class="docutils literal notranslate"><span class="pre">out2</span></code>) is chosen from the
 six join sources. The emitted key is always the matched probe key. Matches
-the tile’s <code class="docutils literal notranslate"><span class="pre">cfg_out{0,1,2}_sel</span></code> config ports.</p>
+the core’s <code class="docutils literal notranslate"><span class="pre">cfg_out{0,1,2}_sel</span></code> config ports.</p>
 <p>Create a new model by parsing and validating input data from keyword arguments.</p>
 <p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
 validated to form a valid model.</p>
@@ -3574,7 +3574,7 @@ This is useful if you want to do some validation that requires the entire model 
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.operators.keyed_asof_join_rows">
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">keyed_asof_join_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">records</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#keyed_asof_join_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.keyed_asof_join_rows" title="Link to this definition">¶</a></dt>
-<dd><p>Golden semantics for the generic keyed backward as-of join tile: one
+<dd><p>Golden semantics for the generic keyed backward as-of join core: one
 host-merged, <code class="docutils literal notranslate"><span class="pre">(key,</span> <span class="pre">time)</span></code>-sorted stream of BUILD and PROBE records
 (build-before-probe at equal key/time). Each record is
 <code class="docutils literal notranslate"><span class="pre">(rec_type,</span> <span class="pre">key,</span> <span class="pre">time,</span> <span class="pre">a,</span> <span class="pre">b)</span></code> — <code class="docutils literal notranslate"><span class="pre">rec_type</span></code> bit0: 0 = build, 1 = probe;
@@ -3584,7 +3584,7 @@ key-grouped, exactly one build is live at a time: a build updates the held
 most recent build with <code class="docutils literal notranslate"><span class="pre">build_time</span> <span class="pre">&lt;=</span> <span class="pre">probe_time</span></code> (within <code class="docutils literal notranslate"><span class="pre">tolerance</span></code> on
 the time axis, <code class="docutils literal notranslate"><span class="pre">None</span></code> = unbounded), emitting the joined row
 <code class="docutils literal notranslate"><span class="pre">(key,</span> <span class="pre">time,</span> <span class="pre">probe_a,</span> <span class="pre">probe_b,</span> <span class="pre">build_a,</span> <span class="pre">build_b)</span></code>. A probe with no live
-build (or one older than tolerance) drops — the tile emits matched joins
+build (or one older than tolerance) drops — the core emits matched joins
 only. Workload-agnostic: the temporal-finance backward as-of (quote = build
 <code class="docutils literal notranslate"><span class="pre">{bid,</span> <span class="pre">ask}</span></code>, trade = probe <code class="docutils literal notranslate"><span class="pre">{price,</span> <span class="pre">size}</span></code>) is exactly this join, and
 <a class="reference internal" href="../temporal/index.html#dau_core.temporal.asof_backward" title="dau_core.temporal.asof_backward"><code class="xref py py-func docutils literal notranslate"><span class="pre">dau_core.temporal.asof_backward()</span></code></a> on sorted inputs agrees with it.</p>
@@ -3593,7 +3593,7 @@ only. Workload-agnostic: the temporal-finance backward as-of (quote = build
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.operators.broadcast_hash_join_rows">
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">broadcast_hash_join_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">build_rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probe_rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_sel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dau_core.operators.BroadcastJoinConfig" title="dau_core.operators.BroadcastJoinConfig"><span class="pre">BroadcastJoinConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">key_space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1024</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#broadcast_hash_join_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.broadcast_hash_join_rows" title="Link to this definition">¶</a></dt>
-<dd><p>Golden semantics for the broadcast hash join tile (the join tier’s
+<dd><p>Golden semantics for the broadcast hash join core (the join tier’s
 payload-emitting Joiner). The build side of <code class="docutils literal notranslate"><span class="pre">(key,</span> <span class="pre">b0,</span> <span class="pre">b1,</span> <span class="pre">b2)</span></code> rows is
 loaded into a direct-mapped payload table over the key space
 <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">key_space)</span></code> — one slot per key, last-writer-wins on a duplicate
@@ -3602,10 +3602,10 @@ probe rows inner-join against it: a probe key that hits emits one
 <code class="docutils literal notranslate"><span class="pre">(key,</span> <span class="pre">out0,</span> <span class="pre">out1,</span> <span class="pre">out2)</span></code> row whose three data fields are chosen by
 <code class="docutils literal notranslate"><span class="pre">out_sel</span></code> from the six sources <code class="docutils literal notranslate"><span class="pre">(b0,</span> <span class="pre">b1,</span> <span class="pre">b2,</span> <span class="pre">v0,</span> <span class="pre">v1,</span> <span class="pre">v2)</span></code>; a probe miss
 drops. Order is preserved. Every build and probe key must lie in
-<code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">key_space)</span></code> — an out-of-range key is <code class="docutils literal notranslate"><span class="pre">ERR_RANGE</span></code> on the tile and
+<code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">key_space)</span></code> — an out-of-range key is <code class="docutils literal notranslate"><span class="pre">ERR_RANGE</span></code> on the core and
 raises here. All fields are INT32 (two’s-complement wraparound).</p>
 <p>An empty <code class="docutils literal notranslate"><span class="pre">build_rows</span></code> is the mathematically empty table (every probe
-misses). On the tile, an empty table is the cleared/initial state reached
+misses). On the core, an empty table is the cleared/initial state reached
 by the load-phase sweep or power-on <code class="docutils literal notranslate"><span class="pre">INIT</span></code> — a <em>load batch</em> itself always
 carries at least one build row, since the stream contract delimits a batch
 with <code class="docutils literal notranslate"><span class="pre">input_last</span></code> on a data word and so cannot express a zero-row
@@ -3633,7 +3633,7 @@ batch.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="dau_core.operators.GroupAggregate">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">GroupAggregate</span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#GroupAggregate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.GroupAggregate" title="Link to this definition">¶</a></dt>
-<dd><p>One closed group from the ordered grouped-aggregation tile: every
+<dd><p>One closed group from the ordered grouped-aggregation core: every
 statistic is computed in a single pass. <code class="docutils literal notranslate"><span class="pre">first</span></code>/<code class="docutils literal notranslate"><span class="pre">last</span></code> follow input
 order, so partial groups from separate batches merge correctly on the
 host (the partial-bar contract).</p>
@@ -3677,7 +3677,7 @@ host (the partial-bar contract).</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="dau_core.operators.BarAggregate">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">BarAggregate</span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#BarAggregate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.BarAggregate" title="Link to this definition">¶</a></dt>
-<dd><p>One closed bar from the fused single-pass bar-aggregation tile: price
+<dd><p>One closed bar from the fused single-pass bar-aggregation core: price
 OHLC statistics plus the exact micro-share volume decomposition, all in
 one pass over (key, price, shares, frac) rows.</p>
 <dl class="py attribute">
@@ -3760,7 +3760,7 @@ input order, running min/max, and the exact int64 sum.</p>
 <dd><p>One closed group from the GENERIC multi-field aggregator: per-field
 first/last/min/max/sum over the three data fields of a quad row, plus the
 row count. A workload-agnostic superset — OHLCV bars (and other grouped
-reductions) are a field/stat SELECTION over it, not a baked-in tile.</p>
+reductions) are a field/stat SELECTION over it, not a baked-in core.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dau_core.operators.GroupedFieldAggregate.key">
 <span class="sig-name descname"><span class="pre">key</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.operators.GroupedFieldAggregate.key" title="Link to this definition">¶</a></dt>
@@ -3823,7 +3823,7 @@ ERR_STREAM.</p>
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">DispatchMode</span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#DispatchMode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.DispatchMode" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.IntEnum</span></code></p>
 <p>How the key-mask dispatcher maps a row’s key to a partition. The
-values ARE the tile’s MODE parameter encoding, so the golden and the
+values ARE the core’s MODE parameter encoding, so the golden and the
 HDL cannot drift apart silently.</p>
 <p>Initialize self.  See help(type(self)) for accurate signature.</p>
 <dl class="py attribute">
@@ -3944,7 +3944,7 @@ compares keys and splitters as <em>signed</em> 32-bit values
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">sort_bar_rows_by_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#sort_bar_rows_by_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.sort_bar_rows_by_key" title="Link to this definition">¶</a></dt>
 <dd><p>Golden semantics for the batch bitonic sorter: rows ascending by the
 signed 32-bit key, STABLE (rows with equal keys keep input order — the
-tile tie-breaks on load index).</p>
+core tie-breaks on load index).</p>
 </dd></dl>
 
 <dl class="py data">
@@ -3956,7 +3956,7 @@ tile tie-breaks on load index).</p>
 <dt class="sig sig-object py" id="dau_core.operators.TopKErrorCode">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">TopKErrorCode</span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#TopKErrorCode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.TopKErrorCode" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.IntEnum</span></code></p>
-<p>Status codes for the streaming top-k heap tile.</p>
+<p>Status codes for the streaming top-k heap core.</p>
 <p>Initialize self.  See help(type(self)) for accurate signature.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dau_core.operators.TopKErrorCode.OK">
@@ -3973,26 +3973,26 @@ tile tie-breaks on load index).</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.operators.streaming_top_k">
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">streaming_top_k</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#streaming_top_k"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.streaming_top_k" title="Link to this definition">¶</a></dt>
-<dd><p>Golden semantics for the streaming top-k heap tile: in one pass keep the
+<dd><p>Golden semantics for the streaming top-k heap core: in one pass keep the
 <code class="docutils literal notranslate"><span class="pre">k</span></code> rows with the largest signed-32-bit sort key (field 0), breaking ties
 by arrival order (earlier rows win), and emit them sorted by sort key
 DESCENDING (ties arrival ascending) — the <code class="docutils literal notranslate"><span class="pre">ORDER</span> <span class="pre">BY</span> <span class="pre">&lt;key&gt;</span> <span class="pre">DESC</span> <span class="pre">LIMIT</span> <span class="pre">k</span></code>
 shape (q3/q10, TSBS group-by-order-by-limit).</p>
-<p>Bounded state: the tile holds at most <code class="docutils literal notranslate"><span class="pre">k</span></code> rows in a size-<code class="docutils literal notranslate"><span class="pre">k</span></code> min-heap
+<p>Bounded state: the core holds at most <code class="docutils literal notranslate"><span class="pre">k</span></code> rows in a size-<code class="docutils literal notranslate"><span class="pre">k</span></code> min-heap
 whose root — the eviction target — is the entry with the smallest key and,
 among equal-key entries, the LATEST arrival (the heap orders on
 <code class="docutils literal notranslate"><span class="pre">(key,</span> <span class="pre">-arrival)</span></code>, not key alone). An arriving row replaces the root only
 when its key is STRICTLY greater, so at the k-th-largest key the earliest
 arrivals are retained — matched by the <code class="docutils literal notranslate"><span class="pre">(-key,</span> <span class="pre">arrival)</span></code> sort below. This
-root tie-order is part of the tile contract: a key-only min-heap could evict
+root tie-order is part of the core contract: a key-only min-heap could evict
 an earlier tied row and diverge from this golden. <code class="docutils literal notranslate"><span class="pre">k</span></code> is bounded to
-<code class="docutils literal notranslate"><span class="pre">[1,</span> <span class="pre">TOP_K_MAX]</span></code>; the tile reports <code class="docutils literal notranslate"><span class="pre">BAD_K</span></code> outside that range.</p>
+<code class="docutils literal notranslate"><span class="pre">[1,</span> <span class="pre">TOP_K_MAX]</span></code>; the core reports <code class="docutils literal notranslate"><span class="pre">BAD_K</span></code> outside that range.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.operators.time_bucket_key_rows">
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">time_bucket_key_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">bucket_shift</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bucket_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#time_bucket_key_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.time_bucket_key_rows" title="Link to this definition">¶</a></dt>
-<dd><p>Golden semantics for the generic time-bucket key tile: rewrite each row’s
+<dd><p>Golden semantics for the generic time-bucket key core: rewrite each row’s
 partition key into a composite <code class="docutils literal notranslate"><span class="pre">(partition,</span> <span class="pre">time-bucket)</span></code> group key so a
 downstream key-grouped aggregator produces fixed-width time-windowed groups
 per partition. Window = <code class="docutils literal notranslate"><span class="pre">2**bucket_shift</span></code>; key =
@@ -4037,7 +4037,7 @@ assignment lives here, not in the aggregator.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.operators.bar_aggregate_rows">
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">bar_aggregate_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#dau_core.operators.BarAggregate" title="dau_core.operators.BarAggregate"><span class="pre">BarAggregate</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#bar_aggregate_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.bar_aggregate_rows" title="Link to this definition">¶</a></dt>
-<dd><p>Golden semantics for the fused bar-aggregation tile (ordered
+<dd><p>Golden semantics for the fused bar-aggregation core (ordered
 close-out): consecutive rows with equal keys form a bar; volume is
 <code class="docutils literal notranslate"><span class="pre">shares</span> <span class="pre">*</span> <span class="pre">SCALE</span> <span class="pre">+</span> <span class="pre">frac</span></code> recombined on the host.</p>
 </dd></dl>
@@ -4045,10 +4045,10 @@ close-out): consecutive rows with equal keys form a bar; volume is
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.operators.grouped_aggregate_rows">
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">grouped_aggregate_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#dau_core.operators.GroupAggregate" title="dau_core.operators.GroupAggregate"><span class="pre">GroupAggregate</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#grouped_aggregate_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.grouped_aggregate_rows" title="Link to this definition">¶</a></dt>
-<dd><p>Golden semantics for the ordered grouped-aggregation tile
+<dd><p>Golden semantics for the ordered grouped-aggregation core
 (close-out mode): consecutive rows with equal keys form a group; a group
 closes when the key changes or input ends. A key that reappears later
-opens a NEW group — partials are merged by the host, never the tile.</p>
+opens a NEW group — partials are merged by the host, never the core.</p>
 </dd></dl>
 
 <dl class="py exception">
@@ -4121,7 +4121,7 @@ opens a NEW group — partials are merged by the host, never the tile.</p>
 <dt class="sig sig-object py" id="dau_core.operators.KeyedStateErrorCode">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">KeyedStateErrorCode</span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#KeyedStateErrorCode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.KeyedStateErrorCode" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.IntEnum</span></code></p>
-<p>Status codes for the keyed state tile.</p>
+<p>Status codes for the keyed state core.</p>
 <p>Initialize self.  See help(type(self)) for accurate signature.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dau_core.operators.KeyedStateErrorCode.OK">
@@ -4171,9 +4171,9 @@ opens a NEW group — partials are merged by the host, never the tile.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.operators.keyed_state_scan">
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">keyed_state_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dau_core.operators.KeyedStateOp" title="dau_core.operators.KeyedStateOp"><span class="pre">KeyedStateOp</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#dau_core.operators.KeyedStateErrorCode" title="dau_core.operators.KeyedStateErrorCode"><span class="pre">KeyedStateErrorCode</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#keyed_state_scan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.keyed_state_scan" title="Link to this definition">¶</a></dt>
-<dd><p>Golden semantics for the keyed state tile: a per-key accumulator updated
+<dd><p>Golden semantics for the keyed state core: a per-key accumulator updated
 once per row, emitting the POST-UPDATE state for every row.</p>
-<p>This is the primitive the stateful family is built on. Unlike every tile
+<p>This is the primitive the stateful family is built on. Unlike every core
 that precedes it, the output for a row depends on rows that came before it
 with the SAME key — a loop-carried dependency per key, which is exactly the
 shape a SIMD CPU cannot vectorize and a spatial datapath can hold on-chip.</p>
@@ -4187,7 +4187,7 @@ explicit rather than implied.</p>
 Post-update is what a running aggregate means, it is what the hardware can
 produce without an extra pipeline stage holding the old value, and it makes
 back-to-back same-key rows well defined: the second row observes the first
-row’s write. In hardware that is a read-modify-write hazard the tile must
+row’s write. In hardware that is a read-modify-write hazard the core must
 FORWARD rather than stall, and this golden pins the answer it must forward
 to.</p>
 <p><code class="docutils literal notranslate"><span class="pre">capacity</span></code> is the declared number of distinct keys the table holds. It is
@@ -4216,7 +4216,7 @@ the first value to win should pass the domain’s extreme.</p>
 <dt class="sig sig-object py" id="dau_core.operators.ScratchpadErrorCode">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">ScratchpadErrorCode</span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#ScratchpadErrorCode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.ScratchpadErrorCode" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.IntEnum</span></code></p>
-<p>Status codes for the scratchpad owned-arena tile.</p>
+<p>Status codes for the scratchpad owned-arena core.</p>
 <p>Initialize self.  See help(type(self)) for accurate signature.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dau_core.operators.ScratchpadErrorCode.OK">
@@ -4238,7 +4238,7 @@ the first value to win should pass the domain’s extreme.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.operators.scratchpad_scan">
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">scratchpad_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">granted_words</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#dau_core.operators.ScratchpadErrorCode" title="dau_core.operators.ScratchpadErrorCode"><span class="pre">ScratchpadErrorCode</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#scratchpad_scan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.scratchpad_scan" title="Link to this definition">¶</a></dt>
-<dd><p>Golden semantics for the scratchpad tile: the deliberately trivial
+<dd><p>Golden semantics for the scratchpad core: the deliberately trivial
 consumer of the OWNED storage class (STORAGE_AND_NOC.md). A private
 word-addressed arena; each row is <code class="docutils literal notranslate"><span class="pre">(write_enable,</span> <span class="pre">addr,</span> <span class="pre">value)</span></code> and
 emits <code class="docutils literal notranslate"><span class="pre">(addr,</span> <span class="pre">post_op_value)</span></code> — a write emits what it wrote, a read
@@ -4259,7 +4259,7 @@ when the allocator hardens. Addresses and values are int32 wires
 <dt class="sig sig-object py" id="dau_core.operators.SessionErrorCode">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">SessionErrorCode</span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#SessionErrorCode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.SessionErrorCode" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.IntEnum</span></code></p>
-<p>Status codes for the session-gap tile.</p>
+<p>Status codes for the session-gap core.</p>
 <p>Initialize self.  See help(type(self)) for accurate signature.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dau_core.operators.SessionErrorCode.OK">
@@ -4291,7 +4291,7 @@ when the allocator hardens. Addresses and values are int32 wires
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.operators.sessionize_scan">
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">sessionize_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">gap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#dau_core.operators.SessionErrorCode" title="dau_core.operators.SessionErrorCode"><span class="pre">SessionErrorCode</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#sessionize_scan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.sessionize_scan" title="Link to this definition">¶</a></dt>
-<dd><p>Golden semantics for the session-gap tile: the Nexmark-Q11 shape over
+<dd><p>Golden semantics for the session-gap core: the Nexmark-Q11 shape over
 bounded keyed state (STORAGE_AND_NOC.md). Rows are <code class="docutils literal notranslate"><span class="pre">(key,</span> <span class="pre">time)</span></code> in
 arrival order; a session is a maximal per-key run of rows with no
 inter-row gap exceeding <code class="docutils literal notranslate"><span class="pre">gap</span></code>. Each closed session emits
@@ -4324,8 +4324,8 @@ for every batch below 2^32 rows, which no staging region can hold.</p>
 <dt class="sig sig-object py" id="dau_core.operators.HashGroupedErrorCode">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">HashGroupedErrorCode</span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#HashGroupedErrorCode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.HashGroupedErrorCode" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.IntEnum</span></code></p>
-<p>Status codes for the hash-mode grouped field-sum aggregation tile.
-The values ARE the tile’s <code class="docutils literal notranslate"><span class="pre">status_error_code</span></code> wire encoding, so the
+<p>Status codes for the hash-mode grouped field-sum aggregation core.
+The values ARE the core’s <code class="docutils literal notranslate"><span class="pre">status_error_code</span></code> wire encoding, so the
 golden and the HDL cannot drift apart silently.</p>
 <p>Initialize self.  See help(type(self)) for accurate signature.</p>
 <dl class="py attribute">
@@ -4358,10 +4358,10 @@ golden and the HDL cannot drift apart silently.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="dau_core.operators.HashGroupedAggregate">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">HashGroupedAggregate</span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#HashGroupedAggregate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.HashGroupedAggregate" title="Link to this definition">¶</a></dt>
-<dd><p>One group from the hash-mode grouped field-sum aggregation tile:
+<dd><p>One group from the hash-mode grouped field-sum aggregation core:
 INT64 sums of the mask-selected fields (ascending field order) plus the
 group’s row count — the same record shape the ORDERED grouped
-field-sum tile emits, so the host decode path is shared.</p>
+field-sum core emits, so the host decode path is shared.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dau_core.operators.HashGroupedAggregate.key">
 <span class="sig-name descname"><span class="pre">key</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_core.operators.HashGroupedAggregate.key" title="Link to this definition">¶</a></dt>
@@ -4394,14 +4394,14 @@ key, sums re-encoded to two’s complement, count last.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.operators.hash_grouped_field_sum_rows">
 <span class="sig-prename descclassname"><span class="pre">dau_core.operators.</span></span><span class="sig-name descname"><span class="pre">hash_grouped_field_sum_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#dau_core.operators.HashGroupedAggregate" title="dau_core.operators.HashGroupedAggregate"><span class="pre">HashGroupedAggregate</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#dau_core.operators.HashGroupedErrorCode" title="dau_core.operators.HashGroupedErrorCode"><span class="pre">HashGroupedErrorCode</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/operators.html#hash_grouped_field_sum_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.operators.hash_grouped_field_sum_rows" title="Link to this definition">¶</a></dt>
-<dd><p>Golden semantics for the HASH-mode grouped field-sum aggregation tile:
+<dd><p>Golden semantics for the HASH-mode grouped field-sum aggregation core:
 one INT64 accumulator set per DISTINCT key in a bounded on-chip table,
 drained key-ascending at close-out.</p>
 <p>The difference from <a class="reference internal" href="#dau_core.operators.grouped_field_sum_rows" title="dau_core.operators.grouped_field_sum_rows"><code class="xref py py-func docutils literal notranslate"><span class="pre">grouped_field_sum_rows()</span></code></a> is the whole point of
-the tile: the ordered tile groups CONSECUTIVE equal keys, so a key that
+the core: the ordered core groups CONSECUTIVE equal keys, so a key that
 reappears after another key opens a second partial group the host must
 merge, and the staged table must be pre-sorted on the group key. This
-tile holds a per-key accumulator, so <strong>input order does not matter</strong> and
+core holds a per-key accumulator, so <strong>input order does not matter</strong> and
 a key may reappear anywhere in the batch — one record per distinct key,
 always. That removes the <code class="docutils literal notranslate"><span class="pre">sorted_by_key</span></code> staging precondition from
 every grouped scan.</p>
@@ -4411,7 +4411,7 @@ order, so leaking the probe/slot order into the record stream would make
 the result depend on the hash function — an implementation detail no
 golden could pin and no host could rely on. Sorting the drain by signed
 key makes the order implementation-independent and physically true (the
-session-gap tile’s min-extraction drain is the same decision).</p>
+session-gap core’s min-extraction drain is the same decision).</p>
 <p><strong>Overflow is an ERROR that invalidates the batch</strong>, never an eviction.
 <code class="docutils literal notranslate"><span class="pre">capacity</span></code> is a hardware fact (the table depth). When a row presents a
 key not in the table and the table is full, the batch reports
@@ -4422,14 +4422,14 @@ worse than useless — the host’s recovery is to re-run the batch split by
 key range, so a caller that merged the partial with the re-run results
 would DOUBLE-COUNT every key that had accumulated before the overflow.
 Discarding the batch is also the platform’s uniform error convention (an
-error close-out invalidates the whole batch; the tile’s group_count
+error close-out invalidates the whole batch; the core’s group_count
 reads 0 and no success close-out is raised), which is what lets the
 golden and the HDL agree by construction rather than by inspection.
 Recovery is exact because INT64 sums and counts are additive per key —
 see <a class="reference internal" href="#dau_core.operators.merge_hash_grouped" title="dau_core.operators.merge_hash_grouped"><code class="xref py py-func docutils literal notranslate"><span class="pre">merge_hash_grouped()</span></code></a>.</p>
 <p><code class="docutils literal notranslate"><span class="pre">field_mask</span></code> bit i selects field i of the quad row <code class="docutils literal notranslate"><span class="pre">(key,</span> <span class="pre">value,</span>
 <span class="pre">aux0,</span> <span class="pre">aux1)</span></code>; selecting field 0 sums the key itself, which is legal and
-equals <code class="docutils literal notranslate"><span class="pre">key</span> <span class="pre">*</span> <span class="pre">count</span></code> (the ordered tile’s convention).</p>
+equals <code class="docutils literal notranslate"><span class="pre">key</span> <span class="pre">*</span> <span class="pre">count</span></code> (the ordered core’s convention).</p>
 <p>Returns <code class="docutils literal notranslate"><span class="pre">(groups_key_ascending,</span> <span class="pre">error_code)</span></code>.</p>
 </dd></dl>
 

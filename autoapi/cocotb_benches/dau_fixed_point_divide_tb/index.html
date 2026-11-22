@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -969,10 +969,10 @@
       <div class="fd-prose">
   <section id="module-cocotb_benches.dau_fixed_point_divide_tb">
 <span id="cocotb-benches-dau-fixed-point-divide-tb"></span><h1>cocotb_benches.dau_fixed_point_divide_tb<a class="headerlink" href="#module-cocotb_benches.dau_fixed_point_divide_tb" title="Link to this heading">¶</a></h1>
-<p>The fixed-point divide tile against its golden, with NO tolerance.</p>
+<p>The fixed-point divide core against its golden, with NO tolerance.</p>
 <p>The quotient is exact by construction – <cite>(A &lt;&lt; F) // B</cite> – and FLOOR, which
 is the convention MULSHR already set with its arithmetic shift. The negative
-cases here are the ones that would catch a tile that truncated toward zero
+cases here are the ones that would catch a core that truncated toward zero
 instead, because that is the plausible wrong choice.</p>
 <section id="attributes">
 <h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h2>
@@ -1031,7 +1031,7 @@ instead, because that is the plausible wrong choice.</p>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#cocotb_benches.dau_fixed_point_divide_tb.overflowing_quotient_reports_range_error" title="cocotb_benches.dau_fixed_point_divide_tb.overflowing_quotient_reports_range_error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">overflowing_quotient_reports_range_error</span></code></a>(dut)</p></td>
-<td><p>1.0 / (1 * 2**-16) is 2**32: defined, but not an int32. The tile must</p></td>
+<td><p>1.0 / (1 * 2**-16) is 2**32: defined, but not an int32. The core must</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#cocotb_benches.dau_fixed_point_divide_tb.the_representable_negative_extreme_is_accepted" title="cocotb_benches.dau_fixed_point_divide_tb.the_representable_negative_extreme_is_accepted"><code class="xref py py-obj docutils literal notranslate"><span class="pre">the_representable_negative_extreme_is_accepted</span></code></a>(dut)</p></td>
 <td><p>The range check is inclusive only when the signs agree. -2**31 is</p></td>
@@ -1167,7 +1167,7 @@ answer and differs from the golden on every inexact negative quotient.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cocotb_benches.dau_fixed_point_divide_tb.overflowing_quotient_reports_range_error">
 <em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cocotb_benches.dau_fixed_point_divide_tb.</span></span><span class="sig-name descname"><span class="pre">overflowing_quotient_reports_range_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dut</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cocotb_benches.dau_fixed_point_divide_tb.overflowing_quotient_reports_range_error" title="Link to this definition">¶</a></dt>
-<dd><p>1.0 / (1 * 2**-16) is 2**32: defined, but not an int32. The tile must
+<dd><p>1.0 / (1 * 2**-16) is 2**32: defined, but not an int32. The core must
 refuse rather than wrap or saturate.</p>
 </dd></dl>
 
@@ -1187,7 +1187,7 @@ A single symmetric comparison would get one of these wrong.</p>
 would be dropped before it retired, making the guard look redundant.
 Hold status_ready low for longer than the pipeline is deep and the row
 reaches the output instead – which is the case that must not emit a
-quotient the tile does not have.</p>
+quotient the core does not have.</p>
 </dd></dl>
 
 <dl class="py function">

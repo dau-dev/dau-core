@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -993,7 +993,7 @@
 <td><p>SLOTS rows per beat is the whole point of the parameter, so the rate is</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#cocotb_benches.dau_row_unpack_slots_tb._packable_specs" title="cocotb_benches.dau_row_unpack_slots_tb._packable_specs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_packable_specs</span></code></a>(rng)</p></td>
-<td><p>A random field map this tile will accept at the configured SLOTS.</p></td>
+<td><p>A random field map this core will accept at the configured SLOTS.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#cocotb_benches.dau_row_unpack_slots_tb._beats" title="cocotb_benches.dau_row_unpack_slots_tb._beats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_beats</span></code></a>(words) → list[int]</p></td>
 <td><p>Pack SLOTS packed rows into one input beat, row s at [64*s +: 64].</p></td>
@@ -1067,7 +1067,7 @@
 <dt class="sig sig-object py" id="cocotb_benches.dau_row_unpack_slots_tb.every_slot_reads_its_own_packed_row">
 <em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cocotb_benches.dau_row_unpack_slots_tb.</span></span><span class="sig-name descname"><span class="pre">every_slot_reads_its_own_packed_row</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dut</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cocotb_benches.dau_row_unpack_slots_tb.every_slot_reads_its_own_packed_row" title="Link to this definition">¶</a></dt>
 <dd><p>The stride test, stated directly.</p>
-<p>One beat, every slot carrying a different key. A tile whose slice stride
+<p>One beat, every slot carrying a different key. A core whose slice stride
 is hardcoded emits SLOTS copies of slot 0 and passes any test built on a
 uniform batch; here the keys are all distinct, so it cannot.</p>
 </dd></dl>
@@ -1086,7 +1086,7 @@ written against.</p>
 <dd><p>A row count that is not a multiple of SLOTS is padded by the host with
 the reserved all-ones packed word. It must emerge as the reserved all-ones
 PAD quad row – NOT as whatever the field descriptors would slice out of
-it – so the wide-row tiles downstream drop it by the convention they
+it – so the wide-row cores downstream drop it by the convention they
 already implement.</p>
 </dd></dl>
 
@@ -1110,7 +1110,7 @@ asserted against the registry declaration rather than assumed.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cocotb_benches.dau_row_unpack_slots_tb._packable_specs">
 <span class="sig-prename descclassname"><span class="pre">cocotb_benches.dau_row_unpack_slots_tb.</span></span><span class="sig-name descname"><span class="pre">_packable_specs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rng</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cocotb_benches.dau_row_unpack_slots_tb._packable_specs" title="Link to this definition">¶</a></dt>
-<dd><p>A random field map this tile will accept at the configured SLOTS.</p>
+<dd><p>A random field map this core will accept at the configured SLOTS.</p>
 <p><code class="docutils literal notranslate"><span class="pre">_random_specs</span></code> happily fills all 64 bits, and at SLOTS &gt; 1 a layout
 with no spare bit is refused as a bad config precisely because it could
 forge the all-ones PAD. Draw again until there is headroom rather than
@@ -1183,7 +1183,7 @@ phase 0 MEANS when a beat carries whole rows.</p>
 <dd><p>REGRESSION. The all-ones packed word is the ragged-tail PAD at
 SLOTS &gt; 1. A field layout covering all 64 bits can PRODUCE all-ones from
 real data – four unsigned 16-bit fields at max – and that row would be
-dropped by the wide tiles. The same input unpacks normally at SLOTS == 1,
+dropped by the wide cores. The same input unpacks normally at SLOTS == 1,
 so the ANSWER WOULD DEPEND ON OUT_WIDTH.</p>
 <p>Rejecting the layout makes the sentinel unreachable by construction
 rather than by convention. Every real packing has room: SF1 q6 is 56

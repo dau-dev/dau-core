@@ -16,7 +16,7 @@ test_benches_can_fail
    reviewer. None was found by the suite, because a suite only reports what a
    test asserts, and none of them asserted that the check ran.
 
-   The check here is mutation. Take a tile whose bench passes, change its
+   The check here is mutation. Take a core whose bench passes, change its
    SystemVerilog so it computes the wrong answer, and require the bench to
    FAIL. Together with the existing pass-on-clean-source tests that is a
    two-sided proof: the bench distinguishes a correct implementation from an
@@ -53,7 +53,7 @@ Functions
 .. autoapisummary::
 
    test_benches_can_fail._mutated_sources
-   test_benches_can_fail.test_a_bench_fails_when_its_tile_is_made_wrong
+   test_benches_can_fail.test_a_bench_fails_when_its_core_is_made_wrong
 
 
 Module Contents
@@ -65,7 +65,7 @@ Module Contents
 
 .. py:class:: _Mutation
 
-   One tile, and a textual change to its HDL that makes it wrong.
+   One core, and a textual change to its HDL that makes it wrong.
 
 
    .. py:attribute:: core_name
@@ -94,10 +94,10 @@ Module Contents
 
 .. py:function:: _mutated_sources(mutation: _Mutation, tmp_path: pathlib.Path) -> tuple[pathlib.Path, ...]
 
-   Every source the tile needs, with the named one mutated in a copy.
+   Every source the core needs, with the named one mutated in a copy.
 
 
-.. py:function:: test_a_bench_fails_when_its_tile_is_made_wrong(mutation: _Mutation, tmp_path: pathlib.Path) -> None
+.. py:function:: test_a_bench_fails_when_its_core_is_made_wrong(mutation: _Mutation, tmp_path: pathlib.Path) -> None
 
    The bench must reject an implementation that computes the wrong
    answer. If it passes here it is not comparing anything, and its green

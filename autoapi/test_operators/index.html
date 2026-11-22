@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -1655,7 +1655,7 @@
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#test_operators._heap_top_k" title="test_operators._heap_top_k"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_heap_top_k</span></code></a>(rows, k)</p></td>
-<td><p>Operational model of the size-k min-heap tile: fill k, then replace the</p></td>
+<td><p>Operational model of the size-k min-heap core: fill k, then replace the</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_operators.test_streaming_top_k_orders_by_key_desc_limit_k" title="test_operators.test_streaming_top_k_orders_by_key_desc_limit_k"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_streaming_top_k_orders_by_key_desc_limit_k</span></code></a>()</p></td>
 <td><p></p></td>
@@ -2335,7 +2335,7 @@ would silently attribute one field’s sum to another.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="test_operators._heap_top_k">
 <span class="sig-prename descclassname"><span class="pre">test_operators.</span></span><span class="sig-name descname"><span class="pre">_heap_top_k</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#test_operators._heap_top_k" title="Link to this definition">¶</a></dt>
-<dd><p>Operational model of the size-k min-heap tile: fill k, then replace the
+<dd><p>Operational model of the size-k min-heap core: fill k, then replace the
 current worst-kept row (smallest key, latest arrival among ties) only when a
 new key is STRICTLY greater. Emit sorted key-desc, arrival-asc. This is the
 algorithm the hardware runs; the equivalence test proves it matches the
@@ -2497,11 +2497,11 @@ the HDL must reproduce.</p>
 <dt class="sig sig-object py" id="test_operators.test_divide_at_zero_fractional_bits_is_python_floor_division">
 <span class="sig-prename descclassname"><span class="pre">test_operators.</span></span><span class="sig-name descname"><span class="pre">test_divide_at_zero_fractional_bits_is_python_floor_division</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_operators.test_divide_at_zero_fractional_bits_is_python_floor_division" title="Link to this definition">¶</a></dt>
 <dd><p>The bridge a <cite>col_a // col_b</cite> lowering rests on.</p>
-<p>polars integer <cite>//</cite> floors, and so does this tile at FRACTIONAL_BITS=0 –
+<p>polars integer <cite>//</cite> floors, and so does this core at FRACTIONAL_BITS=0 –
 <cite>(A &lt;&lt; 0) // B</cite> is just <cite>A // B</cite>. That equivalence is what lets a
-column-by-column floor divide lower onto the divide tile with no host
+column-by-column floor divide lower onto the divide core with no host
 correction, so it is pinned rather than left as a reading of the code.</p>
-<p>The negative cases are the ones that matter: a tile truncating toward
+<p>The negative cases are the ones that matter: a core truncating toward
 zero would agree on every positive pair and disagree on half the rest.</p>
 </dd></dl>
 

@@ -5,7 +5,7 @@ dau_core.registry
 
 .. autoapi-nested-parse::
 
-   Read-through access to THIS package's registry of tiles.
+   Read-through access to THIS package's registry of cores.
 
    Composition IS the registry: the definitions live in dau-core's hydra
    config tree (``dau-core/cores.yaml``) composed into the ccflow
@@ -13,12 +13,12 @@ dau_core.registry
    Python-literal core list anywhere. These accessors are thin views for
    in-process consumers -- tests, shell walking, source staging.
 
-   They are deliberately NOT part of the tile authoring surface. A third
-   party declaring a tile needs the models in :mod:`dau_core.cores`; it must
-   never need this module, which knows only about the tiles dau-core itself
+   They are deliberately NOT part of the core authoring surface. A third
+   party declaring a core needs the models in :mod:`dau_core.cores`; it must
+   never need this module, which knows only about the cores dau-core itself
    ships. Keeping the two apart is what lets the surface be reachable by an
    author who does not have this repository -- see
-   ``tests/test_public_tile_surface.py``, which enforces the direction.
+   ``tests/test_public_core_surface.py``, which enforces the direction.
 
 
 
@@ -137,7 +137,7 @@ Module Contents
 
    The composed core called ``name``.
 
-   A keyed lookup per group, so asking for one tile builds one model. The
+   A keyed lookup per group, so asking for one core builds one model. The
    duplicate check still runs: a name declared by two composed groups is
    refused here exactly as :func:`loaded_cores` refuses it, because a core
    name is how every design, spec hash and cached manifest refers to it.
@@ -147,7 +147,7 @@ Module Contents
 
    Every composed core, name -> definition, dau-core's own first.
 
-   dau-core's tiles come from its hydra config tree
+   dau-core's cores come from its hydra config tree
    (``dau-core/cores.yaml``) composed into the ccflow ``ModelRegistry`` at
    ``/dau-core/<core-name>``. Composition IS the registry — there is no
    Python-literal core list; these accessors are thin read-through views
@@ -159,12 +159,12 @@ Module Contents
    **A CONTRIBUTED core is a core.** A third party composing a
    ``CoreDefinition`` under its own group used to compose successfully,
    register, and then be invisible to every consumer, because this only
-   ever read ``/dau-core``: the author did everything right and their tile
+   ever read ``/dau-core``: the author did everything right and their core
    silently vanished, with no error to explain it. Any ``CoreDefinition``
    the application composed is returned, whichever group holds it.
 
    This does not blur the packages. ``source_package`` is the seam that
-   tells a foreign tile from one of ours, and dau-core's own guards already
+   tells a foreign core from one of ours, and dau-core's own guards already
    scope themselves by it rather than assuming every registered core is
    theirs. A name collision is raised rather than resolved, because
    silently preferring one definition is the failure this fixes.

@@ -482,13 +482,13 @@ window.runMermaid = runMermaid;</script>
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -527,8 +527,8 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -1168,11 +1168,6 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../autoapi/test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../autoapi/test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -1183,8 +1178,13 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../autoapi/test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../autoapi/test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -1264,7 +1264,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">* :class:`ExpDatapath` is an ALGORITHM: a specific range reduction, table and</span>
 <span class="sd">  polynomial at a specific internal precision. The HDL mirrors it exactly, so</span>
 <span class="sd">  the cocotb benches compare against it with zero tolerance, like every other</span>
-<span class="sd">  tile in the package.</span>
+<span class="sd">  core in the package.</span>
 
 <span class="sd">An operating point that deviates from the reference does so by a MEASURED</span>
 <span class="sd">amount, swept exhaustively over every representable input and recorded in the</span>
@@ -1306,7 +1306,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    The mathematical contract. Computed in 80 digits, so the half-way cases</span>
 <span class="sd">    that double precision cannot decide are decided here.</span>
 
-<span class="sd">    Raises when the result does not fit int32; the tile reports ``RANGE``.</span>
+<span class="sd">    Raises when the result does not fit int32; the core reports ``RANGE``.</span>
 <span class="sd">    """</span>
     <span class="n">_decimal_context</span><span class="p">()</span>
     <span class="n">one</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">fractional_bits</span>
@@ -1325,7 +1325,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Below the low bound the correctly rounded answer is 0; above the high</span>
 <span class="sd">    bound it does not fit int32. Small enough to sweep exhaustively, which is</span>
-<span class="sd">    what makes a correctness claim about this tile a proof rather than a</span>
+<span class="sd">    what makes a correctness claim about this core a proof rather than a</span>
 <span class="sd">    sample.</span>
 <span class="sd">    """</span>
     <span class="n">one</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">fractional_bits</span>
@@ -1364,7 +1364,7 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># measured correctly rounded at every width down to 12 bits.</span>
     <span class="c1"># 12, not 24: the constant is 21 bits instead of 34, which shrinks the</span>
     <span class="c1"># multiply and the fabric adder summing its partial products -- that</span>
-    <span class="c1"># adder was an 11-deep CARRY4 chain between two DSPs and the tile's</span>
+    <span class="c1"># adder was an 11-deep CARRY4 chain between two DSPs and the core's</span>
     <span class="c1"># critical path. Measured correctly rounded at every width down to 12.</span>
     <span class="n">k_bits</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">12</span>
 
@@ -1401,7 +1401,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">half</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">q</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
         <span class="c1"># TRUNCATED, not rounded. The rounding add spanned the whole product</span>
         <span class="c1"># and measured as a 13-deep CARRY4 chain between two DSPs -- the</span>
-        <span class="c1"># critical path of the whole tile. k only picks the table/residue</span>
+        <span class="c1"># critical path of the whole core. k only picks the table/residue</span>
         <span class="c1"># split, so a half-step bias in it is absorbed by the residue.</span>
         <span class="n">k</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">c</span><span class="o">.</span><span class="n">inv_ln2_narrow</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_bits</span> <span class="o">+</span> <span class="n">f</span><span class="p">)</span>
         <span class="n">x_q</span> <span class="o">=</span> <span class="n">x</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">q</span> <span class="o">-</span> <span class="n">f</span><span class="p">)</span>
@@ -1476,8 +1476,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    digits so the half-way cases double precision cannot decide are decided</span>
 <span class="sd">    here.</span>
 
-<span class="sd">    Raises on a non-positive input; the tile reports ``DOMAIN``, the same</span>
-<span class="sd">    position the sqrt tile takes -- ln of zero or a negative has no value and</span>
+<span class="sd">    Raises on a non-positive input; the core reports ``DOMAIN``, the same</span>
+<span class="sd">    position the sqrt core takes -- ln of zero or a negative has no value and</span>
 <span class="sd">    a substituted one would be a wrong number that looks right.</span>
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="n">x</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
@@ -1687,7 +1687,7 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">"""The inputs where the CDF is neither 0 nor 1 to the last bit.</span>
 
 <span class="sd">    Small enough to sweep EXHAUSTIVELY, which is what makes a correctness</span>
-<span class="sd">    claim about this tile a proof rather than a sample.</span>
+<span class="sd">    claim about this core a proof rather than a sample.</span>
 <span class="sd">    """</span>
     <span class="n">one</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">fractional_bits</span>
     <span class="n">limit</span> <span class="o">=</span> <span class="mi">0</span>
@@ -1710,7 +1710,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    CDF has no useful global series.</span>
 
 <span class="sd">    Saturation is exact rather than a clamp: beyond the domain the correctly</span>
-<span class="sd">    rounded answer IS 0 or 1, so this tile is TOTAL and needs no error path</span>
+<span class="sd">    rounded answer IS 0 or 1, so this core is TOTAL and needs no error path</span>
 <span class="sd">    -- the one transcendental here that does not.</span>
 <span class="sd">    """</span>
 

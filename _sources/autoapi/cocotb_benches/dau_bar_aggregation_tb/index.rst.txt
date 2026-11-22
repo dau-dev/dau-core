@@ -17,15 +17,15 @@ Functions
 
 .. autoapisummary::
 
-   cocotb_benches.dau_bar_aggregation_tb.bar_tile_matches_golden
-   cocotb_benches.dau_bar_aggregation_tb.bar_tile_backpressure_both_sides
-   cocotb_benches.dau_bar_aggregation_tb.bar_tile_single_row_and_reappearing_key
-   cocotb_benches.dau_bar_aggregation_tb.bar_tile_key_change_on_final_row
-   cocotb_benches.dau_bar_aggregation_tb.bar_tile_int64_sums
-   cocotb_benches.dau_bar_aggregation_tb.bar_tile_repeated_batches_reset
-   cocotb_benches.dau_bar_aggregation_tb.bar_tile_reserved_mode_reports_config_error
-   cocotb_benches.dau_bar_aggregation_tb.bar_tile_truncated_row_reports_stream_error
-   cocotb_benches.dau_bar_aggregation_tb.bar_tile_short_stream_reports_stream_error
+   cocotb_benches.dau_bar_aggregation_tb.bar_core_matches_golden
+   cocotb_benches.dau_bar_aggregation_tb.bar_core_backpressure_both_sides
+   cocotb_benches.dau_bar_aggregation_tb.bar_core_single_row_and_reappearing_key
+   cocotb_benches.dau_bar_aggregation_tb.bar_core_key_change_on_final_row
+   cocotb_benches.dau_bar_aggregation_tb.bar_core_int64_sums
+   cocotb_benches.dau_bar_aggregation_tb.bar_core_repeated_batches_reset
+   cocotb_benches.dau_bar_aggregation_tb.bar_core_reserved_mode_reports_config_error
+   cocotb_benches.dau_bar_aggregation_tb.bar_core_truncated_row_reports_stream_error
+   cocotb_benches.dau_bar_aggregation_tb.bar_core_short_stream_reports_stream_error
    cocotb_benches.dau_bar_aggregation_tb._start
    cocotb_benches.dau_bar_aggregation_tb._apply_config
    cocotb_benches.dau_bar_aggregation_tb._run_bars
@@ -43,39 +43,39 @@ Module Contents
 
 .. py:data:: _TRADES
 
-.. py:function:: bar_tile_matches_golden(dut)
+.. py:function:: bar_core_matches_golden(dut)
    :async:
 
 
-.. py:function:: bar_tile_backpressure_both_sides(dut)
+.. py:function:: bar_core_backpressure_both_sides(dut)
    :async:
 
 
-.. py:function:: bar_tile_single_row_and_reappearing_key(dut)
+.. py:function:: bar_core_single_row_and_reappearing_key(dut)
    :async:
 
 
-.. py:function:: bar_tile_key_change_on_final_row(dut)
+.. py:function:: bar_core_key_change_on_final_row(dut)
    :async:
 
 
-.. py:function:: bar_tile_int64_sums(dut)
+.. py:function:: bar_core_int64_sums(dut)
    :async:
 
 
-.. py:function:: bar_tile_repeated_batches_reset(dut)
+.. py:function:: bar_core_repeated_batches_reset(dut)
    :async:
 
 
-.. py:function:: bar_tile_reserved_mode_reports_config_error(dut)
+.. py:function:: bar_core_reserved_mode_reports_config_error(dut)
    :async:
 
 
-.. py:function:: bar_tile_truncated_row_reports_stream_error(dut)
+.. py:function:: bar_core_truncated_row_reports_stream_error(dut)
    :async:
 
 
-.. py:function:: bar_tile_short_stream_reports_stream_error(dut)
+.. py:function:: bar_core_short_stream_reports_stream_error(dut)
    :async:
 
 

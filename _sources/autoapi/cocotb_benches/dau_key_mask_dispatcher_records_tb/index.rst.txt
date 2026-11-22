@@ -12,7 +12,7 @@ cocotb_benches.dau_key_mask_dispatcher_records_tb
    replicable across lanes WITHOUT reshaping the stream, so the router forwards
    whole records keyed on word 0's low half. Golden-equal to
    ``mask_dispatch_records``; ordering within a lane is what makes a
-   sequential per-key tile correct behind the router.
+   sequential per-key core correct behind the router.
 
 
 
@@ -80,7 +80,7 @@ Module Contents
    :async:
 
 
-   A sequential per-key tile (an as-of join holding one quote per
+   A sequential per-key core (an as-of join holding one quote per
    symbol) is only correct behind this router if a key's records reach
    its lane in arrival order.
 

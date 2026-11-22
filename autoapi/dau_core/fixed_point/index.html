@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -1067,7 +1067,7 @@ rounded to the fixed-point format. It is what “right” means.</p></li>
 <li><p><a class="reference internal" href="#dau_core.fixed_point.ExpDatapath" title="dau_core.fixed_point.ExpDatapath"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExpDatapath</span></code></a> is an ALGORITHM: a specific range reduction, table and
 polynomial at a specific internal precision. The HDL mirrors it exactly, so
 the cocotb benches compare against it with zero tolerance, like every other
-tile in the package.</p></li>
+core in the package.</p></li>
 </ul>
 <p>An operating point that deviates from the reference does so by a MEASURED
 amount, swept exhaustively over every representable input and recorded in the
@@ -1184,7 +1184,7 @@ points were chosen.</p>
 <dd><p>True <code class="docutils literal notranslate"><span class="pre">exp</span></code> of a Q(32-f).f value, correctly rounded to Q(32-f).f.</p>
 <p>The mathematical contract. Computed in 80 digits, so the half-way cases
 that double precision cannot decide are decided here.</p>
-<p>Raises when the result does not fit int32; the tile reports <code class="docutils literal notranslate"><span class="pre">RANGE</span></code>.</p>
+<p>Raises when the result does not fit int32; the core reports <code class="docutils literal notranslate"><span class="pre">RANGE</span></code>.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1193,7 +1193,7 @@ that double precision cannot decide are decided here.</p>
 <dd><p>The inputs where <code class="docutils literal notranslate"><span class="pre">exp</span></code> is neither 0 nor an overflow, inclusive.</p>
 <p>Below the low bound the correctly rounded answer is 0; above the high
 bound it does not fit int32. Small enough to sweep exhaustively, which is
-what makes a correctness claim about this tile a proof rather than a
+what makes a correctness claim about this core a proof rather than a
 sample.</p>
 </dd></dl>
 
@@ -1325,8 +1325,8 @@ validated to form a valid model.</p>
 <p>The mathematical contract, like <a class="reference internal" href="#dau_core.fixed_point.exp_reference" title="dau_core.fixed_point.exp_reference"><code class="xref py py-func docutils literal notranslate"><span class="pre">exp_reference()</span></code></a>. Computed in 80
 digits so the half-way cases double precision cannot decide are decided
 here.</p>
-<p>Raises on a non-positive input; the tile reports <code class="docutils literal notranslate"><span class="pre">DOMAIN</span></code>, the same
-position the sqrt tile takes – ln of zero or a negative has no value and
+<p>Raises on a non-positive input; the core reports <code class="docutils literal notranslate"><span class="pre">DOMAIN</span></code>, the same
+position the sqrt core takes – ln of zero or a negative has no value and
 a substituted one would be a wrong number that looks right.</p>
 </dd></dl>
 
@@ -1465,7 +1465,7 @@ which IS the correctly rounded answer rather than a clamp.</p>
 <span class="sig-prename descclassname"><span class="pre">dau_core.fixed_point.</span></span><span class="sig-name descname"><span class="pre">normal_cdf_domain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">fractional_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">NORMAL_CDF_FRACTIONAL_BITS</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/fixed_point.html#normal_cdf_domain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.fixed_point.normal_cdf_domain" title="Link to this definition">¶</a></dt>
 <dd><p>The inputs where the CDF is neither 0 nor 1 to the last bit.</p>
 <p>Small enough to sweep EXHAUSTIVELY, which is what makes a correctness
-claim about this tile a proof rather than a sample.</p>
+claim about this core a proof rather than a sample.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -1480,7 +1480,7 @@ coefficients are the CDF’s derivatives at that segment, which have closed
 forms in the density. Piecewise rather than one polynomial because the
 CDF has no useful global series.</p>
 <p>Saturation is exact rather than a clamp: beyond the domain the correctly
-rounded answer IS 0 or 1, so this tile is TOTAL and needs no error path
+rounded answer IS 0 or 1, so this core is TOTAL and needs no error path
 – the one transcendental here that does not.</p>
 <p>Create a new model by parsing and validating input data from keyword arguments.</p>
 <p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be

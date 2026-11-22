@@ -69,7 +69,7 @@ Module Contents
 
    The stride test, stated directly.
 
-   One beat, every slot carrying a different key. A tile whose slice stride
+   One beat, every slot carrying a different key. A core whose slice stride
    is hardcoded emits SLOTS copies of slot 0 and passes any test built on a
    uniform batch; here the keys are all distinct, so it cannot.
 
@@ -90,7 +90,7 @@ Module Contents
    A row count that is not a multiple of SLOTS is padded by the host with
    the reserved all-ones packed word. It must emerge as the reserved all-ones
    PAD quad row -- NOT as whatever the field descriptors would slice out of
-   it -- so the wide-row tiles downstream drop it by the convention they
+   it -- so the wide-row cores downstream drop it by the convention they
    already implement.
 
 
@@ -112,7 +112,7 @@ Module Contents
 
 .. py:function:: _packable_specs(rng)
 
-   A random field map this tile will accept at the configured SLOTS.
+   A random field map this core will accept at the configured SLOTS.
 
    ``_random_specs`` happily fills all 64 bits, and at SLOTS > 1 a layout
    with no spare bit is refused as a bad config precisely because it could
@@ -180,7 +180,7 @@ Module Contents
    REGRESSION. The all-ones packed word is the ragged-tail PAD at
    SLOTS > 1. A field layout covering all 64 bits can PRODUCE all-ones from
    real data -- four unsigned 16-bit fields at max -- and that row would be
-   dropped by the wide tiles. The same input unpacks normally at SLOTS == 1,
+   dropped by the wide cores. The same input unpacks normally at SLOTS == 1,
    so the ANSWER WOULD DEPEND ON OUT_WIDTH.
 
    Rejecting the layout makes the sentinel unreachable by construction

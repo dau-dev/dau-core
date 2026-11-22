@@ -5,11 +5,11 @@ dau_core.ln_generator
 
 .. autoapi-nested-parse::
 
-   Renders the fixed-point ln tile from a declared operating point.
+   Renders the fixed-point ln core from a declared operating point.
 
    The datapath is :class:`dau_core.fixed_point.LnDatapath` and the emitted
    SystemVerilog mirrors :meth:`LnDatapath.evaluate` step for step, so the
-   cocotb bench compares against it with zero tolerance like every other tile.
+   cocotb bench compares against it with zero tolerance like every other core.
    Generated rather than checked in for the same reason exp and the normal CDF
    are: the 256-entry tables of ``ln(1 + j/256)`` and ``1/(1 + j/256)`` and the
    series coefficients are transcendental constants at the configured internal
@@ -23,7 +23,7 @@ dau_core.ln_generator
    registered point is FAITHFUL (measured 1 ULP), and the deviation is a
    measured fact recorded in the registry, not a tolerance in the bench.
 
-   The lessons the exp tile paid for are repeated here rather than rediscovered:
+   The lessons the exp core paid for are repeated here rather than rediscovered:
    every product gets its own full-width wire, and every multiply gets its own
    pipeline stage.
 
@@ -34,13 +34,13 @@ Classes
 
 .. autoapisummary::
 
-   dau_core.ln_generator.LnTileGenerator
+   dau_core.ln_generator.LnCoreGenerator
 
 
 Module Contents
 ---------------
 
-.. py:class:: LnTileGenerator(/, **data: Any)
+.. py:class:: LnCoreGenerator(/, **data: Any)
 
    Bases: :py:obj:`dau_core.generators.CoreGenerator`
 

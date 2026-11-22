@@ -482,13 +482,13 @@ window.runMermaid = runMermaid;</script>
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -527,8 +527,8 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -1168,11 +1168,6 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../autoapi/test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../autoapi/test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -1183,8 +1178,13 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../autoapi/test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../autoapi/test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -1259,7 +1259,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">A registry parameter that says ``32`` says a field is 32 bits. It does not say</span>
 <span class="sd">whether those bits are a signed integer, a Q16.16 fixed-point number or an</span>
-<span class="sd">IEEE-754 binary32 -- three things a tile must treat differently and which a</span>
+<span class="sd">IEEE-754 binary32 -- three things a core must treat differently and which a</span>
 <span class="sd">width cannot distinguish. This module gives the palette's element types names</span>
 <span class="sd">("int32", "q16.16", "float64") and turns them into the single integer a</span>
 <span class="sd">SystemVerilog parameter can carry.</span>
@@ -1316,7 +1316,7 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../autoapi/dau_core/element_types/index.html#dau_core.element_types.ElementType">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ElementType</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""One element type: the four facts a tile needs, plus its encoding.</span>
+<span class="w">    </span><span class="sd">"""One element type: the four facts a core needs, plus its encoding.</span>
 
 <span class="sd">    Constructed by :func:`element_type` rather than directly, so that every</span>
 <span class="sd">    instance has been through the same validity rules.</span>
@@ -1361,7 +1361,7 @@ window.runMermaid = runMermaid;</script>
         <span class="k">raise</span> <span class="n">ElementTypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"element type </span><span class="si">{</span><span class="n">source</span><span class="si">!r}</span><span class="s2"> has width </span><span class="si">{</span><span class="n">element</span><span class="o">.</span><span class="n">width</span><span class="si">}</span><span class="s2">, outside [1, </span><span class="si">{</span><span class="n">MAX_WIDTH</span><span class="si">}</span><span class="s2">]"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">fractional_bits</span> <span class="o">&gt;=</span> <span class="n">element</span><span class="o">.</span><span class="n">width</span><span class="p">:</span>
         <span class="c1"># the sign bit alone leaves qI.F needing I &gt;= 1; an all-fraction format</span>
-        <span class="c1"># has no integer part at all and no tile can address its high field</span>
+        <span class="c1"># has no integer part at all and no core can address its high field</span>
         <span class="k">raise</span> <span class="n">ElementTypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"element type </span><span class="si">{</span><span class="n">source</span><span class="si">!r}</span><span class="s2"> spends all </span><span class="si">{</span><span class="n">element</span><span class="o">.</span><span class="n">width</span><span class="si">}</span><span class="s2"> bits on the fraction, leaving no integer part"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">is_float</span> <span class="ow">and</span> <span class="n">element</span><span class="o">.</span><span class="n">width</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">FLOAT_WIDTHS</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">ElementTypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"element type </span><span class="si">{</span><span class="n">source</span><span class="si">!r}</span><span class="s2"> is not an IEEE-754 interchange format; float widths are </span><span class="si">{</span><span class="n">FLOAT_WIDTHS</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>

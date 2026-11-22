@@ -5,7 +5,7 @@ dau_core
 
 .. autoapi-nested-parse::
 
-   dau-core: the tile palette, the device contracts and the goldens.
+   dau-core: the core palette, the device contracts and the goldens.
 
    Exports load on first use (:mod:`dau_core._lazy`). Importing this package
    must not import ccflow and its stack, because hydra's searchpath plugin

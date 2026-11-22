@@ -28,7 +28,7 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="API Reference" href="../../../autoapi/index.html" />
-    <link rel="prev" title="Why each tile has a golden model" href="why-each-tile-has-a-golden-model.html" />
+    <link rel="prev" title="Why each core has a golden model" href="why-each-core-has-a-golden-model.html" />
     <script>
       (function () {
         var root = document.documentElement;
@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../autoapi/test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../../autoapi/test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../autoapi/test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../../autoapi/test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -880,7 +880,7 @@ gives the same number whichever of those you ask about.</p>
 <p>That caused two real failures.</p>
 <p><strong>One part’s number priced another part’s build.</strong> A design targeting the
 Kintex was priced with a wide-predicate figure measured on the Artix. The
-estimate reported <code class="docutils literal notranslate"><span class="pre">measured=True</span></code> while mixing parts, and it hid a tile that
+estimate reported <code class="docutils literal notranslate"><span class="pre">measured=True</span></code> while mixing parts, and it hid a core that
 had never met timing on the target part.</p>
 <p><strong>Parameters that change the cost were ignored.</strong> When the shared
 dispatcher gained a hash decode, that mode cost 3 DSP48s where the mask
@@ -910,7 +910,7 @@ task reports any drift from what the registry already declares. Synthesis
 is never run by hand, because a hand-run number loses the coordinate it was
 measured at.</p>
 <p>The numbers also cannot say which HDL produced them, so each entry records
-that as <code class="docutils literal notranslate"><span class="pre">measured_from</span></code>, a digest of the tile’s source and everything it
+that as <code class="docutils literal notranslate"><span class="pre">measured_from</span></code>, a digest of the core’s source and everything it
 imports or includes. A test recomputes the digest from the tree, so editing
 the HDL under a recorded envelope fails the suite until the core is measured
 again. Before that stamp existed, two envelopes went stale for months
@@ -921,7 +921,7 @@ changed.</p>
 <h2>What a measured point does not tell you<a class="headerlink" href="#what-a-measured-point-does-not-tell-you" title="Link to this heading">¶</a></h2>
 <p>An out-of-context run measures the core by itself. Inside a shell the same
 core shares routing and placement with everything else, and its timing
-margin can move a long way: one tile measured +0.410 ns standalone and
+margin can move a long way: one core measured +0.410 ns standalone and
 −0.348 ns composed, a 0.76 ns swing that turned a pass into a failure.</p>
 <p>A measurement point answers “what does this core cost on its own”, and it
 is an input to “will this composition close timing”. It does not answer
@@ -942,11 +942,11 @@ build is never priced with an Artix figure.</p>
 
       </div>
 <nav class="fd-pagination" aria-label="Pagination">
-  <a class="fd-pagination-card fd-pagination-prev" href="why-each-tile-has-a-golden-model.html" title="Previous: Why each tile has a golden model">
+  <a class="fd-pagination-card fd-pagination-prev" href="why-each-core-has-a-golden-model.html" title="Previous: Why each core has a golden model">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m15 18-6-6 6-6"/></svg>
     <span class="fd-pagination-text">
       <span class="fd-pagination-label">Previous</span>
-      <span class="fd-pagination-title">Why each tile has a golden model</span>
+      <span class="fd-pagination-title">Why each core has a golden model</span>
     </span>
   </a>
   <a class="fd-pagination-card fd-pagination-next" href="../../../autoapi/index.html" title="Next: API Reference">

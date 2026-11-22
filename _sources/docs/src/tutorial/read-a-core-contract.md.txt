@@ -1,27 +1,27 @@
-# Tutorial: read a tile's contract end to end
+# Tutorial: read a core's contract end to end
 
-In this tutorial you will take one operator tile and follow it through
+In this tutorial you will take one operator core and follow it through
 every layer that defines it: its registry entry, its golden model, its
 measured cost, and the HDL those describe. By the end you will know where
-each kind of fact about a tile lives, which you need before adding or
+each kind of fact about a core lives, which you need before adding or
 changing one.
 
-We will use `streaming-top-k`, the tile that keeps the K largest rows
+We will use `streaming-top-k`, the core that keeps the K largest rows
 by sort key.
 
 You need `dau-core` installed. Nothing here needs hardware or a simulator.
 
-## Step 1: look the tile up in the registry
+## Step 1: look the core up in the registry
 
 Open a Python prompt and ask the registry for it:
 
 ```python
 from dau_core.registry import core
 
-tile = core("streaming-top-k")
-print(tile.name)
-print(tile.kind.value)
-print(tile.module)
+core = core("streaming-top-k")
+print(core.name)
+print(core.kind.value)
+print(core.module)
 ```
 
 You should see:
@@ -38,10 +38,10 @@ composed.
 
 ## Step 2: find its meaning
 
-The tile's `golden` field names the function that defines what it computes:
+The core's `golden` field names the function that defines what it computes:
 
 ```python
-print(tile.golden)
+print(core.golden)
 ```
 
 ```
@@ -70,7 +70,7 @@ The golden's docstring states it, and the HDL has to reproduce it exactly.
 Ask for the resource measurement at a specific coordinate:
 
 ```python
-measurement = tile.resource_measurement(
+measurement = core.resource_measurement(
     part="xc7a200tfbg484-2", clock_ns=8.0, params={"K": 8}
 )
 envelope = measurement.usable_envelope()
@@ -89,7 +89,7 @@ Now ask for a coordinate that has not been measured:
 from dau_core.cores import UnmeasuredResourceError
 
 try:
-    tile.resource_measurement(part="xc7a200tfbg484-2", clock_ns=8.0, params={"K": 3})
+    core.resource_measurement(part="xc7a200tfbg484-2", clock_ns=8.0, params={"K": 3})
 except UnmeasuredResourceError as error:
     print("refused:", error)
 ```
@@ -101,7 +101,7 @@ the wrong hardware.
 
 ## Step 4: find the HDL those facts describe
 
-The registry knows which sources the tile needs, in compile order:
+The registry knows which sources the core needs, in compile order:
 
 ```python
 from dau_core.registry import sources_for
@@ -114,7 +114,7 @@ for path in sources_for("streaming-top-k"):
 dau_streaming_top_k.sv
 ```
 
-This tile has no dependencies. A tile that used a shared package would
+This core has no dependencies. A core that used a shared package would
 list that package first; `sources_for` resolves the dependencies so a build
 does not have to.
 
@@ -126,7 +126,7 @@ is *why* equal keys keep the earliest arrival without needing a counter.
 ## Step 5: find the proof that they agree
 
 ```python
-print(tile.bench)
+print(core.bench)
 ```
 
 ```
@@ -136,7 +136,7 @@ dau_core.tests.cocotb_benches.dau_streaming_top_k_tb
 That bench drives the HDL and compares its output against
 `streaming_top_k`, the same function you ran in step 2, over generated
 inputs. It does not use hand-written expected values, so the test author's
-assumptions about the tile cannot take the place of the contract.
+assumptions about the core cannot take the place of the contract.
 
 Run it if you have `verilator` installed:
 
@@ -146,7 +146,7 @@ python -m pytest dau_core/tests/test_hdl_cocotb.py -q -k streaming_top_k
 
 ## What you now know
 
-Five facts about a tile live in five places:
+Five facts about a core live in five places:
 
 | Fact                          | Lives in                                 |
 | ----------------------------- | ---------------------------------------- |
@@ -156,5 +156,5 @@ Five facts about a tile live in five places:
 | How it computes it            | the SystemVerilog                        |
 | That the last two agree       | the cocotb bench                         |
 
-Adding a tile means producing all five, in that order. That is the subject
-of [how to add an operator tile](../how-to/add-an-operator-tile.md).
+Adding a core means producing all five, in that order. That is the subject
+of [how to add an operator core](../how-to/add-an-operator-core.md).

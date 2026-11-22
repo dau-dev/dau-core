@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -954,7 +954,7 @@
 <p>Element types: what a value IS, not how wide it is.</p>
 <p>A registry parameter that says <code class="docutils literal notranslate"><span class="pre">32</span></code> says a field is 32 bits. It does not say
 whether those bits are a signed integer, a Q16.16 fixed-point number or an
-IEEE-754 binary32 – three things a tile must treat differently and which a
+IEEE-754 binary32 – three things a core must treat differently and which a
 width cannot distinguish. This module gives the palette’s element types names
 (“int32”, “q16.16”, “float64”) and turns them into the single integer a
 SystemVerilog parameter can carry.</p>
@@ -1026,7 +1026,7 @@ no name for, writes the number.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.element_types.ElementType" title="dau_core.element_types.ElementType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ElementType</span></code></a></p></td>
-<td><p>One element type: the four facts a tile needs, plus its encoding.</p></td>
+<td><p>One element type: the four facts a core needs, plus its encoding.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1116,7 +1116,7 @@ no name for, writes the number.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="dau_core.element_types.ElementType">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.element_types.</span></span><span class="sig-name descname"><span class="pre">ElementType</span></span><a class="reference internal" href="../../../_modules/dau_core/element_types.html#ElementType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.element_types.ElementType" title="Link to this definition">¶</a></dt>
-<dd><p>One element type: the four facts a tile needs, plus its encoding.</p>
+<dd><p>One element type: the four facts a core needs, plus its encoding.</p>
 <p>Constructed by <a class="reference internal" href="#dau_core.element_types.element_type" title="dau_core.element_types.element_type"><code class="xref py py-func docutils literal notranslate"><span class="pre">element_type()</span></code></a> rather than directly, so that every
 instance has been through the same validity rules.</p>
 <dl class="py attribute">

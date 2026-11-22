@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -906,7 +906,7 @@ so dau-build / dau-sim compose it without importing dau-core code.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.config.contributed_options" title="dau_core.config.contributed_options"><code class="xref py py-obj docutils literal notranslate"><span class="pre">contributed_options</span></code></a>([config_dir, version_base]) → tuple[str, ...]</p></td>
-<td><p>Contributed tile options installed on the searchpath, discovered.</p></td>
+<td><p>Contributed core options installed on the searchpath, discovered.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.config.compose_config" title="dau_core.config.compose_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compose_config</span></code></a>([overrides, config_dir, version_base]) → ccflow.utils.hydra.ConfigLoadResult</p></td>
 <td><p>Compose dau-core's own config tree (group <code class="docutils literal notranslate"><span class="pre">dau-core</span></code>, option</p></td>
@@ -927,7 +927,7 @@ so dau-build / dau-sim compose it without importing dau-core code.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_core.config.contributed_options">
 <span class="sig-prename descclassname"><span class="pre">dau_core.config.</span></span><span class="sig-name descname"><span class="pre">contributed_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">version_base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_core/config.html#contributed_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.config.contributed_options" title="Link to this definition">¶</a></dt>
-<dd><p>Contributed tile options installed on the searchpath, discovered.</p>
+<dd><p>Contributed core options installed on the searchpath, discovered.</p>
 <p>A consumer should not have to name the vendors it happens to have
 installed – that is the difference between a package being installable
 and a package being usable. Hydra can enumerate a group’s options across
@@ -939,7 +939,7 @@ the whole searchpath, so ask it.</p>
 <span class="sig-prename descclassname"><span class="pre">dau_core.config.</span></span><span class="sig-name descname"><span class="pre">compose_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">overrides</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version_base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ccflow.utils.hydra.ConfigLoadResult</span></span></span><a class="reference internal" href="../../../_modules/dau_core/config.html#compose_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.config.compose_config" title="Link to this definition">¶</a></dt>
 <dd><p>Compose dau-core’s own config tree (group <code class="docutils literal notranslate"><span class="pre">dau-core</span></code>, option
 <code class="docutils literal notranslate"><span class="pre">cores</span></code>) with raw overrides.</p>
-<p>Contributed tiles are composed too, without the caller naming them: the
+<p>Contributed cores are composed too, without the caller naming them: the
 options of <a class="reference internal" href="#dau_core.config.CONTRIB_GROUP" title="dau_core.config.CONTRIB_GROUP"><code class="xref py py-data docutils literal notranslate"><span class="pre">CONTRIB_GROUP</span></code></a> are discovered across the searchpath and
 selected together as a list, which is the form that admits more than one
 (a bare <code class="docutils literal notranslate"><span class="pre">+group=option</span></code> selects exactly one, so two installed vendors
@@ -957,7 +957,7 @@ the composition is about to be built from.</p>
 <p>The composed groups are loaded as ccflow <code class="docutils literal notranslate"><span class="pre">LazyRegistry</span></code> children, so a
 <code class="docutils literal notranslate"><span class="pre">CoreDefinition</span></code> is built when something asks for that core rather than
 all 59 at load. Loading the palette eagerly cost 164 ms and every
-consumer paid it to reach one tile; lazily it is 10 ms plus about 4 ms
+consumer paid it to reach one core; lazily it is 10 ms plus about 4 ms
 per core actually used (<a class="reference internal" href="../registry/index.html#dau_core.registry.core" title="dau_core.registry.core"><code class="xref py py-func docutils literal notranslate"><span class="pre">dau_core.registry.core()</span></code></a>). A consumer that
 does need the whole palette – the guards, source staging – asks for it
 through <a class="reference internal" href="../registry/index.html#dau_core.registry.loaded_cores" title="dau_core.registry.loaded_cores"><code class="xref py py-func docutils literal notranslate"><span class="pre">dau_core.registry.loaded_cores()</span></code></a> and pays for it there.</p>

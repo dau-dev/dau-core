@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -906,11 +906,11 @@
   <section id="module-test_generated_cores">
 <span id="test-generated-cores"></span><h1>test_generated_cores<a class="headerlink" href="#module-test_generated_cores" title="Link to this heading">¶</a></h1>
 <p>Generated cores go through the same seams as checked-in ones.</p>
-<p>A tile whose HDL is rendered is the first thing in this registry that has no
+<p>A core whose HDL is rendered is the first thing in this registry that has no
 file beside its entry. That is a place where a parallel mechanism could
 easily grow – a build-layer side channel that renders somewhere the registry
 cannot see. The rule against it is the one already learned the hard way: a
-tile known only to the build layer never reaches <code class="docutils literal notranslate"><span class="pre">core_names</span></code>, so its HDL
+core known only to the build layer never reaches <code class="docutils literal notranslate"><span class="pre">core_names</span></code>, so its HDL
 goes unstaged, its spec hash collides with its siblings, and its resources
 go unpriced.</p>
 <p>So: the generator is reached through the registry, its parameters are hydra
@@ -953,7 +953,7 @@ already use.</p>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#test_generated_cores.test_a_checked_in_core_refuses_to_be_rendered" title="test_generated_cores.test_a_checked_in_core_refuses_to_be_rendered"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_checked_in_core_refuses_to_be_rendered</span></code></a>() → None</p></td>
-<td><p>The inverse mistake: rendering over a hand-written tile would replace</p></td>
+<td><p>The inverse mistake: rendering over a hand-written core would replace</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_generated_cores.test_the_operating_point_comes_from_configuration" title="test_generated_cores.test_the_operating_point_comes_from_configuration"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_operating_point_comes_from_configuration</span></code></a>(tmp_path) → None</p></td>
 <td><p>The parameters are hydra-injected, not Python literals — the same rule</p></td>
@@ -1019,7 +1019,7 @@ set by an earlier build must not redirect where a later caller reads.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="test_generated_cores.test_a_checked_in_core_refuses_to_be_rendered">
 <span class="sig-prename descclassname"><span class="pre">test_generated_cores.</span></span><span class="sig-name descname"><span class="pre">test_a_checked_in_core_refuses_to_be_rendered</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_generated_cores.test_a_checked_in_core_refuses_to_be_rendered" title="Link to this definition">¶</a></dt>
-<dd><p>The inverse mistake: rendering over a hand-written tile would replace
+<dd><p>The inverse mistake: rendering over a hand-written core would replace
 reviewed HDL with generated text.</p>
 </dd></dl>
 

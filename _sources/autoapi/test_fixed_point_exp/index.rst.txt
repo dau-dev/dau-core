@@ -77,7 +77,7 @@ Module Contents
 
 .. py:function:: _point(name: str) -> dau_core.fixed_point.ExpDatapath
 
-   The registered operating point: the exp tile's generator datapath.
+   The registered operating point: the exp core's generator datapath.
 
 
 .. py:function:: _recorded_ulp(name: str) -> int

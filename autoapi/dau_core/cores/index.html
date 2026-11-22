@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -1314,13 +1314,13 @@ and module parameters; there is no other shape.</p>
 <td><p>Create a collection of name/value pairs.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.cores.LoadImageKind" title="dau_core.cores.LoadImageKind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LoadImageKind</span></code></a></p></td>
-<td><p>What a load-capable tile's LOAD-phase input stream is (the two-phase</p></td>
+<td><p>What a load-capable core's LOAD-phase input stream is (the two-phase</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.cores.CoreRole" title="dau_core.cores.CoreRole"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CoreRole</span></code></a></p></td>
 <td><p>What a core is FOR where a composition has to know, declared by the</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_core.cores.ContractKind" title="dau_core.cores.ContractKind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ContractKind</span></code></a></p></td>
-<td><p>Which streaming interface contract an operator tile speaks. Contract</p></td>
+<td><p>Which streaming interface contract an operator core speaks. Contract</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_core.cores.ResourceEnvelope" title="dau_core.cores.ResourceEnvelope"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ResourceEnvelope</span></code></a></p></td>
 <td><p>Resource counts: one LUT/FF/BRAM/DSP tuple. The usable face of a</p></td>
@@ -1440,7 +1440,7 @@ attributes – see the documentation for details.</p>
 <dt class="sig sig-object py" id="dau_core.cores.LoadImageKind">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.cores.</span></span><span class="sig-name descname"><span class="pre">LoadImageKind</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dau_core.cores.LoadImageKind" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
-<p>What a load-capable tile’s LOAD-phase input stream is (the two-phase
+<p>What a load-capable core’s LOAD-phase input stream is (the two-phase
 load: cfg_load=1 streams the build image, cfg_load=0 probes). The
 composition validates image/length-grid rules per kind; a core without
 this marker has no cfg_load port and can never be phase-bound.</p>
@@ -1462,13 +1462,13 @@ this marker has no cfg_load port and can never be phase-bound.</p>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
 <p>What a core is FOR where a composition has to know, declared by the
 registry rather than recognized by its name.</p>
-<p>Two composition rules cannot be read off a tile’s ports: that the core in
+<p>Two composition rules cannot be read off a core’s ports: that the core in
 the optional front-stage feed-transform slot is one that widens packed
 rows, and that a key-routing partitioner’s lane count satisfies the decode
 its <code class="docutils literal notranslate"><span class="pre">MODE</span></code> selects. Both were exact-name comparisons, which is the one
 thing “composition IS the registry” forbids – a second unpacker or a
 second router could not be written without editing this package, and a
-tile rename silently turned the check into dead code. A core says here
+core rename silently turned the check into dead code. A core says here
 what job it does; the composition asks.</p>
 <p><code class="docutils literal notranslate"><span class="pre">KEY_DISPATCH</span></code> is a contract as well as a label: a core declaring it
 routes whole records to lanes by a decode over the record’s key, and
@@ -1526,7 +1526,7 @@ routes by ordered splitters instead and is deliberately not one.</p>
 <dt class="sig sig-object py" id="dau_core.cores.ContractKind">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.cores.</span></span><span class="sig-name descname"><span class="pre">ContractKind</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dau_core.cores.ContractKind" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
-<p>Which streaming interface contract an operator tile speaks. Contract
+<p>Which streaming interface contract an operator core speaks. Contract
 tests select their validator from this tag; a new core declares its
 contract here rather than being special-cased in test code.</p>
 <dl class="py attribute">
@@ -1886,7 +1886,7 @@ works on one integer form and never has to know how it was written.</p>
 <span class="sig-name descname"><span class="pre">violation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#dau_core.cores.ParameterSpec.violation" title="Link to this definition">¶</a></dt>
 <dd><p>Why <code class="docutils literal notranslate"><span class="pre">value</span></code> is not a legal override, or <code class="docutils literal notranslate"><span class="pre">None</span></code> when it is.
 This is the ONE statement of the constraint – composition wraps it
-with tile context, and the model’s own coherence check runs the
+with core context, and the model’s own coherence check runs the
 default through it, so the rule cannot drift between the two.</p>
 </dd></dl>
 
@@ -2227,8 +2227,8 @@ way the toolchain resolves them – beside the including file first,
 then along the other source directories, which is exactly the
 <code class="docutils literal notranslate"><span class="pre">-include_dirs</span></code> list the synthesis task builds. A header nothing
 includes is NOT in the closure, so adding a second one to the palette
-does not re-measure every tile that ignores it; and a package a tile
-imports IS, so an edit there reaches every tile that reads it.</p>
+does not re-measure every core that ignores it; and a package a core
+imports IS, so an edit there reaches every core that reads it.</p>
 <p><code class="docutils literal notranslate"><span class="pre">resolve</span></code> maps a core name to its definition. It is a parameter
 rather than a registry import because the build package reaches these
 models through the composed ccflow registry and must not import this

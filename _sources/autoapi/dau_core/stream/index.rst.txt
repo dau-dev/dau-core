@@ -197,7 +197,7 @@ Module Contents
 
 
 
-   .. py:attribute:: TILE
+   .. py:attribute:: CORE
       :value: 3
 
 

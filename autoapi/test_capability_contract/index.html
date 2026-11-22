@@ -28,7 +28,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="test_aggregation_goldens" href="../test_aggregation_goldens/index.html" />
-    <link rel="prev" title="test_public_tile_surface" href="../test_public_tile_surface/index.html" />
+    <link rel="prev" title="test_validation_at_use" href="../test_validation_at_use/index.html" />
     <script>
       (function () {
         var root = document.documentElement;
@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link fd-current" href="#">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -858,7 +858,7 @@
     <a href="#test_capability_contract.test_opcode_bitmap_encoding_matches_the_register_word">test_opcode_bitmap_encoding_matches_the_register_word()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_capability_contract.test_registry_declares_hardware_opcodes_only_for_opcode_driven_tiles">test_registry_declares_hardware_opcodes_only_for_opcode_driven_tiles()</a>
+    <a href="#test_capability_contract.test_registry_declares_hardware_opcodes_only_for_opcode_driven_cores">test_registry_declares_hardware_opcodes_only_for_opcode_driven_cores()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_capability_contract.test_registry_declares_sorter_capacity">test_registry_declares_sorter_capacity()</a>
@@ -870,19 +870,19 @@
     <a href="#test_capability_contract.test_sorted_scan_contract_carries_sorter_capacity_and_splitters">test_sorted_scan_contract_carries_sorter_capacity_and_splitters()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_capability_contract.test_scalar_aggregation_tile_contract_advertises_hardware_and_host_truth">test_scalar_aggregation_tile_contract_advertises_hardware_and_host_truth()</a>
+    <a href="#test_capability_contract.test_scalar_aggregation_core_contract_advertises_hardware_and_host_truth">test_scalar_aggregation_core_contract_advertises_hardware_and_host_truth()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_capability_contract.test_contract_mapping_round_trips_and_is_json_able">test_contract_mapping_round_trips_and_is_json_able()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_capability_contract.test_contract_to_design_counts_units_by_identical_tile">test_contract_to_design_counts_units_by_identical_tile()</a>
+    <a href="#test_capability_contract.test_contract_to_design_counts_units_by_identical_core">test_contract_to_design_counts_units_by_identical_core()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_capability_contract.test_bar_noc_contract_design_offers_no_aggregation_capacity">test_bar_noc_contract_design_offers_no_aggregation_capacity()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_capability_contract.test_composition_and_hand_built_contracts_share_one_tile_derivation">test_composition_and_hand_built_contracts_share_one_tile_derivation()</a>
+    <a href="#test_capability_contract.test_composition_and_hand_built_contracts_share_one_core_derivation">test_composition_and_hand_built_contracts_share_one_core_derivation()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_capability_contract.test_chain_lanes_carry_chain_capabilities_and_opcode_truth">test_chain_lanes_carry_chain_capabilities_and_opcode_truth()</a>
@@ -900,7 +900,7 @@
     <a href="#test_capability_contract.test_reconfigurable_is_a_manifest_fact">test_reconfigurable_is_a_manifest_fact()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_capability_contract.test_a_tile_capability_carries_the_parameters_it_was_built_with">test_a_tile_capability_carries_the_parameters_it_was_built_with()</a>
+    <a href="#test_capability_contract.test_a_core_capability_carries_the_parameters_it_was_built_with">test_a_core_capability_carries_the_parameters_it_was_built_with()</a>
   </li>
 </ul>
 </div>
@@ -937,7 +937,7 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_capability_contract.test_opcode_bitmap_encoding_matches_the_register_word" title="test_capability_contract.test_opcode_bitmap_encoding_matches_the_register_word"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_opcode_bitmap_encoding_matches_the_register_word</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_capability_contract.test_registry_declares_hardware_opcodes_only_for_opcode_driven_tiles" title="test_capability_contract.test_registry_declares_hardware_opcodes_only_for_opcode_driven_tiles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_registry_declares_hardware_opcodes_only_for_opcode_driven_tiles</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_capability_contract.test_registry_declares_hardware_opcodes_only_for_opcode_driven_cores" title="test_capability_contract.test_registry_declares_hardware_opcodes_only_for_opcode_driven_cores"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_registry_declares_hardware_opcodes_only_for_opcode_driven_cores</span></code></a>() → None</p></td>
 <td><p>MIN/MAX/SUM/COUNT are the implemented HDL opcodes; AVERAGE is</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_capability_contract.test_registry_declares_sorter_capacity" title="test_capability_contract.test_registry_declares_sorter_capacity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_registry_declares_sorter_capacity</span></code></a>() → None</p></td>
@@ -949,19 +949,19 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_capability_contract.test_sorted_scan_contract_carries_sorter_capacity_and_splitters" title="test_capability_contract.test_sorted_scan_contract_carries_sorter_capacity_and_splitters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_sorted_scan_contract_carries_sorter_capacity_and_splitters</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_capability_contract.test_scalar_aggregation_tile_contract_advertises_hardware_and_host_truth" title="test_capability_contract.test_scalar_aggregation_tile_contract_advertises_hardware_and_host_truth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_scalar_aggregation_tile_contract_advertises_hardware_and_host_truth</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_capability_contract.test_scalar_aggregation_core_contract_advertises_hardware_and_host_truth" title="test_capability_contract.test_scalar_aggregation_core_contract_advertises_hardware_and_host_truth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_scalar_aggregation_core_contract_advertises_hardware_and_host_truth</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_capability_contract.test_contract_mapping_round_trips_and_is_json_able" title="test_capability_contract.test_contract_mapping_round_trips_and_is_json_able"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_contract_mapping_round_trips_and_is_json_able</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_capability_contract.test_contract_to_design_counts_units_by_identical_tile" title="test_capability_contract.test_contract_to_design_counts_units_by_identical_tile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_contract_to_design_counts_units_by_identical_tile</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_capability_contract.test_contract_to_design_counts_units_by_identical_core" title="test_capability_contract.test_contract_to_design_counts_units_by_identical_core"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_contract_to_design_counts_units_by_identical_core</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_capability_contract.test_bar_noc_contract_design_offers_no_aggregation_capacity" title="test_capability_contract.test_bar_noc_contract_design_offers_no_aggregation_capacity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_bar_noc_contract_design_offers_no_aggregation_capacity</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_capability_contract.test_composition_and_hand_built_contracts_share_one_tile_derivation" title="test_capability_contract.test_composition_and_hand_built_contracts_share_one_tile_derivation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_composition_and_hand_built_contracts_share_one_tile_derivation</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_capability_contract.test_composition_and_hand_built_contracts_share_one_core_derivation" title="test_capability_contract.test_composition_and_hand_built_contracts_share_one_core_derivation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_composition_and_hand_built_contracts_share_one_core_derivation</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_capability_contract.test_chain_lanes_carry_chain_capabilities_and_opcode_truth" title="test_capability_contract.test_chain_lanes_carry_chain_capabilities_and_opcode_truth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_chain_lanes_carry_chain_capabilities_and_opcode_truth</span></code></a>() → None</p></td>
@@ -979,7 +979,7 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_capability_contract.test_reconfigurable_is_a_manifest_fact" title="test_capability_contract.test_reconfigurable_is_a_manifest_fact"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_reconfigurable_is_a_manifest_fact</span></code></a>() → None</p></td>
 <td><p>The fact rides the contract (and so the manifest), never a caller</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_capability_contract.test_a_tile_capability_carries_the_parameters_it_was_built_with" title="test_capability_contract.test_a_tile_capability_carries_the_parameters_it_was_built_with"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_tile_capability_carries_the_parameters_it_was_built_with</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_capability_contract.test_a_core_capability_carries_the_parameters_it_was_built_with" title="test_capability_contract.test_a_core_capability_carries_the_parameters_it_was_built_with"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_core_capability_carries_the_parameters_it_was_built_with</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -998,8 +998,8 @@
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="test_capability_contract.test_registry_declares_hardware_opcodes_only_for_opcode_driven_tiles">
-<span class="sig-prename descclassname"><span class="pre">test_capability_contract.</span></span><span class="sig-name descname"><span class="pre">test_registry_declares_hardware_opcodes_only_for_opcode_driven_tiles</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_capability_contract.test_registry_declares_hardware_opcodes_only_for_opcode_driven_tiles" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="test_capability_contract.test_registry_declares_hardware_opcodes_only_for_opcode_driven_cores">
+<span class="sig-prename descclassname"><span class="pre">test_capability_contract.</span></span><span class="sig-name descname"><span class="pre">test_registry_declares_hardware_opcodes_only_for_opcode_driven_cores</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_capability_contract.test_registry_declares_hardware_opcodes_only_for_opcode_driven_cores" title="Link to this definition">¶</a></dt>
 <dd><p>MIN/MAX/SUM/COUNT are the implemented HDL opcodes; AVERAGE is
 protocol-level (host divide) and must never be declared as hardware.</p>
 </dd></dl>
@@ -1020,8 +1020,8 @@ protocol-level (host divide) and must never be declared as hardware.</p>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="test_capability_contract.test_scalar_aggregation_tile_contract_advertises_hardware_and_host_truth">
-<span class="sig-prename descclassname"><span class="pre">test_capability_contract.</span></span><span class="sig-name descname"><span class="pre">test_scalar_aggregation_tile_contract_advertises_hardware_and_host_truth</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_capability_contract.test_scalar_aggregation_tile_contract_advertises_hardware_and_host_truth" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="test_capability_contract.test_scalar_aggregation_core_contract_advertises_hardware_and_host_truth">
+<span class="sig-prename descclassname"><span class="pre">test_capability_contract.</span></span><span class="sig-name descname"><span class="pre">test_scalar_aggregation_core_contract_advertises_hardware_and_host_truth</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_capability_contract.test_scalar_aggregation_core_contract_advertises_hardware_and_host_truth" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -1030,8 +1030,8 @@ protocol-level (host divide) and must never be declared as hardware.</p>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="test_capability_contract.test_contract_to_design_counts_units_by_identical_tile">
-<span class="sig-prename descclassname"><span class="pre">test_capability_contract.</span></span><span class="sig-name descname"><span class="pre">test_contract_to_design_counts_units_by_identical_tile</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_capability_contract.test_contract_to_design_counts_units_by_identical_tile" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="test_capability_contract.test_contract_to_design_counts_units_by_identical_core">
+<span class="sig-prename descclassname"><span class="pre">test_capability_contract.</span></span><span class="sig-name descname"><span class="pre">test_contract_to_design_counts_units_by_identical_core</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_capability_contract.test_contract_to_design_counts_units_by_identical_core" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -1040,8 +1040,8 @@ protocol-level (host divide) and must never be declared as hardware.</p>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="test_capability_contract.test_composition_and_hand_built_contracts_share_one_tile_derivation">
-<span class="sig-prename descclassname"><span class="pre">test_capability_contract.</span></span><span class="sig-name descname"><span class="pre">test_composition_and_hand_built_contracts_share_one_tile_derivation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_capability_contract.test_composition_and_hand_built_contracts_share_one_tile_derivation" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="test_capability_contract.test_composition_and_hand_built_contracts_share_one_core_derivation">
+<span class="sig-prename descclassname"><span class="pre">test_capability_contract.</span></span><span class="sig-name descname"><span class="pre">test_composition_and_hand_built_contracts_share_one_core_derivation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_capability_contract.test_composition_and_hand_built_contracts_share_one_core_derivation" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -1080,8 +1080,8 @@ and a manifest without the key raises instead of reading as baked.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="test_capability_contract.test_a_tile_capability_carries_the_parameters_it_was_built_with">
-<span class="sig-prename descclassname"><span class="pre">test_capability_contract.</span></span><span class="sig-name descname"><span class="pre">test_a_tile_capability_carries_the_parameters_it_was_built_with</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_capability_contract.test_a_tile_capability_carries_the_parameters_it_was_built_with" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="test_capability_contract.test_a_core_capability_carries_the_parameters_it_was_built_with">
+<span class="sig-prename descclassname"><span class="pre">test_capability_contract.</span></span><span class="sig-name descname"><span class="pre">test_a_core_capability_carries_the_parameters_it_was_built_with</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_capability_contract.test_a_core_capability_carries_the_parameters_it_was_built_with" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </section>
@@ -1090,11 +1090,11 @@ and a manifest without the key raises instead of reading as baked.</p>
 
       </div>
 <nav class="fd-pagination" aria-label="Pagination">
-  <a class="fd-pagination-card fd-pagination-prev" href="../test_public_tile_surface/index.html" title="Previous: test_public_tile_surface">
+  <a class="fd-pagination-card fd-pagination-prev" href="../test_validation_at_use/index.html" title="Previous: test_validation_at_use">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m15 18-6-6 6-6"/></svg>
     <span class="fd-pagination-text">
       <span class="fd-pagination-label">Previous</span>
-      <span class="fd-pagination-title">test_public_tile_surface</span>
+      <span class="fd-pagination-title">test_validation_at_use</span>
     </span>
   </a>
   <a class="fd-pagination-card fd-pagination-next" href="../test_aggregation_goldens/index.html" title="Next: test_aggregation_goldens">
@@ -1136,7 +1136,7 @@ and a manifest without the key raises instead of reading as baked.</p>
     <a href="#test_capability_contract.test_opcode_bitmap_encoding_matches_the_register_word">test_opcode_bitmap_encoding_matches_the_register_word()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_capability_contract.test_registry_declares_hardware_opcodes_only_for_opcode_driven_tiles">test_registry_declares_hardware_opcodes_only_for_opcode_driven_tiles()</a>
+    <a href="#test_capability_contract.test_registry_declares_hardware_opcodes_only_for_opcode_driven_cores">test_registry_declares_hardware_opcodes_only_for_opcode_driven_cores()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_capability_contract.test_registry_declares_sorter_capacity">test_registry_declares_sorter_capacity()</a>
@@ -1148,19 +1148,19 @@ and a manifest without the key raises instead of reading as baked.</p>
     <a href="#test_capability_contract.test_sorted_scan_contract_carries_sorter_capacity_and_splitters">test_sorted_scan_contract_carries_sorter_capacity_and_splitters()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_capability_contract.test_scalar_aggregation_tile_contract_advertises_hardware_and_host_truth">test_scalar_aggregation_tile_contract_advertises_hardware_and_host_truth()</a>
+    <a href="#test_capability_contract.test_scalar_aggregation_core_contract_advertises_hardware_and_host_truth">test_scalar_aggregation_core_contract_advertises_hardware_and_host_truth()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_capability_contract.test_contract_mapping_round_trips_and_is_json_able">test_contract_mapping_round_trips_and_is_json_able()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_capability_contract.test_contract_to_design_counts_units_by_identical_tile">test_contract_to_design_counts_units_by_identical_tile()</a>
+    <a href="#test_capability_contract.test_contract_to_design_counts_units_by_identical_core">test_contract_to_design_counts_units_by_identical_core()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_capability_contract.test_bar_noc_contract_design_offers_no_aggregation_capacity">test_bar_noc_contract_design_offers_no_aggregation_capacity()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_capability_contract.test_composition_and_hand_built_contracts_share_one_tile_derivation">test_composition_and_hand_built_contracts_share_one_tile_derivation()</a>
+    <a href="#test_capability_contract.test_composition_and_hand_built_contracts_share_one_core_derivation">test_composition_and_hand_built_contracts_share_one_core_derivation()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_capability_contract.test_chain_lanes_carry_chain_capabilities_and_opcode_truth">test_chain_lanes_carry_chain_capabilities_and_opcode_truth()</a>
@@ -1178,7 +1178,7 @@ and a manifest without the key raises instead of reading as baked.</p>
     <a href="#test_capability_contract.test_reconfigurable_is_a_manifest_fact">test_reconfigurable_is_a_manifest_fact()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_capability_contract.test_a_tile_capability_carries_the_parameters_it_was_built_with">test_a_tile_capability_carries_the_parameters_it_was_built_with()</a>
+    <a href="#test_capability_contract.test_a_core_capability_carries_the_parameters_it_was_built_with">test_a_core_capability_carries_the_parameters_it_was_built_with()</a>
   </li>
 </ul>
 

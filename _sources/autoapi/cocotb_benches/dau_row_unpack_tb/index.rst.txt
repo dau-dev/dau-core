@@ -206,7 +206,7 @@ Module Contents
 
 .. py:function:: _expand(word: int, specs) -> list[int]
 
-   The two output words the tile emits for one packed word.
+   The two output words the core emits for one packed word.
 
 
 .. py:function:: _quad_words(row) -> list[int]

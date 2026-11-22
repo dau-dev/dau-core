@@ -7,7 +7,7 @@ cocotb_benches.dau_row_predicate_filter_width_tb
 
    The row predicate filter at element types other than int32.
 
-   The tile's row is a fixed 128-bit transport unit; the field TYPE says how
+   The core's row is a fixed 128-bit transport unit; the field TYPE says how
    many fields that row carries. So int16 packs eight values per row where
    int32 packs four, which is the reason to support narrow types at all -- more
    values per beat, not a smaller beat.
@@ -25,7 +25,7 @@ cocotb_benches.dau_row_predicate_filter_width_tb
    alongside the integers because it is the case a width cannot express: 32
    bits wide like int32 but a different type, ordered by the identical
    comparator (scaling by 2**-F preserves order), which is exactly the claim
-   the tile's fixed-point guard makes.
+   the core's fixed-point guard makes.
 
 
 

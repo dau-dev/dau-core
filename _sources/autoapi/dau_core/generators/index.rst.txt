@@ -7,7 +7,7 @@ dau_core.generators
 
    Cores whose HDL is RENDERED rather than checked in.
 
-   Most tiles are a hand-written ``.sv`` beside their registry entry. A few
+   Most cores are a hand-written ``.sv`` beside their registry entry. A few
    cannot be: this one needs 256 entries of ``2**(j/256)`` to 52 bits, and
    SystemVerilog has no way to compute a transcendental at elaboration. The
    constants have to come from somewhere, and the choice is between committing

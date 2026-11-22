@@ -482,13 +482,13 @@ window.runMermaid = runMermaid;</script>
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -527,8 +527,8 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -1168,11 +1168,6 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../autoapi/test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../autoapi/test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -1183,8 +1178,13 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../autoapi/test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../autoapi/test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -1271,8 +1271,8 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="PredicateOp">
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.PredicateOp">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PredicateOp</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Comparison opcodes for the predicate filter tile. Zero is reserved so an</span>
-<span class="sd">    unconfigured tile fails explicitly."""</span>
+<span class="w">    </span><span class="sd">"""Comparison opcodes for the predicate filter core. Zero is reserved so an</span>
+<span class="sd">    unconfigured core fails explicitly."""</span>
 
     <span class="n">EQ</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">NE</span> <span class="o">=</span> <span class="mi">2</span>
@@ -1304,7 +1304,7 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.FilterPredicate">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FilterPredicate</span><span class="p">(</span><span class="n">CheckedModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Predicate configuration: ``value &lt;op0&gt; constant0`` optionally combined</span>
-<span class="sd">    with ``value &lt;op1&gt; constant1`` by AND/OR. Matches the tile's config ports."""</span>
+<span class="sd">    with ``value &lt;op1&gt; constant1`` by AND/OR. Matches the core's config ports."""</span>
 
     <span class="n">op0</span><span class="p">:</span> <span class="n">PredicateOp</span>
     <span class="n">constant0</span><span class="p">:</span> <span class="nb">int</span>
@@ -1337,7 +1337,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="filter_values">
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.filter_values">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">filter_values</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">predicate</span><span class="p">:</span> <span class="n">FilterPredicate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Golden semantics for the compacting predicate filter tile: emit the</span>
+<span class="w">    </span><span class="sd">"""Golden semantics for the compacting predicate filter core: emit the</span>
 <span class="sd">    matching values in input order."""</span>
     <span class="n">predicate</span> <span class="o">=</span> <span class="n">predicate</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>  <span class="c1"># the config is read once; a copy past its validators is refused here</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">value</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span> <span class="k">if</span> <span class="n">predicate</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="n">value</span><span class="p">)]</span></div>
@@ -1369,7 +1369,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="MapOp">
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.MapOp">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MapOp</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""ALU opcodes for the map tile. Zero is reserved so an unconfigured tile</span>
+<span class="w">    </span><span class="sd">"""ALU opcodes for the map core. Zero is reserved so an unconfigured core</span>
 <span class="sd">    fails explicitly."""</span>
 
     <span class="n">ADD</span> <span class="o">=</span> <span class="mi">1</span>
@@ -1393,7 +1393,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_apply_map_op">
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators._apply_map_op">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_apply_map_op</span><span class="p">(</span><span class="n">op</span><span class="p">:</span> <span class="n">MapOp</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">constant</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">shift</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""The tile ALU: shared by the scalar and row map configs (a plain</span>
+<span class="w">    </span><span class="sd">"""The core ALU: shared by the scalar and row map configs (a plain</span>
 <span class="sd">    function so per-row golden loops never construct a model)."""</span>
     <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="n">MapOp</span><span class="o">.</span><span class="n">ADD</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_wrap_int32</span><span class="p">(</span><span class="n">value</span> <span class="o">+</span> <span class="n">constant</span><span class="p">)</span>
@@ -1419,7 +1419,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">class</span><span class="w"> </span><span class="nc">MapConfig</span><span class="p">(</span><span class="n">CheckedModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Per-row ALU configuration: ``value &lt;op&gt; constant`` (MULSHR/SHL also use</span>
 <span class="sd">    ``shift``). All arithmetic is INT32 two's-complement wraparound — the</span>
-<span class="sd">    golden and the tile agree bit-for-bit. Matches the tile's config ports."""</span>
+<span class="sd">    golden and the core agree bit-for-bit. Matches the core's config ports."""</span>
 
     <span class="n">op</span><span class="p">:</span> <span class="n">MapOp</span>
     <span class="n">constant</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
@@ -1446,7 +1446,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="map_values">
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.map_values">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">map_values</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">config</span><span class="p">:</span> <span class="n">MapConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Golden semantics for the map/ALU tile: apply the configured ALU</span>
+<span class="w">    </span><span class="sd">"""Golden semantics for the map/ALU core: apply the configured ALU</span>
 <span class="sd">    operation to every value, preserving order and count."""</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>  <span class="c1"># the config is read once; a copy past its validators is refused here</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span></div>
@@ -1464,7 +1464,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="filter_rows">
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.filter_rows">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">filter_rows</span><span class="p">(</span><span class="n">rows</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="n">predicate</span><span class="p">:</span> <span class="n">FilterPredicate</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">on_key</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">"""Golden semantics for the keyed predicate-filter tile: the predicate is</span>
+<span class="w">    </span><span class="sd">"""Golden semantics for the keyed predicate-filter core: the predicate is</span>
 <span class="sd">    evaluated on the value lane (or the key lane with ``on_key``) and whole</span>
 <span class="sd">    ``(key, value)`` rows pass or drop together — compaction never misaligns</span>
 <span class="sd">    the lanes."""</span>
@@ -1476,7 +1476,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="map_rows">
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.map_rows">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">map_rows</span><span class="p">(</span><span class="n">rows</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="n">config</span><span class="p">:</span> <span class="n">MapConfig</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">on_key</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">"""Golden semantics for the keyed map/ALU tile: the ALU operation applies</span>
+<span class="w">    </span><span class="sd">"""Golden semantics for the keyed map/ALU core: the ALU operation applies</span>
 <span class="sd">    to the value lane (or the key lane with ``on_key`` — e.g. time→bucket</span>
 <span class="sd">    derivation); the other lane passes through unchanged, order and count</span>
 <span class="sd">    preserved."""</span>
@@ -1505,7 +1505,7 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.RowPredicateTerm">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">RowPredicateTerm</span><span class="p">(</span><span class="n">CheckedModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""One comparison term of a row predicate: ``field &lt;op&gt; constant``</span>
-<span class="sd">    (signed 32-bit). Matches one term's config-port triple on the tile."""</span>
+<span class="sd">    (signed 32-bit). Matches one term's config-port triple on the core."""</span>
 
     <span class="n">field</span><span class="p">:</span> <span class="n">RowField</span>
     <span class="n">op</span><span class="p">:</span> <span class="n">PredicateOp</span>
@@ -1537,7 +1537,7 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">"""Compound row predicate: up to three terms combined by the two-level</span>
 <span class="sd">    tree ``(term0 &lt;combine01&gt; term1) &lt;combine2&gt; term2``. ``SINGLE`` at a</span>
 <span class="sd">    level ignores the right-hand term (the 2-term filter's combine,</span>
-<span class="sd">    extended to three terms). Matches the tile's config ports."""</span>
+<span class="sd">    extended to three terms). Matches the core's config ports."""</span>
 
     <span class="n">term0</span><span class="p">:</span> <span class="n">RowPredicateTerm</span>
     <span class="n">combine01</span><span class="p">:</span> <span class="n">PredicateCombine</span> <span class="o">=</span> <span class="n">PredicateCombine</span><span class="o">.</span><span class="n">SINGLE</span>
@@ -1577,7 +1577,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="filter_rows_by_predicate">
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.filter_rows_by_predicate">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">filter_rows_by_predicate</span><span class="p">(</span><span class="n">rows</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="n">config</span><span class="p">:</span> <span class="n">RowPredicateConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">"""Golden semantics for the row predicate filter tile: whole</span>
+<span class="w">    </span><span class="sd">"""Golden semantics for the row predicate filter core: whole</span>
 <span class="sd">    (key, value, aux0, aux1) rows pass when the compound predicate over the</span>
 <span class="sd">    selected fields matches (signed 32-bit compares), order preserved."""</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>  <span class="c1"># the config is read once; a copy past its validators is refused here</span>
@@ -1591,7 +1591,7 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">"""Per-row field ALU configuration: ``dst = src_a &lt;op&gt; src_b`` over the</span>
 <span class="sd">    four row fields (MULSHR/SHL also use ``shift``; SHL ignores ``src_b``).</span>
 <span class="sd">    All arithmetic is INT32 two's-complement wraparound — the golden and the</span>
-<span class="sd">    tile agree bit-for-bit. Matches the tile's config ports."""</span>
+<span class="sd">    core agree bit-for-bit. Matches the core's config ports."""</span>
 
     <span class="n">op</span><span class="p">:</span> <span class="n">MapOp</span>
     <span class="n">dst</span><span class="p">:</span> <span class="n">RowField</span>
@@ -1629,7 +1629,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="map_row_fields">
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.map_row_fields">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">map_row_fields</span><span class="p">(</span><span class="n">rows</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="n">config</span><span class="p">:</span> <span class="n">RowMapConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">"""Golden semantics for the row map/ALU tile: the configured destination</span>
+<span class="w">    </span><span class="sd">"""Golden semantics for the row map/ALU core: the configured destination</span>
 <span class="sd">    field is rewritten from the two source-field operands; the other fields</span>
 <span class="sd">    pass through unchanged, order and count preserved."""</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>  <span class="c1"># the config is read once; a copy past its validators is refused here</span>
@@ -1645,7 +1645,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="SqrtErrorCode">
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.SqrtErrorCode">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SqrtErrorCode</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
-    <span class="c1"># CONFIG (1) is the family's reserved code; this tile has no invalid</span>
+    <span class="c1"># CONFIG (1) is the family's reserved code; this core has no invalid</span>
     <span class="c1"># configuration -- dst == src is a legal in-place update</span>
     <span class="n">STREAM</span> <span class="o">=</span> <span class="mi">2</span>
     <span class="c1"># sqrt of a negative value has no int32 answer. Returning zero would be a</span>
@@ -1654,8 +1654,8 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="c1"># fractional bits in the tile's fixed-point format. Q16.16 covers prices and</span>
-<span class="c1"># returns in one format; the tile parameterizes it, this is the default.</span>
+<span class="c1"># fractional bits in the core's fixed-point format. Q16.16 covers prices and</span>
+<span class="c1"># returns in one format; the core parameterizes it, this is the default.</span>
 <span class="n">SQRT_FRACTIONAL_BITS</span> <span class="o">=</span> <span class="mi">16</span>
 <span class="n">SQRT_MAX_FRACTIONAL_BITS</span> <span class="o">=</span> <span class="mi">31</span>
 
@@ -1673,9 +1673,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    This is worth stating because the obvious implementation is a polynomial</span>
 <span class="sd">    approximation, which would need an error bound and would still be wrong in</span>
 <span class="sd">    the last place. There is no approximation here and no tolerance in the</span>
-<span class="sd">    bench: the tile either matches this or it is broken.</span>
+<span class="sd">    bench: the core either matches this or it is broken.</span>
 
-<span class="sd">    Raises on a negative input; the tile reports ``DOMAIN`` for the same case.</span>
+<span class="sd">    Raises on a negative input; the core reports ``DOMAIN`` for the same case.</span>
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"sqrt of a negative fixed-point value is undefined, got </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
@@ -1705,12 +1705,12 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="sqrt_row_fields">
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.sqrt_row_fields">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">sqrt_row_fields</span><span class="p">(</span><span class="n">rows</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="n">config</span><span class="p">:</span> <span class="n">RowSqrtConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">"""Golden semantics for the fixed-point sqrt tile: the destination field</span>
+<span class="w">    </span><span class="sd">"""Golden semantics for the fixed-point sqrt core: the destination field</span>
 <span class="sd">    is rewritten with the root of the source field, the other fields pass</span>
 <span class="sd">    through unchanged, order and count preserved.</span>
 
 <span class="sd">    A negative source value raises here and closes the batch out with</span>
-<span class="sd">    ``DOMAIN`` on the tile — the row is not emitted with a substituted value,</span>
+<span class="sd">    ``DOMAIN`` on the core — the row is not emitted with a substituted value,</span>
 <span class="sd">    because a wrong number that looks right is the failure this avoids.</span>
 <span class="sd">    """</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>  <span class="c1"># the config is read once; a copy past its validators is refused here</span>
@@ -1726,7 +1726,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="DatetimeFormatErrorCode">
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.DatetimeFormatErrorCode">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DatetimeFormatErrorCode</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
-    <span class="c1"># CONFIG (1) and STREAM (2) are the family's reserved codes. This tile has</span>
+    <span class="c1"># CONFIG (1) and STREAM (2) are the family's reserved codes. This core has</span>
     <span class="c1"># no configuration to be invalid, and its record is a single word, so</span>
     <span class="c1"># neither can occur -- there is no torn row to detect.</span>
     <span class="n">DOMAIN</span> <span class="o">=</span> <span class="mi">3</span></div>
@@ -1736,7 +1736,7 @@ window.runMermaid = runMermaid;</script>
 <span class="c1"># The widest instant "YYYY-MM-DD HH:MM:SS" can name, in epoch seconds:</span>
 <span class="c1"># 1970-01-01T00:00:00 through 9999-12-31T23:59:59. The bound is the FORMAT's,</span>
 <span class="c1"># not the algorithm's -- civil_from_days is exact well outside it -- so it is</span>
-<span class="c1"># the point past which the tile would render a year it cannot fit in four</span>
+<span class="c1"># the point past which the core would render a year it cannot fit in four</span>
 <span class="c1"># digits.</span>
 <span class="n">DATETIME_FORMAT_MAX_EPOCH_SECONDS</span> <span class="o">=</span> <span class="mi">253402300799</span>
 <span class="n">DATETIME_FORMAT_WIDTH</span> <span class="o">=</span> <span class="mi">19</span>
@@ -1748,13 +1748,13 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">"""``epoch_seconds`` rendered as ``YYYY-MM-DD HH:MM:SS``, in UTC.</span>
 
 <span class="sd">    The civil date comes from Howard Hinnant's ``civil_from_days``, written</span>
-<span class="sd">    here in the same shape the tile implements it: every division is by a</span>
+<span class="sd">    here in the same shape the core implements it: every division is by a</span>
 <span class="sd">    CONSTANT, which is what lets the hardware do all of them as multiply-shift</span>
 <span class="sd">    with no divider. Leap years are exact, all three rules (4, 100, 400) --</span>
 <span class="sd">    they are not special-cased anywhere, they fall out of the 400-year era</span>
 <span class="sd">    arithmetic.</span>
 
-<span class="sd">    Raises outside the representable range; the tile reports ``DOMAIN`` for</span>
+<span class="sd">    Raises outside the representable range; the core reports ``DOMAIN`` for</span>
 <span class="sd">    the same case rather than emitting a truncated year.</span>
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">epoch_seconds</span> <span class="o">&lt;=</span> <span class="n">DATETIME_FORMAT_MAX_EPOCH_SECONDS</span><span class="p">:</span>
@@ -1780,11 +1780,11 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="format_datetime_rows">
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.format_datetime_rows">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">format_datetime_rows</span><span class="p">(</span><span class="n">rows</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Golden semantics for the datetime formatter tile: one int64 epoch-second</span>
+<span class="w">    </span><span class="sd">"""Golden semantics for the datetime formatter core: one int64 epoch-second</span>
 <span class="sd">    value in, one fixed-width 19-character rendering out, order and count</span>
 <span class="sd">    preserved.</span>
 
-<span class="sd">    The tile emits the ASCII of each string in one 152-bit beat, character i</span>
+<span class="sd">    The core emits the ASCII of each string in one 152-bit beat, character i</span>
 <span class="sd">    in bits ``[8*i+7:8*i]``. An out-of-range value is not rendered: it closes</span>
 <span class="sd">    the batch out with ``DOMAIN``.</span>
 <span class="sd">    """</span>
@@ -1795,7 +1795,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="DivideErrorCode">
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.DivideErrorCode">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DivideErrorCode</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
-    <span class="c1"># CONFIG (1) is the family's reserved code; this tile has no invalid</span>
+    <span class="c1"># CONFIG (1) is the family's reserved code; this core has no invalid</span>
     <span class="c1"># configuration -- dst may be either source, updating in place</span>
     <span class="n">STREAM</span> <span class="o">=</span> <span class="mi">2</span>
     <span class="c1"># a zero divisor has no quotient</span>
@@ -1824,11 +1824,11 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    FLOOR, not truncation toward zero. That is the convention the rest of the</span>
 <span class="sd">    package already uses: ``MULSHR`` divides by a power of two with an</span>
 <span class="sd">    arithmetic shift, which floors, and ``-7 &gt;&gt; 1`` is ``-4``. Python's ``//``</span>
-<span class="sd">    floors too, so this is simply that operator. A tile that truncated toward</span>
+<span class="sd">    floors too, so this is simply that operator. A core that truncated toward</span>
 <span class="sd">    zero would disagree with the existing map ALU on every negative operand.</span>
 
 <span class="sd">    Raises on a zero divisor, and on a quotient that does not fit int32; the</span>
-<span class="sd">    tile reports ``DOMAIN`` and ``RANGE`` for those cases.</span>
+<span class="sd">    core reports ``DOMAIN`` and ``RANGE`` for those cases.</span>
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="n">denominator</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ZeroDivisionError</span><span class="p">(</span><span class="s2">"fixed-point divide by zero has no quotient"</span><span class="p">)</span>
@@ -1862,7 +1862,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="divide_row_fields">
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.divide_row_fields">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">divide_row_fields</span><span class="p">(</span><span class="n">rows</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="n">config</span><span class="p">:</span> <span class="n">RowDivideConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">"""Golden semantics for the fixed-point divide tile: the destination field</span>
+<span class="w">    </span><span class="sd">"""Golden semantics for the fixed-point divide core: the destination field</span>
 <span class="sd">    is rewritten with the quotient of the two source fields, the others pass</span>
 <span class="sd">    through unchanged, order and count preserved.</span>
 
@@ -1890,7 +1890,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">class</span><span class="w"> </span><span class="nc">UnpackErrorCode</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
     <span class="n">CONFIG</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="c1"># bypass mode consumes 16-byte quad rows (two words each); input_last on a</span>
-    <span class="c1"># w0 is a torn row, invalidating the batch — the quad-row-tile convention</span>
+    <span class="c1"># w0 is a torn row, invalidating the batch — the quad-row-core convention</span>
     <span class="n">STREAM</span> <span class="o">=</span> <span class="mi">2</span></div>
 
 
@@ -1900,7 +1900,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">class</span><span class="w"> </span><span class="nc">UnpackFieldSpec</span><span class="p">(</span><span class="n">CheckedModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""One output field's slice of a packed row: the ``width``-bit field at bit</span>
 <span class="sd">    ``offset`` of the (&lt;=64-bit) packed word, sign-extended (``signed``) or</span>
-<span class="sd">    zero-extended to int32. Matches the tile's</span>
+<span class="sd">    zero-extended to int32. Matches the core's</span>
 <span class="sd">    ``cfg_field{i}_{offset,width,signed}`` config ports."""</span>
 
     <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span>
@@ -1923,7 +1923,7 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.UnpackFieldSpec.extract">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">extract</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">packed</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Extract this field from ``packed`` as an int32-domain signed value</span>
-<span class="sd">        (the exact 32-bit pattern the tile emits, read back as signed int32)."""</span>
+<span class="sd">        (the exact 32-bit pattern the core emits, read back as signed int32)."""</span>
         <span class="n">raw</span> <span class="o">=</span> <span class="p">(</span><span class="n">packed</span> <span class="o">&gt;&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">((</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">signed</span> <span class="ow">and</span> <span class="p">(</span><span class="n">raw</span> <span class="o">&gt;&gt;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">raw</span> <span class="o">-=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span>
@@ -1940,17 +1940,17 @@ window.runMermaid = runMermaid;</script>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">bypass</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">"""Golden semantics for the row-unpack front-end feed tile.</span>
+<span class="w">    </span><span class="sd">"""Golden semantics for the row-unpack front-end feed core.</span>
 
 <span class="sd">    UNPACK (``bypass=False``, the default): widen each packed input word (one</span>
 <span class="sd">    &lt;=64-bit packed row per word in ``rows``) into a 16-byte int32 quad row.</span>
 <span class="sd">    Output field i is ``packed[offset_i +: width_i]`` sign/zero extended to</span>
 <span class="sd">    int32; the four fields map to (key, value, aux0, aux1) — the exact quad-row</span>
-<span class="sd">    layout downstream row tiles consume (field 0 = key = w0.lo). One packed word</span>
+<span class="sd">    layout downstream row cores consume (field 0 = key = w0.lo). One packed word</span>
 <span class="sd">    in, one quad row out, order and count preserved.</span>
 
 <span class="sd">    BYPASS (``bypass=True``): the input is already 16-byte int32 quad rows</span>
-<span class="sd">    (``rows`` is an iterable of (key, value, aux0, aux1) tuples); the tile</span>
+<span class="sd">    (``rows`` is an iterable of (key, value, aux0, aux1) tuples); the core</span>
 <span class="sd">    forwards them byte-identically, so the golden is the identity. Field</span>
 <span class="sd">    descriptors are unused in this mode (not required, not validated)."""</span>
     <span class="k">if</span> <span class="n">bypass</span><span class="p">:</span>
@@ -1983,7 +1983,7 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.FieldSumAggregate">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">FieldSumAggregate</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""The one record the field-sum aggregation tile emits per batch: exact</span>
+<span class="w">    </span><span class="sd">"""The one record the field-sum aggregation core emits per batch: exact</span>
 <span class="sd">    INT64 sums of the mask-selected fields (ascending field order) plus the</span>
 <span class="sd">    row count. Record format on the wire: one 64-bit word per selected</span>
 <span class="sd">    field (two's-complement sum, ascending field index), then the count</span>
@@ -2053,7 +2053,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        rows several lanes each saw a DISJOINT share of: sums add, counts</span>
 <span class="sd">        add.</span>
 
-<span class="sd">        This is the partition algebra of the tile -- what makes a key-mask</span>
+<span class="sd">        This is the partition algebra of the core -- what makes a key-mask</span>
 <span class="sd">        dispatcher's replicas, or a complete pair-key partition group,</span>
 <span class="sd">        answer as one lane -- and it holds only under a partition. Folding</span>
 <span class="sd">        two lanes that each saw every row counts every row twice, which is</span>
@@ -2096,11 +2096,11 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="field_sum_rows">
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.field_sum_rows">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">field_sum_rows</span><span class="p">(</span><span class="n">rows</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="o">*</span><span class="p">,</span> <span class="n">field_mask</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FieldSumAggregate</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Golden semantics for the batch field-sum aggregation tile: one pass</span>
+<span class="w">    </span><span class="sd">"""Golden semantics for the batch field-sum aggregation core: one pass</span>
 <span class="sd">    over (key, value, aux0, aux1) rows accumulating an INT64 sum per</span>
 <span class="sd">    mask-selected field plus the row count. ``field_mask`` bit i selects</span>
 <span class="sd">    field i; at least one field must be selected (a zero mask is an</span>
-<span class="sd">    unconfigured tile and reports CONFIG on hardware)."""</span>
+<span class="sd">    unconfigured core and reports CONFIG on hardware)."""</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">field_mask</span> <span class="o">&lt;=</span> <span class="mi">15</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"field_mask must select at least one of the four fields"</span><span class="p">)</span>
     <span class="n">selected</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="k">if</span> <span class="n">field_mask</span> <span class="o">&amp;</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">)]</span>
@@ -2127,14 +2127,14 @@ window.runMermaid = runMermaid;</script>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">GroupedFieldSumAggregate</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""One closed group from the ordered grouped field-sum aggregation</span>
-<span class="sd">    tile: INT64 sums of the mask-selected fields (ascending field order)</span>
+<span class="sd">    core: INT64 sums of the mask-selected fields (ascending field order)</span>
 <span class="sd">    plus the group's row count — exact for every feasible batch (an INT64</span>
 <span class="sd">    accumulator of int32 addends cannot overflow below 2**32 rows in one</span>
 <span class="sd">    group, far past any stageable batch). Record format on the wire: the</span>
 <span class="sd">    group key sign-extended to one 64-bit word, one 64-bit word per</span>
 <span class="sd">    selected field (two's-complement sum, ascending field index), then the</span>
 <span class="sd">    count word. ``output_last`` is set only on the final group's count</span>
-<span class="sd">    word — the batch's group records form one record stream and the tile</span>
+<span class="sd">    word — the batch's group records form one record stream and the core</span>
 <span class="sd">    closes out once per batch, after the last group (the composition</span>
 <span class="sd">    invariant: exactly one success close-out per lane per batch)."""</span>
 
@@ -2157,14 +2157,14 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="grouped_field_sum_rows">
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.grouped_field_sum_rows">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">grouped_field_sum_rows</span><span class="p">(</span><span class="n">rows</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="o">*</span><span class="p">,</span> <span class="n">field_mask</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">GroupedFieldSumAggregate</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Golden semantics for the ordered grouped field-sum aggregation tile</span>
+<span class="w">    </span><span class="sd">"""Golden semantics for the ordered grouped field-sum aggregation core</span>
 <span class="sd">    (close-out mode): consecutive (key, value, aux0, aux1) rows with equal</span>
 <span class="sd">    signed 32-bit keys form a group; a group closes when the key changes or</span>
 <span class="sd">    input ends, emitting an INT64 sum per mask-selected field plus the row</span>
 <span class="sd">    count. A key that reappears later opens a NEW group — partials merge on</span>
-<span class="sd">    the host, never in the tile (the partial-bar contract). ``field_mask``</span>
+<span class="sd">    the host, never in the core (the partial-bar contract). ``field_mask``</span>
 <span class="sd">    bit i selects field i; at least one field must be selected (a zero mask</span>
-<span class="sd">    is an unconfigured tile and reports CONFIG on hardware)."""</span>
+<span class="sd">    is an unconfigured core and reports CONFIG on hardware)."""</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">field_mask</span> <span class="o">&lt;=</span> <span class="mi">15</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"field_mask must select at least one of the four fields"</span><span class="p">)</span>
     <span class="n">selected</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="k">if</span> <span class="n">field_mask</span> <span class="o">&amp;</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">)]</span>
@@ -2194,11 +2194,11 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">group_table_sum_rows</span><span class="p">(</span>
     <span class="n">rows</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="o">*</span><span class="p">,</span> <span class="n">field_mask</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">group_shift</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">group_bits</span><span class="p">:</span> <span class="nb">int</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">GroupedFieldSumAggregate</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Golden semantics for the wide group-table sum tile: each row's group is</span>
+<span class="w">    </span><span class="sd">"""Golden semantics for the wide group-table sum core: each row's group is</span>
 <span class="sd">    ``(key &gt;&gt; group_shift) &amp; (2**group_bits - 1)`` over the key's unsigned</span>
 <span class="sd">    32 bits, and every group that received a row closes with INT64 sums of</span>
 <span class="sd">    the mask-selected fields and its row count, in ascending group order. The</span>
-<span class="sd">    record's key word is the group code. Unlike the ordered grouped tile,</span>
+<span class="sd">    record's key word is the group code. Unlike the ordered grouped core,</span>
 <span class="sd">    rows of one group need not be adjacent: the table is direct-indexed, so a</span>
 <span class="sd">    group's rows merge wherever they fall in the batch. Rows are the batch's</span>
 <span class="sd">    real rows; the wide lane's all-ones pad never reaches this function."""</span>
@@ -2223,12 +2223,12 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="MembershipKind">
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.MembershipKind">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MembershipKind</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Membership-structure kind for the key-set membership filter tile. Zero</span>
-<span class="sd">    is reserved so an unconfigured tile fails explicitly. v0 implements only</span>
+<span class="w">    </span><span class="sd">"""Membership-structure kind for the key-set membership filter core. Zero</span>
+<span class="sd">    is reserved so an unconfigured core fails explicitly. v0 implements only</span>
 <span class="sd">    ``EXACT_BITMAP`` — a direct-mapped bitmap over the configured dictionary-id</span>
 <span class="sd">    key space, with no false positives. ``BLOOM`` is a reserved future config (a</span>
 <span class="sd">    hashed bitmap trading exactness for an unbounded key space, its false</span>
-<span class="sd">    positives verified host-side); the v0 tile rejects it with a config</span>
+<span class="sd">    positives verified host-side); the v0 core rejects it with a config</span>
 <span class="sd">    error."""</span>
 
     <span class="n">EXACT_BITMAP</span> <span class="o">=</span> <span class="mi">1</span>
@@ -2352,7 +2352,7 @@ window.runMermaid = runMermaid;</script>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">mode</span><span class="p">:</span> <span class="n">MembershipMode</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">"""Golden semantics for the key-set membership filter tile (probe phase):</span>
+<span class="w">    </span><span class="sd">"""Golden semantics for the key-set membership filter core (probe phase):</span>
 <span class="sd">    whole (key, value, aux0, aux1) rows pass by whether the row key (``w0.lo``,</span>
 <span class="sd">    signed int32) is a member of ``build_set``. ``SEMI`` keeps members, ``ANTI``</span>
 <span class="sd">    keeps non-members; order preserved. Exact bitmap membership — no false</span>
@@ -2372,9 +2372,9 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="DedupErrorCode">
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.DedupErrorCode">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DedupErrorCode</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Status codes for the streaming dedup tile. Code 1 — ``CONFIG`` in every</span>
-<span class="sd">    tile that has one — is deliberately absent: ``cfg_clear`` is a single bit</span>
-<span class="sd">    with no invalid encoding, so there is no configuration this tile can</span>
+<span class="w">    </span><span class="sd">"""Status codes for the streaming dedup core. Code 1 — ``CONFIG`` in every</span>
+<span class="sd">    core that has one — is deliberately absent: ``cfg_clear`` is a single bit</span>
+<span class="sd">    with no invalid encoding, so there is no configuration this core can</span>
 <span class="sd">    reject. ``STREAM`` keeps the palette-wide value 2 and ``RANGE`` the value</span>
 <span class="sd">    the broadcast hash join gives the same condition."""</span>
 
@@ -2388,11 +2388,11 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.DistinctCount">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">DistinctCount</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""What the streaming dedup tile holds after a batch: the running distinct</span>
+<span class="w">    </span><span class="sd">"""What the streaming dedup core holds after a batch: the running distinct</span>
 <span class="sd">    count it emits as its one-word close-out record, and the bitmap that count</span>
 <span class="sd">    was taken from.</span>
 
-<span class="sd">    ``seen`` is carried rather than derived because the tile's bitmap SURVIVES</span>
+<span class="sd">    ``seen`` is carried rather than derived because the core's bitmap SURVIVES</span>
 <span class="sd">    a batch boundary. A scan split into overlapped batches is one dedup, and</span>
 <span class="sd">    summing per-batch counts would count a key once per batch it appears in —</span>
 <span class="sd">    so the accumulation runs until the host asks for a fresh one (``cfg_clear``</span>
@@ -2423,7 +2423,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">key_space</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">seen</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DistinctCount</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Golden semantics for the streaming insert-on-probe dedup tile: one pass</span>
+<span class="w">    </span><span class="sd">"""Golden semantics for the streaming insert-on-probe dedup core: one pass</span>
 <span class="sd">    over (key, value, aux0, aux1) rows counting each key the FIRST time it is</span>
 <span class="sd">    seen — ``COUNT(DISTINCT key)`` over the dictionary-id space</span>
 <span class="sd">    ``[0, key_space)``.</span>
@@ -2433,7 +2433,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    bit is clear, set it and count the row; otherwise the key has been seen</span>
 <span class="sd">    and the row changes nothing. That single difference (insert on probe) is</span>
 <span class="sd">    what a ``distinct`` needs and what a static bitmap cannot do, and it is</span>
-<span class="sd">    why the tile pays a read-modify-write per row where the filter pays a</span>
+<span class="sd">    why the core pays a read-modify-write per row where the filter pays a</span>
 <span class="sd">    read.</span>
 
 <span class="sd">    Sized by CARDINALITY, not by row count: the bitmap holds one bit per</span>
@@ -2446,7 +2446,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    for a key the build set could never hold; a dedup cannot answer "have I</span>
 <span class="sd">    seen this" for a key it has nowhere to record, and silently wrapping it</span>
 <span class="sd">    into another key's bit would merge two distinct keys into one count. The</span>
-<span class="sd">    tile drains the batch and closes out ``RANGE``; the accumulation goes with</span>
+<span class="sd">    core drains the batch and closes out ``RANGE``; the accumulation goes with</span>
 <span class="sd">    it (count zero, empty bitmap), because rows before the bad one already set</span>
 <span class="sd">    their bits and a half-inserted bitmap is not a state anything can resume</span>
 <span class="sd">    from."""</span>
@@ -2470,10 +2470,10 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="JoinSource">
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.JoinSource">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">JoinSource</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Output field-select sources for the broadcast hash join tile: the six</span>
+<span class="w">    </span><span class="sd">"""Output field-select sources for the broadcast hash join core: the six</span>
 <span class="sd">    32-bit operands an emitted output field may carry — the matched build row's</span>
 <span class="sd">    three data fields (``b0``/``b1``/``b2``) and the probe row's three</span>
-<span class="sd">    (``v0``/``v1``/``v2``). Selectors 6 and 7 are reserved (the tile rejects</span>
+<span class="sd">    (``v0``/``v1``/``v2``). Selectors 6 and 7 are reserved (the core rejects</span>
 <span class="sd">    them as ``ERR_CONFIG``). The emitted row's key is always the matched key,</span>
 <span class="sd">    so it is not a selectable source."""</span>
 
@@ -2501,7 +2501,7 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">"""Output field-select for the broadcast hash join: each of the emitted</span>
 <span class="sd">    row's three data fields (``out0``, ``out1``, ``out2``) is chosen from the</span>
 <span class="sd">    six join sources. The emitted key is always the matched probe key. Matches</span>
-<span class="sd">    the tile's ``cfg_out{0,1,2}_sel`` config ports."""</span>
+<span class="sd">    the core's ``cfg_out{0,1,2}_sel`` config ports."""</span>
 
     <span class="n">out0</span><span class="p">:</span> <span class="n">JoinSource</span>
     <span class="n">out1</span><span class="p">:</span> <span class="n">JoinSource</span>
@@ -2529,7 +2529,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">keyed_asof_join_rows</span><span class="p">(</span>
     <span class="n">records</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="o">*</span><span class="p">,</span> <span class="n">tolerance</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">"""Golden semantics for the generic keyed backward as-of join tile: one</span>
+<span class="w">    </span><span class="sd">"""Golden semantics for the generic keyed backward as-of join core: one</span>
 <span class="sd">    host-merged, ``(key, time)``-sorted stream of BUILD and PROBE records</span>
 <span class="sd">    (build-before-probe at equal key/time). Each record is</span>
 <span class="sd">    ``(rec_type, key, time, a, b)`` — ``rec_type`` bit0: 0 = build, 1 = probe;</span>
@@ -2539,7 +2539,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    most recent build with ``build_time &lt;= probe_time`` (within ``tolerance`` on</span>
 <span class="sd">    the time axis, ``None`` = unbounded), emitting the joined row</span>
 <span class="sd">    ``(key, time, probe_a, probe_b, build_a, build_b)``. A probe with no live</span>
-<span class="sd">    build (or one older than tolerance) drops — the tile emits matched joins</span>
+<span class="sd">    build (or one older than tolerance) drops — the core emits matched joins</span>
 <span class="sd">    only. Workload-agnostic: the temporal-finance backward as-of (quote = build</span>
 <span class="sd">    ``{bid, ask}``, trade = probe ``{price, size}``) is exactly this join, and</span>
 <span class="sd">    :func:`dau_core.temporal.asof_backward` on sorted inputs agrees with it."""</span>
@@ -2568,7 +2568,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">out_sel</span><span class="p">:</span> <span class="n">BroadcastJoinConfig</span><span class="p">,</span>
     <span class="n">key_space</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">"""Golden semantics for the broadcast hash join tile (the join tier's</span>
+<span class="w">    </span><span class="sd">"""Golden semantics for the broadcast hash join core (the join tier's</span>
 <span class="sd">    payload-emitting Joiner). The build side of ``(key, b0, b1, b2)`` rows is</span>
 <span class="sd">    loaded into a direct-mapped payload table over the key space</span>
 <span class="sd">    ``[0, key_space)`` — one slot per key, last-writer-wins on a duplicate</span>
@@ -2577,11 +2577,11 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    ``(key, out0, out1, out2)`` row whose three data fields are chosen by</span>
 <span class="sd">    ``out_sel`` from the six sources ``(b0, b1, b2, v0, v1, v2)``; a probe miss</span>
 <span class="sd">    drops. Order is preserved. Every build and probe key must lie in</span>
-<span class="sd">    ``[0, key_space)`` — an out-of-range key is ``ERR_RANGE`` on the tile and</span>
+<span class="sd">    ``[0, key_space)`` — an out-of-range key is ``ERR_RANGE`` on the core and</span>
 <span class="sd">    raises here. All fields are INT32 (two's-complement wraparound).</span>
 
 <span class="sd">    An empty ``build_rows`` is the mathematically empty table (every probe</span>
-<span class="sd">    misses). On the tile, an empty table is the cleared/initial state reached</span>
+<span class="sd">    misses). On the core, an empty table is the cleared/initial state reached</span>
 <span class="sd">    by the load-phase sweep or power-on ``INIT`` — a *load batch* itself always</span>
 <span class="sd">    carries at least one build row, since the stream contract delimits a batch</span>
 <span class="sd">    with ``input_last`` on a data word and so cannot express a zero-row</span>
@@ -2618,7 +2618,7 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.GroupAggregate">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">GroupAggregate</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""One closed group from the ordered grouped-aggregation tile: every</span>
+<span class="w">    </span><span class="sd">"""One closed group from the ordered grouped-aggregation core: every</span>
 <span class="sd">    statistic is computed in a single pass. ``first``/``last`` follow input</span>
 <span class="sd">    order, so partial groups from separate batches merge correctly on the</span>
 <span class="sd">    host (the partial-bar contract)."""</span>
@@ -2637,7 +2637,7 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.BarAggregate">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">BarAggregate</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""One closed bar from the fused single-pass bar-aggregation tile: price</span>
+<span class="w">    </span><span class="sd">"""One closed bar from the fused single-pass bar-aggregation core: price</span>
 <span class="sd">    OHLC statistics plus the exact micro-share volume decomposition, all in</span>
 <span class="sd">    one pass over (key, price, shares, frac) rows."""</span>
 
@@ -2674,7 +2674,7 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">"""One closed group from the GENERIC multi-field aggregator: per-field</span>
 <span class="sd">    first/last/min/max/sum over the three data fields of a quad row, plus the</span>
 <span class="sd">    row count. A workload-agnostic superset — OHLCV bars (and other grouped</span>
-<span class="sd">    reductions) are a field/stat SELECTION over it, not a baked-in tile."""</span>
+<span class="sd">    reductions) are a field/stat SELECTION over it, not a baked-in core."""</span>
 
     <span class="n">key</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">fields</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">FieldStats</span><span class="p">,</span> <span class="n">FieldStats</span><span class="p">,</span> <span class="n">FieldStats</span><span class="p">]</span>
@@ -2748,7 +2748,7 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.DispatchMode">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DispatchMode</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""How the key-mask dispatcher maps a row's key to a partition. The</span>
-<span class="sd">    values ARE the tile's MODE parameter encoding, so the golden and the</span>
+<span class="sd">    values ARE the core's MODE parameter encoding, so the golden and the</span>
 <span class="sd">    HDL cannot drift apart silently."""</span>
 
     <span class="n">MASK</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># dest = key &amp; (N - 1): the low key bits (N a power of two)</span>
@@ -2921,7 +2921,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">sort_bar_rows_by_key</span><span class="p">(</span><span class="n">rows</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">"""Golden semantics for the batch bitonic sorter: rows ascending by the</span>
 <span class="sd">    signed 32-bit key, STABLE (rows with equal keys keep input order — the</span>
-<span class="sd">    tile tie-breaks on load index)."""</span>
+<span class="sd">    core tie-breaks on load index)."""</span>
     <span class="k">return</span> <span class="nb">sorted</span><span class="p">((</span><span class="nb">tuple</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="n">_wrap_int32</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span></div>
 
 
@@ -2932,7 +2932,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="TopKErrorCode">
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.TopKErrorCode">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TopKErrorCode</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Status codes for the streaming top-k heap tile."""</span>
+<span class="w">    </span><span class="sd">"""Status codes for the streaming top-k heap core."""</span>
 
     <span class="n">OK</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">BAD_K</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># requested k outside [1, TOP_K_MAX]</span></div>
@@ -2942,21 +2942,21 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="streaming_top_k">
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.streaming_top_k">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">streaming_top_k</span><span class="p">(</span><span class="n">rows</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="o">*</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">"""Golden semantics for the streaming top-k heap tile: in one pass keep the</span>
+<span class="w">    </span><span class="sd">"""Golden semantics for the streaming top-k heap core: in one pass keep the</span>
 <span class="sd">    ``k`` rows with the largest signed-32-bit sort key (field 0), breaking ties</span>
 <span class="sd">    by arrival order (earlier rows win), and emit them sorted by sort key</span>
 <span class="sd">    DESCENDING (ties arrival ascending) — the ``ORDER BY &lt;key&gt; DESC LIMIT k``</span>
 <span class="sd">    shape (q3/q10, TSBS group-by-order-by-limit).</span>
 
-<span class="sd">    Bounded state: the tile holds at most ``k`` rows in a size-``k`` min-heap</span>
+<span class="sd">    Bounded state: the core holds at most ``k`` rows in a size-``k`` min-heap</span>
 <span class="sd">    whose root — the eviction target — is the entry with the smallest key and,</span>
 <span class="sd">    among equal-key entries, the LATEST arrival (the heap orders on</span>
 <span class="sd">    ``(key, -arrival)``, not key alone). An arriving row replaces the root only</span>
 <span class="sd">    when its key is STRICTLY greater, so at the k-th-largest key the earliest</span>
 <span class="sd">    arrivals are retained — matched by the ``(-key, arrival)`` sort below. This</span>
-<span class="sd">    root tie-order is part of the tile contract: a key-only min-heap could evict</span>
+<span class="sd">    root tie-order is part of the core contract: a key-only min-heap could evict</span>
 <span class="sd">    an earlier tied row and diverge from this golden. ``k`` is bounded to</span>
-<span class="sd">    ``[1, TOP_K_MAX]``; the tile reports ``BAD_K`` outside that range."""</span>
+<span class="sd">    ``[1, TOP_K_MAX]``; the core reports ``BAD_K`` outside that range."""</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">k</span> <span class="o">&lt;=</span> <span class="n">TOP_K_MAX</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"k must be in [1, </span><span class="si">{</span><span class="n">TOP_K_MAX</span><span class="si">}</span><span class="s2">], got </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="n">indexed</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
@@ -2970,7 +2970,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="time_bucket_key_rows">
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.time_bucket_key_rows">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">time_bucket_key_rows</span><span class="p">(</span><span class="n">rows</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="o">*</span><span class="p">,</span> <span class="n">bucket_shift</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">bucket_bits</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">"""Golden semantics for the generic time-bucket key tile: rewrite each row's</span>
+<span class="w">    </span><span class="sd">"""Golden semantics for the generic time-bucket key core: rewrite each row's</span>
 <span class="sd">    partition key into a composite ``(partition, time-bucket)`` group key so a</span>
 <span class="sd">    downstream key-grouped aggregator produces fixed-width time-windowed groups</span>
 <span class="sd">    per partition. Window = ``2**bucket_shift``; key =</span>
@@ -3090,7 +3090,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="bar_aggregate_rows">
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.bar_aggregate_rows">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">bar_aggregate_rows</span><span class="p">(</span><span class="n">rows</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">BarAggregate</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Golden semantics for the fused bar-aggregation tile (ordered</span>
+<span class="w">    </span><span class="sd">"""Golden semantics for the fused bar-aggregation core (ordered</span>
 <span class="sd">    close-out): consecutive rows with equal keys form a bar; volume is</span>
 <span class="sd">    ``shares * SCALE + frac`` recombined on the host."""</span>
     <span class="n">results</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BarAggregate</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -3120,10 +3120,10 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="grouped_aggregate_rows">
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.grouped_aggregate_rows">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">grouped_aggregate_rows</span><span class="p">(</span><span class="n">rows</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">GroupAggregate</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Golden semantics for the ordered grouped-aggregation tile</span>
+<span class="w">    </span><span class="sd">"""Golden semantics for the ordered grouped-aggregation core</span>
 <span class="sd">    (close-out mode): consecutive rows with equal keys form a group; a group</span>
 <span class="sd">    closes when the key changes or input ends. A key that reappears later</span>
-<span class="sd">    opens a NEW group — partials are merged by the host, never the tile."""</span>
+<span class="sd">    opens a NEW group — partials are merged by the host, never the core."""</span>
     <span class="n">results</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">GroupAggregate</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">current</span><span class="p">:</span> <span class="n">GroupAggregate</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
@@ -3274,7 +3274,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="KeyedStateErrorCode">
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.KeyedStateErrorCode">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">KeyedStateErrorCode</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Status codes for the keyed state tile."""</span>
+<span class="w">    </span><span class="sd">"""Status codes for the keyed state core."""</span>
 
     <span class="n">OK</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">BAD_CAPACITY</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># declared capacity outside [1, KEYED_STATE_MAX_KEYS]</span>
@@ -3303,10 +3303,10 @@ window.runMermaid = runMermaid;</script>
     <span class="n">capacity</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">initial</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="n">KeyedStateErrorCode</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Golden semantics for the keyed state tile: a per-key accumulator updated</span>
+<span class="w">    </span><span class="sd">"""Golden semantics for the keyed state core: a per-key accumulator updated</span>
 <span class="sd">    once per row, emitting the POST-UPDATE state for every row.</span>
 
-<span class="sd">    This is the primitive the stateful family is built on. Unlike every tile</span>
+<span class="sd">    This is the primitive the stateful family is built on. Unlike every core</span>
 <span class="sd">    that precedes it, the output for a row depends on rows that came before it</span>
 <span class="sd">    with the SAME key — a loop-carried dependency per key, which is exactly the</span>
 <span class="sd">    shape a SIMD CPU cannot vectorize and a spatial datapath can hold on-chip.</span>
@@ -3322,7 +3322,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Post-update is what a running aggregate means, it is what the hardware can</span>
 <span class="sd">    produce without an extra pipeline stage holding the old value, and it makes</span>
 <span class="sd">    back-to-back same-key rows well defined: the second row observes the first</span>
-<span class="sd">    row's write. In hardware that is a read-modify-write hazard the tile must</span>
+<span class="sd">    row's write. In hardware that is a read-modify-write hazard the core must</span>
 <span class="sd">    FORWARD rather than stall, and this golden pins the answer it must forward</span>
 <span class="sd">    to.</span>
 
@@ -3357,7 +3357,7 @@ window.runMermaid = runMermaid;</script>
     <span class="k">for</span> <span class="n">raw_key</span><span class="p">,</span> <span class="n">raw_value</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
         <span class="c1"># Keys and values are int32 WIRES, not Python integers. -1 and</span>
         <span class="c1"># 0xFFFFFFFF are the same key on a 32-bit bus, and a state a 32-bit</span>
-        <span class="c1"># port cannot carry is not a state the tile can be in, so both are</span>
+        <span class="c1"># port cannot carry is not a state the core can be in, so both are</span>
         <span class="c1"># wrapped into the domain before anything else happens. Skipping this</span>
         <span class="c1"># made the golden unimplementable: it split one hardware key into two</span>
         <span class="c1"># and emitted 2**31 as a signed result.</span>
@@ -3388,7 +3388,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ScratchpadErrorCode">
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.ScratchpadErrorCode">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ScratchpadErrorCode</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Status codes for the scratchpad owned-arena tile."""</span>
+<span class="w">    </span><span class="sd">"""Status codes for the scratchpad owned-arena core."""</span>
 
     <span class="n">OK</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">BAD_GRANT</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># granted_words outside [1, SCRATCHPAD_MAX_WORDS]</span>
@@ -3403,7 +3403,7 @@ window.runMermaid = runMermaid;</script>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">granted_words</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="n">ScratchpadErrorCode</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Golden semantics for the scratchpad tile: the deliberately trivial</span>
+<span class="w">    </span><span class="sd">"""Golden semantics for the scratchpad core: the deliberately trivial</span>
 <span class="sd">    consumer of the OWNED storage class (STORAGE_AND_NOC.md). A private</span>
 <span class="sd">    word-addressed arena; each row is ``(write_enable, addr, value)`` and</span>
 <span class="sd">    emits ``(addr, post_op_value)`` — a write emits what it wrote, a read</span>
@@ -3438,7 +3438,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="SessionErrorCode">
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.SessionErrorCode">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SessionErrorCode</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Status codes for the session-gap tile."""</span>
+<span class="w">    </span><span class="sd">"""Status codes for the session-gap core."""</span>
 
     <span class="n">OK</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">BAD_CAPACITY</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># capacity outside [1, SESSION_GAP_MAX_KEYS]</span>
@@ -3456,7 +3456,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">gap</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">capacity</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="n">SessionErrorCode</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Golden semantics for the session-gap tile: the Nexmark-Q11 shape over</span>
+<span class="w">    </span><span class="sd">"""Golden semantics for the session-gap core: the Nexmark-Q11 shape over</span>
 <span class="sd">    bounded keyed state (STORAGE_AND_NOC.md). Rows are ``(key, time)`` in</span>
 <span class="sd">    arrival order; a session is a maximal per-key run of rows with no</span>
 <span class="sd">    inter-row gap exceeding ``gap``. Each closed session emits</span>
@@ -3522,13 +3522,13 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="HashGroupedErrorCode">
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.HashGroupedErrorCode">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">HashGroupedErrorCode</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Status codes for the hash-mode grouped field-sum aggregation tile.</span>
-<span class="sd">    The values ARE the tile's ``status_error_code`` wire encoding, so the</span>
+<span class="w">    </span><span class="sd">"""Status codes for the hash-mode grouped field-sum aggregation core.</span>
+<span class="sd">    The values ARE the core's ``status_error_code`` wire encoding, so the</span>
 <span class="sd">    golden and the HDL cannot drift apart silently."""</span>
 
     <span class="n">OK</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">BAD_CAPACITY</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># declared capacity outside [1, HASH_GROUPED_MAX_GROUPS]</span>
-    <span class="n">BAD_FIELD_MASK</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># a zero mask (an unconfigured tile) or one past the four fields</span>
+    <span class="n">BAD_FIELD_MASK</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># a zero mask (an unconfigured core) or one past the four fields</span>
     <span class="n">GROUP_CAPACITY_EXCEEDED</span> <span class="o">=</span> <span class="mi">3</span>  <span class="c1"># a new group key arrived with the table full</span>
     <span class="n">BAD_STREAM</span> <span class="o">=</span> <span class="mi">4</span>  <span class="c1"># hardware only: a torn row (input_last on a quad row's w0)</span></div>
 
@@ -3538,10 +3538,10 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../autoapi/dau_core/operators/index.html#dau_core.operators.HashGroupedAggregate">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">HashGroupedAggregate</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""One group from the hash-mode grouped field-sum aggregation tile:</span>
+<span class="w">    </span><span class="sd">"""One group from the hash-mode grouped field-sum aggregation core:</span>
 <span class="sd">    INT64 sums of the mask-selected fields (ascending field order) plus the</span>
 <span class="sd">    group's row count — the same record shape the ORDERED grouped</span>
-<span class="sd">    field-sum tile emits, so the host decode path is shared."""</span>
+<span class="sd">    field-sum core emits, so the host decode path is shared."""</span>
 
     <span class="n">key</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">field_mask</span><span class="p">:</span> <span class="nb">int</span>
@@ -3567,15 +3567,15 @@ window.runMermaid = runMermaid;</script>
     <span class="n">field_mask</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">capacity</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">HashGroupedAggregate</span><span class="p">],</span> <span class="n">HashGroupedErrorCode</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Golden semantics for the HASH-mode grouped field-sum aggregation tile:</span>
+<span class="w">    </span><span class="sd">"""Golden semantics for the HASH-mode grouped field-sum aggregation core:</span>
 <span class="sd">    one INT64 accumulator set per DISTINCT key in a bounded on-chip table,</span>
 <span class="sd">    drained key-ascending at close-out.</span>
 
 <span class="sd">    The difference from :func:`grouped_field_sum_rows` is the whole point of</span>
-<span class="sd">    the tile: the ordered tile groups CONSECUTIVE equal keys, so a key that</span>
+<span class="sd">    the core: the ordered core groups CONSECUTIVE equal keys, so a key that</span>
 <span class="sd">    reappears after another key opens a second partial group the host must</span>
 <span class="sd">    merge, and the staged table must be pre-sorted on the group key. This</span>
-<span class="sd">    tile holds a per-key accumulator, so **input order does not matter** and</span>
+<span class="sd">    core holds a per-key accumulator, so **input order does not matter** and</span>
 <span class="sd">    a key may reappear anywhere in the batch — one record per distinct key,</span>
 <span class="sd">    always. That removes the ``sorted_by_key`` staging precondition from</span>
 <span class="sd">    every grouped scan.</span>
@@ -3587,7 +3587,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    the result depend on the hash function — an implementation detail no</span>
 <span class="sd">    golden could pin and no host could rely on. Sorting the drain by signed</span>
 <span class="sd">    key makes the order implementation-independent and physically true (the</span>
-<span class="sd">    session-gap tile's min-extraction drain is the same decision).</span>
+<span class="sd">    session-gap core's min-extraction drain is the same decision).</span>
 
 <span class="sd">    **Overflow is an ERROR that invalidates the batch**, never an eviction.</span>
 <span class="sd">    ``capacity`` is a hardware fact (the table depth). When a row presents a</span>
@@ -3599,7 +3599,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    key range, so a caller that merged the partial with the re-run results</span>
 <span class="sd">    would DOUBLE-COUNT every key that had accumulated before the overflow.</span>
 <span class="sd">    Discarding the batch is also the platform's uniform error convention (an</span>
-<span class="sd">    error close-out invalidates the whole batch; the tile's group_count</span>
+<span class="sd">    error close-out invalidates the whole batch; the core's group_count</span>
 <span class="sd">    reads 0 and no success close-out is raised), which is what lets the</span>
 <span class="sd">    golden and the HDL agree by construction rather than by inspection.</span>
 <span class="sd">    Recovery is exact because INT64 sums and counts are additive per key —</span>
@@ -3607,7 +3607,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    ``field_mask`` bit i selects field i of the quad row ``(key, value,</span>
 <span class="sd">    aux0, aux1)``; selecting field 0 sums the key itself, which is legal and</span>
-<span class="sd">    equals ``key * count`` (the ordered tile's convention).</span>
+<span class="sd">    equals ``key * count`` (the ordered core's convention).</span>
 
 <span class="sd">    Returns ``(groups_key_ascending, error_code)``.</span>
 <span class="sd">    """</span>

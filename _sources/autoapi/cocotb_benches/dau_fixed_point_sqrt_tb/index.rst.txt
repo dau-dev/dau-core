@@ -5,10 +5,10 @@ cocotb_benches.dau_fixed_point_sqrt_tb
 
 .. autoapi-nested-parse::
 
-   The fixed-point sqrt tile against its golden, with NO tolerance.
+   The fixed-point sqrt core against its golden, with NO tolerance.
 
    The root is exact by construction -- `isqrt(X << F)` -- so every comparison
-   here is equality against `sqrt_row_fields`. If this tile ever grows a
+   here is equality against `sqrt_row_fields`. If this core ever grows a
    polynomial approximation, these tests are what will refuse it, and that is
    deliberate: an approximate root would need an error bound nobody in the
    stack currently has a way to state.
@@ -117,7 +117,7 @@ Module Contents
    :async:
 
 
-   The whole reason the tile has its own error code: sqrt of a negative
+   The whole reason the core has its own error code: sqrt of a negative
    has no answer, and emitting one anyway would be a wrong number that
    looks right.
 
@@ -132,7 +132,7 @@ Module Contents
    negative row that entered would be dropped before it retired and the
    guard would look redundant. Hold status_ready low for longer than the
    pipeline is deep and the row reaches the output instead -- which is
-   exactly the case that must not emit a root the tile does not have.
+   exactly the case that must not emit a root the core does not have.
 
 
 .. py:function:: dst_equal_to_src_updates_in_place(dut)

@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -915,7 +915,7 @@ wider records (the as-of join’s three-word {tag/key, time, payload}) must be
 replicable across lanes WITHOUT reshaping the stream, so the router forwards
 whole records keyed on word 0’s low half. Golden-equal to
 <code class="docutils literal notranslate"><span class="pre">mask_dispatch_records</span></code>; ordering within a lane is what makes a
-sequential per-key tile correct behind the router.</p>
+sequential per-key core correct behind the router.</p>
 <section id="attributes">
 <h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h2>
 <table class="autosummary longtable docutils align-default">
@@ -952,7 +952,7 @@ sequential per-key tile correct behind the router.</p>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#cocotb_benches.dau_key_mask_dispatcher_records_tb.per_key_order_is_preserved_within_a_lane" title="cocotb_benches.dau_key_mask_dispatcher_records_tb.per_key_order_is_preserved_within_a_lane"><code class="xref py py-obj docutils literal notranslate"><span class="pre">per_key_order_is_preserved_within_a_lane</span></code></a>(dut)</p></td>
-<td><p>A sequential per-key tile (an as-of join holding one quote per</p></td>
+<td><p>A sequential per-key core (an as-of join holding one quote per</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#cocotb_benches.dau_key_mask_dispatcher_records_tb.a_lane_receiving_nothing_still_closes" title="cocotb_benches.dau_key_mask_dispatcher_records_tb.a_lane_receiving_nothing_still_closes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">a_lane_receiving_nothing_still_closes</span></code></a>(dut)</p></td>
 <td><p></p></td>
@@ -1012,7 +1012,7 @@ sequential per-key tile correct behind the router.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cocotb_benches.dau_key_mask_dispatcher_records_tb.per_key_order_is_preserved_within_a_lane">
 <em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cocotb_benches.dau_key_mask_dispatcher_records_tb.</span></span><span class="sig-name descname"><span class="pre">per_key_order_is_preserved_within_a_lane</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dut</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cocotb_benches.dau_key_mask_dispatcher_records_tb.per_key_order_is_preserved_within_a_lane" title="Link to this definition">¶</a></dt>
-<dd><p>A sequential per-key tile (an as-of join holding one quote per
+<dd><p>A sequential per-key core (an as-of join holding one quote per
 symbol) is only correct behind this router if a key’s records reach
 its lane in arrival order.</p>
 </dd></dl>

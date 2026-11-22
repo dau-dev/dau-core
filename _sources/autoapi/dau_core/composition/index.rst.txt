@@ -9,13 +9,13 @@ dau_core.composition
 
    A scan composition is the one-scan-N-lanes shape proven by the broadcast
    NoC shell: an AXI burst reader fans a row stream to N lanes, each an
-   optional partition filter feeding an operator tile and a record writer
+   optional partition filter feeding an operator core and a record writer
    with its own output region. The spec names registry cores and their
    config-port bindings; a generator walks it to emit the shell top, and
    ``estimated_resources`` sums the registry's measured envelopes — the
    planner-facing cost of a design before it is built.
 
-   N=1 with no filter degenerates to the single-tile DDR scan.
+   N=1 with no filter degenerates to the single-core DDR scan.
 
 
 
@@ -42,7 +42,7 @@ Classes
 
 .. autoapisummary::
 
-   dau_core.composition.TileSpec
+   dau_core.composition.CoreSpec
    dau_core.composition.LaneSpec
    dau_core.composition.ScanCompositionSpec
    dau_core.composition.StageRate
@@ -56,7 +56,7 @@ Functions
 
    dau_core.composition._stream_job_shell
    dau_core.composition._stream_job_cores
-   dau_core.composition._validate_tile_params
+   dau_core.composition._validate_core_params
    dau_core.composition._contract_param
    dau_core.composition.stream_shape_mismatches
    dau_core.composition.throughput_rows_per_cycle
@@ -96,23 +96,23 @@ Module Contents
    Initialize self.  See help(type(self)) for accurate signature.
 
 
-.. py:function:: _validate_tile_params(tile: TileSpec, role: str) -> None
+.. py:function:: _validate_core_params(core_spec: CoreSpec, role: str) -> None
 
-   Every module-parameter override on a tile must name a parameter the
+   Every module-parameter override on a core must name a parameter the
    core declares as overridable (``CoreDefinition.parameters``) and carry a
    positive integer value (SV sizes are positive; an element type has already
    been resolved to its encoding by then). An unknown name is a typo or a
    param the core does not expose — rejected up front.
 
 
-.. py:function:: _contract_param(tile: TileSpec, name: str, role: str) -> int
+.. py:function:: _contract_param(core_spec: CoreSpec, name: str, role: str) -> int
 
-   A parameter the composition reads off a tile: its override, else the
+   A parameter the composition reads off a core: its override, else the
    default the core declares. A core whose role requires ``name`` but which
    does not declare it raises ``CompositionError``.
 
 
-.. py:class:: TileSpec(/, **data: Any)
+.. py:class:: CoreSpec(/, **data: Any)
 
    Bases: :py:obj:`dau_core.models.CheckedModel`
 
@@ -172,9 +172,9 @@ Module Contents
 
    One lane of the scan: an optional row-atomic partition filter, an
    optional ordered ``chain`` of mid-lane operator stages
-   (filter -> map -> ...), and the terminal operator tile. Chain stages
+   (filter -> map -> ...), and the terminal operator core. Chain stages
    speak the stream+status contract but need no status counter; the
-   terminal tile's count port backs the lane register block.
+   terminal core's count port backs the lane register block.
 
    Create a new model by parsing and validating input data from keyword arguments.
 
@@ -184,18 +184,18 @@ Module Contents
    `self` is explicitly positional-only to allow `self` as a field name.
 
 
-   .. py:attribute:: tile
-      :type:  TileSpec
+   .. py:attribute:: sink
+      :type:  CoreSpec
 
 
    .. py:attribute:: partition
-      :type:  TileSpec | None
+      :type:  CoreSpec | None
       :value: None
 
 
 
    .. py:attribute:: chain
-      :type:  tuple[TileSpec, ...]
+      :type:  tuple[CoreSpec, ...]
       :value: ()
 
 
@@ -259,19 +259,19 @@ Module Contents
 
 
    .. py:attribute:: partitioner
-      :type:  TileSpec | None
+      :type:  CoreSpec | None
       :value: None
 
 
 
    .. py:attribute:: front_unpack
-      :type:  TileSpec | None
+      :type:  CoreSpec | None
       :value: None
 
 
 
    .. py:attribute:: front_gearbox
-      :type:  TileSpec | None
+      :type:  CoreSpec | None
       :value: None
 
 
@@ -303,16 +303,16 @@ Module Contents
 
    .. py:method:: _validate_load_phase_shape() -> None
 
-      The two-phase load shape (v1): a tile binding ``cfg_load`` to the
+      The two-phase load shape (v1): a core binding ``cfg_load`` to the
       reserved ``load_phase`` symbol is driven by the shell's LOAD_PHASE
       register, making the composition two-phase (a LOAD job streams the
-      tile's build image; a PROBE job streams rows). The LOAD image must
-      reach every load tile unmolested, so the shape is constrained: every
-      lane's ``chain[0]`` is the load tile (uniformly — a loadless lane
+      core's build image; a PROBE job streams rows). The LOAD image must
+      reach every load core unmolested, so the shape is constrained: every
+      lane's ``chain[0]`` is the load core (uniformly — a loadless lane
       would misread the image as rows), no partition filters, no shared
       partitioner (the broadcast delivers the image to every lane), no
       front unpacker (it would re-slice image words), and — for a BITMAP_64
-      load tile — ``KEY_SPACE`` a multiple of 128 so the
+      load core — ``KEY_SPACE`` a multiple of 128 so the
       ``KEY_SPACE/64``-word image lands on the 16-byte input length grid
       (QUAD_ROWS images are 16-byte rows, always on the grid).
 
@@ -376,7 +376,7 @@ Module Contents
      lanes, so lane rates SUM; a broadcast shows every row to every lane,
      so the SLOWEST lane is the system rate (no summing). A lane's rate
      is the minimum declared ingest over its partition, chain, and
-     terminal tile.
+     terminal core.
 
    DISTRIBUTION ASSUMPTION (explicit, not fine print): the partitioned
    sum assumes rows spread across lanes per the partitioner's routing —
@@ -467,7 +467,7 @@ Module Contents
 
 
 .. py:data:: SPEC_CANONICAL_VERSION
-   :value: '7'
+   :value: '8'
 
 
 .. py:function:: canonical_spec_json(spec: ScanCompositionSpec) -> str
@@ -533,7 +533,7 @@ Module Contents
 
    Ask this BEFORE reading the text recorded beside it. The canonical form
    is written against the registry, so a text from an older version can
-   name a tile this palette no longer carries, and
+   name a core this palette no longer carries, and
    :func:`spec_from_canonical` then raises ``UnknownCoreError`` — an error
    that names the registry, which is not the thing at fault. The version is
    the only place a reader can learn that the text predates the palette it

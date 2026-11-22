@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -849,7 +849,7 @@
     <a href="#module-contents">Module Contents</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_core_contract.test_every_operator_conforms_to_the_stream_tile_contract">test_every_operator_conforms_to_the_stream_tile_contract()</a>
+    <a href="#test_core_contract.test_every_operator_conforms_to_the_stream_core_contract">test_every_operator_conforms_to_the_stream_core_contract()</a>
   </li>
 </ul>
 </div>
@@ -873,7 +873,7 @@
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_core_contract.test_every_operator_conforms_to_the_stream_tile_contract" title="test_core_contract.test_every_operator_conforms_to_the_stream_tile_contract"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_every_operator_conforms_to_the_stream_tile_contract</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_core_contract.test_every_operator_conforms_to_the_stream_core_contract" title="test_core_contract.test_every_operator_conforms_to_the_stream_core_contract"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_every_operator_conforms_to_the_stream_core_contract</span></code></a>() → None</p></td>
 <td><p>Slang-parsed conformance: each row-stream operator's real port</p></td>
 </tr>
 </tbody>
@@ -882,8 +882,8 @@
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
 <dl class="py function">
-<dt class="sig sig-object py" id="test_core_contract.test_every_operator_conforms_to_the_stream_tile_contract">
-<span class="sig-prename descclassname"><span class="pre">test_core_contract.</span></span><span class="sig-name descname"><span class="pre">test_every_operator_conforms_to_the_stream_tile_contract</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_core_contract.test_every_operator_conforms_to_the_stream_tile_contract" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="test_core_contract.test_every_operator_conforms_to_the_stream_core_contract">
+<span class="sig-prename descclassname"><span class="pre">test_core_contract.</span></span><span class="sig-name descname"><span class="pre">test_every_operator_conforms_to_the_stream_core_contract</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_core_contract.test_every_operator_conforms_to_the_stream_core_contract" title="Link to this definition">¶</a></dt>
 <dd><p>Slang-parsed conformance: each row-stream operator’s real port
 interface matches the stream+status contract its registry entry promises
 (drift fails here, not at Vivado elaboration).</p>
@@ -932,7 +932,7 @@ interface matches the stream+status contract its registry entry promises
     <a href="#module-contents">Module Contents</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_core_contract.test_every_operator_conforms_to_the_stream_tile_contract">test_every_operator_conforms_to_the_stream_tile_contract()</a>
+    <a href="#test_core_contract.test_every_operator_conforms_to_the_stream_core_contract">test_every_operator_conforms_to_the_stream_core_contract()</a>
   </li>
 </ul>
 

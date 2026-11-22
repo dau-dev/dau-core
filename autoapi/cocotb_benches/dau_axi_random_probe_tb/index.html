@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -900,7 +900,7 @@ order they matter:</p>
 fast run and a wrong answer, so the checksum must be non-zero and the
 response must never be an error.</p></li>
 <li><p><strong>the depth is really reached.</strong> <cite>peak_outstanding</cite> says how many reads
-were genuinely in flight. A tile that claims MAX_OUTSTANDING=16 and only
+were genuinely in flight. A core that claims MAX_OUTSTANDING=16 and only
 ever holds one would measure the memory correctly and the design wrongly.</p></li>
 <li><p><strong>cycles per probe FALL as depth rises.</strong> This is the whole argument: at
 depth 1 the rate is 1/latency, which is what <cite>dau_axi_burst_reader</cite> gets
@@ -934,7 +934,7 @@ SHAPE of the curve.</p>
 <td><p>A lost transaction would look like a fast run, so prove the data came</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#cocotb_benches.dau_axi_random_probe_tb.the_configured_depth_is_actually_reached" title="cocotb_benches.dau_axi_random_probe_tb.the_configured_depth_is_actually_reached"><code class="xref py py-obj docutils literal notranslate"><span class="pre">the_configured_depth_is_actually_reached</span></code></a>(dut)</p></td>
-<td><p>A tile that claims a depth and holds one read would measure the</p></td>
+<td><p>A core that claims a depth and holds one read would measure the</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#cocotb_benches.dau_axi_random_probe_tb.deeper_pipelining_costs_fewer_cycles_per_probe" title="cocotb_benches.dau_axi_random_probe_tb.deeper_pipelining_costs_fewer_cycles_per_probe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">deeper_pipelining_costs_fewer_cycles_per_probe</span></code></a>(dut)</p></td>
 <td><p>The claim the DRAM-backed join rests on.</p></td>
@@ -970,7 +970,7 @@ back rather than the addresses merely being accepted.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cocotb_benches.dau_axi_random_probe_tb.the_configured_depth_is_actually_reached">
 <em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cocotb_benches.dau_axi_random_probe_tb.</span></span><span class="sig-name descname"><span class="pre">the_configured_depth_is_actually_reached</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dut</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cocotb_benches.dau_axi_random_probe_tb.the_configured_depth_is_actually_reached" title="Link to this definition">¶</a></dt>
-<dd><p>A tile that claims a depth and holds one read would measure the
+<dd><p>A core that claims a depth and holds one read would measure the
 memory correctly and the design wrongly.</p>
 </dd></dl>
 

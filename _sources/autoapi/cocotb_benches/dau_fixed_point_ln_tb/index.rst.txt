@@ -5,7 +5,7 @@ cocotb_benches.dau_fixed_point_ln_tb
 
 .. autoapi-nested-parse::
 
-   The rendered ln tile against the model it was rendered from.
+   The rendered ln core against the model it was rendered from.
 
    Zero tolerance: the HDL mirrors LnDatapath.evaluate step for step, so any
    difference is a defect in one of them. Deviation from correctly rounded ln is
@@ -108,7 +108,7 @@ Module Contents
 
 
    ln of zero or a negative has no value. The offending row must not come
-   out with a substituted one, and the tile must recover for the next batch.
+   out with a substituted one, and the core must recover for the next batch.
 
    status_ready is held low for longer than the pipeline is deep on purpose:
    when the close-out is taken promptly it flushes the pipeline anyway, so

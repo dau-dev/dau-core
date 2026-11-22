@@ -14,7 +14,7 @@ dau_core.fixed_point
    * :class:`ExpDatapath` is an ALGORITHM: a specific range reduction, table and
      polynomial at a specific internal precision. The HDL mirrors it exactly, so
      the cocotb benches compare against it with zero tolerance, like every other
-     tile in the package.
+     core in the package.
 
    An operating point that deviates from the reference does so by a MEASURED
    amount, swept exhaustively over every representable input and recorded in the
@@ -90,7 +90,7 @@ Module Contents
    The mathematical contract. Computed in 80 digits, so the half-way cases
    that double precision cannot decide are decided here.
 
-   Raises when the result does not fit int32; the tile reports ``RANGE``.
+   Raises when the result does not fit int32; the core reports ``RANGE``.
 
 
 .. py:function:: exp_domain(*, fractional_bits: int = EXP_FRACTIONAL_BITS) -> tuple[int, int]
@@ -99,7 +99,7 @@ Module Contents
 
    Below the low bound the correctly rounded answer is 0; above the high
    bound it does not fit int32. Small enough to sweep exhaustively, which is
-   what makes a correctness claim about this tile a proof rather than a
+   what makes a correctness claim about this core a proof rather than a
    sample.
 
 
@@ -236,8 +236,8 @@ Module Contents
    digits so the half-way cases double precision cannot decide are decided
    here.
 
-   Raises on a non-positive input; the tile reports ``DOMAIN``, the same
-   position the sqrt tile takes -- ln of zero or a negative has no value and
+   Raises on a non-positive input; the core reports ``DOMAIN``, the same
+   position the sqrt core takes -- ln of zero or a negative has no value and
    a substituted one would be a wrong number that looks right.
 
 
@@ -380,7 +380,7 @@ Module Contents
    The inputs where the CDF is neither 0 nor 1 to the last bit.
 
    Small enough to sweep EXHAUSTIVELY, which is what makes a correctness
-   claim about this tile a proof rather than a sample.
+   claim about this core a proof rather than a sample.
 
 
 .. py:class:: NormalCdfDatapath(/, **data: Any)
@@ -398,7 +398,7 @@ Module Contents
    CDF has no useful global series.
 
    Saturation is exact rather than a clamp: beyond the domain the correctly
-   rounded answer IS 0 or 1, so this tile is TOTAL and needs no error path
+   rounded answer IS 0 or 1, so this core is TOTAL and needs no error path
    -- the one transcendental here that does not.
 
    Create a new model by parsing and validating input data from keyword arguments.

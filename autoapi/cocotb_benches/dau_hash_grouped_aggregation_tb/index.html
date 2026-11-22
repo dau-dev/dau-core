@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -948,10 +948,10 @@
       <div class="fd-prose">
   <section id="module-cocotb_benches.dau_hash_grouped_aggregation_tb">
 <span id="cocotb-benches-dau-hash-grouped-aggregation-tb"></span><h1>cocotb_benches.dau_hash_grouped_aggregation_tb<a class="headerlink" href="#module-cocotb_benches.dau_hash_grouped_aggregation_tb" title="Link to this heading">¶</a></h1>
-<p>Hash-mode grouped field-sum aggregation tile against its golden: one
+<p>Hash-mode grouped field-sum aggregation core against its golden: one
 record per DISTINCT key with input in any order, a signed-key-ascending
 drain, overflow as a defined close-out, and fresh state per batch — plus
-the randomized-delay patience harness that binds every stateful tile.</p>
+the randomized-delay patience harness that binds every stateful core.</p>
 <section id="attributes">
 <h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h2>
 <table class="autosummary longtable docutils align-default">
@@ -982,7 +982,7 @@ the randomized-delay patience harness that binds every stateful tile.</p>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#cocotb_benches.dau_hash_grouped_aggregation_tb.hash_grouped_is_permutation_invariant" title="cocotb_benches.dau_hash_grouped_aggregation_tb.hash_grouped_is_permutation_invariant"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hash_grouped_is_permutation_invariant</span></code></a>(dut)</p></td>
-<td><p>The property the ordered tile cannot have: the answer does not</p></td>
+<td><p>The property the ordered core cannot have: the answer does not</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#cocotb_benches.dau_hash_grouped_aggregation_tb.hash_grouped_drain_is_signed_key_ascending" title="cocotb_benches.dau_hash_grouped_aggregation_tb.hash_grouped_drain_is_signed_key_ascending"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hash_grouped_drain_is_signed_key_ascending</span></code></a>(dut)</p></td>
 <td><p></p></td>
@@ -1080,7 +1080,7 @@ to fit would weaken it at the default capacity too.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cocotb_benches.dau_hash_grouped_aggregation_tb.hash_grouped_is_permutation_invariant">
 <em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cocotb_benches.dau_hash_grouped_aggregation_tb.</span></span><span class="sig-name descname"><span class="pre">hash_grouped_is_permutation_invariant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dut</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cocotb_benches.dau_hash_grouped_aggregation_tb.hash_grouped_is_permutation_invariant" title="Link to this definition">¶</a></dt>
-<dd><p>The property the ordered tile cannot have: the answer does not
+<dd><p>The property the ordered core cannot have: the answer does not
 depend on arrival order.</p>
 </dd></dl>
 
@@ -1122,7 +1122,7 @@ batch starts from clean state.</p>
 <em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cocotb_benches.dau_hash_grouped_aggregation_tb.</span></span><span class="sig-name descname"><span class="pre">hash_grouped_reports_group_count_and_one_close_out</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dut</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cocotb_benches.dau_hash_grouped_aggregation_tb.hash_grouped_reports_group_count_and_one_close_out" title="Link to this definition">¶</a></dt>
 <dd><p>group_count reads the batch’s emitted groups, and exactly one
 close-out is raised — checked by stalling status_ready first, so a
-tile that dropped or repeated it would fail here.</p>
+core that dropped or repeated it would fail here.</p>
 </dd></dl>
 
 <dl class="py function">

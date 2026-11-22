@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -882,7 +882,7 @@
     <a href="#test_cores.test_every_selectable_operator_declares_its_ingest_rate">test_every_selectable_operator_declares_its_ingest_rate()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_cores.test_wide_combinational_tiles_declare_pipeline_depth_without_changing_ingest">test_wide_combinational_tiles_declare_pipeline_depth_without_changing_ingest()</a>
+    <a href="#test_cores.test_wide_combinational_cores_declare_pipeline_depth_without_changing_ingest">test_wide_combinational_cores_declare_pipeline_depth_without_changing_ingest()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_cores.test_every_selectable_operator_declares_its_contract_kind">test_every_selectable_operator_declares_its_contract_kind()</a>
@@ -906,10 +906,10 @@
     <a href="#test_cores.test_synthesizable_cores_carry_measured_envelopes">test_synthesizable_cores_carry_measured_envelopes()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_cores.WIDTH_NAMED_TILES">WIDTH_NAMED_TILES</a>
+    <a href="#test_cores.WIDTH_NAMED_CORES">WIDTH_NAMED_CORES</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_cores.test_the_width_named_tiles_are_exactly_the_declared_ones">test_the_width_named_tiles_are_exactly_the_declared_ones()</a>
+    <a href="#test_cores.test_the_width_named_cores_are_exactly_the_declared_ones">test_the_width_named_cores_are_exactly_the_declared_ones()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_cores.CANONICAL_PALETTE_VERSION">CANONICAL_PALETTE_VERSION</a>
@@ -996,7 +996,7 @@
     <a href="#test_cores.test_a_core_resolves_hdl_from_the_package_that_declares_it">test_a_core_resolves_hdl_from_the_package_that_declares_it()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_cores.test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards">test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards()</a>
+    <a href="#test_cores.test_a_well_formed_vendor_core_does_not_trip_our_palette_guards">test_a_well_formed_vendor_core_does_not_trip_our_palette_guards()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_cores.test_a_core_naming_an_uninstalled_hdl_package_refuses_clearly">test_a_core_naming_an_uninstalled_hdl_package_refuses_clearly()</a>
@@ -1035,7 +1035,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#test_cores.HDL_SUFFIXES" title="test_cores.HDL_SUFFIXES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HDL_SUFFIXES</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.WIDTH_NAMED_TILES" title="test_cores.WIDTH_NAMED_TILES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WIDTH_NAMED_TILES</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.WIDTH_NAMED_CORES" title="test_cores.WIDTH_NAMED_CORES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WIDTH_NAMED_CORES</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#test_cores.CANONICAL_PALETTE_VERSION" title="test_cores.CANONICAL_PALETTE_VERSION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CANONICAL_PALETTE_VERSION</span></code></a></p></td>
@@ -1075,7 +1075,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#test_cores.test_every_selectable_operator_declares_its_ingest_rate" title="test_cores.test_every_selectable_operator_declares_its_ingest_rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_every_selectable_operator_declares_its_ingest_rate</span></code></a>() → None</p></td>
 <td><p>Ingest rate is core PUBLIC INTERFACE (the scheduler rate-matches</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.test_wide_combinational_tiles_declare_pipeline_depth_without_changing_ingest" title="test_cores.test_wide_combinational_tiles_declare_pipeline_depth_without_changing_ingest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_wide_combinational_tiles_declare_pipeline_depth_without_changing_ingest</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.test_wide_combinational_cores_declare_pipeline_depth_without_changing_ingest" title="test_cores.test_wide_combinational_cores_declare_pipeline_depth_without_changing_ingest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_wide_combinational_cores_declare_pipeline_depth_without_changing_ingest</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#test_cores.test_every_selectable_operator_declares_its_contract_kind" title="test_cores.test_every_selectable_operator_declares_its_contract_kind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_every_selectable_operator_declares_its_contract_kind</span></code></a>() → None</p></td>
@@ -1099,7 +1099,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#test_cores.test_synthesizable_cores_carry_measured_envelopes" title="test_cores.test_synthesizable_cores_carry_measured_envelopes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_synthesizable_cores_carry_measured_envelopes</span></code></a>() → None</p></td>
 <td><p>Recorded operator/stream-infra envelopes are measured OOC values.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.test_the_width_named_tiles_are_exactly_the_declared_ones" title="test_cores.test_the_width_named_tiles_are_exactly_the_declared_ones"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_width_named_tiles_are_exactly_the_declared_ones</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.test_the_width_named_cores_are_exactly_the_declared_ones" title="test_cores.test_the_width_named_cores_are_exactly_the_declared_ones"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_width_named_cores_are_exactly_the_declared_ones</span></code></a>() → None</p></td>
 <td><p>The naming rule is that a width is a parameter, not an identity; this</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#test_cores.test_the_canonical_palette_is_exactly_the_registered_names" title="test_cores.test_the_canonical_palette_is_exactly_the_registered_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_canonical_palette_is_exactly_the_registered_names</span></code></a>() → None</p></td>
@@ -1178,10 +1178,10 @@
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.test_a_core_resolves_hdl_from_the_package_that_declares_it" title="test_cores.test_a_core_resolves_hdl_from_the_package_that_declares_it"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_core_resolves_hdl_from_the_package_that_declares_it</span></code></a>(...) → None</p></td>
-<td><p>A tile contributed by another distribution finds its own HDL.</p></td>
+<td><p>A core contributed by another distribution finds its own HDL.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_cores.test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards" title="test_cores.test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards</span></code></a>(...) → None</p></td>
-<td><p>Installing a third-party tile must not fail THIS suite.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_cores.test_a_well_formed_vendor_core_does_not_trip_our_palette_guards" title="test_cores.test_a_well_formed_vendor_core_does_not_trip_our_palette_guards"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_well_formed_vendor_core_does_not_trip_our_palette_guards</span></code></a>(...) → None</p></td>
+<td><p>Installing a third-party core must not fail THIS suite.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_cores.test_a_core_naming_an_uninstalled_hdl_package_refuses_clearly" title="test_cores.test_a_core_naming_an_uninstalled_hdl_package_refuses_clearly"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_core_naming_an_uninstalled_hdl_package_refuses_clearly</span></code></a>() → None</p></td>
 <td><p>The failure names the missing distribution rather than surfacing an</p></td>
@@ -1236,7 +1236,7 @@ committed rendered output, and whichever of the two is stale will be the
 one that gets synthesized.</p>
 <p>The reach is the whole package, not one directory listing. Listing
 <code class="docutils literal notranslate"><span class="pre">hdl/</span></code> alone left the render root – a SUBDIRECTORY of it – outside
-this guard entirely, and three rendered tiles sat committed there until a
+this guard entirely, and three rendered cores sat committed there until a
 rename made their filenames disagree with their contents. So the walk
 descends, and the committed set comes from git: a rendered file being
 present in the render root is the normal working state (the suite renders
@@ -1274,8 +1274,8 @@ lane rate; only silicon-proven faster cores declare 1/1.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="test_cores.test_wide_combinational_tiles_declare_pipeline_depth_without_changing_ingest">
-<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_wide_combinational_tiles_declare_pipeline_depth_without_changing_ingest</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_wide_combinational_tiles_declare_pipeline_depth_without_changing_ingest" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="test_cores.test_wide_combinational_cores_declare_pipeline_depth_without_changing_ingest">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_wide_combinational_cores_declare_pipeline_depth_without_changing_ingest</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_wide_combinational_cores_declare_pipeline_depth_without_changing_ingest" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -1317,28 +1317,28 @@ sets.</p>
 <dd><p>Recorded operator/stream-infra envelopes are measured OOC values.</p>
 <p>EMPTY as of 2026-08-16: the stride distributor was the last operator
 carrying no envelope at all, and no design containing it could be
-priced. Asserted exactly, so a tile shipped without a measurement fails
+priced. Asserted exactly, so a core shipped without a measurement fails
 here rather than surfacing as an unpriceable design later.</p>
 </dd></dl>
 
 <dl class="py data">
-<dt class="sig sig-object py" id="test_cores.WIDTH_NAMED_TILES">
-<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">WIDTH_NAMED_TILES</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">frozenset</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#test_cores.WIDTH_NAMED_TILES" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="test_cores.WIDTH_NAMED_CORES">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">WIDTH_NAMED_CORES</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">frozenset</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#test_cores.WIDTH_NAMED_CORES" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="test_cores.test_the_width_named_tiles_are_exactly_the_declared_ones">
-<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_the_width_named_tiles_are_exactly_the_declared_ones</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_the_width_named_tiles_are_exactly_the_declared_ones" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="test_cores.test_the_width_named_cores_are_exactly_the_declared_ones">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_the_width_named_cores_are_exactly_the_declared_ones</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_the_width_named_cores_are_exactly_the_declared_ones" title="Link to this definition">¶</a></dt>
 <dd><p>The naming rule is that a width is a parameter, not an identity; this
 pins how much of the palette still contradicts it.</p>
 <p>Scoped to <cite>own_cores()</cite> for the same reason every exact-set guard here
-is: an installed third-party tile with a width in its name is that
+is: an installed third-party core with a width in its name is that
 vendor’s business, not drift in our palette.</p>
 </dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="test_cores.CANONICAL_PALETTE_VERSION">
-<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">CANONICAL_PALETTE_VERSION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'7'</span></em><a class="headerlink" href="#test_cores.CANONICAL_PALETTE_VERSION" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">CANONICAL_PALETTE_VERSION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'8'</span></em><a class="headerlink" href="#test_cores.CANONICAL_PALETTE_VERSION" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py data">
@@ -1352,7 +1352,7 @@ vendor’s business, not drift in our palette.</p>
 <dd><p>THE GUARD a rename has to pass. A name that leaves this set takes
 every recorded canonical spec that spells it with it.</p>
 <p>Scoped to <cite>own_cores()</cite> like every exact set here: a vendor’s installed
-tile is not in our canonical alphabet’s history and cannot depart from
+core is not in our canonical alphabet’s history and cannot depart from
 it.</p>
 <p>There are exactly two honest ways past a DEPARTURE failure:</p>
 <ol class="arabic simple">
@@ -1443,7 +1443,7 @@ visible and never clobbered by a default reload.</p>
 <span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_silent_on_success_operator_set_is_pinned</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_silent_on_success_operator_set_is_pinned" title="Link to this definition">¶</a></dt>
 <dd><p>The status contract’s two classes are registry truth: silent-on-success
 cores (chain-stage/partition legal) versus per-batch success close-out
-cores (terminal-tile legal). Changing a core’s class changes lane status
+cores (terminal-core legal). Changing a core’s class changes lane status
 semantics — confirm intent here.</p>
 </dd></dl>
 
@@ -1531,31 +1531,31 @@ before types existed.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="test_cores.test_a_core_resolves_hdl_from_the_package_that_declares_it">
 <span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_a_core_resolves_hdl_from_the_package_that_declares_it</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monkeypatch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_a_core_resolves_hdl_from_the_package_that_declares_it" title="Link to this definition">¶</a></dt>
-<dd><p>A tile contributed by another distribution finds its own HDL.</p>
+<dd><p>A core contributed by another distribution finds its own HDL.</p>
 <p>The registry is a hydra search path, so any package joining it through
 the <cite>hydra.lernaplugins</cite> entry point can contribute cores. Their HDL
 used to be resolved under dau_core.hdl regardless, so a third-party
-tile could be registered from anywhere but had to vendor its Verilog
+core could be registered from anywhere but had to vendor its Verilog
 into this package. <cite>source_package</cite> is the seam.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="test_cores.test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards">
-<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">monkeypatch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards" title="Link to this definition">¶</a></dt>
-<dd><p>Installing a third-party tile must not fail THIS suite.</p>
+<dt class="sig sig-object py" id="test_cores.test_a_well_formed_vendor_core_does_not_trip_our_palette_guards">
+<span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_a_well_formed_vendor_core_does_not_trip_our_palette_guards</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">monkeypatch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_a_well_formed_vendor_core_does_not_trip_our_palette_guards" title="Link to this definition">¶</a></dt>
+<dd><p>Installing a third-party core must not fail THIS suite.</p>
 <p>Four guards here assert an exact set over the whole registry – the HDL
 directory listing, the descriptor-tagged operators, the envelope-free
-tiles, and the scalar-envelope holdouts. Each is a statement about
-dau-core’s own palette, and each read <cite>loaded_cores()</cite>, so a vendor tile
+cores, and the scalar-envelope holdouts. Each is a statement about
+dau-core’s own palette, and each read <cite>loaded_cores()</cite>, so a vendor core
 registered through the entry point showed up as drift in all four. A
 contributor’s first experience of the platform was our test suite
-failing on their correct tile.</p>
+failing on their correct core.</p>
 <p>The line drawn is between those four and the universal-property guards
 (every operator has a golden, a contract kind, record words, a measured
-envelope). Those are contract requirements a well-formed tile satisfies,
-so they stay registry-wide on purpose – which is why the tile below is
+envelope). Those are contract requirements a well-formed core satisfies,
+so they stay registry-wide on purpose – which is why the core below is
 built well-formed rather than minimal. It is the exact-set guards that
-fail even a perfect vendor tile, and only those are scoped.</p>
+fail even a perfect vendor core, and only those are scoped.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1581,7 +1581,7 @@ point” guarantee intact while tolerating representation.</p>
 <dt class="sig sig-object py" id="test_cores.test_an_unresolvable_hdl_source_says_so">
 <span class="sig-prename descclassname"><span class="pre">test_cores.</span></span><span class="sig-name descname"><span class="pre">test_an_unresolvable_hdl_source_says_so</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_cores.test_an_unresolvable_hdl_source_says_so" title="Link to this definition">¶</a></dt>
 <dd><p>A declared source that does not resolve is a DECLARATION error.</p>
-<p>An out-of-tree tile whose HDL directory is not an importable package
+<p>An out-of-tree core whose HDL directory is not an importable package
 resolves to a MultiplexedPath that prints the right path and does not
 exist, so the first symptom used to be a synthesis run against a missing
 file. The requirement – an __init__.py beside the .sv files, so importlib
@@ -1665,7 +1665,7 @@ be discovered.</p>
     <a href="#test_cores.test_every_selectable_operator_declares_its_ingest_rate">test_every_selectable_operator_declares_its_ingest_rate()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_cores.test_wide_combinational_tiles_declare_pipeline_depth_without_changing_ingest">test_wide_combinational_tiles_declare_pipeline_depth_without_changing_ingest()</a>
+    <a href="#test_cores.test_wide_combinational_cores_declare_pipeline_depth_without_changing_ingest">test_wide_combinational_cores_declare_pipeline_depth_without_changing_ingest()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_cores.test_every_selectable_operator_declares_its_contract_kind">test_every_selectable_operator_declares_its_contract_kind()</a>
@@ -1689,10 +1689,10 @@ be discovered.</p>
     <a href="#test_cores.test_synthesizable_cores_carry_measured_envelopes">test_synthesizable_cores_carry_measured_envelopes()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_cores.WIDTH_NAMED_TILES">WIDTH_NAMED_TILES</a>
+    <a href="#test_cores.WIDTH_NAMED_CORES">WIDTH_NAMED_CORES</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_cores.test_the_width_named_tiles_are_exactly_the_declared_ones">test_the_width_named_tiles_are_exactly_the_declared_ones()</a>
+    <a href="#test_cores.test_the_width_named_cores_are_exactly_the_declared_ones">test_the_width_named_cores_are_exactly_the_declared_ones()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_cores.CANONICAL_PALETTE_VERSION">CANONICAL_PALETTE_VERSION</a>
@@ -1779,7 +1779,7 @@ be discovered.</p>
     <a href="#test_cores.test_a_core_resolves_hdl_from_the_package_that_declares_it">test_a_core_resolves_hdl_from_the_package_that_declares_it()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_cores.test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards">test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards()</a>
+    <a href="#test_cores.test_a_well_formed_vendor_core_does_not_trip_our_palette_guards">test_a_well_formed_vendor_core_does_not_trip_our_palette_guards()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_cores.test_a_core_naming_an_uninstalled_hdl_package_refuses_clearly">test_a_core_naming_an_uninstalled_hdl_package_refuses_clearly()</a>

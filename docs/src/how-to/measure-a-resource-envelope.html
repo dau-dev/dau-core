@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../autoapi/test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../../autoapi/test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../autoapi/test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../../autoapi/test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -933,7 +933,7 @@ and the timing report.</p>
 <p>With <code class="docutils literal notranslate"><span class="pre">execute=true</span></code> the task runs Vivado per core, parses utilization and
 timing, and reports one line per core with <code class="docutils literal notranslate"><span class="pre">lut</span></code>, <code class="docutils literal notranslate"><span class="pre">ff</span></code>, <code class="docutils literal notranslate"><span class="pre">bram36</span></code>, <code class="docutils literal notranslate"><span class="pre">dsp</span></code>,
 the worst negative slack, whether timing was met, and <code class="docutils literal notranslate"><span class="pre">measured_from</span></code>: a
-digest of the HDL the run read (the tile’s source, the packages it imports
+digest of the HDL the run read (the core’s source, the packages it imports
 and the headers it includes). It also compares the numbers and the digest
 against whatever the registry already declares, and flags drift in
 either.</p>
@@ -967,8 +967,8 @@ no more and no fewer, and no two points may share a
 with the sign of its <code class="docutils literal notranslate"><span class="pre">wns_ns</span></code> is rejected at load.</p>
 <p><code class="docutils literal notranslate"><span class="pre">measured_from</span></code> is what checks the numbers after they are written.
 <code class="docutils literal notranslate"><span class="pre">dau_core/tests/test_measured_from_matches_the_hdl.py</span></code> recomputes the digest
-from the HDL in the tree, so an edit to the tile or to anything it imports or
-includes fails that test, naming the tile, until the core is measured again
+from the HDL in the tree, so an edit to the core or to anything it imports or
+includes fails that test, naming the core, until the core is measured again
 and re-stamped.</p>
 <p>Confirm the entry loads and resolves at the coordinate you measured:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"from dau_core.registry import core; print(core('&lt;name&gt;').resource_measurement(part='&lt;part&gt;', clock_ns=8.0, params={'PARAM': &lt;value&gt;}))"</span>
@@ -979,7 +979,7 @@ and re-stamped.</p>
 <h2>Read a thin margin as a warning<a class="headerlink" href="#read-a-thin-margin-as-a-warning" title="Link to this heading">¶</a></h2>
 <p>An out-of-context margin is measured with the core alone. Composed into a
 shell it shares routing and placement pressure with everything else, and
-the margin moves: one tile measured +0.410 ns standalone and −0.348 ns
+the margin moves: one core measured +0.410 ns standalone and −0.348 ns
 composed. Treat anything under about half a nanosecond as a risk for the
 composed build, not headroom, and budget a retime before composing it.</p>
 <p>A point whose <code class="docutils literal notranslate"><span class="pre">timing</span></code> is <code class="docutils literal notranslate"><span class="pre">violated</span></code> records a failed build. You can still

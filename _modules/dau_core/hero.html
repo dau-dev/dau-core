@@ -482,13 +482,13 @@ window.runMermaid = runMermaid;</script>
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -527,8 +527,8 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -1168,11 +1168,6 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../autoapi/test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../autoapi/test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -1183,8 +1178,13 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../autoapi/test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../autoapi/test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -1274,13 +1274,13 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">the intermediate the bar reduction discards.</span>
 
 <span class="sd">The per-row market-feature derivation (midpoint/spread/sign/signed_volume/dollar)</span>
-<span class="sd">is a map that fuses into the bar tile's front chain stage (the q1/q6 shape) — it</span>
+<span class="sd">is a map that fuses into the bar core's front chain stage (the q1/q6 shape) — it</span>
 <span class="sd">adds no materialized intermediate in either execution — so the cost model's</span>
 <span class="sd">materializing stages are align → bar → roll. ``market_features`` is still run and</span>
 <span class="sd">returned as the feature output branch (not discarded).</span>
 
 <span class="sd">Both paths are DMA-bound (compute overlapped), so the model computes each from</span>
-<span class="sd">the exact golden cardinalities and the measured per-tile record widths — a</span>
+<span class="sd">the exact golden cardinalities and the measured per-core record widths — a</span>
 <span class="sd">first-order estimate the silicon run validates, not a measured result.</span>
 
 <span class="sd">No dataframe or numerical-runtime dependency: pure integer arithmetic over</span>
@@ -1313,7 +1313,7 @@ window.runMermaid = runMermaid;</script>
 <span class="p">)</span>
 
 <span class="c1"># On-wire record widths (bytes), from the registry's record words for each</span>
-<span class="c1"># stage's tile. Each stage reads its tile's input record and writes its tile's</span>
+<span class="c1"># stage's core. Each stage reads its core's input record and writes its core's</span>
 <span class="c1"># output record; a staged run DMAs both, a fused run DMAs only the pipeline</span>
 <span class="c1"># endpoints.</span>
 <span class="n">_ASOF</span> <span class="o">=</span> <span class="n">core</span><span class="p">(</span><span class="s2">"asof-backward"</span><span class="p">)</span>
@@ -1336,13 +1336,13 @@ window.runMermaid = runMermaid;</script>
 <span class="n">BAR_BYTES</span> <span class="o">=</span> <span class="n">_output_record_bytes</span><span class="p">(</span><span class="n">_BAR</span><span class="p">)</span>  <span class="c1"># bar record: OHLC + volume/dollar/signed accumulators + count</span>
 <span class="n">ROLL_INPUT_BYTES</span> <span class="o">=</span> <span class="n">_ROLL</span><span class="o">.</span><span class="n">effective_record_words</span><span class="p">({})</span> <span class="o">*</span> <span class="n">STREAM_WORD_BYTES</span>  <span class="c1"># rolling-moment input: one {value, symbol} word (a bar projection)</span>
 <span class="n">ROLL_BYTES</span> <span class="o">=</span> <span class="n">_output_record_bytes</span><span class="p">(</span><span class="n">_ROLL</span><span class="p">)</span>  <span class="c1"># rolling-moment record: {count, symbol}, total, total_sq</span>
-<span class="c1"># the smallest count-based window the rolling-moments tile elaborates</span>
+<span class="c1"># the smallest count-based window the rolling-moments core elaborates</span>
 <span class="n">ROLL_WINDOW_MINIMUM</span> <span class="o">=</span> <span class="n">_ROLL</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">"WINDOW"</span><span class="p">]</span><span class="o">.</span><span class="n">minimum</span>
 
-<span class="c1"># The bar fields the int32 rolling-moment tile can window: the OHLC prices are in</span>
-<span class="c1"># the int32 price domain and fit the tile's signed-int32 {value, symbol} word.</span>
+<span class="c1"># The bar fields the int32 rolling-moment core can window: the OHLC prices are in</span>
+<span class="c1"># the int32 price domain and fit the core's signed-int32 {value, symbol} word.</span>
 <span class="c1"># The volume/dollar/signed accumulators are int64 (a bar sums many trades) — they</span>
-<span class="c1"># would overflow the int32 tile, so rolling them needs the wide rolling variant</span>
+<span class="c1"># would overflow the int32 core, so rolling them needs the wide rolling variant</span>
 <span class="c1"># (a follow-up), not this model.</span>
 <span class="n">RollField</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"open"</span><span class="p">,</span> <span class="s2">"high"</span><span class="p">,</span> <span class="s2">"low"</span><span class="p">,</span> <span class="s2">"close"</span><span class="p">]</span>
 <span class="n">ROLL_FIELDS</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">RollField</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_args</span><span class="p">(</span><span class="n">RollField</span><span class="p">)</span>
@@ -1352,7 +1352,7 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../autoapi/dau_core/hero/index.html#dau_core.hero.WorkflowStage">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">WorkflowStage</span><span class="p">(</span><span class="n">CheckedModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""One materializing stage and its cardinality: ``in_rows`` records of</span>
-<span class="sd">    ``in_bytes`` in, ``out_rows`` records of ``out_bytes`` out (the tile's own</span>
+<span class="sd">    ``in_bytes`` in, ``out_rows`` records of ``out_bytes`` out (the core's own</span>
 <span class="sd">    input/output record widths). A staged run DMAs both; a fused run DMAs</span>
 <span class="sd">    neither (except the pipeline endpoints)."""</span>
 
@@ -1410,15 +1410,15 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">"""Run the predeclared workflow end to end over the goldens, recording each</span>
 <span class="sd">    materializing stage's cardinality. ``roll_value`` selects the per-bar OHLC</span>
 <span class="sd">    price the roll stage windows (:data:`ROLL_FIELDS`); ``roll_window`` is the</span>
-<span class="sd">    count-based window (at least :data:`ROLL_WINDOW_MINIMUM`, the tile's minimum). Both input streams must be</span>
+<span class="sd">    count-based window (at least :data:`ROLL_WINDOW_MINIMUM`, the core's minimum). Both input streams must be</span>
 <span class="sd">    pre-sorted by ``(symbol_id, time)`` (the shared as-of / bar precondition)."""</span>
     <span class="k">if</span> <span class="n">roll_value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ROLL_FIELDS</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"roll_value must be one of </span><span class="si">{</span><span class="n">ROLL_FIELDS</span><span class="si">}</span><span class="s2"> (the int32 bar prices the tile can window), got </span><span class="si">{</span><span class="n">roll_value</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"roll_value must be one of </span><span class="si">{</span><span class="n">ROLL_FIELDS</span><span class="si">}</span><span class="s2"> (the int32 bar prices the core can window), got </span><span class="si">{</span><span class="n">roll_value</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">roll_window</span> <span class="o">&lt;</span> <span class="n">ROLL_WINDOW_MINIMUM</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"roll_window must be &gt;= </span><span class="si">{</span><span class="n">ROLL_WINDOW_MINIMUM</span><span class="si">}</span><span class="s2"> (the rolling-moments WINDOW minimum), got </span><span class="si">{</span><span class="n">roll_window</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="n">trades</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">trades</span><span class="p">)</span>
     <span class="n">quotes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">quotes</span><span class="p">)</span>
-    <span class="n">n_input</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">trades</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">quotes</span><span class="p">)</span>  <span class="c1"># the merged stream the as-of tile reads</span>
+    <span class="n">n_input</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">trades</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">quotes</span><span class="p">)</span>  <span class="c1"># the merged stream the as-of core reads</span>
 
     <span class="n">market</span> <span class="o">=</span> <span class="n">matched_rows</span><span class="p">(</span><span class="n">asof_backward</span><span class="p">(</span><span class="n">trades</span><span class="p">,</span> <span class="n">quotes</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">))</span>
     <span class="n">features</span> <span class="o">=</span> <span class="n">market_features</span><span class="p">(</span><span class="n">market</span><span class="p">)</span>  <span class="c1"># the fused per-row derivation, kept as an output branch</span>

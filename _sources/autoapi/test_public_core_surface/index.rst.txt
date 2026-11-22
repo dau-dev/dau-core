@@ -1,13 +1,13 @@
-test_public_tile_surface
+test_public_core_surface
 ========================
 
-.. py:module:: test_public_tile_surface
+.. py:module:: test_public_core_surface
 
 .. autoapi-nested-parse::
 
-   The modules a third-party tile author needs, and what they may import.
+   The modules a third-party core author needs, and what they may import.
 
-   A tile contributed from outside this package declares a ``CoreDefinition``,
+   A core contributed from outside this package declares a ``CoreDefinition``,
    speaks the row-stream ABI, names the element types its parameters take, and
    may render its HDL through a ``CoreGenerator``. Those modules are
    therefore the *authoring surface* -- the part that has to be reachable by
@@ -31,11 +31,11 @@ Attributes
 
 .. autoapisummary::
 
-   test_public_tile_surface.SURFACE_MODULES
-   test_public_tile_surface.ALLOWED_THIRD_PARTY
-   test_public_tile_surface.ALLOWED_INTERNAL
-   test_public_tile_surface.EXTRACTION_DEBT
-   test_public_tile_surface._STDLIB
+   test_public_core_surface.SURFACE_MODULES
+   test_public_core_surface.ALLOWED_THIRD_PARTY
+   test_public_core_surface.ALLOWED_INTERNAL
+   test_public_core_surface.EXTRACTION_DEBT
+   test_public_core_surface._STDLIB
 
 
 Functions
@@ -43,11 +43,11 @@ Functions
 
 .. autoapisummary::
 
-   test_public_tile_surface._surface_paths
-   test_public_tile_surface._internal_imports
-   test_public_tile_surface.test_the_authoring_surface_stays_extractable
-   test_public_tile_surface.test_the_surface_declares_its_third_party_dependencies
-   test_public_tile_surface.test_the_extraction_debt_does_not_grow
+   test_public_core_surface._surface_paths
+   test_public_core_surface._internal_imports
+   test_public_core_surface.test_the_authoring_surface_stays_extractable
+   test_public_core_surface.test_the_surface_declares_its_third_party_dependencies
+   test_public_core_surface.test_the_extraction_debt_does_not_grow
 
 
 Module Contents
@@ -77,7 +77,7 @@ Module Contents
 
    The authoring surface may not grow a heavy runtime dependency.
 
-   An author installs this to declare a tile, not to run a build: pulling
+   An author installs this to declare a core, not to run a build: pulling
    in hydra, a simulator, or a synthesis toolchain here would make the
    declaration surface as expensive as the toolchain it feeds.
 

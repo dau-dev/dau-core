@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -870,13 +870,13 @@
     <a href="#test_measured_from_matches_the_hdl.test_every_core_has_a_computable_hdl_closure">test_every_core_has_a_computable_hdl_closure()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_measured_from_matches_the_hdl.test_the_closure_holds_the_packages_a_tile_imports_and_the_headers_it_includes">test_the_closure_holds_the_packages_a_tile_imports_and_the_headers_it_includes()</a>
+    <a href="#test_measured_from_matches_the_hdl.test_the_closure_holds_the_packages_a_core_imports_and_the_headers_it_includes">test_the_closure_holds_the_packages_a_core_imports_and_the_headers_it_includes()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_measured_from_matches_the_hdl.test_a_generated_core_is_digested_from_its_rendered_text">test_a_generated_core_is_digested_from_its_rendered_text()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_measured_from_matches_the_hdl.test_a_moved_dependency_moves_every_dependent_tiles_digest">test_a_moved_dependency_moves_every_dependent_tiles_digest()</a>
+    <a href="#test_measured_from_matches_the_hdl.test_a_moved_dependency_moves_every_dependent_cores_digest">test_a_moved_dependency_moves_every_dependent_cores_digest()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_measured_from_matches_the_hdl.test_an_unresolvable_include_refuses_rather_than_digesting_a_partial_closure">test_an_unresolvable_include_refuses_rather_than_digesting_a_partial_closure()</a>
@@ -921,10 +921,10 @@ coordinates it ADDED and not the ones it CHANGED. Both were found by
 accident, months later, while attributing something else.</p>
 <p><code class="docutils literal notranslate"><span class="pre">measured_from</span></code> closes that. It stamps the recorded numbers with a digest
 of the HDL closure they describe (<code class="xref py py-meth docutils literal notranslate"><span class="pre">CoreDefinition.hdl_closure_digest()</span></code>
-– the tile’s own source, the packages it imports, the headers it includes),
+– the core’s own source, the packages it imports, the headers it includes),
 and this module recomputes it. An edit to any of those files fails HERE,
-naming the tile, in the fast job, seconds after the edit – which is the
-property that matters: the check fires on exactly the tiles a change
+naming the core, in the fast job, seconds after the edit – which is the
+property that matters: the check fires on exactly the cores a change
 TOUCHED, not on the ones somebody remembers to look at.</p>
 <section id="attributes">
 <h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h2>
@@ -947,21 +947,21 @@ TOUCHED, not on the ones somebody remembers to look at.</p>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_measured_from_matches_the_hdl.test_every_stamped_envelope_matches_its_hdl_closure" title="test_measured_from_matches_the_hdl.test_every_stamped_envelope_matches_its_hdl_closure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_every_stamped_envelope_matches_its_hdl_closure</span></code></a>() → None</p></td>
-<td><p>THE GUARD. A stamped tile's HDL must still digest to what its numbers</p></td>
+<td><p>THE GUARD. A stamped core's HDL must still digest to what its numbers</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#test_measured_from_matches_the_hdl.test_the_unstamped_envelopes_are_exactly_the_declared_ones" title="test_measured_from_matches_the_hdl.test_the_unstamped_envelopes_are_exactly_the_declared_ones"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_unstamped_envelopes_are_exactly_the_declared_ones</span></code></a>() → None</p></td>
 <td><p>Both directions, for the reason every exact set in this suite is:</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_measured_from_matches_the_hdl.test_every_core_has_a_computable_hdl_closure" title="test_measured_from_matches_the_hdl.test_every_core_has_a_computable_hdl_closure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_every_core_has_a_computable_hdl_closure</span></code></a>() → None</p></td>
-<td><p>A closure that cannot be resolved is a defect whether or not the tile</p></td>
+<td><p>A closure that cannot be resolved is a defect whether or not the core</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_measured_from_matches_the_hdl.test_the_closure_holds_the_packages_a_tile_imports_and_the_headers_it_includes" title="test_measured_from_matches_the_hdl.test_the_closure_holds_the_packages_a_tile_imports_and_the_headers_it_includes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_closure_holds_the_packages_a_tile_imports_and_the_headers_it_includes</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_measured_from_matches_the_hdl.test_the_closure_holds_the_packages_a_core_imports_and_the_headers_it_includes" title="test_measured_from_matches_the_hdl.test_the_closure_holds_the_packages_a_core_imports_and_the_headers_it_includes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_closure_holds_the_packages_a_core_imports_and_the_headers_it_includes</span></code></a>() → None</p></td>
 <td><p>The two directions that decide whether the guard works.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_measured_from_matches_the_hdl.test_a_generated_core_is_digested_from_its_rendered_text" title="test_measured_from_matches_the_hdl.test_a_generated_core_is_digested_from_its_rendered_text"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_generated_core_is_digested_from_its_rendered_text</span></code></a>() → None</p></td>
-<td><p>A generated tile has no checked-in <cite>.sv</cite>, so a digest over files on</p></td>
+<td><p>A generated core has no checked-in <cite>.sv</cite>, so a digest over files on</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_measured_from_matches_the_hdl.test_a_moved_dependency_moves_every_dependent_tiles_digest" title="test_measured_from_matches_the_hdl.test_a_moved_dependency_moves_every_dependent_tiles_digest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_moved_dependency_moves_every_dependent_tiles_digest</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_measured_from_matches_the_hdl.test_a_moved_dependency_moves_every_dependent_cores_digest" title="test_measured_from_matches_the_hdl.test_a_moved_dependency_moves_every_dependent_cores_digest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_moved_dependency_moves_every_dependent_cores_digest</span></code></a>(...) → None</p></td>
 <td><p>Proved by construction rather than by being green: editing a shared</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_measured_from_matches_the_hdl.test_an_unresolvable_include_refuses_rather_than_digesting_a_partial_closure" title="test_measured_from_matches_the_hdl.test_an_unresolvable_include_refuses_rather_than_digesting_a_partial_closure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_an_unresolvable_include_refuses_rather_than_digesting_a_partial_closure</span></code></a>(...) → None</p></td>
@@ -999,13 +999,13 @@ TOUCHED, not on the ones somebody remembers to look at.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="test_measured_from_matches_the_hdl.test_every_stamped_envelope_matches_its_hdl_closure">
 <span class="sig-prename descclassname"><span class="pre">test_measured_from_matches_the_hdl.</span></span><span class="sig-name descname"><span class="pre">test_every_stamped_envelope_matches_its_hdl_closure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_measured_from_matches_the_hdl.test_every_stamped_envelope_matches_its_hdl_closure" title="Link to this definition">¶</a></dt>
-<dd><p>THE GUARD. A stamped tile’s HDL must still digest to what its numbers
+<dd><p>THE GUARD. A stamped core’s HDL must still digest to what its numbers
 were recorded against.</p>
 <p>Failing here does NOT mean the numbers are wrong – it means nobody has
 said whether they are. There are exactly two honest ways out and neither
 is editing the digest to match:</p>
 <ol class="arabic simple">
-<li><p>Re-measure the tile’s recorded coordinates through
+<li><p>Re-measure the core’s recorded coordinates through
 <code class="docutils literal notranslate"><span class="pre">dau-build</span> <span class="pre">task=tasks/build/synthesize-cores</span></code> and record what comes
 back, stamp included.</p></li>
 <li><p>Show the edit is netlist-neutral – one control coordinate reporting
@@ -1018,7 +1018,7 @@ with that evidence in the pull request.</p></li>
 <dt class="sig sig-object py" id="test_measured_from_matches_the_hdl.test_the_unstamped_envelopes_are_exactly_the_declared_ones">
 <span class="sig-prename descclassname"><span class="pre">test_measured_from_matches_the_hdl.</span></span><span class="sig-name descname"><span class="pre">test_the_unstamped_envelopes_are_exactly_the_declared_ones</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_measured_from_matches_the_hdl.test_the_unstamped_envelopes_are_exactly_the_declared_ones" title="Link to this definition">¶</a></dt>
 <dd><p>Both directions, for the reason every exact set in this suite is:
-a stale name means a tile got stamped and nobody tightened the guard, and
+a stale name means a core got stamped and nobody tightened the guard, and
 an unlisted name means a measurement shipped with no record of what it
 measured.</p>
 </dd></dl>
@@ -1026,35 +1026,35 @@ measured.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="test_measured_from_matches_the_hdl.test_every_core_has_a_computable_hdl_closure">
 <span class="sig-prename descclassname"><span class="pre">test_measured_from_matches_the_hdl.</span></span><span class="sig-name descname"><span class="pre">test_every_core_has_a_computable_hdl_closure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_measured_from_matches_the_hdl.test_every_core_has_a_computable_hdl_closure" title="Link to this definition">¶</a></dt>
-<dd><p>A closure that cannot be resolved is a defect whether or not the tile
+<dd><p>A closure that cannot be resolved is a defect whether or not the core
 is stamped yet – otherwise a missing header or an unregistered dependency
-stays invisible until the day somebody first tries to stamp that tile.</p>
+stays invisible until the day somebody first tries to stamp that core.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="test_measured_from_matches_the_hdl.test_the_closure_holds_the_packages_a_tile_imports_and_the_headers_it_includes">
-<span class="sig-prename descclassname"><span class="pre">test_measured_from_matches_the_hdl.</span></span><span class="sig-name descname"><span class="pre">test_the_closure_holds_the_packages_a_tile_imports_and_the_headers_it_includes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_measured_from_matches_the_hdl.test_the_closure_holds_the_packages_a_tile_imports_and_the_headers_it_includes" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="test_measured_from_matches_the_hdl.test_the_closure_holds_the_packages_a_core_imports_and_the_headers_it_includes">
+<span class="sig-prename descclassname"><span class="pre">test_measured_from_matches_the_hdl.</span></span><span class="sig-name descname"><span class="pre">test_the_closure_holds_the_packages_a_core_imports_and_the_headers_it_includes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_measured_from_matches_the_hdl.test_the_closure_holds_the_packages_a_core_imports_and_the_headers_it_includes" title="Link to this definition">¶</a></dt>
 <dd><p>The two directions that decide whether the guard works.</p>
 <p>Too permissive and it misses the edit that matters: a package edit must
-reach every tile that imports it. Too strict and every unrelated edit
-re-measures the world: a header a tile does not include must not reach it.</p>
+reach every core that imports it. Too strict and every unrelated edit
+re-measures the world: a header a core does not include must not reach it.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="test_measured_from_matches_the_hdl.test_a_generated_core_is_digested_from_its_rendered_text">
 <span class="sig-prename descclassname"><span class="pre">test_measured_from_matches_the_hdl.</span></span><span class="sig-name descname"><span class="pre">test_a_generated_core_is_digested_from_its_rendered_text</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_measured_from_matches_the_hdl.test_a_generated_core_is_digested_from_its_rendered_text" title="Link to this definition">¶</a></dt>
-<dd><p>A generated tile has no checked-in <cite>.sv</cite>, so a digest over files on
+<dd><p>A generated core has no checked-in <cite>.sv</cite>, so a digest over files on
 disk would be blind to the one thing that decides its RTL. Its constants
 live in the generator and in the registry entry’s generator config; move
 either and the digest must move.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="test_measured_from_matches_the_hdl.test_a_moved_dependency_moves_every_dependent_tiles_digest">
-<span class="sig-prename descclassname"><span class="pre">test_measured_from_matches_the_hdl.</span></span><span class="sig-name descname"><span class="pre">test_a_moved_dependency_moves_every_dependent_tiles_digest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monkeypatch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_measured_from_matches_the_hdl.test_a_moved_dependency_moves_every_dependent_tiles_digest" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="test_measured_from_matches_the_hdl.test_a_moved_dependency_moves_every_dependent_cores_digest">
+<span class="sig-prename descclassname"><span class="pre">test_measured_from_matches_the_hdl.</span></span><span class="sig-name descname"><span class="pre">test_a_moved_dependency_moves_every_dependent_cores_digest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monkeypatch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_measured_from_matches_the_hdl.test_a_moved_dependency_moves_every_dependent_cores_digest" title="Link to this definition">¶</a></dt>
 <dd><p>Proved by construction rather than by being green: editing a shared
-package must fail the tiles that import it, which is the case a per-file
-stamp on the tile alone would miss.</p>
+package must fail the cores that import it, which is the case a per-file
+stamp on the core alone would miss.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1076,7 +1076,7 @@ file synthesis would read and the digest would not.</p>
 <dt class="sig sig-object py" id="test_measured_from_matches_the_hdl.test_a_stamp_without_a_measurement_is_refused">
 <span class="sig-prename descclassname"><span class="pre">test_measured_from_matches_the_hdl.</span></span><span class="sig-name descname"><span class="pre">test_a_stamp_without_a_measurement_is_refused</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_measured_from_matches_the_hdl.test_a_stamp_without_a_measurement_is_refused" title="Link to this definition">¶</a></dt>
 <dd><p>The stamp says which RTL a measurement describes; without one it says
-nothing and reads as though the tile were checked.</p>
+nothing and reads as though the core were checked.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1151,13 +1151,13 @@ host’s run and must match the RTL this checkout carries.</p>
     <a href="#test_measured_from_matches_the_hdl.test_every_core_has_a_computable_hdl_closure">test_every_core_has_a_computable_hdl_closure()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_measured_from_matches_the_hdl.test_the_closure_holds_the_packages_a_tile_imports_and_the_headers_it_includes">test_the_closure_holds_the_packages_a_tile_imports_and_the_headers_it_includes()</a>
+    <a href="#test_measured_from_matches_the_hdl.test_the_closure_holds_the_packages_a_core_imports_and_the_headers_it_includes">test_the_closure_holds_the_packages_a_core_imports_and_the_headers_it_includes()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_measured_from_matches_the_hdl.test_a_generated_core_is_digested_from_its_rendered_text">test_a_generated_core_is_digested_from_its_rendered_text()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_measured_from_matches_the_hdl.test_a_moved_dependency_moves_every_dependent_tiles_digest">test_a_moved_dependency_moves_every_dependent_tiles_digest()</a>
+    <a href="#test_measured_from_matches_the_hdl.test_a_moved_dependency_moves_every_dependent_cores_digest">test_a_moved_dependency_moves_every_dependent_cores_digest()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_measured_from_matches_the_hdl.test_an_unresolvable_include_refuses_rather_than_digesting_a_partial_closure">test_an_unresolvable_include_refuses_rather_than_digesting_a_partial_closure()</a>

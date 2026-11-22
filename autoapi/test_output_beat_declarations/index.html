@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -873,7 +873,7 @@
     <a href="#test_output_beat_declarations.test_the_guard_actually_inspects_the_rtl">test_the_guard_actually_inspects_the_rtl()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_output_beat_declarations.test_datetime_format_is_the_one_tile_that_widens_its_port">test_datetime_format_is_the_one_tile_that_widens_its_port()</a>
+    <a href="#test_output_beat_declarations.test_datetime_format_is_the_one_core_that_widens_its_port">test_datetime_format_is_the_one_core_that_widens_its_port()</a>
   </li>
 </ul>
 </div>
@@ -893,15 +893,15 @@
       <div class="fd-prose">
   <section id="module-test_output_beat_declarations">
 <span id="test-output-beat-declarations"></span><h1>test_output_beat_declarations<a class="headerlink" href="#module-test_output_beat_declarations" title="Link to this heading">¶</a></h1>
-<p>A tile’s declared record shape must be able to hold the beat its RTL emits.</p>
+<p>A core’s declared record shape must be able to hold the beat its RTL emits.</p>
 <p><cite>datetime-format</cite> declared <cite>output_record_words: 1</cite> – 64 bits – while its
 <cite>output_data</cite> port is 152 bits wide. Its description said so in prose, in
-capitals, for the tile’s whole life. Prose is not what the composition layer
+capitals, for the core’s whole life. Prose is not what the composition layer
 reads: <cite>check_record_width_compatibility</cite> compares the declared word counts,
 and it is detection-only, so a 152-bit beat wired into a one-word consumer
 would have dropped 11 of the 19 characters with nothing raised.</p>
 <p>The guard is deliberately narrow. <cite>output_record_words</cite> counts words in a
-logical RECORD, not bits in a beat, and 35 of the 36 literal-width tiles
+logical RECORD, not bits in a beat, and 35 of the 36 literal-width cores
 declare MORE words than one beat holds – <cite>rolling-moments</cite> declares 3
 on a 64-bit port and streams them as three consecutive beats. That is the
 convention and it is fine. The only thing that is never fine is a record
@@ -941,7 +941,7 @@ is not known until elaboration, so there is nothing to compare here.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_output_beat_declarations.test_the_guard_actually_inspects_the_rtl" title="test_output_beat_declarations.test_the_guard_actually_inspects_the_rtl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_guard_actually_inspects_the_rtl</span></code></a>() → None</p></td>
 <td><p>A parse that silently matched nothing would make every case above vacuous.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_output_beat_declarations.test_datetime_format_is_the_one_tile_that_widens_its_port" title="test_output_beat_declarations.test_datetime_format_is_the_one_tile_that_widens_its_port"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_datetime_format_is_the_one_tile_that_widens_its_port</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_output_beat_declarations.test_datetime_format_is_the_one_core_that_widens_its_port" title="test_output_beat_declarations.test_datetime_format_is_the_one_core_that_widens_its_port"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_datetime_format_is_the_one_core_that_widens_its_port</span></code></a>() → None</p></td>
 <td><p>The deviation is real and load-bearing, so it is pinned rather than left</p></td>
 </tr>
 </tbody>
@@ -987,10 +987,10 @@ is not known until elaboration, so there is nothing to compare here.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="test_output_beat_declarations.test_datetime_format_is_the_one_tile_that_widens_its_port">
-<span class="sig-prename descclassname"><span class="pre">test_output_beat_declarations.</span></span><span class="sig-name descname"><span class="pre">test_datetime_format_is_the_one_tile_that_widens_its_port</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_output_beat_declarations.test_datetime_format_is_the_one_tile_that_widens_its_port" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="test_output_beat_declarations.test_datetime_format_is_the_one_core_that_widens_its_port">
+<span class="sig-prename descclassname"><span class="pre">test_output_beat_declarations.</span></span><span class="sig-name descname"><span class="pre">test_datetime_format_is_the_one_core_that_widens_its_port</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_output_beat_declarations.test_datetime_format_is_the_one_core_that_widens_its_port" title="Link to this definition">¶</a></dt>
 <dd><p>The deviation is real and load-bearing, so it is pinned rather than left
-to be rediscovered: every other tile keeps the row-stream contract’s 64-bit
+to be rediscovered: every other core keeps the row-stream contract’s 64-bit
 port and takes more beats. This one widened the port instead, which is why
 nothing in the palette can consume it without an adapter.</p>
 </dd></dl>
@@ -1062,7 +1062,7 @@ nothing in the palette can consume it without an adapter.</p>
     <a href="#test_output_beat_declarations.test_the_guard_actually_inspects_the_rtl">test_the_guard_actually_inspects_the_rtl()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_output_beat_declarations.test_datetime_format_is_the_one_tile_that_widens_its_port">test_datetime_format_is_the_one_tile_that_widens_its_port()</a>
+    <a href="#test_output_beat_declarations.test_datetime_format_is_the_one_core_that_widens_its_port">test_datetime_format_is_the_one_core_that_widens_its_port()</a>
   </li>
 </ul>
 

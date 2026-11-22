@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>How to add an operator tile &#8212; dau core v0.13.0</title>
+    <title>How to add an operator core &#8212; dau core v0.13.0</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/fuma.css?v=ca04d621" />
     <link rel="stylesheet" type="text/css" href="../../../_static/fuma-code.css?v=a950e949" />
@@ -28,7 +28,7 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="How to test a core" href="test-a-core.html" />
-    <link rel="prev" title="Tutorial: read a tile’s contract end to end" href="../tutorial/read-a-tile-contract.html" />
+    <link rel="prev" title="Tutorial: read a core’s contract end to end" href="../tutorial/read-a-core-contract.html" />
     <script>
       (function () {
         var root = document.documentElement;
@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
     <a class="fd-link fd-current" href="#">
-      <span class="fd-link-text">How to add an operator tile</span>
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../autoapi/test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../../autoapi/test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../autoapi/test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../../autoapi/test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -870,8 +870,8 @@
   <main id="fd-main">
     <article class="fd-page">
       <div class="fd-prose">
-  <section class="tex2jax_ignore mathjax_ignore" id="how-to-add-an-operator-tile">
-<h1>How to add an operator tile<a class="headerlink" href="#how-to-add-an-operator-tile" title="Link to this heading">¶</a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="how-to-add-an-operator-core">
+<h1>How to add an operator core<a class="headerlink" href="#how-to-add-an-operator-core" title="Link to this heading">¶</a></h1>
 <p>This guide takes a new streaming operator from an idea to a registered core
 that a composition can instantiate. It follows the project’s order,
 <strong>golden, HDL, bench, registry entry, envelope</strong>, because each stage is the
@@ -882,41 +882,41 @@ the final envelope step.</p>
 <section id="write-the-golden-first">
 <h2>1. Write the golden first<a class="headerlink" href="#write-the-golden-first" title="Link to this heading">¶</a></h2>
 <p>The golden is a pure function in <code class="docutils literal notranslate"><span class="pre">dau_core/operators.py</span></code> (or
-<code class="docutils literal notranslate"><span class="pre">dau_core/temporal.py</span></code> for time-series shapes) that computes what the tile
-computes. It is the definition of the tile’s meaning, so write it before
+<code class="docutils literal notranslate"><span class="pre">dau_core/temporal.py</span></code> for time-series shapes) that computes what the core
+computes. It is the definition of the core’s meaning, so write it before
 any HDL exists and settle the semantics there.</p>
 <p>Decide these explicitly, since they are the parts prose gets wrong:</p>
 <ul>
 <li><p><strong>The domain.</strong> Fields are fixed-width, null-free <em>wires</em>, and the width
-is a tile parameter, not part of the tile’s identity. Wrap at the declared
+is a core parameter, not part of the core’s identity. Wrap at the declared
 width so <code class="docutils literal notranslate"><span class="pre">-1</span></code> and the all-ones pattern are the same key.</p>
 <p><strong>Do not put a width in the name.</strong> Part of the existing palette is still
 called <code class="docutils literal notranslate"><span class="pre">int32-*</span></code> because it was written before the width was parameterized,
-and the name becomes wrong as soon as the tile gains the parameter. The row
+and the name becomes wrong as soon as the core gains the parameter. The row
 predicate filter’s <code class="docutils literal notranslate"><span class="pre">FIELD_WIDTH</span></code> accepts 16, 32 and 64, so <code class="docutils literal notranslate"><span class="pre">int32-</span></code> would
 have been false for two of its three legal settings, which is why it is now
 <code class="docutils literal notranslate"><span class="pre">row-predicate-filter</span></code>.</p>
-<p><code class="docutils literal notranslate"><span class="pre">WIDTH_NAMED_TILES</span></code> in <code class="docutils literal notranslate"><span class="pre">dau_core/tests/test_cores.py</span></code> lists the tiles that
+<p><code class="docutils literal notranslate"><span class="pre">WIDTH_NAMED_CORES</span></code> in <code class="docutils literal notranslate"><span class="pre">dau_core/tests/test_cores.py</span></code> lists the cores that
 still have a width in their name, each with a comment saying why and what
 would remove it. A few keep the width on purpose because for them it is
-part of the contract. A new tile is not one of them: give it a width in its
+part of the contract. A new core is not one of them: give it a width in its
 name and that guard fails.</p>
 </li>
-<li><p><strong>Emission order.</strong> If your tile holds state, say exactly what order
+<li><p><strong>Emission order.</strong> If your core holds state, say exactly what order
 results leave in, and pick something implementation-independent.</p></li>
-<li><p><strong>Error codes.</strong> Add an <code class="docutils literal notranslate"><span class="pre">IntEnum</span></code> whose values are the tile’s
+<li><p><strong>Error codes.</strong> Add an <code class="docutils literal notranslate"><span class="pre">IntEnum</span></code> whose values are the core’s
 <code class="docutils literal notranslate"><span class="pre">status_error_code</span></code> wire encoding, and say so in its docstring.</p></li>
 <li><p><strong>Capacity behavior.</strong> A bounded table that fills is an error, never an
 eviction. State what the caller gets back.</p></li>
 </ul>
-<p>Return <code class="docutils literal notranslate"><span class="pre">(results,</span> <span class="pre">error_code)</span></code> when the tile can fail.</p>
+<p>Return <code class="docutils literal notranslate"><span class="pre">(results,</span> <span class="pre">error_code)</span></code> when the core can fail.</p>
 </section>
 <section id="prove-the-golden-against-itself">
 <h2>2. Prove the golden against itself<a class="headerlink" href="#prove-the-golden-against-itself" title="Link to this heading">¶</a></h2>
 <p>Add <code class="docutils literal notranslate"><span class="pre">dau_core/tests/test_&lt;name&gt;.py</span></code> with property tests, not just examples:
 permutation invariance if order should not matter, agreement with an
 existing golden where the two overlap, boundary values, and the declared-width wire
-identity. If your tile has a host-side counterpart (a merge, a split), prove
+identity. If your core has a host-side counterpart (a merge, a split), prove
 the algebra: <code class="docutils literal notranslate"><span class="pre">merge(split(rows))</span> <span class="pre">==</span> <span class="pre">one_shot(rows)</span></code>.</p>
 <p>Run it:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w"> </span>dau_core/tests/test_&lt;name&gt;.py<span class="w"> </span>-q
@@ -952,10 +952,10 @@ and compares its output with the golden’s over the same inputs. It uses no
 hand-written expected values.</p>
 <p>Cover, at minimum: the nominal case, backpressure (a stalled beat must stay
 asserted and byte-stable), reset, repeated batches back to back, malformed
-input, and every error path. If the tile is stateful, add the
+input, and every error path. If the core is stateful, add the
 <strong>randomized-delay patience harness</strong>: inject random delays on every
 channel and assert the emitted sequence is identical across seeds.</p>
-<p>If the tile is parameterized, <strong>run the bench at its boundaries</strong>: the
+<p>If the core is parameterized, <strong>run the bench at its boundaries</strong>: the
 declared minimum, a small value that forces collisions or short scans, and
 the default. Cases whose point is holding several items at once should skip
 at parameter values too small for them rather than being weakened to fit.</p>
@@ -970,14 +970,14 @@ parameter value, then:</p>
 <p>Append a <code class="docutils literal notranslate"><span class="pre">CoreDefinition</span></code> to <code class="docutils literal notranslate"><span class="pre">dau_core/config/dau-core/cores.yaml</span></code>; the
 registry is that yaml file, with no Python list beside it. Declare:</p>
 <p><code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">kind:</span> <span class="pre">operator</span></code>, <code class="docutils literal notranslate"><span class="pre">module</span></code>, <code class="docutils literal notranslate"><span class="pre">source</span></code>, a <code class="docutils literal notranslate"><span class="pre">description</span></code> that says what
-the tile does and what its contracts are, <code class="docutils literal notranslate"><span class="pre">golden</span></code> (as
+the core does and what its contracts are, <code class="docutils literal notranslate"><span class="pre">golden</span></code> (as
 <code class="docutils literal notranslate"><span class="pre">module:function</span></code>), <code class="docutils literal notranslate"><span class="pre">bench</span></code>, <code class="docutils literal notranslate"><span class="pre">count_port</span></code>, <code class="docutils literal notranslate"><span class="pre">contract_kind</span></code>, <code class="docutils literal notranslate"><span class="pre">record_words</span></code>,
 <code class="docutils literal notranslate"><span class="pre">success_close_out</span></code>, and <code class="docutils literal notranslate"><span class="pre">parameters</span></code> mirroring your RTL elaboration guards.</p>
-<p>If the tile advertises capabilities, add <code class="docutils literal notranslate"><span class="pre">opcodes</span></code>, <code class="docutils literal notranslate"><span class="pre">opcode_input_types</span></code>,
-and <code class="docutils literal notranslate"><span class="pre">unit_kind</span></code>. A composition built only from tiles that declare none
+<p>If the core advertises capabilities, add <code class="docutils literal notranslate"><span class="pre">opcodes</span></code>, <code class="docutils literal notranslate"><span class="pre">opcode_input_types</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">unit_kind</span></code>. A composition built only from cores that declare none
 reports an empty opcode bitmap, and the planner cannot see it.</p>
-<p>Declare <code class="docutils literal notranslate"><span class="pre">ingest</span></code> as the rate the tile sustains: state the assumption your rate depends on and
-name the adversarial case rather than padding the number. If the tile owns
+<p>Declare <code class="docutils literal notranslate"><span class="pre">ingest</span></code> as the rate the core sustains: state the assumption your rate depends on and
+name the adversarial case rather than padding the number. If the core owns
 on-chip storage, declare <code class="docutils literal notranslate"><span class="pre">storage_intent</span></code>.</p>
 <p>Check it loads:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"from dau_core.registry import core; print(core('&lt;name&gt;'))"</span>
@@ -1005,7 +1005,7 @@ synthesizable core with no envelope, and another on an envelope with no
 full procedure.</p>
 <p><strong>Read a thin margin as a warning.</strong> An out-of-context margin under about
 half a nanosecond is a risk for the composed build, not headroom, so budget
-a retime before composing the tile.</p>
+a retime before composing the core.</p>
 </section>
 <section id="confirm-the-whole-suite">
 <h2>7. Confirm the whole suite<a class="headerlink" href="#confirm-the-whole-suite" title="Link to this heading">¶</a></h2>
@@ -1013,18 +1013,18 @@ a retime before composing the tile.</p>
 ruff<span class="w"> </span>check<span class="w"> </span>dau_core/<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>ruff<span class="w"> </span>format<span class="w"> </span>dau_core/
 </pre></div>
 </div>
-<p>The tile is now instantiable by any <code class="docutils literal notranslate"><span class="pre">ScanCompositionSpec</span></code> that names it.</p>
+<p>The core is now instantiable by any <code class="docutils literal notranslate"><span class="pre">ScanCompositionSpec</span></code> that names it.</p>
 </section>
 </section>
 
 
       </div>
 <nav class="fd-pagination" aria-label="Pagination">
-  <a class="fd-pagination-card fd-pagination-prev" href="../tutorial/read-a-tile-contract.html" title="Previous: Tutorial: read a tile’s contract end to end">
+  <a class="fd-pagination-card fd-pagination-prev" href="../tutorial/read-a-core-contract.html" title="Previous: Tutorial: read a core’s contract end to end">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m15 18-6-6 6-6"/></svg>
     <span class="fd-pagination-text">
       <span class="fd-pagination-label">Previous</span>
-      <span class="fd-pagination-title">Tutorial: read a tile’s contract end to end</span>
+      <span class="fd-pagination-title">Tutorial: read a core’s contract end to end</span>
     </span>
   </a>
   <a class="fd-pagination-card fd-pagination-next" href="test-a-core.html" title="Next: How to test a core">
@@ -1075,8 +1075,8 @@ ruff<span class="w"> </span>check<span class="w"> </span>dau_core/<span class="w
 
   </div>
   <div class="fd-toc-actions">
-    <a class="fd-toc-action" href="https://github.com/dau-dev/dau-core/edit/HEAD/docs/src/how-to/add-an-operator-tile.md" target="_blank" rel="noopener" title="Edit this page"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span>Edit this page</span></a>
-    <a class="fd-toc-action" href="../../../_sources/docs/src/how-to/add-an-operator-tile.md.txt" rel="nofollow" title="View source"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><span>View source</span></a>
+    <a class="fd-toc-action" href="https://github.com/dau-dev/dau-core/edit/HEAD/docs/src/how-to/add-an-operator-core.md" target="_blank" rel="noopener" title="Edit this page"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span>Edit this page</span></a>
+    <a class="fd-toc-action" href="../../../_sources/docs/src/how-to/add-an-operator-core.md.txt" rel="nofollow" title="View source"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><span>View source</span></a>
   </div>
 </nav>
 <button type="button" id="fd-toc-restore" class="fd-icon-button" aria-label="Expand page navigation" title="Expand page navigation" aria-controls="fd-toc" aria-expanded="false"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/></svg></button>

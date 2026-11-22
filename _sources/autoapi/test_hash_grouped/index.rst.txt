@@ -6,7 +6,7 @@ test_hash_grouped
 .. autoapi-nested-parse::
 
    Hash-mode grouped field-sum aggregation golden: one accumulator per
-   DISTINCT key regardless of input order (the ordered tile's
+   DISTINCT key regardless of input order (the ordered core's
    ``sorted_by_key`` staging precondition removed), key-ascending drain,
    explicit overflow, and the host split-and-merge algebra that makes
    overflow recoverable.
@@ -30,7 +30,7 @@ Functions
    test_hash_grouped._as_pairs
    test_hash_grouped.test_one_record_per_distinct_key_regardless_of_order
    test_hash_grouped.test_permutation_invariance
-   test_hash_grouped.test_sorted_input_agrees_with_the_ordered_tile
+   test_hash_grouped.test_sorted_input_agrees_with_the_ordered_core
    test_hash_grouped.test_drain_is_signed_key_ascending
    test_hash_grouped.test_keys_are_int32_wires
    test_hash_grouped.test_overflow_invalidates_the_batch
@@ -40,7 +40,7 @@ Functions
    test_hash_grouped.test_key_range_split_recovers_an_overflowed_batch
    test_hash_grouped.test_merging_mixed_field_masks_is_a_caller_error
    test_hash_grouped.test_empty_batch_emits_nothing
-   test_hash_grouped.test_record_words_match_the_ordered_tile_shape
+   test_hash_grouped.test_record_words_match_the_ordered_core_shape
 
 
 Module Contents
@@ -58,7 +58,7 @@ Module Contents
 
 .. py:function:: test_permutation_invariance() -> None
 
-.. py:function:: test_sorted_input_agrees_with_the_ordered_tile() -> None
+.. py:function:: test_sorted_input_agrees_with_the_ordered_core() -> None
 
 .. py:function:: test_drain_is_signed_key_ascending() -> None
 
@@ -87,5 +87,5 @@ Module Contents
 
 .. py:function:: test_empty_batch_emits_nothing() -> None
 
-.. py:function:: test_record_words_match_the_ordered_tile_shape() -> None
+.. py:function:: test_record_words_match_the_ordered_core_shape() -> None
 

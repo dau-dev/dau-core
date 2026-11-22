@@ -482,13 +482,13 @@ window.runMermaid = runMermaid;</script>
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -527,8 +527,8 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -1168,11 +1168,6 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../autoapi/test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../autoapi/test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -1183,8 +1178,13 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../autoapi/test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../autoapi/test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -1255,11 +1255,11 @@ window.runMermaid = runMermaid;</script>
 </nav>
       <div class="fd-prose">
   <h1>Source code for dau_core.ln_generator</h1><div class="highlight"><pre>
-<span></span><span class="sd">"""Renders the fixed-point ln tile from a declared operating point.</span>
+<span></span><span class="sd">"""Renders the fixed-point ln core from a declared operating point.</span>
 
 <span class="sd">The datapath is :class:`dau_core.fixed_point.LnDatapath` and the emitted</span>
 <span class="sd">SystemVerilog mirrors :meth:`LnDatapath.evaluate` step for step, so the</span>
-<span class="sd">cocotb bench compares against it with zero tolerance like every other tile.</span>
+<span class="sd">cocotb bench compares against it with zero tolerance like every other core.</span>
 <span class="sd">Generated rather than checked in for the same reason exp and the normal CDF</span>
 <span class="sd">are: the 256-entry tables of ``ln(1 + j/256)`` and ``1/(1 + j/256)`` and the</span>
 <span class="sd">series coefficients are transcendental constants at the configured internal</span>
@@ -1273,7 +1273,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">registered point is FAITHFUL (measured 1 ULP), and the deviation is a</span>
 <span class="sd">measured fact recorded in the registry, not a tolerance in the bench.</span>
 
-<span class="sd">The lessons the exp tile paid for are repeated here rather than rediscovered:</span>
+<span class="sd">The lessons the exp core paid for are repeated here rather than rediscovered:</span>
 <span class="sd">every product gets its own full-width wire, and every multiply gets its own</span>
 <span class="sd">pipeline stage.</span>
 <span class="sd">"""</span>
@@ -1286,7 +1286,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.fixed_point</span><span class="w"> </span><span class="kn">import</span> <span class="n">LnDatapath</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.generators</span><span class="w"> </span><span class="kn">import</span> <span class="n">CoreGenerator</span><span class="p">,</span> <span class="n">RenderContext</span><span class="p">,</span> <span class="n">RenderedCore</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"LnTileGenerator"</span><span class="p">,)</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"LnCoreGenerator"</span><span class="p">,)</span>
 
 <span class="c1"># The widest int32 magnitude bit, so the mantissa shift is always a LEFT</span>
 <span class="c1"># shift: the model branches to a right shift when internal_bits is below the</span>
@@ -1299,9 +1299,9 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">width</span><span class="si">}</span><span class="s2">'h</span><span class="si">{</span><span class="n">value</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="p">((</span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">width</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="si">:</span><span class="s2">0</span><span class="si">{</span><span class="p">(</span><span class="n">width</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="mi">4</span><span class="si">}</span><span class="s2">x</span><span class="si">}</span><span class="s2">"</span>
 
 
-<div class="viewcode-block" id="LnTileGenerator">
-<a class="viewcode-back" href="../../autoapi/dau_core/ln_generator/index.html#dau_core.ln_generator.LnTileGenerator">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">LnTileGenerator</span><span class="p">(</span><span class="n">CoreGenerator</span><span class="p">):</span>
+<div class="viewcode-block" id="LnCoreGenerator">
+<a class="viewcode-back" href="../../autoapi/dau_core/ln_generator/index.html#dau_core.ln_generator.LnCoreGenerator">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LnCoreGenerator</span><span class="p">(</span><span class="n">CoreGenerator</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Renders ``dau_fixed_point_ln`` for one operating point."""</span>
 
     <span class="n">module</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"dau_fixed_point_ln"</span>
@@ -1311,8 +1311,8 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">source_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="si">}</span><span class="s2">.sv"</span>
 
-<div class="viewcode-block" id="LnTileGenerator.__call__">
-<a class="viewcode-back" href="../../autoapi/dau_core/ln_generator/index.html#dau_core.ln_generator.LnTileGenerator.__call__">[docs]</a>
+<div class="viewcode-block" id="LnCoreGenerator.__call__">
+<a class="viewcode-back" href="../../autoapi/dau_core/ln_generator/index.html#dau_core.ln_generator.LnCoreGenerator.__call__">[docs]</a>
     <span class="nd">@Flow</span><span class="o">.</span><span class="n">call</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">RenderContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RenderedCore</span><span class="p">:</span>  <span class="c1"># noqa: ARG002 (ccflow interface)</span>
         <span class="n">point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">datapath</span>
@@ -1323,7 +1323,7 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># and shift &gt; 0 branches. Refuse rather than render HDL that mirrors</span>
         <span class="c1"># the other branch of a model this file claims to reproduce exactly.</span>
         <span class="k">if</span> <span class="n">q</span> <span class="o">&lt;=</span> <span class="n">point</span><span class="o">.</span><span class="n">fractional_bits</span> <span class="ow">or</span> <span class="n">q</span> <span class="o">&lt;</span> <span class="n">_MAX_MSB</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"the ln tile renders internal_bits &gt; fractional_bits and &gt;= </span><span class="si">{</span><span class="n">_MAX_MSB</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="n">q</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">point</span><span class="o">.</span><span class="n">fractional_bits</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"the ln core renders internal_bits &gt; fractional_bits and &gt;= </span><span class="si">{</span><span class="n">_MAX_MSB</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="n">q</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">point</span><span class="o">.</span><span class="n">fractional_bits</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="c1"># the mantissa's leading one sits at bit q, so it is q+1 bits; the</span>
         <span class="c1"># reciprocal of 1 is 2**q exactly, which needs the same width</span>
@@ -1340,7 +1340,7 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># operands of `a * b` are sized by the expression context, so</span>
         <span class="c1"># `WIDE'((acc * v) &gt;&gt;&gt; Q)` evaluates the multiply at WIDE and throws</span>
         <span class="c1"># away the high half BEFORE the shift -- which silently produced zero</span>
-        <span class="c1"># for every input on the exp tile. The products therefore get their</span>
+        <span class="c1"># for every input on the exp core. The products therefore get their</span>
         <span class="c1"># own wires, and a shift only ever reads a register that is already</span>
         <span class="c1"># full width.</span>
         <span class="c1"># EVERY multiply gets its own pipeline stage. Multiplying, shifting</span>
@@ -1373,14 +1373,14 @@ window.runMermaid = runMermaid;</script>
 
         <span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"""`default_nettype none</span>
 
-<span class="s2">// GENERATED by dau_core.ln_generator.LnTileGenerator -- do not edit.</span>
+<span class="s2">// GENERATED by dau_core.ln_generator.LnCoreGenerator -- do not edit.</span>
 <span class="s2">//</span>
 <span class="s2">// Fixed-point natural log over 16-byte quad rows, rendered for ONE operating</span>
 <span class="s2">// point:</span>
 <span class="s2">//   internal bits </span><span class="si">{</span><span class="n">q</span><span class="si">}</span><span class="s2">, tables </span><span class="si">{</span><span class="n">entries</span><span class="si">}</span><span class="s2"> entries, degree </span><span class="si">{</span><span class="n">point</span><span class="o">.</span><span class="n">degree</span><span class="si">}</span><span class="s2">,</span>
 <span class="s2">//   Horner steps </span><span class="si">{</span><span class="s2">"rounded"</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">point</span><span class="o">.</span><span class="n">round_steps</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">"truncated"</span><span class="si">}</span>
 <span class="s2">//</span>
-<span class="s2">// This tile is generated because its two </span><span class="si">{</span><span class="n">entries</span><span class="si">}</span><span class="s2">-entry tables -- ln(1 + j/</span><span class="si">{</span><span class="n">entries</span><span class="si">}</span><span class="s2">)</span>
+<span class="s2">// This core is generated because its two </span><span class="si">{</span><span class="n">entries</span><span class="si">}</span><span class="s2">-entry tables -- ln(1 + j/</span><span class="si">{</span><span class="n">entries</span><span class="si">}</span><span class="s2">)</span>
 <span class="s2">// and the reciprocal 1/(1 + j/</span><span class="si">{</span><span class="n">entries</span><span class="si">}</span><span class="s2">) -- and its series coefficients are</span>
 <span class="s2">// transcendental constants at </span><span class="si">{</span><span class="n">q</span><span class="si">}</span><span class="s2"> fractional bits, which SystemVerilog cannot</span>
 <span class="s2">// compute at elaboration. The registry entry names the generator and the</span>
@@ -1401,7 +1401,7 @@ window.runMermaid = runMermaid;</script>
 <span class="s2">// point is FAITHFUL, not correctly rounded.</span>
 <span class="s2">//</span>
 <span class="s2">// A non-positive input has no logarithm and closes the batch out with</span>
-<span class="s2">// ERR_DOMAIN, the position the sqrt tile takes: a substituted value would be</span>
+<span class="s2">// ERR_DOMAIN, the position the sqrt core takes: a substituted value would be</span>
 <span class="s2">// a wrong number that looks right.</span>
 <span class="s2">module </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="si">}</span><span class="s2"> #(</span>
 <span class="s2">    parameter int INTERNAL_BITS = </span><span class="si">{</span><span class="n">q</span><span class="si">}</span><span class="s2">,</span>

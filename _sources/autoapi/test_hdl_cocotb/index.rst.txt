@@ -19,6 +19,7 @@ Functions
 
 .. autoapisummary::
 
+   test_hdl_cocotb._lane_models
    test_hdl_cocotb._bar_noc_sim_sv
    test_hdl_cocotb._sort_noc_sim_sv
    test_hdl_cocotb.test_int32_stream_aggregation_runs_real_cocotb_against_systemverilog
@@ -107,6 +108,13 @@ Module Contents
 
 .. py:data:: _SV_TB_DIR
 
+.. py:function:: _lane_models(scan_composition)
+
+   dau-build's lane and core instance models. dau-build is released after
+   dau-core, so its current release still names them LaneTile and
+   TileInstance.
+
+
 .. py:function:: _bar_noc_sim_sv(tmp_path: pathlib.Path) -> pathlib.Path
 
    Generate the broadcast-NoC sim harness (four key-filtered bar lanes)
@@ -148,9 +156,9 @@ Module Contents
 
 .. py:function:: test_rolling_extremum_matches_golden(tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch, value_width: int, find_max: int) -> None
 
-   Every build of the tile against the same golden.
+   Every build of the core against the same golden.
 
-   The point of the parameter sweep is the tile's claim: extremum does not
+   The point of the parameter sweep is the core's claim: extremum does not
    depend on the width it is computed in, so ONE implementation serves every
    signed integer type. If that were wrong, a width would disagree with the
    golden here rather than on silicon.
@@ -192,7 +200,7 @@ Module Contents
 
 .. py:function:: test_normal_cdf_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
 
-   The rendered CDF tile against its model, which is correctly rounded
+   The rendered CDF core against its model, which is correctly rounded
    over every representable input.
 
 
@@ -207,7 +215,7 @@ Module Contents
 
 .. py:function:: test_fixed_point_ln_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
 
-   The rendered ln tile against the model it renders from, with zero
+   The rendered ln core against the model it renders from, with zero
    tolerance -- the model's own 1 ULP deviation from the mathematics is a
    separate, measured question.
 
@@ -216,7 +224,7 @@ Module Contents
 
 .. py:function:: test_datetime_format_runs_real_cocotb_against_systemverilog(tmp_path: pathlib.Path) -> None
 
-   The tile shipped with no bench at all: its only test read constants out
+   The core shipped with no bench at all: its only test read constants out
    of the SystemVerilog and exercised the Python golden, so the module was
    never instantiated and its measured resource number described an
    unverified design.

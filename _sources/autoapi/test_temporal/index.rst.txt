@@ -26,7 +26,7 @@ Functions
    test_temporal.test_rolling_resets_per_symbol
    test_temporal.test_rolling_moments_and_derived_mean_variance
    test_temporal.test_moment_var_is_exact_at_fixed_point_magnitudes
-   test_temporal.test_rolling_moments_refuses_a_window_that_overflows_the_tiles_sum_of_squares
+   test_temporal.test_rolling_moments_refuses_a_window_that_overflows_the_cores_sum_of_squares
    test_temporal.test_moment_var_rejects_underdetermined_window
    test_temporal.test_ewma_non_adjusted_recursion_per_symbol
    test_temporal.test_ewma_rejects_out_of_range_alpha
@@ -74,9 +74,9 @@ Module Contents
 
 .. py:function:: test_moment_var_is_exact_at_fixed_point_magnitudes() -> None
 
-.. py:function:: test_rolling_moments_refuses_a_window_that_overflows_the_tiles_sum_of_squares() -> None
+.. py:function:: test_rolling_moments_refuses_a_window_that_overflows_the_cores_sum_of_squares() -> None
 
-   The tile's INT64 sum_sq wraps silently; Python's integers do not. If the
+   The core's INT64 sum_sq wraps silently; Python's integers do not. If the
    golden answered anyway the two would disagree over exactly the inputs the
    contract excludes, so it refuses instead.
 

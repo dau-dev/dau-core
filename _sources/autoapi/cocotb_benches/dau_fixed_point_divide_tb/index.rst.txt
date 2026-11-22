@@ -5,11 +5,11 @@ cocotb_benches.dau_fixed_point_divide_tb
 
 .. autoapi-nested-parse::
 
-   The fixed-point divide tile against its golden, with NO tolerance.
+   The fixed-point divide core against its golden, with NO tolerance.
 
    The quotient is exact by construction -- `(A << F) // B` -- and FLOOR, which
    is the convention MULSHR already set with its arithmetic shift. The negative
-   cases here are the ones that would catch a tile that truncated toward zero
+   cases here are the ones that would catch a core that truncated toward zero
    instead, because that is the plausible wrong choice.
 
 
@@ -130,7 +130,7 @@ Module Contents
    :async:
 
 
-   1.0 / (1 * 2**-16) is 2**32: defined, but not an int32. The tile must
+   1.0 / (1 * 2**-16) is 2**32: defined, but not an int32. The core must
    refuse rather than wrap or saturate.
 
 
@@ -153,7 +153,7 @@ Module Contents
    would be dropped before it retired, making the guard look redundant.
    Hold status_ready low for longer than the pipeline is deep and the row
    reaches the output instead -- which is the case that must not emit a
-   quotient the tile does not have.
+   quotient the core does not have.
 
 
 .. py:function:: torn_row_reports_stream_error(dut)

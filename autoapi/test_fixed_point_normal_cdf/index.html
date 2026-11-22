@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -864,7 +864,7 @@
     <a href="#test_fixed_point_normal_cdf.test_the_registered_point_is_correctly_rounded_over_every_input">test_the_registered_point_is_correctly_rounded_over_every_input()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_fixed_point_normal_cdf.test_the_tile_is_total_and_saturates_exactly">test_the_tile_is_total_and_saturates_exactly()</a>
+    <a href="#test_fixed_point_normal_cdf.test_the_core_is_total_and_saturates_exactly">test_the_core_is_total_and_saturates_exactly()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_fixed_point_normal_cdf.test_symmetry_holds_exactly">test_symmetry_holds_exactly()</a>
@@ -921,7 +921,7 @@ by default) and ln is 2.1 billion (never exhaustive in the suite).</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#test_fixed_point_normal_cdf.test_the_registered_point_is_correctly_rounded_over_every_input" title="test_fixed_point_normal_cdf.test_the_registered_point_is_correctly_rounded_over_every_input"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_registered_point_is_correctly_rounded_over_every_input</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_fixed_point_normal_cdf.test_the_tile_is_total_and_saturates_exactly" title="test_fixed_point_normal_cdf.test_the_tile_is_total_and_saturates_exactly"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_tile_is_total_and_saturates_exactly</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_fixed_point_normal_cdf.test_the_core_is_total_and_saturates_exactly" title="test_fixed_point_normal_cdf.test_the_core_is_total_and_saturates_exactly"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_core_is_total_and_saturates_exactly</span></code></a>() → None</p></td>
 <td><p>No error path: every int32 input has an answer, and the saturation IS</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#test_fixed_point_normal_cdf.test_symmetry_holds_exactly" title="test_fixed_point_normal_cdf.test_symmetry_holds_exactly"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_symmetry_holds_exactly</span></code></a>() → None</p></td>
@@ -962,8 +962,8 @@ re-decided against the 80-digit reference.</p>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="test_fixed_point_normal_cdf.test_the_tile_is_total_and_saturates_exactly">
-<span class="sig-prename descclassname"><span class="pre">test_fixed_point_normal_cdf.</span></span><span class="sig-name descname"><span class="pre">test_the_tile_is_total_and_saturates_exactly</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_fixed_point_normal_cdf.test_the_tile_is_total_and_saturates_exactly" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="test_fixed_point_normal_cdf.test_the_core_is_total_and_saturates_exactly">
+<span class="sig-prename descclassname"><span class="pre">test_fixed_point_normal_cdf.</span></span><span class="sig-name descname"><span class="pre">test_the_core_is_total_and_saturates_exactly</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_fixed_point_normal_cdf.test_the_core_is_total_and_saturates_exactly" title="Link to this definition">¶</a></dt>
 <dd><p>No error path: every int32 input has an answer, and the saturation IS
 the correctly rounded value rather than a clamp.</p>
 </dd></dl>
@@ -1046,7 +1046,7 @@ conservative.</p>
     <a href="#test_fixed_point_normal_cdf.test_the_registered_point_is_correctly_rounded_over_every_input">test_the_registered_point_is_correctly_rounded_over_every_input()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_fixed_point_normal_cdf.test_the_tile_is_total_and_saturates_exactly">test_the_tile_is_total_and_saturates_exactly()</a>
+    <a href="#test_fixed_point_normal_cdf.test_the_core_is_total_and_saturates_exactly">test_the_core_is_total_and_saturates_exactly()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_fixed_point_normal_cdf.test_symmetry_holds_exactly">test_symmetry_holds_exactly()</a>

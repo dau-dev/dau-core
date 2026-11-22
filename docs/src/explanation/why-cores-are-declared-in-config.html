@@ -27,7 +27,7 @@
     <script src="../../../_static/js/custom.js?v=956e5d78"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Why each tile has a golden model" href="why-each-tile-has-a-golden-model.html" />
+    <link rel="next" title="Why each core has a golden model" href="why-each-core-has-a-golden-model.html" />
     <link rel="prev" title="Registry-wide guards" href="../reference/registry-guards.html" />
     <script>
       (function () {
@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../autoapi/test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../../autoapi/test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../autoapi/test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../../autoapi/test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -876,8 +876,8 @@ it.</p>
 composing the stack to be able to change it without forking this package.</p>
 <section id="a-python-list-would-keep-the-palette-inside-the-package">
 <h2>A Python list would keep the palette inside the package<a class="headerlink" href="#a-python-list-would-keep-the-palette-inside-the-package" title="Link to this heading">¶</a></h2>
-<p>If the registry were a module-level dict, every fact about every tile would
-sit behind an import. Changing a tile’s declared clock, adding a tile, or
+<p>If the registry were a module-level dict, every fact about every core would
+sit behind an import. Changing a core’s declared clock, adding a core, or
 pointing an envelope at a different part would each mean editing installed
 library source. A consuming application would have to monkey-patch, vendor
 a fork, or go without the change.</p>
@@ -900,13 +900,13 @@ disagree.</p>
 </section>
 <section id="the-authoring-surface-and-the-accessors-are-kept-separate">
 <h2>The authoring surface and the accessors are kept separate<a class="headerlink" href="#the-authoring-surface-and-the-accessors-are-kept-separate" title="Link to this heading">¶</a></h2>
-<p>A third party adding a tile needs the models, not the accessors. The
+<p>A third party adding a core needs the models, not the accessors. The
 authoring surface is six modules: <code class="docutils literal notranslate"><span class="pre">dau_core.cores</span></code> (<code class="docutils literal notranslate"><span class="pre">CoreDefinition</span></code>,
 <code class="docutils literal notranslate"><span class="pre">IngestRate</span></code>, <code class="docutils literal notranslate"><span class="pre">StorageIntent</span></code>, <code class="docutils literal notranslate"><span class="pre">ParameterSpec</span></code>), <code class="docutils literal notranslate"><span class="pre">dau_core.design</span></code>,
 <code class="docutils literal notranslate"><span class="pre">dau_core.element_types</span></code>, <code class="docutils literal notranslate"><span class="pre">dau_core.generators</span></code>, <code class="docutils literal notranslate"><span class="pre">dau_core.models</span></code>, and
 <code class="docutils literal notranslate"><span class="pre">dau_core.stream</span></code> (the row-stream ABI). <code class="docutils literal notranslate"><span class="pre">dau_core.registry</span></code> is not part of
-it, because the accessors only know about the tiles this package ships.</p>
-<p><code class="docutils literal notranslate"><span class="pre">dau_core/tests/test_public_tile_surface.py</span></code> checks the separation
+it, because the accessors only know about the cores this package ships.</p>
+<p><code class="docutils literal notranslate"><span class="pre">dau_core/tests/test_public_core_surface.py</span></code> checks the separation
 statically by listing exactly which imports the surface may make. Each
 module added to that list is one more module that would have to move with
 the surface if it were ever published on its own.</p>
@@ -922,7 +922,7 @@ yaml file instead of skimming a module.</p>
 <section id="see-also">
 <h2>See also<a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h2>
 <ul class="simple">
-<li><p><a class="reference internal" href="../how-to/add-an-operator-tile.html"><span class="std std-doc">How to add an operator tile</span></a>: the steps a new entry
+<li><p><a class="reference internal" href="../how-to/add-an-operator-core.html"><span class="std std-doc">How to add an operator core</span></a>: the steps a new entry
 goes through.</p></li>
 <li><p><a class="reference internal" href="../reference/core-definition.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">CoreDefinition</span></code> fields</span></a>: what an entry can declare.</p></li>
 <li><p><a class="reference internal" href="why-resources-are-measured.html"><span class="std std-doc">Why resource costs are measured</span></a>: why the
@@ -941,10 +941,10 @@ most expensive field in an entry raises instead of guessing.</p></li>
       <span class="fd-pagination-title">Registry-wide guards</span>
     </span>
   </a>
-  <a class="fd-pagination-card fd-pagination-next" href="why-each-tile-has-a-golden-model.html" title="Next: Why each tile has a golden model">
+  <a class="fd-pagination-card fd-pagination-next" href="why-each-core-has-a-golden-model.html" title="Next: Why each core has a golden model">
     <span class="fd-pagination-text">
       <span class="fd-pagination-label">Next</span>
-      <span class="fd-pagination-title">Why each tile has a golden model</span>
+      <span class="fd-pagination-title">Why each core has a golden model</span>
     </span>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
   </a>

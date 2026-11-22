@@ -7,13 +7,13 @@ test_parameter_bounds_match_the_hdl
 
    A parameter bound stated twice is a bound that can disagree with itself.
 
-   The registry declares what a tile's parameters may be; the tile's own
+   The registry declares what a core's parameters may be; the core's own
    elaboration guard declares the same thing in SystemVerilog, because Verilog
    cannot read the registry. Both are necessary. Nothing made them agree, so
-   the registry could offer a K the tile refuses to elaborate, or -- worse --
-   accept one the tile elaborates into something unmeasured.
+   the registry could offer a K the core refuses to elaborate, or -- worse --
+   accept one the core elaborates into something unmeasured.
 
-   The tiles state their bounds in a small set of conventional forms, which is
+   The cores state their bounds in a small set of conventional forms, which is
    what makes this checkable. A form this cannot parse is listed explicitly
    rather than skipped silently: an unparsed guard is an unchecked guard, and a
    holdout list that nobody can see is how the last audit went stale.
@@ -39,7 +39,7 @@ Functions
    test_parameter_bounds_match_the_hdl._guard_bounds
    test_parameter_bounds_match_the_hdl._parameterized_cores
    test_parameter_bounds_match_the_hdl._magnitude
-   test_parameter_bounds_match_the_hdl.test_declared_bounds_match_the_tiles_elaboration_guard
+   test_parameter_bounds_match_the_hdl.test_declared_bounds_match_the_cores_elaboration_guard
    test_parameter_bounds_match_the_hdl.test_unparsed_guards_are_declared_and_still_exist
    test_parameter_bounds_match_the_hdl.test_the_python_mirror_of_the_top_k_bound_matches_the_registry
    test_parameter_bounds_match_the_hdl._golden_bounds
@@ -67,7 +67,7 @@ Module Contents
 
 .. py:function:: _magnitude(parameter, value: int) -> int
 
-   What the tile's guard is a bound ON.
+   What the core's guard is a bound ON.
 
    An element-type parameter carries a type encoding, and a guard reading
    "must divide 128 and lie in [8, 64]" bounds the type's WIDTH -- the
@@ -78,7 +78,7 @@ Module Contents
    against a bound about bits.
 
 
-.. py:function:: test_declared_bounds_match_the_tiles_elaboration_guard() -> None
+.. py:function:: test_declared_bounds_match_the_cores_elaboration_guard() -> None
 
 .. py:function:: test_unparsed_guards_are_declared_and_still_exist() -> None
 
@@ -89,7 +89,7 @@ Module Contents
 
    `TOP_K_MAX` is a third copy of the same number: the compiler rejects an
    out-of-envelope limit against it, the registry prices against its maximum,
-   and the tile refuses to elaborate outside its guard.
+   and the core refuses to elaborate outside its guard.
 
 
 .. py:function:: _golden_bounds() -> list[tuple[str, str, str, int]]

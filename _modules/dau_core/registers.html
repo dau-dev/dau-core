@@ -482,13 +482,13 @@ window.runMermaid = runMermaid;</script>
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -527,8 +527,8 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -1168,11 +1168,6 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../autoapi/test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../autoapi/test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -1183,8 +1178,13 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../autoapi/test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../autoapi/test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -1362,8 +1362,8 @@ window.runMermaid = runMermaid;</script>
     <span class="n">RESULT_LENGTH_LOW</span> <span class="o">=</span> <span class="mh">0x007C</span>
     <span class="n">RESULT_LENGTH_HIGH</span> <span class="o">=</span> <span class="mh">0x0080</span>
     <span class="c1"># two-phase load (additive): bit 0 drives the composed load-capable</span>
-    <span class="c1"># tiles' cfg_load ports (membership bitmap / join payload table). 1 = the</span>
-    <span class="c1"># next job's input scan is a LOAD image (the tile's success close-out is</span>
+    <span class="c1"># cores' cfg_load ports (membership bitmap / join payload table). 1 = the</span>
+    <span class="c1"># next job's input scan is a LOAD image (the core's success close-out is</span>
     <span class="c1"># the load-done); 0 (the reset default) = PROBE, i.e. today's single-phase</span>
     <span class="c1"># behavior. Shells built before their generator learned this register</span>
     <span class="c1"># ignore writes and read 0 — never a behavior change for old bitstreams.</span>
@@ -1468,7 +1468,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    -- these mean the datapath is untouched, not that it produced garbage.</span>
 
 <span class="sd">    They sit at the top of the code space, below the shell's own 0xFE</span>
-<span class="sd">    length-gate fault, because that space is the shell's: a tile's error codes</span>
+<span class="sd">    length-gate fault, because that space is the shell's: a core's error codes</span>
 <span class="sd">    are small and per-core (dau_core.operators), and a fault that refuses the</span>
 <span class="sd">    job outright is not one of them."""</span>
 
@@ -1823,7 +1823,7 @@ window.runMermaid = runMermaid;</script>
 <span class="c1"># static advertisement). 0.2 adds the composed-capability words</span>
 <span class="c1"># (LANE_COUNT / HOST_OPCODE_BITMAP / SORT_CAPACITY) and redefines</span>
 <span class="c1"># OPERATOR_BITMAP as the hardware truth of the composed design: a bit is</span>
-<span class="c1"># set only for OperationCodes some tile executes in HDL. 0.3 adds the job</span>
+<span class="c1"># set only for OperationCodes some core executes in HDL. 0.3 adds the job</span>
 <span class="c1"># capacity words (INPUT_ROW_CAPACITY / OUTPUT_RECORD_CAPACITY).</span>
 <span class="n">CURRENT_REGISTER_MAP_VERSION</span> <span class="o">=</span> <span class="n">RegisterMapVersion</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
 <span class="c1"># The first version that decodes each group. A reader gates on these rather</span>

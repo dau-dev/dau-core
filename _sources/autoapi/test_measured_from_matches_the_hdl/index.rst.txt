@@ -20,10 +20,10 @@ test_measured_from_matches_the_hdl
 
    ``measured_from`` closes that. It stamps the recorded numbers with a digest
    of the HDL closure they describe (:meth:`CoreDefinition.hdl_closure_digest`
-   -- the tile's own source, the packages it imports, the headers it includes),
+   -- the core's own source, the packages it imports, the headers it includes),
    and this module recomputes it. An edit to any of those files fails HERE,
-   naming the tile, in the fast job, seconds after the edit -- which is the
-   property that matters: the check fires on exactly the tiles a change
+   naming the core, in the fast job, seconds after the edit -- which is the
+   property that matters: the check fires on exactly the cores a change
    TOUCHED, not on the ones somebody remembers to look at.
 
 
@@ -46,9 +46,9 @@ Functions
    test_measured_from_matches_the_hdl.test_every_stamped_envelope_matches_its_hdl_closure
    test_measured_from_matches_the_hdl.test_the_unstamped_envelopes_are_exactly_the_declared_ones
    test_measured_from_matches_the_hdl.test_every_core_has_a_computable_hdl_closure
-   test_measured_from_matches_the_hdl.test_the_closure_holds_the_packages_a_tile_imports_and_the_headers_it_includes
+   test_measured_from_matches_the_hdl.test_the_closure_holds_the_packages_a_core_imports_and_the_headers_it_includes
    test_measured_from_matches_the_hdl.test_a_generated_core_is_digested_from_its_rendered_text
-   test_measured_from_matches_the_hdl.test_a_moved_dependency_moves_every_dependent_tiles_digest
+   test_measured_from_matches_the_hdl.test_a_moved_dependency_moves_every_dependent_cores_digest
    test_measured_from_matches_the_hdl.test_an_unresolvable_include_refuses_rather_than_digesting_a_partial_closure
    test_measured_from_matches_the_hdl.test_an_unregistered_dependency_refuses_rather_than_digesting_a_partial_closure
    test_measured_from_matches_the_hdl.test_a_stamp_without_a_measurement_is_refused
@@ -67,14 +67,14 @@ Module Contents
 
 .. py:function:: test_every_stamped_envelope_matches_its_hdl_closure() -> None
 
-   THE GUARD. A stamped tile's HDL must still digest to what its numbers
+   THE GUARD. A stamped core's HDL must still digest to what its numbers
    were recorded against.
 
    Failing here does NOT mean the numbers are wrong -- it means nobody has
    said whether they are. There are exactly two honest ways out and neither
    is editing the digest to match:
 
-   1. Re-measure the tile's recorded coordinates through
+   1. Re-measure the core's recorded coordinates through
       ``dau-build task=tasks/build/synthesize-cores`` and record what comes
       back, stamp included.
    2. Show the edit is netlist-neutral -- one control coordinate reporting
@@ -85,40 +85,40 @@ Module Contents
 .. py:function:: test_the_unstamped_envelopes_are_exactly_the_declared_ones() -> None
 
    Both directions, for the reason every exact set in this suite is:
-   a stale name means a tile got stamped and nobody tightened the guard, and
+   a stale name means a core got stamped and nobody tightened the guard, and
    an unlisted name means a measurement shipped with no record of what it
    measured.
 
 
 .. py:function:: test_every_core_has_a_computable_hdl_closure() -> None
 
-   A closure that cannot be resolved is a defect whether or not the tile
+   A closure that cannot be resolved is a defect whether or not the core
    is stamped yet -- otherwise a missing header or an unregistered dependency
-   stays invisible until the day somebody first tries to stamp that tile.
+   stays invisible until the day somebody first tries to stamp that core.
 
 
-.. py:function:: test_the_closure_holds_the_packages_a_tile_imports_and_the_headers_it_includes() -> None
+.. py:function:: test_the_closure_holds_the_packages_a_core_imports_and_the_headers_it_includes() -> None
 
    The two directions that decide whether the guard works.
 
    Too permissive and it misses the edit that matters: a package edit must
-   reach every tile that imports it. Too strict and every unrelated edit
-   re-measures the world: a header a tile does not include must not reach it.
+   reach every core that imports it. Too strict and every unrelated edit
+   re-measures the world: a header a core does not include must not reach it.
 
 
 .. py:function:: test_a_generated_core_is_digested_from_its_rendered_text() -> None
 
-   A generated tile has no checked-in `.sv`, so a digest over files on
+   A generated core has no checked-in `.sv`, so a digest over files on
    disk would be blind to the one thing that decides its RTL. Its constants
    live in the generator and in the registry entry's generator config; move
    either and the digest must move.
 
 
-.. py:function:: test_a_moved_dependency_moves_every_dependent_tiles_digest(tmp_path, monkeypatch) -> None
+.. py:function:: test_a_moved_dependency_moves_every_dependent_cores_digest(tmp_path, monkeypatch) -> None
 
    Proved by construction rather than by being green: editing a shared
-   package must fail the tiles that import it, which is the case a per-file
-   stamp on the tile alone would miss.
+   package must fail the cores that import it, which is the case a per-file
+   stamp on the core alone would miss.
 
 
 .. py:function:: test_an_unresolvable_include_refuses_rather_than_digesting_a_partial_closure(tmp_path, monkeypatch) -> None
@@ -137,7 +137,7 @@ Module Contents
 .. py:function:: test_a_stamp_without_a_measurement_is_refused() -> None
 
    The stamp says which RTL a measurement describes; without one it says
-   nothing and reads as though the tile were checked.
+   nothing and reads as though the core were checked.
 
 
 .. py:function:: test_the_shell_register_block_is_stamped_and_its_stamp_matches() -> None

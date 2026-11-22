@@ -1,7 +1,7 @@
-test_aggregation_tile_hdl
+test_aggregation_core_hdl
 =========================
 
-.. py:module:: test_aggregation_tile_hdl
+.. py:module:: test_aggregation_core_hdl
 
 
 Functions
@@ -9,10 +9,10 @@ Functions
 
 .. autoapisummary::
 
-   test_aggregation_tile_hdl.test_packaged_int32_stream_aggregation_exposes_descriptor_ports
-   test_aggregation_tile_hdl.test_packaged_int32_stream_aggregation_names_stream_protocol_constants
-   test_aggregation_tile_hdl.test_packaged_arrow_lite_stream_aggregation_exposes_packed_ready_valid_ports
-   test_aggregation_tile_hdl.test_packaged_arrow_lite_stream_aggregation_names_protocol_layout_constants
+   test_aggregation_core_hdl.test_packaged_int32_stream_aggregation_exposes_descriptor_ports
+   test_aggregation_core_hdl.test_packaged_int32_stream_aggregation_names_stream_protocol_constants
+   test_aggregation_core_hdl.test_packaged_arrow_lite_stream_aggregation_exposes_packed_ready_valid_ports
+   test_aggregation_core_hdl.test_packaged_arrow_lite_stream_aggregation_names_protocol_layout_constants
 
 
 Module Contents

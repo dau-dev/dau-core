@@ -20,15 +20,15 @@ Functions
 
    cocotb_benches.dau_asof_backward_tb._merge
    cocotb_benches.dau_asof_backward_tb._expected
-   cocotb_benches.dau_asof_backward_tb.asof_tile_matches_golden
-   cocotb_benches.dau_asof_backward_tb.asof_tile_backpressure_both_sides
-   cocotb_benches.dau_asof_backward_tb.asof_tile_tolerance_drops_stale_quotes
-   cocotb_benches.dau_asof_backward_tb.asof_tile_all_misses_emit_nothing
-   cocotb_benches.dau_asof_backward_tb.asof_tile_int64_time_axis
-   cocotb_benches.dau_asof_backward_tb.asof_tile_reappearing_symbol_resets_quote
-   cocotb_benches.dau_asof_backward_tb.asof_tile_marks_output_last_on_final_row_after_trailing_miss
-   cocotb_benches.dau_asof_backward_tb.asof_tile_extreme_timestamp_age_misses
-   cocotb_benches.dau_asof_backward_tb.asof_tile_truncated_record_reports_stream_error
+   cocotb_benches.dau_asof_backward_tb.asof_core_matches_golden
+   cocotb_benches.dau_asof_backward_tb.asof_core_backpressure_both_sides
+   cocotb_benches.dau_asof_backward_tb.asof_core_tolerance_drops_stale_quotes
+   cocotb_benches.dau_asof_backward_tb.asof_core_all_misses_emit_nothing
+   cocotb_benches.dau_asof_backward_tb.asof_core_int64_time_axis
+   cocotb_benches.dau_asof_backward_tb.asof_core_reappearing_symbol_resets_quote
+   cocotb_benches.dau_asof_backward_tb.asof_core_marks_output_last_on_final_row_after_trailing_miss
+   cocotb_benches.dau_asof_backward_tb.asof_core_extreme_timestamp_age_misses
+   cocotb_benches.dau_asof_backward_tb.asof_core_truncated_record_reports_stream_error
    cocotb_benches.dau_asof_backward_tb._start
    cocotb_benches.dau_asof_backward_tb._run
    cocotb_benches.dau_asof_backward_tb._decode_row
@@ -60,45 +60,45 @@ Module Contents
 
 .. py:function:: _expected(quotes, trades, *, tolerance=None)
 
-   The tile's golden is the generic keyed as-of join over the merged stream
+   The core's golden is the generic keyed as-of join over the merged stream
    (quote = build {bid, ask}, trade = probe {price, size}) — the joined row
    (key, time, probe_a, probe_b, build_a, build_b) is the market row the bench
    decodes.
 
 
-.. py:function:: asof_tile_matches_golden(dut)
+.. py:function:: asof_core_matches_golden(dut)
    :async:
 
 
-.. py:function:: asof_tile_backpressure_both_sides(dut)
+.. py:function:: asof_core_backpressure_both_sides(dut)
    :async:
 
 
-.. py:function:: asof_tile_tolerance_drops_stale_quotes(dut)
+.. py:function:: asof_core_tolerance_drops_stale_quotes(dut)
    :async:
 
 
-.. py:function:: asof_tile_all_misses_emit_nothing(dut)
+.. py:function:: asof_core_all_misses_emit_nothing(dut)
    :async:
 
 
-.. py:function:: asof_tile_int64_time_axis(dut)
+.. py:function:: asof_core_int64_time_axis(dut)
    :async:
 
 
-.. py:function:: asof_tile_reappearing_symbol_resets_quote(dut)
+.. py:function:: asof_core_reappearing_symbol_resets_quote(dut)
    :async:
 
 
-.. py:function:: asof_tile_marks_output_last_on_final_row_after_trailing_miss(dut)
+.. py:function:: asof_core_marks_output_last_on_final_row_after_trailing_miss(dut)
    :async:
 
 
-.. py:function:: asof_tile_extreme_timestamp_age_misses(dut)
+.. py:function:: asof_core_extreme_timestamp_age_misses(dut)
    :async:
 
 
-.. py:function:: asof_tile_truncated_record_reports_stream_error(dut)
+.. py:function:: asof_core_truncated_record_reports_stream_error(dut)
    :async:
 
 

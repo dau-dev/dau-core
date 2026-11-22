@@ -20,8 +20,8 @@ dau_core.capability_contract
      driver capability decode via the manifest mapping).
 
    Hardware truth vs protocol truth is explicit: ``operator_bitmap`` carries
-   only OperationCodes some tile executes in HDL (MIN/MAX/SUM/COUNT);
-   AVERAGE is never a hardware opcode — when a tile provides both SUM and
+   only OperationCodes some core executes in HDL (MIN/MAX/SUM/COUNT);
+   AVERAGE is never a hardware opcode — when a core provides both SUM and
    COUNT it appears in ``host_opcodes`` (the host divides the results at
    protocol level), never in ``opcodes``.
 
@@ -41,7 +41,7 @@ Classes
 
 .. autoapisummary::
 
-   dau_core.capability_contract.TileCapability
+   dau_core.capability_contract.CoreCapability
    dau_core.capability_contract.LaneCapability
    dau_core.capability_contract.CapabilityContract
 
@@ -53,7 +53,7 @@ Functions
 
    dau_core.capability_contract._exact_keys
    dau_core.capability_contract.opcode_bitmap
-   dau_core.capability_contract.tile_capability
+   dau_core.capability_contract.core_capability
    dau_core.capability_contract.capability_contract
 
 
@@ -77,12 +77,12 @@ Module Contents
    The register encoding: bit ``1 << opcode`` per OperationCode.
 
 
-.. py:class:: TileCapability(/, **data: Any)
+.. py:class:: CoreCapability(/, **data: Any)
 
    Bases: :py:obj:`dau_core.models.CheckedModel`
 
 
-   One operator tile instance as the contract describes it: registry
+   One operator core instance as the contract describes it: registry
    identity, stream contract, HDL opcode truth, instance config, and the
    module parameters it was built with (each declared parameter, at its
    override or its default).
@@ -151,7 +151,7 @@ Module Contents
       :type: tuple[dau_core.stream.OperationCode, ...]
 
 
-      Protocol-level opcodes the host can compute from this tile's
+      Protocol-level opcodes the host can compute from this core's
       hardware results: AVERAGE = SUM/COUNT divided host-side. Never
       hardware opcodes and never advertised as such.
 
@@ -159,7 +159,7 @@ Module Contents
    .. py:method:: to_mapping() -> dict[str, Any]
 
 
-   .. py:method:: from_mapping(mapping: collections.abc.Mapping[str, Any]) -> TileCapability
+   .. py:method:: from_mapping(mapping: collections.abc.Mapping[str, Any]) -> CoreCapability
       :classmethod:
 
 
@@ -169,7 +169,7 @@ Module Contents
    Bases: :py:obj:`dau_core.models.CheckedModel`
 
 
-   One scan lane: the terminal operator tile, its optional partition
+   One scan lane: the terminal operator core, its optional partition
    filter, and the ordered mid-lane operator ``chain`` between them.
 
    Create a new model by parsing and validating input data from keyword arguments.
@@ -180,18 +180,18 @@ Module Contents
    `self` is explicitly positional-only to allow `self` as a field name.
 
 
-   .. py:attribute:: tile
-      :type:  TileCapability
+   .. py:attribute:: sink
+      :type:  CoreCapability
 
 
    .. py:attribute:: partition
-      :type:  TileCapability | None
+      :type:  CoreCapability | None
       :value: None
 
 
 
    .. py:attribute:: chain
-      :type:  tuple[TileCapability, ...]
+      :type:  tuple[CoreCapability, ...]
       :value: ()
 
 
@@ -234,7 +234,7 @@ Module Contents
 
 
    .. py:attribute:: partitioner
-      :type:  TileCapability | None
+      :type:  CoreCapability | None
       :value: None
 
 
@@ -258,7 +258,7 @@ Module Contents
       :type: tuple[dau_core.stream.OperationCode, ...]
 
 
-      Union of the lanes' HDL opcodes (terminal tiles and chain
+      Union of the lanes' HDL opcodes (terminal cores and chain
       stages), ordered by opcode value.
 
 
@@ -266,7 +266,7 @@ Module Contents
       :type: tuple[dau_core.stream.OperationCode, ...]
 
 
-      Protocol-level opcodes derivable host-side (AVERAGE when a tile
+      Protocol-level opcodes derivable host-side (AVERAGE when a core
       provides both SUM and COUNT); explicitly not hardware opcodes.
 
 
@@ -288,7 +288,7 @@ Module Contents
    .. py:method:: to_design() -> dau_core.design.DauDesign
 
       The operator inventory this contract advertises: identical lane
-      tiles that contribute a design unit collapse into one counted unit.
+      cores that contribute a design unit collapse into one counted unit.
 
 
 
@@ -303,9 +303,9 @@ Module Contents
 
 
 
-.. py:function:: tile_capability(tile: dau_core.composition.TileSpec | str) -> TileCapability
+.. py:function:: core_capability(core_spec: dau_core.composition.CoreSpec | str) -> CoreCapability
 
-   The registry-declared capability facts of one tile instance.
+   The registry-declared capability facts of one core instance.
 
 
 .. py:function:: capability_contract(spec: dau_core.composition.ScanCompositionSpec) -> CapabilityContract

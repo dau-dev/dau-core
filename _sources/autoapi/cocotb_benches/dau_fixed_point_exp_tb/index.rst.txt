@@ -5,7 +5,7 @@ cocotb_benches.dau_fixed_point_exp_tb
 
 .. autoapi-nested-parse::
 
-   The rendered exp tile against the model it was rendered from.
+   The rendered exp core against the model it was rendered from.
 
    Zero tolerance: the HDL mirrors ExpDatapath.evaluate step for step, so any
    difference is a defect in one of them. Deviation from correctly rounded exp
@@ -76,7 +76,7 @@ Module Contents
 
    The proven quad-row collector: drive ready, sample in ReadOnly, and
    only count a beat that actually fired. Sampling without checking the
-   handshake is what made this harness report zeros against a tile the
+   handshake is what made this harness report zeros against a core the
    waveform showed was correct.
 
 

@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -1024,7 +1024,7 @@ names a different design.</p>
 <dt class="sig sig-object py" id="test_element_types.test_q_notation_counts_the_sign_bit_in_the_integer_part">
 <span class="sig-prename descclassname"><span class="pre">test_element_types.</span></span><span class="sig-name descname"><span class="pre">test_q_notation_counts_the_sign_bit_in_the_integer_part</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_element_types.test_q_notation_counts_the_sign_bit_in_the_integer_part" title="Link to this definition">¶</a></dt>
 <dd><p>Q notation is ambiguous in the wild, so the convention is pinned: qI.F
-occupies I+F bits. q16.16 is the 32-bit format the fixed-point tiles
+occupies I+F bits. q16.16 is the 32-bit format the fixed-point cores
 compute in, which they spell today as FRACTIONAL_BITS=16.</p>
 </dd></dl>
 
@@ -1032,7 +1032,7 @@ compute in, which they spell today as FRACTIONAL_BITS=16.</p>
 <dt class="sig sig-object py" id="test_element_types.test_an_integer_is_read_as_an_encoding_never_re_interpreted">
 <span class="sig-prename descclassname"><span class="pre">test_element_types.</span></span><span class="sig-name descname"><span class="pre">test_an_integer_is_read_as_an_encoding_never_re_interpreted</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_element_types.test_an_integer_is_read_as_an_encoding_never_re_interpreted" title="Link to this definition">¶</a></dt>
 <dd><p>One interpretation of an integer, and it is the RTL’s.</p>
-<p>A Python side that read 4128 as “4128 bits wide” while the tile it
+<p>A Python side that read 4128 as “4128 bits wide” while the core it
 configures read it as q16.16 would be precisely the confusion this module
 exists to end.</p>
 </dd></dl>
@@ -1046,7 +1046,7 @@ exists to end.</p>
 <dt class="sig sig-object py" id="test_element_types.test_float_widths_are_the_ieee_interchange_formats">
 <span class="sig-prename descclassname"><span class="pre">test_element_types.</span></span><span class="sig-name descname"><span class="pre">test_float_widths_are_the_ieee_interchange_formats</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_element_types.test_float_widths_are_the_ieee_interchange_formats" title="Link to this definition">¶</a></dt>
 <dd><p>“float24” would name a format with no defined exponent split; refusing
-it is better than inventing one a tile would then have to guess at.</p>
+it is better than inventing one a core would then have to guess at.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1102,7 +1102,7 @@ thing this must not do.</p>
 <dt class="sig sig-object py" id="test_element_types.test_the_header_accessors_extract_what_python_stores">
 <span class="sig-prename descclassname"><span class="pre">test_element_types.</span></span><span class="sig-name descname"><span class="pre">test_the_header_accessors_extract_what_python_stores</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_element_types.test_the_header_accessors_extract_what_python_stores" title="Link to this definition">¶</a></dt>
 <dd><p>The accessor macros are bit arithmetic; run that arithmetic against
-every spelling and check it recovers the four facts a tile decodes.</p>
+every spelling and check it recovers the four facts a core decodes.</p>
 </dd></dl>
 
 </section>

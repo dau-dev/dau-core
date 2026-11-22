@@ -11,7 +11,7 @@ Attributes
 
    test_cores.OWN_PACKAGE
    test_cores.HDL_SUFFIXES
-   test_cores.WIDTH_NAMED_TILES
+   test_cores.WIDTH_NAMED_CORES
    test_cores.CANONICAL_PALETTE_VERSION
    test_cores.CANONICAL_PALETTE
 
@@ -29,7 +29,7 @@ Functions
    test_cores.test_benches_are_importable_modules
    test_cores.test_every_operator_has_a_golden
    test_cores.test_every_selectable_operator_declares_its_ingest_rate
-   test_cores.test_wide_combinational_tiles_declare_pipeline_depth_without_changing_ingest
+   test_cores.test_wide_combinational_cores_declare_pipeline_depth_without_changing_ingest
    test_cores.test_every_selectable_operator_declares_its_contract_kind
    test_cores.test_every_selectable_operator_declares_its_record_words
    test_cores.test_parameterized_record_words_resolve_from_defaults_and_overrides
@@ -37,7 +37,7 @@ Functions
    test_cores.test_sources_for_closes_dependencies_in_order
    test_cores.test_lookup_errors_are_typed
    test_cores.test_synthesizable_cores_carry_measured_envelopes
-   test_cores.test_the_width_named_tiles_are_exactly_the_declared_ones
+   test_cores.test_the_width_named_cores_are_exactly_the_declared_ones
    test_cores.test_the_canonical_palette_is_exactly_the_registered_names
    test_cores.test_the_canonical_palette_is_pinned_to_the_canonical_form_it_spells
    test_cores._measured
@@ -64,7 +64,7 @@ Functions
    test_cores.test_storage_intent_without_scale_is_a_fixed_cost
    test_cores.test_storage_bytes_refuses_illegal_scale_overrides
    test_cores.test_a_core_resolves_hdl_from_the_package_that_declares_it
-   test_cores.test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards
+   test_cores.test_a_well_formed_vendor_core_does_not_trip_our_palette_guards
    test_cores.test_a_core_naming_an_uninstalled_hdl_package_refuses_clearly
    test_cores.test_a_measured_point_matches_a_derived_clock_period
    test_cores.test_an_unresolvable_hdl_source_says_so
@@ -108,7 +108,7 @@ Module Contents
 
    The reach is the whole package, not one directory listing. Listing
    ``hdl/`` alone left the render root -- a SUBDIRECTORY of it -- outside
-   this guard entirely, and three rendered tiles sat committed there until a
+   this guard entirely, and three rendered cores sat committed there until a
    rename made their filenames disagree with their contents. So the walk
    descends, and the committed set comes from git: a rendered file being
    present in the render root is the normal working state (the suite renders
@@ -132,7 +132,7 @@ Module Contents
    lane rate; only silicon-proven faster cores declare 1/1.
 
 
-.. py:function:: test_wide_combinational_tiles_declare_pipeline_depth_without_changing_ingest() -> None
+.. py:function:: test_wide_combinational_cores_declare_pipeline_depth_without_changing_ingest() -> None
 
 .. py:function:: test_every_selectable_operator_declares_its_contract_kind() -> None
 
@@ -157,25 +157,25 @@ Module Contents
 
    EMPTY as of 2026-08-16: the stride distributor was the last operator
    carrying no envelope at all, and no design containing it could be
-   priced. Asserted exactly, so a tile shipped without a measurement fails
+   priced. Asserted exactly, so a core shipped without a measurement fails
    here rather than surfacing as an unpriceable design later.
 
 
-.. py:data:: WIDTH_NAMED_TILES
+.. py:data:: WIDTH_NAMED_CORES
    :type:  frozenset[str]
 
-.. py:function:: test_the_width_named_tiles_are_exactly_the_declared_ones() -> None
+.. py:function:: test_the_width_named_cores_are_exactly_the_declared_ones() -> None
 
    The naming rule is that a width is a parameter, not an identity; this
    pins how much of the palette still contradicts it.
 
    Scoped to `own_cores()` for the same reason every exact-set guard here
-   is: an installed third-party tile with a width in its name is that
+   is: an installed third-party core with a width in its name is that
    vendor's business, not drift in our palette.
 
 
 .. py:data:: CANONICAL_PALETTE_VERSION
-   :value: '7'
+   :value: '8'
 
 
 .. py:data:: CANONICAL_PALETTE
@@ -187,7 +187,7 @@ Module Contents
    every recorded canonical spec that spells it with it.
 
    Scoped to `own_cores()` like every exact set here: a vendor's installed
-   tile is not in our canonical alphabet's history and cannot depart from
+   core is not in our canonical alphabet's history and cannot depart from
    it.
 
    There are exactly two honest ways past a DEPARTURE failure:
@@ -261,7 +261,7 @@ Module Contents
 
    The status contract's two classes are registry truth: silent-on-success
    cores (chain-stage/partition legal) versus per-batch success close-out
-   cores (terminal-tile legal). Changing a core's class changes lane status
+   cores (terminal-core legal). Changing a core's class changes lane status
    semantics — confirm intent here.
 
 
@@ -319,33 +319,33 @@ Module Contents
 
 .. py:function:: test_a_core_resolves_hdl_from_the_package_that_declares_it(tmp_path, monkeypatch) -> None
 
-   A tile contributed by another distribution finds its own HDL.
+   A core contributed by another distribution finds its own HDL.
 
    The registry is a hydra search path, so any package joining it through
    the `hydra.lernaplugins` entry point can contribute cores. Their HDL
    used to be resolved under dau_core.hdl regardless, so a third-party
-   tile could be registered from anywhere but had to vendor its Verilog
+   core could be registered from anywhere but had to vendor its Verilog
    into this package. `source_package` is the seam.
 
 
-.. py:function:: test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards(monkeypatch) -> None
+.. py:function:: test_a_well_formed_vendor_core_does_not_trip_our_palette_guards(monkeypatch) -> None
 
-   Installing a third-party tile must not fail THIS suite.
+   Installing a third-party core must not fail THIS suite.
 
    Four guards here assert an exact set over the whole registry -- the HDL
    directory listing, the descriptor-tagged operators, the envelope-free
-   tiles, and the scalar-envelope holdouts. Each is a statement about
-   dau-core's own palette, and each read `loaded_cores()`, so a vendor tile
+   cores, and the scalar-envelope holdouts. Each is a statement about
+   dau-core's own palette, and each read `loaded_cores()`, so a vendor core
    registered through the entry point showed up as drift in all four. A
    contributor's first experience of the platform was our test suite
-   failing on their correct tile.
+   failing on their correct core.
 
    The line drawn is between those four and the universal-property guards
    (every operator has a golden, a contract kind, record words, a measured
-   envelope). Those are contract requirements a well-formed tile satisfies,
-   so they stay registry-wide on purpose -- which is why the tile below is
+   envelope). Those are contract requirements a well-formed core satisfies,
+   so they stay registry-wide on purpose -- which is why the core below is
    built well-formed rather than minimal. It is the exact-set guards that
-   fail even a perfect vendor tile, and only those are scoped.
+   fail even a perfect vendor core, and only those are scoped.
 
 
 .. py:function:: test_a_core_naming_an_uninstalled_hdl_package_refuses_clearly() -> None
@@ -370,7 +370,7 @@ Module Contents
 
    A declared source that does not resolve is a DECLARATION error.
 
-   An out-of-tree tile whose HDL directory is not an importable package
+   An out-of-tree core whose HDL directory is not an importable package
    resolves to a MultiplexedPath that prints the right path and does not
    exist, so the first symptom used to be a synthesis run against a missing
    file. The requirement -- an __init__.py beside the .sv files, so importlib

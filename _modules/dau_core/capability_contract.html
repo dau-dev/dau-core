@@ -482,13 +482,13 @@ window.runMermaid = runMermaid;</script>
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -527,8 +527,8 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -1168,11 +1168,6 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../autoapi/test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../autoapi/test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -1183,8 +1178,13 @@ window.runMermaid = runMermaid;</script>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../autoapi/test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../autoapi/test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -1270,8 +1270,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">  driver capability decode via the manifest mapping).</span>
 
 <span class="sd">Hardware truth vs protocol truth is explicit: ``operator_bitmap`` carries</span>
-<span class="sd">only OperationCodes some tile executes in HDL (MIN/MAX/SUM/COUNT);</span>
-<span class="sd">AVERAGE is never a hardware opcode — when a tile provides both SUM and</span>
+<span class="sd">only OperationCodes some core executes in HDL (MIN/MAX/SUM/COUNT);</span>
+<span class="sd">AVERAGE is never a hardware opcode — when a core provides both SUM and</span>
 <span class="sd">COUNT it appears in ``host_opcodes`` (the host divides the results at</span>
 <span class="sd">protocol level), never in ``opcodes``.</span>
 <span class="sd">"""</span>
@@ -1283,7 +1283,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">Field</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">.composition</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScanCompositionSpec</span><span class="p">,</span> <span class="n">TileSpec</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.composition</span><span class="w"> </span><span class="kn">import</span> <span class="n">CoreSpec</span><span class="p">,</span> <span class="n">ScanCompositionSpec</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.cores</span><span class="w"> </span><span class="kn">import</span> <span class="n">ContractKind</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.design</span><span class="w"> </span><span class="kn">import</span> <span class="n">DauDesign</span><span class="p">,</span> <span class="n">OperatorUnit</span><span class="p">,</span> <span class="n">UnitKind</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">CheckedModel</span>
@@ -1322,10 +1322,10 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<div class="viewcode-block" id="TileCapability">
-<a class="viewcode-back" href="../../autoapi/dau_core/capability_contract/index.html#dau_core.capability_contract.TileCapability">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">TileCapability</span><span class="p">(</span><span class="n">CheckedModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""One operator tile instance as the contract describes it: registry</span>
+<div class="viewcode-block" id="CoreCapability">
+<a class="viewcode-back" href="../../autoapi/dau_core/capability_contract/index.html#dau_core.capability_contract.CoreCapability">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CoreCapability</span><span class="p">(</span><span class="n">CheckedModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""One operator core instance as the contract describes it: registry</span>
 <span class="sd">    identity, stream contract, HDL opcode truth, instance config, and the</span>
 <span class="sd">    module parameters it was built with (each declared parameter, at its</span>
 <span class="sd">    override or its default)."""</span>
@@ -1343,15 +1343,15 @@ window.runMermaid = runMermaid;</script>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">host_opcodes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">OperationCode</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Protocol-level opcodes the host can compute from this tile's</span>
+<span class="w">        </span><span class="sd">"""Protocol-level opcodes the host can compute from this core's</span>
 <span class="sd">        hardware results: AVERAGE = SUM/COUNT divided host-side. Never</span>
 <span class="sd">        hardware opcodes and never advertised as such."""</span>
         <span class="k">if</span> <span class="n">OperationCode</span><span class="o">.</span><span class="n">SUM</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">opcodes</span> <span class="ow">and</span> <span class="n">OperationCode</span><span class="o">.</span><span class="n">COUNT</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">opcodes</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">(</span><span class="n">OperationCode</span><span class="o">.</span><span class="n">AVERAGE</span><span class="p">,)</span>
         <span class="k">return</span> <span class="p">()</span>
 
-<div class="viewcode-block" id="TileCapability.to_mapping">
-<a class="viewcode-back" href="../../autoapi/dau_core/capability_contract/index.html#dau_core.capability_contract.TileCapability.to_mapping">[docs]</a>
+<div class="viewcode-block" id="CoreCapability.to_mapping">
+<a class="viewcode-back" href="../../autoapi/dau_core/capability_contract/index.html#dau_core.capability_contract.CoreCapability.to_mapping">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">"core"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">core</span><span class="p">,</span>
@@ -1367,11 +1367,11 @@ window.runMermaid = runMermaid;</script>
         <span class="p">}</span></div>
 
 
-<div class="viewcode-block" id="TileCapability.from_mapping">
-<a class="viewcode-back" href="../../autoapi/dau_core/capability_contract/index.html#dau_core.capability_contract.TileCapability.from_mapping">[docs]</a>
+<div class="viewcode-block" id="CoreCapability.from_mapping">
+<a class="viewcode-back" href="../../autoapi/dau_core/capability_contract/index.html#dau_core.capability_contract.CoreCapability.from_mapping">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_mapping</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">mapping</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">TileCapability</span><span class="p">:</span>
-        <span class="n">mapping</span> <span class="o">=</span> <span class="n">_exact_keys</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="nb">frozenset</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">model_fields</span><span class="p">),</span> <span class="s2">"tile capability"</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_mapping</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">mapping</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">CoreCapability</span><span class="p">:</span>
+        <span class="n">mapping</span> <span class="o">=</span> <span class="n">_exact_keys</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="nb">frozenset</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">model_fields</span><span class="p">),</span> <span class="s2">"core capability"</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">core</span><span class="o">=</span><span class="n">mapping</span><span class="p">[</span><span class="s2">"core"</span><span class="p">],</span>
             <span class="n">module</span><span class="o">=</span><span class="n">mapping</span><span class="p">[</span><span class="s2">"module"</span><span class="p">],</span>
@@ -1391,18 +1391,18 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="LaneCapability">
 <a class="viewcode-back" href="../../autoapi/dau_core/capability_contract/index.html#dau_core.capability_contract.LaneCapability">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">LaneCapability</span><span class="p">(</span><span class="n">CheckedModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""One scan lane: the terminal operator tile, its optional partition</span>
+<span class="w">    </span><span class="sd">"""One scan lane: the terminal operator core, its optional partition</span>
 <span class="sd">    filter, and the ordered mid-lane operator ``chain`` between them."""</span>
 
-    <span class="n">tile</span><span class="p">:</span> <span class="n">TileCapability</span>
-    <span class="n">partition</span><span class="p">:</span> <span class="n">TileCapability</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">chain</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">TileCapability</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">sink</span><span class="p">:</span> <span class="n">CoreCapability</span>
+    <span class="n">partition</span><span class="p">:</span> <span class="n">CoreCapability</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">chain</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">CoreCapability</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
 
 <div class="viewcode-block" id="LaneCapability.to_mapping">
 <a class="viewcode-back" href="../../autoapi/dau_core/capability_contract/index.html#dau_core.capability_contract.LaneCapability.to_mapping">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">"tile"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile</span><span class="o">.</span><span class="n">to_mapping</span><span class="p">(),</span>
+            <span class="s2">"sink"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sink</span><span class="o">.</span><span class="n">to_mapping</span><span class="p">(),</span>
             <span class="s2">"partition"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">partition</span><span class="o">.</span><span class="n">to_mapping</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">partition</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
             <span class="s2">"chain"</span><span class="p">:</span> <span class="p">[</span><span class="n">stage</span><span class="o">.</span><span class="n">to_mapping</span><span class="p">()</span> <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">],</span>
         <span class="p">}</span></div>
@@ -1415,9 +1415,9 @@ window.runMermaid = runMermaid;</script>
         <span class="n">mapping</span> <span class="o">=</span> <span class="n">_exact_keys</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="nb">frozenset</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">model_fields</span><span class="p">),</span> <span class="s2">"lane capability"</span><span class="p">)</span>
         <span class="n">partition</span> <span class="o">=</span> <span class="n">mapping</span><span class="p">[</span><span class="s2">"partition"</span><span class="p">]</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">tile</span><span class="o">=</span><span class="n">TileCapability</span><span class="o">.</span><span class="n">from_mapping</span><span class="p">(</span><span class="n">mapping</span><span class="p">[</span><span class="s2">"tile"</span><span class="p">]),</span>
-            <span class="n">partition</span><span class="o">=</span><span class="n">TileCapability</span><span class="o">.</span><span class="n">from_mapping</span><span class="p">(</span><span class="n">partition</span><span class="p">)</span> <span class="k">if</span> <span class="n">partition</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">chain</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">TileCapability</span><span class="o">.</span><span class="n">from_mapping</span><span class="p">(</span><span class="n">stage</span><span class="p">)</span> <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="n">mapping</span><span class="p">[</span><span class="s2">"chain"</span><span class="p">]),</span>
+            <span class="n">sink</span><span class="o">=</span><span class="n">CoreCapability</span><span class="o">.</span><span class="n">from_mapping</span><span class="p">(</span><span class="n">mapping</span><span class="p">[</span><span class="s2">"sink"</span><span class="p">]),</span>
+            <span class="n">partition</span><span class="o">=</span><span class="n">CoreCapability</span><span class="o">.</span><span class="n">from_mapping</span><span class="p">(</span><span class="n">partition</span><span class="p">)</span> <span class="k">if</span> <span class="n">partition</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">chain</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">CoreCapability</span><span class="o">.</span><span class="n">from_mapping</span><span class="p">(</span><span class="n">stage</span><span class="p">)</span> <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="n">mapping</span><span class="p">[</span><span class="s2">"chain"</span><span class="p">]),</span>
         <span class="p">)</span></div>
 </div>
 
@@ -1436,7 +1436,7 @@ window.runMermaid = runMermaid;</script>
 
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">lanes</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">LaneCapability</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
-    <span class="n">partitioner</span><span class="p">:</span> <span class="n">TileCapability</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">partitioner</span><span class="p">:</span> <span class="n">CoreCapability</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">register_map_version</span><span class="p">:</span> <span class="n">RegisterMapVersion</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">CURRENT_REGISTER_MAP_VERSION</span><span class="p">)</span>
     <span class="c1"># whether the lanes' chain config ports are runtime registers the host</span>
     <span class="c1"># rewrites per job, so a planner matches this design structurally</span>
@@ -1451,16 +1451,16 @@ window.runMermaid = runMermaid;</script>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">hardware_opcodes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">OperationCode</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Union of the lanes' HDL opcodes (terminal tiles and chain</span>
+<span class="w">        </span><span class="sd">"""Union of the lanes' HDL opcodes (terminal cores and chain</span>
 <span class="sd">        stages), ordered by opcode value."""</span>
-        <span class="n">opcodes</span> <span class="o">=</span> <span class="p">{</span><span class="n">opcode</span> <span class="k">for</span> <span class="n">lane</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lanes</span> <span class="k">for</span> <span class="n">tile</span> <span class="ow">in</span> <span class="p">(</span><span class="n">lane</span><span class="o">.</span><span class="n">tile</span><span class="p">,</span> <span class="o">*</span><span class="n">lane</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span> <span class="k">for</span> <span class="n">opcode</span> <span class="ow">in</span> <span class="n">tile</span><span class="o">.</span><span class="n">opcodes</span><span class="p">}</span>
+        <span class="n">opcodes</span> <span class="o">=</span> <span class="p">{</span><span class="n">opcode</span> <span class="k">for</span> <span class="n">lane</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lanes</span> <span class="k">for</span> <span class="n">capability</span> <span class="ow">in</span> <span class="p">(</span><span class="n">lane</span><span class="o">.</span><span class="n">sink</span><span class="p">,</span> <span class="o">*</span><span class="n">lane</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span> <span class="k">for</span> <span class="n">opcode</span> <span class="ow">in</span> <span class="n">capability</span><span class="o">.</span><span class="n">opcodes</span><span class="p">}</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">opcodes</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="nb">int</span><span class="p">))</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">host_opcodes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">OperationCode</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Protocol-level opcodes derivable host-side (AVERAGE when a tile</span>
+<span class="w">        </span><span class="sd">"""Protocol-level opcodes derivable host-side (AVERAGE when a core</span>
 <span class="sd">        provides both SUM and COUNT); explicitly not hardware opcodes."""</span>
-        <span class="n">opcodes</span> <span class="o">=</span> <span class="p">{</span><span class="n">opcode</span> <span class="k">for</span> <span class="n">lane</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lanes</span> <span class="k">for</span> <span class="n">tile</span> <span class="ow">in</span> <span class="p">(</span><span class="n">lane</span><span class="o">.</span><span class="n">tile</span><span class="p">,</span> <span class="o">*</span><span class="n">lane</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span> <span class="k">for</span> <span class="n">opcode</span> <span class="ow">in</span> <span class="n">tile</span><span class="o">.</span><span class="n">host_opcodes</span><span class="p">}</span>
+        <span class="n">opcodes</span> <span class="o">=</span> <span class="p">{</span><span class="n">opcode</span> <span class="k">for</span> <span class="n">lane</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lanes</span> <span class="k">for</span> <span class="n">capability</span> <span class="ow">in</span> <span class="p">(</span><span class="n">lane</span><span class="o">.</span><span class="n">sink</span><span class="p">,</span> <span class="o">*</span><span class="n">lane</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span> <span class="k">for</span> <span class="n">opcode</span> <span class="ow">in</span> <span class="n">capability</span><span class="o">.</span><span class="n">host_opcodes</span><span class="p">}</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">opcodes</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="nb">int</span><span class="p">))</span>
 
     <span class="nd">@property</span>
@@ -1473,33 +1473,33 @@ window.runMermaid = runMermaid;</script>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">sort_capacity</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="n">capacities</span> <span class="o">=</span> <span class="p">[</span><span class="n">lane</span><span class="o">.</span><span class="n">tile</span><span class="o">.</span><span class="n">row_capacity</span> <span class="ow">or</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">lane</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lanes</span> <span class="k">if</span> <span class="n">lane</span><span class="o">.</span><span class="n">tile</span><span class="o">.</span><span class="n">unit_kind</span> <span class="o">==</span> <span class="n">UnitKind</span><span class="o">.</span><span class="n">SORT</span><span class="p">]</span>
+        <span class="n">capacities</span> <span class="o">=</span> <span class="p">[</span><span class="n">lane</span><span class="o">.</span><span class="n">sink</span><span class="o">.</span><span class="n">row_capacity</span> <span class="ow">or</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">lane</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lanes</span> <span class="k">if</span> <span class="n">lane</span><span class="o">.</span><span class="n">sink</span><span class="o">.</span><span class="n">unit_kind</span> <span class="o">==</span> <span class="n">UnitKind</span><span class="o">.</span><span class="n">SORT</span><span class="p">]</span>
         <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">capacities</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
 <div class="viewcode-block" id="CapabilityContract.to_design">
 <a class="viewcode-back" href="../../autoapi/dau_core/capability_contract/index.html#dau_core.capability_contract.CapabilityContract.to_design">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_design</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DauDesign</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""The operator inventory this contract advertises: identical lane</span>
-<span class="sd">        tiles that contribute a design unit collapse into one counted unit."""</span>
-        <span class="n">counts</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">TileCapability</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="sd">        cores that contribute a design unit collapse into one counted unit."""</span>
+        <span class="n">counts</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CoreCapability</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">lane</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lanes</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">lane</span><span class="o">.</span><span class="n">tile</span><span class="o">.</span><span class="n">unit_kind</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">lane</span><span class="o">.</span><span class="n">sink</span><span class="o">.</span><span class="n">unit_kind</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">continue</span>
-            <span class="n">key</span> <span class="o">=</span> <span class="n">TileCapability</span><span class="p">(</span>
-                <span class="n">core</span><span class="o">=</span><span class="n">lane</span><span class="o">.</span><span class="n">tile</span><span class="o">.</span><span class="n">core</span><span class="p">,</span>
-                <span class="n">module</span><span class="o">=</span><span class="n">lane</span><span class="o">.</span><span class="n">tile</span><span class="o">.</span><span class="n">module</span><span class="p">,</span>
-                <span class="n">contract_kind</span><span class="o">=</span><span class="n">lane</span><span class="o">.</span><span class="n">tile</span><span class="o">.</span><span class="n">contract_kind</span><span class="p">,</span>
-                <span class="n">count_port</span><span class="o">=</span><span class="n">lane</span><span class="o">.</span><span class="n">tile</span><span class="o">.</span><span class="n">count_port</span><span class="p">,</span>
-                <span class="n">opcodes</span><span class="o">=</span><span class="n">lane</span><span class="o">.</span><span class="n">tile</span><span class="o">.</span><span class="n">opcodes</span><span class="p">,</span>
-                <span class="n">input_types</span><span class="o">=</span><span class="n">lane</span><span class="o">.</span><span class="n">tile</span><span class="o">.</span><span class="n">input_types</span><span class="p">,</span>
-                <span class="n">unit_kind</span><span class="o">=</span><span class="n">lane</span><span class="o">.</span><span class="n">tile</span><span class="o">.</span><span class="n">unit_kind</span><span class="p">,</span>
-                <span class="n">row_capacity</span><span class="o">=</span><span class="n">lane</span><span class="o">.</span><span class="n">tile</span><span class="o">.</span><span class="n">row_capacity</span><span class="p">,</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">CoreCapability</span><span class="p">(</span>
+                <span class="n">core</span><span class="o">=</span><span class="n">lane</span><span class="o">.</span><span class="n">sink</span><span class="o">.</span><span class="n">core</span><span class="p">,</span>
+                <span class="n">module</span><span class="o">=</span><span class="n">lane</span><span class="o">.</span><span class="n">sink</span><span class="o">.</span><span class="n">module</span><span class="p">,</span>
+                <span class="n">contract_kind</span><span class="o">=</span><span class="n">lane</span><span class="o">.</span><span class="n">sink</span><span class="o">.</span><span class="n">contract_kind</span><span class="p">,</span>
+                <span class="n">count_port</span><span class="o">=</span><span class="n">lane</span><span class="o">.</span><span class="n">sink</span><span class="o">.</span><span class="n">count_port</span><span class="p">,</span>
+                <span class="n">opcodes</span><span class="o">=</span><span class="n">lane</span><span class="o">.</span><span class="n">sink</span><span class="o">.</span><span class="n">opcodes</span><span class="p">,</span>
+                <span class="n">input_types</span><span class="o">=</span><span class="n">lane</span><span class="o">.</span><span class="n">sink</span><span class="o">.</span><span class="n">input_types</span><span class="p">,</span>
+                <span class="n">unit_kind</span><span class="o">=</span><span class="n">lane</span><span class="o">.</span><span class="n">sink</span><span class="o">.</span><span class="n">unit_kind</span><span class="p">,</span>
+                <span class="n">row_capacity</span><span class="o">=</span><span class="n">lane</span><span class="o">.</span><span class="n">sink</span><span class="o">.</span><span class="n">row_capacity</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">counts</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="n">unit_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">OperatorUnit</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">tile</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">counts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">tile</span><span class="o">.</span><span class="n">unit_kind</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">unit_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">OperatorUnit</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="n">tile</span><span class="o">.</span><span class="n">unit_kind</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="n">count</span><span class="p">,</span> <span class="n">opcodes</span><span class="o">=</span><span class="n">tile</span><span class="o">.</span><span class="n">opcodes</span><span class="p">,</span> <span class="n">input_types</span><span class="o">=</span><span class="n">tile</span><span class="o">.</span><span class="n">input_types</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">capability</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">counts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">capability</span><span class="o">.</span><span class="n">unit_kind</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">unit_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">OperatorUnit</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="n">capability</span><span class="o">.</span><span class="n">unit_kind</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="n">count</span><span class="p">,</span> <span class="n">opcodes</span><span class="o">=</span><span class="n">capability</span><span class="o">.</span><span class="n">opcodes</span><span class="p">,</span> <span class="n">input_types</span><span class="o">=</span><span class="n">capability</span><span class="o">.</span><span class="n">input_types</span><span class="p">))</span>
         <span class="n">units</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">unit_list</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">DauDesign</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="n">units</span><span class="p">)</span></div>
 
@@ -1538,7 +1538,7 @@ window.runMermaid = runMermaid;</script>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="n">mapping</span><span class="p">[</span><span class="s2">"name"</span><span class="p">],</span>
             <span class="n">lanes</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">LaneCapability</span><span class="o">.</span><span class="n">from_mapping</span><span class="p">(</span><span class="n">lane</span><span class="p">)</span> <span class="k">for</span> <span class="n">lane</span> <span class="ow">in</span> <span class="n">mapping</span><span class="p">[</span><span class="s2">"lanes"</span><span class="p">]),</span>
-            <span class="n">partitioner</span><span class="o">=</span><span class="n">TileCapability</span><span class="o">.</span><span class="n">from_mapping</span><span class="p">(</span><span class="n">partitioner</span><span class="p">)</span> <span class="k">if</span> <span class="n">partitioner</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">partitioner</span><span class="o">=</span><span class="n">CoreCapability</span><span class="o">.</span><span class="n">from_mapping</span><span class="p">(</span><span class="n">partitioner</span><span class="p">)</span> <span class="k">if</span> <span class="n">partitioner</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">register_map_version</span><span class="o">=</span><span class="n">RegisterMapVersion</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">major</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">minor</span><span class="p">)),</span>
             <span class="n">reconfigurable</span><span class="o">=</span><span class="n">mapping</span><span class="p">[</span><span class="s2">"reconfigurable"</span><span class="p">],</span>
         <span class="p">)</span></div>
@@ -1546,13 +1546,13 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<div class="viewcode-block" id="tile_capability">
-<a class="viewcode-back" href="../../autoapi/dau_core/capability_contract/index.html#dau_core.capability_contract.tile_capability">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">tile_capability</span><span class="p">(</span><span class="n">tile</span><span class="p">:</span> <span class="n">TileSpec</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TileCapability</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""The registry-declared capability facts of one tile instance."""</span>
-    <span class="n">spec</span> <span class="o">=</span> <span class="n">TileSpec</span><span class="p">(</span><span class="n">core</span><span class="o">=</span><span class="n">tile</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tile</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">tile</span>
+<div class="viewcode-block" id="core_capability">
+<a class="viewcode-back" href="../../autoapi/dau_core/capability_contract/index.html#dau_core.capability_contract.core_capability">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">core_capability</span><span class="p">(</span><span class="n">core_spec</span><span class="p">:</span> <span class="n">CoreSpec</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CoreCapability</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The registry-declared capability facts of one core instance."""</span>
+    <span class="n">spec</span> <span class="o">=</span> <span class="n">CoreSpec</span><span class="p">(</span><span class="n">core</span><span class="o">=</span><span class="n">core_spec</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">core_spec</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">core_spec</span>
     <span class="n">definition</span> <span class="o">=</span> <span class="n">core</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">core</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">TileCapability</span><span class="p">(</span>
+    <span class="k">return</span> <span class="n">CoreCapability</span><span class="p">(</span>
         <span class="n">core</span><span class="o">=</span><span class="n">definition</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
         <span class="n">module</span><span class="o">=</span><span class="n">definition</span><span class="o">.</span><span class="n">module</span><span class="p">,</span>
         <span class="n">contract_kind</span><span class="o">=</span><span class="n">definition</span><span class="o">.</span><span class="n">contract_kind</span><span class="p">,</span>
@@ -1583,13 +1583,13 @@ window.runMermaid = runMermaid;</script>
         <span class="n">name</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
         <span class="n">lanes</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span>
             <span class="n">LaneCapability</span><span class="p">(</span>
-                <span class="n">tile</span><span class="o">=</span><span class="n">tile_capability</span><span class="p">(</span><span class="n">lane</span><span class="o">.</span><span class="n">tile</span><span class="p">),</span>
-                <span class="n">partition</span><span class="o">=</span><span class="n">tile_capability</span><span class="p">(</span><span class="n">lane</span><span class="o">.</span><span class="n">partition</span><span class="p">)</span> <span class="k">if</span> <span class="n">lane</span><span class="o">.</span><span class="n">partition</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="n">chain</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">tile_capability</span><span class="p">(</span><span class="n">stage</span><span class="p">)</span> <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="n">lane</span><span class="o">.</span><span class="n">chain</span><span class="p">),</span>
+                <span class="n">sink</span><span class="o">=</span><span class="n">core_capability</span><span class="p">(</span><span class="n">lane</span><span class="o">.</span><span class="n">sink</span><span class="p">),</span>
+                <span class="n">partition</span><span class="o">=</span><span class="n">core_capability</span><span class="p">(</span><span class="n">lane</span><span class="o">.</span><span class="n">partition</span><span class="p">)</span> <span class="k">if</span> <span class="n">lane</span><span class="o">.</span><span class="n">partition</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="n">chain</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">core_capability</span><span class="p">(</span><span class="n">stage</span><span class="p">)</span> <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="n">lane</span><span class="o">.</span><span class="n">chain</span><span class="p">),</span>
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">lane</span> <span class="ow">in</span> <span class="n">spec</span><span class="o">.</span><span class="n">lanes</span>
         <span class="p">),</span>
-        <span class="n">partitioner</span><span class="o">=</span><span class="n">tile_capability</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">partitioner</span><span class="p">)</span> <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">partitioner</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">partitioner</span><span class="o">=</span><span class="n">core_capability</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">partitioner</span><span class="p">)</span> <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">partitioner</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 </pre></div>

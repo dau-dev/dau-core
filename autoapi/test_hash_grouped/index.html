@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -867,7 +867,7 @@
     <a href="#test_hash_grouped.test_permutation_invariance">test_permutation_invariance()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_hash_grouped.test_sorted_input_agrees_with_the_ordered_tile">test_sorted_input_agrees_with_the_ordered_tile()</a>
+    <a href="#test_hash_grouped.test_sorted_input_agrees_with_the_ordered_core">test_sorted_input_agrees_with_the_ordered_core()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_hash_grouped.test_drain_is_signed_key_ascending">test_drain_is_signed_key_ascending()</a>
@@ -897,7 +897,7 @@
     <a href="#test_hash_grouped.test_empty_batch_emits_nothing">test_empty_batch_emits_nothing()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_hash_grouped.test_record_words_match_the_ordered_tile_shape">test_record_words_match_the_ordered_tile_shape()</a>
+    <a href="#test_hash_grouped.test_record_words_match_the_ordered_core_shape">test_record_words_match_the_ordered_core_shape()</a>
   </li>
 </ul>
 </div>
@@ -918,7 +918,7 @@
   <section id="module-test_hash_grouped">
 <span id="test-hash-grouped"></span><h1>test_hash_grouped<a class="headerlink" href="#module-test_hash_grouped" title="Link to this heading">¶</a></h1>
 <p>Hash-mode grouped field-sum aggregation golden: one accumulator per
-DISTINCT key regardless of input order (the ordered tile’s
+DISTINCT key regardless of input order (the ordered core’s
 <code class="docutils literal notranslate"><span class="pre">sorted_by_key</span></code> staging precondition removed), key-ascending drain,
 explicit overflow, and the host split-and-merge algebra that makes
 overflow recoverable.</p>
@@ -948,7 +948,7 @@ overflow recoverable.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#test_hash_grouped.test_permutation_invariance" title="test_hash_grouped.test_permutation_invariance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_permutation_invariance</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hash_grouped.test_sorted_input_agrees_with_the_ordered_tile" title="test_hash_grouped.test_sorted_input_agrees_with_the_ordered_tile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_sorted_input_agrees_with_the_ordered_tile</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hash_grouped.test_sorted_input_agrees_with_the_ordered_core" title="test_hash_grouped.test_sorted_input_agrees_with_the_ordered_core"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_sorted_input_agrees_with_the_ordered_core</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#test_hash_grouped.test_drain_is_signed_key_ascending" title="test_hash_grouped.test_drain_is_signed_key_ascending"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_drain_is_signed_key_ascending</span></code></a>() → None</p></td>
@@ -978,7 +978,7 @@ overflow recoverable.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#test_hash_grouped.test_empty_batch_emits_nothing" title="test_hash_grouped.test_empty_batch_emits_nothing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_empty_batch_emits_nothing</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hash_grouped.test_record_words_match_the_ordered_tile_shape" title="test_hash_grouped.test_record_words_match_the_ordered_tile_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_record_words_match_the_ordered_tile_shape</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hash_grouped.test_record_words_match_the_ordered_core_shape" title="test_hash_grouped.test_record_words_match_the_ordered_core_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_record_words_match_the_ordered_core_shape</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -1012,8 +1012,8 @@ overflow recoverable.</p>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="test_hash_grouped.test_sorted_input_agrees_with_the_ordered_tile">
-<span class="sig-prename descclassname"><span class="pre">test_hash_grouped.</span></span><span class="sig-name descname"><span class="pre">test_sorted_input_agrees_with_the_ordered_tile</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_hash_grouped.test_sorted_input_agrees_with_the_ordered_tile" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="test_hash_grouped.test_sorted_input_agrees_with_the_ordered_core">
+<span class="sig-prename descclassname"><span class="pre">test_hash_grouped.</span></span><span class="sig-name descname"><span class="pre">test_sorted_input_agrees_with_the_ordered_core</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_hash_grouped.test_sorted_input_agrees_with_the_ordered_core" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -1067,8 +1067,8 @@ rows split by key range.</p>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="test_hash_grouped.test_record_words_match_the_ordered_tile_shape">
-<span class="sig-prename descclassname"><span class="pre">test_hash_grouped.</span></span><span class="sig-name descname"><span class="pre">test_record_words_match_the_ordered_tile_shape</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_hash_grouped.test_record_words_match_the_ordered_tile_shape" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="test_hash_grouped.test_record_words_match_the_ordered_core_shape">
+<span class="sig-prename descclassname"><span class="pre">test_hash_grouped.</span></span><span class="sig-name descname"><span class="pre">test_record_words_match_the_ordered_core_shape</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_hash_grouped.test_record_words_match_the_ordered_core_shape" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </section>
@@ -1132,7 +1132,7 @@ rows split by key range.</p>
     <a href="#test_hash_grouped.test_permutation_invariance">test_permutation_invariance()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_hash_grouped.test_sorted_input_agrees_with_the_ordered_tile">test_sorted_input_agrees_with_the_ordered_tile()</a>
+    <a href="#test_hash_grouped.test_sorted_input_agrees_with_the_ordered_core">test_sorted_input_agrees_with_the_ordered_core()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_hash_grouped.test_drain_is_signed_key_ascending">test_drain_is_signed_key_ascending()</a>
@@ -1162,7 +1162,7 @@ rows split by key range.</p>
     <a href="#test_hash_grouped.test_empty_batch_emits_nothing">test_empty_batch_emits_nothing()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_hash_grouped.test_record_words_match_the_ordered_tile_shape">test_record_words_match_the_ordered_tile_shape()</a>
+    <a href="#test_hash_grouped.test_record_words_match_the_ordered_core_shape">test_record_words_match_the_ordered_core_shape()</a>
   </li>
 </ul>
 

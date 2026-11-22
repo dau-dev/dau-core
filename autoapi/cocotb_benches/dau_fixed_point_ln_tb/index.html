@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -939,7 +939,7 @@
       <div class="fd-prose">
   <section id="module-cocotb_benches.dau_fixed_point_ln_tb">
 <span id="cocotb-benches-dau-fixed-point-ln-tb"></span><h1>cocotb_benches.dau_fixed_point_ln_tb<a class="headerlink" href="#module-cocotb_benches.dau_fixed_point_ln_tb" title="Link to this heading">¶</a></h1>
-<p>The rendered ln tile against the model it was rendered from.</p>
+<p>The rendered ln core against the model it was rendered from.</p>
 <p>Zero tolerance: the HDL mirrors LnDatapath.evaluate step for step, so any
 difference is a defect in one of them. Deviation from correctly rounded ln is
 a separate, measured question answered in test_fixed_point_ln – this
@@ -1092,7 +1092,7 @@ cannot hide behind a random sweep.</p>
 <dt class="sig sig-object py" id="cocotb_benches.dau_fixed_point_ln_tb.non_positive_source_reports_domain_error">
 <em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cocotb_benches.dau_fixed_point_ln_tb.</span></span><span class="sig-name descname"><span class="pre">non_positive_source_reports_domain_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dut</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cocotb_benches.dau_fixed_point_ln_tb.non_positive_source_reports_domain_error" title="Link to this definition">¶</a></dt>
 <dd><p>ln of zero or a negative has no value. The offending row must not come
-out with a substituted one, and the tile must recover for the next batch.</p>
+out with a substituted one, and the core must recover for the next batch.</p>
 <p>status_ready is held low for longer than the pipeline is deep on purpose:
 when the close-out is taken promptly it flushes the pipeline anyway, so
 the guard on the push is only load-bearing under status backpressure.</p>

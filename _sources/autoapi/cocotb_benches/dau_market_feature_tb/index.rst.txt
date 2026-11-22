@@ -17,12 +17,12 @@ Functions
 
 .. autoapisummary::
 
-   cocotb_benches.dau_market_feature_tb.feature_tile_matches_golden
-   cocotb_benches.dau_market_feature_tb.feature_tile_backpressure_both_sides
-   cocotb_benches.dau_market_feature_tb.feature_tile_int64_dollar_volume
-   cocotb_benches.dau_market_feature_tb.feature_tile_wide_spread_and_midpoint_do_not_overflow
-   cocotb_benches.dau_market_feature_tb.feature_tile_single_row
-   cocotb_benches.dau_market_feature_tb.feature_tile_truncated_row_reports_stream_error
+   cocotb_benches.dau_market_feature_tb.feature_core_matches_golden
+   cocotb_benches.dau_market_feature_tb.feature_core_backpressure_both_sides
+   cocotb_benches.dau_market_feature_tb.feature_core_int64_dollar_volume
+   cocotb_benches.dau_market_feature_tb.feature_core_wide_spread_and_midpoint_do_not_overflow
+   cocotb_benches.dau_market_feature_tb.feature_core_single_row
+   cocotb_benches.dau_market_feature_tb.feature_core_truncated_row_reports_stream_error
    cocotb_benches.dau_market_feature_tb._start
    cocotb_benches.dau_market_feature_tb._run
    cocotb_benches.dau_market_feature_tb._decode
@@ -39,27 +39,27 @@ Module Contents
 
 .. py:data:: _ROWS
 
-.. py:function:: feature_tile_matches_golden(dut)
+.. py:function:: feature_core_matches_golden(dut)
    :async:
 
 
-.. py:function:: feature_tile_backpressure_both_sides(dut)
+.. py:function:: feature_core_backpressure_both_sides(dut)
    :async:
 
 
-.. py:function:: feature_tile_int64_dollar_volume(dut)
+.. py:function:: feature_core_int64_dollar_volume(dut)
    :async:
 
 
-.. py:function:: feature_tile_wide_spread_and_midpoint_do_not_overflow(dut)
+.. py:function:: feature_core_wide_spread_and_midpoint_do_not_overflow(dut)
    :async:
 
 
-.. py:function:: feature_tile_single_row(dut)
+.. py:function:: feature_core_single_row(dut)
    :async:
 
 
-.. py:function:: feature_tile_truncated_row_reports_stream_error(dut)
+.. py:function:: feature_core_truncated_row_reports_stream_error(dut)
    :async:
 
 

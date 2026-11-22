@@ -5,12 +5,12 @@ dau_core.exp_generator
 
 .. autoapi-nested-parse::
 
-   Renders the fixed-point exp tile from a declared operating point.
+   Renders the fixed-point exp core from a declared operating point.
 
    The datapath is :class:`dau_core.fixed_point.ExpDatapath` and the emitted
    SystemVerilog mirrors :meth:`ExpDatapath.evaluate` step for step, so the
    cocotb bench can compare against it with zero tolerance like every other
-   tile. The operating point -- internal precision, table size, polynomial
+   core. The operating point -- internal precision, table size, polynomial
    degree, whether Horner steps round -- arrives as configuration, which is why
    this is a generator and not a checked-in file: the 256-entry table of
    ``2**(j/256)`` is a function of those parameters and SystemVerilog cannot
@@ -22,7 +22,7 @@ dau_core.exp_generator
    DSP48s at the exact point and 20 at the light one, against 740 on the part.
    Folding onto a shared multiplier
    would cut that to roughly a ninth, but at one row per nine cycles against
-   sqrt's and divide's one per three -- the tile would become the bottleneck of
+   sqrt's and divide's one per three -- the core would become the bottleneck of
    any chain it joined.
 
 
@@ -32,13 +32,13 @@ Classes
 
 .. autoapisummary::
 
-   dau_core.exp_generator.ExpTileGenerator
+   dau_core.exp_generator.ExpCoreGenerator
 
 
 Module Contents
 ---------------
 
-.. py:class:: ExpTileGenerator(/, **data: Any)
+.. py:class:: ExpCoreGenerator(/, **data: Any)
 
    Bases: :py:obj:`dau_core.generators.CoreGenerator`
 

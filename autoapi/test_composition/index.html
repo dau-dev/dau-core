@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -864,7 +864,7 @@
     <a href="#test_composition._priced">_priced()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_composition._tile_lut">_tile_lut()</a>
+    <a href="#test_composition._core_lut">_core_lut()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_composition._partition">_partition()</a>
@@ -873,7 +873,7 @@
     <a href="#test_composition.bar_noc_spec">bar_noc_spec()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_composition.test_spec_validates_lane_tiles">test_spec_validates_lane_tiles()</a>
+    <a href="#test_composition.test_spec_validates_lane_cores">test_spec_validates_lane_cores()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_composition.test_core_names_cover_infrastructure_and_lanes">test_core_names_cover_infrastructure_and_lanes()</a>
@@ -918,7 +918,7 @@
     <a href="#test_composition.test_chain_resources_are_counted_per_lane">test_chain_resources_are_counted_per_lane()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_composition.test_tile_params_validate_declared_names_and_positive_values">test_tile_params_validate_declared_names_and_positive_values()</a>
+    <a href="#test_composition.test_core_params_validate_declared_names_and_positive_values">test_core_params_validate_declared_names_and_positive_values()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_composition.test_a_design_may_pick_an_element_type_by_name">test_a_design_may_pick_an_element_type_by_name()</a>
@@ -951,7 +951,7 @@
     <a href="#test_composition.test_load_phase_shape_rules">test_load_phase_shape_rules()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_composition.test_param_override_is_validated_on_the_lane_tile_and_partition_slots">test_param_override_is_validated_on_the_lane_tile_and_partition_slots()</a>
+    <a href="#test_composition.test_param_override_is_validated_on_the_lane_core_and_partition_slots">test_param_override_is_validated_on_the_lane_core_and_partition_slots()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_composition.test_key_space_override_must_match_the_declared_multiple">test_key_space_override_must_match_the_declared_multiple()</a>
@@ -960,7 +960,7 @@
     <a href="#test_composition.test_shared_partitioner_params_are_validated">test_shared_partitioner_params_are_validated()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_composition.test_a_sized_tile_prices_at_its_size_not_its_default">test_a_sized_tile_prices_at_its_size_not_its_default()</a>
+    <a href="#test_composition.test_a_sized_core_prices_at_its_size_not_its_default">test_a_sized_core_prices_at_its_size_not_its_default()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_composition._FRONT_UNPACK_CONFIG">_FRONT_UNPACK_CONFIG</a>
@@ -972,7 +972,7 @@
     <a href="#test_composition.test_front_unpack_validates_and_reaches_core_names_and_resources">test_front_unpack_validates_and_reaches_core_names_and_resources()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_composition.test_front_unpack_rejects_a_non_unpack_tile">test_front_unpack_rejects_a_non_unpack_tile()</a>
+    <a href="#test_composition.test_front_unpack_rejects_a_non_unpack_core">test_front_unpack_rejects_a_non_unpack_core()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_composition.test_front_unpack_less_composition_is_unchanged">test_front_unpack_less_composition_is_unchanged()</a>
@@ -1023,7 +1023,7 @@
     <a href="#test_composition.test_several_wide_lanes_share_the_beat_through_the_broadcast">test_several_wide_lanes_share_the_beat_through_the_broadcast()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_composition.test_wide_combinational_tile_pipeline_depth_bounds_are_enforced">test_wide_combinational_tile_pipeline_depth_bounds_are_enforced()</a>
+    <a href="#test_composition.test_wide_combinational_core_pipeline_depth_bounds_are_enforced">test_wide_combinational_core_pipeline_depth_bounds_are_enforced()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_composition.test_the_wide_lane_shape_rules_are_enforced">test_the_wide_lane_shape_rules_are_enforced()</a>
@@ -1147,16 +1147,16 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_composition._priced" title="test_composition._priced"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_priced</span></code></a>(spec)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition._tile_lut" title="test_composition._tile_lut"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_tile_lut</span></code></a>(name) → int</p></td>
-<td><p>A tile's LUTs at the coordinate above.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition._core_lut" title="test_composition._core_lut"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_lut</span></code></a>(name) → int</p></td>
+<td><p>A core's LUTs at the coordinate above.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition._partition" title="test_composition._partition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_partition</span></code></a>(lane, lanes) → dau_core.composition.TileSpec</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition._partition" title="test_composition._partition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_partition</span></code></a>(lane, lanes) → dau_core.composition.CoreSpec</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#test_composition.bar_noc_spec" title="test_composition.bar_noc_spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bar_noc_spec</span></code></a>([lanes]) → dau_core.composition.ScanCompositionSpec</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_spec_validates_lane_tiles" title="test_composition.test_spec_validates_lane_tiles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_spec_validates_lane_tiles</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_spec_validates_lane_cores" title="test_composition.test_spec_validates_lane_cores"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_spec_validates_lane_cores</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_core_names_cover_infrastructure_and_lanes" title="test_composition.test_core_names_cover_infrastructure_and_lanes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_core_names_cover_infrastructure_and_lanes</span></code></a>() → None</p></td>
@@ -1168,7 +1168,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_single_lane_filterless_scan_is_valid" title="test_composition.test_single_lane_filterless_scan_is_valid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_single_lane_filterless_scan_is_valid</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition._range_partitioner" title="test_composition._range_partitioner"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_range_partitioner</span></code></a>(lanes) → dau_core.composition.TileSpec</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition._range_partitioner" title="test_composition._range_partitioner"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_range_partitioner</span></code></a>(lanes) → dau_core.composition.CoreSpec</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#test_composition.sorted_scan_spec" title="test_composition.sorted_scan_spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sorted_scan_spec</span></code></a>([lanes]) → dau_core.composition.ScanCompositionSpec</p></td>
@@ -1201,7 +1201,7 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_chain_resources_are_counted_per_lane" title="test_composition.test_chain_resources_are_counted_per_lane"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_chain_resources_are_counted_per_lane</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_tile_params_validate_declared_names_and_positive_values" title="test_composition.test_tile_params_validate_declared_names_and_positive_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_tile_params_validate_declared_names_and_positive_values</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_core_params_validate_declared_names_and_positive_values" title="test_composition.test_core_params_validate_declared_names_and_positive_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_core_params_validate_declared_names_and_positive_values</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_a_design_may_pick_an_element_type_by_name" title="test_composition.test_a_design_may_pick_an_element_type_by_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_design_may_pick_an_element_type_by_name</span></code></a>() → None</p></td>
@@ -1226,7 +1226,7 @@
 <td><p>Register an unmeasured copy of one of our cores under another name,</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_a_role_parameter_resolves_to_the_declared_default" title="test_composition.test_a_role_parameter_resolves_to_the_declared_default"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_role_parameter_resolves_to_the_declared_default</span></code></a>(...) → None</p></td>
-<td><p>A parameter the composition reads off a tile comes from the core's</p></td>
+<td><p>A parameter the composition reads off a core comes from the core's</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_a_role_core_missing_its_contract_parameter_raises" title="test_composition.test_a_role_core_missing_its_contract_parameter_raises"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_role_core_missing_its_contract_parameter_raises</span></code></a>(...) → None</p></td>
 <td><p>A key dispatcher without MODE, or a front unpacker without OUT_WIDTH,</p></td>
@@ -1234,7 +1234,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_load_phase_shape_rules" title="test_composition.test_load_phase_shape_rules"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_load_phase_shape_rules</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_param_override_is_validated_on_the_lane_tile_and_partition_slots" title="test_composition.test_param_override_is_validated_on_the_lane_tile_and_partition_slots"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_param_override_is_validated_on_the_lane_tile_and_partition_slots</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_param_override_is_validated_on_the_lane_core_and_partition_slots" title="test_composition.test_param_override_is_validated_on_the_lane_core_and_partition_slots"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_param_override_is_validated_on_the_lane_core_and_partition_slots</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_key_space_override_must_match_the_declared_multiple" title="test_composition.test_key_space_override_must_match_the_declared_multiple"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_key_space_override_must_match_the_declared_multiple</span></code></a>() → None</p></td>
@@ -1243,16 +1243,16 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_shared_partitioner_params_are_validated" title="test_composition.test_shared_partitioner_params_are_validated"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_shared_partitioner_params_are_validated</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_a_sized_tile_prices_at_its_size_not_its_default" title="test_composition.test_a_sized_tile_prices_at_its_size_not_its_default"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_sized_tile_prices_at_its_size_not_its_default</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_a_sized_core_prices_at_its_size_not_its_default" title="test_composition.test_a_sized_core_prices_at_its_size_not_its_default"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_sized_core_prices_at_its_size_not_its_default</span></code></a>() → None</p></td>
 <td><p>A parameter that changes the hardware has to change the price.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition._front_unpack" title="test_composition._front_unpack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_front_unpack</span></code></a>() → dau_core.composition.TileSpec</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition._front_unpack" title="test_composition._front_unpack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_front_unpack</span></code></a>() → dau_core.composition.CoreSpec</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_front_unpack_validates_and_reaches_core_names_and_resources" title="test_composition.test_front_unpack_validates_and_reaches_core_names_and_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_front_unpack_validates_and_reaches_core_names_and_resources</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_front_unpack_rejects_a_non_unpack_tile" title="test_composition.test_front_unpack_rejects_a_non_unpack_tile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_front_unpack_rejects_a_non_unpack_tile</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_front_unpack_rejects_a_non_unpack_core" title="test_composition.test_front_unpack_rejects_a_non_unpack_core"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_front_unpack_rejects_a_non_unpack_core</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_front_unpack_less_composition_is_unchanged" title="test_composition.test_front_unpack_less_composition_is_unchanged"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_front_unpack_less_composition_is_unchanged</span></code></a>() → None</p></td>
@@ -1303,7 +1303,7 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_several_wide_lanes_share_the_beat_through_the_broadcast" title="test_composition.test_several_wide_lanes_share_the_beat_through_the_broadcast"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_several_wide_lanes_share_the_beat_through_the_broadcast</span></code></a>()</p></td>
 <td><p>Wide lanes behind one feed: the stream broadcast fans the whole beat</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_wide_combinational_tile_pipeline_depth_bounds_are_enforced" title="test_composition.test_wide_combinational_tile_pipeline_depth_bounds_are_enforced"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_wide_combinational_tile_pipeline_depth_bounds_are_enforced</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_wide_combinational_core_pipeline_depth_bounds_are_enforced" title="test_composition.test_wide_combinational_core_pipeline_depth_bounds_are_enforced"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_wide_combinational_core_pipeline_depth_bounds_are_enforced</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_the_wide_lane_shape_rules_are_enforced" title="test_composition.test_the_wide_lane_shape_rules_are_enforced"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_wide_lane_shape_rules_are_enforced</span></code></a>()</p></td>
@@ -1313,7 +1313,7 @@
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_the_fused_chain_shape_is_declared_not_inferred" title="test_composition.test_the_fused_chain_shape_is_declared_not_inferred"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_fused_chain_shape_is_declared_not_inferred</span></code></a>() → None</p></td>
-<td><p>A terminal-shaped tile mid-lane (the temporal hero's as-of join and</p></td>
+<td><p>A terminal-shaped core mid-lane (the temporal hero's as-of join and</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#test_composition._temporal_hero_spec" title="test_composition._temporal_hero_spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_temporal_hero_spec</span></code></a>(*[, include_feature_gather]) → dau_core.composition.ScanCompositionSpec</p></td>
 <td><p></p></td>
@@ -1333,10 +1333,10 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_throughput_breakdown_names_the_binding_stage" title="test_composition.test_throughput_breakdown_names_the_binding_stage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_throughput_breakdown_names_the_binding_stage</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition._record_dispatcher" title="test_composition._record_dispatcher"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_record_dispatcher</span></code></a>([record_words]) → dau_core.composition.TileSpec</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition._record_dispatcher" title="test_composition._record_dispatcher"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_record_dispatcher</span></code></a>([record_words]) → dau_core.composition.CoreSpec</p></td>
 <td><p>The dispatcher as it sits BEHIND a gearbox: its bus is one whole</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition._front_gearbox" title="test_composition._front_gearbox"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_front_gearbox</span></code></a>([record_words]) → dau_core.composition.TileSpec</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_composition._front_gearbox" title="test_composition._front_gearbox"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_front_gearbox</span></code></a>([record_words]) → dau_core.composition.CoreSpec</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_front_gearbox_reaches_core_names_and_resources" title="test_composition.test_front_gearbox_reaches_core_names_and_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_front_gearbox_reaches_core_names_and_resources</span></code></a>() → None</p></td>
@@ -1357,11 +1357,11 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front" title="test_composition.test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_composition._stream_job_spec" title="test_composition._stream_job_spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_stream_job_spec</span></code></a>([job, tile]) → dau_core.composition.ScanCompositionSpec</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_composition._stream_job_spec" title="test_composition._stream_job_spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_stream_job_spec</span></code></a>([job, core_name]) → dau_core.composition.ScanCompositionSpec</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_composition.test_a_stream_job_composition_declares_its_own_infrastructure" title="test_composition.test_a_stream_job_composition_declares_its_own_infrastructure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_stream_job_composition_declares_its_own_infrastructure</span></code></a>() → None</p></td>
-<td><p>A stream job stages one tile chain through its job core instead of</p></td>
+<td><p>A stream job stages one core chain through its job core instead of</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#test_composition.test_a_stream_job_composition_refuses_scan_shaped_fields" title="test_composition.test_a_stream_job_composition_refuses_scan_shaped_fields"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_stream_job_composition_refuses_scan_shaped_fields</span></code></a>() → None</p></td>
 <td><p>The stream job has no fan-out and no burst feed, so accepting a</p></td>
@@ -1410,14 +1410,14 @@
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="test_composition._tile_lut">
-<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">_tile_lut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#test_composition._tile_lut" title="Link to this definition">¶</a></dt>
-<dd><p>A tile’s LUTs at the coordinate above.</p>
+<dt class="sig sig-object py" id="test_composition._core_lut">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">_core_lut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#test_composition._core_lut" title="Link to this definition">¶</a></dt>
+<dd><p>A core’s LUTs at the coordinate above.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="test_composition._partition">
-<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">_partition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lane</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lanes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../dau_core/composition/index.html#dau_core.composition.TileSpec" title="dau_core.composition.TileSpec"><span class="pre">dau_core.composition.TileSpec</span></a></span></span><a class="headerlink" href="#test_composition._partition" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">_partition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lane</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lanes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../dau_core/composition/index.html#dau_core.composition.CoreSpec" title="dau_core.composition.CoreSpec"><span class="pre">dau_core.composition.CoreSpec</span></a></span></span><a class="headerlink" href="#test_composition._partition" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -1426,8 +1426,8 @@
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="test_composition.test_spec_validates_lane_tiles">
-<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_spec_validates_lane_tiles</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_spec_validates_lane_tiles" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="test_composition.test_spec_validates_lane_cores">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_spec_validates_lane_cores</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_spec_validates_lane_cores" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -1447,7 +1447,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="test_composition._range_partitioner">
-<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">_range_partitioner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lanes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../dau_core/composition/index.html#dau_core.composition.TileSpec" title="dau_core.composition.TileSpec"><span class="pre">dau_core.composition.TileSpec</span></a></span></span><a class="headerlink" href="#test_composition._range_partitioner" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">_range_partitioner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lanes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../dau_core/composition/index.html#dau_core.composition.CoreSpec" title="dau_core.composition.CoreSpec"><span class="pre">dau_core.composition.CoreSpec</span></a></span></span><a class="headerlink" href="#test_composition._range_partitioner" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -1480,7 +1480,7 @@
 <span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">q6_scan_spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lanes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../dau_core/composition/index.html#dau_core.composition.ScanCompositionSpec" title="dau_core.composition.ScanCompositionSpec"><span class="pre">dau_core.composition.ScanCompositionSpec</span></a></span></span><a class="headerlink" href="#test_composition.q6_scan_spec" title="Link to this definition">¶</a></dt>
 <dd><p>The q6 filter+reduce lane: key-partitioned fan-out, a chain of two
 row-predicate filters (the four-comparison WHERE split across two
-3-term tiles) and the revenue map, closed by the field-sum tile.</p>
+3-term cores) and the revenue map, closed by the field-sum core.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1504,8 +1504,8 @@ row-predicate filters (the four-comparison WHERE split across two
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="test_composition.test_tile_params_validate_declared_names_and_positive_values">
-<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_tile_params_validate_declared_names_and_positive_values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_tile_params_validate_declared_names_and_positive_values" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="test_composition.test_core_params_validate_declared_names_and_positive_values">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_core_params_validate_declared_names_and_positive_values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_core_params_validate_declared_names_and_positive_values" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -1552,7 +1552,7 @@ with its parameters edited, and drop it again afterwards.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="test_composition.test_a_role_parameter_resolves_to_the_declared_default">
 <span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_a_role_parameter_resolves_to_the_declared_default</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vendor_core</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_a_role_parameter_resolves_to_the_declared_default" title="Link to this definition">¶</a></dt>
-<dd><p>A parameter the composition reads off a tile comes from the core’s
+<dd><p>A parameter the composition reads off a core comes from the core’s
 declared default: a dispatcher whose MODE defaults to
 EXACT_BRANCH takes three lanes, and one whose RECORD_INPUT defaults on
 frames whole records rather than the feed.</p>
@@ -1571,8 +1571,8 @@ used to be treated as MASK mode and as 64 bits wide.</p>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="test_composition.test_param_override_is_validated_on_the_lane_tile_and_partition_slots">
-<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_param_override_is_validated_on_the_lane_tile_and_partition_slots</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_param_override_is_validated_on_the_lane_tile_and_partition_slots" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="test_composition.test_param_override_is_validated_on_the_lane_core_and_partition_slots">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_param_override_is_validated_on_the_lane_core_and_partition_slots</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_param_override_is_validated_on_the_lane_core_and_partition_slots" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -1586,12 +1586,12 @@ used to be treated as MASK mode and as 64 bits wide.</p>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="test_composition.test_a_sized_tile_prices_at_its_size_not_its_default">
-<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_a_sized_tile_prices_at_its_size_not_its_default</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_a_sized_tile_prices_at_its_size_not_its_default" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="test_composition.test_a_sized_core_prices_at_its_size_not_its_default">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_a_sized_core_prices_at_its_size_not_its_default</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_a_sized_core_prices_at_its_size_not_its_default" title="Link to this definition">¶</a></dt>
 <dd><p>A parameter that changes the hardware has to change the price.</p>
 <p>This assertion used to be the OPPOSITE – that a 6M-key membership
 filter priced identically to a default 4096-key one – and it was true
-only because the tile carried a scalar envelope that answered every
+only because the core carried a scalar envelope that answered every
 KEY_SPACE with the same numbers. The membership filter is a BITMAP, so
 its BRAM cost IS the key space: 1 BRAM36 at 4096, 192 at 6,000,000,
 which is 57% of the Artix’s 335 budgeted blocks. Every composition
@@ -1606,7 +1606,7 @@ it actually places.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="test_composition._front_unpack">
-<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">_front_unpack</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../dau_core/composition/index.html#dau_core.composition.TileSpec" title="dau_core.composition.TileSpec"><span class="pre">dau_core.composition.TileSpec</span></a></span></span><a class="headerlink" href="#test_composition._front_unpack" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">_front_unpack</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../dau_core/composition/index.html#dau_core.composition.CoreSpec" title="dau_core.composition.CoreSpec"><span class="pre">dau_core.composition.CoreSpec</span></a></span></span><a class="headerlink" href="#test_composition._front_unpack" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -1615,8 +1615,8 @@ it actually places.</p>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="test_composition.test_front_unpack_rejects_a_non_unpack_tile">
-<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_front_unpack_rejects_a_non_unpack_tile</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_front_unpack_rejects_a_non_unpack_tile" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="test_composition.test_front_unpack_rejects_a_non_unpack_core">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_front_unpack_rejects_a_non_unpack_core</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_front_unpack_rejects_a_non_unpack_core" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -1674,9 +1674,9 @@ text beside it, so it has to be readable without one.</p>
 <dt class="sig sig-object py" id="test_composition.test_a_text_recorded_under_an_older_palette_is_refused_by_version_not_by_parse">
 <span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_a_text_recorded_under_an_older_palette_is_refused_by_version_not_by_parse</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_a_text_recorded_under_an_older_palette_is_refused_by_version_not_by_parse" title="Link to this definition">¶</a></dt>
 <dd><p>The defect this boundary closes, in one place.</p>
-<p>A build manifest written before the width-named tiles were renamed
+<p>A build manifest written before the width-named cores were renamed
 records a canonical text naming them. Reading it against today’s
-registry raises <cite>UnknownCoreError</cite> — an error about a missing tile, from
+registry raises <cite>UnknownCoreError</cite> — an error about a missing core, from
 a design that is built, flashed and answering. The version prefix beside
 the text is the fact that says the text predates this palette, and it
 says so without a parse.</p>
@@ -1736,8 +1736,8 @@ the rate. One wide lane still takes the stream directly.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="test_composition.test_wide_combinational_tile_pipeline_depth_bounds_are_enforced">
-<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_wide_combinational_tile_pipeline_depth_bounds_are_enforced</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#test_composition.test_wide_combinational_tile_pipeline_depth_bounds_are_enforced" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="test_composition.test_wide_combinational_core_pipeline_depth_bounds_are_enforced">
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_wide_combinational_core_pipeline_depth_bounds_are_enforced</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#test_composition.test_wide_combinational_core_pipeline_depth_bounds_are_enforced" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -1753,7 +1753,7 @@ the rate. One wide lane still takes the stream directly.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="test_composition.test_the_fused_chain_shape_is_declared_not_inferred">
 <span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_the_fused_chain_shape_is_declared_not_inferred</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_the_fused_chain_shape_is_declared_not_inferred" title="Link to this definition">¶</a></dt>
-<dd><p>A terminal-shaped tile mid-lane (the temporal hero’s as-of join and
+<dd><p>A terminal-shaped core mid-lane (the temporal hero’s as-of join and
 grouped aggregator) composes only when the spec DECLARES the fused
 chain: the refusal still catches an aggregator dropped into a chain by
 accident, while the declaration says the caller accepts that mid-stage
@@ -1799,14 +1799,14 @@ because selectivity is data-dependent.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="test_composition._record_dispatcher">
-<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">_record_dispatcher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record_words</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../dau_core/composition/index.html#dau_core.composition.TileSpec" title="dau_core.composition.TileSpec"><span class="pre">dau_core.composition.TileSpec</span></a></span></span><a class="headerlink" href="#test_composition._record_dispatcher" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">_record_dispatcher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record_words</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../dau_core/composition/index.html#dau_core.composition.CoreSpec" title="dau_core.composition.CoreSpec"><span class="pre">dau_core.composition.CoreSpec</span></a></span></span><a class="headerlink" href="#test_composition._record_dispatcher" title="Link to this definition">¶</a></dt>
 <dd><p>The dispatcher as it sits BEHIND a gearbox: its bus is one whole
 record wide, so it takes RECORD_INPUT rather than a row framing.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="test_composition._front_gearbox">
-<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">_front_gearbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record_words</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../dau_core/composition/index.html#dau_core.composition.TileSpec" title="dau_core.composition.TileSpec"><span class="pre">dau_core.composition.TileSpec</span></a></span></span><a class="headerlink" href="#test_composition._front_gearbox" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">_front_gearbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record_words</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../dau_core/composition/index.html#dau_core.composition.CoreSpec" title="dau_core.composition.CoreSpec"><span class="pre">dau_core.composition.CoreSpec</span></a></span></span><a class="headerlink" href="#test_composition._front_gearbox" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -1860,13 +1860,13 @@ stage it never looked at was the gearbox: a 3-word gearbox feeding a
 
 <dl class="py function">
 <dt class="sig sig-object py" id="test_composition._stream_job_spec">
-<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">_stream_job_spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'bram-stream-job'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'bar-aggregation'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../dau_core/composition/index.html#dau_core.composition.ScanCompositionSpec" title="dau_core.composition.ScanCompositionSpec"><span class="pre">dau_core.composition.ScanCompositionSpec</span></a></span></span><a class="headerlink" href="#test_composition._stream_job_spec" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">_stream_job_spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'bram-stream-job'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'bar-aggregation'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../dau_core/composition/index.html#dau_core.composition.ScanCompositionSpec" title="dau_core.composition.ScanCompositionSpec"><span class="pre">dau_core.composition.ScanCompositionSpec</span></a></span></span><a class="headerlink" href="#test_composition._stream_job_spec" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="test_composition.test_a_stream_job_composition_declares_its_own_infrastructure">
 <span class="sig-prename descclassname"><span class="pre">test_composition.</span></span><span class="sig-name descname"><span class="pre">test_a_stream_job_composition_declares_its_own_infrastructure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_composition.test_a_stream_job_composition_declares_its_own_infrastructure" title="Link to this definition">¶</a></dt>
-<dd><p>A stream job stages one tile chain through its job core instead of
+<dd><p>A stream job stages one core chain through its job core instead of
 reading bursts and fanning out. Until it could be declared, its cores
 reached the build as a hand-copied list — so nothing checked that the
 list still matched what the top instantiates.</p>
@@ -1996,7 +1996,7 @@ placed in is pinned because <code class="docutils literal notranslate"><span cla
     <a href="#test_composition._priced">_priced()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_composition._tile_lut">_tile_lut()</a>
+    <a href="#test_composition._core_lut">_core_lut()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_composition._partition">_partition()</a>
@@ -2005,7 +2005,7 @@ placed in is pinned because <code class="docutils literal notranslate"><span cla
     <a href="#test_composition.bar_noc_spec">bar_noc_spec()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_composition.test_spec_validates_lane_tiles">test_spec_validates_lane_tiles()</a>
+    <a href="#test_composition.test_spec_validates_lane_cores">test_spec_validates_lane_cores()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_composition.test_core_names_cover_infrastructure_and_lanes">test_core_names_cover_infrastructure_and_lanes()</a>
@@ -2050,7 +2050,7 @@ placed in is pinned because <code class="docutils literal notranslate"><span cla
     <a href="#test_composition.test_chain_resources_are_counted_per_lane">test_chain_resources_are_counted_per_lane()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_composition.test_tile_params_validate_declared_names_and_positive_values">test_tile_params_validate_declared_names_and_positive_values()</a>
+    <a href="#test_composition.test_core_params_validate_declared_names_and_positive_values">test_core_params_validate_declared_names_and_positive_values()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_composition.test_a_design_may_pick_an_element_type_by_name">test_a_design_may_pick_an_element_type_by_name()</a>
@@ -2083,7 +2083,7 @@ placed in is pinned because <code class="docutils literal notranslate"><span cla
     <a href="#test_composition.test_load_phase_shape_rules">test_load_phase_shape_rules()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_composition.test_param_override_is_validated_on_the_lane_tile_and_partition_slots">test_param_override_is_validated_on_the_lane_tile_and_partition_slots()</a>
+    <a href="#test_composition.test_param_override_is_validated_on_the_lane_core_and_partition_slots">test_param_override_is_validated_on_the_lane_core_and_partition_slots()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_composition.test_key_space_override_must_match_the_declared_multiple">test_key_space_override_must_match_the_declared_multiple()</a>
@@ -2092,7 +2092,7 @@ placed in is pinned because <code class="docutils literal notranslate"><span cla
     <a href="#test_composition.test_shared_partitioner_params_are_validated">test_shared_partitioner_params_are_validated()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_composition.test_a_sized_tile_prices_at_its_size_not_its_default">test_a_sized_tile_prices_at_its_size_not_its_default()</a>
+    <a href="#test_composition.test_a_sized_core_prices_at_its_size_not_its_default">test_a_sized_core_prices_at_its_size_not_its_default()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_composition._FRONT_UNPACK_CONFIG">_FRONT_UNPACK_CONFIG</a>
@@ -2104,7 +2104,7 @@ placed in is pinned because <code class="docutils literal notranslate"><span cla
     <a href="#test_composition.test_front_unpack_validates_and_reaches_core_names_and_resources">test_front_unpack_validates_and_reaches_core_names_and_resources()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_composition.test_front_unpack_rejects_a_non_unpack_tile">test_front_unpack_rejects_a_non_unpack_tile()</a>
+    <a href="#test_composition.test_front_unpack_rejects_a_non_unpack_core">test_front_unpack_rejects_a_non_unpack_core()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_composition.test_front_unpack_less_composition_is_unchanged">test_front_unpack_less_composition_is_unchanged()</a>
@@ -2155,7 +2155,7 @@ placed in is pinned because <code class="docutils literal notranslate"><span cla
     <a href="#test_composition.test_several_wide_lanes_share_the_beat_through_the_broadcast">test_several_wide_lanes_share_the_beat_through_the_broadcast()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_composition.test_wide_combinational_tile_pipeline_depth_bounds_are_enforced">test_wide_combinational_tile_pipeline_depth_bounds_are_enforced()</a>
+    <a href="#test_composition.test_wide_combinational_core_pipeline_depth_bounds_are_enforced">test_wide_combinational_core_pipeline_depth_bounds_are_enforced()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_composition.test_the_wide_lane_shape_rules_are_enforced">test_the_wide_lane_shape_rules_are_enforced()</a>

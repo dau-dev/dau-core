@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -1020,12 +1020,12 @@ every intermediate on-chip and touches DDR only for the input stream and the
 final rolling output. The gain is not a magic primitive: it is the avoided DMA of
 the intermediate the bar reduction discards.</p>
 <p>The per-row market-feature derivation (midpoint/spread/sign/signed_volume/dollar)
-is a map that fuses into the bar tile’s front chain stage (the q1/q6 shape) — it
+is a map that fuses into the bar core’s front chain stage (the q1/q6 shape) — it
 adds no materialized intermediate in either execution — so the cost model’s
 materializing stages are align → bar → roll. <code class="docutils literal notranslate"><span class="pre">market_features</span></code> is still run and
 returned as the feature output branch (not discarded).</p>
 <p>Both paths are DMA-bound (compute overlapped), so the model computes each from
-the exact golden cardinalities and the measured per-tile record widths — a
+the exact golden cardinalities and the measured per-core record widths — a
 first-order estimate the silicon run validates, not a measured result.</p>
 <p>No dataframe or numerical-runtime dependency: pure integer arithmetic over
 the temporal goldens.</p>
@@ -1168,7 +1168,7 @@ the temporal goldens.</p>
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_core.hero.</span></span><span class="sig-name descname"><span class="pre">WorkflowStage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data:</span> <span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/dau_core/hero.html#WorkflowStage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.hero.WorkflowStage" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="../models/index.html#dau_core.models.CheckedModel" title="dau_core.models.CheckedModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dau_core.models.CheckedModel</span></code></a></p>
 <p>One materializing stage and its cardinality: <code class="docutils literal notranslate"><span class="pre">in_rows</span></code> records of
-<code class="docutils literal notranslate"><span class="pre">in_bytes</span></code> in, <code class="docutils literal notranslate"><span class="pre">out_rows</span></code> records of <code class="docutils literal notranslate"><span class="pre">out_bytes</span></code> out (the tile’s own
+<code class="docutils literal notranslate"><span class="pre">in_bytes</span></code> in, <code class="docutils literal notranslate"><span class="pre">out_rows</span></code> records of <code class="docutils literal notranslate"><span class="pre">out_bytes</span></code> out (the core’s own
 input/output record widths). A staged run DMAs both; a fused run DMAs
 neither (except the pipeline endpoints).</p>
 <p>Create a new model by parsing and validating input data from keyword arguments.</p>
@@ -1279,7 +1279,7 @@ validated to form a valid model.</p>
 <dd><p>Run the predeclared workflow end to end over the goldens, recording each
 materializing stage’s cardinality. <code class="docutils literal notranslate"><span class="pre">roll_value</span></code> selects the per-bar OHLC
 price the roll stage windows (<a class="reference internal" href="#dau_core.hero.ROLL_FIELDS" title="dau_core.hero.ROLL_FIELDS"><code class="xref py py-data docutils literal notranslate"><span class="pre">ROLL_FIELDS</span></code></a>); <code class="docutils literal notranslate"><span class="pre">roll_window</span></code> is the
-count-based window (at least <a class="reference internal" href="#dau_core.hero.ROLL_WINDOW_MINIMUM" title="dau_core.hero.ROLL_WINDOW_MINIMUM"><code class="xref py py-data docutils literal notranslate"><span class="pre">ROLL_WINDOW_MINIMUM</span></code></a>, the tile’s minimum). Both input streams must be
+count-based window (at least <a class="reference internal" href="#dau_core.hero.ROLL_WINDOW_MINIMUM" title="dau_core.hero.ROLL_WINDOW_MINIMUM"><code class="xref py py-data docutils literal notranslate"><span class="pre">ROLL_WINDOW_MINIMUM</span></code></a>, the core’s minimum). Both input streams must be
 pre-sorted by <code class="docutils literal notranslate"><span class="pre">(symbol_id,</span> <span class="pre">time)</span></code> (the shared as-of / bar precondition).</p>
 </dd></dl>
 

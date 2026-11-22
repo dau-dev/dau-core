@@ -5,7 +5,7 @@ cocotb_benches.dau_normal_cdf_tb
 
 .. autoapi-nested-parse::
 
-   The rendered normal-CDF tile against the model it was rendered from.
+   The rendered normal-CDF core against the model it was rendered from.
 
    Zero tolerance. That model is correctly rounded over every representable
    input, so a mismatch here is a defect in the HDL, not an accuracy question.
@@ -59,7 +59,7 @@ Module Contents
    :async:
 
 
-   Beyond the domain the answer IS 0 or 1.0; the tile must emit it and
+   Beyond the domain the answer IS 0 or 1.0; the core must emit it and
    stay silent rather than raising anything.
 
 
@@ -95,7 +95,7 @@ Module Contents
 
    The proven quad-row collector: drive ready, sample in ReadOnly, and
    only count a beat that actually fired. Sampling without checking the
-   handshake is what made this harness report zeros against a tile the
+   handshake is what made this harness report zeros against a core the
    waveform showed was correct.
 
 

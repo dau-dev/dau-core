@@ -9,7 +9,7 @@ loaded into the ccflow `ModelRegistry` at `/dau-core/<name>`.
 
 | Field            | Type                    | Description                                                                                                                                                                                  |
 | ---------------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`           | `str`                   | Registry key, named for what the tile computes. A width belongs in the parameters, not the name; see [Add an operator tile](../how-to/add-an-operator-tile.md).                              |
+| `name`           | `str`                   | Registry key, named for what the core computes. A width belongs in the parameters, not the name; see [Add an operator core](../how-to/add-an-operator-core.md).                              |
 | `kind`           | `CoreKind`              | `operator`, `stream-infra`, `shell-adapter`, `package`, or `sim-model`.                                                                                                                      |
 | `module`         | `str`                   | The SystemVerilog module name.                                                                                                                                                               |
 | `source`         | `str`                   | The HDL filename within `source_package`.                                                                                                                                                    |
@@ -46,8 +46,8 @@ Rendering a checked-in core raises an error.
 | Field           | Type                                      | Description                                                                                                                                                                                        |
 | --------------- | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `resources`     | `tuple[ResourceMeasurement, ...] \| None` | Measurement points keyed by part, clock, and parameters. A combinational core's point has no clock and answers for any.                                                                            |
-| `measured_from` | `str \| None`                             | Digest of the HDL closure the points were measured from (`hdl_closure_digest()`): the tile's source, the packages it imports and the headers it includes. A stamp with no `resources` is rejected. |
-| `accuracy_ulp`  | `int \| None`                             | For a tile whose golden is a mathematical reference (the transcendentals): the worst deviation from the correctly rounded answer, in ULP, over an exhaustive sweep. `0` means correctly rounded.   |
+| `measured_from` | `str \| None`                             | Digest of the HDL closure the points were measured from (`hdl_closure_digest()`): the core's source, the packages it imports and the headers it includes. A stamp with no `resources` is rejected. |
+| `accuracy_ulp`  | `int \| None`                             | For a core whose golden is a mathematical reference (the transcendentals): the worst deviation from the correctly rounded answer, in ULP, over an exhaustive sweep. `0` means correctly rounded.   |
 
 `ResourceEnvelope` is a count (`lut`, `ff`, `bram36`, `dsp`): a measurement point's usable face, or the sum a composition estimate adds up to. It is not a registry shape.
 
@@ -72,7 +72,7 @@ numbers as a budget.
 | `output_record_words_param`    | `str \| None`          | Module parameter that sets the output width.                                                                                                                                    |
 | `output_record_words_variable` | `bool`                 | The output record's width depends on configuration (for example a field mask selecting how many sum words ride each record).                                                    |
 | `count_port`                   | `str \| None`          | The port reporting how many records the core emitted.                                                                                                                           |
-| `success_close_out`            | `bool`                 | Whether this core raises the batch's single success close-out. Terminal tiles do; mid-chain tiles are silent on success.                                                        |
+| `success_close_out`            | `bool`                 | Whether this core raises the batch's single success close-out. Terminal cores do; mid-chain cores are silent on success.                                                        |
 | `supports_pipeline_depth`      | `bool`                 | The core accepts generic elastic register stages without changing framing semantics. Requires a declared `PIPELINE_DEPTH` parameter; no build or pricing consumer reads it yet. |
 
 ## Composition role
@@ -81,7 +81,7 @@ numbers as a budget.
 | ------ | ------------------ | ------------------------------------------------------------------------------------ |
 | `role` | `CoreRole \| None` | The composition job this core fills, when a composition selects the core by its job. |
 
-Two rules cannot be read off a tile's ports, so the registry states them.
+Two rules cannot be read off a core's ports, so the registry states them.
 `front-unpack` marks a core admissible in the optional front-stage feed
 transform slot, which widens packed rows into the quad rows the lanes consume.
 `key-dispatch` marks a core that routes whole records to lanes by a decode
@@ -178,10 +178,10 @@ FIELD_WIDTH:
 The spellings are `intN`/`uintN`, `float32`/`float64`, and the fixed-point
 form `qI.F` (I integer bits including the sign, F fractional, I+F total, so
 `q16.16` is 32 bits). They resolve to the encoding in
-`dau_core/hdl/types.svh`, which tiles include to decode a type's width,
+`dau_core/hdl/types.svh`, which cores include to decode a type's width,
 signedness, fractional bits and float-ness. A plain signed integer encodes
 as its own width, so `int32` and `32` are the same declaration and an entry
-migrated from a width names exactly the tile it always did.
+migrated from a width names exactly the core it always did.
 
 Bounds on such a parameter constrain the type's width, because that is what
 the RTL guard they mirror checks; `choices` match the whole type, so
@@ -190,10 +190,10 @@ the RTL guard they mirror checks; `choices` match the whole type, so
 Bus and beat widths (`IN_WIDTH`, `OUT_WIDTH`, `DATA_WIDTH`) count bits per
 handshake and are **not** element types. Leave `element_type` unset for them.
 
-A tile that includes `types.svh` needs its directory on the include path;
+A core that includes `types.svh` needs its directory on the include path;
 `dau_core.hdl.DAU_HDL_INCLUDE_DIR` is that directory. Verilator does not
 search the including file's own directory, so a bench or lint run that omits
-`-I` fails on the include rather than on anything to do with the tile.
+`-I` fails on the include rather than on anything to do with the core.
 
 ## Accessors
 
@@ -203,7 +203,7 @@ from dau_core.registry import loaded_cores, core, cores_of_kind, sources_for
 
 loaded_cores()                       # name -> CoreDefinition, registry order
 core("streaming-top-k")              # one definition
-cores_of_kind(CoreKind.OPERATOR)     # every operator tile
+cores_of_kind(CoreKind.OPERATOR)     # every operator core
 sources_for("streaming-top-k")       # dependency-closed HDL paths, in order
 ```
 

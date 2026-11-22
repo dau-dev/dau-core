@@ -5,17 +5,17 @@ dau_core.normal_cdf_generator
 
 .. autoapi-nested-parse::
 
-   Renders the normal-CDF tile from a declared operating point.
+   Renders the normal-CDF core from a declared operating point.
 
-   Generated for the same reason the exp tile is: its per-segment Taylor
+   Generated for the same reason the exp core is: its per-segment Taylor
    coefficients are transcendental constants at the configured internal
    precision, and SystemVerilog cannot compute them at elaboration.
 
    The emitted SystemVerilog mirrors
    :meth:`dau_core.fixed_point.NormalCdfDatapath.evaluate` step for step, so
    the cocotb bench compares against it with zero tolerance like every other
-   tile. That model is correctly rounded over EVERY representable input, so for
-   this tile the algorithm and the mathematics coincide.
+   core. That model is correctly rounded over EVERY representable input, so for
+   this core the algorithm and the mathematics coincide.
 
    Pipelined one multiply per stage, which is what the exp measurements forced:
    a DSP48's clock-to-out is ~3.5 ns, so a carry chain sitting between two of
@@ -28,13 +28,13 @@ Classes
 
 .. autoapisummary::
 
-   dau_core.normal_cdf_generator.NormalCdfTileGenerator
+   dau_core.normal_cdf_generator.NormalCdfCoreGenerator
 
 
 Module Contents
 ---------------
 
-.. py:class:: NormalCdfTileGenerator(/, **data: Any)
+.. py:class:: NormalCdfCoreGenerator(/, **data: Any)
 
    Bases: :py:obj:`dau_core.generators.CoreGenerator`
 

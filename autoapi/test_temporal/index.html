@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -900,7 +900,7 @@
     <a href="#test_temporal.test_moment_var_is_exact_at_fixed_point_magnitudes">test_moment_var_is_exact_at_fixed_point_magnitudes()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_temporal.test_rolling_moments_refuses_a_window_that_overflows_the_tiles_sum_of_squares">test_rolling_moments_refuses_a_window_that_overflows_the_tiles_sum_of_squares()</a>
+    <a href="#test_temporal.test_rolling_moments_refuses_a_window_that_overflows_the_cores_sum_of_squares">test_rolling_moments_refuses_a_window_that_overflows_the_cores_sum_of_squares()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_temporal.test_moment_var_rejects_underdetermined_window">test_moment_var_rejects_underdetermined_window()</a>
@@ -999,8 +999,8 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_temporal.test_moment_var_is_exact_at_fixed_point_magnitudes" title="test_temporal.test_moment_var_is_exact_at_fixed_point_magnitudes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_moment_var_is_exact_at_fixed_point_magnitudes</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_temporal.test_rolling_moments_refuses_a_window_that_overflows_the_tiles_sum_of_squares" title="test_temporal.test_rolling_moments_refuses_a_window_that_overflows_the_tiles_sum_of_squares"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_rolling_moments_refuses_a_window_that_overflows_the_tiles_sum_of_squares</span></code></a>() → None</p></td>
-<td><p>The tile's INT64 sum_sq wraps silently; Python's integers do not. If the</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_temporal.test_rolling_moments_refuses_a_window_that_overflows_the_cores_sum_of_squares" title="test_temporal.test_rolling_moments_refuses_a_window_that_overflows_the_cores_sum_of_squares"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_rolling_moments_refuses_a_window_that_overflows_the_cores_sum_of_squares</span></code></a>() → None</p></td>
+<td><p>The core's INT64 sum_sq wraps silently; Python's integers do not. If the</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_temporal.test_moment_var_rejects_underdetermined_window" title="test_temporal.test_moment_var_rejects_underdetermined_window"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_moment_var_rejects_underdetermined_window</span></code></a>() → None</p></td>
 <td><p></p></td>
@@ -1117,9 +1117,9 @@
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="test_temporal.test_rolling_moments_refuses_a_window_that_overflows_the_tiles_sum_of_squares">
-<span class="sig-prename descclassname"><span class="pre">test_temporal.</span></span><span class="sig-name descname"><span class="pre">test_rolling_moments_refuses_a_window_that_overflows_the_tiles_sum_of_squares</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_temporal.test_rolling_moments_refuses_a_window_that_overflows_the_tiles_sum_of_squares" title="Link to this definition">¶</a></dt>
-<dd><p>The tile’s INT64 sum_sq wraps silently; Python’s integers do not. If the
+<dt class="sig sig-object py" id="test_temporal.test_rolling_moments_refuses_a_window_that_overflows_the_cores_sum_of_squares">
+<span class="sig-prename descclassname"><span class="pre">test_temporal.</span></span><span class="sig-name descname"><span class="pre">test_rolling_moments_refuses_a_window_that_overflows_the_cores_sum_of_squares</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_temporal.test_rolling_moments_refuses_a_window_that_overflows_the_cores_sum_of_squares" title="Link to this definition">¶</a></dt>
+<dd><p>The core’s INT64 sum_sq wraps silently; Python’s integers do not. If the
 golden answered anyway the two would disagree over exactly the inputs the
 contract excludes, so it refuses instead.</p>
 </dd></dl>
@@ -1258,7 +1258,7 @@ contract excludes, so it refuses instead.</p>
     <a href="#test_temporal.test_moment_var_is_exact_at_fixed_point_magnitudes">test_moment_var_is_exact_at_fixed_point_magnitudes()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_temporal.test_rolling_moments_refuses_a_window_that_overflows_the_tiles_sum_of_squares">test_rolling_moments_refuses_a_window_that_overflows_the_tiles_sum_of_squares()</a>
+    <a href="#test_temporal.test_rolling_moments_refuses_a_window_that_overflows_the_cores_sum_of_squares">test_rolling_moments_refuses_a_window_that_overflows_the_cores_sum_of_squares()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_temporal.test_moment_var_rejects_underdetermined_window">test_moment_var_rejects_underdetermined_window()</a>

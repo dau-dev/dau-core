@@ -21,10 +21,10 @@ Functions
 .. autoapisummary::
 
    test_composition._priced
-   test_composition._tile_lut
+   test_composition._core_lut
    test_composition._partition
    test_composition.bar_noc_spec
-   test_composition.test_spec_validates_lane_tiles
+   test_composition.test_spec_validates_lane_cores
    test_composition.test_core_names_cover_infrastructure_and_lanes
    test_composition.test_estimated_resources_scale_with_lanes
    test_composition.test_single_lane_filterless_scan_is_valid
@@ -39,7 +39,7 @@ Functions
    test_composition.test_chain_stages_must_be_operators
    test_composition.test_chain_stages_need_no_status_counter
    test_composition.test_chain_resources_are_counted_per_lane
-   test_composition.test_tile_params_validate_declared_names_and_positive_values
+   test_composition.test_core_params_validate_declared_names_and_positive_values
    test_composition.test_a_design_may_pick_an_element_type_by_name
    test_composition.test_a_type_and_its_width_are_the_same_design
    test_composition.test_minimum_constraint_mirrors_the_rolling_window_guard
@@ -50,13 +50,13 @@ Functions
    test_composition.test_a_role_parameter_resolves_to_the_declared_default
    test_composition.test_a_role_core_missing_its_contract_parameter_raises
    test_composition.test_load_phase_shape_rules
-   test_composition.test_param_override_is_validated_on_the_lane_tile_and_partition_slots
+   test_composition.test_param_override_is_validated_on_the_lane_core_and_partition_slots
    test_composition.test_key_space_override_must_match_the_declared_multiple
    test_composition.test_shared_partitioner_params_are_validated
-   test_composition.test_a_sized_tile_prices_at_its_size_not_its_default
+   test_composition.test_a_sized_core_prices_at_its_size_not_its_default
    test_composition._front_unpack
    test_composition.test_front_unpack_validates_and_reaches_core_names_and_resources
-   test_composition.test_front_unpack_rejects_a_non_unpack_tile
+   test_composition.test_front_unpack_rejects_a_non_unpack_core
    test_composition.test_front_unpack_less_composition_is_unchanged
    test_composition.test_exactly_one_success_close_out_per_lane_is_enforced
    test_composition.test_spec_canonical_round_trip_and_hash_stability
@@ -73,7 +73,7 @@ Functions
    test_composition.test_throughput_packed_front_re_times_delivery
    test_composition.test_the_wide_lane_shape_composes_and_rate_matches
    test_composition.test_several_wide_lanes_share_the_beat_through_the_broadcast
-   test_composition.test_wide_combinational_tile_pipeline_depth_bounds_are_enforced
+   test_composition.test_wide_combinational_core_pipeline_depth_bounds_are_enforced
    test_composition.test_the_wide_lane_shape_rules_are_enforced
    test_composition.test_wide_row_stream_cores_are_refused_in_the_partitioner_slot
    test_composition.test_the_fused_chain_shape_is_declared_not_inferred
@@ -117,16 +117,16 @@ Module Contents
 
 .. py:function:: _priced(spec: dau_core.composition.ScanCompositionSpec)
 
-.. py:function:: _tile_lut(name: str) -> int
+.. py:function:: _core_lut(name: str) -> int
 
-   A tile's LUTs at the coordinate above.
+   A core's LUTs at the coordinate above.
 
 
-.. py:function:: _partition(lane: int, lanes: int) -> dau_core.composition.TileSpec
+.. py:function:: _partition(lane: int, lanes: int) -> dau_core.composition.CoreSpec
 
 .. py:function:: bar_noc_spec(lanes: int = 4) -> dau_core.composition.ScanCompositionSpec
 
-.. py:function:: test_spec_validates_lane_tiles() -> None
+.. py:function:: test_spec_validates_lane_cores() -> None
 
 .. py:function:: test_core_names_cover_infrastructure_and_lanes() -> None
 
@@ -134,7 +134,7 @@ Module Contents
 
 .. py:function:: test_single_lane_filterless_scan_is_valid() -> None
 
-.. py:function:: _range_partitioner(lanes: int) -> dau_core.composition.TileSpec
+.. py:function:: _range_partitioner(lanes: int) -> dau_core.composition.CoreSpec
 
 .. py:function:: sorted_scan_spec(lanes: int = 4) -> dau_core.composition.ScanCompositionSpec
 
@@ -150,7 +150,7 @@ Module Contents
 
    The q6 filter+reduce lane: key-partitioned fan-out, a chain of two
    row-predicate filters (the four-comparison WHERE split across two
-   3-term tiles) and the revenue map, closed by the field-sum tile.
+   3-term cores) and the revenue map, closed by the field-sum core.
 
 
 .. py:function:: test_chain_lanes_validate_and_close_core_names() -> None
@@ -161,7 +161,7 @@ Module Contents
 
 .. py:function:: test_chain_resources_are_counted_per_lane() -> None
 
-.. py:function:: test_tile_params_validate_declared_names_and_positive_values() -> None
+.. py:function:: test_core_params_validate_declared_names_and_positive_values() -> None
 
 .. py:function:: test_a_design_may_pick_an_element_type_by_name() -> None
 
@@ -191,7 +191,7 @@ Module Contents
 
 .. py:function:: test_a_role_parameter_resolves_to_the_declared_default(vendor_core) -> None
 
-   A parameter the composition reads off a tile comes from the core's
+   A parameter the composition reads off a core comes from the core's
    declared default: a dispatcher whose MODE defaults to
    EXACT_BRANCH takes three lanes, and one whose RECORD_INPUT defaults on
    frames whole records rather than the feed.
@@ -205,19 +205,19 @@ Module Contents
 
 .. py:function:: test_load_phase_shape_rules() -> None
 
-.. py:function:: test_param_override_is_validated_on_the_lane_tile_and_partition_slots() -> None
+.. py:function:: test_param_override_is_validated_on_the_lane_core_and_partition_slots() -> None
 
 .. py:function:: test_key_space_override_must_match_the_declared_multiple() -> None
 
 .. py:function:: test_shared_partitioner_params_are_validated() -> None
 
-.. py:function:: test_a_sized_tile_prices_at_its_size_not_its_default() -> None
+.. py:function:: test_a_sized_core_prices_at_its_size_not_its_default() -> None
 
    A parameter that changes the hardware has to change the price.
 
    This assertion used to be the OPPOSITE -- that a 6M-key membership
    filter priced identically to a default 4096-key one -- and it was true
-   only because the tile carried a scalar envelope that answered every
+   only because the core carried a scalar envelope that answered every
    KEY_SPACE with the same numbers. The membership filter is a BITMAP, so
    its BRAM cost IS the key space: 1 BRAM36 at 4096, 192 at 6,000,000,
    which is 57% of the Artix's 335 budgeted blocks. Every composition
@@ -227,11 +227,11 @@ Module Contents
 
 .. py:data:: _FRONT_UNPACK_CONFIG
 
-.. py:function:: _front_unpack() -> dau_core.composition.TileSpec
+.. py:function:: _front_unpack() -> dau_core.composition.CoreSpec
 
 .. py:function:: test_front_unpack_validates_and_reaches_core_names_and_resources() -> None
 
-.. py:function:: test_front_unpack_rejects_a_non_unpack_tile() -> None
+.. py:function:: test_front_unpack_rejects_a_non_unpack_core() -> None
 
 .. py:function:: test_front_unpack_less_composition_is_unchanged() -> None
 
@@ -272,9 +272,9 @@ Module Contents
 
    The defect this boundary closes, in one place.
 
-   A build manifest written before the width-named tiles were renamed
+   A build manifest written before the width-named cores were renamed
    records a canonical text naming them. Reading it against today's
-   registry raises `UnknownCoreError` — an error about a missing tile, from
+   registry raises `UnknownCoreError` — an error about a missing core, from
    a design that is built, flashed and answering. The version prefix beside
    the text is the fact that says the text predates this palette, and it
    says so without a parse.
@@ -322,7 +322,7 @@ Module Contents
    the rate. One wide lane still takes the stream directly.
 
 
-.. py:function:: test_wide_combinational_tile_pipeline_depth_bounds_are_enforced()
+.. py:function:: test_wide_combinational_core_pipeline_depth_bounds_are_enforced()
 
 .. py:function:: test_the_wide_lane_shape_rules_are_enforced()
 
@@ -330,7 +330,7 @@ Module Contents
 
 .. py:function:: test_the_fused_chain_shape_is_declared_not_inferred() -> None
 
-   A terminal-shaped tile mid-lane (the temporal hero's as-of join and
+   A terminal-shaped core mid-lane (the temporal hero's as-of join and
    grouped aggregator) composes only when the spec DECLARES the fused
    chain: the refusal still catches an aggregator dropped into a chain by
    accident, while the declaration says the caller accepts that mid-stage
@@ -358,13 +358,13 @@ Module Contents
 
 .. py:function:: test_throughput_breakdown_names_the_binding_stage() -> None
 
-.. py:function:: _record_dispatcher(record_words: int = 3) -> dau_core.composition.TileSpec
+.. py:function:: _record_dispatcher(record_words: int = 3) -> dau_core.composition.CoreSpec
 
    The dispatcher as it sits BEHIND a gearbox: its bus is one whole
    record wide, so it takes RECORD_INPUT rather than a row framing.
 
 
-.. py:function:: _front_gearbox(record_words: int = 3) -> dau_core.composition.TileSpec
+.. py:function:: _front_gearbox(record_words: int = 3) -> dau_core.composition.CoreSpec
 
 .. py:function:: test_front_gearbox_reaches_core_names_and_resources() -> None
 
@@ -408,11 +408,11 @@ Module Contents
 
 .. py:function:: test_front_gearbox_refuses_a_narrow_feed_and_a_rival_front() -> None
 
-.. py:function:: _stream_job_spec(job: str = 'bram-stream-job', tile: str = 'bar-aggregation') -> dau_core.composition.ScanCompositionSpec
+.. py:function:: _stream_job_spec(job: str = 'bram-stream-job', core_name: str = 'bar-aggregation') -> dau_core.composition.ScanCompositionSpec
 
 .. py:function:: test_a_stream_job_composition_declares_its_own_infrastructure() -> None
 
-   A stream job stages one tile chain through its job core instead of
+   A stream job stages one core chain through its job core instead of
    reading bursts and fanning out. Until it could be declared, its cores
    reached the build as a hand-copied list — so nothing checked that the
    list still matched what the top instantiates.

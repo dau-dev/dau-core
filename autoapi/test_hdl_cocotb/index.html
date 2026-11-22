@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -856,6 +856,9 @@
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_hdl_cocotb._SV_TB_DIR">_SV_TB_DIR</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_hdl_cocotb._lane_models">_lane_models()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_hdl_cocotb._bar_noc_sim_sv">_bar_noc_sim_sv()</a>
@@ -1129,235 +1132,238 @@
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb._bar_noc_sim_sv" title="test_hdl_cocotb._bar_noc_sim_sv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_bar_noc_sim_sv</span></code></a>(tmp_path) → pathlib.Path</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb._lane_models" title="test_hdl_cocotb._lane_models"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_lane_models</span></code></a>(scan_composition)</p></td>
+<td><p>dau-build's lane and core instance models. dau-build is released after</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb._bar_noc_sim_sv" title="test_hdl_cocotb._bar_noc_sim_sv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_bar_noc_sim_sv</span></code></a>(tmp_path) → pathlib.Path</p></td>
 <td><p>Generate the broadcast-NoC sim harness (four key-filtered bar lanes)</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb._sort_noc_sim_sv" title="test_hdl_cocotb._sort_noc_sim_sv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_sort_noc_sim_sv</span></code></a>(tmp_path) → pathlib.Path</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb._sort_noc_sim_sv" title="test_hdl_cocotb._sort_noc_sim_sv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_sort_noc_sim_sv</span></code></a>(tmp_path) → pathlib.Path</p></td>
 <td><p>Generate the sorted-scan sim harness (shared range partitioner into</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_int32_stream_aggregation_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_int32_stream_aggregation_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_int32_stream_aggregation_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_int32_stream_aggregation_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_int32_stream_aggregation_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_int32_stream_aggregation_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_record_gearbox_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_record_gearbox_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_record_gearbox_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_record_gearbox_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_record_gearbox_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_record_gearbox_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_wide_ingest_chain_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_wide_ingest_chain_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_wide_ingest_chain_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_wide_ingest_chain_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_wide_ingest_chain_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_wide_ingest_chain_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_arrow_lite_stream_aggregation_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_arrow_lite_stream_aggregation_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_arrow_lite_stream_aggregation_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_arrow_lite_stream_aggregation_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_arrow_lite_stream_aggregation_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_arrow_lite_stream_aggregation_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_bar_aggregation_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_bar_aggregation_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_bar_aggregation_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_bar_aggregation_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_bar_aggregation_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_bar_aggregation_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_asof_backward_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_asof_backward_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_asof_backward_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_asof_backward_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_asof_backward_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_asof_backward_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_time_bucket_key_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_time_bucket_key_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_time_bucket_key_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_time_bucket_key_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_time_bucket_key_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_time_bucket_key_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_record_gather_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_record_gather_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_record_gather_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_record_gather_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_record_gather_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_record_gather_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_hero_datapath_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_hero_datapath_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_hero_datapath_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_hero_datapath_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_hero_datapath_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_hero_datapath_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_bucket_agg_chain_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_bucket_agg_chain_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_bucket_agg_chain_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_bucket_agg_chain_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_bucket_agg_chain_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_bucket_agg_chain_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_market_feature_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_market_feature_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_market_feature_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_market_feature_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_market_feature_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_market_feature_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_asof_feature_chain_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_asof_feature_chain_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_asof_feature_chain_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_asof_feature_chain_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_asof_feature_chain_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_asof_feature_chain_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_rolling_moments_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_rolling_moments_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_rolling_moments_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_rolling_moments_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_rolling_moments_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_rolling_moments_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_rolling_extremum_matches_golden" title="test_hdl_cocotb.test_rolling_extremum_matches_golden"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_rolling_extremum_matches_golden</span></code></a>(tmp_path, ...) → None</p></td>
-<td><p>Every build of the tile against the same golden.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_rolling_extremum_matches_golden" title="test_hdl_cocotb.test_rolling_extremum_matches_golden"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_rolling_extremum_matches_golden</span></code></a>(tmp_path, ...) → None</p></td>
+<td><p>Every build of the core against the same golden.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_rolling_extremum_window_eight" title="test_hdl_cocotb.test_rolling_extremum_window_eight"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_rolling_extremum_window_eight</span></code></a>(tmp_path, monkeypatch) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_rolling_extremum_window_eight" title="test_hdl_cocotb.test_rolling_extremum_window_eight"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_rolling_extremum_window_eight</span></code></a>(tmp_path, monkeypatch) → None</p></td>
 <td><p>A second window depth: the Hillis-Steele network gains a stage, and the</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_rolling_moments_window_two" title="test_hdl_cocotb.test_rolling_moments_window_two"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_rolling_moments_window_two</span></code></a>(tmp_path, monkeypatch) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_rolling_moments_window_two" title="test_hdl_cocotb.test_rolling_moments_window_two"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_rolling_moments_window_two</span></code></a>(tmp_path, monkeypatch) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_streaming_dedup_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_streaming_dedup_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_streaming_dedup_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_streaming_dedup_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_streaming_dedup_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_streaming_dedup_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_streaming_top_k_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_streaming_top_k_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_streaming_top_k_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_streaming_top_k_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_streaming_top_k_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_streaming_top_k_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_streaming_top_k_k_one" title="test_hdl_cocotb.test_streaming_top_k_k_one"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_streaming_top_k_k_one</span></code></a>(tmp_path, monkeypatch) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_streaming_top_k_k_one" title="test_hdl_cocotb.test_streaming_top_k_k_one"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_streaming_top_k_k_one</span></code></a>(tmp_path, monkeypatch) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_axi_bar_job_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_axi_bar_job_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_axi_bar_job_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_axi_bar_job_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_axi_bar_job_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_axi_bar_job_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_pair_key_filter_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_pair_key_filter_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_pair_key_filter_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_pair_key_filter_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_pair_key_filter_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_pair_key_filter_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_range_partitioner_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_range_partitioner_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_range_partitioner_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_range_partitioner_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_range_partitioner_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_range_partitioner_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_burst_reader_streams_exactly_at_every_width_tier" title="test_hdl_cocotb.test_burst_reader_streams_exactly_at_every_width_tier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_burst_reader_streams_exactly_at_every_width_tier</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_burst_reader_streams_exactly_at_every_width_tier" title="test_hdl_cocotb.test_burst_reader_streams_exactly_at_every_width_tier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_burst_reader_streams_exactly_at_every_width_tier</span></code></a>(...) → None</p></td>
 <td><p>The width-tier contract: the reader reproduces the memory window</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_bitonic_sorter_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_bitonic_sorter_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_bitonic_sorter_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_bitonic_sorter_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_bitonic_sorter_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_bitonic_sorter_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_bitonic_sorter_small_capacity" title="test_hdl_cocotb.test_bitonic_sorter_small_capacity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_bitonic_sorter_small_capacity</span></code></a>(tmp_path, ...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_bitonic_sorter_small_capacity" title="test_hdl_cocotb.test_bitonic_sorter_small_capacity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_bitonic_sorter_small_capacity</span></code></a>(tmp_path, ...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_range_partitioner_non_power_of_two_partitions" title="test_hdl_cocotb.test_range_partitioner_non_power_of_two_partitions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_range_partitioner_non_power_of_two_partitions</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_range_partitioner_non_power_of_two_partitions" title="test_hdl_cocotb.test_range_partitioner_non_power_of_two_partitions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_range_partitioner_non_power_of_two_partitions</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_row_predicate_filter_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_row_predicate_filter_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_row_predicate_filter_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_row_predicate_filter_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_row_predicate_filter_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_row_predicate_filter_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_normal_cdf_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_normal_cdf_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_normal_cdf_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
-<td><p>The rendered CDF tile against its model, which is correctly rounded</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_normal_cdf_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_normal_cdf_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_normal_cdf_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<td><p>The rendered CDF core against its model, which is correctly rounded</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_fixed_point_exp_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_fixed_point_exp_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_fixed_point_exp_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_fixed_point_exp_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_fixed_point_exp_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_fixed_point_exp_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p>Each registered operating point against the model it renders from.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_fixed_point_ln_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_fixed_point_ln_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_fixed_point_ln_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
-<td><p>The rendered ln tile against the model it renders from, with zero</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_fixed_point_ln_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_fixed_point_ln_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_fixed_point_ln_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<td><p>The rendered ln core against the model it renders from, with zero</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_fixed_point_divide_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_fixed_point_divide_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_fixed_point_divide_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_fixed_point_divide_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_fixed_point_divide_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_fixed_point_divide_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_datetime_format_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_datetime_format_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_datetime_format_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
-<td><p>The tile shipped with no bench at all: its only test read constants out</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_datetime_format_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_datetime_format_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_datetime_format_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<td><p>The core shipped with no bench at all: its only test read constants out</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_fixed_point_sqrt_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_fixed_point_sqrt_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_fixed_point_sqrt_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_fixed_point_sqrt_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_fixed_point_sqrt_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_fixed_point_sqrt_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_row_map_alu_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_row_map_alu_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_row_map_alu_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_row_map_alu_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_row_map_alu_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_row_map_alu_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_row_unpack_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_row_unpack_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_row_unpack_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_row_unpack_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_row_unpack_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_row_unpack_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_key_mask_dispatcher_routes_n_word_records" title="test_hdl_cocotb.test_key_mask_dispatcher_routes_n_word_records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_key_mask_dispatcher_routes_n_word_records</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_key_mask_dispatcher_routes_n_word_records" title="test_hdl_cocotb.test_key_mask_dispatcher_routes_n_word_records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_key_mask_dispatcher_routes_n_word_records</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_key_mask_dispatcher_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_key_mask_dispatcher_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_key_mask_dispatcher_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_key_mask_dispatcher_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_key_mask_dispatcher_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_key_mask_dispatcher_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_key_mask_dispatcher_wide_front_runs_real_cocotb" title="test_hdl_cocotb.test_key_mask_dispatcher_wide_front_runs_real_cocotb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_key_mask_dispatcher_wide_front_runs_real_cocotb</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_key_mask_dispatcher_wide_front_runs_real_cocotb" title="test_hdl_cocotb.test_key_mask_dispatcher_wide_front_runs_real_cocotb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_key_mask_dispatcher_wide_front_runs_real_cocotb</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_key_mask_dispatcher_multi_row_runs_real_cocotb" title="test_hdl_cocotb.test_key_mask_dispatcher_multi_row_runs_real_cocotb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_key_mask_dispatcher_multi_row_runs_real_cocotb</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_key_mask_dispatcher_multi_row_runs_real_cocotb" title="test_hdl_cocotb.test_key_mask_dispatcher_multi_row_runs_real_cocotb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_key_mask_dispatcher_multi_row_runs_real_cocotb</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_stride_distributor_runs_real_cocotb" title="test_hdl_cocotb.test_stride_distributor_runs_real_cocotb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_stride_distributor_runs_real_cocotb</span></code></a>(tmp_path, ...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_stride_distributor_runs_real_cocotb" title="test_hdl_cocotb.test_stride_distributor_runs_real_cocotb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_stride_distributor_runs_real_cocotb</span></code></a>(tmp_path, ...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_key_mask_dispatcher_hash_runs_real_cocotb" title="test_hdl_cocotb.test_key_mask_dispatcher_hash_runs_real_cocotb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_key_mask_dispatcher_hash_runs_real_cocotb</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_key_mask_dispatcher_hash_runs_real_cocotb" title="test_hdl_cocotb.test_key_mask_dispatcher_hash_runs_real_cocotb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_key_mask_dispatcher_hash_runs_real_cocotb</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_key_mask_dispatcher_exact_branch_wide_runs_real_cocotb" title="test_hdl_cocotb.test_key_mask_dispatcher_exact_branch_wide_runs_real_cocotb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_key_mask_dispatcher_exact_branch_wide_runs_real_cocotb</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_key_mask_dispatcher_exact_branch_wide_runs_real_cocotb" title="test_hdl_cocotb.test_key_mask_dispatcher_exact_branch_wide_runs_real_cocotb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_key_mask_dispatcher_exact_branch_wide_runs_real_cocotb</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_key_mask_dispatcher_exact_branch_narrow_runs_real_cocotb" title="test_hdl_cocotb.test_key_mask_dispatcher_exact_branch_narrow_runs_real_cocotb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_key_mask_dispatcher_exact_branch_narrow_runs_real_cocotb</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_key_mask_dispatcher_exact_branch_narrow_runs_real_cocotb" title="test_hdl_cocotb.test_key_mask_dispatcher_exact_branch_narrow_runs_real_cocotb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_key_mask_dispatcher_exact_branch_narrow_runs_real_cocotb</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_row_unpack_wide_quad_stream_runs_real_cocotb" title="test_hdl_cocotb.test_row_unpack_wide_quad_stream_runs_real_cocotb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_row_unpack_wide_quad_stream_runs_real_cocotb</span></code></a>(tmp_path) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_row_unpack_wide_quad_stream_runs_real_cocotb" title="test_hdl_cocotb.test_row_unpack_wide_quad_stream_runs_real_cocotb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_row_unpack_wide_quad_stream_runs_real_cocotb</span></code></a>(tmp_path) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_row_unpack_multi_slot_beats_run_real_cocotb" title="test_hdl_cocotb.test_row_unpack_multi_slot_beats_run_real_cocotb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_row_unpack_multi_slot_beats_run_real_cocotb</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_row_unpack_multi_slot_beats_run_real_cocotb" title="test_hdl_cocotb.test_row_unpack_multi_slot_beats_run_real_cocotb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_row_unpack_multi_slot_beats_run_real_cocotb</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_keyed_predicate_filter_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_keyed_predicate_filter_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_keyed_predicate_filter_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_keyed_predicate_filter_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_keyed_predicate_filter_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_keyed_predicate_filter_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_keyed_map_alu_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_keyed_map_alu_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_keyed_map_alu_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_keyed_map_alu_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_keyed_map_alu_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_keyed_map_alu_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_field_sum_aggregation_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_field_sum_aggregation_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_field_sum_aggregation_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_field_sum_aggregation_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_field_sum_aggregation_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_field_sum_aggregation_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_wide_row_predicate_filter_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_wide_row_predicate_filter_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_wide_row_predicate_filter_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_wide_row_predicate_filter_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_wide_row_predicate_filter_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_wide_row_predicate_filter_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_wide_row_map_alu_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_wide_row_map_alu_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_wide_row_map_alu_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_wide_row_map_alu_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_wide_row_map_alu_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_wide_row_map_alu_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_wide_field_sum_aggregation_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_wide_field_sum_aggregation_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_wide_field_sum_aggregation_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_wide_field_sum_aggregation_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_wide_field_sum_aggregation_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_wide_field_sum_aggregation_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_wide_group_table_sum_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_wide_group_table_sum_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_wide_group_table_sum_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_wide_group_table_sum_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_wide_group_table_sum_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_wide_group_table_sum_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_grouped_field_aggregation_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_grouped_field_aggregation_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_grouped_field_aggregation_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_grouped_field_aggregation_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_grouped_field_aggregation_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_grouped_field_aggregation_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_grouped_field_sum_aggregation_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_grouped_field_sum_aggregation_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_grouped_field_sum_aggregation_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_grouped_field_sum_aggregation_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_grouped_field_sum_aggregation_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_grouped_field_sum_aggregation_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_key_membership_filter_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_key_membership_filter_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_key_membership_filter_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_key_membership_filter_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_key_membership_filter_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_key_membership_filter_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_key_membership_filter_single_word_bitmap_runs_real_cocotb" title="test_hdl_cocotb.test_key_membership_filter_single_word_bitmap_runs_real_cocotb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_key_membership_filter_single_word_bitmap_runs_real_cocotb</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_key_membership_filter_single_word_bitmap_runs_real_cocotb" title="test_hdl_cocotb.test_key_membership_filter_single_word_bitmap_runs_real_cocotb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_key_membership_filter_single_word_bitmap_runs_real_cocotb</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_broadcast_hash_join_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_broadcast_hash_join_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_broadcast_hash_join_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_broadcast_hash_join_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_broadcast_hash_join_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_broadcast_hash_join_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_broadcast_hash_join_small_key_space_runs_real_cocotb" title="test_hdl_cocotb.test_broadcast_hash_join_small_key_space_runs_real_cocotb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_broadcast_hash_join_small_key_space_runs_real_cocotb</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_broadcast_hash_join_small_key_space_runs_real_cocotb" title="test_hdl_cocotb.test_broadcast_hash_join_small_key_space_runs_real_cocotb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_broadcast_hash_join_small_key_space_runs_real_cocotb</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_axi_bar_noc_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_axi_bar_noc_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_axi_bar_noc_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_axi_bar_noc_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_axi_bar_noc_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_axi_bar_noc_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_axi_sort_noc_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_axi_sort_noc_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_axi_sort_noc_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_axi_sort_noc_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_axi_sort_noc_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_axi_sort_noc_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_grouped_aggregation_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_grouped_aggregation_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_grouped_aggregation_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_grouped_aggregation_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_grouped_aggregation_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_grouped_aggregation_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_map_alu_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_map_alu_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_map_alu_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_map_alu_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_map_alu_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_map_alu_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_predicate_filter_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_predicate_filter_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_predicate_filter_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_predicate_filter_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_predicate_filter_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_predicate_filter_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_record_batch_aggregation_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_record_batch_aggregation_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_record_batch_aggregation_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_record_batch_aggregation_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_record_batch_aggregation_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_record_batch_aggregation_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb._run_cocotb_verilator" title="test_hdl_cocotb._run_cocotb_verilator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_run_cocotb_verilator</span></code></a>(*, sources, hdl_toplevel, ...[, ...]) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb._run_cocotb_verilator" title="test_hdl_cocotb._run_cocotb_verilator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_run_cocotb_verilator</span></code></a>(*, sources, hdl_toplevel, ...[, ...]) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_scratchpad_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_scratchpad_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_scratchpad_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_scratchpad_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_scratchpad_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_scratchpad_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_scratchpad_capacity_sixteen" title="test_hdl_cocotb.test_scratchpad_capacity_sixteen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_scratchpad_capacity_sixteen</span></code></a>(tmp_path, monkeypatch) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_scratchpad_capacity_sixteen" title="test_hdl_cocotb.test_scratchpad_capacity_sixteen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_scratchpad_capacity_sixteen</span></code></a>(tmp_path, monkeypatch) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_keyed_state_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_keyed_state_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_keyed_state_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_keyed_state_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_keyed_state_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_keyed_state_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_keyed_state_capacity_eight" title="test_hdl_cocotb.test_keyed_state_capacity_eight"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_keyed_state_capacity_eight</span></code></a>(tmp_path, monkeypatch) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_keyed_state_capacity_eight" title="test_hdl_cocotb.test_keyed_state_capacity_eight"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_keyed_state_capacity_eight</span></code></a>(tmp_path, monkeypatch) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_hash_grouped_aggregation_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_hash_grouped_aggregation_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_hash_grouped_aggregation_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_hash_grouped_aggregation_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_hash_grouped_aggregation_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_hash_grouped_aggregation_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_hash_grouped_aggregation_capacity_eight" title="test_hdl_cocotb.test_hash_grouped_aggregation_capacity_eight"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_hash_grouped_aggregation_capacity_eight</span></code></a>(tmp_path, ...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_hash_grouped_aggregation_capacity_eight" title="test_hdl_cocotb.test_hash_grouped_aggregation_capacity_eight"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_hash_grouped_aggregation_capacity_eight</span></code></a>(tmp_path, ...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_hash_grouped_aggregation_capacity_one" title="test_hdl_cocotb.test_hash_grouped_aggregation_capacity_one"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_hash_grouped_aggregation_capacity_one</span></code></a>(tmp_path, ...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_hash_grouped_aggregation_capacity_one" title="test_hdl_cocotb.test_hash_grouped_aggregation_capacity_one"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_hash_grouped_aggregation_capacity_one</span></code></a>(tmp_path, ...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_session_gap_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_session_gap_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_session_gap_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_session_gap_runs_real_cocotb_against_systemverilog" title="test_hdl_cocotb.test_session_gap_runs_real_cocotb_against_systemverilog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_session_gap_runs_real_cocotb_against_systemverilog</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_session_gap_capacity_eight" title="test_hdl_cocotb.test_session_gap_capacity_eight"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_session_gap_capacity_eight</span></code></a>(tmp_path, monkeypatch) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_session_gap_capacity_eight" title="test_hdl_cocotb.test_session_gap_capacity_eight"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_session_gap_capacity_eight</span></code></a>(tmp_path, monkeypatch) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_row_predicate_filter_runs_at_every_field_type" title="test_hdl_cocotb.test_row_predicate_filter_runs_at_every_field_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_row_predicate_filter_runs_at_every_field_type</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_hdl_cocotb.test_row_predicate_filter_runs_at_every_field_type" title="test_hdl_cocotb.test_row_predicate_filter_runs_at_every_field_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_row_predicate_filter_runs_at_every_field_type</span></code></a>(...) → None</p></td>
 <td><p>The 128-bit row is the transport unit and the field TYPE says how many</p></td>
 </tr>
 </tbody>
@@ -1374,6 +1380,14 @@
 <dt class="sig sig-object py" id="test_hdl_cocotb._SV_TB_DIR">
 <span class="sig-prename descclassname"><span class="pre">test_hdl_cocotb.</span></span><span class="sig-name descname"><span class="pre">_SV_TB_DIR</span></span><a class="headerlink" href="#test_hdl_cocotb._SV_TB_DIR" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_hdl_cocotb._lane_models">
+<span class="sig-prename descclassname"><span class="pre">test_hdl_cocotb.</span></span><span class="sig-name descname"><span class="pre">_lane_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scan_composition</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#test_hdl_cocotb._lane_models" title="Link to this definition">¶</a></dt>
+<dd><p>dau-build’s lane and core instance models. dau-build is released after
+dau-core, so its current release still names them LaneTile and
+TileInstance.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="test_hdl_cocotb._bar_noc_sim_sv">
@@ -1458,8 +1472,8 @@ config input.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="test_hdl_cocotb.test_rolling_extremum_matches_golden">
 <span class="sig-prename descclassname"><span class="pre">test_hdl_cocotb.</span></span><span class="sig-name descname"><span class="pre">test_rolling_extremum_matches_golden</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monkeypatch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytest.MonkeyPatch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">find_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_hdl_cocotb.test_rolling_extremum_matches_golden" title="Link to this definition">¶</a></dt>
-<dd><p>Every build of the tile against the same golden.</p>
-<p>The point of the parameter sweep is the tile’s claim: extremum does not
+<dd><p>Every build of the core against the same golden.</p>
+<p>The point of the parameter sweep is the core’s claim: extremum does not
 depend on the width it is computed in, so ONE implementation serves every
 signed integer type. If that were wrong, a width would disagree with the
 golden here rather than on silicon.</p>
@@ -1537,7 +1551,7 @@ bit-exactly at every catalog DATA_WIDTH (64/128/256/512).</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="test_hdl_cocotb.test_normal_cdf_runs_real_cocotb_against_systemverilog">
 <span class="sig-prename descclassname"><span class="pre">test_hdl_cocotb.</span></span><span class="sig-name descname"><span class="pre">test_normal_cdf_runs_real_cocotb_against_systemverilog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_hdl_cocotb.test_normal_cdf_runs_real_cocotb_against_systemverilog" title="Link to this definition">¶</a></dt>
-<dd><p>The rendered CDF tile against its model, which is correctly rounded
+<dd><p>The rendered CDF core against its model, which is correctly rounded
 over every representable input.</p>
 </dd></dl>
 
@@ -1553,7 +1567,7 @@ datapath the registry does not actually build.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="test_hdl_cocotb.test_fixed_point_ln_runs_real_cocotb_against_systemverilog">
 <span class="sig-prename descclassname"><span class="pre">test_hdl_cocotb.</span></span><span class="sig-name descname"><span class="pre">test_fixed_point_ln_runs_real_cocotb_against_systemverilog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_hdl_cocotb.test_fixed_point_ln_runs_real_cocotb_against_systemverilog" title="Link to this definition">¶</a></dt>
-<dd><p>The rendered ln tile against the model it renders from, with zero
+<dd><p>The rendered ln core against the model it renders from, with zero
 tolerance – the model’s own 1 ULP deviation from the mathematics is a
 separate, measured question.</p>
 </dd></dl>
@@ -1566,7 +1580,7 @@ separate, measured question.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="test_hdl_cocotb.test_datetime_format_runs_real_cocotb_against_systemverilog">
 <span class="sig-prename descclassname"><span class="pre">test_hdl_cocotb.</span></span><span class="sig-name descname"><span class="pre">test_datetime_format_runs_real_cocotb_against_systemverilog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_hdl_cocotb.test_datetime_format_runs_real_cocotb_against_systemverilog" title="Link to this definition">¶</a></dt>
-<dd><p>The tile shipped with no bench at all: its only test read constants out
+<dd><p>The core shipped with no bench at all: its only test read constants out
 of the SystemVerilog and exercised the Python golden, so the module was
 never instantiated and its measured resource number described an
 unverified design.</p>
@@ -1848,6 +1862,9 @@ correctly by the same comparator.</p>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_hdl_cocotb._SV_TB_DIR">_SV_TB_DIR</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_hdl_cocotb._lane_models">_lane_models()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_hdl_cocotb._bar_noc_sim_sv">_bar_noc_sim_sv()</a>

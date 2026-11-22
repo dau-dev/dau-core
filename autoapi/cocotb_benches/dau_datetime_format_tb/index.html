@@ -78,13 +78,13 @@
       
 <ul class="fd-tree">
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/tutorial/read-a-tile-contract.html">
-      <span class="fd-link-text">Tutorial: read a tile’s contract end to end</span>
+    <a class="fd-link" href="../../../docs/src/tutorial/read-a-core-contract.html">
+      <span class="fd-link-text">Tutorial: read a core’s contract end to end</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-tile.html">
-      <span class="fd-link-text">How to add an operator tile</span>
+    <a class="fd-link" href="../../../docs/src/how-to/add-an-operator-core.html">
+      <span class="fd-link-text">How to add an operator core</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -123,8 +123,8 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../../docs/src/explanation/why-each-tile-has-a-golden-model.html">
-      <span class="fd-link-text">Why each tile has a golden model</span>
+    <a class="fd-link" href="../../../docs/src/explanation/why-each-core-has-a-golden-model.html">
+      <span class="fd-link-text">Why each core has a golden model</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -764,11 +764,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_public_tile_surface/index.html">
-      <span class="fd-link-text">test_public_tile_surface</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../test_capability_contract/index.html">
       <span class="fd-link-text">test_capability_contract</span>
     </a>
@@ -779,8 +774,13 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_aggregation_tile_hdl/index.html">
-      <span class="fd-link-text">test_aggregation_tile_hdl</span>
+    <a class="fd-link" href="../../test_public_core_surface/index.html">
+      <span class="fd-link-text">test_public_core_surface</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_aggregation_core_hdl/index.html">
+      <span class="fd-link-text">test_aggregation_core_hdl</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -916,7 +916,7 @@
   <section id="module-cocotb_benches.dau_datetime_format_tb">
 <span id="cocotb-benches-dau-datetime-format-tb"></span><h1>cocotb_benches.dau_datetime_format_tb<a class="headerlink" href="#module-cocotb_benches.dau_datetime_format_tb" title="Link to this heading">¶</a></h1>
 <p>The datetime formatter against its golden, character for character.</p>
-<p>This tile shipped without a bench, which an audit caught: its only test read
+<p>This core shipped without a bench, which an audit caught: its only test read
 constants out of the SystemVerilog and exercised the Python golden, so the
 HDL was never instantiated. A resource number for a module nobody ran is a
 number about an unverified design, and that is what this file fixes.</p>
@@ -1021,9 +1021,9 @@ trying to observe the output, so neither side ever fires.</p>
 <dt class="sig sig-object py" id="cocotb_benches.dau_datetime_format_tb._run">
 <em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cocotb_benches.dau_datetime_format_tb.</span></span><span class="sig-name descname"><span class="pre">_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rows</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">expect</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ready_pattern</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cocotb_benches.dau_datetime_format_tb._run" title="Link to this definition">¶</a></dt>
 <dd><p>Send <code class="docutils literal notranslate"><span class="pre">rows</span></code> concurrently while draining.</p>
-<p><strong>This tile declares ``success_close_out: False``</strong>, so a clean batch is
+<p><strong>This core declares ``success_close_out: False``</strong>, so a clean batch is
 contractually SILENT – there is no status beat to wait for, and a bench
-that waits for one hangs forever. That is not a tile defect; 23 of the 45
+that waits for one hangs forever. That is not a core defect; 23 of the 45
 registered operators are silent on success, and the registry fact is the
 authority. So the drain ends when the expected rows have arrived, and
 only an ERROR produces a close-out.</p>

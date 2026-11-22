@@ -70,7 +70,7 @@ Module Contents
 
 .. py:function:: test_hero_workflow_validates_its_roll_fields_at_construction() -> None
 
-   An unknown ``roll_value`` or a window below the tile's minimum used to
+   An unknown ``roll_value`` or a window below the core's minimum used to
    pass construction and fail only when the workflow ran.
 
 
