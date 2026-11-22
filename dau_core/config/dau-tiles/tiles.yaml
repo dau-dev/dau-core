@@ -65,10 +65,17 @@ between:
   _target_: dau_core.tiles.TileDefinition
   name: between
   kind: filter
-  description: Keeps the rows where a column is inside a closed constant range.
+  description: Keeps the rows where a column is inside a constant range. Either bound is included or excluded.
   literals: [low, high]
   expressions:
     - expression: pl.col("value").is_between(pl.col("low"), pl.col("high"))
+      config: {cfg_op0: GE, cfg_op1: LE}
+    - expression: pl.col("value").is_between(pl.col("low"), pl.col("high"), closed="left")
+      config: {cfg_op0: GE, cfg_op1: LT}
+    - expression: pl.col("value").is_between(pl.col("low"), pl.col("high"), closed="right")
+      config: {cfg_op0: GT, cfg_op1: LE}
+    - expression: pl.col("value").is_between(pl.col("low"), pl.col("high"), closed="none")
+      config: {cfg_op0: GT, cfg_op1: LT}
   cores:
     - core: row-predicate-filter
       wide: wide-row-predicate-filter
@@ -76,7 +83,7 @@ between:
         value: [cfg_field0, cfg_field1]
         low: cfg_constant0
         high: cfg_constant1
-      config: {cfg_op0: GE, cfg_op1: LE, cfg_combine01: AND}
+      config: {cfg_combine01: AND}
 
 in-list:
   _target_: dau_core.tiles.TileDefinition
@@ -262,16 +269,17 @@ sum-where:
   _target_: dau_core.tiles.TileDefinition
   name: sum-where
   kind: aggregate
-  description: Sums a column over the rows a condition accepts. The condition is any filter tile; it runs in a lane of
-    its own.
+  description: Sums a column over the rows a condition accepts, or counts them. The condition is any filter tile; it
+    runs in a lane of its own.
   expressions:
     - expression: pl.when(pl.col("condition")).then(pl.col("value")).otherwise(0).sum()
+    - expression: pl.when(pl.col("condition")).then(1).otherwise(0).sum()
   cores:
     - core: row-predicate-filter
       inputs: {condition: {source: predicate}}
     - core: field-sum-aggregation
       inputs: {value: {mask: cfg_field_mask}}
-  result: one record for the lane with the masked field's sum
+  result: one record for the lane with the masked field's sum and the row count
 
 group-sum:
   _target_: dau_core.tiles.TileDefinition

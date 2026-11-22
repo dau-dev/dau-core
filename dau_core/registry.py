@@ -258,8 +258,23 @@ def contributed_tiles() -> Mapping[str, TileDefinition]:
 
 
 def tile(name: str) -> TileDefinition:
-    """The composed tile called ``name``."""
-    tiles = loaded_tiles()
-    if name not in tiles:
-        raise UnknownTileError(f"unknown tile {name!r}; known: {sorted(tiles)}")
-    return tiles[name]
+    """The composed tile called ``name``.
+
+    A keyed lookup per group, as :func:`core` is, so asking for one tile
+    does not read the catalog. A name declared by two composed groups is
+    refused here as :func:`loaded_tiles` refuses it.
+    """
+    found: TileDefinition | None = None
+    for group_name, group in _groups():
+        try:
+            model = group[name]
+        except KeyError:
+            continue
+        if not isinstance(model, TileDefinition) or model is found:
+            continue
+        if found is not None:
+            raise DuplicateTileError(f"tile {name!r} is declared by more than one composed group (the second under {group_name!r})")
+        found = model
+    if found is None:
+        raise UnknownTileError(f"unknown tile {name!r}; known: {sorted(loaded_tiles())}")
+    return found
