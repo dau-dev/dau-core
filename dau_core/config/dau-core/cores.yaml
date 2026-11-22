@@ -54,7 +54,7 @@ int32-predicate-filter:
   - predicate-pkg
   golden: dau_core.operators:filter_values
   bench: dau_core.tests.cocotb_benches.dau_int32_predicate_filter_tb
-  measured_from: 1:3357488adc6a317a6eb4be97729a1ed0abc05583f858d322a95b3ec3f7f89a85
+  measured_from: 1:af9902ed3d816c00cb9d6e6f45d41d030891b1f3a8a3a34329c6ffa00ad646ae
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -111,7 +111,7 @@ int32-keyed-predicate-filter:
   - predicate-pkg
   golden: dau_core.operators:filter_rows
   bench: dau_core.tests.cocotb_benches.dau_int32_keyed_predicate_filter_tb
-  measured_from: 1:76f448526a7839a3a253be5b303e7db7aab65bc53039c13d16b301d0147a3416
+  measured_from: 1:dafb59d252fb7fbcfe86c73e49776dcbfa59d8b2351309b4f9778b12eac9a1d7
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -167,7 +167,7 @@ int32-map-alu:
   - map-alu-pkg
   golden: dau_core.operators:map_values
   bench: dau_core.tests.cocotb_benches.dau_int32_map_alu_tb
-  measured_from: 1:cff8a0c3ca53585a9633a535fb4f2afa43169db3926fc76a218db05c6b8a9a93
+  measured_from: 1:49e80b9d56236af1d961b60e2c133fe3bd58cd3ba6995502b38a1a62f63d760f
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -223,7 +223,7 @@ int32-keyed-map-alu:
   - map-alu-pkg
   golden: dau_core.operators:map_rows
   bench: dau_core.tests.cocotb_benches.dau_int32_keyed_map_alu_tb
-  measured_from: 1:3e163ae3d2511e9e0ed5a1092782a46a03656c8cd12b81d0e1a0fe9f26200c32
+  measured_from: 1:3770b41a09b3534b1fb43a1144a309e136d839d03a3f7b1d4e973cd3042a4b8e
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -277,7 +277,7 @@ grouped-aggregation:
   description: Ordered close-out grouped aggregation (first/last/min/max/sum/count).
   golden: dau_core.operators:grouped_aggregate_rows
   bench: dau_core.tests.cocotb_benches.dau_grouped_aggregation_tb
-  measured_from: 1:a0bf46d2eca26775445e8f420a38119777c3e324d0622cf9610432d834862ae2
+  measured_from: 1:ea8fc012aafd1299c4949e34de7cd25f7d1a05da1c076ef0fdec0e75b6f3e811
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -355,7 +355,7 @@ grouped-field-aggregation:
   golden: dau_core.operators:grouped_field_aggregate_rows
   bench: dau_core.tests.cocotb_benches.dau_grouped_field_aggregation_tb
   # OOC xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +3.846)
-  measured_from: 1:7ca417af2d5d53e5bf7f733aa17aa779e0b787b2015ddae2fc694cf022ff70ba
+  measured_from: 1:d3852799f2f25eadfeec436435c387b8966554f8c0ef0c7cfb7803f83d932239
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -427,7 +427,7 @@ bar-aggregation:
   description: Fused single-pass OHLCV bar aggregation over 16-byte rows.
   golden: dau_core.operators:bar_aggregate_rows
   bench: dau_core.tests.cocotb_benches.dau_bar_aggregation_tb
-  measured_from: 1:01be09acd6c49cfa1af7c09fa3bcf3b568e4f0aed7475b56d98bc9ecafd45e71
+  measured_from: 1:0d72dc513e3f0b21489986e2db7d30f6159f821f74baf4208748aa3cbfb1cedc
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -508,7 +508,7 @@ asof-backward:
   golden: dau_core.operators:keyed_asof_join_rows
   bench: dau_core.tests.cocotb_benches.dau_asof_backward_tb
   # OOC xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +1.679)
-  measured_from: 1:855314c9008acd5b7f1f655074ce460805e690d4e1690d33f08b7d2b1a58ed5d
+  measured_from: 1:3637312d4e581a1ef35753fcfe7b714a755a7a5d8480304518bbe630aaa276bd
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -575,7 +575,7 @@ rolling-moments:
   bench: dau_core.tests.cocotb_benches.dau_rolling_moments_tb
   # OOC WINDOW=4 xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +3.155)
   # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
-  measured_from: 1:c61b5defbb15574e022e8ad084820d2caf6eb4b43ac52763b26d2391c88a7368
+  measured_from: 1:90f0d15957808d0e44a135db0b7261b30fe306c36205943228aab4eacb3836eb
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -726,7 +726,7 @@ rolling-extremum:
   # WINDOW=64. LUT landed inside it at 460; FF was under by 2.2x at 899.
   # The delay lines were costed, the per-stage run/symbol/valid registers
   # carried alongside them were not.
-  measured_from: 1:afcee781b452e841c751cf269e546b45c719eb5ed15ec4da453c5754d4f482fe
+  measured_from: 1:88c63241d83cedd40311ce6817babadd0bf9635946d8d04c9de378a1b308a1df
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -799,7 +799,7 @@ market-feature:
   golden: dau_core.temporal:market_features
   bench: dau_core.tests.cocotb_benches.dau_market_feature_tb
   # OOC xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +0.680)
-  measured_from: 1:c5a40aa7bf3bc2510f01c373310652a483c1adb7fd5f944c36129919827857d6
+  measured_from: 1:44c2438106018362004c2c3d0b0239b8becfc6718c58cbd64b352f31ca9c08ac
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -866,7 +866,7 @@ time-bucket-key:
   bench: dau_core.tests.cocotb_benches.dau_time_bucket_key_tb
   # OOC BUCKET_BITS=16 xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +2.175)
   # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
-  measured_from: 1:3e7cff859629a4d4116ae2eea2521d8c532354985b0f9fd7bc866689c1496620
+  measured_from: 1:1ed7d2a8fbd47e2150f100315f1378a3c831915d83e276c4e66373ad828ab815
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -1042,7 +1042,7 @@ hash-grouped-aggregation:
   # BRAM steps 4.5 -> 9.0 at 1024: the 320-bit slot spans multiple RAMB36
   # and the depth crosses their 512-deep boundary. The two parts synthesize
   # identically here; only the slack differs.
-  measured_from: 1:5162973aad615a870d59ad7345b9b6f5f29cf93e51d8f8af476fa045244f2bc3
+  measured_from: 1:49a611b00bbd74d9cb6e426aeab37e276d98b271a54025f66e6147707e54d826
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -1178,7 +1178,7 @@ streaming-top-k:
   # Resources match across parts (K=128 differs by 10 LUT); timing does
   # not, which is the whole reason a point carries its part. K=5 is the
   # TSBS group-by-order-by-limit LIMIT.
-  measured_from: 1:1019e090e008f17a5523441211fc3d2ce7e23e3d7a1f167acf6530091baa50ff
+  measured_from: 1:b854e8fbc5c647d37b71c0f8869ca2346d66ab0ce1600f156e34b445812e1a3a
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -1340,7 +1340,7 @@ pair-key-filter:
   description: Key partition filter for 16-byte pair rows (NoC lane splitter).
   golden: dau_core.operators:filter_bar_rows_by_key
   bench: dau_core.tests.cocotb_benches.dau_pair_key_filter_tb
-  measured_from: 1:a4790a406a4c9535bd4ad90247d5fe41a1c25723fc797a1b4093c27e016a9ca2
+  measured_from: 1:54b71460482ab2e2172d123dc9a14fef3fbf77a0450dc4c4c82f587b27b5b1ad
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -1407,7 +1407,7 @@ range-partitioner:
   golden: dau_core.operators:range_partition_bar_rows
   bench: dau_core.tests.cocotb_benches.dau_range_partitioner_tb
   # OOC N=4
-  measured_from: 1:6964b6e1130a6a8cf88b1e1afc890b0408d558f4de432f5e82e4b65cb4872f24
+  measured_from: 1:0d06c934cd70761ef16794d2616b0791e3245f0382a29eadb7aa97456d1966c8
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -1556,7 +1556,7 @@ key-mask-dispatcher:
   # the failure the measured-point discipline exists to prevent -- so the
   # declared dsp is the hash cost even for mask designs.
   # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
-  measured_from: 1:70c43580ac2a7f9d1797d8b7885f47c5d3ca4e04d30fe893b4ca79db1edd1bd2
+  measured_from: 1:7cba4849e1f174067c5d4993dee9dcbeb5b26b9fd90cdd7522ba9758ab90ecc8
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -1795,7 +1795,7 @@ bitonic-sorter:
   golden: dau_core.operators:sort_bar_rows_by_key
   bench: dau_core.tests.cocotb_benches.dau_bitonic_sorter_tb
   # OOC CAPACITY=16
-  measured_from: 1:e890c057bb08b7c6f9531b465df0f8b8050102da9e8696a5e17109df9896effe
+  measured_from: 1:464c2122b62b640233c4653f1ab13b37543015b10fc2436cb74cb3c7a998cc13
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -1878,7 +1878,7 @@ row-predicate-filter:
   - predicate-pkg
   golden: dau_core.operators:filter_rows_by_predicate
   bench: dau_core.tests.cocotb_benches.dau_row_predicate_filter_tb
-  measured_from: 1:1011c21e4fcf7bc37d29b8dcfa41f6c9588f25b673706f5b38e0b130936ca535
+  measured_from: 1:bb646dcc46ecb2f4e15f1236bf0ba90f218179049a7d4ccfe5082d9dbdfa26ce
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -1973,7 +1973,7 @@ normal-cdf:
   # a shift and took WNS to +0.657. Widening the segments then cost accuracy,
   # so the point moved from 512 to 1024 segments rather than to a fourth
   # multiply -- segments cost BRAM, multiplies cost 5-9 DSP48s each.
-  measured_from: 1:4a1b976010ebdaa3cce6da14084acdde46714d22c3f6dd7ad77654b28f35ef5b
+  measured_from: 1:10091da793dd59b042a541e6d8fdae4dddf02d81f5b161a37d14c8ae2209fa0e
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -2051,7 +2051,7 @@ fixed-point-exp:
   # chain sitting combinationally between two DSPs overruns 8 ns. Registering
   # the shifted ln2 product and narrowing the reduction constant to 12 bits
   # took 8 ns WNS from -4.819 to -0.909.
-  measured_from: 1:01623f81058190dcf24d7d95fec171e293b35fae8416aa68aae4d3a5c3a9115e
+  measured_from: 1:f643f58d4facd5395306432e6d678f61be4778b31641089c7d047e264d26fc5c
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -2119,7 +2119,7 @@ fixed-point-exp-light:
   # MEETS 125 MHz at +0.682 ns, where the exact point does not -- a 20-DSP
   # transcendental that keeps pace with sqrt and divide. The difference is
   # datapath width alone; both points share this structure.
-  measured_from: 1:403129e90012c34694e280c7817febcec70432455d2cd4ea96425bdd25ab32e5
+  measured_from: 1:a4c1e020c87c29f2a71a78e86e807adfe655b5b0fae9caa815da85c1a3734ffc
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -2200,7 +2200,7 @@ fixed-point-ln:
   # 62 bits before multiplying (the exp core's idiom), so Vivado infers a wide
   # multiplier for what is really 8x54. A narrower e*ln2, then a lighter
   # operating point, in that order.
-  measured_from: 1:8545a7ed0712a3613939be5c90c473354fab117f4e6242500c9fd9886d0d566f
+  measured_from: 1:ab3ec77f9f52380929019d56f2a27998fe0d3b0760b345f36208f74f3a77143c
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -2271,7 +2271,7 @@ fixed-point-ln-light:
   # +0.682 ns is the same margin the exp light point closes at, which is
   # the shape of the pattern rather than a coincidence: at these
   # precisions the critical path is one multiply per stage either way.
-  measured_from: 1:bc8b9c4e7460e7897da4b9cef015cd2f155abfef0cbb67dbfeb21eb9b708c0c4
+  measured_from: 1:ddbcf402100f777ea1b53306b34b17afb7253ada84dba8534c71cb19e719d7ee
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -2324,7 +2324,7 @@ fixed-point-divide:
   # half-nanosecond line where OOC stops predicting composed timing,
   # but a composed design carrying this on an Artix at 125 MHz should
   # be checked rather than assumed.
-  measured_from: 1:c21fb55af495b104081f5977f2a0eeb3b3bf0925b164d9dcb7e293668e0db6b6
+  measured_from: 1:40352bd6891cf76f60208e03e84fccacafd1b716978a095c71822cc82cb29438
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -2392,7 +2392,7 @@ fixed-point-sqrt:
   # Zero DSP: the root is a shift-subtract recurrence, not a polynomial.
   # The margin is flat across parts and clocks, which is the
   # constant-critical-path claim -- one compare-and-subtract per stage.
-  measured_from: 1:b7553bdcfea9f4c831c9d00b881bd1a1c7bc32ca970f951b2063a7006cbbac13
+  measured_from: 1:7cdc28d8be2fdb902bf12bb0f2b692e376365ddb3cdec6c6f2b1b7664fa0cbdd
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -2444,7 +2444,7 @@ row-map-alu:
   - map-alu-pkg
   golden: dau_core.operators:map_row_fields
   bench: dau_core.tests.cocotb_benches.dau_row_map_alu_tb
-  measured_from: 1:1743e5884496e573fff5b911c5078ed9b03b77e6c0f65837f087f19d3ff0a0c9
+  measured_from: 1:b0f1bc2bea8326412b97ea8362fd4efb4847d98e023689a187febc379515ef09
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -2551,7 +2551,7 @@ row-unpack:
   #
   # Every point here now comes from one run of today's sanctioned task, on the
   # same RTL. BRAM and DSP are zero throughout and unchanged.
-  measured_from: 1:e5b5f0b23c183f5620c7451087378758763e42dbf1bcd7ef44ea048fa7d40fb6
+  measured_from: 1:73aa0f54ac79d857d822d9cf43dea614ebcb20d1fa1c695a44da7da549e45897
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -2711,7 +2711,7 @@ field-sum-aggregation:
     in a single close-out record (q6 = one-bit mask; q1''s multi-sum is a wider mask).'
   golden: dau_core.operators:field_sum_rows
   bench: dau_core.tests.cocotb_benches.dau_field_sum_aggregation_tb
-  measured_from: 1:d61810e47cfd8ef3c0e2882d67b2a9fecb807b876d5c56147791916a641bf6a9
+  measured_from: 1:274e64d995f2e51aa9298964452288cf0a9311c624aec8ef2f4966be76c40a38
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -2791,7 +2791,7 @@ grouped-field-sum-aggregation:
     row count; one success close-out per batch after the final group (q1''s grouped multi-sum shape).'
   golden: dau_core.operators:grouped_field_sum_rows
   bench: dau_core.tests.cocotb_benches.dau_grouped_field_sum_aggregation_tb
-  measured_from: 1:126d629d39ef7c3015f572bbd0174fc532411eb3a50abaac8b5924191d13a641
+  measured_from: 1:5b7fa84089fadca2accfb638137de748680f286c45d560668f4c2460c692dd8f
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -2894,7 +2894,7 @@ key-membership-filter:
   # LUT is NOT monotone in KEY_SPACE (488 at 2^17, 444 at 2^19): the output
   # mux over the BRAM array restructures with the array's shape.
   # Both parts meet 8 ns at every rung.
-  measured_from: 1:f79ef97af0e08ee1a20bbfc2f2ac8228ebcb3d9d242b6aa22c922bbd12752aa8
+  measured_from: 1:35d567d6e829a439d1d9b7b388e825c9e015717dc48bc3da37468a7d1783df7a
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -3047,7 +3047,7 @@ streaming-dedup:
   # to 64 -- still 19% of the Artix's 335 budget. Timing meets 8 ns on both
   # parts at both sizes, including across the forwarded read-modify-write
   # path at the 64-BRAM output mux.
-  measured_from: 1:0dc0263cb70bb7b4087cfe8451ecbd2475ff8c1f357c03f29db59054e1b5b3d7
+  measured_from: 1:0e8b4613cf6869f52579d852ba69bd52b213425b24d590778b1ab46c4ab2386e
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -3154,7 +3154,7 @@ broadcast-hash-join:
   # 2^17 point is recorded ANYWAY, over-budget on dpv1, so the planner
   # refuses it by arithmetic against a measured number instead of refusing
   # it as unmeasured. Both parts meet 8 ns at every rung.
-  measured_from: 1:4330a1087fd6c4877539ee788a602cc6894d4cefe54d419035a8b63fc7bf4029
+  measured_from: 1:e21a471156f4e1a2536312460164c24b987a273fbc8c38254f026acc507b8d50
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -3285,7 +3285,7 @@ stream-aggregation:
   - aggregation-pkg
   golden: dau_core.operators:aggregate_values
   bench: dau_core.tests.cocotb_benches.dau_stream_aggregation_tb
-  measured_from: 1:1201c28340a0769020d440a7b2cb19110a741ba8849ab1631d411e527a28a508
+  measured_from: 1:73f4f9fe442e7310e35117ce0fa73c934b712bb6ffc9b04489eaa2502ef43051
   resources:
   # RE-MEASURED 2026-08-18: the element-type retype MOVED this netlist, and a
   # pre-change control run at all four coordinates reproduces the old numbers
@@ -3373,7 +3373,7 @@ arrow-lite-stream-aggregation:
   - aggregation-pkg
   golden: dau_core.operators:aggregate_values
   bench: dau_core.tests.cocotb_benches.dau_arrow_lite_stream_aggregation_tb
-  measured_from: 1:8ae60544c315f94fa6ff31501cced1f729ac1725857be1db2579d8249c6a4997
+  measured_from: 1:2633b1a7d2a3d67d0f01a0d320fff716b468d90ea185e4e2193335100ed501d4
   resources:
   # RE-MEASURED 2026-08-18: the element-type retype MOVED this netlist, and a
   # pre-change control run at all four coordinates reproduces the old numbers
@@ -3462,7 +3462,7 @@ record-batch-aggregation:
   - aggregation-pkg
   golden: dau_core.operators:aggregate_values
   bench: dau_core.tests.cocotb_benches.dau_record_batch_aggregation_tb
-  measured_from: 1:8f192b4f5a7f083f46c0930a7992179a7070917e439706bf54760b4e00aa0725
+  measured_from: 1:da87675c99cf6bbd9c0100af3f85bcab257740538d8a6e9eb737c64dd6eefcdd
   resources:
   # RE-MEASURED 2026-08-18: the element-type retype MOVED this netlist, and a
   # pre-change control run at all four coordinates reproduces the old numbers
@@ -3632,7 +3632,7 @@ axi-random-probe:
   # Measured 2026-08-14 via dau-build task=tasks/build/synthesize-cores.
   # Identical on both parts because the core is pure control: counters, an
   # xorshift and an AR handshake, no memory and no arithmetic.
-  measured_from: 1:99731d14d25b5a1c0e3ebe1e580085597fd997e64f903d6fe6cd92e68b7d4adb
+  measured_from: 1:f3b2a995a169c3eaacb9b1d350fb982ea3d9858dc9112c74ed08014cbd02a62e
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -3718,7 +3718,7 @@ axi-record-writer:
   source: dau_axi_record_writer.sv
   description: AXI4 burst write master draining one record stream to a region.
   # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
-  measured_from: 1:afb8a9ebd011d8c0b2ea4768becc8835124c4fb9c2b9e7e15d8ba3f51773185c
+  measured_from: 1:bc19ecd902c2dcf90b700827a3946eeaeec6dfba52c4887aaa78f419ee4c2865
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -3818,7 +3818,7 @@ bram-stream-job:
   source: dau_bram_stream_job.sv
   description: BRAM-staged core-agnostic job runner.
   # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
-  measured_from: 1:0cca61e1c7c4414c64d60f6fb114d3716fb700abd666d5844ed37ce9c54a472a
+  measured_from: 1:2152b642c210bb441d9530fe5683966781f2923f7c5925e234b1d0720b75e6aa
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -3849,7 +3849,7 @@ axi-stream-job:
   description: DDR-staged AXI4 master job runner (reader + writer halves fused).
   bench: dau_core.tests.cocotb_benches.dau_axi_bar_job_tb
   # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
-  measured_from: 1:5430fe3bd4e7302919c896f137f68530448870e5f3b001d2daffa8406c26a67c
+  measured_from: 1:f3d49ac8e33720b7f490b65fbefaaa7fc532a5ecbf828d2e6285fe10229157ac
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -3918,7 +3918,7 @@ wide-row-predicate-filter:
   bench: dau_core.tests.cocotb_benches.dau_wide_row_predicate_filter_tb
   # Reference hand-split 3-stage OOC: SLOTS=4 xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +3.129)
   # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
-  measured_from: 1:df67b339f627b8aec446ef30bc1e9b383e73ca95d94ee92efc0c7fc3695763cb
+  measured_from: 1:f312fc0fe12fc80839b605574b3c04d702a79e5ba3a531c4edc63e6c5131b5ff
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -4018,7 +4018,7 @@ wide-row-map-alu:
   # xc7a200t point was taken BEFORE the multiply was registered and describes
   # HDL that no longer exists, so it is deliberately absent rather than
   # carried forward -- that stale point is what hid a -1.383 ns violation.
-  measured_from: 1:c4a38cc1ec0b164ba93712640df3c495b7de7580d35635df4bdd123b5e7fd414
+  measured_from: 1:e3dc08bbf7de87503a9a9134d756fa0b000692b2d70421b3d2b1e93a5021f86f
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -4142,7 +4142,7 @@ wide-group-table-sum:
   # defaults (SLOTS 4, GROUP_BITS 6), with each bank's words in single-port
   # distributed RAM. The first version, one array written from three
   # places, synthesized as registers: 48,269 LUTs and 83,929 flops.
-  measured_from: 1:961d942bfe3fc6cd0122339c804a6f498dc77808bba5fd0b064bdbd9bfa2707d
+  measured_from: 1:3510745ceb22daf01c2cc8c7a54e839bc945520b8d101e2fe1c86568c51327c2
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -4213,7 +4213,7 @@ wide-field-sum-aggregation:
   bench: dau_core.tests.cocotb_benches.dau_wide_field_sum_aggregation_tb
   # Measured points only. The pre-balanced-tree xc7a200t point is deliberately
   # absent: it measured different HDL.
-  measured_from: 1:c19b172706af884df9c5b584508b0f51d190c0bb62c1b0834908e94a31dc3e9e
+  measured_from: 1:c310b9c6f1bbe15bce6424dd6d5867757a4a515e6ffc4e6a09e4c93716406287
   resources:
   # RE-MEASURED 2026-08-18 at SLOTS 1, 2 and 4 on both parts, because a control
   # run reported drift the retype had not caused: the same coordinates report
@@ -4403,7 +4403,7 @@ scratchpad:
   # landed in 512 LUTs of distributed RAM because the arena access lived in
   # the reset-carrying FSM process; the dedicated reset-free process infers
   # the intended RAMB36.
-  measured_from: 1:e59f587b1698491011b1cfda2bd9ee0a6c78a6d11df8693fb4602f8b9695f7bb
+  measured_from: 1:3748c1f16845dac51de940ac6616f72b37d301d1ecdfdd7e6cd524d694dcbf19
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -4487,7 +4487,7 @@ keyed-state:
   # the netlist is unchanged and the recorded 408 simply predates
   # dau-build#165, which put `-include_dirs` on synth_design. Every other
   # number, including WNS to the picosecond, is what it was.
-  measured_from: 1:3c9403b72725a37619935fac5a6b7dc9b6d0ec3d8c141dd030f9cb41a5668982
+  measured_from: 1:dbfd455ae22aca57c5534d9475d03cae674e9ba9bc101eaf72c3ecd9bd86c260
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -4578,7 +4578,7 @@ session-gap:
   # retype moved nothing and the recorded 567/566 predate dau-build#165's
   # `-include_dirs`. Both parts now land on the same 576, which is what a
   # part-independent front end should do.
-  measured_from: 1:63d9bf2264569e39c308e87cecf8e7135c959a87e80a5569d1fe5d9e8ca62af5
+  measured_from: 1:9f5c1f41311d0f7c1fe99073940863262002834bfe99686defbe450e98cea67e
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -4644,7 +4644,7 @@ datetime-format:
   # flops, which is why 24 stages cost 428 FF. Only 296 LUTs are logic. The
   # margin at 6.667 ns is 0.240 ns, under the half-nanosecond line: budget a
   # retime before composing this at 150 MHz.
-  measured_from: 1:c00ffac79427d408ab6d4a3e0a441c4bf19ad05e245433a3d37ff4a6dd20272c
+  measured_from: 1:6ec31e51bffd3bb89cd35ef96c129f6d393ab054ac62cb7d0c77fea922b623f1
   resources:
     - part: xc7k325tffg900-2
       clock_ns: 8.0
