@@ -1,12 +1,12 @@
 `default_nettype none
 
-// Market-feature map tile (the `derive` stage of the temporal workflow): a
+// Market-feature map core (the `derive` stage of the temporal workflow): a
 // stateless per-row map from an aligned market row to its derived features —
 // midpoint, spread, quote-rule trade sign, signed volume, and dollar volume
 // (the VWAP numerator). One output record per input row; matches
 // dau_core.temporal.market_features bit-for-bit. In the fused datapath this
-// sits between the as-of tile and the bar tile (a chain stage); its signed
-// volume is the value the bar tile accumulates.
+// sits between the as-of core and the bar core (a chain stage); its signed
+// volume is the value the bar core accumulates.
 //
 // Input: the as-of market row, four 64-bit words (a row is atomic; input_last
 // is only legal on r3):

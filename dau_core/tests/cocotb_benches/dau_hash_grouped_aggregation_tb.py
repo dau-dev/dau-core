@@ -1,7 +1,7 @@
-"""Hash-mode grouped field-sum aggregation tile against its golden: one
+"""Hash-mode grouped field-sum aggregation core against its golden: one
 record per DISTINCT key with input in any order, a signed-key-ascending
 drain, overflow as a defined close-out, and fresh state per batch — plus
-the randomized-delay patience harness that binds every stateful tile."""
+the randomized-delay patience harness that binds every stateful core."""
 
 from __future__ import annotations
 
@@ -18,8 +18,8 @@ CAPACITY = int(os.environ.get("DAU_HASH_GROUPED_CAPACITY", "512"))
 
 _MASK32 = 0xFFFF_FFFF
 
-# keys deliberately INTERLEAVED and repeated — the ordered tile would open a
-# second partial for every reappearance; this tile must not
+# keys deliberately INTERLEAVED and repeated — the ordered core would open a
+# second partial for every reappearance; this core must not
 _ROWS = [
     (5, 1000, 5, 10),
     (-3, 2000, 6, 30),
@@ -52,7 +52,7 @@ async def hash_grouped_matches_golden(dut):
 
 @cocotb.test(skip=_needs_slots(3))
 async def hash_grouped_is_permutation_invariant(dut):
-    """The property the ordered tile cannot have: the answer does not
+    """The property the ordered core cannot have: the answer does not
     depend on arrival order."""
     await _start(dut)
     reference, _ = await _run(dut, _ROWS, field_mask=_MASK)
@@ -136,7 +136,7 @@ async def hash_grouped_overflow_mid_batch_drains_and_recovers(dut):
 async def hash_grouped_reports_group_count_and_one_close_out(dut):
     """group_count reads the batch's emitted groups, and exactly one
     close-out is raised — checked by stalling status_ready first, so a
-    tile that dropped or repeated it would fail here."""
+    core that dropped or repeated it would fail here."""
     await _start(dut)
     words, code = await _run(dut, _ROWS, field_mask=_MASK, hold_status=6)
     expected, _ = hash_grouped_field_sum_rows(_ROWS, field_mask=_MASK, capacity=CAPACITY)

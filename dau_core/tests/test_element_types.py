@@ -62,7 +62,7 @@ def test_a_type_carries_what_a_width_cannot() -> None:
 
 def test_q_notation_counts_the_sign_bit_in_the_integer_part() -> None:
     """Q notation is ambiguous in the wild, so the convention is pinned: qI.F
-    occupies I+F bits. q16.16 is the 32-bit format the fixed-point tiles
+    occupies I+F bits. q16.16 is the 32-bit format the fixed-point cores
     compute in, which they spell today as FRACTIONAL_BITS=16."""
     fixed = parse_element_type("q16.16")
     assert (fixed.width, fixed.fractional_bits) == (32, 16)
@@ -72,7 +72,7 @@ def test_q_notation_counts_the_sign_bit_in_the_integer_part() -> None:
 def test_an_integer_is_read_as_an_encoding_never_re_interpreted() -> None:
     """One interpretation of an integer, and it is the RTL's.
 
-    A Python side that read 4128 as "4128 bits wide" while the tile it
+    A Python side that read 4128 as "4128 bits wide" while the core it
     configures read it as q16.16 would be precisely the confusion this module
     exists to end.
     """
@@ -89,7 +89,7 @@ def test_spellings_that_name_no_type_are_refused() -> None:
 
 def test_float_widths_are_the_ieee_interchange_formats() -> None:
     """ "float24" would name a format with no defined exponent split; refusing
-    it is better than inventing one a tile would then have to guess at."""
+    it is better than inventing one a core would then have to guess at."""
     with pytest.raises(ElementTypeError, match="interchange format"):
         parse_element_type("float24")
     with pytest.raises(ElementTypeError, match="interchange format"):
@@ -187,7 +187,7 @@ def test_the_header_and_this_module_encode_the_same_types() -> None:
 
 def test_the_header_accessors_extract_what_python_stores() -> None:
     """The accessor macros are bit arithmetic; run that arithmetic against
-    every spelling and check it recovers the four facts a tile decodes."""
+    every spelling and check it recovers the four facts a core decodes."""
     accessors = {
         "DAU_TYPE_WIDTH": lambda element: element.width,
         "DAU_TYPE_FRAC_BITS": lambda element: element.fractional_bits,

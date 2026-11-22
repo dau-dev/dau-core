@@ -1,14 +1,14 @@
-"""A tile's declared record shape must be able to hold the beat its RTL emits.
+"""A core's declared record shape must be able to hold the beat its RTL emits.
 
 `datetime-format` declared `output_record_words: 1` -- 64 bits -- while its
 `output_data` port is 152 bits wide. Its description said so in prose, in
-capitals, for the tile's whole life. Prose is not what the composition layer
+capitals, for the core's whole life. Prose is not what the composition layer
 reads: `check_record_width_compatibility` compares the declared word counts,
 and it is detection-only, so a 152-bit beat wired into a one-word consumer
 would have dropped 11 of the 19 characters with nothing raised.
 
 The guard is deliberately narrow. `output_record_words` counts words in a
-logical RECORD, not bits in a beat, and 35 of the 36 literal-width tiles
+logical RECORD, not bits in a beat, and 35 of the 36 literal-width cores
 declare MORE words than one beat holds -- `rolling-moments` declares 3
 on a 64-bit port and streams them as three consecutive beats. That is the
 convention and it is fine. The only thing that is never fine is a record
@@ -77,15 +77,15 @@ def test_a_record_is_wide_enough_for_one_beat_of_itself(name: str, bits: int, wo
 def test_the_guard_actually_inspects_the_rtl() -> None:
     """A parse that silently matched nothing would make every case above vacuous."""
     checked = list(cores_with_literal_output_ports())
-    assert len(checked) > 30, f"only {len(checked)} tiles parsed; the port regex has stopped matching"
+    assert len(checked) > 30, f"only {len(checked)} cores parsed; the port regex has stopped matching"
     widths = {bits for _, bits, _ in checked}
     assert widths == {64, 152}, f"unexpected literal port widths {sorted(widths)} -- re-read the convention"
 
 
-def test_datetime_format_is_the_one_tile_that_widens_its_port() -> None:
+def test_datetime_format_is_the_one_core_that_widens_its_port() -> None:
     """The deviation is real and load-bearing, so it is pinned rather than left
-    to be rediscovered: every other tile keeps the row-stream contract's 64-bit
+    to be rediscovered: every other core keeps the row-stream contract's 64-bit
     port and takes more beats. This one widened the port instead, which is why
     nothing in the palette can consume it without an adapter."""
     wide = [name for name, bits, _ in cores_with_literal_output_ports() if bits != 64]
-    assert wide == ["datetime-format"], f"a second tile now widens its port: {wide}"
+    assert wide == ["datetime-format"], f"a second core now widens its port: {wide}"

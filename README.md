@@ -12,20 +12,20 @@ Hardware contracts, golden semantics, and the core registry for the DAU accelera
 `dau-core` holds the definitions the other DAU packages share:
 
 - **The core registry.** Every HDL building block (streaming operator
-  tiles, AXI stream infrastructure, shell adapters, shared packages) is
+  cores, AXI stream infrastructure, shell adapters, shared packages) is
   described by a `CoreDefinition`: its module, sources, dependencies,
   golden model, testbench, measured resources, module parameters, and
   stream-contract facts.
 - **Golden models.** Each operator has a pure-Python reference
   implementation. Hardware results are compared byte for byte against it,
-  so the golden defines what the tile computes.
+  so the golden defines what the core computes.
 - **Wire contracts.** Register maps, stream framing structs, DMA
   constraints, capability advertisement, and composition specs.
 
 The package also ships the SystemVerilog for every registered core.
-Every operator tile has a golden, a cocotb bench under Verilator, and
+Every operator core has a golden, a cocotb bench under Verilator, and
 measured resource points. The stream infrastructure and shell adapters
-are tested inside the composed shells instead of one by one. Five tiles
+are tested inside the composed shells instead of one by one. Five cores
 generate their source from their parameters when rendered.
 
 ## Documentation
@@ -33,9 +33,9 @@ generate their source from their parameters when rendered.
 The full documentation is at
 [dau-dev.github.io/dau-core](https://dau-dev.github.io/dau-core/).
 
-- **Tutorial**: [Read a tile's contract end to end](docs/src/tutorial/read-a-tile-contract.md)
+- **Tutorial**: [Read a core's contract end to end](docs/src/tutorial/read-a-core-contract.md)
   follows one operator through the five places its definition lives.
-- **How-to guides**: [Add an operator tile](docs/src/how-to/add-an-operator-tile.md) ·
+- **How-to guides**: [Add an operator core](docs/src/how-to/add-an-operator-core.md) ·
   [Test a core](docs/src/how-to/test-a-core.md) ·
   [Measure a resource envelope](docs/src/how-to/measure-a-resource-envelope.md), the one
   step that needs a synthesis host · [Develop and contribute](docs/src/how-to/develop.md).
@@ -43,7 +43,7 @@ The full documentation is at
   [Tile catalog](docs/src/reference/tile-catalog.md) ·
   [Registry guards](docs/src/reference/registry-guards.md) and what each one checks.
 - **Explanation**: [Why cores are declared in config](docs/src/explanation/why-cores-are-declared-in-config.md) ·
-  [Why each tile has a golden model](docs/src/explanation/why-each-tile-has-a-golden-model.md) ·
+  [Why each core has a golden model](docs/src/explanation/why-each-core-has-a-golden-model.md) ·
   [Why resource costs are measured](docs/src/explanation/why-resources-are-measured.md).
 
 ## The core registry
@@ -60,15 +60,15 @@ application that composes Hydra configs finds the cores without importing
 from dau_core.registry import loaded_cores, core, sources_for
 
 cores = loaded_cores()                     # name -> CoreDefinition, registry order
-tile = core("int32-predicate-filter")      # one core
-print(tile.kind.value)                     # "operator"
-print(tile.golden)                         # "dau_core.operators:filter_values"
-print(tile.resources)                      # measured LUT/FF/BRAM/DSP envelope
+core_spec = core("int32-predicate-filter") # one core
+print(core_spec.kind.value)                # "operator"
+print(core_spec.golden)                    # "dau_core.operators:filter_values"
+print(core_spec.resources)                 # measured LUT/FF/BRAM/DSP envelope
 
 sources_for("stream-aggregation")    # dependency-closed HDL paths, in order
 ```
 
-The palette has 46 operator tiles (filters, maps, ordered and hash-mode
+The palette has 46 operator cores (filters, maps, ordered and hash-mode
 aggregations, joins, membership, sorters, partitioners, dispatchers,
 temporal operators, top-k, fixed-point transcendentals, and the stateful
 group), 5 stream-infrastructure blocks (AXI burst reader, broadcast, record
@@ -80,9 +80,9 @@ the packaged defaults.
 
 ## Golden models
 
-Each operator tile's behavior is defined by a pure function or small model
-in `dau_core.operators` or `dau_core.temporal`. Tile configurations are
-frozen [pydantic](https://docs.pydantic.dev) models that mirror the tile's
+Each operator core's behavior is defined by a pure function or small model
+in `dau_core.operators` or `dau_core.temporal`. Core configurations are
+frozen [pydantic](https://docs.pydantic.dev) models that mirror the core's
 config ports, and the same object drives the golden, the testbench, and
 design emission. Their mapping fields are read-only, `replace()` is a
 `model_copy` that validates the result, and `check()` validates a model
@@ -119,14 +119,14 @@ bounds) and raises `CompositionError` before any HDL is generated;
 `estimated_resources` prices a spec from the measured envelopes.
 
 ```python
-from dau_core.composition import LaneSpec, ScanCompositionSpec, TileSpec, estimated_resources
+from dau_core.composition import LaneSpec, ScanCompositionSpec, CoreSpec, estimated_resources
 
 spec = ScanCompositionSpec(
     name="bar-noc-4",
     lanes=tuple(
         LaneSpec(
-            tile=TileSpec(core="bar-aggregation", config={"cfg_mode": "2'd0"}),
-            partition=TileSpec(core="pair-key-filter",
+            sink=CoreSpec(core="bar-aggregation", config={"cfg_mode": "2'd0"}),
+            partition=CoreSpec(core="pair-key-filter",
                                config={"cfg_key_mask": "32'd3", "cfg_key_match": f"32'd{lane}"}),
         )
         for lane in range(4)
@@ -144,7 +144,7 @@ interpolated.
 
 A quad-row operator core takes one row per beat at the rate its `ingest`
 contract declares (one row per cycle or per two cycles, depending on the
-tile). A `wide-row-stream` core takes the reader's whole beat,
+core). A `wide-row-stream` core takes the reader's whole beat,
 `SLOTS = data_width / 128` quad rows every cycle, with no dispatcher and no
 fan-out. The three row operators have wide counterparts
 (`wide-row-predicate-filter`, `wide-row-map-alu`,
@@ -157,25 +157,25 @@ because packing saves DMA bytes at the cost of job time and a wide lane
 needs whole rows.
 
 ```python
-from dau_core.composition import LaneSpec, ScanCompositionSpec, TileSpec, estimated_resources
+from dau_core.composition import LaneSpec, ScanCompositionSpec, CoreSpec, estimated_resources
 
 spec = ScanCompositionSpec(
     name="q6-wide",
     data_width=512,   # SLOTS=4: four quad rows per cycle
     lanes=(
         LaneSpec(
-            tile=TileSpec(core="wide-field-sum-aggregation",
+            sink=CoreSpec(core="wide-field-sum-aggregation",
                           config={"cfg_field_mask": "4'b0010"}),
             chain=(
                 # shipdate >= 8766 AND shipdate < 9131
-                TileSpec(core="wide-row-predicate-filter", config={
+                CoreSpec(core="wide-row-predicate-filter", config={
                     "cfg_field0": "2'd0", "cfg_op0": "3'd6", "cfg_constant0": "32'd8766",
                     "cfg_combine01": "2'd1",
                     "cfg_field1": "2'd0", "cfg_op1": "3'd3", "cfg_constant1": "32'd9131",
                     "cfg_combine2": "2'd0",
                     "cfg_field2": "2'd0", "cfg_op2": "3'd0", "cfg_constant2": "32'd0"}),
                 # value = value * aux0 >> 15
-                TileSpec(core="wide-row-map-alu", config={
+                CoreSpec(core="wide-row-map-alu", config={
                     "cfg_op": "3'd4", "cfg_dst_field": "2'd1",
                     "cfg_src_a_field": "2'd1", "cfg_src_b_field": "2'd2",
                     "cfg_shift": "5'd15"}),
@@ -227,15 +227,15 @@ print(result.funnel)   # input -> matched -> bars -> rolling row counts
 ## HDL and verification
 
 `dau_core/hdl/` holds the SystemVerilog for every registered core, five of
-them generated at render time. Tiles share a 64-bit valid/ready stream and
-status contract: `input_last` ends a batch, a terminal tile closes out with
+them generated at render time. Cores share a 64-bit valid/ready stream and
+status contract: `input_last` ends a batch, a terminal core closes out with
 a status word and count, and mid-lane stages stay silent on success. The
 tests run at three levels, all from `pytest`:
 
 - text-contract checks over the packaged sources;
 - standalone Verilator benches;
 - cocotb-on-Verilator benches, golden-equal against the registered
-  reference for each tile.
+  reference for each core.
 
 ## Installation
 

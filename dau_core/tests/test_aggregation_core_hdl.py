@@ -29,7 +29,7 @@ def test_packaged_int32_stream_aggregation_names_stream_protocol_constants() -> 
     source = (DAU_HDL_INCLUDE_DIR / "dau_stream_aggregation.sv").read_text()
 
     # the INPUT column's logical type is now DERIVED from the element type the
-    # tile is built for (int8/16/32/64 are 10, 11, 12, 13), so the constant
+    # core is built for (int8/16/32/64 are 10, 11, 12, 13), so the constant
     # naming 12 is gone and the derivation is what has to be pinned; the RESULT
     # type is INT64/UINT64 at every element and stays a literal
     assert "localparam logic [15:0] LT_ELEMENT = 16'(10 + $clog2(VALUE_BYTES));" in source

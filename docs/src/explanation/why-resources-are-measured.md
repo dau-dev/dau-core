@@ -17,7 +17,7 @@ That caused two real failures.
 
 **One part's number priced another part's build.** A design targeting the
 Kintex was priced with a wide-predicate figure measured on the Artix. The
-estimate reported `measured=True` while mixing parts, and it hid a tile that
+estimate reported `measured=True` while mixing parts, and it hid a core that
 had never met timing on the target part.
 
 **Parameters that change the cost were ignored.** When the shared
@@ -51,7 +51,7 @@ is never run by hand, because a hand-run number loses the coordinate it was
 measured at.
 
 The numbers also cannot say which HDL produced them, so each entry records
-that as `measured_from`, a digest of the tile's source and everything it
+that as `measured_from`, a digest of the core's source and everything it
 imports or includes. A test recomputes the digest from the tree, so editing
 the HDL under a recorded envelope fails the suite until the core is measured
 again. Before that stamp existed, two envelopes went stale for months
@@ -62,7 +62,7 @@ changed.
 
 An out-of-context run measures the core by itself. Inside a shell the same
 core shares routing and placement with everything else, and its timing
-margin can move a long way: one tile measured +0.410 ns standalone and
+margin can move a long way: one core measured +0.410 ns standalone and
 −0.348 ns composed, a 0.76 ns swing that turned a pass into a failure.
 
 A measurement point answers "what does this core cost on its own", and it

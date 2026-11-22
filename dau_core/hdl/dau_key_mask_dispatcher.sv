@@ -27,7 +27,7 @@
 // The all-ones 128-bit row is the reserved HOST PAD ROW (wide beats force
 // beat-aligned lengths; ragged tails pad with 0xFF) and is dropped by the
 // serializer, never routed. Per-lane outputs stay the 64-bit two-beat
-// framing the operator tiles consume: each lane sees only ~1/N of the rows,
+// framing the operator cores consume: each lane sees only ~1/N of the rows,
 // so NO operator widens. A run of same-lane rows throttles on that lane's
 // two-beat drain (single-row skid, head-of-line like the range partitioner);
 // mask-distributed keys sustain the full front rate. Any other IN_WIDTH, or a
@@ -37,13 +37,13 @@
 // on a w0 is a torn row — the whole batch is invalid and every lane reports
 // ERR_STREAM. At IN_WIDTH=128 a beat IS a complete row, so torn framing
 // cannot occur. A lane that receives zero rows closes out with a success
-// status (its downstream tile never starts); a lane that received rows lands
+// status (its downstream core never starts); a lane that received rows lands
 // input_last on its own final forwarded word.
 // dau_core.operators.mask_dispatch_rows is the golden.
 
 // One partition's back half: a single-row skid that holds the newest row so
 // its stream-end can be tagged last, plus the zero-row / torn-row status the
-// downstream tile cannot see. A self-contained copy of
+// downstream core cannot see. A self-contained copy of
 // dau_range_partition_lane (renamed so a composition carrying both cores does
 // not collide), keeping the dispatcher a one-file core.
 module dau_key_mask_dispatch_lane #(
@@ -208,7 +208,7 @@ module dau_key_mask_dispatcher #(
     // 0's first lane is read; everything else in a record is routed opaquely,
     // so this is the one thing the router interprets. A plain signed integer
     // encodes as its own width, so `DAU_TYPE_INT32 is 32 and this reads
-    // exactly the key the tile has always read.
+    // exactly the key the core has always read.
     //
     // THE DECODE IS 32-BIT AT EVERY KEY WIDTH. The key is a dictionary id or
     // a branch index -- an identity, not a magnitude -- so it is
@@ -292,7 +292,7 @@ module dau_key_mask_dispatcher #(
     if (MODE > 2) begin : g_bad_mode
         $error("MODE must be 0 (MASK), 1 (EXACT_BRANCH) or 2 (HASH)");
     end
-    // the key is one lane of the {value, key} word, so a pair of lanes tiles
+    // the key is one lane of the {value, key} word, so a pair of lanes cores
     // it; the decode is 32-bit whatever the lane holds
     if (KEY_BITS < 8 || KEY_BITS > 32 || (64 % KEY_BITS) != 0) begin : g_key_width_check
         $error("KEY_WIDTH must divide 64 and lie in [8, 32]");

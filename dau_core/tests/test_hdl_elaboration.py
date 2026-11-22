@@ -34,7 +34,7 @@ _MAX_COMBINATIONS = 24  # keep the gate seconds-fast; sample beyond this
 # PARAMETER COUPLING. The registry declares each parameter's legal values
 # independently, so its advertised space is a cartesian product that can
 # include combinations no RTL would accept. The ABI cannot express coupling
-# yet (the tile-ABI follow-up), so the couplings live here — deliberately
+# yet (the core-ABI follow-up), so the couplings live here — deliberately
 # visible, because an entry is an admission that the registry over-advertises
 # and the composition layer is carrying the constraint instead.
 _COUPLED: dict[str, Callable[[dict[str, int]], bool]] = {
@@ -147,7 +147,7 @@ def test_every_declared_parameterization_elaborates(core_name: str) -> None:
             "-Wall",
             "-Wno-fatal",
             *_FATAL_CLASSES,
-            # tiles written against an element type `include types.svh, and
+            # cores written against an element type `include types.svh, and
             # Verilator does not search the including file's own directory
             f"-I{DAU_HDL_INCLUDE_DIR}",
             "--top-module",

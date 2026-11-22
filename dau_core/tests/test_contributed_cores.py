@@ -2,9 +2,9 @@
 
 A third party composing a ``CoreDefinition`` under its own registry group
 used to compose successfully, register, and then be invisible: every
-consumer reaches tiles through :func:`loaded_cores`, which read ``/dau-core``
+consumer reaches cores through :func:`loaded_cores`, which read ``/dau-core``
 and nothing else. The author did everything the authoring surface asks for
-and their tile silently vanished, with no error naming the cause -- the
+and their core silently vanished, with no error naming the cause -- the
 worst shape a failure can take, because there is nothing to search for.
 
 The seam that keeps packages apart is ``source_package``, not invisibility.
@@ -21,13 +21,13 @@ from omegaconf import OmegaConf
 
 from dau_core.registry import DuplicateCoreError, UnknownCoreError, core, loaded_cores
 
-_VENDOR_TILE = {
+_VENDOR_CORE = {
     "_target_": "dau_core.cores.CoreDefinition",
     "kind": "operator",
     "module": "vendor_widget",
     "source": "vendor_widget.sv",
-    "source_package": "vendor_tiles.hdl",
-    "description": "a tile declared outside dau-core",
+    "source_package": "vendor_cores.hdl",
+    "description": "a core declared outside dau-core",
     "contract_kind": "row-stream",
     "record_words": 1,
     "ingest": {"_target_": "dau_core.cores.IngestRate", "rows": 1, "per_cycles": 1},
@@ -40,7 +40,7 @@ def registry_group():
     added: list[str] = []
 
     def compose(group: str, name: str, **overrides):
-        ModelRegistry.root().load_config(OmegaConf.create({group: {name: {**_VENDOR_TILE, "name": name, **overrides}}}))
+        ModelRegistry.root().load_config(OmegaConf.create({group: {name: {**_VENDOR_CORE, "name": name, **overrides}}}))
         added.append(group)
 
     yield compose
@@ -53,11 +53,11 @@ def test_a_contributed_core_is_visible_to_consumers(registry_group) -> None:
     before = len(loaded_cores())
     registry_group("vendor-tiles", "vendor-widget")
     assert len(loaded_cores()) == before + 1
-    assert core("vendor-widget").source_package == "vendor_tiles.hdl"
+    assert core("vendor-widget").source_package == "vendor_cores.hdl"
 
 
 def test_contribution_does_not_disturb_our_own_cores(registry_group) -> None:
-    """The seam still works: ours remain identifiable, and a foreign tile
+    """The seam still works: ours remain identifiable, and a foreign core
     does not become one of ours by being visible."""
     own_before = {name for name, d in loaded_cores().items() if d.source_package == "dau_core.hdl"}
     registry_group("vendor-tiles", "vendor-widget")
@@ -68,7 +68,7 @@ def test_contribution_does_not_disturb_our_own_cores(registry_group) -> None:
 
 def test_a_name_collision_is_raised_not_resolved(registry_group) -> None:
     """A core name is how every design, spec hash and cached manifest refers
-    to a tile. Silently preferring one definition would let a design mean two
+    to a core. Silently preferring one definition would let a design mean two
     different things depending on what else was installed."""
     registry_group("vendor-tiles", "int32-map-alu")
     with pytest.raises(DuplicateCoreError, match="declared by more than one composed group"):
@@ -84,7 +84,7 @@ def test_an_absent_core_still_reports_unknown() -> None:
 
 
 def test_a_single_core_lookup_builds_a_single_model() -> None:
-    """The point of loading the palette lazily: asking for one tile builds
+    """The point of loading the palette lazily: asking for one core builds
     one ``CoreDefinition``. Reading the group's items builds all of them, so
     ``core()`` must not go through ``loaded_cores()``, which is what it used
     to do."""

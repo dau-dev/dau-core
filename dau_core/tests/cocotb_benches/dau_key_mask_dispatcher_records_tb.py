@@ -5,7 +5,7 @@ wider records (the as-of join's three-word {tag/key, time, payload}) must be
 replicable across lanes WITHOUT reshaping the stream, so the router forwards
 whole records keyed on word 0's low half. Golden-equal to
 ``mask_dispatch_records``; ordering within a lane is what makes a
-sequential per-key tile correct behind the router."""
+sequential per-key core correct behind the router."""
 
 from __future__ import annotations
 
@@ -103,7 +103,7 @@ async def three_word_records_route_whole_and_in_order(dut):
 
 @cocotb.test()
 async def per_key_order_is_preserved_within_a_lane(dut):
-    """A sequential per-key tile (an as-of join holding one quote per
+    """A sequential per-key core (an as-of join holding one quote per
     symbol) is only correct behind this router if a key's records reach
     its lane in arrival order."""
     await _start(dut)

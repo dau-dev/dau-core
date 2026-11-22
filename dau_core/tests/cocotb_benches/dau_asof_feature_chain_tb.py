@@ -66,7 +66,7 @@ async def chain_exposes_the_match_count_at_terminal_status(dut):
     await _start(dut)
     feats = await _run(dut, _merge(_QUOTES, _TRADES))
     # the join latches the as-of match count so it survives to the chain's
-    # terminal status (the tile clears its own live counter on reset)
+    # terminal status (the core clears its own live counter on reset)
     assert int(dut.match_count.value) == len(feats)
 
 
@@ -75,7 +75,7 @@ async def chain_all_miss_still_closes_out(dut):
     await _start(dut)
     # a stream with no qualifying quote for any trade: the as-of emits zero
     # market rows and no output_last, so the join must synthesize the terminal
-    # success close-out (the feature tile would otherwise never close)
+    # success close-out (the feature core would otherwise never close)
     trades = [(9, 5, 1, 1), (9, 6, 2, 2)]
     feats = await _run(dut, _merge([], trades))
     assert feats == []

@@ -1,12 +1,12 @@
 `default_nettype none
 
-// BRAM-staged stream job runner (reusable primitive, tile-agnostic).
+// BRAM-staged stream job runner (reusable primitive, core-agnostic).
 //
 // The host stages an encoded record batch in the input BRAM (via XDMA MM
 // writes), sets the input length, and pulses start. This runner streams the
-// batch out of BRAM into an attached stream tile, writes the tile's result
+// batch out of BRAM into an attached stream core, writes the core's result
 // stream into the output BRAM, and reports done/error plus the result length.
-// The tile is attached externally through the tile_* stream ports (any module
+// The core is attached externally through the core_* stream ports (any module
 // speaking the standard DAU 64-bit valid/ready/last stream + status contract);
 // binding is done by the dau-build generated shell top. One job at a time; a
 // new start clears prior status.
@@ -37,19 +37,19 @@ module dau_bram_stream_job #(
     output logic                          out_we,
     output logic [63:0]                   out_din,
 
-    // attached stream tile
-    output logic             tile_input_valid,
-    input  wire logic        tile_input_ready,
-    output logic [63:0]      tile_input_data,
-    output logic             tile_input_last,
-    input  wire logic        tile_output_valid,
-    output logic             tile_output_ready,
-    input  wire logic [63:0] tile_output_data,
-    input  wire logic        tile_output_last,
-    input  wire logic        tile_status_valid,
-    output logic             tile_status_ready,
-    input  wire logic        tile_status_error,
-    input  wire logic [7:0]  tile_status_error_code
+    // attached stream core
+    output logic             core_input_valid,
+    input  wire logic        core_input_ready,
+    output logic [63:0]      core_input_data,
+    output logic             core_input_last,
+    input  wire logic        core_output_valid,
+    output logic             core_output_ready,
+    input  wire logic [63:0] core_output_data,
+    input  wire logic        core_output_last,
+    input  wire logic        core_status_valid,
+    output logic             core_status_ready,
+    input  wire logic        core_status_error,
+    input  wire logic [7:0]  core_status_error_code
 );
     localparam logic [7:0] ERR_JOB_LENGTH = 8'hFE;
 
@@ -68,15 +68,15 @@ module dau_bram_stream_job #(
     logic [63:0] hold_word;
     logic [OUTPUT_ADDR_WIDTH-1:0] out_index;
 
-    assign tile_input_data = hold_word;
-    assign tile_input_last = tile_input_valid && (word_index == words_total - 32'd1);
-    assign tile_output_ready = 1'b1;
-    assign tile_status_ready = 1'b1;
+    assign core_input_data = hold_word;
+    assign core_input_last = core_input_valid && (word_index == words_total - 32'd1);
+    assign core_output_ready = 1'b1;
+    assign core_status_ready = 1'b1;
 
-    // completion is detected via the status channel; tile_output_last is part
+    // completion is detected via the status channel; core_output_last is part
     // of the standard stream contract but not needed by this runner
-    logic unused_tile_output_last;
-    assign unused_tile_output_last = tile_output_last;
+    logic unused_core_output_last;
+    assign unused_core_output_last = core_output_last;
 
     // combinational BRAM read controls: address sampled at the end of
     // JOB_FETCH, data captured during JOB_LOAD (1-cycle read latency)
@@ -94,7 +94,7 @@ module dau_bram_stream_job #(
             words_total <= 32'd0;
             word_index <= 32'd0;
             hold_word <= 64'd0;
-            tile_input_valid <= 1'b0;
+            core_input_valid <= 1'b0;
             out_addr <= '0;
             out_en <= 1'b0;
             out_we <= 1'b0;
@@ -104,10 +104,10 @@ module dau_bram_stream_job #(
             out_en <= 1'b0;
             out_we <= 1'b0;
 
-            // capture the tile's result stream into the output BRAM
-            if (tile_output_valid) begin
+            // capture the core's result stream into the output BRAM
+            if (core_output_valid) begin
                 out_addr <= out_index;
-                out_din <= tile_output_data;
+                out_din <= core_output_data;
                 out_en <= 1'b1;
                 out_we <= 1'b1;
                 out_index <= out_index + 1'b1;
@@ -142,12 +142,12 @@ module dau_bram_stream_job #(
                 JOB_LOAD: begin
                     // BRAM dout is valid this cycle for the address issued last cycle
                     hold_word <= in_dout;
-                    tile_input_valid <= 1'b1;
+                    core_input_valid <= 1'b1;
                     job_state <= JOB_PRESENT;
                 end
                 JOB_PRESENT: begin
-                    if (tile_input_ready) begin
-                        tile_input_valid <= 1'b0;
+                    if (core_input_ready) begin
+                        core_input_valid <= 1'b0;
                         if (word_index == words_total - 32'd1) begin
                             job_state <= JOB_WAIT_STATUS;
                         end else begin
@@ -157,12 +157,12 @@ module dau_bram_stream_job #(
                     end
                 end
                 JOB_WAIT_STATUS: begin
-                    if (tile_status_valid) begin
+                    if (core_status_valid) begin
                         busy <= 1'b0;
                         done <= 1'b1;
-                        error <= tile_status_error;
-                        error_code <= tile_status_error_code;
-                        result_length_bytes <= tile_status_error ? 32'd0 : ({{(32 - OUTPUT_ADDR_WIDTH) {1'b0}}, out_index} << 3);
+                        error <= core_status_error;
+                        error_code <= core_status_error_code;
+                        result_length_bytes <= core_status_error ? 32'd0 : ({{(32 - OUTPUT_ADDR_WIDTH) {1'b0}}, out_index} << 3);
                         job_state <= JOB_IDLE;
                     end
                 end

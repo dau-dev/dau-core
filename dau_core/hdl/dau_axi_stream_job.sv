@@ -1,21 +1,21 @@
 `default_nettype none
 
 // DDR-staged stream job runner: an AXI4 master that streams a job's input
-// window from memory through a tile and writes the tile's output stream
+// window from memory through a core and writes the core's output stream
 // back to memory.
 //
 // Read engine: pipelined INCR bursts (up to BURST_BEATS x 64-bit) with
 // multiple bursts in flight, credit-reserved against an internal FIFO so
 // rready never needs to backpressure mid-burst — memory latency is hidden
 // behind outstanding requests instead of paid per burst. input_last
-// asserts on the final word delivered to the tile. Write engine: buffers
-// tile output words and flushes INCR bursts (partial burst at stream
+// asserts on the final word delivered to the core. Write engine: buffers
+// core output words and flushes INCR bursts (partial burst at stream
 // end); done waits for the final write response. Addresses and the byte
 // length come from the job registers (the input length must be a multiple
-// of 8 bytes; tiles impose their own row grids; the host keeps staging
+// of 8 bytes; cores impose their own row grids; the host keeps staging
 // addresses 4 KiB-aligned so bursts never cross a 4 KiB boundary).
 //
-// Errors: tile status errors surface with the tile's code;
+// Errors: core status errors surface with the core's code;
 // non-OKAY AXI responses surface as ERR_AXI_READ / ERR_AXI_WRITE.
 module dau_axi_stream_job #(
     parameter int unsigned ADDR_WIDTH = 32,
@@ -62,19 +62,19 @@ module dau_axi_stream_job #(
     input  wire logic        m_axi_bvalid,
     output logic             m_axi_bready,
 
-    // tile stream
-    output logic             tile_input_valid,
-    input  wire logic        tile_input_ready,
-    output logic [63:0]      tile_input_data,
-    output logic             tile_input_last,
-    input  wire logic        tile_output_valid,
-    output logic             tile_output_ready,
-    input  wire logic [63:0] tile_output_data,
-    input  wire logic        tile_output_last,
-    input  wire logic        tile_status_valid,
-    output logic             tile_status_ready,
-    input  wire logic        tile_status_error,
-    input  wire logic [7:0]  tile_status_error_code
+    // core stream
+    output logic             core_input_valid,
+    input  wire logic        core_input_ready,
+    output logic [63:0]      core_input_data,
+    output logic             core_input_last,
+    input  wire logic        core_output_valid,
+    output logic             core_output_ready,
+    input  wire logic [63:0] core_output_data,
+    input  wire logic        core_output_last,
+    input  wire logic        core_status_valid,
+    output logic             core_status_ready,
+    input  wire logic        core_status_error,
+    input  wire logic [7:0]  core_status_error_code
 );
     localparam logic [7:0] ERR_JOB_LENGTH = 8'hFE;
     localparam logic [7:0] ERR_AXI_READ = 8'hFC;
@@ -103,7 +103,7 @@ module dau_axi_stream_job #(
 
     logic [ADDR_WIDTH-1:0] read_address;
     logic [31:0] ar_words_remaining;      // words not yet covered by an issued AR
-    logic [31:0] stream_words_remaining;  // words not yet delivered to the tile
+    logic [31:0] stream_words_remaining;  // words not yet delivered to the core
     logic [31:0] beats_unarrived;         // issued words whose data has not landed
     logic        read_error;
     logic [63:0] read_fifo [FIFO_DEPTH];
@@ -120,8 +120,8 @@ module dau_axi_stream_job #(
     logic [31:0] words_written;
     logic [7:0]  outstanding_writes;
     logic        write_error;
-    logic        tile_error_seen;
-    logic [7:0]  tile_error_code;
+    logic        core_error_seen;
+    logic [7:0]  core_error_code;
 
     // fixed AXI attributes
     assign m_axi_arsize = 3'b011;   // 8 bytes
@@ -132,29 +132,29 @@ module dau_axi_stream_job #(
     assign m_axi_bready = 1'b1;
 
     // read data lands in the FIFO (space reserved at AR issue, so rready
-    // never mid-burst-stalls the memory side) and the tile drains it
+    // never mid-burst-stalls the memory side) and the core drains it
     logic rbeat_fire;
     logic consume_fire;
     logic issue_fire;
     logic [7:0] next_burst_beats;
 
-    assign tile_input_valid = (job_state == JOB_RUN) && (fifo_count != '0);
-    assign tile_input_data = read_fifo[fifo_rd_ptr];
-    assign tile_input_last = stream_words_remaining == 32'd1;
+    assign core_input_valid = (job_state == JOB_RUN) && (fifo_count != '0);
+    assign core_input_data = read_fifo[fifo_rd_ptr];
+    assign core_input_last = stream_words_remaining == 32'd1;
     // credit reservation should make a full FIFO unreachable while beats
     // are in flight; the rready gate makes overwriting unconsumed slots
     // physically impossible regardless (deasserting mid-burst is legal)
     assign m_axi_rready = fifo_count != (FIFO_BITS + 1)'(FIFO_DEPTH);
 
     assign rbeat_fire = m_axi_rvalid && m_axi_rready;
-    assign consume_fire = tile_input_valid && tile_input_ready;
+    assign consume_fire = core_input_valid && core_input_ready;
     assign next_burst_beats = (ar_words_remaining >= BURST_BEATS) ? 8'(BURST_BEATS) : ar_words_remaining[7:0];
     assign issue_fire = (job_state == JOB_RUN) && (ar_words_remaining != 32'd0) && !m_axi_arvalid
         && (fifo_space >= {{(FIFO_BITS - 7) {1'b0}}, next_burst_beats});
 
-    // the write engine owns tile output acceptance
-    assign tile_output_ready = (job_state == JOB_RUN) && (write_state == WR_COLLECT) && (write_fill != BURST_BEATS[BURST_BITS:0]);
-    assign tile_status_ready = job_state == JOB_WAIT_STATUS;
+    // the write engine owns core output acceptance
+    assign core_output_ready = (job_state == JOB_RUN) && (write_state == WR_COLLECT) && (write_fill != BURST_BEATS[BURST_BITS:0]);
+    assign core_status_ready = job_state == JOB_WAIT_STATUS;
 
     always_ff @(posedge clk) begin
         if (rst) begin
@@ -169,8 +169,8 @@ module dau_axi_stream_job #(
                         result_length_bytes <= 32'd0;
                         read_error <= 1'b0;
                         write_error <= 1'b0;
-                        tile_error_seen <= 1'b0;
-                        tile_error_code <= 8'd0;
+                        core_error_seen <= 1'b0;
+                        core_error_code <= 8'd0;
                         words_written <= 32'd0;
                         write_fill <= '0;
                         write_index <= '0;
@@ -203,15 +203,15 @@ module dau_axi_stream_job #(
                     // leave the run only when every issued beat has landed:
                     // exiting with responses in flight would poison the
                     // next job's stream
-                    if ((stream_words_remaining == 32'd0) && (beats_unarrived == 32'd0) && tile_status_valid) begin
+                    if ((stream_words_remaining == 32'd0) && (beats_unarrived == 32'd0) && core_status_valid) begin
                         job_state <= JOB_WAIT_STATUS;
                     end
                 end
                 JOB_WAIT_STATUS: begin
                     run_write_engine();
-                    if (tile_status_valid) begin
-                        tile_error_seen <= tile_status_error;
-                        tile_error_code <= tile_status_error_code;
+                    if (core_status_valid) begin
+                        core_error_seen <= core_status_error;
+                        core_error_code <= core_status_error_code;
                         if ((write_fill != '0) && (write_state == WR_COLLECT)) begin
                             flush_pending <= 1'b1;
                         end
@@ -227,9 +227,9 @@ module dau_axi_stream_job #(
                 JOB_FINISH: begin
                     busy <= 1'b0;
                     done <= 1'b1;
-                    error <= tile_error_seen || read_error || write_error;
-                    error_code <= tile_error_seen ? tile_error_code : (read_error ? ERR_AXI_READ : (write_error ? ERR_AXI_WRITE : 8'd0));
-                    result_length_bytes <= (tile_error_seen || read_error || write_error) ? 32'd0 : (words_written << 3);
+                    error <= core_error_seen || read_error || write_error;
+                    error_code <= core_error_seen ? core_error_code : (read_error ? ERR_AXI_READ : (write_error ? ERR_AXI_WRITE : 8'd0));
+                    result_length_bytes <= (core_error_seen || read_error || write_error) ? 32'd0 : (words_written << 3);
                     job_state <= JOB_IDLE;
                 end
                 default: begin
@@ -290,10 +290,10 @@ module dau_axi_stream_job #(
         begin
             case (write_state)
                 WR_COLLECT: begin
-                    if (tile_output_valid && tile_output_ready) begin
-                        write_buffer[write_fill[BURST_BITS-1:0]] <= tile_output_data;
+                    if (core_output_valid && core_output_ready) begin
+                        write_buffer[write_fill[BURST_BITS-1:0]] <= core_output_data;
                         write_fill <= write_fill + 1'b1;
-                        if ((write_fill + 1'b1 == BURST_BEATS[BURST_BITS:0]) || tile_output_last) begin
+                        if ((write_fill + 1'b1 == BURST_BEATS[BURST_BITS:0]) || core_output_last) begin
                             write_state <= WR_ADDR;
                         end
                     end else if (flush_pending && (write_fill != '0)) begin
@@ -361,8 +361,8 @@ module dau_axi_stream_job #(
             words_written <= 32'd0;
             outstanding_writes <= 8'd0;
             write_error <= 1'b0;
-            tile_error_seen <= 1'b0;
-            tile_error_code <= 8'd0;
+            core_error_seen <= 1'b0;
+            core_error_code <= 8'd0;
             m_axi_araddr <= '0;
             m_axi_arlen <= 8'd0;
             m_axi_arvalid <= 1'b0;

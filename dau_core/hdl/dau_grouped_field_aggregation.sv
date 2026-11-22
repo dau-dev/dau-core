@@ -2,13 +2,13 @@
 
 `include "types.svh"
 
-// Generic multi-field grouped-aggregation tile (ordered close-out): over quad
+// Generic multi-field grouped-aggregation core (ordered close-out): over quad
 // rows (key, v0, v1, v2 -- the row's first four FIELD_WIDTH lanes) grouped by
 // consecutive-equal key, computes for EACH of
 // the three data fields its first / last / min / max / sum (INT64) in one pass,
 // plus the row count. Workload-agnostic — OHLCV bars are a field/stat SELECTION
 // over this record (open/high/low/close = field0 first/max/min/last, volume =
-// sum field1, ...), not a baked-in tile; the finance column assignment lives in
+// sum field1, ...), not a baked-in core; the finance column assignment lives in
 // the host / a downstream select. Matches
 // dau_core.operators.grouped_field_aggregate_rows bit-for-bit.
 //
@@ -32,7 +32,7 @@ module dau_grouped_field_aggregation #(
     // The ELEMENT TYPE of one lane, as encoded by types.svh. The 128-bit row
     // is the transport unit and stays fixed; lane i is its i-th FIELD_BITS
     // lane, the decode row-unpack packs and the quad-row filter family reads.
-    // This tile keeps the key plus DATA_FIELDS data lanes and ignores any a
+    // This core keeps the key plus DATA_FIELDS data lanes and ignores any a
     // narrower type leaves beyond them -- the lane count is what the five
     // statistics per field cost. `DAU_TYPE_INT32 is 32, so the default
     // reproduces the (key, v0, v1, v2) row port for port. The record's element
@@ -64,13 +64,13 @@ module dau_grouped_field_aggregation #(
     localparam int FIELD_BITS      = `DAU_TYPE_WIDTH(FIELD_WIDTH);
     localparam int FIELD_IS_FLOAT  = `DAU_TYPE_IS_FLOAT(FIELD_WIDTH);
     localparam int FIELD_IS_SIGNED = `DAU_TYPE_IS_SIGNED(FIELD_WIDTH);
-    localparam int LANE_BITS       = FIELDS * FIELD_BITS;  // the part of the row this tile reads
+    localparam int LANE_BITS       = FIELDS * FIELD_BITS;  // the part of the row this core reads
     localparam int DATA_BITS       = DATA_FIELDS * FIELD_BITS;  // its data lanes, key excluded
     localparam int SLOT_BITS       = 32;  // the record's element slot, fixed with the record
 
     // The upper bound is the RECORD, not the lane: first/last/min/max ride
     // 32-bit slots and each sum a 64-bit word, so a wider element would need a
-    // versioned record, i.e. a different tile. Narrowing is free.
+    // versioned record, i.e. a different core. Narrowing is free.
     if (FIELD_BITS < 8 || FIELD_BITS > 32 || (ROW_BITS % FIELD_BITS) != 0) begin : g_field_width_check
         $error("FIELD_WIDTH must divide 128 and lie in [8, 32]");
     end
@@ -79,10 +79,10 @@ module dau_grouped_field_aggregation #(
     // float it would order exponent bits as magnitude, and handed an unsigned
     // type it would read every high-bit-set value as negative.
     if (FIELD_IS_FLOAT != 0) begin : g_field_float_check
-        $error("FIELD_WIDTH must not name a floating-point type: this tile orders and sums two's-complement integers");
+        $error("FIELD_WIDTH must not name a floating-point type: this core orders and sums two's-complement integers");
     end
     if (FIELD_IS_SIGNED == 0) begin : g_field_signed_check
-        $error("FIELD_WIDTH must not name an unsigned type: this tile orders and sums two's-complement integers");
+        $error("FIELD_WIDTH must not name an unsigned type: this core orders and sums two's-complement integers");
     end
 
     typedef enum logic [4:0] {

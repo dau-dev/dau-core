@@ -16,12 +16,12 @@
 // trailing rows drop (dau_core.operators.filter_rows_by_predicate is the
 // golden). This is the q6/q19 WHERE stage.
 //
-// The filter raises its own status only for what downstream tiles cannot
+// The filter raises its own status only for what downstream cores cannot
 // see: a stream that ends with zero forwarded rows closes out with a
 // success status, a torn final row (input_last on a w0) reports ERR_STREAM,
 // and an invalid predicate config (bad opcode/combine, checked at the first
 // row of a batch and latched for the batch) drains the batch and reports
-// ERR_CONFIG. Otherwise the downstream tile's status is authoritative and
+// ERR_CONFIG. Otherwise the downstream core's status is authoritative and
 // the filter stays silent. selected_count reports the rows forwarded by the
 // current/last batch (0 after an error close-out).
 module dau_row_predicate_filter
@@ -35,7 +35,7 @@ module dau_row_predicate_filter
     // where int32 carries four.
     //
     // A plain signed integer encodes as its own width, so `DAU_TYPE_INT32 is
-    // 32 and this reproduces the four-field row the tile has always had, port
+    // 32 and this reproduces the four-field row the core has always had, port
     // for port. The type must be one this comparator can actually order:
     // signed, non-float, and a whole divisor of 128.
     parameter int FIELD_WIDTH = `DAU_TYPE_INT32
@@ -89,10 +89,10 @@ module dau_row_predicate_filter
     // unsigned type it would read every high-bit-set value as negative. Both
     // are silently wrong answers, so refuse them at elaboration.
     if (FIELD_IS_FLOAT != 0) begin : g_field_float_check
-        $error("FIELD_WIDTH must not name a floating-point type: this tile compares two's-complement integers");
+        $error("FIELD_WIDTH must not name a floating-point type: this core compares two's-complement integers");
     end
     if (FIELD_IS_SIGNED == 0) begin : g_field_signed_check
-        $error("FIELD_WIDTH must not name an unsigned type: this tile compares two's-complement integers");
+        $error("FIELD_WIDTH must not name an unsigned type: this core compares two's-complement integers");
     end
     // FIXED POINT IS ADMISSIBLE and needs no separate datapath: scaling by a
     // constant 2**-F preserves order, so comparing qI.F values is comparing
@@ -303,7 +303,7 @@ module dau_row_predicate_filter
                             if (row_match || held_valid) begin
                                 state <= STATE_FLUSH;
                             end else begin
-                                // nothing forwarded: close out for the tile
+                                // nothing forwarded: close out for the core
                                 batch_open <= 1'b0;
                                 status_valid <= 1'b1;
                                 status_error <= 1'b0;

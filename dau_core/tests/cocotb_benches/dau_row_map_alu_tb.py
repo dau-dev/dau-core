@@ -137,7 +137,7 @@ async def torn_row_mid_batch_reports_stream_error(dut):
 async def reserved_op_drains_batch_then_reports_config_error(dut):
     await _start(dut)
     _drive_config(dut, _Q6_REVENUE)
-    dut.cfg_op.value = 0  # reserved: an unconfigured tile fails explicitly
+    dut.cfg_op.value = 0  # reserved: an unconfigured core fails explicitly
     send = cocotb.start_soon(_send_rows(dut, _ROWS))
     await _expect_status(dut, error=True, code=MapErrorCode.CONFIG)
     await send
@@ -148,7 +148,7 @@ async def reserved_op_drains_batch_then_reports_config_error(dut):
 @cocotb.test()
 async def error_status_survives_backpressure(dut):
     # while status_ready is held low the error close-out must stay stable and
-    # the tile must refuse new input; recovery only after the handshake
+    # the core must refuse new input; recovery only after the handshake
     await _start(dut)
     _drive_config(dut, _Q6_REVENUE)
     dut.status_ready.value = 0
@@ -167,7 +167,7 @@ async def error_status_survives_backpressure(dut):
         assert int(dut.status_valid.value) == 1, "error status not held"
         assert int(dut.status_error.value) == 1
         assert int(dut.status_error_code.value) == MapErrorCode.STREAM
-        assert int(dut.input_ready.value) == 0, "tile accepted input while status pending"
+        assert int(dut.input_ready.value) == 0, "core accepted input while status pending"
         await RisingEdge(dut.clk)
 
     await _expect_status(dut, error=True, code=MapErrorCode.STREAM)
@@ -300,7 +300,7 @@ async def _collect_output(dut, ready_pattern, *, expect_words: int) -> list[int]
             if last == 1:
                 dut.output_ready.value = 0
                 assert len(words) == expect_words, f"expected {expect_words} words, got {len(words)}"
-                # a successful batch is silent: the downstream tile closes out
+                # a successful batch is silent: the downstream core closes out
                 await _assert_quiescent(dut)
                 return words
     raise AssertionError(f"timed out collecting map output ({len(words)}/{expect_words} words)")

@@ -10,25 +10,25 @@
 // word per selected field (two's-complement sum, ascending field index), then
 // the count word with output_last set (dau_core.operators.field_sum_rows is
 // the golden). q6's SUM(revenue) is a one-bit mask; q1's multi-sum shape is a
-// wider mask of the same core, not a new tile. Then a success close-out
-// status (the tile convention: the record writer's done waits on a consumed
+// wider mask of the same core, not a new core. Then a success close-out
+// status (the core convention: the record writer's done waits on a consumed
 // producer status); aggregated_count reports the rows accumulated by the last
 // completed batch (0 after an error close-out).
 //
 // The mask is latched at the first row of a batch; a zero mask is an
-// unconfigured tile and drains the batch to report ERR_CONFIG. input_last
+// unconfigured core and drains the batch to report ERR_CONFIG. input_last
 // on a w0 is a torn row and reports ERR_STREAM.
 module dau_field_sum_aggregation #(
     // The ELEMENT TYPE of one field, as encoded by types.svh. The 128-bit row
     // is the transport unit and stays fixed, and field i is its i-th
     // FIELD_BITS lane -- the same decode row-unpack packs and the quad-row
-    // filter family reads. This tile aggregates the FIELDS lanes it names and
+    // filter family reads. This core aggregates the FIELDS lanes it names and
     // ignores any a narrower type leaves beyond them: the lane count is what
     // the accumulators cost, so it is a resource decision rather than
     // something the element type should silently multiply.
     //
     // A plain signed integer encodes as its own width, so `DAU_TYPE_INT32 is
-    // 32 and this reproduces the four-field row the tile has always had, port
+    // 32 and this reproduces the four-field row the core has always had, port
     // for port. The sums are INT64 whatever the element is, which is why the
     // type may narrow but not widen (see the guard).
     parameter int FIELD_WIDTH = `DAU_TYPE_INT32
@@ -54,17 +54,17 @@ module dau_field_sum_aggregation #(
     localparam logic [7:0] ERR_STREAM = 8'd2;
 
     localparam int ROW_BITS = 128;   // the transport unit, fixed
-    localparam int FIELDS   = 4;     // the lanes this tile accumulates
+    localparam int FIELDS   = 4;     // the lanes this core accumulates
     // the type, taken apart: the lanes size off FIELD_BITS, and the remaining
     // facts are what the guards check the type against
     localparam int FIELD_BITS      = `DAU_TYPE_WIDTH(FIELD_WIDTH);
     localparam int FIELD_IS_FLOAT  = `DAU_TYPE_IS_FLOAT(FIELD_WIDTH);
     localparam int FIELD_IS_SIGNED = `DAU_TYPE_IS_SIGNED(FIELD_WIDTH);
-    localparam int LANE_BITS       = FIELDS * FIELD_BITS;  // the part of the row this tile reads
+    localparam int LANE_BITS       = FIELDS * FIELD_BITS;  // the part of the row this core reads
 
     // The upper bound is the RECORD, not the lane: a sum word is 64 bits, so
     // an element wider than 32 would need more sum bits than the record can
-    // express -- a versioned record, i.e. a different tile. Narrowing is free.
+    // express -- a versioned record, i.e. a different core. Narrowing is free.
     if (FIELD_BITS < 8 || FIELD_BITS > 32 || (ROW_BITS % FIELD_BITS) != 0) begin : g_field_width_check
         $error("FIELD_WIDTH must divide 128 and lie in [8, 32]");
     end
@@ -73,10 +73,10 @@ module dau_field_sum_aggregation #(
     // bits as though they were magnitude, and handed an unsigned type it would
     // read every high-bit-set value as negative. Both are silently wrong sums.
     if (FIELD_IS_FLOAT != 0) begin : g_field_float_check
-        $error("FIELD_WIDTH must not name a floating-point type: this tile sums two's-complement integers");
+        $error("FIELD_WIDTH must not name a floating-point type: this core sums two's-complement integers");
     end
     if (FIELD_IS_SIGNED == 0) begin : g_field_signed_check
-        $error("FIELD_WIDTH must not name an unsigned type: this tile sign-extends into a signed accumulator");
+        $error("FIELD_WIDTH must not name an unsigned type: this core sign-extends into a signed accumulator");
     end
 
     typedef enum logic [2:0] {
@@ -104,7 +104,7 @@ module dau_field_sum_aggregation #(
     // the row being completed: w0 was registered, w1 is on the input, and the
     // lanes are read out of the assembled row rather than out of either word,
     // because at a narrower type a lane no longer lines up with a word. Only
-    // the FIELDS lanes this tile accumulates are kept; at int32 they are the
+    // the FIELDS lanes this core accumulates are kept; at int32 they are the
     // whole row and the cast is the identity.
     logic [LANE_BITS-1:0] row_lanes;
 

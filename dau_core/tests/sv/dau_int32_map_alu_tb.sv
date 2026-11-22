@@ -140,7 +140,7 @@ module dau_int32_map_alu_tb;
             end
             begin
                 expect_output_word({32'd998, 32'd1007}, 1'b0);
-                expect_output_word({32'd0, 32'd1005}, 1'b1);  // pad lane zeroed by the tile
+                expect_output_word({32'd0, 32'd1005}, 1'b1);  // pad lane zeroed by the core
             end
         join
         expect_success();

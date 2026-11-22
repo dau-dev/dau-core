@@ -96,7 +96,7 @@ async def bucket_key_partition_overflow_is_range_error(dut):
     await _start(dut)
     dut.output_ready.value = 1
     # a partition that does not fit PART_BITS = 32 - BUCKET_BITS would alias into
-    # another group; the tile refuses with ERR_RANGE rather than truncating
+    # another group; the core refuses with ERR_RANGE rather than truncating
     over = 1 << (32 - BUCKET_BITS)  # first partition id that overflows PART_BITS
     await _send_rows(dut, [(over, 1, 64, 2, 3)])
     dut.status_ready.value = 1

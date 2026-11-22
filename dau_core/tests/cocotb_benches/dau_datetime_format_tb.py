@@ -1,6 +1,6 @@
 """The datetime formatter against its golden, character for character.
 
-This tile shipped without a bench, which an audit caught: its only test read
+This core shipped without a bench, which an audit caught: its only test read
 constants out of the SystemVerilog and exercised the Python golden, so the
 HDL was never instantiated. A resource number for a module nobody ran is a
 number about an unverified design, and that is what this file fixes.
@@ -87,9 +87,9 @@ async def _send(dut, rows) -> None:
 async def _run(dut, rows, *, expect: int | None = None, ready_pattern=None):
     """Send ``rows`` concurrently while draining.
 
-    **This tile declares ``success_close_out: False``**, so a clean batch is
+    **This core declares ``success_close_out: False``**, so a clean batch is
     contractually SILENT -- there is no status beat to wait for, and a bench
-    that waits for one hangs forever. That is not a tile defect; 23 of the 45
+    that waits for one hangs forever. That is not a core defect; 23 of the 45
     registered operators are silent on success, and the registry fact is the
     authority. So the drain ends when the expected rows have arrived, and
     only an ERROR produces a close-out.
@@ -131,7 +131,7 @@ async def renders_every_row_exactly(dut):
     await _start(dut)
     rows = [0, 1_700_000_000, 946_684_800, 1_234_567_890]
     seen, status = await _run(dut, rows)
-    assert status is None, f"a silent-on-success tile must not close out a clean batch; got {status}"
+    assert status is None, f"a silent-on-success core must not close out a clean batch; got {status}"
     assert seen == format_datetime_rows(rows), f"{seen} != {format_datetime_rows(rows)}"
 
 

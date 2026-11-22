@@ -1,4 +1,4 @@
-"""dau-core: the tile palette, the device contracts and the goldens.
+"""dau-core: the core palette, the device contracts and the goldens.
 
 Exports load on first use (:mod:`dau_core._lazy`). Importing this package
 must not import ccflow and its stack, because hydra's searchpath plugin
@@ -15,11 +15,11 @@ if TYPE_CHECKING:
     from .capability_contract import (
         CAPABILITY_CONTRACT_SCHEMA,
         CapabilityContract,
+        CoreCapability,
         LaneCapability,
-        TileCapability,
         capability_contract,
+        core_capability,
         opcode_bitmap,
-        tile_capability,
     )
     from .design import DauDesign, OperatorUnit, UnitKind, format_units, parse_units
     from .operators import (
@@ -70,11 +70,11 @@ _EXPORTS = {
     "capability_contract": (
         "CAPABILITY_CONTRACT_SCHEMA",
         "CapabilityContract",
+        "CoreCapability",
         "LaneCapability",
-        "TileCapability",
         "capability_contract",
+        "core_capability",
         "opcode_bitmap",
-        "tile_capability",
     ),
     "design": ("DauDesign", "OperatorUnit", "UnitKind", "format_units", "parse_units"),
     "operators": (

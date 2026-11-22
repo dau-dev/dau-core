@@ -192,7 +192,7 @@ async def unconfigured_kind_drains_batch_then_reports_config_error(dut):
     await _start(dut)
     await _load(dut, _build_set({7}))
     _drive_cfg(dut, load=0, mode=MembershipMode.SEMI, kind=MembershipKind.EXACT_BITMAP)
-    dut.cfg_kind.value = 0  # reserved: an unconfigured tile fails explicitly
+    dut.cfg_kind.value = 0  # reserved: an unconfigured core fails explicitly
     send = cocotb.start_soon(_send_rows(dut, _ROWS))
     await _expect_status(dut, error=True, code=MembershipErrorCode.CONFIG)
     await send

@@ -79,8 +79,8 @@ class RegisterOffset(IntEnum):
     RESULT_LENGTH_LOW = 0x007C
     RESULT_LENGTH_HIGH = 0x0080
     # two-phase load (additive): bit 0 drives the composed load-capable
-    # tiles' cfg_load ports (membership bitmap / join payload table). 1 = the
-    # next job's input scan is a LOAD image (the tile's success close-out is
+    # cores' cfg_load ports (membership bitmap / join payload table). 1 = the
+    # next job's input scan is a LOAD image (the core's success close-out is
     # the load-done); 0 (the reset default) = PROBE, i.e. today's single-phase
     # behavior. Shells built before their generator learned this register
     # ignore writes and read 0 — never a behavior change for old bitstreams.
@@ -176,7 +176,7 @@ class HandleFaultCode(IntEnum):
     -- these mean the datapath is untouched, not that it produced garbage.
 
     They sit at the top of the code space, below the shell's own 0xFE
-    length-gate fault, because that space is the shell's: a tile's error codes
+    length-gate fault, because that space is the shell's: a core's error codes
     are small and per-core (dau_core.operators), and a fault that refuses the
     job outright is not one of them."""
 
@@ -464,7 +464,7 @@ DEFAULT_STREAM_JOB_REGISTER_CONTRACT = StreamJobRegisterContract()
 # static advertisement). 0.2 adds the composed-capability words
 # (LANE_COUNT / HOST_OPCODE_BITMAP / SORT_CAPACITY) and redefines
 # OPERATOR_BITMAP as the hardware truth of the composed design: a bit is
-# set only for OperationCodes some tile executes in HDL. 0.3 adds the job
+# set only for OperationCodes some core executes in HDL. 0.3 adds the job
 # capacity words (INPUT_ROW_CAPACITY / OUTPUT_RECORD_CAPACITY).
 CURRENT_REGISTER_MAP_VERSION = RegisterMapVersion(0, 3)
 # The first version that decodes each group. A reader gates on these rather

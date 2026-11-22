@@ -1,4 +1,4 @@
-"""The rendered ln tile against the model it was rendered from.
+"""The rendered ln core against the model it was rendered from.
 
 Zero tolerance: the HDL mirrors LnDatapath.evaluate step for step, so any
 difference is a defect in one of them. Deviation from correctly rounded ln is
@@ -19,7 +19,7 @@ import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import ReadOnly, RisingEdge
 
-from dau_core.ln_generator import LnTileGenerator
+from dau_core.ln_generator import LnCoreGenerator
 from dau_core.registry import loaded_cores
 from dau_core.tests.cocotb_benches.rate_probe import assert_sustained_ingest
 
@@ -30,11 +30,11 @@ _CORE = "fixed-point-ln"
 # the datapath under test is the one the registry entry configures, so the
 # bench cannot drift from the core it is benching
 _GENERATOR = loaded_cores()[_CORE].generator
-assert isinstance(_GENERATOR, LnTileGenerator)
+assert isinstance(_GENERATOR, LnCoreGenerator)
 _POINT = _GENERATOR.datapath
 
 # The row-stream family's status codes. A non-positive input has no
-# logarithm, so the tile takes the position the sqrt tile takes for a
+# logarithm, so the core takes the position the sqrt core takes for a
 # negative radicand (SqrtErrorCode.DOMAIN): invalidate the batch rather than
 # emit a substituted number that looks right.
 _ERR_DOMAIN = 3
@@ -89,7 +89,7 @@ async def order_and_count_preserved_with_backpressure(dut):
 @cocotb.test()
 async def non_positive_source_reports_domain_error(dut):
     """ln of zero or a negative has no value. The offending row must not come
-    out with a substituted one, and the tile must recover for the next batch.
+    out with a substituted one, and the core must recover for the next batch.
 
     status_ready is held low for longer than the pipeline is deep on purpose:
     when the close-out is taken promptly it flushes the pipeline anyway, so
@@ -149,7 +149,7 @@ async def _start(dut) -> None:
     # the clock is started ONCE per test. _reset re-arms the DUT between
     # cases: calling this in a loop would leave a second free-running Clock
     # driving dut.clk, and the result would depend on which driver the
-    # simulator resolved last rather than on the tile.
+    # simulator resolved last rather than on the core.
     cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start(start_high=False))
     await _reset(dut)
 

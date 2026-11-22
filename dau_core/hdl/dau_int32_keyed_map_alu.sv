@@ -1,6 +1,6 @@
 `default_nettype none
 
-// Keyed per-row map/ALU tile (composed-pipeline stage).
+// Keyed per-row map/ALU core (composed-pipeline stage).
 //
 // Consumes one keyed row per 64-bit word ({value[31:0], key[31:0]}) and
 // applies the configured ALU operation to the selected lane

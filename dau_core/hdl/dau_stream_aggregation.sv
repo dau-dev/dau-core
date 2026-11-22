@@ -4,13 +4,13 @@
 
 // Descriptor-driven scalar aggregation over one fixed-width column: the
 // descriptor names the column's arrow-lite logical type and physical width,
-// and this tile accepts exactly the one its VALUE_WIDTH parameter names. The
+// and this core accepts exactly the one its VALUE_WIDTH parameter names. The
 // accumulator is INT64 and the result descriptor says INT64/UINT64 whatever
 // the input element is, which is why the type may narrow but not widen.
 module dau_stream_aggregation #(
     // The ELEMENT TYPE of the aggregated column, as encoded by types.svh.
     // `DAU_TYPE_INT32 is 32, so the default accepts exactly the INT32 column
-    // the tile has always accepted, descriptor field for descriptor field.
+    // the core has always accepted, descriptor field for descriptor field.
     parameter int VALUE_WIDTH = `DAU_TYPE_INT32
 ) (
     input  wire logic              clk,
@@ -48,7 +48,7 @@ module dau_stream_aggregation #(
 
     // The upper bound is the RESULT, not the lane: the accumulator and the
     // result descriptor are INT64, so a wider element could overflow a sum the
-    // result cannot express -- a versioned result, i.e. a different tile.
+    // result cannot express -- a versioned result, i.e. a different core.
     if (VALUE_BITS < 8 || VALUE_BITS > 32 || (64 % VALUE_BITS) != 0) begin : g_value_width_check
         $error("VALUE_WIDTH must divide 64 and lie in [8, 32]");
     end
@@ -56,10 +56,10 @@ module dau_stream_aggregation #(
     // into a two's-complement INT64: a float would be ordered by its exponent
     // bits, an unsigned type read as negative above its half-range.
     if (VALUE_IS_FLOAT != 0) begin : g_value_float_check
-        $error("VALUE_WIDTH must not name a floating-point type: this tile orders and sums two's-complement integers");
+        $error("VALUE_WIDTH must not name a floating-point type: this core orders and sums two's-complement integers");
     end
     if (VALUE_IS_SIGNED == 0) begin : g_value_signed_check
-        $error("VALUE_WIDTH must not name an unsigned type: this tile orders and sums two's-complement integers");
+        $error("VALUE_WIDTH must not name an unsigned type: this core orders and sums two's-complement integers");
     end
 
     localparam logic [2:0] OP_MIN   = 3'd1;

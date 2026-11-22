@@ -89,7 +89,7 @@ async def map_reserved_opcode_reports_config_error(dut):
     await _start(dut)
     _apply_config(dut, MapConfig(op=MapOp.ADD), row_count=4)
     dut.cfg_op.value = 0  # reserved opcode
-    dut.output_ready.value = 1  # drain any pre-error output (no pending buffer in this tile)
+    dut.output_ready.value = 1  # drain any pre-error output (no pending buffer in this core)
     await _send_values(dut, [1, 2, 3, 4])
     await _expect_error(dut, MapErrorCode.CONFIG)
 
@@ -132,7 +132,7 @@ async def _run_map(dut, values, config, *, ready_pattern=(1,)):
     samples = await _collect_output(dut, ready_pattern)
     await send
     await _accept_success_status(dut)
-    # 1:1 tile: word-padded output, row_count rows meaningful
+    # 1:1 core: word-padded output, row_count rows meaningful
     assert len(samples) in (len(values), len(values) + 1)
     return samples[: len(values)]
 

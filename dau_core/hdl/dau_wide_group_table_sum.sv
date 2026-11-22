@@ -17,7 +17,7 @@
 // group at close, and every entry is cleared as it is read, which leaves the
 // table empty for the next batch.
 //
-// Reset leaves the RAM as it was, so after reset the tile sweeps the table
+// Reset leaves the RAM as it was, so after reset the core sweeps the table
 // to zero, one group per cycle, before it accepts a beat: a batch cut off by
 // a reset cannot leave its sums behind for the next one.
 //

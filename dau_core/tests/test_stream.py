@@ -75,7 +75,7 @@ def test_operation_descriptor_records_float64_average_policy_and_group_key_set()
 def test_stream_aggregation_error_codes_match_hdl_contract_values():
     assert int(StreamAggregationErrorCode.DESCRIPTOR) == 1
     assert int(StreamAggregationErrorCode.OPCODE) == 2
-    assert int(StreamAggregationErrorCode.TILE) == 3
+    assert int(StreamAggregationErrorCode.CORE) == 3
 
 
 def test_each_wire_width_is_the_size_of_its_value() -> None:

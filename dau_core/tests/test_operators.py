@@ -701,7 +701,7 @@ def test_dedup_counts_each_key_once() -> None:
 
 
 def test_dedup_accumulates_across_batches() -> None:
-    # the tile's bitmap survives a batch boundary, so a scan split into
+    # the core's bitmap survives a batch boundary, so a scan split into
     # batches is ONE dedup -- per-batch counts would count a key once per
     # batch it appears in
     first = count_distinct_rows([(1, 0, 0, 0), (2, 0, 0, 0)], key_space=64)
@@ -932,7 +932,7 @@ def test_unpack_empty_input() -> None:
 
 
 def test_unpack_bypass_returns_quad_rows_unchanged() -> None:
-    # BYPASS: input is already 16-byte quad rows; the tile forwards them
+    # BYPASS: input is already 16-byte quad rows; the core forwards them
     # byte-identically, so the golden is the identity (no bit-extract)
     rows = [(0x11, 0x22, 0x33, 0x44), (568, -500, 6, 30), (-1, 2**31 - 1, 0, 255)]
     assert unpack_rows(rows, bypass=True) == rows
@@ -979,7 +979,7 @@ def test_finance_asof_is_the_generic_keyed_asof_join() -> None:
     # the as-of decomposition: the temporal-finance backward as-of (quote=build
     # {bid,ask}, trade=probe {price,size}) is exactly the generic keyed as-of
     # join over opaque payloads — the finance vocabulary lives in the host merge,
-    # not the tile
+    # not the core
     from dau_core.operators import keyed_asof_join_rows
     from dau_core.temporal import asof_backward, generate_market_stream, matched_rows
 
@@ -1026,7 +1026,7 @@ def _wrap32(value: int) -> int:
 
 
 def _heap_top_k(rows, k):
-    """Operational model of the size-k min-heap tile: fill k, then replace the
+    """Operational model of the size-k min-heap core: fill k, then replace the
     current worst-kept row (smallest key, latest arrival among ties) only when a
     new key is STRICTLY greater. Emit sorted key-desc, arrival-asc. This is the
     algorithm the hardware runs; the equivalence test proves it matches the
@@ -1096,7 +1096,7 @@ def test_streaming_top_k_matches_bounded_heap_model():
 
 
 def test_keyed_state_carries_a_dependency_per_key() -> None:
-    # the property no preceding tile has: a row's output depends on earlier
+    # the property no preceding core has: a row's output depends on earlier
     # rows with the SAME key, and is independent of rows with other keys
     rows = [(1, 5), (2, 3), (1, 4), (1, -2), (2, 10)]
 
@@ -1158,7 +1158,7 @@ def test_keyed_state_keys_and_values_live_in_the_int32_domain() -> None:
     assert code is KeyedStateErrorCode.OK  # ONE key on a 32-bit bus, not two
     assert same_key == [(-1, 1), (-1, 2)]
 
-    # a state a 32-bit port cannot carry is not a state the tile can be in
+    # a state a 32-bit port cannot carry is not a state the core can be in
     assert keyed_state_scan([(1, 2**31)], op=KeyedStateOp.SET, capacity=1)[0] == [(1, -(2**31))]
     assert keyed_state_scan([(1, 2**31)], op=KeyedStateOp.MAX, capacity=1)[0] == [(1, 0)]
     assert keyed_state_scan([(1, 1)], op=KeyedStateOp.ADD, capacity=1, initial=2**31)[0] == [(1, -(2**31) + 1)]
@@ -1311,12 +1311,12 @@ def test_hash_dispatch_records_agree_with_the_row_form() -> None:
 def test_divide_at_zero_fractional_bits_is_python_floor_division() -> None:
     """The bridge a `col_a // col_b` lowering rests on.
 
-    polars integer `//` floors, and so does this tile at FRACTIONAL_BITS=0 --
+    polars integer `//` floors, and so does this core at FRACTIONAL_BITS=0 --
     `(A << 0) // B` is just `A // B`. That equivalence is what lets a
-    column-by-column floor divide lower onto the divide tile with no host
+    column-by-column floor divide lower onto the divide core with no host
     correction, so it is pinned rather than left as a reading of the code.
 
-    The negative cases are the ones that matter: a tile truncating toward
+    The negative cases are the ones that matter: a core truncating toward
     zero would agree on every positive pair and disagree on half the rest.
     """
     import random

@@ -1,12 +1,12 @@
 `default_nettype none
 
 // Composed simulation top: dau_axi_stream_job (AXI4 master runner) driving
-// the fused bar-aggregation tile against dau_axi_ram_sim. This is the
+// the fused bar-aggregation core against dau_axi_ram_sim. This is the
 // sim-first stand-in for the DDR-staged shell datapath: the bench loads
 // rows into RAM through the backdoor, kicks a job with device addresses,
 // and reads the bar records back out of RAM. cfg_row_count mirrors the MM
 // shell binding (16-byte rows: input_length_bytes >> 4); bar_count latches
-// at the tile status fire exactly as the generated shells latch
+// at the core status fire exactly as the generated shells latch
 // PIPELINE_GROUP_COUNT.
 module dau_axi_bar_job_sim #(
     parameter int unsigned MEM_WORDS = 65536
@@ -56,19 +56,19 @@ module dau_axi_bar_job_sim #(
     logic        m_axi_bvalid;
     logic        m_axi_bready;
 
-    logic        tile_input_valid;
-    logic        tile_input_ready;
-    logic [63:0] tile_input_data;
-    logic        tile_input_last;
-    logic        tile_output_valid;
-    logic        tile_output_ready;
-    logic [63:0] tile_output_data;
-    logic        tile_output_last;
-    logic        tile_status_valid;
-    logic        tile_status_ready;
-    logic        tile_status_error;
-    logic [7:0]  tile_status_error_code;
-    logic [63:0] tile_bar_count;
+    logic        core_input_valid;
+    logic        core_input_ready;
+    logic [63:0] core_input_data;
+    logic        core_input_last;
+    logic        core_output_valid;
+    logic        core_output_ready;
+    logic [63:0] core_output_data;
+    logic        core_output_last;
+    logic        core_status_valid;
+    logic        core_status_ready;
+    logic        core_status_error;
+    logic [7:0]  core_status_error_code;
+    logic [63:0] core_bar_count;
 
     dau_axi_stream_job #(
         .ADDR_WIDTH(32),
@@ -111,38 +111,38 @@ module dau_axi_bar_job_sim #(
         .m_axi_bresp(m_axi_bresp),
         .m_axi_bvalid(m_axi_bvalid),
         .m_axi_bready(m_axi_bready),
-        .tile_input_valid(tile_input_valid),
-        .tile_input_ready(tile_input_ready),
-        .tile_input_data(tile_input_data),
-        .tile_input_last(tile_input_last),
-        .tile_output_valid(tile_output_valid),
-        .tile_output_ready(tile_output_ready),
-        .tile_output_data(tile_output_data),
-        .tile_output_last(tile_output_last),
-        .tile_status_valid(tile_status_valid),
-        .tile_status_ready(tile_status_ready),
-        .tile_status_error(tile_status_error),
-        .tile_status_error_code(tile_status_error_code)
+        .core_input_valid(core_input_valid),
+        .core_input_ready(core_input_ready),
+        .core_input_data(core_input_data),
+        .core_input_last(core_input_last),
+        .core_output_valid(core_output_valid),
+        .core_output_ready(core_output_ready),
+        .core_output_data(core_output_data),
+        .core_output_last(core_output_last),
+        .core_status_valid(core_status_valid),
+        .core_status_ready(core_status_ready),
+        .core_status_error(core_status_error),
+        .core_status_error_code(core_status_error_code)
     );
 
-    dau_bar_aggregation tile (
+    dau_bar_aggregation core (
         .clk(clk),
         .rst(rst),
         .cfg_mode(2'd0),
         .cfg_row_count({36'd0, input_length_bytes[31:4]}),
-        .input_valid(tile_input_valid),
-        .input_ready(tile_input_ready),
-        .input_data(tile_input_data),
-        .input_last(tile_input_last),
-        .output_valid(tile_output_valid),
-        .output_ready(tile_output_ready),
-        .output_data(tile_output_data),
-        .output_last(tile_output_last),
-        .status_valid(tile_status_valid),
-        .status_ready(tile_status_ready),
-        .status_error(tile_status_error),
-        .status_error_code(tile_status_error_code),
-        .bar_count(tile_bar_count)
+        .input_valid(core_input_valid),
+        .input_ready(core_input_ready),
+        .input_data(core_input_data),
+        .input_last(core_input_last),
+        .output_valid(core_output_valid),
+        .output_ready(core_output_ready),
+        .output_data(core_output_data),
+        .output_last(core_output_last),
+        .status_valid(core_status_valid),
+        .status_ready(core_status_ready),
+        .status_error(core_status_error),
+        .status_error_code(core_status_error_code),
+        .bar_count(core_bar_count)
     );
 
     dau_axi_ram_sim #(
@@ -186,8 +186,8 @@ module dau_axi_bar_job_sim #(
     always_ff @(posedge clk) begin
         if (rst) begin
             bar_count <= 64'd0;
-        end else if (tile_status_valid && tile_status_ready) begin
-            bar_count <= tile_bar_count;
+        end else if (core_status_valid && core_status_ready) begin
+            bar_count <= core_bar_count;
         end
     end
 endmodule

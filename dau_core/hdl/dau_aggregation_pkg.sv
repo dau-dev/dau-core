@@ -1,7 +1,7 @@
 `default_nettype none
 
 // Shared aggregation step semantics. Single source of truth for the
-// accumulate step used by the aggregation tile and the stream modules;
+// accumulate step used by the aggregation core and the stream modules;
 // matches the dau_core.operators golden semantics for MIN/MAX/SUM/COUNT.
 //
 // THE SAMPLE ARRIVES ALREADY SIGN-EXTENDED to 64 bits. It used to arrive as a
@@ -9,7 +9,7 @@
 // int32 for no reason: the accumulator is INT64 either way, and the only
 // width-dependent step is the extension, which the caller is the one that
 // knows the element's type. Widening at the call site is what lets the three
-// descriptor tiles carry an element-type parameter without a second package.
+// descriptor cores carry an element-type parameter without a second package.
 package dau_aggregation_pkg;
 
     localparam logic [2:0] DAU_OP_MIN   = 3'd1;

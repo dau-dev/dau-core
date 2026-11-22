@@ -7,9 +7,9 @@
 //     grouped-field-aggregator ─> [bar→roll] ─> rolling-moments
 //
 // The two bracketed modules are datapath reshape glue (below): a wide feature
-// record projected to the bucket tile's row, and a bar record projected to the
-// rolling tile's {close, symbol} row (decoding the composite key). The generic
-// tiles (as-of, feature, time-bucket-key, grouped-field-aggregation,
+// record projected to the bucket core's row, and a bar record projected to the
+// rolling core's {close, symbol} row (decoding the composite key). The generic
+// cores (as-of, feature, time-bucket-key, grouped-field-aggregation,
 // rolling-moments) are unchanged.
 //
 // Scope: a non-empty single-job demonstration (one reset per run) — the

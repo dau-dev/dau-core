@@ -1,6 +1,6 @@
 `default_nettype none
 
-// Shared predicate semantics for every filter tile: one definition of the
+// Shared predicate semantics for every filter core: one definition of the
 // comparison opcodes and the two-term combine so single-stream and keyed
 // filters cannot drift (dau_core.operators.FilterPredicate is the golden).
 package dau_predicate_pkg;
@@ -22,7 +22,7 @@ package dau_predicate_pkg;
     endfunction
 
     // Compares at the WIDEST field width the palette supports, so one
-    // comparison serves int8/int16/int32/int64 tiles alike.
+    // comparison serves int8/int16/int32/int64 cores alike.
     //
     // Callers MUST sign-extend their field to this width -- `64'(signed'(f))`
     // where f is FIELD_WIDTH bits. A narrow UNSIGNED vector passed here

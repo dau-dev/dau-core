@@ -1,10 +1,10 @@
-"""Byte layouts of the rows and records the row, grouped and bar tiles
+"""Byte layouts of the rows and records the row, grouped and bar cores
 exchange with the host.
 
 A layout is a tuple of ``(field, kind)`` pairs in wire order, little-endian,
-with ``kind`` a numpy-style code (``i4``, ``u4``, ``i8``, ``u8``). The tiles'
+with ``kind`` a numpy-style code (``i4``, ``u4``, ``i8``, ``u8``). The cores'
 registry entries declare the same records in 64-bit words (``record_words``
-and ``output_record_words``), and the suite checks the two agree, so a tile
+and ``output_record_words``), and the suite checks the two agree, so a core
 that changes its record width fails there rather than on the host.
 
 Field names follow the goldens' result types (``GroupAggregate``,
@@ -36,7 +36,7 @@ Layout = tuple[tuple[str, str], ...]
 
 _STRUCT_CODES = {"i4": "i", "u4": "I", "i8": "q", "u8": "Q"}
 
-# the row tiles' input: four int32 fields in ``RowField`` order
+# the row cores' input: four int32 fields in ``RowField`` order
 QUAD_ROW_FIELDS: Layout = (("key", "i4"), ("value", "i4"), ("aux0", "i4"), ("aux1", "i4"))
 # grouped-aggregation input: one (key, value) pair per row
 KEYED_ROW_FIELDS: Layout = (("key", "i4"), ("value", "u4"))

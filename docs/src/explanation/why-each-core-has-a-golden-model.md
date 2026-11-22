@@ -1,21 +1,21 @@
-# Why each tile has a golden model
+# Why each core has a golden model
 
-Every operator tile in `dau-core` has a pure-Python function that computes
-what the tile computes. The tile's cocotb bench runs the HDL and the
+Every operator core in `dau-core` has a pure-Python function that computes
+what the core computes. The core's cocotb bench runs the HDL and the
 function on the same inputs and asserts the outputs are identical. That
-function is the tile's *golden*, and it defines what the tile means. No
+function is the core's *golden*, and it defines what the core means. No
 prose specification does.
 
 ## Where prose specifications go wrong
 
 A specification written in prose gets interpreted twice: once by the person
 writing the HDL and once by the person writing the host code that reads the
-tile's output. The two readings agree only if the prose was unambiguous,
+core's output. The two readings agree only if the prose was unambiguous,
 and prose is weakest in exactly the places hardware and software tend to
 drift apart: tie-breaking, boundary values, overflow, and output order. The
 drift stays invisible until a result is wrong.
 
-Saying a top-k tile emits its rows "in sorted order" leaves two questions
+Saying a top-k core emits its rows "in sorted order" leaves two questions
 open: sorted by what, and which of two equal keys comes first. A sentence
 can be read either way. A function cannot.
 
@@ -33,7 +33,7 @@ on the golden models to get the answer the device would produce. That lets
 anyone check a device result without a device, and it keeps the host path
 consistent with the device path by definition.
 
-**A disagreement has to be resolved.** When a tile's HDL and its golden
+**A disagreement has to be resolved.** When a core's HDL and its golden
 disagree, the bench fails and someone has to decide which is right. These
 decisions are often informative. One showed that the hash-mode grouped
 aggregation's golden returned partial results on overflow while the HDL
@@ -46,10 +46,10 @@ A golden also defines:
 
 - **Ordering.** `streaming_top_k` emits rows by descending key, with ties
   broken by arrival, earliest first. That is part of the contract, so the
-  tile cannot use a structure that evicts in a different order, however much
+  core cannot use a structure that evicts in a different order, however much
   faster it would be.
 - **Errors.** Golden functions return a status code with their results. The
-  code values are the tile's `status_error_code` wire encoding, so the two
+  code values are the core's `status_error_code` wire encoding, so the two
   cannot drift apart unnoticed.
 - **Domain.** Keys and fields are fixed-width *wires*, so `-1` and
   `0xFFFFFFFF` are the same 32-bit key. Goldens wrap into that domain
@@ -64,6 +64,6 @@ it in place of hardware. It is written for clarity over speed, since its job
 is to be read alongside the HDL.
 
 It also contains no hardware structure. The golden for a systolic array is a
-sorted list, and the golden for a hash table is a dictionary. The tile can
-be built any way that produces identical output, which is what lets a tile
+sorted list, and the golden for a hash table is a dictionary. The core can
+be built any way that produces identical output, which is what lets a core
 be retimed, pipelined, or rewritten without changing what it means.

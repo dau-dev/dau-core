@@ -43,7 +43,7 @@ def test_the_registered_point_is_correctly_rounded_over_every_input() -> None:
     assert (worst, wrong) == (CDF_MEASURED_ULP, 0), f"{wrong:,} of {checked:,} inputs wrong, worst {worst} ULP"
 
 
-def test_the_tile_is_total_and_saturates_exactly() -> None:
+def test_the_core_is_total_and_saturates_exactly() -> None:
     """No error path: every int32 input has an answer, and the saturation IS
     the correctly rounded value rather than a clamp."""
     low, high = normal_cdf_domain()

@@ -8,7 +8,7 @@ order they matter:
    fast run and a wrong answer, so the checksum must be non-zero and the
    response must never be an error.
 2. **the depth is really reached.** `peak_outstanding` says how many reads
-   were genuinely in flight. A tile that claims MAX_OUTSTANDING=16 and only
+   were genuinely in flight. A core that claims MAX_OUTSTANDING=16 and only
    ever holds one would measure the memory correctly and the design wrongly.
 3. **cycles per probe FALL as depth rises.** This is the whole argument: at
    depth 1 the rate is 1/latency, which is what `dau_axi_burst_reader` gets
@@ -74,7 +74,7 @@ async def every_probe_returns(dut):
 
 @cocotb.test()
 async def the_configured_depth_is_actually_reached(dut):
-    """A tile that claims a depth and holds one read would measure the
+    """A core that claims a depth and holds one read would measure the
     memory correctly and the design wrongly."""
     _elapsed, peak, _checksum = await _run(dut)
     configured = int(dut.MAX_OUTSTANDING.value) if hasattr(dut, "MAX_OUTSTANDING") else None

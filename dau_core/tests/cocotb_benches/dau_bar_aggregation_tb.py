@@ -18,21 +18,21 @@ _TRADES = [
 
 
 @cocotb.test()
-async def bar_tile_matches_golden(dut):
+async def bar_core_matches_golden(dut):
     await _start(dut)
     bars = await _run_bars(dut, _TRADES)
     assert bars == bar_aggregate_rows(_TRADES)
 
 
 @cocotb.test()
-async def bar_tile_backpressure_both_sides(dut):
+async def bar_core_backpressure_both_sides(dut):
     await _start(dut)
     bars = await _run_bars(dut, _TRADES, ready_pattern=(1, 0, 0, 1, 0))
     assert bars == bar_aggregate_rows(_TRADES)
 
 
 @cocotb.test()
-async def bar_tile_single_row_and_reappearing_key(dut):
+async def bar_core_single_row_and_reappearing_key(dut):
     await _start(dut)
     assert await _run_bars(dut, [(9, -42, 5, 0)]) == [BarAggregate(key=9, open=-42, close=-42, low=-42, high=-42, shares=5, frac=0, count=1)]
     rows = [(5, 1, 1, 0), (7, 2, 2, 0), (5, 3, 3, 0)]
@@ -42,14 +42,14 @@ async def bar_tile_single_row_and_reappearing_key(dut):
 
 
 @cocotb.test()
-async def bar_tile_key_change_on_final_row(dut):
+async def bar_core_key_change_on_final_row(dut):
     await _start(dut)
     rows = [(1, 10, 1, 0), (1, 20, 2, 0), (2, 30, 3, 5)]
     assert await _run_bars(dut, rows) == bar_aggregate_rows(rows)
 
 
 @cocotb.test()
-async def bar_tile_int64_sums(dut):
+async def bar_core_int64_sums(dut):
     await _start(dut)
     rows = [(3, 1, 2**31 - 1, 999_999)] * 5
     bars = await _run_bars(dut, rows)
@@ -58,7 +58,7 @@ async def bar_tile_int64_sums(dut):
 
 
 @cocotb.test()
-async def bar_tile_repeated_batches_reset(dut):
+async def bar_core_repeated_batches_reset(dut):
     await _start(dut)
     assert await _run_bars(dut, _TRADES) == bar_aggregate_rows(_TRADES)
     second = [(572, 100, 1, 0)]  # same key as previous tail: fresh bar
@@ -66,7 +66,7 @@ async def bar_tile_repeated_batches_reset(dut):
 
 
 @cocotb.test()
-async def bar_tile_reserved_mode_reports_config_error(dut):
+async def bar_core_reserved_mode_reports_config_error(dut):
     await _start(dut)
     _apply_config(dut, row_count=1)
     dut.cfg_mode.value = 1
@@ -76,7 +76,7 @@ async def bar_tile_reserved_mode_reports_config_error(dut):
 
 
 @cocotb.test()
-async def bar_tile_truncated_row_reports_stream_error(dut):
+async def bar_core_truncated_row_reports_stream_error(dut):
     await _start(dut)
     _apply_config(dut, row_count=1)
     dut.output_ready.value = 1
@@ -96,7 +96,7 @@ async def bar_tile_truncated_row_reports_stream_error(dut):
 
 
 @cocotb.test()
-async def bar_tile_short_stream_reports_stream_error(dut):
+async def bar_core_short_stream_reports_stream_error(dut):
     await _start(dut)
     _apply_config(dut, row_count=4)
     dut.output_ready.value = 1

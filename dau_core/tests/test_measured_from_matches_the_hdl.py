@@ -13,10 +13,10 @@ accident, months later, while attributing something else.
 
 ``measured_from`` closes that. It stamps the recorded numbers with a digest
 of the HDL closure they describe (:meth:`CoreDefinition.hdl_closure_digest`
--- the tile's own source, the packages it imports, the headers it includes),
+-- the core's own source, the packages it imports, the headers it includes),
 and this module recomputes it. An edit to any of those files fails HERE,
-naming the tile, in the fast job, seconds after the edit -- which is the
-property that matters: the check fires on exactly the tiles a change
+naming the core, in the fast job, seconds after the edit -- which is the
+property that matters: the check fires on exactly the cores a change
 TOUCHED, not on the ones somebody remembers to look at.
 """
 
@@ -30,7 +30,7 @@ from dau_core.cores import (
     CoreKind,
     UnknownCoreSourceError,
 )
-from dau_core.exp_generator import ExpTileGenerator
+from dau_core.exp_generator import ExpCoreGenerator
 from dau_core.registry import loaded_cores
 from dau_core.tests.test_cores import OWN_PACKAGE, own_cores
 
@@ -59,15 +59,15 @@ def _resolve(name: str):
 # never binds on anything, forever, since nothing would ever force a stamp.
 #
 # So it is allowed and PINNED, in the exact-set style this suite already uses
-# for `UNMIGRATED_SCALAR_ENVELOPES` and `WIDTH_NAMED_TILES`, asserted in BOTH
-# directions. A tile that gains a stamp must leave this set or the test fails.
-# A NEW tile, or one whose numbers are re-measured, cannot arrive unstamped
+# for `UNMIGRATED_SCALAR_ENVELOPES` and `WIDTH_NAMED_CORES`, asserted in BOTH
+# directions. A core that gains a stamp must leave this set or the test fails.
+# A NEW core, or one whose numbers are re-measured, cannot arrive unstamped
 # without adding a line here that a reviewer has to accept. The set can only
 # shrink, and the suite -- not whoever last read the yaml -- owns the count.
 #
 # 54 as of 2026-08-18, which was every measured core in the palette; 48
 # once the map/ALU family re-measured its whole recorded surface -- all
-# nine of the wide tile's coordinates, all four of each other tile's --
+# nine of the wide core's coordinates, all four of each other core's --
 # and stamped what came back.
 # Empty as of 2026-10-07: the remaining 47 were re-synthesized at their
 # default coordinate on both parts (and the drifted ones at 10 ns too),
@@ -81,14 +81,14 @@ def _measured_own_cores() -> tuple[CoreDefinition, ...]:
 
 
 def test_every_stamped_envelope_matches_its_hdl_closure() -> None:
-    """THE GUARD. A stamped tile's HDL must still digest to what its numbers
+    """THE GUARD. A stamped core's HDL must still digest to what its numbers
     were recorded against.
 
     Failing here does NOT mean the numbers are wrong -- it means nobody has
     said whether they are. There are exactly two honest ways out and neither
     is editing the digest to match:
 
-    1. Re-measure the tile's recorded coordinates through
+    1. Re-measure the core's recorded coordinates through
        ``dau-build task=tasks/build/synthesize-cores`` and record what comes
        back, stamp included.
     2. Show the edit is netlist-neutral -- one control coordinate reporting
@@ -104,7 +104,7 @@ def test_every_stamped_envelope_matches_its_hdl_closure() -> None:
             closure = ", ".join(name for name, _ in definition.hdl_closure(_resolve))
             stale.append(f"{definition.name}: recorded {definition.measured_from}, HDL now digests to {current} (closure: {closure})")
     assert not stale, (
-        "these tiles' HDL has changed since their resource numbers were measured, so the registry is pricing designs "
+        "these cores' HDL has changed since their resource numbers were measured, so the registry is pricing designs "
         "against RTL that no longer exists:\n  " + "\n  ".join(stale) + "\n"
         "Re-measure through `dau-build task=tasks/build/synthesize-cores` and record what comes back, or show the edit "
         "is netlist-neutral at a control coordinate and re-stamp with that evidence."
@@ -113,7 +113,7 @@ def test_every_stamped_envelope_matches_its_hdl_closure() -> None:
 
 def test_the_unstamped_envelopes_are_exactly_the_declared_ones() -> None:
     """Both directions, for the reason every exact set in this suite is:
-    a stale name means a tile got stamped and nobody tightened the guard, and
+    a stale name means a core got stamped and nobody tightened the guard, and
     an unlisted name means a measurement shipped with no record of what it
     measured."""
     unstamped = {definition.name for definition in _measured_own_cores() if definition.measured_from is None}
@@ -121,46 +121,46 @@ def test_the_unstamped_envelopes_are_exactly_the_declared_ones() -> None:
     assert not stamped_but_still_listed, f"stamped -- remove from UNSTAMPED_ENVELOPES: {sorted(stamped_but_still_listed)}"
     newly_unstamped = unstamped - UNSTAMPED_ENVELOPES
     assert not newly_unstamped, (
-        f"these tiles record resource numbers with no record of the RTL they were measured against: {sorted(newly_unstamped)}. "
+        f"these cores record resource numbers with no record of the RTL they were measured against: {sorted(newly_unstamped)}. "
         "`dau-build task=tasks/build/synthesize-cores` reports the digest to stamp beside the numbers"
     )
 
 
 def test_every_core_has_a_computable_hdl_closure() -> None:
-    """A closure that cannot be resolved is a defect whether or not the tile
+    """A closure that cannot be resolved is a defect whether or not the core
     is stamped yet -- otherwise a missing header or an unregistered dependency
-    stays invisible until the day somebody first tries to stamp that tile."""
+    stays invisible until the day somebody first tries to stamp that core."""
     for definition in own_cores():
         digest = definition.hdl_closure_digest(_resolve)
         assert digest.startswith(f"{HDL_CLOSURE_DIGEST_VERSION}:"), definition.name
         assert definition.hdl_closure(_resolve), definition.name
 
 
-def test_the_closure_holds_the_packages_a_tile_imports_and_the_headers_it_includes() -> None:
+def test_the_closure_holds_the_packages_a_core_imports_and_the_headers_it_includes() -> None:
     """The two directions that decide whether the guard works.
 
     Too permissive and it misses the edit that matters: a package edit must
-    reach every tile that imports it. Too strict and every unrelated edit
-    re-measures the world: a header a tile does not include must not reach it.
+    reach every core that imports it. Too strict and every unrelated edit
+    re-measures the world: a header a core does not include must not reach it.
     """
     map_alu = loaded_cores()["int32-map-alu"]
     closure = dict(map_alu.hdl_closure(_resolve))
-    assert f"{OWN_PACKAGE}/dau_map_alu_pkg.sv" in closure, "a package a tile imports is in its closure"
-    assert f"{OWN_PACKAGE}/types.svh" not in closure, "a header a tile does not include is not in its closure"
+    assert f"{OWN_PACKAGE}/dau_map_alu_pkg.sv" in closure, "a package a core imports is in its closure"
+    assert f"{OWN_PACKAGE}/types.svh" not in closure, "a header a core does not include is not in its closure"
 
     predicate_filter = loaded_cores()["row-predicate-filter"]
     included = dict(predicate_filter.hdl_closure(_resolve))
-    assert f"{OWN_PACKAGE}/types.svh" in included, "a header a tile DOES include is in its closure"
+    assert f"{OWN_PACKAGE}/types.svh" in included, "a header a core DOES include is in its closure"
     assert f"{OWN_PACKAGE}/dau_predicate_pkg.sv" in included
 
 
 def test_a_generated_core_is_digested_from_its_rendered_text() -> None:
-    """A generated tile has no checked-in `.sv`, so a digest over files on
+    """A generated core has no checked-in `.sv`, so a digest over files on
     disk would be blind to the one thing that decides its RTL. Its constants
     live in the generator and in the registry entry's generator config; move
     either and the digest must move."""
     definition = loaded_cores()["fixed-point-exp"]
-    assert isinstance(definition.generator, ExpTileGenerator)
+    assert isinstance(definition.generator, ExpCoreGenerator)
     before = definition.hdl_closure_digest(_resolve)
     datapath = definition.generator.datapath
     moved = definition.model_copy(
@@ -169,10 +169,10 @@ def test_a_generated_core_is_digested_from_its_rendered_text() -> None:
     assert moved.hdl_closure_digest(lambda name: moved if name == moved.name else _resolve(name)) != before
 
 
-def test_a_moved_dependency_moves_every_dependent_tiles_digest(tmp_path, monkeypatch) -> None:
+def test_a_moved_dependency_moves_every_dependent_cores_digest(tmp_path, monkeypatch) -> None:
     """Proved by construction rather than by being green: editing a shared
-    package must fail the tiles that import it, which is the case a per-file
-    stamp on the tile alone would miss."""
+    package must fail the cores that import it, which is the case a per-file
+    stamp on the core alone would miss."""
     package = loaded_cores()["map-alu-pkg"]
     original = package.source_path().read_bytes()
     definition = loaded_cores()["int32-map-alu"]
@@ -213,7 +213,7 @@ def test_an_unregistered_dependency_refuses_rather_than_digesting_a_partial_clos
 
 def test_a_stamp_without_a_measurement_is_refused() -> None:
     """The stamp says which RTL a measurement describes; without one it says
-    nothing and reads as though the tile were checked."""
+    nothing and reads as though the core were checked."""
     with pytest.raises(ValueError, match="records no resources"):
         CoreDefinition(
             name="stamped-but-unmeasured",

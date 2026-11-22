@@ -2,7 +2,7 @@
 
 `include "types.svh"
 
-// Streaming top-k tile (ORDER BY <key> DESC LIMIT K): over quad rows
+// Streaming top-k core (ORDER BY <key> DESC LIMIT K): over quad rows
 // (key, v0, v1, v2) keeps the K rows with the largest signed FIELD_WIDTH sort
 // key (field 0), breaking ties by arrival order (earliest wins), and at close-out
 // drains them sorted key-descending (ties arrival-ascending). This is the
@@ -31,12 +31,12 @@
 module dau_streaming_top_k #(
     parameter int K = 8,
     // The ELEMENT TYPE of the row's lanes, as encoded by types.svh -- one
-    // type for the key and the three payload lanes, because two lanes tile
+    // type for the key and the three payload lanes, because two lanes core
     // each 64-bit word and the drained record mirrors the accepted one. A
     // narrower type therefore packs the row into less of the two words rather
     // than changing the beat. A plain signed integer encodes as its own
     // width, so `DAU_TYPE_INT32 is 32 and this reproduces the quad row the
-    // tile has always had. The array ORDERS two's-complement magnitudes, so
+    // core has always had. The array ORDERS two's-complement magnitudes, so
     // the type must be one it can order: signed and non-float.
     parameter int FIELD_WIDTH = `DAU_TYPE_INT32
 ) (
@@ -67,7 +67,7 @@ module dau_streaming_top_k #(
     if (K < 1 || K > 128) begin : g_param_check
         $error("K must be in [1, 128]");
     end
-    // two lanes tile each 64-bit stream word, so the pair must fit it and
+    // two lanes core each 64-bit stream word, so the pair must fit it and
     // divide it evenly
     if (FIELD_BITS < 8 || FIELD_BITS > 32 || (64 % FIELD_BITS) != 0) begin : g_field_width_check
         $error("FIELD_WIDTH must divide 64 and lie in [8, 32]");
@@ -79,10 +79,10 @@ module dau_streaming_top_k #(
     // refuse them at elaboration. Fixed point is admissible unchanged --
     // scaling by a constant 2**-F preserves order.
     if (FIELD_IS_FLOAT != 0) begin : g_field_float_check
-        $error("FIELD_WIDTH must not name a floating-point type: this tile orders two's-complement integers");
+        $error("FIELD_WIDTH must not name a floating-point type: this core orders two's-complement integers");
     end
     if (FIELD_IS_SIGNED == 0) begin : g_field_signed_check
-        $error("FIELD_WIDTH must not name an unsigned type: this tile orders two's-complement integers");
+        $error("FIELD_WIDTH must not name an unsigned type: this core orders two's-complement integers");
     end
 
     typedef enum logic [2:0] {

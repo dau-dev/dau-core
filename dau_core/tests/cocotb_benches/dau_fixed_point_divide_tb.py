@@ -1,8 +1,8 @@
-"""The fixed-point divide tile against its golden, with NO tolerance.
+"""The fixed-point divide core against its golden, with NO tolerance.
 
 The quotient is exact by construction -- `(A << F) // B` -- and FLOOR, which
 is the convention MULSHR already set with its arithmetic shift. The negative
-cases here are the ones that would catch a tile that truncated toward zero
+cases here are the ones that would catch a core that truncated toward zero
 instead, because that is the plausible wrong choice.
 """
 
@@ -152,7 +152,7 @@ async def zero_divisor_reports_domain_error(dut):
 
 @cocotb.test()
 async def overflowing_quotient_reports_range_error(dut):
-    """1.0 / (1 * 2**-16) is 2**32: defined, but not an int32. The tile must
+    """1.0 / (1 * 2**-16) is 2**32: defined, but not an int32. The core must
     refuse rather than wrap or saturate."""
     await _start(dut)
     _drive_config(dut, _DIVIDE)
@@ -194,7 +194,7 @@ async def refused_rows_never_escape_while_the_close_out_waits(dut):
     would be dropped before it retired, making the guard look redundant.
     Hold status_ready low for longer than the pipeline is deep and the row
     reaches the output instead -- which is the case that must not emit a
-    quotient the tile does not have.
+    quotient the core does not have.
     """
     for label, bad_row, code in (
         ("zero divisor", (2, _ONE, 0, 0), DivideErrorCode.DOMAIN),
@@ -251,7 +251,7 @@ async def error_status_survives_backpressure(dut):
         await ReadOnly()
         assert int(dut.status_valid.value) == 1, "error status not held"
         assert int(dut.status_error_code.value) == DivideErrorCode.STREAM
-        assert int(dut.input_ready.value) == 0, "tile accepted input while status pending"
+        assert int(dut.input_ready.value) == 0, "core accepted input while status pending"
         await RisingEdge(dut.clk)
 
     await _expect_status(dut, error=True, code=DivideErrorCode.STREAM)

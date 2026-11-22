@@ -352,7 +352,7 @@ async def field_select_latches_at_first_row(dut):
 @cocotb.test()
 async def error_status_survives_backpressure(dut):
     # while status_ready is held low the error close-out stays stable and the
-    # tile refuses new input; recovery only after the handshake
+    # core refuses new input; recovery only after the handshake
     await _start(dut)
     await _load(dut, _BUILD)
     _drive_cfg(dut, load=0, cfg=_CARRY_BUILD)
@@ -372,7 +372,7 @@ async def error_status_survives_backpressure(dut):
         assert int(dut.status_valid.value) == 1, "error status not held"
         assert int(dut.status_error.value) == 1
         assert int(dut.status_error_code.value) == JoinErrorCode.STREAM
-        assert int(dut.input_ready.value) == 0, "tile accepted input while status pending"
+        assert int(dut.input_ready.value) == 0, "core accepted input while status pending"
         await RisingEdge(dut.clk)
 
     await _expect_status(dut, error=True, code=JoinErrorCode.STREAM)
@@ -382,7 +382,7 @@ async def error_status_survives_backpressure(dut):
 @cocotb.test()
 async def success_status_survives_backpressure(dut):
     # the zero-emitted-row success close-out holds stable while status_ready is
-    # low and the tile refuses new input until the handshake completes
+    # low and the core refuses new input until the handshake completes
     await _start(dut)
     await _load(dut, _BUILD)
     _drive_cfg(dut, load=0, cfg=_CARRY_BUILD)
@@ -402,7 +402,7 @@ async def success_status_survives_backpressure(dut):
         assert int(dut.status_valid.value) == 1, "success status not held"
         assert int(dut.status_error.value) == 0
         assert int(dut.status_error_code.value) == 0
-        assert int(dut.input_ready.value) == 0, "tile accepted input while status pending"
+        assert int(dut.input_ready.value) == 0, "core accepted input while status pending"
         await RisingEdge(dut.clk)
 
     await _expect_status(dut, error=False)
@@ -439,7 +439,7 @@ async def status_close_out_waits_for_backpressured_tail(dut):
     # Cross-batch re-arm under output backpressure (the emit-drain gate). Batch
     # A emits two joined rows and its final beat is held under backpressure;
     # batch B follows immediately and would raise a success close-out (zero
-    # emitted rows). The tile must not present B's close-out until A's last
+    # emitted rows). The core must not present B's close-out until A's last
     # output beat has handshaked -- otherwise B's per-batch close-out overtakes
     # A's still-in-flight tail (the lane status mux serialises one close-out per
     # batch, and the record writer's done waits on it).
@@ -691,7 +691,7 @@ async def _probe(dut, rows, cfg: BroadcastJoinConfig, *, ready_pattern=(1,)):
 
 
 async def _collect_probe_output(dut, ready_pattern) -> list[int]:
-    # collect emitted row words until output_last, then confirm the tile stays
+    # collect emitted row words until output_last, then confirm the core stays
     # silent (rows emitted -> the downstream terminal owns the status); when
     # zero rows emit, the success close-out arrives with no output beats.
     words: list[int] = []

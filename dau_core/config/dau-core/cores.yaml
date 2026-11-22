@@ -1,5 +1,5 @@
 # @package dau-core
-# The dau-core tile registry: one CoreDefinition per HDL building block,
+# The dau-core core registry: one CoreDefinition per HDL building block,
 # loaded into the ccflow ModelRegistry at /dau-core/<core-name>. Hydra
 # composition IS the registry -- there is no Python-literal core list.
 # Resource envelopes are produced by the dau-build synthesize-cores task;
@@ -54,7 +54,7 @@ int32-predicate-filter:
   - predicate-pkg
   golden: dau_core.operators:filter_values
   bench: dau_core.tests.cocotb_benches.dau_int32_predicate_filter_tb
-  measured_from: 1:3357488adc6a317a6eb4be97729a1ed0abc05583f858d322a95b3ec3f7f89a85
+  measured_from: 1:af9902ed3d816c00cb9d6e6f45d41d030891b1f3a8a3a34329c6ffa00ad646ae
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -111,7 +111,7 @@ int32-keyed-predicate-filter:
   - predicate-pkg
   golden: dau_core.operators:filter_rows
   bench: dau_core.tests.cocotb_benches.dau_int32_keyed_predicate_filter_tb
-  measured_from: 1:76f448526a7839a3a253be5b303e7db7aab65bc53039c13d16b301d0147a3416
+  measured_from: 1:dafb59d252fb7fbcfe86c73e49776dcbfa59d8b2351309b4f9778b12eac9a1d7
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -167,7 +167,7 @@ int32-map-alu:
   - map-alu-pkg
   golden: dau_core.operators:map_values
   bench: dau_core.tests.cocotb_benches.dau_int32_map_alu_tb
-  measured_from: 1:cff8a0c3ca53585a9633a535fb4f2afa43169db3926fc76a218db05c6b8a9a93
+  measured_from: 1:49e80b9d56236af1d961b60e2c133fe3bd58cd3ba6995502b38a1a62f63d760f
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -223,7 +223,7 @@ int32-keyed-map-alu:
   - map-alu-pkg
   golden: dau_core.operators:map_rows
   bench: dau_core.tests.cocotb_benches.dau_int32_keyed_map_alu_tb
-  measured_from: 1:3e163ae3d2511e9e0ed5a1092782a46a03656c8cd12b81d0e1a0fe9f26200c32
+  measured_from: 1:3770b41a09b3534b1fb43a1144a309e136d839d03a3f7b1d4e973cd3042a4b8e
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -277,7 +277,7 @@ grouped-aggregation:
   description: Ordered close-out grouped aggregation (first/last/min/max/sum/count).
   golden: dau_core.operators:grouped_aggregate_rows
   bench: dau_core.tests.cocotb_benches.dau_grouped_aggregation_tb
-  measured_from: 1:a0bf46d2eca26775445e8f420a38119777c3e324d0622cf9610432d834862ae2
+  measured_from: 1:ea8fc012aafd1299c4949e34de7cd25f7d1a05da1c076ef0fdec0e75b6f3e811
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -327,14 +327,14 @@ grouped-aggregation:
     FIELD_WIDTH:
       # the ELEMENT TYPE of one field lane. The 64-bit keyed word is the
       # transport unit and stays fixed, so lane i is its i-th lane at this
-      # width; the tile reads the key and value lanes and ignores any a
+      # width; the core reads the key and value lanes and ignores any a
       # narrower type leaves beyond them. int32 encodes as 32, so this declares exactly the
-      # tile that has always been built.
+      # core that has always been built.
       element_type: true
       default: int32
       # the record bounds it from above, not the row: the sums are INT64 and
       # the element statistics ride 32-bit record slots, so a wider element
-      # would need a versioned record -- a different tile
+      # would need a versioned record -- a different core
       minimum: 8
       maximum: 32
       # only int32 is MEASURED; the RTL elaborates the whole declared range
@@ -350,12 +350,12 @@ grouped-field-aggregation:
     key, computes first/last/min/max/sum (INT64) for EACH of the three data fields in one pass, plus the row count — the
     N-field generalization of grouped-aggregation. Workload-agnostic: OHLCV bars are a field/stat SELECTION over the
     11-word record (open/high/low/close = field0 first/max/min/last, volume = sum field1, ...) via dau_core.operators.bars_from_field_aggregate,
-    so the finance column assignment lives in the host/select, not the tile. A reappearing key opens a new partial group
+    so the finance column assignment lives in the host/select, not the core. A reappearing key opens a new partial group
     (host-merged, the partial-group contract); a row torn by input_last on w0 is ERR_STREAM.'
   golden: dau_core.operators:grouped_field_aggregate_rows
   bench: dau_core.tests.cocotb_benches.dau_grouped_field_aggregation_tb
   # OOC xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +3.846)
-  measured_from: 1:7ca417af2d5d53e5bf7f733aa17aa779e0b787b2015ddae2fc694cf022ff70ba
+  measured_from: 1:d3852799f2f25eadfeec436435c387b8966554f8c0ef0c7cfb7803f83d932239
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -405,14 +405,14 @@ grouped-field-aggregation:
     FIELD_WIDTH:
       # the ELEMENT TYPE of one field lane. The 128-bit row is the transport
       # unit and stays fixed, so field i is its i-th lane at this width; the
-      # tile keeps the four lanes it names and ignores any a narrower type
+      # core keeps the four lanes it names and ignores any a narrower type
       # leaves beyond them. int32 encodes as 32, so this declares exactly the
-      # tile that has always been built.
+      # core that has always been built.
       element_type: true
       default: int32
       # the record bounds it from above, not the row: the sums are INT64 and
       # the element statistics ride 32-bit record slots, so a wider element
-      # would need a versioned record -- a different tile
+      # would need a versioned record -- a different core
       minimum: 8
       maximum: 32
       # only int32 is MEASURED; the RTL elaborates the whole declared range
@@ -427,7 +427,7 @@ bar-aggregation:
   description: Fused single-pass OHLCV bar aggregation over 16-byte rows.
   golden: dau_core.operators:bar_aggregate_rows
   bench: dau_core.tests.cocotb_benches.dau_bar_aggregation_tb
-  measured_from: 1:01be09acd6c49cfa1af7c09fa3bcf3b568e4f0aed7475b56d98bc9ecafd45e71
+  measured_from: 1:0d72dc513e3f0b21489986e2db7d30f6159f821f74baf4208748aa3cbfb1cedc
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -477,14 +477,14 @@ bar-aggregation:
     FIELD_WIDTH:
       # the ELEMENT TYPE of one field lane. The 128-bit row is the transport
       # unit and stays fixed, so field i is its i-th lane at this width; the
-      # tile keeps the four lanes it names and ignores any a narrower type
+      # core keeps the four lanes it names and ignores any a narrower type
       # leaves beyond them. int32 encodes as 32, so this declares exactly the
-      # tile that has always been built.
+      # core that has always been built.
       element_type: true
       default: int32
       # the record bounds it from above, not the row: the sums are INT64 and
       # the element statistics ride 32-bit record slots, so a wider element
-      # would need a versioned record -- a different tile
+      # would need a versioned record -- a different core
       minimum: 8
       maximum: 32
       # only int32 is MEASURED; the RTL elaborates the whole declared range
@@ -500,15 +500,15 @@ asof-backward:
     (build-before-probe at equal key/time), attaches to each probe the most recent build for the same key with build_time
     <= probe_time, optionally within cfg_tolerance on the time axis. Each 3-word record is w0={rec_type, key} (rec_type
     bit0: 0=build/1=probe), w1=time[63:0], w2={payload_b, payload_a} (two opaque INT32 fields); because the stream is key-grouped
-    the tile holds ONE current build, reset on key change (the key-change shape) — bounded state, one pass, no per-key table.
+    the core holds ONE current build, reset on key change (the key-change shape) — bounded state, one pass, no per-key table.
     A matched probe emits a 4-word joined row (time, {probe_a, key}, {build_b, build_a}, {_, probe_b}); a miss (no live
-    build, or older than tolerance) drops, so the tile realizes matched joins only. The temporal-finance backward as-of
+    build, or older than tolerance) drops, so the core realizes matched joins only. The temporal-finance backward as-of
     is this join with quote=build {bid, ask}, trade=probe {price, size}, key=symbol — the finance vocabulary lives in the
-    host merge, not the tile. A record torn by input_last before its third word is ERR_STREAM.'
+    host merge, not the core. A record torn by input_last before its third word is ERR_STREAM.'
   golden: dau_core.operators:keyed_asof_join_rows
   bench: dau_core.tests.cocotb_benches.dau_asof_backward_tb
   # OOC xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +1.679)
-  measured_from: 1:855314c9008acd5b7f1f655074ce460805e690d4e1690d33f08b7d2b1a58ed5d
+  measured_from: 1:3637312d4e581a1ef35753fcfe7b714a755a7a5d8480304518bbe630aaa276bd
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -562,20 +562,20 @@ rolling-moments:
   kind: operator
   module: dau_rolling_moments
   source: dau_rolling_moments.sv
-  description: Per-symbol rolling-moment tile (the roll stage of the temporal workflow, over the reduced bar/feature stream).
+  description: Per-symbol rolling-moment core (the roll stage of the temporal workflow, over the reduced bar/feature stream).
     Over a count-based window of the last WINDOW values per symbol, emits the deferred-division moment record (count, sum,
-    sum-of-squares) for every FULL window — one tile serving rolling sum (=sum), mean (=sum/count) and sample variance (=(count*sum_sq
+    sum-of-squares) for every FULL window — one core serving rolling sum (=sum), mean (=sum/count) and sample variance (=(count*sum_sq
     - sum*sum)/(count*(count-1)), the host dividing once). One 32-bit value per row (w0 = {value, symbol}); because the
-    host-sorted stream is symbol-grouped the tile holds ONE window (a depth-WINDOW shift register) reset on symbol change
-    — the bar tile's key-change shape, no per-symbol table. Warm-up rows (window not yet full) are dropped, matching the
+    host-sorted stream is symbol-grouped the core holds ONE window (a depth-WINDOW shift register) reset on symbol change
+    — the bar core's key-change shape, no per-symbol table. Warm-up rows (window not yet full) are dropped, matching the
     None entries of dau_core.temporal.rolling_moments/rolling_sum. The moment update pipelines over four beats (READ->MUL->DIFF->UPDATE)
     keeping the 32x32 DSP products and the difference/accumulate off one path; one record is buffered so the final emitted
-    record carries output_last. WINDOW >= 2 (a size-1 sample variance is undefined; the compiler residues it). ARITHMETIC PRECONDITION, binding INSIDE the int32 domain. sum_sq accumulates WINDOW squares, so the host must guarantee WINDOW * max(|value|)**2 <= 2**63 - 1. Full-range int32 does NOT satisfy it -- (2**31-1)**2 is already 2**61, so sum_sq needs 64 bits at WINDOW=3 and 68 at WINDOW=64, and it wraps SILENTLY into a wrong variance rather than erroring. The tile sees one row at a time and has no bound to check against, so the proof lives in the lowering -- dau-polars refuses a rolling scan whose value column declares no magnitude_bits, and checks WINDOW against the declared bound when it does.
+    record carries output_last. WINDOW >= 2 (a size-1 sample variance is undefined; the compiler residues it). ARITHMETIC PRECONDITION, binding INSIDE the int32 domain. sum_sq accumulates WINDOW squares, so the host must guarantee WINDOW * max(|value|)**2 <= 2**63 - 1. Full-range int32 does NOT satisfy it -- (2**31-1)**2 is already 2**61, so sum_sq needs 64 bits at WINDOW=3 and 68 at WINDOW=64, and it wraps SILENTLY into a wrong variance rather than erroring. The core sees one row at a time and has no bound to check against, so the proof lives in the lowering -- dau-polars refuses a rolling scan whose value column declares no magnitude_bits, and checks WINDOW against the declared bound when it does.
   golden: dau_core.temporal:rolling_moments
   bench: dau_core.tests.cocotb_benches.dau_rolling_moments_tb
   # OOC WINDOW=4 xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +3.155)
   # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
-  measured_from: 1:c61b5defbb15574e022e8ad084820d2caf6eb4b43ac52763b26d2391c88a7368
+  measured_from: 1:90f0d15957808d0e44a135db0b7261b30fe306c36205943228aab4eacb3836eb
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -631,7 +631,7 @@ rolling-moments:
     VALUE_WIDTH:
       # the ELEMENT TYPE of the value lane; the symbol id beside it is a
       # 32-bit container and does not move. int32 encodes as 32, so this
-      # declares exactly the tile that has always been built.
+      # declares exactly the core that has always been built.
       element_type: true
       default: int32
       # sum_sq bounds it from above: at 32 a squared value still leaves the
@@ -659,7 +659,7 @@ rolling-extremum:
     dau_core.temporal.rolling_max/rolling_min. SILENT ON SUCCESS while forwarding, so it chains mid-lane - the newest
     emitted row is held in a skid released when a newer row completes or the stream ends, so output_last always lands on
     the final forwarded row even when trailing rows are warm-up; a stream forwarding ZERO rows still closes out, because
-    that is the one outcome a downstream tile cannot tell from a stall. WINDOW is a power of two so the network spans it
+    that is the one outcome a downstream core cannot tell from a stall. WINDOW is a power of two so the network spans it
     exactly. Backpressure freezes the whole pipeline, never just the input - an in-flight row would otherwise reach the end
     against a full skid and be dropped silently.
   # FIND_MAX selects which of the pair this build computes; the bench proves
@@ -675,7 +675,7 @@ rolling-extremum:
   # The network is STRUCTURALLY II=1 -- no loop-carried dependency, one row
   # per cycle through every stage, and the bench sustains it. The declaration
   # is nonetheless the composed 1-row/2-cycle lane floor, because a full-rate
-  # claim is a measured upgrade and this tile has not been measured on
+  # claim is a measured upgrade and this core has not been measured on
   # silicon. Under-declaring a floor is safe for the scheduler; over-declaring
   # one is not.
   ingest:
@@ -692,7 +692,7 @@ rolling-extremum:
       maximum: 256
       power_of_two: true
     VALUE_WIDTH:
-      # the element type of the value field. This tile is the one that can
+      # the element type of the value field. This core is the one that can
       # say "any signed integer type that fits" and mean it -- sign extension
       # is order preserving, so the comparator is the same at either width and
       # only the framing changes.
@@ -722,11 +722,11 @@ rolling-extremum:
   # form, now measured rather than argued. Cost grows with WINDOW (more
   # stages, deeper lines) while timing does not.
   #
-  # The estimate this tile was proposed on said ~400-600 LUT and ~400 FF at
+  # The estimate this core was proposed on said ~400-600 LUT and ~400 FF at
   # WINDOW=64. LUT landed inside it at 460; FF was under by 2.2x at 899.
   # The delay lines were costed, the per-stage run/symbol/valid registers
   # carried alongside them were not.
-  measured_from: 1:afcee781b452e841c751cf269e546b45c719eb5ed15ec4da453c5754d4f482fe
+  measured_from: 1:88c63241d83cedd40311ce6817babadd0bf9635946d8d04c9de378a1b308a1df
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -790,16 +790,16 @@ market-feature:
   module: dau_market_feature
   source: dau_market_feature.sv
   description: 'Market-feature map (the derive stage of the temporal workflow): a stateless per-row map from an aligned
-    market row (as-of tile output, 4 words: time, {price, symbol}, {ask, bid}, {_, size}) to a 7-word feature record — midpoint
+    market row (as-of core output, 4 words: time, {price, symbol}, {ask, bid}, {_, size}) to a 7-word feature record — midpoint
     = (bid+ask)>>1 (33-bit sum, no int32 overflow), spread = ask-bid (INT64, the int32 range can overflow), quote-rule trade_sign
     (+1 above midpoint / -1 below / 0 at), signed_volume = trade_sign*size (INT64), dollar_volume = price*size (INT64, the
     VWAP numerator). One output row per input row; matches dau_core.temporal.market_features. In the fused datapath this
-    is a chain stage between the as-of tile and the bar tile — its signed_volume is the value the bar tile accumulates.
+    is a chain stage between the as-of core and the bar core — its signed_volume is the value the bar core accumulates.
     A row torn by input_last before its fourth word is ERR_STREAM.'
   golden: dau_core.temporal:market_features
   bench: dau_core.tests.cocotb_benches.dau_market_feature_tb
   # OOC xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +0.680)
-  measured_from: 1:c5a40aa7bf3bc2510f01c373310652a483c1adb7fd5f944c36129919827857d6
+  measured_from: 1:44c2438106018362004c2c3d0b0239b8becfc6718c58cbd64b352f31ca9c08ac
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -856,17 +856,17 @@ time-bucket-key:
   description: 'Generic time-bucket key rewrite: replaces a row''s partition key with a composite (partition, time-bucket)
     group key so a downstream key-grouped aggregator (bar / grouped-sum) produces fixed-width TIME-WINDOWED groups per partition
     — workload-agnostic (finance time bars, TSBS window shapes, ...); the aggregation and any per-row derivation stay in
-    their own tiles. bucket = time >>> cfg_bucket_shift (window = 2**shift); key = {partition[PART_BITS-1:0], bucket[BUCKET_BITS-1:0]}
+    their own cores. bucket = time >>> cfg_bucket_shift (window = 2**shift); key = {partition[PART_BITS-1:0], bucket[BUCKET_BITS-1:0]}
     (PART_BITS = 32 - BUCKET_BITS) so it changes exactly on a partition-or-bucket boundary (the stream is pre-sorted by
     (partition, time)); the downstream recovers partition = key >>> BUCKET_BITS. Contract: the partition id fits PART_BITS
-    bits and the host-rebased bucket fits BUCKET_BITS, so they never collide — ENFORCED by the tile (a partition or bucket
+    bits and the host-rebased bucket fits BUCKET_BITS, so they never collide — ENFORCED by the core (a partition or bucket
     that overflows its width is ERR_RANGE, never a silent alias). A mid-lane transform: silent on success (1:1 rows, output_last
     rides the last row), status on a torn row (ERR_STREAM) or an out-of-range key (ERR_RANGE); payload passes through.'
   golden: dau_core.operators:time_bucket_key_rows
   bench: dau_core.tests.cocotb_benches.dau_time_bucket_key_tb
   # OOC BUCKET_BITS=16 xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +2.175)
   # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
-  measured_from: 1:3e7cff859629a4d4116ae2eea2521d8c532354985b0f9fd7bc866689c1496620
+  measured_from: 1:1ed7d2a8fbd47e2150f100315f1378a3c831915d83e276c4e66373ad828ab815
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -903,9 +903,9 @@ time-bucket-key:
       # AXIS IS NOT THIS ELEMENT: it is a signed INT64 in its own word at
       # every key width, because nanosecond timestamps need one. The key is a
       # packed group identity rather than a magnitude, so only float is
-      # refused. int32 encodes as 32, so this declares exactly the tile it
+      # refused. int32 encodes as 32, so this declares exactly the core it
       # always built -- and BUCKET_BITS' maximum of 31 is that width's bound
-      # (the tile's own relation guard is BUCKET_BITS < KEY_WIDTH).
+      # (the core's own relation guard is BUCKET_BITS < KEY_WIDTH).
       element_type: true
       default: int32
       minimum: 8
@@ -1011,12 +1011,12 @@ hash-grouped-aggregation:
   description: 'Hash-mode grouped field-sum aggregation over quad rows: one INT64 accumulator set per DISTINCT key
     in a CAPACITY-slot table, drained signed-key ASCENDING at close-out. Where grouped-field-sum-aggregation
     groups CONSECUTIVE equal keys — needing the staged table pre-sorted on the group key, and opening a second
-    partial whenever a key reappears — this tile holds per-key state, so input order does not matter and a key may
+    partial whenever a key reappears — this core holds per-key state, so input order does not matter and a key may
     reappear anywhere in the batch: one record per distinct key, always. That removes the sorted_by_key staging
     precondition from every grouped scan. Hash (low key bits) + linear probe over a {sums[3:0], count, key} BRAM
     with a separate valid array; deliberately SEQUENTIAL (one row in flight), so no read-modify-write hazard
     exists. All four field sums accumulate unconditionally — the accumulate path is config-free and cfg_field_mask
-    selects only which sums the drain emits, so the record shape matches the ordered tile word-for-word (shared
+    selects only which sums the drain emits, so the record shape matches the ordered core word-for-word (shared
     host decode). The ascending drain is a CONTRACT, not an implementation detail: a hash table has no intrinsic
     order, so leaking probe order would make results depend on the hash function. Overflow (a new key with the
     table full) is GROUP_CAPACITY_EXCEEDED and invalidates the batch — never an eviction; the host recovers by
@@ -1032,7 +1032,7 @@ hash-grouped-aggregation:
   # changed the netlist they described.
   #
   # The retime bought 1.6 ns on the Artix (+0.413 -> +2.027 at CAPACITY
-  # 1024), which moves the tile out of the band where an out-of-context
+  # 1024), which moves the core out of the band where an out-of-context
   # margin says nothing about a composed build. It cost 285 FF -- the
   # latched base is 4x64 sums plus a 32-bit count, and 288 bits is what that
   # is -- and about 60 LUT. Area for a whole nanosecond of slack.
@@ -1042,7 +1042,7 @@ hash-grouped-aggregation:
   # BRAM steps 4.5 -> 9.0 at 1024: the 320-bit slot spans multiple RAMB36
   # and the depth crosses their 512-deep boundary. The two parts synthesize
   # identically here; only the slack differs.
-  measured_from: 1:5162973aad615a870d59ad7345b9b6f5f29cf93e51d8f8af476fa045244f2bc3
+  measured_from: 1:49a611b00bbd74d9cb6e426aeab37e276d98b271a54025f66e6147707e54d826
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -1102,7 +1102,7 @@ hash-grouped-aggregation:
   contract_kind: row-stream
   record_words: 2
   # SUM + COUNT over INT32 inputs, per group — the same advertisement the
-  # ordered sibling makes, so a composition built only from this tile is
+  # ordered sibling makes, so a composition built only from this core is
   # discoverable by the planner rather than reporting an empty bitmap
   opcodes:
   - 3
@@ -1111,7 +1111,7 @@ hash-grouped-aggregation:
   - 12
   unit_kind: aggregation
   # the mask selects how many sum words ride each record (key + 1..4 sums +
-  # count), exactly like the ordered tile
+  # count), exactly like the ordered core
   output_record_words_variable: true
   ingest:
     rows: 1
@@ -1135,14 +1135,14 @@ hash-grouped-aggregation:
     FIELD_WIDTH:
       # the ELEMENT TYPE of one field lane. The 128-bit row is the transport
       # unit and stays fixed, so field i is its i-th lane at this width; the
-      # tile keeps the four lanes it names and ignores any a narrower type
+      # core keeps the four lanes it names and ignores any a narrower type
       # leaves beyond them. int32 encodes as 32, so this declares exactly the
-      # tile that has always been built.
+      # core that has always been built.
       element_type: true
       default: int32
       # the record bounds it from above, not the row: the sums are INT64 and
       # the element statistics ride 32-bit record slots, so a wider element
-      # would need a versioned record -- a different tile
+      # would need a versioned record -- a different core
       minimum: 8
       maximum: 32
       # only int32 is MEASURED; the RTL elaborates the whole declared range
@@ -1160,7 +1160,7 @@ streaming-top-k:
   kind: operator
   module: dau_streaming_top_k
   source: dau_streaming_top_k.sv
-  description: 'Streaming top-k tile (ORDER BY <key> DESC LIMIT K): over quad rows (key, v0, v1, v2) keeps the K rows with
+  description: 'Streaming top-k core (ORDER BY <key> DESC LIMIT K): over quad rows (key, v0, v1, v2) keeps the K rows with
     the largest signed-INT32 sort key (field 0), ties by arrival (earliest wins), and at close-out drains them sorted key-descending
     — the q3/q10 and TSBS group-by-order-by-limit shape. The retained set lives in a size-K systolic sorted register array
     where every cell makes a LOCAL compare-and-shift decision (constant critical path regardless of K, one row every two
@@ -1178,7 +1178,7 @@ streaming-top-k:
   # Resources match across parts (K=128 differs by 10 LUT); timing does
   # not, which is the whole reason a point carries its part. K=5 is the
   # TSBS group-by-order-by-limit LIMIT.
-  measured_from: 1:1019e090e008f17a5523441211fc3d2ce7e23e3d7a1f167acf6530091baa50ff
+  measured_from: 1:b854e8fbc5c647d37b71c0f8869ca2346d66ab0ce1600f156e34b445812e1a3a
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -1319,10 +1319,10 @@ streaming-top-k:
       maximum: 128
     FIELD_WIDTH:
       # the ELEMENT TYPE of the row's lanes -- one type for the key and the
-      # three payload lanes, because two lanes tile each 64-bit word and the
+      # three payload lanes, because two lanes core each 64-bit word and the
       # drained record mirrors the accepted one. The array ORDERS
-      # two's-complement magnitudes, so the tile refuses float and unsigned
-      # types. int32 encodes as 32, so this declares exactly the tile it
+      # two's-complement magnitudes, so the core refuses float and unsigned
+      # types. int32 encodes as 32, so this declares exactly the core it
       # always built.
       element_type: true
       default: int32
@@ -1340,7 +1340,7 @@ pair-key-filter:
   description: Key partition filter for 16-byte pair rows (NoC lane splitter).
   golden: dau_core.operators:filter_bar_rows_by_key
   bench: dau_core.tests.cocotb_benches.dau_pair_key_filter_tb
-  measured_from: 1:a4790a406a4c9535bd4ad90247d5fe41a1c25723fc797a1b4093c27e016a9ca2
+  measured_from: 1:54b71460482ab2e2172d123dc9a14fef3fbf77a0450dc4c4c82f587b27b5b1ad
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -1388,10 +1388,10 @@ pair-key-filter:
       # the ELEMENT TYPE of the key lane. The decode is a bitwise mask and an
       # equality rather than an ordering, so signedness and fractional bits do
       # not enter it and only float is refused. int32 encodes as 32, so this
-      # declares exactly the tile it always built.
+      # declares exactly the core it always built.
       element_type: true
       default: int32
-      # {price, key} tile one 64-bit stream word
+      # {price, key} core one 64-bit stream word
       minimum: 8
       maximum: 32
       # only int32 is MEASURED; the RTL elaborates the whole declared range
@@ -1407,7 +1407,7 @@ range-partitioner:
   golden: dau_core.operators:range_partition_bar_rows
   bench: dau_core.tests.cocotb_benches.dau_range_partitioner_tb
   # OOC N=4
-  measured_from: 1:6964b6e1130a6a8cf88b1e1afc890b0408d558f4de432f5e82e4b65cb4872f24
+  measured_from: 1:0d06c934cd70761ef16794d2616b0791e3245f0382a29eadb7aa97456d1966c8
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -1454,13 +1454,13 @@ range-partitioner:
     KEY_WIDTH:
       # the ELEMENT TYPE of the key and the splitters it is compared against
       # (cfg_splitters carries NUM_PARTITIONS-1 lanes of this width). The
-      # linear decode ORDERS two's-complement magnitudes, so the tile refuses
+      # linear decode ORDERS two's-complement magnitudes, so the core refuses
       # float and unsigned types -- an unsigned key would break the
       # key-ordering guarantee that makes a global sort a concatenation.
-      # int32 encodes as 32, so this declares exactly the tile it always built.
+      # int32 encodes as 32, so this declares exactly the core it always built.
       element_type: true
       default: int32
-      # {value, key} tile one 64-bit stream word
+      # {value, key} core one 64-bit stream word
       minimum: 8
       maximum: 32
       # only int32 is MEASURED; the RTL elaborates the whole declared range
@@ -1536,14 +1536,14 @@ key-mask-dispatcher:
     collapse onto one lane; HASH mixes the whole key into the high bits before the select, which is the fan-out for keys
     the host did not choose. The multiplier and bit-extraction are CONTRACT: a row''s partition is part of the answer. IN_WIDTH (the rows/cycle axis) selects the input framing: 64 (default) accepts two-beat
     quad rows; 128 accepts one whole row per beat ({w1, w0}) — paired with the wide row-unpack (OUT_WIDTH=128) the shared
-    front sustains 1 row/cycle while the per-lane outputs stay the 64-bit two-beat framing the operator tiles consume (no
+    front sustains 1 row/cycle while the per-lane outputs stay the 64-bit two-beat framing the operator cores consume (no
     operator widens). Same-lane runs throttle on the lane''s two-beat drain (single-row skid, head-of-line); mask-distributed
     keys sustain the full front rate.'
   golden: dau_core.operators:mask_dispatch_rows
   bench: dau_core.tests.cocotb_benches.dau_key_mask_dispatcher_tb
   # routes whole records to lanes by a decode over the record's key, which is
   # what the composition's power-of-two lane-count rule turns on -- it reads
-  # this rather than the tile's name
+  # this rather than the core's name
   role: key-dispatch
   # Still a SCALAR envelope (this core's migration to (part, clock, params)
   # measured points is open debt). It must therefore report the WORST case
@@ -1556,7 +1556,7 @@ key-mask-dispatcher:
   # the failure the measured-point discipline exists to prevent -- so the
   # declared dsp is the hash cost even for mask designs.
   # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
-  measured_from: 1:70c43580ac2a7f9d1797d8b7885f47c5d3ca4e04d30fe893b4ca79db1edd1bd2
+  measured_from: 1:7cba4849e1f174067c5d4993dee9dcbeb5b26b9fd90cdd7522ba9758ab90ecc8
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -1720,7 +1720,7 @@ key-mask-dispatcher:
       # decode itself is 32-BIT AT EVERY KEY WIDTH (the key zero-extends into
       # it) because the mask select, the exact-branch range and the
       # multiplicative hash are CONTRACT, pinned in dau_core.operators. int32
-      # encodes as 32, so this declares exactly the tile it always built.
+      # encodes as 32, so this declares exactly the core it always built.
       element_type: true
       default: int32
       minimum: 8
@@ -1756,7 +1756,7 @@ stride-distributor:
       default: 8
   # Measured 2026-08-16 via dau-build task=tasks/build/synthesize-cores, both
   # parts, 8 ns, at the declared defaults (IN_WIDTH=512, NUM_PARTITIONS=8).
-  # This tile was the palette's one unpriced operator, so nothing could
+  # This core was the palette's one unpriced operator, so nothing could
   # price a design containing it; that is now closed.
   #
   # The shape is FF-dominated and LUT-light, which is what a positional
@@ -1795,7 +1795,7 @@ bitonic-sorter:
   golden: dau_core.operators:sort_bar_rows_by_key
   bench: dau_core.tests.cocotb_benches.dau_bitonic_sorter_tb
   # OOC CAPACITY=16
-  measured_from: 1:e890c057bb08b7c6f9531b465df0f8b8050102da9e8696a5e17109df9896effe
+  measured_from: 1:464c2122b62b640233c4653f1ab13b37543015b10fc2436cb74cb3c7a998cc13
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -1849,12 +1849,12 @@ bitonic-sorter:
     KEY_WIDTH:
       # the ELEMENT TYPE of the sort key. The rows are carried opaquely two
       # words wide; only this lane is compared, and the compare-exchange
-      # orders two's-complement magnitudes, so the tile refuses float and
-      # unsigned types. int32 encodes as 32, so this declares exactly the tile
+      # orders two's-complement magnitudes, so the core refuses float and
+      # unsigned types. int32 encodes as 32, so this declares exactly the core
       # it always built.
       element_type: true
       default: int32
-      # {value, key} tile one 64-bit stream word
+      # {value, key} core one 64-bit stream word
       minimum: 8
       maximum: 32
       # only int32 is MEASURED; the RTL elaborates the whole declared range
@@ -1878,7 +1878,7 @@ row-predicate-filter:
   - predicate-pkg
   golden: dau_core.operators:filter_rows_by_predicate
   bench: dau_core.tests.cocotb_benches.dau_row_predicate_filter_tb
-  measured_from: 1:1011c21e4fcf7bc37d29b8dcfa41f6c9588f25b673706f5b38e0b130936ca535
+  measured_from: 1:bb646dcc46ecb2f4e15f1236bf0ba90f218179049a7d4ccfe5082d9dbdfa26ce
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -1924,15 +1924,15 @@ row-predicate-filter:
     per_cycles: 2
   parameters:
     FIELD_WIDTH:
-      # an ELEMENT TYPE, not a bit count: the tile decodes width, signedness
+      # an ELEMENT TYPE, not a bit count: the core decodes width, signedness
       # and fractional bits from it (dau_core/hdl/types.svh). int32 encodes as
-      # 32, so this declares exactly the tile it always built.
+      # 32, so this declares exactly the core it always built.
       element_type: true
       default: int32
-      # the tile's own elaboration guard is [8, 64] and must divide 128; the
+      # the core's own elaboration guard is [8, 64] and must divide 128; the
       # registry left minimum at its 1 default, so a composition could pass
       # validation and then fail to elaborate. choices are the measured
-      # types, the range is what the tile will actually build.
+      # types, the range is what the core will actually build.
       minimum: 8
       maximum: 64
       choices: [int16, int32, int64]
@@ -1946,7 +1946,7 @@ normal-cdf:
     in Q(32-F).F. GENERATED -- its per-segment Taylor coefficients are transcendental constants at the configured
     internal precision, which SystemVerilog cannot compute at elaboration. CORRECTLY ROUNDED over every one of the
     573,441 representable inputs where the answer is neither 0 nor 1 to the last bit, swept exhaustively, so for this
-    tile the algorithm and the mathematics coincide and the bench compares with zero tolerance. TOTAL: every input has
+    core the algorithm and the mathematics coincide and the bench compares with zero tolerance. TOTAL: every input has
     an answer and there is NO error path -- beyond the domain the result saturates to 0 or 1.0 and that saturation is
     the correctly rounded answer, not a clamp. Symmetry is folded so only the positive half is approximated. Matches
     dau_core.fixed_point.NormalCdfDatapath.evaluate.'
@@ -1958,7 +1958,7 @@ normal-cdf:
     rows: 1
     per_cycles: 3
   generator:
-    _target_: dau_core.normal_cdf_generator.NormalCdfTileGenerator
+    _target_: dau_core.normal_cdf_generator.NormalCdfCoreGenerator
     datapath:
       _target_: dau_core.fixed_point.NormalCdfDatapath
       internal_bits: 52
@@ -1973,7 +1973,7 @@ normal-cdf:
   # a shift and took WNS to +0.657. Widening the segments then cost accuracy,
   # so the point moved from 512 to 1024 segments rather than to a fourth
   # multiply -- segments cost BRAM, multiplies cost 5-9 DSP48s each.
-  measured_from: 1:4a1b976010ebdaa3cce6da14084acdde46714d22c3f6dd7ad77654b28f35ef5b
+  measured_from: 1:10091da793dd59b042a541e6d8fdae4dddf02d81f5b161a37d14c8ae2209fa0e
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -2028,7 +2028,7 @@ fixed-point-exp:
     rows: 1
     per_cycles: 3
   generator:
-    _target_: dau_core.exp_generator.ExpTileGenerator
+    _target_: dau_core.exp_generator.ExpCoreGenerator
     datapath:
       _target_: dau_core.fixed_point.ExpDatapath
       internal_bits: 52
@@ -2038,7 +2038,7 @@ fixed-point-exp:
   # Measured 2026-08-09 via dau-build task=tasks/build/synthesize-cores, which
   # renders the generated source before staging it.
   #
-  # 50 DSP48s -- the first tile in the palette to spend any.
+  # 50 DSP48s -- the first core in the palette to spend any.
   #
   # STILL SHORT OF 125 MHz: this point is a 100 MHz component and its 8 ns
   # measurement is recorded VIOLATED rather than omitted. The lighter point
@@ -2051,7 +2051,7 @@ fixed-point-exp:
   # chain sitting combinationally between two DSPs overruns 8 ns. Registering
   # the shifted ln2 product and narrowing the reduction constant to 12 bits
   # took 8 ns WNS from -4.819 to -0.909.
-  measured_from: 1:01623f81058190dcf24d7d95fec171e293b35fae8416aa68aae4d3a5c3a9115e
+  measured_from: 1:f643f58d4facd5395306432e6d678f61be4778b31641089c7d047e264d26fc5c
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -2103,7 +2103,7 @@ fixed-point-exp-light:
     rows: 1
     per_cycles: 3
   generator:
-    _target_: dau_core.exp_generator.ExpTileGenerator
+    _target_: dau_core.exp_generator.ExpCoreGenerator
     module: dau_fixed_point_exp_light
     datapath:
       _target_: dau_core.fixed_point.ExpDatapath
@@ -2119,7 +2119,7 @@ fixed-point-exp-light:
   # MEETS 125 MHz at +0.682 ns, where the exact point does not -- a 20-DSP
   # transcendental that keeps pace with sqrt and divide. The difference is
   # datapath width alone; both points share this structure.
-  measured_from: 1:403129e90012c34694e280c7817febcec70432455d2cd4ea96425bdd25ab32e5
+  measured_from: 1:a4c1e020c87c29f2a71a78e86e807adfe655b5b0fae9caa815da85c1a3734ffc
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -2165,7 +2165,7 @@ fixed-point-ln:
     (first at x=3290838). That is a fact about the operating point, not a tolerance -- the HDL mirrors
     dau_core.fixed_point.LnDatapath.evaluate step for step and the bench compares with ZERO tolerance. Thirteen-stage
     pipeline, five multiplies, one per stage. A non-positive source has no logarithm and closes the batch out with
-    ERR_DOMAIN rather than emitting a substituted value, the position the sqrt tile takes; there is no range error,
+    ERR_DOMAIN rather than emitting a substituted value, the position the sqrt core takes; there is no range error,
     since ln of any positive int32 lands well inside int32.'
   golden: dau_core.fixed_point:ln_reference
   bench: dau_core.tests.cocotb_benches.dau_fixed_point_ln_tb
@@ -2175,7 +2175,7 @@ fixed-point-ln:
     rows: 1
     per_cycles: 3
   generator:
-    _target_: dau_core.ln_generator.LnTileGenerator
+    _target_: dau_core.ln_generator.LnCoreGenerator
     datapath:
       _target_: dau_core.fixed_point.LnDatapath
       internal_bits: 52
@@ -2185,7 +2185,7 @@ fixed-point-ln:
   # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
   #
   # ln MISSES 125 MHz and MEETS 100. Both points are recorded, the violated
-  # one included: that a tile does not close at a clock is a fact the planner
+  # one included: that a core does not close at a clock is a fact the planner
   # needs, and omitting it would leave the gap looking unmeasured rather than
   # measured and negative. usable_envelope() refuses the 8 ns point, so it
   # can be read but never priced into a design.
@@ -2197,10 +2197,10 @@ fixed-point-ln:
   #
   # 39 DSP is the first thing to attack. Five multiplies should not cost that
   # many -- the e*ln2 term casts an 8-bit exponent and the 54-bit constant to
-  # 62 bits before multiplying (the exp tile's idiom), so Vivado infers a wide
+  # 62 bits before multiplying (the exp core's idiom), so Vivado infers a wide
   # multiplier for what is really 8x54. A narrower e*ln2, then a lighter
   # operating point, in that order.
-  measured_from: 1:8545a7ed0712a3613939be5c90c473354fab117f4e6242500c9fd9886d0d566f
+  measured_from: 1:ab3ec77f9f52380929019d56f2a27998fe0d3b0760b345f36208f74f3a77143c
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -2251,7 +2251,7 @@ fixed-point-ln-light:
     rows: 1
     per_cycles: 3
   generator:
-    _target_: dau_core.ln_generator.LnTileGenerator
+    _target_: dau_core.ln_generator.LnCoreGenerator
     module: dau_fixed_point_ln_light
     datapath:
       _target_: dau_core.fixed_point.LnDatapath
@@ -2271,7 +2271,7 @@ fixed-point-ln-light:
   # +0.682 ns is the same margin the exp light point closes at, which is
   # the shape of the pattern rather than a coincidence: at these
   # precisions the critical path is one multiply per stage either way.
-  measured_from: 1:bc8b9c4e7460e7897da4b9cef015cd2f155abfef0cbb67dbfeb21eb9b708c0c4
+  measured_from: 1:ddbcf402100f777ea1b53306b34b17afb7253ada84dba8534c71cb19e719d7ee
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -2320,11 +2320,11 @@ fixed-point-divide:
   # Measured 2026-08-08 via dau-build task=tasks/build/synthesize-cores.
   # Zero DSP: long division is shift-subtract, not multiply.
   # NOTE the Artix 8 ns margin is +0.620, far tighter than the sqrt
-  # tile's +4.105 -- twice the stages over a wider datapath. Above the
+  # core's +4.105 -- twice the stages over a wider datapath. Above the
   # half-nanosecond line where OOC stops predicting composed timing,
   # but a composed design carrying this on an Artix at 125 MHz should
   # be checked rather than assumed.
-  measured_from: 1:c21fb55af495b104081f5977f2a0eeb3b3bf0925b164d9dcb7e293668e0db6b6
+  measured_from: 1:40352bd6891cf76f60208e03e84fccacafd1b716978a095c71822cc82cb29438
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -2392,7 +2392,7 @@ fixed-point-sqrt:
   # Zero DSP: the root is a shift-subtract recurrence, not a polynomial.
   # The margin is flat across parts and clocks, which is the
   # constant-critical-path claim -- one compare-and-subtract per stage.
-  measured_from: 1:b7553bdcfea9f4c831c9d00b881bd1a1c7bc32ca970f951b2063a7006cbbac13
+  measured_from: 1:7cdc28d8be2fdb902bf12bb0f2b692e376365ddb3cdec6c6f2b1b7664fa0cbdd
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -2444,7 +2444,7 @@ row-map-alu:
   - map-alu-pkg
   golden: dau_core.operators:map_row_fields
   bench: dau_core.tests.cocotb_benches.dau_row_map_alu_tb
-  measured_from: 1:1743e5884496e573fff5b911c5078ed9b03b77e6c0f65837f087f19d3ff0a0c9
+  measured_from: 1:b0f1bc2bea8326412b97ea8362fd4efb4847d98e023689a187febc379515ef09
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -2490,12 +2490,12 @@ row-map-alu:
     per_cycles: 7
   parameters:
     FIELD_WIDTH:
-      # an ELEMENT TYPE, not a bit count: the tile decodes width, signedness
+      # an ELEMENT TYPE, not a bit count: the core decodes width, signedness
       # and fractional bits from it (dau_core/hdl/types.svh). int32 encodes as
-      # 32, so this declares exactly the tile it always built.
+      # 32, so this declares exactly the core it always built.
       element_type: true
       default: int32
-      # the tile's own elaboration guard is [8, 32] and must divide 128. The
+      # the core's own elaboration guard is [8, 32] and must divide 128. The
       # ceiling is dau_map_alu_pkg's MAP_ELEMENT_BITS, which the package
       # derives from its product path rather than asserting.
       minimum: 8
@@ -2511,7 +2511,7 @@ row-unpack:
   module: dau_row_unpack
   source: dau_row_unpack.sv
   description: 'Row-unpack front-end feed over <=64-bit packed rows: bit-extracts four configured fields (offset/width/signed)
-    from one packed word and widens them into the standard 16-byte int32 quad row (field 0 = key = w0.lo) the operator tiles
+    from one packed word and widens them into the standard 16-byte int32 quad row (field 0 = key = w0.lo) the operator cores
     consume. The compact-row feed answer to the DDR-byte-bandwidth-bound scan (~2x rows/sec off DDR, half the host DMA,
     operators unchanged). Covers the SF1 q6 (56-bit) and q1 (41-bit) packings. The batch-latched cfg_bypass config port selects
     the mode: 0 = unpack (packed word in, quad row out); 1 = a zero-added-latency passthrough of pre-widened 16-byte quad
@@ -2521,22 +2521,22 @@ row-unpack:
     emit cap from ~1 row per 2 cycles to 1 row/cycle (silicon showed the 2-beat emit, not the DDR, gates the packed feed)
     — bypass then gearboxes each two-word quad into one beat. 256, 512 and 1024 carry SLOTS = OUT_WIDTH/128 whole quad rows per beat
     and widen the input to IN_WIDTH = SLOTS*64 (packed row s at [64*s +: 64], quad row s at [128*s +: 128]), which is what lets a
-    packed feed drive a SLOTS-wide lane: at 128 the tile emits one row per beat and starves a four-slot wide-row chain. At SLOTS > 1
+    packed feed drive a SLOTS-wide lane: at 128 the core emits one row per beat and starves a four-slot wide-row chain. At SLOTS > 1
     a ragged tail is padded by the host with the reserved all-ones packed word and passes through as the reserved all-ones PAD quad
-    row the wide-row tiles already drop, so positions are preserved; a field layout whose COVERAGE spans all 64 bits could forge that sentinel from real data and is refused as ERR_CONFIG at SLOTS > 1, which also keeps the answer independent of OUT_WIDTH. In bypass at SLOTS > 1 an input beat is whole quad rows, so input_last on the first phase is a legitimate short final beat (emitted PAD-filled), not a torn row. In a composition this is the front_unpack of a ScanCompositionSpec, placed after the burst
+    row the wide-row cores already drop, so positions are preserved; a field layout whose COVERAGE spans all 64 bits could forge that sentinel from real data and is refused as ERR_CONFIG at SLOTS > 1, which also keeps the answer independent of OUT_WIDTH. In bypass at SLOTS > 1 an input beat is whole quad rows, so input_last on the first phase is a legitimate short final beat (emitted PAD-filled), not a torn row. In a composition this is the front_unpack of a ScanCompositionSpec, placed after the burst
     reader and before broadcast/partition, fed by rows packed with the schema dau_polars.pack.pack_schema derives
     from the column ranges.'
   golden: dau_core.operators:unpack_rows
   bench: dau_core.tests.cocotb_benches.dau_row_unpack_tb
   # the front-stage feed transform: widens packed rows into the quad row the
-  # operator tiles read. The composition admits a core into that slot on this
+  # operator cores read. The composition admits a core into that slot on this
   # declaration rather than on its name
   role: front-unpack
   # RE-MEASURED 2026-08-17, every point, via
   # dau-build task=tasks/build/synthesize-cores. NINE OF THE ELEVEN RECORDED
   # NUMBERS DID NOT REPRODUCE, and none of that is the element-type retype:
   # the identical coordinates against the PRE-retype RTL report exactly what
-  # the retyped tile reports, at all eleven points, so the netlist is
+  # the retyped core reports, at all eleven points, so the netlist is
   # unchanged and the records were already stale.
   #
   # They were stale because the surface was never measured from one RTL. The
@@ -2551,7 +2551,7 @@ row-unpack:
   #
   # Every point here now comes from one run of today's sanctioned task, on the
   # same RTL. BRAM and DSP are zero throughout and unchanged.
-  measured_from: 1:e5b5f0b23c183f5620c7451087378758763e42dbf1bcd7ef44ea048fa7d40fb6
+  measured_from: 1:73aa0f54ac79d857d822d9cf43dea614ebcb20d1fa1c695a44da7da549e45897
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -2686,16 +2686,16 @@ row-unpack:
       - 1024
     FIELD_WIDTH:
       # the ELEMENT TYPE of the four widened fields. FAMILY-COUPLED: this
-      # tile's output IS the quad row the operator tiles read, so it declares
+      # core's output IS the quad row the operator cores read, so it declares
       # the same element they do or the front feeds them the wrong shape. The
       # PACKED word, its 6-bit offsets and the reserved all-ones pad are DDR
       # framing rather than a value's type and do not move with it; the
       # per-field cfg_signed decides sign against zero extension, so only
       # float is refused. int32 encodes as 32, so this declares exactly the
-      # tile it always built.
+      # core it always built.
       element_type: true
       default: int32
-      # four widened lanes tile the 128-bit quad row
+      # four widened lanes core the 128-bit quad row
       minimum: 8
       maximum: 32
       # only int32 is MEASURED; the RTL elaborates the whole declared range
@@ -2711,7 +2711,7 @@ field-sum-aggregation:
     in a single close-out record (q6 = one-bit mask; q1''s multi-sum is a wider mask).'
   golden: dau_core.operators:field_sum_rows
   bench: dau_core.tests.cocotb_benches.dau_field_sum_aggregation_tb
-  measured_from: 1:d61810e47cfd8ef3c0e2882d67b2a9fecb807b876d5c56147791916a641bf6a9
+  measured_from: 1:274e64d995f2e51aa9298964452288cf0a9311c624aec8ef2f4966be76c40a38
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -2767,14 +2767,14 @@ field-sum-aggregation:
     FIELD_WIDTH:
       # the ELEMENT TYPE of one field lane. The 128-bit row is the transport
       # unit and stays fixed, so field i is its i-th lane at this width; the
-      # tile keeps the four lanes it names and ignores any a narrower type
+      # core keeps the four lanes it names and ignores any a narrower type
       # leaves beyond them. int32 encodes as 32, so this declares exactly the
-      # tile that has always been built.
+      # core that has always been built.
       element_type: true
       default: int32
       # the record bounds it from above, not the row: the sums are INT64 and
       # the element statistics ride 32-bit record slots, so a wider element
-      # would need a versioned record -- a different tile
+      # would need a versioned record -- a different core
       minimum: 8
       maximum: 32
       # only int32 is MEASURED; the RTL elaborates the whole declared range
@@ -2791,7 +2791,7 @@ grouped-field-sum-aggregation:
     row count; one success close-out per batch after the final group (q1''s grouped multi-sum shape).'
   golden: dau_core.operators:grouped_field_sum_rows
   bench: dau_core.tests.cocotb_benches.dau_grouped_field_sum_aggregation_tb
-  measured_from: 1:126d629d39ef7c3015f572bbd0174fc532411eb3a50abaac8b5924191d13a641
+  measured_from: 1:5b7fa84089fadca2accfb638137de748680f286c45d560668f4c2460c692dd8f
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -2847,14 +2847,14 @@ grouped-field-sum-aggregation:
     FIELD_WIDTH:
       # the ELEMENT TYPE of one field lane. The 128-bit row is the transport
       # unit and stays fixed, so field i is its i-th lane at this width; the
-      # tile keeps the four lanes it names and ignores any a narrower type
+      # core keeps the four lanes it names and ignores any a narrower type
       # leaves beyond them. int32 encodes as 32, so this declares exactly the
-      # tile that has always been built.
+      # core that has always been built.
       element_type: true
       default: int32
       # the record bounds it from above, not the row: the sums are INT64 and
       # the element statistics ride 32-bit record slots, so a wider element
-      # would need a versioned record -- a different tile
+      # would need a versioned record -- a different core
       minimum: 8
       maximum: 32
       # only int32 is MEASURED; the RTL elaborates the whole declared range
@@ -2880,7 +2880,7 @@ key-membership-filter:
   #
   # A KEY_SPACE LADDER, measured 2026-08-17 on the same task, because two
   # points do not price a dimension. The compiler sizes KEY_SPACE from the
-  # key dictionary, so a tile priced only at 4096 and 6000000 is reachable
+  # key dictionary, so a core priced only at 4096 and 6000000 is reachable
   # from no real table: every cardinality between them refused as unmeasured.
   # The rungs at 2^17, 2^19 and 2^21 make the whole range priceable by
   # rounding a dictionary UP to the next measured rung -- sound, because a
@@ -2894,7 +2894,7 @@ key-membership-filter:
   # LUT is NOT monotone in KEY_SPACE (488 at 2^17, 444 at 2^19): the output
   # mux over the BRAM array restructures with the array's shape.
   # Both parts meet 8 ns at every rung.
-  measured_from: 1:f79ef97af0e08ee1a20bbfc2f2ac8228ebcb3d9d242b6aa22c922bbd12752aa8
+  measured_from: 1:35d567d6e829a439d1d9b7b388e825c9e015717dc48bc3da37468a7d1783df7a
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -2969,7 +2969,7 @@ key-membership-filter:
       timing: met
       wns_ns: 3.737
     # KEY_SPACE=6000000 is the configuration proven on silicon, and the
-    # reason a scalar envelope was not good enough: this tile is a BITMAP,
+    # reason a scalar envelope was not good enough: this core is a BITMAP,
     # so its BRAM cost is the key space. The retired scalar declared
     # bram36 1.0 for every KEY_SPACE, pricing this build at 1/192 of what
     # it actually places -- 192 of the Artix's 335 budgeted BRAM36.
@@ -3009,10 +3009,10 @@ key-membership-filter:
       # run on it zero-extended to 32 bits whatever the lane's width, and it
       # is float that is refused rather than unsigned. A narrower key does not
       # shrink the bitmap: KEY_SPACE does that. int32 encodes as 32, so this
-      # declares exactly the tile it always built.
+      # declares exactly the core it always built.
       element_type: true
       default: int32
-      # {value, key} tile one 64-bit stream word
+      # {value, key} core one 64-bit stream word
       minimum: 8
       maximum: 32
       # only int32 is MEASURED; the RTL elaborates the whole declared range
@@ -3028,7 +3028,7 @@ streaming-dedup:
     (w0.lo) indexes a direct-mapped bitmap over [0, KEY_SPACE); a row whose bit is clear sets it and counts, a row whose
     bit is set changes nothing. No rows are forwarded — the batch closes out with ONE 64-bit word, the distinct count, so
     N keys cross the bus inbound and one number crosses it back. The membership filter is the static sibling (loaded once,
-    probed read-only); writing the bitmap while probing is what a distinct needs and what that tile cannot do, and it costs
+    probed read-only); writing the bitmap while probing is what a distinct needs and what that core cannot do, and it costs
     a read-modify-write whose read-during-write collision on repeated keys is closed by forwarding the in-flight write. The
     bitmap survives batch boundaries so an overlapped multi-batch scan is ONE dedup (per-batch counts are not summable);
     cfg_clear, sampled at a batch''s first word, starts a fresh accumulation. Sized by CARDINALITY, not row count. An
@@ -3039,7 +3039,7 @@ streaming-dedup:
   # Measured 2026-08-14 via dau-build task=tasks/build/synthesize-cores, both
   # parts, at the default KEY_SPACE and at the 1.5M-distinct point the screen
   # was argued on. Two corrections to that screen, both from measurement:
-  # the tile is far LEANER than the ~700 LUT it was priced at (268 at 4096,
+  # the core is far LEANER than the ~700 LUT it was priced at (268 at 4096,
   # 421 at 1.5M -- it forwards no rows, so there is no emit engine or skid
   # slot), and its bitmap costs MORE BRAM than the bit count suggests. 1.5M
   # bits is 40.7 RAMB36 of raw capacity but the memory is 23,438 words of 64
@@ -3047,7 +3047,7 @@ streaming-dedup:
   # to 64 -- still 19% of the Artix's 335 budget. Timing meets 8 ns on both
   # parts at both sizes, including across the forwarded read-modify-write
   # path at the 64-BRAM output mux.
-  measured_from: 1:0dc0263cb70bb7b4087cfe8451ecbd2475ff8c1f357c03f29db59054e1b5b3d7
+  measured_from: 1:0e8b4613cf6869f52579d852ba69bd52b213425b24d590778b1ab46c4ab2386e
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -3093,7 +3093,7 @@ streaming-dedup:
     rows: 1
     per_cycles: 2
   # no unit_kind: the design inventory has no dedup unit, and borrowing
-  # `membership` would advertise semi/anti filtering this tile cannot do while
+  # `membership` would advertise semi/anti filtering this core cannot do while
   # `aggregation` would advertise capacity for opcodes it does not execute.
   success_close_out: true
   parameters:
@@ -3103,12 +3103,12 @@ streaming-dedup:
       maximum: 8388608
       multiple_of: 64
     KEY_WIDTH:
-      # the ELEMENT TYPE of the key lane -- the only lane this tile reads. The
+      # the ELEMENT TYPE of the key lane -- the only lane this core reads. The
       # key is a DICTIONARY ID, an index rather than a magnitude, so the range
-      # test is one unsigned compare either way and the tile's own guard
+      # test is one unsigned compare either way and the core's own guard
       # refuses only float. A narrower type does NOT shrink the bitmap:
       # KEY_SPACE sizes that, and cardinality sizes KEY_SPACE. int32 encodes
-      # as 32, so this declares exactly the tile it always built.
+      # as 32, so this declares exactly the core it always built.
       element_type: true
       default: int32
       minimum: 8
@@ -3132,12 +3132,12 @@ broadcast-hash-join:
   # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
   #
   # A KEY_SPACE LADDER, measured 2026-08-17 on the same task, to answer the
-  # question one point could not: how big a dimension can this tile join.
+  # question one point could not: how big a dimension can this core join.
   #
   # The cost law, and the whole difference from the membership bitmap: this
   # table stores a 97-bit SLOT per key ({valid, b0, b1, b2}), not one bit,
   # and Vivado builds it as one memory bit per block. Above 1024 that is
-  # exactly 97 RAMB36 per 32,768 slots -- 48.5 tiles at 2^14 (97 RAMB18),
+  # exactly 97 RAMB36 per 32,768 slots -- 48.5 cores at 2^14 (97 RAMB18),
   # 97 at 2^15, 194 at 2^16, 388 at 2^17. Per key it costs 97x the
   # membership filter, and that ratio IS the join tier's ceiling.
   #
@@ -3154,7 +3154,7 @@ broadcast-hash-join:
   # 2^17 point is recorded ANYWAY, over-budget on dpv1, so the planner
   # refuses it by arithmetic against a measured number instead of refusing
   # it as unmeasured. Both parts meet 8 ns at every rung.
-  measured_from: 1:4330a1087fd6c4877539ee788a602cc6894d4cefe54d419035a8b63fc7bf4029
+  measured_from: 1:e21a471156f4e1a2536312460164c24b987a273fbc8c38254f026acc507b8d50
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -3262,10 +3262,10 @@ broadcast-hash-join:
       default: 1024
     FIELD_WIDTH:
       # the ELEMENT TYPE of one lane, on the way in and in the joined row on
-      # the way out. int32 encodes as 32, so this declares exactly the tile
+      # the way out. int32 encodes as 32, so this declares exactly the core
       # that has always been built.
       #
-      # THE SLOT IS {valid, b2, b1, b0}, so unlike the accumulator tiles this
+      # THE SLOT IS {valid, b2, b1, b0}, so unlike the accumulator cores this
       # one's BRAM cost moves DIRECTLY with the element: every offered type is
       # its own measured point at every KEY_SPACE rung.
       element_type: true
@@ -3285,7 +3285,7 @@ stream-aggregation:
   - aggregation-pkg
   golden: dau_core.operators:aggregate_values
   bench: dau_core.tests.cocotb_benches.dau_stream_aggregation_tb
-  measured_from: 1:1201c28340a0769020d440a7b2cb19110a741ba8849ab1631d411e527a28a508
+  measured_from: 1:73f4f9fe442e7310e35117ce0fa73c934b712bb6ffc9b04489eaa2502ef43051
   resources:
   # RE-MEASURED 2026-08-18: the element-type retype MOVED this netlist, and a
   # pre-change control run at all four coordinates reproduces the old numbers
@@ -3349,14 +3349,14 @@ stream-aggregation:
     VALUE_WIDTH:
       # the ELEMENT TYPE of the aggregated column. The descriptor already
       # carries the column's logical type and physical width; this is which
-      # one the tile accepts, and the payload packs 64/width samples to a
+      # one the core accepts, and the payload packs 64/width samples to a
       # word. int32 encodes as 32, so this declares exactly the INT32 column
-      # the tile has always accepted.
+      # the core has always accepted.
       element_type: true
       default: int32
       # the RESULT bounds it from above: the accumulator and the result
       # descriptor are INT64, so a wider element could overflow a sum the
-      # result cannot express -- a different tile
+      # result cannot express -- a different core
       minimum: 8
       maximum: 32
       # only int32 is MEASURED; the RTL elaborates the whole declared range
@@ -3373,7 +3373,7 @@ arrow-lite-stream-aggregation:
   - aggregation-pkg
   golden: dau_core.operators:aggregate_values
   bench: dau_core.tests.cocotb_benches.dau_arrow_lite_stream_aggregation_tb
-  measured_from: 1:8ae60544c315f94fa6ff31501cced1f729ac1725857be1db2579d8249c6a4997
+  measured_from: 1:2633b1a7d2a3d67d0f01a0d320fff716b468d90ea185e4e2193335100ed501d4
   resources:
   # RE-MEASURED 2026-08-18: the element-type retype MOVED this netlist, and a
   # pre-change control run at all four coordinates reproduces the old numbers
@@ -3438,14 +3438,14 @@ arrow-lite-stream-aggregation:
     VALUE_WIDTH:
       # the ELEMENT TYPE of the aggregated column. The descriptor already
       # carries the column's logical type and physical width; this is which
-      # one the tile accepts, and the payload packs 64/width samples to a
+      # one the core accepts, and the payload packs 64/width samples to a
       # word. int32 encodes as 32, so this declares exactly the INT32 column
-      # the tile has always accepted.
+      # the core has always accepted.
       element_type: true
       default: int32
       # the RESULT bounds it from above: the accumulator and the result
       # descriptor are INT64, so a wider element could overflow a sum the
-      # result cannot express -- a different tile
+      # result cannot express -- a different core
       minimum: 8
       maximum: 32
       # only int32 is MEASURED; the RTL elaborates the whole declared range
@@ -3462,7 +3462,7 @@ record-batch-aggregation:
   - aggregation-pkg
   golden: dau_core.operators:aggregate_values
   bench: dau_core.tests.cocotb_benches.dau_record_batch_aggregation_tb
-  measured_from: 1:8f192b4f5a7f083f46c0930a7992179a7070917e439706bf54760b4e00aa0725
+  measured_from: 1:da87675c99cf6bbd9c0100af3f85bcab257740538d8a6e9eb737c64dd6eefcdd
   resources:
   # RE-MEASURED 2026-08-18: the element-type retype MOVED this netlist, and a
   # pre-change control run at all four coordinates reproduces the old numbers
@@ -3527,14 +3527,14 @@ record-batch-aggregation:
     VALUE_WIDTH:
       # the ELEMENT TYPE of the aggregated column. The descriptor already
       # carries the column's logical type and physical width; this is which
-      # one the tile accepts, and the payload packs 64/width samples to a
+      # one the core accepts, and the payload packs 64/width samples to a
       # word. int32 encodes as 32, so this declares exactly the INT32 column
-      # the tile has always accepted.
+      # the core has always accepted.
       element_type: true
       default: int32
       # the RESULT bounds it from above: the accumulator and the result
       # descriptor are INT64, so a wider element could overflow a sum the
-      # result cannot express -- a different tile
+      # result cannot express -- a different core
       minimum: 8
       maximum: 32
       # only int32 is MEASURED; the RTL elaborates the whole declared range
@@ -3630,9 +3630,9 @@ axi-random-probe:
       minimum: 1
       maximum: 64
   # Measured 2026-08-14 via dau-build task=tasks/build/synthesize-cores.
-  # Identical on both parts because the tile is pure control: counters, an
+  # Identical on both parts because the core is pure control: counters, an
   # xorshift and an AR handshake, no memory and no arithmetic.
-  measured_from: 1:99731d14d25b5a1c0e3ebe1e580085597fd997e64f903d6fe6cd92e68b7d4adb
+  measured_from: 1:f3b2a995a169c3eaacb9b1d350fb982ea3d9858dc9112c74ed08014cbd02a62e
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -3718,7 +3718,7 @@ axi-record-writer:
   source: dau_axi_record_writer.sv
   description: AXI4 burst write master draining one record stream to a region.
   # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
-  measured_from: 1:afb8a9ebd011d8c0b2ea4768becc8835124c4fb9c2b9e7e15d8ba3f51773185c
+  measured_from: 1:bc19ecd902c2dcf90b700827a3946eeaeec6dfba52c4887aaa78f419ee4c2865
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -3816,9 +3816,9 @@ bram-stream-job:
   role: stream-job-shell
   module: dau_bram_stream_job
   source: dau_bram_stream_job.sv
-  description: BRAM-staged tile-agnostic job runner.
+  description: BRAM-staged core-agnostic job runner.
   # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
-  measured_from: 1:0cca61e1c7c4414c64d60f6fb114d3716fb700abd666d5844ed37ce9c54a472a
+  measured_from: 1:2152b642c210bb441d9530fe5683966781f2923f7c5925e234b1d0720b75e6aa
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -3849,7 +3849,7 @@ axi-stream-job:
   description: DDR-staged AXI4 master job runner (reader + writer halves fused).
   bench: dau_core.tests.cocotb_benches.dau_axi_bar_job_tb
   # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
-  measured_from: 1:5430fe3bd4e7302919c896f137f68530448870e5f3b001d2daffa8406c26a67c
+  measured_from: 1:f3d49ac8e33720b7f490b65fbefaaa7fc532a5ecbf828d2e6285fe10229157ac
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -3918,7 +3918,7 @@ wide-row-predicate-filter:
   bench: dau_core.tests.cocotb_benches.dau_wide_row_predicate_filter_tb
   # Reference hand-split 3-stage OOC: SLOTS=4 xc7a200tfbg484-2, Vivado 2025.2, 8 ns met (WNS +3.129)
   # Measured 2026-08-11 via dau-build task=tasks/build/synthesize-cores.
-  measured_from: 1:df67b339f627b8aec446ef30bc1e9b383e73ca95d94ee92efc0c7fc3695763cb
+  measured_from: 1:f312fc0fe12fc80839b605574b3c04d702a79e5ba3a531c4edc63e6c5131b5ff
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -3987,12 +3987,12 @@ wide-row-predicate-filter:
       maximum: 8
     FIELD_WIDTH:
       # the ELEMENT TYPE of one field, not a bit count -- the same declaration
-      # the 64-bit row filter carries, because this is that tile widened to
+      # the 64-bit row filter carries, because this is that core widened to
       # SLOTS rows per beat. int32 encodes as 32, so this declares exactly the
-      # tile it always built.
+      # core it always built.
       element_type: true
       default: int32
-      # the tile's own elaboration guard: a whole divisor of the 128-bit quad
+      # the core's own elaboration guard: a whole divisor of the 128-bit quad
       # row, which stays the transport unit at every element width
       minimum: 8
       maximum: 64
@@ -4018,7 +4018,7 @@ wide-row-map-alu:
   # xc7a200t point was taken BEFORE the multiply was registered and describes
   # HDL that no longer exists, so it is deliberately absent rather than
   # carried forward -- that stale point is what hid a -1.383 ns violation.
-  measured_from: 1:c4a38cc1ec0b164ba93712640df3c495b7de7580d35635df4bdd123b5e7fd414
+  measured_from: 1:e3dc08bbf7de87503a9a9134d756fa0b000692b2d70421b3d2b1e93a5021f86f
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -4142,7 +4142,7 @@ wide-group-table-sum:
   # defaults (SLOTS 4, GROUP_BITS 6), with each bank's words in single-port
   # distributed RAM. The first version, one array written from three
   # places, synthesized as registers: 48,269 LUTs and 83,929 flops.
-  measured_from: 1:961d942bfe3fc6cd0122339c804a6f498dc77808bba5fd0b064bdbd9bfa2707d
+  measured_from: 1:3510745ceb22daf01c2cc8c7a54e839bc945520b8d101e2fe1c86568c51327c2
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -4213,7 +4213,7 @@ wide-field-sum-aggregation:
   bench: dau_core.tests.cocotb_benches.dau_wide_field_sum_aggregation_tb
   # Measured points only. The pre-balanced-tree xc7a200t point is deliberately
   # absent: it measured different HDL.
-  measured_from: 1:c19b172706af884df9c5b584508b0f51d190c0bb62c1b0834908e94a31dc3e9e
+  measured_from: 1:c310b9c6f1bbe15bce6424dd6d5867757a4a515e6ffc4e6a09e4c93716406287
   resources:
   # RE-MEASURED 2026-08-18 at SLOTS 1, 2 and 4 on both parts, because a control
   # run reported drift the retype had not caused: the same coordinates report
@@ -4322,14 +4322,14 @@ wide-field-sum-aggregation:
     FIELD_WIDTH:
       # the ELEMENT TYPE of one field lane. The 128-bit row is the transport
       # unit and stays fixed, so field i is its i-th lane at this width; the
-      # tile keeps the four lanes it names and ignores any a narrower type
+      # core keeps the four lanes it names and ignores any a narrower type
       # leaves beyond them. int32 encodes as 32, so this declares exactly the
-      # tile that has always been built.
+      # core that has always been built.
       element_type: true
       default: int32
       # the record bounds it from above, not the row: the sums are INT64 and
       # the element statistics ride 32-bit record slots, so a wider element
-      # would need a versioned record -- a different tile
+      # would need a versioned record -- a different core
       minimum: 8
       maximum: 32
       # only int32 is MEASURED; the RTL elaborates the whole declared range
@@ -4366,7 +4366,7 @@ scratchpad:
   source: dau_scratchpad.sv
   description: 'Owned-arena scratchpad: the deliberately trivial consumer of the
     owned storage class (STORAGE_AND_NOC.md). A granted word arena behind a
-    host-written config port an allocator tile drives later; overflow at the
+    host-written config port an allocator core drives later; overflow at the
     grant boundary is a defined STORAGE_OVERFLOW close-out preserving
     emitted rows. Two words in per row {value,addr}/{we}, one word out
     {post_op_value,addr}. The interface keyed state consumes next.'
@@ -4390,7 +4390,7 @@ scratchpad:
       # interprets what it holds, so every type is admissible here -- the
       # bound is the packing one: the value lane rides above the fixed 32-bit
       # ADDRESS lane in one 64-bit word. int32 encodes as 32, so this declares
-      # exactly the tile it always built, and storage_intent's 4 bytes per
+      # exactly the core it always built, and storage_intent's 4 bytes per
       # word is that type's size.
       element_type: true
       default: int32
@@ -4399,11 +4399,11 @@ scratchpad:
       # only int32 is MEASURED; the RTL elaborates the whole declared range,
       # and widening this list is a measurement task, not an RTL one
       choices: [int32]
-  # OOC on both parts, 8 ns, CAPACITY=1024. The first run of this tile
+  # OOC on both parts, 8 ns, CAPACITY=1024. The first run of this core
   # landed in 512 LUTs of distributed RAM because the arena access lived in
   # the reset-carrying FSM process; the dedicated reset-free process infers
   # the intended RAMB36.
-  measured_from: 1:e59f587b1698491011b1cfda2bd9ee0a6c78a6d11df8693fb4602f8b9695f7bb
+  measured_from: 1:3748c1f16845dac51de940ac6616f72b37d301d1ecdfdd7e6cd524d694dcbf19
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -4436,7 +4436,7 @@ keyed-state:
   kind: operator
   module: dau_keyed_state
   source: dau_keyed_state.sv
-  description: 'Keyed state tile: the first stateful operator and the owned
+  description: 'Keyed state core: the first stateful operator and the owned
     storage class''s first real consumer. A per-key accumulator (SET/ADD/MAX/MIN
     from cfg_op, first row of a key seeded from cfg_initial) emitting the
     post-update state per row -- the loop-carried-per-key shape a SIMD CPU
@@ -4470,8 +4470,8 @@ keyed-state:
       # the ELEMENT TYPE of the key and value lanes -- one type, because the
       # two share a 64-bit word and the emitted record mirrors the accepted
       # one. The accumulator orders and adds two's-complement magnitudes, so
-      # the tile's own guard refuses float and unsigned types. int32 encodes
-      # as 32, so this declares exactly the tile it always built.
+      # the core's own guard refuses float and unsigned types. int32 encodes
+      # as 32, so this declares exactly the core it always built.
       element_type: true
       default: int32
       minimum: 8
@@ -4487,7 +4487,7 @@ keyed-state:
   # the netlist is unchanged and the recorded 408 simply predates
   # dau-build#165, which put `-include_dirs` on synth_design. Every other
   # number, including WNS to the picosecond, is what it was.
-  measured_from: 1:3c9403b72725a37619935fac5a6b7dc9b6d0ec3d8c141dd030f9cb41a5668982
+  measured_from: 1:dbfd455ae22aca57c5534d9475d03cae674e9ba9bc101eaf72c3ecd9bd86c260
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -4521,7 +4521,7 @@ session-gap:
   kind: operator
   module: dau_session_gap
   source: dau_session_gap.sv
-  description: 'Session-gap tile: the Nexmark-Q11 shape over bounded keyed
+  description: 'Session-gap core: the Nexmark-Q11 shape over bounded keyed
     state (STORAGE_AND_NOC.md). Per-key sessions over time-ordered {time,key}
     rows: a row past its key''s last time by more than cfg_gap closes the
     old session
@@ -4562,7 +4562,7 @@ session-gap:
       # family's rule. That is also why only int32 is offered: a narrower type
       # bounds the count a session can report, and a count that wrapped
       # silently is worse than one that cannot be asked for. Times are
-      # subtracted and keys sorted signed, so the tile's own guard refuses
+      # subtracted and keys sorted signed, so the core's own guard refuses
       # float and unsigned types.
       element_type: true
       default: int32
@@ -4570,15 +4570,15 @@ session-gap:
       maximum: 32
       choices: [int32]
   # OOC on both parts, 8 ns, CAPACITY=1024. 1024 x 128-bit slots = exactly
-  # four RAMB36. The dpv1 margin is the tightest of the stateful tiles (the
+  # four RAMB36. The dpv1 margin is the tightest of the stateful cores (the
   # 33-bit gap compare plus the 128-bit slot path) but met.
   #
-  # RE-MEASURED 2026-08-16, same cause as the keyed state tile beside it: the
+  # RE-MEASURED 2026-08-16, same cause as the keyed state core beside it: the
   # PRE-retype RTL reports these same numbers at both coordinates, so the
   # retype moved nothing and the recorded 567/566 predate dau-build#165's
   # `-include_dirs`. Both parts now land on the same 576, which is what a
   # part-independent front end should do.
-  measured_from: 1:63d9bf2264569e39c308e87cecf8e7135c959a87e80a5569d1fe5d9e8ca62af5
+  measured_from: 1:9f5c1f41311d0f7c1fe99073940863262002834bfe99686defbe450e98cea67e
   resources:
     - part: xc7a200tfbg484-2
       clock_ns: 8.0
@@ -4614,7 +4614,7 @@ datetime-format:
   description: 'Datetime formatter: one int64 epoch-SECONDS value per beat in, the 19-byte ASCII rendering "YYYY-MM-DD
     HH:MM:SS" out, one row per cycle. This is the hardware answer to a per-row string build on the CPU (polars
     dt.to_string). The civil date is Howard Hinnant''s civil_from_days and the time of day is three constant divisions,
-    so EVERY division in the tile is by a compile-time constant and every one is a multiply-shift with the divisor''s
+    so EVERY division in the core is by a compile-time constant and every one is a multiply-shift with the divisor''s
     power-of-two factor peeled off first (86400 = 128*675, 3600 = 16*225, 1460 = 4*365, ...); there is no general
     divider. Leap years are exact -- all three rules -- because they fall out of the 400-year era arithmetic rather than
     being special-cased. Binary-to-BCD is double dabble, the year''s fourteen iterations split across two pipeline
@@ -4630,7 +4630,7 @@ datetime-format:
   record_words: 1
   # 19 ASCII bytes is 152 bits, which is THREE 64-bit words. The description
   # has always said so, but prose is not what the composition layer reads:
-  # declaring 1 here told the width check this tile emits 64 bits, and that
+  # declaring 1 here told the width check this core emits 64 bits, and that
   # check is detection-only, so the mismatch would be reported and wired up
   # anyway, dropping 11 of the 19 characters. See test_output_beat_declarations.
   output_record_words: 3
@@ -4638,13 +4638,13 @@ datetime-format:
     rows: 1
     per_cycles: 1
   # Measured 2026-08-13 via dau-build task=tasks/build/synthesize-cores,
-  # Vivado 2025.2. The tile is DSP-priced, not LUT-priced: the eleven
+  # Vivado 2025.2. The core is DSP-priced, not LUT-priced: the eleven
   # multiply-shift divisions map to 17 DSP48E1s, and the pipeline's pure carry
   # chains (time-of-day, day-of-era, era) map to 72 LUTs of SRL rather than to
   # flops, which is why 24 stages cost 428 FF. Only 296 LUTs are logic. The
   # margin at 6.667 ns is 0.240 ns, under the half-nanosecond line: budget a
   # retime before composing this at 150 MHz.
-  measured_from: 1:c00ffac79427d408ab6d4a3e0a441c4bf19ad05e245433a3d37ff4a6dd20272c
+  measured_from: 1:6ec31e51bffd3bb89cd35ef96c129f6d393ab054ac62cb7d0c77fea922b623f1
   resources:
     - part: xc7k325tffg900-2
       clock_ns: 8.0

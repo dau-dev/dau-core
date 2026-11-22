@@ -2,18 +2,18 @@
 
 `include "types.svh"
 
-// Row-unpack front-end feed tile: widens a stream of PACKED rows into the
-// standard 16-byte quad rows the operator tiles consume. Each input
+// Row-unpack front-end feed core: widens a stream of PACKED rows into the
+// standard 16-byte quad rows the operator cores consume. Each input
 // word carries one complete packed row (<=64 bits of the 64-bit word); the
-// tile bit-extracts four configured fields, sign- or zero-extends each to
+// core bit-extracts four configured fields, sign- or zero-extends each to
 // FIELD_WIDTH, and emits the 16-byte quad row as two 64-bit words
 // (w0 = {value, key}, w1 = {aux1, aux0}; field i is the i-th FIELD_BITS lane in
 // (key, value, aux0, aux1) order — field 0 = key = w0.lo — byte-identical to
-// what the pair-key partition / row filters / row map / field-sum tiles
+// what the pair-key partition / row filters / row map / field-sum cores
 // expect). One input word in, two output words out, order and count
 // preserved. dau_core.operators.unpack_rows is the golden.
 //
-// Why this tile exists: the dpv1 scan feed is DDR-BYTE-bandwidth-bound
+// Why this core exists: the dpv1 scan feed is DDR-BYTE-bandwidth-bound
 // (~970 MB/s profiled). Staging rows PACKED to DDR (fewer bytes/row) and
 // widening them on-chip here ~doubles rows/sec off DDR AND halves the host
 // DMA, with the operators downstream unchanged. It covers packed rows up to
@@ -27,7 +27,7 @@
 //
 // BYPASS mode (cfg_bypass, batch-latched at the first row like the field
 // descriptors): when set, the input is already the 16-byte quad row —
-// TWO 64-bit words per row, batch-last on the row's second word — and the tile
+// TWO 64-bit words per row, batch-last on the row's second word — and the core
 // forwards each word to the output byte-identically with ZERO added latency
 // (a true input->output wire, not widen-then-renarrow), so the bypass baseline
 // measures the operators-only path with the host packing removed. The field
@@ -38,11 +38,11 @@
 // overtaken across a mode change (the emit-drain re-arm gate holds in both
 // modes). Because a bypass row is two words, input_last is only legal on a
 // row's w1 (odd word); input_last on a w0 is a torn row that invalidates the
-// batch and reports ERR_STREAM — the quad-row-tile convention (pair-key
+// batch and reports ERR_STREAM — the quad-row-core convention (pair-key
 // filter, row filter/map, field-sum), never emitting a w0 tagged last.
 //
 // A composed-pipeline front-end stage: silent on success (the downstream
-// tile's close-out is authoritative — success_close_out=False), raising its
+// core's close-out is authoritative — success_close_out=False), raising its
 // own status only for an invalid config (ERR_CONFIG, unpack) or a torn bypass
 // row (ERR_STREAM). Unpack framing cannot tear (one input word is always one
 // complete packed row); only bypass's two-word framing can. The 2-beat unpack
@@ -52,7 +52,7 @@
 //
 // OUT_WIDTH (the rows/cycle axis): 64 (default) emits each quad row as two
 // 64-bit beats — the classic quad-stream framing, byte-identical to the
-// pre-parameter tile. 128 emits ONE whole quad row per beat ({w1, w0}: bits
+// pre-parameter core. 128 emits ONE whole quad row per beat ({w1, w0}: bits
 // [63:0] = {value, key}, [127:64] = {aux1, aux0}), so unpack sustains one
 // packed word in / one quad row out PER CYCLE — the shared-front emit cap
 // (2 cycles/quad at 64) that silicon showed gates the packed feed is lifted
@@ -64,15 +64,15 @@
 // 256, 512 and 1024 carry SLOTS = OUT_WIDTH/128 whole quad rows per beat,
 // slot s at [128*s +: 128], and widen the INPUT to match: IN_WIDTH = SLOTS*64,
 // packed row s at [64*s +: 64]. This is what lets a packed feed drive a
-// SLOTS-wide lane — at OUT_WIDTH=128 the tile emits one row per beat and
+// SLOTS-wide lane — at OUT_WIDTH=128 the core emits one row per beat and
 // starves a wider wide-row chain, which is why q6-packed-wide and q6-wide-sf1
 // could not be composed. The field extraction is replicated per slot and is
 // purely combinational, so the cost is linear in SLOTS with no new sequencing.
 //
 // RAGGED TAILS (SLOTS > 1 only): a batch whose row count is not a multiple of
 // SLOTS is padded by the host with the reserved ALL-ONES packed word, which
-// this tile passes through as the reserved ALL-ONES 128-bit PAD row rather
-// than unpacking it — the same PAD the wide-row tiles already drop in fabric,
+// this core passes through as the reserved ALL-ONES 128-bit PAD row rather
+// than unpacking it — the same PAD the wide-row cores already drop in fabric,
 // so positions are preserved and no consumer changes. At SLOTS == 1 every
 // beat is exactly one row, raggedness cannot arise, and an all-ones packed
 // word unpacks normally exactly as the silicon-proven 64/128 builds do.
@@ -94,20 +94,20 @@
 // a batch with an odd row count ends exactly there. That is a legitimate SHORT
 // FINAL BEAT, emitted with its unfilled upper half as PAD — not an error.
 //
-// In a composition this tile is the `front_unpack` of a ScanCompositionSpec:
+// In a composition this core is the `front_unpack` of a ScanCompositionSpec:
 // placed after the burst reader and before the broadcast/partition fan-out,
 // fed by rows the host staged packed with a pack schema derived from the
 // column ranges (dau_polars.pack.pack_schema).
 module dau_row_unpack #(
     parameter int unsigned OUT_WIDTH = 64,
     // The ELEMENT TYPE of the four widened fields, as encoded by types.svh.
-    // This tile is FAMILY-COUPLED: its output IS the quad row the operator
-    // tiles read, so it declares the same element they do or the front feeds
-    // them the wrong shape. Four lanes tile the 128-bit quad row, which stays
+    // This core is FAMILY-COUPLED: its output IS the quad row the operator
+    // cores read, so it declares the same element they do or the front feeds
+    // them the wrong shape. Four lanes core the 128-bit quad row, which stays
     // the transport unit; a narrower type therefore leaves the rest of the
     // row zero rather than shrinking the beat. A plain signed integer encodes
     // as its own width, so `DAU_TYPE_INT32 is 32 and this emits exactly the
-    // four-lane row the tile has always emitted.
+    // four-lane row the core has always emitted.
     //
     // THE PACKED WORD IS NOT THIS ELEMENT. Its 64 bits, the 6-bit offsets and
     // the reserved all-ones pad are the on-DDR framing, not a value's type,
@@ -159,23 +159,23 @@ module dau_row_unpack #(
     localparam int unsigned SLOTS = WIDE ? (OUT_WIDTH / 128) : 1;
     localparam int unsigned IN_WIDTH = SLOTS * 64;
     // the reserved ragged-tail pads: an all-ones packed row passes through as
-    // the all-ones quad row the wide-row tiles already drop (SLOTS > 1 only)
+    // the all-ones quad row the wide-row cores already drop (SLOTS > 1 only)
     localparam logic [63:0]  PAD_PACKED = {64{1'b1}};
     localparam logic [127:0] PAD_ROW    = {128{1'b1}};
     if (OUT_WIDTH != 64 && OUT_WIDTH != 128 && OUT_WIDTH != 256 && OUT_WIDTH != 512 && OUT_WIDTH != 1024) begin : g_bad_out_width
         $fatal(1, "dau_row_unpack: OUT_WIDTH must be 64, 128, 256, 512, or 1024");
     end
-    // FOUR widened fields tile the 128-bit quad row, so four of them must fit
+    // FOUR widened fields core the 128-bit quad row, so four of them must fit
     // it and lie on its lane grid
     if (FIELD_BITS < 8 || FIELD_BITS > 32 || (128 % FIELD_BITS) != 0) begin : g_field_width_check
         $error("FIELD_WIDTH must divide 128 and lie in [8, 32]");
     end
-    // A TYPE IS NOT A CAPABILITY. This tile builds a value by shifting,
+    // A TYPE IS NOT A CAPABILITY. This core builds a value by shifting,
     // masking and replicating a sign bit -- it cannot produce an exponent and
     // a mantissa, so a float type here would name something the datapath
     // never emits. Refuse it at elaboration.
     if (FIELD_IS_FLOAT != 0) begin : g_field_float_check
-        $error("FIELD_WIDTH must not name a floating-point type: this tile bit-extracts and sign-extends integers");
+        $error("FIELD_WIDTH must not name a floating-point type: this core bit-extracts and sign-extends integers");
     end
 
     typedef enum logic [1:0] {
@@ -293,7 +293,7 @@ module dau_row_unpack #(
         // bypass batch drives the output straight from the input word (zero
         // added latency), suppressing only a torn w0. A torn bypass row is
         // input_last on a w0 (phase 0): it is never forwarded (dropped like the
-        // other quad-row tiles) and never tagged last — the batch is
+        // other quad-row cores) and never tagged last — the batch is
         // invalidated with ERR_STREAM instead.
         logic bypass_torn;
         assign bypass_torn = bypass_pass && input_last && !bypass_phase;
@@ -334,7 +334,7 @@ module dau_row_unpack #(
     // A layout whose fields can COVER all 64 bits could therefore produce a
     // legitimate row indistinguishable from a pad -- four unsigned 16-bit
     // fields all at max is exactly all-ones -- and that row would be dropped
-    // by the wide tiles downstream. Worse, the same input would unpack
+    // by the wide cores downstream. Worse, the same input would unpack
     // normally at SLOTS == 1, so the ANSWER WOULD DEPEND ON OUT_WIDTH.
     //
     // Requiring a spare bit makes the sentinel unreachable by construction
@@ -457,7 +457,7 @@ module dau_row_unpack #(
                                 // input beat is whole quad rows -- a short
                                 // final beat on phase 0, emitted PAD-filled.
                                 // Either way a well-framed batch: silent
-                                // success (the downstream tile closes out)
+                                // success (the downstream core closes out)
                                 bypass_phase <= 1'b0;
                                 batch_open <= 1'b0;
                             end else if (input_last) begin
@@ -487,7 +487,7 @@ module dau_row_unpack #(
                             // widen this packed row and emit its quad-row pair
                             start_emit(input_last);
                             if (input_last) begin
-                                // silent success: the downstream tile closes out
+                                // silent success: the downstream core closes out
                                 batch_open <= 1'b0;
                             end
                         end

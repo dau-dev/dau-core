@@ -13,8 +13,8 @@ capacities). Three consumers read it:
   driver capability decode via the manifest mapping).
 
 Hardware truth vs protocol truth is explicit: ``operator_bitmap`` carries
-only OperationCodes some tile executes in HDL (MIN/MAX/SUM/COUNT);
-AVERAGE is never a hardware opcode — when a tile provides both SUM and
+only OperationCodes some core executes in HDL (MIN/MAX/SUM/COUNT);
+AVERAGE is never a hardware opcode — when a core provides both SUM and
 COUNT it appears in ``host_opcodes`` (the host divides the results at
 protocol level), never in ``opcodes``.
 """
@@ -26,7 +26,7 @@ from typing import Any
 
 from pydantic import Field
 
-from .composition import ScanCompositionSpec, TileSpec
+from .composition import CoreSpec, ScanCompositionSpec
 from .cores import ContractKind
 from .design import DauDesign, OperatorUnit, UnitKind
 from .models import CheckedModel
@@ -59,8 +59,8 @@ def opcode_bitmap(opcodes: tuple[OperationCode, ...]) -> int:
     return bitmap
 
 
-class TileCapability(CheckedModel):
-    """One operator tile instance as the contract describes it: registry
+class CoreCapability(CheckedModel):
+    """One operator core instance as the contract describes it: registry
     identity, stream contract, HDL opcode truth, instance config, and the
     module parameters it was built with (each declared parameter, at its
     override or its default)."""
@@ -78,7 +78,7 @@ class TileCapability(CheckedModel):
 
     @property
     def host_opcodes(self) -> tuple[OperationCode, ...]:
-        """Protocol-level opcodes the host can compute from this tile's
+        """Protocol-level opcodes the host can compute from this core's
         hardware results: AVERAGE = SUM/COUNT divided host-side. Never
         hardware opcodes and never advertised as such."""
         if OperationCode.SUM in self.opcodes and OperationCode.COUNT in self.opcodes:
@@ -100,8 +100,8 @@ class TileCapability(CheckedModel):
         }
 
     @classmethod
-    def from_mapping(cls, mapping: Mapping[str, Any]) -> TileCapability:
-        mapping = _exact_keys(mapping, frozenset(cls.model_fields), "tile capability")
+    def from_mapping(cls, mapping: Mapping[str, Any]) -> CoreCapability:
+        mapping = _exact_keys(mapping, frozenset(cls.model_fields), "core capability")
         return cls(
             core=mapping["core"],
             module=mapping["module"],
@@ -117,16 +117,16 @@ class TileCapability(CheckedModel):
 
 
 class LaneCapability(CheckedModel):
-    """One scan lane: the terminal operator tile, its optional partition
+    """One scan lane: the terminal operator core, its optional partition
     filter, and the ordered mid-lane operator ``chain`` between them."""
 
-    tile: TileCapability
-    partition: TileCapability | None = None
-    chain: tuple[TileCapability, ...] = ()
+    sink: CoreCapability
+    partition: CoreCapability | None = None
+    chain: tuple[CoreCapability, ...] = ()
 
     def to_mapping(self) -> dict[str, Any]:
         return {
-            "tile": self.tile.to_mapping(),
+            "sink": self.sink.to_mapping(),
             "partition": self.partition.to_mapping() if self.partition is not None else None,
             "chain": [stage.to_mapping() for stage in self.chain],
         }
@@ -136,9 +136,9 @@ class LaneCapability(CheckedModel):
         mapping = _exact_keys(mapping, frozenset(cls.model_fields), "lane capability")
         partition = mapping["partition"]
         return cls(
-            tile=TileCapability.from_mapping(mapping["tile"]),
-            partition=TileCapability.from_mapping(partition) if partition is not None else None,
-            chain=tuple(TileCapability.from_mapping(stage) for stage in mapping["chain"]),
+            sink=CoreCapability.from_mapping(mapping["sink"]),
+            partition=CoreCapability.from_mapping(partition) if partition is not None else None,
+            chain=tuple(CoreCapability.from_mapping(stage) for stage in mapping["chain"]),
         )
 
 
@@ -153,7 +153,7 @@ class CapabilityContract(CheckedModel):
 
     name: str
     lanes: tuple[LaneCapability, ...]
-    partitioner: TileCapability | None = None
+    partitioner: CoreCapability | None = None
     register_map_version: RegisterMapVersion = Field(default_factory=lambda: CURRENT_REGISTER_MAP_VERSION)
     # whether the lanes' chain config ports are runtime registers the host
     # rewrites per job, so a planner matches this design structurally
@@ -168,16 +168,16 @@ class CapabilityContract(CheckedModel):
 
     @property
     def hardware_opcodes(self) -> tuple[OperationCode, ...]:
-        """Union of the lanes' HDL opcodes (terminal tiles and chain
+        """Union of the lanes' HDL opcodes (terminal cores and chain
         stages), ordered by opcode value."""
-        opcodes = {opcode for lane in self.lanes for tile in (lane.tile, *lane.chain) for opcode in tile.opcodes}
+        opcodes = {opcode for lane in self.lanes for capability in (lane.sink, *lane.chain) for opcode in capability.opcodes}
         return tuple(sorted(opcodes, key=int))
 
     @property
     def host_opcodes(self) -> tuple[OperationCode, ...]:
-        """Protocol-level opcodes derivable host-side (AVERAGE when a tile
+        """Protocol-level opcodes derivable host-side (AVERAGE when a core
         provides both SUM and COUNT); explicitly not hardware opcodes."""
-        opcodes = {opcode for lane in self.lanes for tile in (lane.tile, *lane.chain) for opcode in tile.host_opcodes}
+        opcodes = {opcode for lane in self.lanes for capability in (lane.sink, *lane.chain) for opcode in capability.host_opcodes}
         return tuple(sorted(opcodes, key=int))
 
     @property
@@ -190,31 +190,31 @@ class CapabilityContract(CheckedModel):
 
     @property
     def sort_capacity(self) -> int:
-        capacities = [lane.tile.row_capacity or 0 for lane in self.lanes if lane.tile.unit_kind == UnitKind.SORT]
+        capacities = [lane.sink.row_capacity or 0 for lane in self.lanes if lane.sink.unit_kind == UnitKind.SORT]
         return max(capacities, default=0)
 
     def to_design(self) -> DauDesign:
         """The operator inventory this contract advertises: identical lane
-        tiles that contribute a design unit collapse into one counted unit."""
-        counts: dict[TileCapability, int] = {}
+        cores that contribute a design unit collapse into one counted unit."""
+        counts: dict[CoreCapability, int] = {}
         for lane in self.lanes:
-            if lane.tile.unit_kind is None:
+            if lane.sink.unit_kind is None:
                 continue
-            key = TileCapability(
-                core=lane.tile.core,
-                module=lane.tile.module,
-                contract_kind=lane.tile.contract_kind,
-                count_port=lane.tile.count_port,
-                opcodes=lane.tile.opcodes,
-                input_types=lane.tile.input_types,
-                unit_kind=lane.tile.unit_kind,
-                row_capacity=lane.tile.row_capacity,
+            key = CoreCapability(
+                core=lane.sink.core,
+                module=lane.sink.module,
+                contract_kind=lane.sink.contract_kind,
+                count_port=lane.sink.count_port,
+                opcodes=lane.sink.opcodes,
+                input_types=lane.sink.input_types,
+                unit_kind=lane.sink.unit_kind,
+                row_capacity=lane.sink.row_capacity,
             )
             counts[key] = counts.get(key, 0) + 1
         unit_list: list[OperatorUnit] = []
-        for tile, count in counts.items():
-            if tile.unit_kind is not None:
-                unit_list.append(OperatorUnit(kind=tile.unit_kind, count=count, opcodes=tile.opcodes, input_types=tile.input_types))
+        for capability, count in counts.items():
+            if capability.unit_kind is not None:
+                unit_list.append(OperatorUnit(kind=capability.unit_kind, count=count, opcodes=capability.opcodes, input_types=capability.input_types))
         units = tuple(unit_list)
         return DauDesign(name=self.name, units=units)
 
@@ -247,17 +247,17 @@ class CapabilityContract(CheckedModel):
         return cls(
             name=mapping["name"],
             lanes=tuple(LaneCapability.from_mapping(lane) for lane in mapping["lanes"]),
-            partitioner=TileCapability.from_mapping(partitioner) if partitioner is not None else None,
+            partitioner=CoreCapability.from_mapping(partitioner) if partitioner is not None else None,
             register_map_version=RegisterMapVersion(int(major), int(minor)),
             reconfigurable=mapping["reconfigurable"],
         )
 
 
-def tile_capability(tile: TileSpec | str) -> TileCapability:
-    """The registry-declared capability facts of one tile instance."""
-    spec = TileSpec(core=tile) if isinstance(tile, str) else tile
+def core_capability(core_spec: CoreSpec | str) -> CoreCapability:
+    """The registry-declared capability facts of one core instance."""
+    spec = CoreSpec(core=core_spec) if isinstance(core_spec, str) else core_spec
     definition = core(spec.core)
-    return TileCapability(
+    return CoreCapability(
         core=definition.name,
         module=definition.module,
         contract_kind=definition.contract_kind,
@@ -285,11 +285,11 @@ def capability_contract(spec: ScanCompositionSpec) -> CapabilityContract:
         name=spec.name,
         lanes=tuple(
             LaneCapability(
-                tile=tile_capability(lane.tile),
-                partition=tile_capability(lane.partition) if lane.partition is not None else None,
-                chain=tuple(tile_capability(stage) for stage in lane.chain),
+                sink=core_capability(lane.sink),
+                partition=core_capability(lane.partition) if lane.partition is not None else None,
+                chain=tuple(core_capability(stage) for stage in lane.chain),
             )
             for lane in spec.lanes
         ),
-        partitioner=tile_capability(spec.partitioner) if spec.partitioner is not None else None,
+        partitioner=core_capability(spec.partitioner) if spec.partitioner is not None else None,
     )

@@ -188,7 +188,7 @@ async def bad_config_offset_plus_width_over_64_reports_config_error(dut):
 @cocotb.test()
 async def error_status_survives_backpressure(dut):
     # while status_ready is held low the error close-out must stay stable and
-    # the tile must refuse new input; recovery only after the handshake
+    # the core must refuse new input; recovery only after the handshake
     await _start(dut)
     _drive_raw_config(dut, [(0, 8, 0), (8, 0, 0), (16, 8, 0), (24, 8, 0)])
     dut.status_ready.value = 0
@@ -207,7 +207,7 @@ async def error_status_survives_backpressure(dut):
         assert int(dut.status_valid.value) == 1, "error status not held"
         assert int(dut.status_error.value) == 1
         assert int(dut.status_error_code.value) == UnpackErrorCode.CONFIG
-        assert int(dut.input_ready.value) == 0, "tile accepted input while status pending"
+        assert int(dut.input_ready.value) == 0, "core accepted input while status pending"
         await RisingEdge(dut.clk)
 
     await _expect_status(dut, error=True, code=UnpackErrorCode.CONFIG)
@@ -220,7 +220,7 @@ async def error_close_out_waits_for_backpressured_tail(dut):
     # Cross-batch error ordering under output backpressure. Batch A (valid
     # config) forwards one row whose final beat is held under backpressure;
     # batch B follows immediately with an invalid config that would raise
-    # ERR_CONFIG. The tile must not present B's error close-out on the status
+    # ERR_CONFIG. The core must not present B's error close-out on the status
     # stream until A's final output beat has handshaked -- otherwise B's
     # per-batch close-out overtakes A's still-in-flight tail (the lane status
     # mux serialises one close-out per batch, and the record writer's done
@@ -314,7 +314,7 @@ async def constrained_random_batches_match_golden(dut):
 @cocotb.test()
 async def bypass_passes_quad_rows_through_byte_identical(dut):
     # cfg_bypass=1: input is already 16-byte quad rows (two words each); the
-    # tile forwards every word byte-identically, order/count preserved, last on
+    # core forwards every word byte-identically, order/count preserved, last on
     # the batch's final word
     await _start(dut)
     dut.cfg_bypass.value = 1
@@ -461,7 +461,7 @@ async def bypass_waits_for_backpressured_unpack_tail(dut):
 async def bypass_torn_row_reports_stream_error(dut):
     # a bypass batch ending on a w0 (odd word count) is a torn quad row: the
     # torn w0 is never forwarded (nor tagged last) and the batch is invalidated
-    # with ERR_STREAM -- the quad-row-tile convention (input_last legal only on
+    # with ERR_STREAM -- the quad-row-core convention (input_last legal only on
     # a w1)
     await _start(dut)
     dut.cfg_bypass.value = 1
@@ -543,7 +543,7 @@ def _pack(specs, fields) -> int:
 
 
 def _expand(word: int, specs) -> list[int]:
-    """The two output words the tile emits for one packed word."""
+    """The two output words the core emits for one packed word."""
     key, value, aux0, aux1 = unpack_rows([word], specs)[0]
     return [((value & _MASK32) << 32) | (key & _MASK32), ((aux1 & _MASK32) << 32) | (aux0 & _MASK32)]
 
@@ -744,7 +744,7 @@ async def _collect_output(dut, ready_pattern, *, expect_words: int) -> list[int]
             if last == 1:
                 dut.output_ready.value = 0
                 assert len(words) == expect_words, f"expected {expect_words} words, got {len(words)}"
-                # a successful batch is silent: the downstream tile closes out
+                # a successful batch is silent: the downstream core closes out
                 await _assert_quiescent(dut)
                 return words
     raise AssertionError(f"timed out collecting unpack output ({len(words)}/{expect_words} words)")

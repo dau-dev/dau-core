@@ -12,8 +12,8 @@ from .stream import LOGICAL_TYPE_BYTE_WIDTHS, LogicalType, OperationCode
 
 
 class PredicateOp(IntEnum):
-    """Comparison opcodes for the predicate filter tile. Zero is reserved so an
-    unconfigured tile fails explicitly."""
+    """Comparison opcodes for the predicate filter core. Zero is reserved so an
+    unconfigured core fails explicitly."""
 
     EQ = 1
     NE = 2
@@ -36,7 +36,7 @@ class FilterErrorCode(IntEnum):
 
 class FilterPredicate(CheckedModel):
     """Predicate configuration: ``value <op0> constant0`` optionally combined
-    with ``value <op1> constant1`` by AND/OR. Matches the tile's config ports."""
+    with ``value <op1> constant1`` by AND/OR. Matches the core's config ports."""
 
     op0: PredicateOp
     constant0: int
@@ -60,7 +60,7 @@ class FilterPredicate(CheckedModel):
 
 
 def filter_values(values: Iterable[int], predicate: FilterPredicate) -> list[int]:
-    """Golden semantics for the compacting predicate filter tile: emit the
+    """Golden semantics for the compacting predicate filter core: emit the
     matching values in input order."""
     predicate = predicate.check()  # the config is read once; a copy past its validators is refused here
     return [value for value in values if predicate.matches(value)]
@@ -86,7 +86,7 @@ _INT32_MASK = 0xFFFF_FFFF
 
 
 class MapOp(IntEnum):
-    """ALU opcodes for the map tile. Zero is reserved so an unconfigured tile
+    """ALU opcodes for the map core. Zero is reserved so an unconfigured core
     fails explicitly."""
 
     ADD = 1
@@ -104,7 +104,7 @@ class MapErrorCode(IntEnum):
 
 
 def _apply_map_op(op: MapOp, value: int, constant: int, shift: int) -> int:
-    """The tile ALU: shared by the scalar and row map configs (a plain
+    """The core ALU: shared by the scalar and row map configs (a plain
     function so per-row golden loops never construct a model)."""
     if op == MapOp.ADD:
         return _wrap_int32(value + constant)
@@ -127,7 +127,7 @@ def _apply_map_op(op: MapOp, value: int, constant: int, shift: int) -> int:
 class MapConfig(CheckedModel):
     """Per-row ALU configuration: ``value <op> constant`` (MULSHR/SHL also use
     ``shift``). All arithmetic is INT32 two's-complement wraparound — the
-    golden and the tile agree bit-for-bit. Matches the tile's config ports."""
+    golden and the core agree bit-for-bit. Matches the core's config ports."""
 
     op: MapOp
     constant: int = 0
@@ -145,7 +145,7 @@ class MapConfig(CheckedModel):
 
 
 def map_values(values: Iterable[int], config: MapConfig) -> list[int]:
-    """Golden semantics for the map/ALU tile: apply the configured ALU
+    """Golden semantics for the map/ALU core: apply the configured ALU
     operation to every value, preserving order and count."""
     config = config.check()  # the config is read once; a copy past its validators is refused here
     return [config.apply(value) for value in values]
@@ -157,7 +157,7 @@ def _wrap_int32(value: int) -> int:
 
 
 def filter_rows(rows: Iterable[tuple[int, int]], predicate: FilterPredicate, *, on_key: bool = False) -> list[tuple[int, int]]:
-    """Golden semantics for the keyed predicate-filter tile: the predicate is
+    """Golden semantics for the keyed predicate-filter core: the predicate is
     evaluated on the value lane (or the key lane with ``on_key``) and whole
     ``(key, value)`` rows pass or drop together — compaction never misaligns
     the lanes."""
@@ -166,7 +166,7 @@ def filter_rows(rows: Iterable[tuple[int, int]], predicate: FilterPredicate, *, 
 
 
 def map_rows(rows: Iterable[tuple[int, int]], config: MapConfig, *, on_key: bool = False) -> list[tuple[int, int]]:
-    """Golden semantics for the keyed map/ALU tile: the ALU operation applies
+    """Golden semantics for the keyed map/ALU core: the ALU operation applies
     to the value lane (or the key lane with ``on_key`` — e.g. time→bucket
     derivation); the other lane passes through unchanged, order and count
     preserved."""
@@ -189,7 +189,7 @@ class RowField(IntEnum):
 
 class RowPredicateTerm(CheckedModel):
     """One comparison term of a row predicate: ``field <op> constant``
-    (signed 32-bit). Matches one term's config-port triple on the tile."""
+    (signed 32-bit). Matches one term's config-port triple on the core."""
 
     field: RowField
     op: PredicateOp
@@ -212,7 +212,7 @@ class RowPredicateConfig(CheckedModel):
     """Compound row predicate: up to three terms combined by the two-level
     tree ``(term0 <combine01> term1) <combine2> term2``. ``SINGLE`` at a
     level ignores the right-hand term (the 2-term filter's combine,
-    extended to three terms). Matches the tile's config ports."""
+    extended to three terms). Matches the core's config ports."""
 
     term0: RowPredicateTerm
     combine01: PredicateCombine = PredicateCombine.SINGLE
@@ -243,7 +243,7 @@ class RowPredicateConfig(CheckedModel):
 
 
 def filter_rows_by_predicate(rows: Iterable[tuple[int, int, int, int]], config: RowPredicateConfig) -> list[tuple[int, int, int, int]]:
-    """Golden semantics for the row predicate filter tile: whole
+    """Golden semantics for the row predicate filter core: whole
     (key, value, aux0, aux1) rows pass when the compound predicate over the
     selected fields matches (signed 32-bit compares), order preserved."""
     config = config.check()  # the config is read once; a copy past its validators is refused here
@@ -254,7 +254,7 @@ class RowMapConfig(CheckedModel):
     """Per-row field ALU configuration: ``dst = src_a <op> src_b`` over the
     four row fields (MULSHR/SHL also use ``shift``; SHL ignores ``src_b``).
     All arithmetic is INT32 two's-complement wraparound — the golden and the
-    tile agree bit-for-bit. Matches the tile's config ports."""
+    core agree bit-for-bit. Matches the core's config ports."""
 
     op: MapOp
     dst: RowField
@@ -280,7 +280,7 @@ def _quad(values: Iterable[int]) -> tuple[int, int, int, int]:
 
 
 def map_row_fields(rows: Iterable[tuple[int, int, int, int]], config: RowMapConfig) -> list[tuple[int, int, int, int]]:
-    """Golden semantics for the row map/ALU tile: the configured destination
+    """Golden semantics for the row map/ALU core: the configured destination
     field is rewritten from the two source-field operands; the other fields
     pass through unchanged, order and count preserved."""
     config = config.check()  # the config is read once; a copy past its validators is refused here
@@ -293,7 +293,7 @@ def map_row_fields(rows: Iterable[tuple[int, int, int, int]], config: RowMapConf
 
 
 class SqrtErrorCode(IntEnum):
-    # CONFIG (1) is the family's reserved code; this tile has no invalid
+    # CONFIG (1) is the family's reserved code; this core has no invalid
     # configuration -- dst == src is a legal in-place update
     STREAM = 2
     # sqrt of a negative value has no int32 answer. Returning zero would be a
@@ -301,8 +301,8 @@ class SqrtErrorCode(IntEnum):
     DOMAIN = 3
 
 
-# fractional bits in the tile's fixed-point format. Q16.16 covers prices and
-# returns in one format; the tile parameterizes it, this is the default.
+# fractional bits in the core's fixed-point format. Q16.16 covers prices and
+# returns in one format; the core parameterizes it, this is the default.
 SQRT_FRACTIONAL_BITS = 16
 SQRT_MAX_FRACTIONAL_BITS = 31
 
@@ -318,9 +318,9 @@ def fixed_point_sqrt(value: int, *, fractional_bits: int = SQRT_FRACTIONAL_BITS)
     This is worth stating because the obvious implementation is a polynomial
     approximation, which would need an error bound and would still be wrong in
     the last place. There is no approximation here and no tolerance in the
-    bench: the tile either matches this or it is broken.
+    bench: the core either matches this or it is broken.
 
-    Raises on a negative input; the tile reports ``DOMAIN`` for the same case.
+    Raises on a negative input; the core reports ``DOMAIN`` for the same case.
     """
     if value < 0:
         raise ValueError(f"sqrt of a negative fixed-point value is undefined, got {value}")
@@ -341,12 +341,12 @@ class RowSqrtConfig(CheckedModel):
 
 
 def sqrt_row_fields(rows: Iterable[tuple[int, int, int, int]], config: RowSqrtConfig) -> list[tuple[int, int, int, int]]:
-    """Golden semantics for the fixed-point sqrt tile: the destination field
+    """Golden semantics for the fixed-point sqrt core: the destination field
     is rewritten with the root of the source field, the other fields pass
     through unchanged, order and count preserved.
 
     A negative source value raises here and closes the batch out with
-    ``DOMAIN`` on the tile — the row is not emitted with a substituted value,
+    ``DOMAIN`` on the core — the row is not emitted with a substituted value,
     because a wrong number that looks right is the failure this avoids.
     """
     config = config.check()  # the config is read once; a copy past its validators is refused here
@@ -359,7 +359,7 @@ def sqrt_row_fields(rows: Iterable[tuple[int, int, int, int]], config: RowSqrtCo
 
 
 class DatetimeFormatErrorCode(IntEnum):
-    # CONFIG (1) and STREAM (2) are the family's reserved codes. This tile has
+    # CONFIG (1) and STREAM (2) are the family's reserved codes. This core has
     # no configuration to be invalid, and its record is a single word, so
     # neither can occur -- there is no torn row to detect.
     DOMAIN = 3
@@ -368,7 +368,7 @@ class DatetimeFormatErrorCode(IntEnum):
 # The widest instant "YYYY-MM-DD HH:MM:SS" can name, in epoch seconds:
 # 1970-01-01T00:00:00 through 9999-12-31T23:59:59. The bound is the FORMAT's,
 # not the algorithm's -- civil_from_days is exact well outside it -- so it is
-# the point past which the tile would render a year it cannot fit in four
+# the point past which the core would render a year it cannot fit in four
 # digits.
 DATETIME_FORMAT_MAX_EPOCH_SECONDS = 253402300799
 DATETIME_FORMAT_WIDTH = 19
@@ -378,13 +378,13 @@ def format_datetime(epoch_seconds: int) -> str:
     """``epoch_seconds`` rendered as ``YYYY-MM-DD HH:MM:SS``, in UTC.
 
     The civil date comes from Howard Hinnant's ``civil_from_days``, written
-    here in the same shape the tile implements it: every division is by a
+    here in the same shape the core implements it: every division is by a
     CONSTANT, which is what lets the hardware do all of them as multiply-shift
     with no divider. Leap years are exact, all three rules (4, 100, 400) --
     they are not special-cased anywhere, they fall out of the 400-year era
     arithmetic.
 
-    Raises outside the representable range; the tile reports ``DOMAIN`` for
+    Raises outside the representable range; the core reports ``DOMAIN`` for
     the same case rather than emitting a truncated year.
     """
     if not 0 <= epoch_seconds <= DATETIME_FORMAT_MAX_EPOCH_SECONDS:
@@ -407,11 +407,11 @@ def format_datetime(epoch_seconds: int) -> str:
 
 
 def format_datetime_rows(rows: Iterable[int]) -> list[str]:
-    """Golden semantics for the datetime formatter tile: one int64 epoch-second
+    """Golden semantics for the datetime formatter core: one int64 epoch-second
     value in, one fixed-width 19-character rendering out, order and count
     preserved.
 
-    The tile emits the ASCII of each string in one 152-bit beat, character i
+    The core emits the ASCII of each string in one 152-bit beat, character i
     in bits ``[8*i+7:8*i]``. An out-of-range value is not rendered: it closes
     the batch out with ``DOMAIN``.
     """
@@ -419,7 +419,7 @@ def format_datetime_rows(rows: Iterable[int]) -> list[str]:
 
 
 class DivideErrorCode(IntEnum):
-    # CONFIG (1) is the family's reserved code; this tile has no invalid
+    # CONFIG (1) is the family's reserved code; this core has no invalid
     # configuration -- dst may be either source, updating in place
     STREAM = 2
     # a zero divisor has no quotient
@@ -445,11 +445,11 @@ def fixed_point_divide(numerator: int, denominator: int, *, fractional_bits: int
     FLOOR, not truncation toward zero. That is the convention the rest of the
     package already uses: ``MULSHR`` divides by a power of two with an
     arithmetic shift, which floors, and ``-7 >> 1`` is ``-4``. Python's ``//``
-    floors too, so this is simply that operator. A tile that truncated toward
+    floors too, so this is simply that operator. A core that truncated toward
     zero would disagree with the existing map ALU on every negative operand.
 
     Raises on a zero divisor, and on a quotient that does not fit int32; the
-    tile reports ``DOMAIN`` and ``RANGE`` for those cases.
+    core reports ``DOMAIN`` and ``RANGE`` for those cases.
     """
     if denominator == 0:
         raise ZeroDivisionError("fixed-point divide by zero has no quotient")
@@ -474,7 +474,7 @@ class RowDivideConfig(CheckedModel):
 
 
 def divide_row_fields(rows: Iterable[tuple[int, int, int, int]], config: RowDivideConfig) -> list[tuple[int, int, int, int]]:
-    """Golden semantics for the fixed-point divide tile: the destination field
+    """Golden semantics for the fixed-point divide core: the destination field
     is rewritten with the quotient of the two source fields, the others pass
     through unchanged, order and count preserved.
 
@@ -499,14 +499,14 @@ def divide_row_fields(rows: Iterable[tuple[int, int, int, int]], config: RowDivi
 class UnpackErrorCode(IntEnum):
     CONFIG = 1
     # bypass mode consumes 16-byte quad rows (two words each); input_last on a
-    # w0 is a torn row, invalidating the batch — the quad-row-tile convention
+    # w0 is a torn row, invalidating the batch — the quad-row-core convention
     STREAM = 2
 
 
 class UnpackFieldSpec(CheckedModel):
     """One output field's slice of a packed row: the ``width``-bit field at bit
     ``offset`` of the (<=64-bit) packed word, sign-extended (``signed``) or
-    zero-extended to int32. Matches the tile's
+    zero-extended to int32. Matches the core's
     ``cfg_field{i}_{offset,width,signed}`` config ports."""
 
     offset: int
@@ -524,7 +524,7 @@ class UnpackFieldSpec(CheckedModel):
 
     def extract(self, packed: int) -> int:
         """Extract this field from ``packed`` as an int32-domain signed value
-        (the exact 32-bit pattern the tile emits, read back as signed int32)."""
+        (the exact 32-bit pattern the core emits, read back as signed int32)."""
         raw = (packed >> self.offset) & ((1 << self.width) - 1)
         if self.signed and (raw >> (self.width - 1)) & 1:
             raw -= 1 << self.width
@@ -537,17 +537,17 @@ def unpack_rows(
     *,
     bypass: bool = False,
 ) -> list[tuple[int, int, int, int]]:
-    """Golden semantics for the row-unpack front-end feed tile.
+    """Golden semantics for the row-unpack front-end feed core.
 
     UNPACK (``bypass=False``, the default): widen each packed input word (one
     <=64-bit packed row per word in ``rows``) into a 16-byte int32 quad row.
     Output field i is ``packed[offset_i +: width_i]`` sign/zero extended to
     int32; the four fields map to (key, value, aux0, aux1) — the exact quad-row
-    layout downstream row tiles consume (field 0 = key = w0.lo). One packed word
+    layout downstream row cores consume (field 0 = key = w0.lo). One packed word
     in, one quad row out, order and count preserved.
 
     BYPASS (``bypass=True``): the input is already 16-byte int32 quad rows
-    (``rows`` is an iterable of (key, value, aux0, aux1) tuples); the tile
+    (``rows`` is an iterable of (key, value, aux0, aux1) tuples); the core
     forwards them byte-identically, so the golden is the identity. Field
     descriptors are unused in this mode (not required, not validated)."""
     if bypass:
@@ -574,7 +574,7 @@ KEY_SPACE_MULTIPLE = 8 * STREAM_WORD_BYTES
 
 @dataclass(frozen=True)
 class FieldSumAggregate:
-    """The one record the field-sum aggregation tile emits per batch: exact
+    """The one record the field-sum aggregation core emits per batch: exact
     INT64 sums of the mask-selected fields (ascending field order) plus the
     row count. Record format on the wire: one 64-bit word per selected
     field (two's-complement sum, ascending field index), then the count
@@ -633,7 +633,7 @@ class FieldSumAggregate:
         rows several lanes each saw a DISJOINT share of: sums add, counts
         add.
 
-        This is the partition algebra of the tile -- what makes a key-mask
+        This is the partition algebra of the core -- what makes a key-mask
         dispatcher's replicas, or a complete pair-key partition group,
         answer as one lane -- and it holds only under a partition. Folding
         two lanes that each saw every row counts every row twice, which is
@@ -669,11 +669,11 @@ def _signed_int64(word: int) -> int:
 
 
 def field_sum_rows(rows: Iterable[tuple[int, int, int, int]], *, field_mask: int) -> FieldSumAggregate:
-    """Golden semantics for the batch field-sum aggregation tile: one pass
+    """Golden semantics for the batch field-sum aggregation core: one pass
     over (key, value, aux0, aux1) rows accumulating an INT64 sum per
     mask-selected field plus the row count. ``field_mask`` bit i selects
     field i; at least one field must be selected (a zero mask is an
-    unconfigured tile and reports CONFIG on hardware)."""
+    unconfigured core and reports CONFIG on hardware)."""
     if not 1 <= field_mask <= 15:
         raise ValueError("field_mask must select at least one of the four fields")
     selected = [i for i in range(4) if field_mask & (1 << i)]
@@ -694,14 +694,14 @@ class GroupedFieldSumErrorCode(IntEnum):
 @dataclass(frozen=True)
 class GroupedFieldSumAggregate:
     """One closed group from the ordered grouped field-sum aggregation
-    tile: INT64 sums of the mask-selected fields (ascending field order)
+    core: INT64 sums of the mask-selected fields (ascending field order)
     plus the group's row count — exact for every feasible batch (an INT64
     accumulator of int32 addends cannot overflow below 2**32 rows in one
     group, far past any stageable batch). Record format on the wire: the
     group key sign-extended to one 64-bit word, one 64-bit word per
     selected field (two's-complement sum, ascending field index), then the
     count word. ``output_last`` is set only on the final group's count
-    word — the batch's group records form one record stream and the tile
+    word — the batch's group records form one record stream and the core
     closes out once per batch, after the last group (the composition
     invariant: exactly one success close-out per lane per batch)."""
 
@@ -718,14 +718,14 @@ class GroupedFieldSumAggregate:
 
 
 def grouped_field_sum_rows(rows: Iterable[tuple[int, int, int, int]], *, field_mask: int) -> list[GroupedFieldSumAggregate]:
-    """Golden semantics for the ordered grouped field-sum aggregation tile
+    """Golden semantics for the ordered grouped field-sum aggregation core
     (close-out mode): consecutive (key, value, aux0, aux1) rows with equal
     signed 32-bit keys form a group; a group closes when the key changes or
     input ends, emitting an INT64 sum per mask-selected field plus the row
     count. A key that reappears later opens a NEW group — partials merge on
-    the host, never in the tile (the partial-bar contract). ``field_mask``
+    the host, never in the core (the partial-bar contract). ``field_mask``
     bit i selects field i; at least one field must be selected (a zero mask
-    is an unconfigured tile and reports CONFIG on hardware)."""
+    is an unconfigured core and reports CONFIG on hardware)."""
     if not 1 <= field_mask <= 15:
         raise ValueError("field_mask must select at least one of the four fields")
     selected = [i for i in range(4) if field_mask & (1 << i)]
@@ -752,11 +752,11 @@ def grouped_field_sum_rows(rows: Iterable[tuple[int, int, int, int]], *, field_m
 def group_table_sum_rows(
     rows: Iterable[tuple[int, int, int, int]], *, field_mask: int, group_shift: int, group_bits: int
 ) -> list[GroupedFieldSumAggregate]:
-    """Golden semantics for the wide group-table sum tile: each row's group is
+    """Golden semantics for the wide group-table sum core: each row's group is
     ``(key >> group_shift) & (2**group_bits - 1)`` over the key's unsigned
     32 bits, and every group that received a row closes with INT64 sums of
     the mask-selected fields and its row count, in ascending group order. The
-    record's key word is the group code. Unlike the ordered grouped tile,
+    record's key word is the group code. Unlike the ordered grouped core,
     rows of one group need not be adjacent: the table is direct-indexed, so a
     group's rows merge wherever they fall in the batch. Rows are the batch's
     real rows; the wide lane's all-ones pad never reaches this function."""
@@ -778,12 +778,12 @@ def group_table_sum_rows(
 
 
 class MembershipKind(IntEnum):
-    """Membership-structure kind for the key-set membership filter tile. Zero
-    is reserved so an unconfigured tile fails explicitly. v0 implements only
+    """Membership-structure kind for the key-set membership filter core. Zero
+    is reserved so an unconfigured core fails explicitly. v0 implements only
     ``EXACT_BITMAP`` — a direct-mapped bitmap over the configured dictionary-id
     key space, with no false positives. ``BLOOM`` is a reserved future config (a
     hashed bitmap trading exactness for an unbounded key space, its false
-    positives verified host-side); the v0 tile rejects it with a config
+    positives verified host-side); the v0 core rejects it with a config
     error."""
 
     EXACT_BITMAP = 1
@@ -877,7 +877,7 @@ def filter_rows_by_membership(
     *,
     mode: MembershipMode,
 ) -> list[tuple[int, int, int, int]]:
-    """Golden semantics for the key-set membership filter tile (probe phase):
+    """Golden semantics for the key-set membership filter core (probe phase):
     whole (key, value, aux0, aux1) rows pass by whether the row key (``w0.lo``,
     signed int32) is a member of ``build_set``. ``SEMI`` keeps members, ``ANTI``
     keeps non-members; order preserved. Exact bitmap membership — no false
@@ -894,9 +894,9 @@ DEDUP_KEY_SPACE_MAX = 8_388_608
 
 
 class DedupErrorCode(IntEnum):
-    """Status codes for the streaming dedup tile. Code 1 — ``CONFIG`` in every
-    tile that has one — is deliberately absent: ``cfg_clear`` is a single bit
-    with no invalid encoding, so there is no configuration this tile can
+    """Status codes for the streaming dedup core. Code 1 — ``CONFIG`` in every
+    core that has one — is deliberately absent: ``cfg_clear`` is a single bit
+    with no invalid encoding, so there is no configuration this core can
     reject. ``STREAM`` keeps the palette-wide value 2 and ``RANGE`` the value
     the broadcast hash join gives the same condition."""
 
@@ -907,11 +907,11 @@ class DedupErrorCode(IntEnum):
 
 @dataclass(frozen=True)
 class DistinctCount:
-    """What the streaming dedup tile holds after a batch: the running distinct
+    """What the streaming dedup core holds after a batch: the running distinct
     count it emits as its one-word close-out record, and the bitmap that count
     was taken from.
 
-    ``seen`` is carried rather than derived because the tile's bitmap SURVIVES
+    ``seen`` is carried rather than derived because the core's bitmap SURVIVES
     a batch boundary. A scan split into overlapped batches is one dedup, and
     summing per-batch counts would count a key once per batch it appears in —
     so the accumulation runs until the host asks for a fresh one (``cfg_clear``
@@ -936,7 +936,7 @@ def count_distinct_rows(
     key_space: int,
     seen: Iterable[int] = (),
 ) -> DistinctCount:
-    """Golden semantics for the streaming insert-on-probe dedup tile: one pass
+    """Golden semantics for the streaming insert-on-probe dedup core: one pass
     over (key, value, aux0, aux1) rows counting each key the FIRST time it is
     seen — ``COUNT(DISTINCT key)`` over the dictionary-id space
     ``[0, key_space)``.
@@ -946,7 +946,7 @@ def count_distinct_rows(
     bit is clear, set it and count the row; otherwise the key has been seen
     and the row changes nothing. That single difference (insert on probe) is
     what a ``distinct`` needs and what a static bitmap cannot do, and it is
-    why the tile pays a read-modify-write per row where the filter pays a
+    why the core pays a read-modify-write per row where the filter pays a
     read.
 
     Sized by CARDINALITY, not by row count: the bitmap holds one bit per
@@ -959,7 +959,7 @@ def count_distinct_rows(
     for a key the build set could never hold; a dedup cannot answer "have I
     seen this" for a key it has nowhere to record, and silently wrapping it
     into another key's bit would merge two distinct keys into one count. The
-    tile drains the batch and closes out ``RANGE``; the accumulation goes with
+    core drains the batch and closes out ``RANGE``; the accumulation goes with
     it (count zero, empty bitmap), because rows before the bad one already set
     their bits and a half-inserted bitmap is not a state anything can resume
     from."""
@@ -980,10 +980,10 @@ def count_distinct_rows(
 
 
 class JoinSource(IntEnum):
-    """Output field-select sources for the broadcast hash join tile: the six
+    """Output field-select sources for the broadcast hash join core: the six
     32-bit operands an emitted output field may carry — the matched build row's
     three data fields (``b0``/``b1``/``b2``) and the probe row's three
-    (``v0``/``v1``/``v2``). Selectors 6 and 7 are reserved (the tile rejects
+    (``v0``/``v1``/``v2``). Selectors 6 and 7 are reserved (the core rejects
     them as ``ERR_CONFIG``). The emitted row's key is always the matched key,
     so it is not a selectable source."""
 
@@ -1005,7 +1005,7 @@ class BroadcastJoinConfig(CheckedModel):
     """Output field-select for the broadcast hash join: each of the emitted
     row's three data fields (``out0``, ``out1``, ``out2``) is chosen from the
     six join sources. The emitted key is always the matched probe key. Matches
-    the tile's ``cfg_out{0,1,2}_sel`` config ports."""
+    the core's ``cfg_out{0,1,2}_sel`` config ports."""
 
     out0: JoinSource
     out1: JoinSource
@@ -1024,7 +1024,7 @@ class BroadcastJoinConfig(CheckedModel):
 def keyed_asof_join_rows(
     records: Iterable[tuple[int, int, int, int, int]], *, tolerance: int | None = None
 ) -> list[tuple[int, int, int, int, int, int]]:
-    """Golden semantics for the generic keyed backward as-of join tile: one
+    """Golden semantics for the generic keyed backward as-of join core: one
     host-merged, ``(key, time)``-sorted stream of BUILD and PROBE records
     (build-before-probe at equal key/time). Each record is
     ``(rec_type, key, time, a, b)`` — ``rec_type`` bit0: 0 = build, 1 = probe;
@@ -1034,7 +1034,7 @@ def keyed_asof_join_rows(
     most recent build with ``build_time <= probe_time`` (within ``tolerance`` on
     the time axis, ``None`` = unbounded), emitting the joined row
     ``(key, time, probe_a, probe_b, build_a, build_b)``. A probe with no live
-    build (or one older than tolerance) drops — the tile emits matched joins
+    build (or one older than tolerance) drops — the core emits matched joins
     only. Workload-agnostic: the temporal-finance backward as-of (quote = build
     ``{bid, ask}``, trade = probe ``{price, size}``) is exactly this join, and
     :func:`dau_core.temporal.asof_backward` on sorted inputs agrees with it."""
@@ -1060,7 +1060,7 @@ def broadcast_hash_join_rows(
     out_sel: BroadcastJoinConfig,
     key_space: int = 1024,
 ) -> list[tuple[int, int, int, int]]:
-    """Golden semantics for the broadcast hash join tile (the join tier's
+    """Golden semantics for the broadcast hash join core (the join tier's
     payload-emitting Joiner). The build side of ``(key, b0, b1, b2)`` rows is
     loaded into a direct-mapped payload table over the key space
     ``[0, key_space)`` — one slot per key, last-writer-wins on a duplicate
@@ -1069,11 +1069,11 @@ def broadcast_hash_join_rows(
     ``(key, out0, out1, out2)`` row whose three data fields are chosen by
     ``out_sel`` from the six sources ``(b0, b1, b2, v0, v1, v2)``; a probe miss
     drops. Order is preserved. Every build and probe key must lie in
-    ``[0, key_space)`` — an out-of-range key is ``ERR_RANGE`` on the tile and
+    ``[0, key_space)`` — an out-of-range key is ``ERR_RANGE`` on the core and
     raises here. All fields are INT32 (two's-complement wraparound).
 
     An empty ``build_rows`` is the mathematically empty table (every probe
-    misses). On the tile, an empty table is the cleared/initial state reached
+    misses). On the core, an empty table is the cleared/initial state reached
     by the load-phase sweep or power-on ``INIT`` — a *load batch* itself always
     carries at least one build row, since the stream contract delimits a batch
     with ``input_last`` on a data word and so cannot express a zero-row
@@ -1104,7 +1104,7 @@ class GroupedAggregationErrorCode(IntEnum):
 
 @dataclass(frozen=True)
 class GroupAggregate:
-    """One closed group from the ordered grouped-aggregation tile: every
+    """One closed group from the ordered grouped-aggregation core: every
     statistic is computed in a single pass. ``first``/``last`` follow input
     order, so partial groups from separate batches merge correctly on the
     host (the partial-bar contract)."""
@@ -1120,7 +1120,7 @@ class GroupAggregate:
 
 @dataclass(frozen=True)
 class BarAggregate:
-    """One closed bar from the fused single-pass bar-aggregation tile: price
+    """One closed bar from the fused single-pass bar-aggregation core: price
     OHLC statistics plus the exact micro-share volume decomposition, all in
     one pass over (key, price, shares, frac) rows."""
 
@@ -1151,7 +1151,7 @@ class GroupedFieldAggregate:
     """One closed group from the GENERIC multi-field aggregator: per-field
     first/last/min/max/sum over the three data fields of a quad row, plus the
     row count. A workload-agnostic superset — OHLCV bars (and other grouped
-    reductions) are a field/stat SELECTION over it, not a baked-in tile."""
+    reductions) are a field/stat SELECTION over it, not a baked-in core."""
 
     key: int
     fields: tuple[FieldStats, FieldStats, FieldStats]
@@ -1213,7 +1213,7 @@ DISPATCH_HASH_MULTIPLIER = 0x9E37_79B9
 
 class DispatchMode(IntEnum):
     """How the key-mask dispatcher maps a row's key to a partition. The
-    values ARE the tile's MODE parameter encoding, so the golden and the
+    values ARE the core's MODE parameter encoding, so the golden and the
     HDL cannot drift apart silently."""
 
     MASK = 0  # dest = key & (N - 1): the low key bits (N a power of two)
@@ -1362,7 +1362,7 @@ class SorterErrorCode(IntEnum):
 def sort_bar_rows_by_key(rows: Iterable[tuple[int, int, int, int]]) -> list[tuple[int, int, int, int]]:
     """Golden semantics for the batch bitonic sorter: rows ascending by the
     signed 32-bit key, STABLE (rows with equal keys keep input order — the
-    tile tie-breaks on load index)."""
+    core tie-breaks on load index)."""
     return sorted((tuple(row) for row in rows), key=lambda row: _wrap_int32(row[0]))
 
 
@@ -1370,28 +1370,28 @@ TOP_K_MAX = 128
 
 
 class TopKErrorCode(IntEnum):
-    """Status codes for the streaming top-k heap tile."""
+    """Status codes for the streaming top-k heap core."""
 
     OK = 0
     BAD_K = 1  # requested k outside [1, TOP_K_MAX]
 
 
 def streaming_top_k(rows: Iterable[tuple[int, int, int, int]], *, k: int) -> list[tuple[int, int, int, int]]:
-    """Golden semantics for the streaming top-k heap tile: in one pass keep the
+    """Golden semantics for the streaming top-k heap core: in one pass keep the
     ``k`` rows with the largest signed-32-bit sort key (field 0), breaking ties
     by arrival order (earlier rows win), and emit them sorted by sort key
     DESCENDING (ties arrival ascending) — the ``ORDER BY <key> DESC LIMIT k``
     shape (q3/q10, TSBS group-by-order-by-limit).
 
-    Bounded state: the tile holds at most ``k`` rows in a size-``k`` min-heap
+    Bounded state: the core holds at most ``k`` rows in a size-``k`` min-heap
     whose root — the eviction target — is the entry with the smallest key and,
     among equal-key entries, the LATEST arrival (the heap orders on
     ``(key, -arrival)``, not key alone). An arriving row replaces the root only
     when its key is STRICTLY greater, so at the k-th-largest key the earliest
     arrivals are retained — matched by the ``(-key, arrival)`` sort below. This
-    root tie-order is part of the tile contract: a key-only min-heap could evict
+    root tie-order is part of the core contract: a key-only min-heap could evict
     an earlier tied row and diverge from this golden. ``k`` is bounded to
-    ``[1, TOP_K_MAX]``; the tile reports ``BAD_K`` outside that range."""
+    ``[1, TOP_K_MAX]``; the core reports ``BAD_K`` outside that range."""
     if not 1 <= k <= TOP_K_MAX:
         raise ValueError(f"k must be in [1, {TOP_K_MAX}], got {k}")
     indexed = sorted(
@@ -1402,7 +1402,7 @@ def streaming_top_k(rows: Iterable[tuple[int, int, int, int]], *, k: int) -> lis
 
 
 def time_bucket_key_rows(rows: Iterable[tuple[int, int, int, int, int]], *, bucket_shift: int, bucket_bits: int) -> list[tuple[int, int, int, int]]:
-    """Golden semantics for the generic time-bucket key tile: rewrite each row's
+    """Golden semantics for the generic time-bucket key core: rewrite each row's
     partition key into a composite ``(partition, time-bucket)`` group key so a
     downstream key-grouped aggregator produces fixed-width time-windowed groups
     per partition. Window = ``2**bucket_shift``; key =
@@ -1510,7 +1510,7 @@ def bars_from_field_aggregate(groups: Iterable[GroupedFieldAggregate]) -> list[B
 
 
 def bar_aggregate_rows(rows: Iterable[tuple[int, int, int, int]]) -> list[BarAggregate]:
-    """Golden semantics for the fused bar-aggregation tile (ordered
+    """Golden semantics for the fused bar-aggregation core (ordered
     close-out): consecutive rows with equal keys form a bar; volume is
     ``shares * SCALE + frac`` recombined on the host."""
     results: list[BarAggregate] = []
@@ -1537,10 +1537,10 @@ def bar_aggregate_rows(rows: Iterable[tuple[int, int, int, int]]) -> list[BarAgg
 
 
 def grouped_aggregate_rows(rows: Iterable[tuple[int, int]]) -> list[GroupAggregate]:
-    """Golden semantics for the ordered grouped-aggregation tile
+    """Golden semantics for the ordered grouped-aggregation core
     (close-out mode): consecutive rows with equal keys form a group; a group
     closes when the key changes or input ends. A key that reappears later
-    opens a NEW group — partials are merged by the host, never the tile."""
+    opens a NEW group — partials are merged by the host, never the core."""
     results: list[GroupAggregate] = []
     current: GroupAggregate | None = None
     for key, value in rows:
@@ -1664,7 +1664,7 @@ KEYED_STATE_MAX_KEYS = 1024
 
 
 class KeyedStateErrorCode(IntEnum):
-    """Status codes for the keyed state tile."""
+    """Status codes for the keyed state core."""
 
     OK = 0
     BAD_CAPACITY = 1  # declared capacity outside [1, KEYED_STATE_MAX_KEYS]
@@ -1687,10 +1687,10 @@ def keyed_state_scan(
     capacity: int,
     initial: int = 0,
 ) -> tuple[list[tuple[int, int]], KeyedStateErrorCode]:
-    """Golden semantics for the keyed state tile: a per-key accumulator updated
+    """Golden semantics for the keyed state core: a per-key accumulator updated
     once per row, emitting the POST-UPDATE state for every row.
 
-    This is the primitive the stateful family is built on. Unlike every tile
+    This is the primitive the stateful family is built on. Unlike every core
     that precedes it, the output for a row depends on rows that came before it
     with the SAME key — a loop-carried dependency per key, which is exactly the
     shape a SIMD CPU cannot vectorize and a spatial datapath can hold on-chip.
@@ -1706,7 +1706,7 @@ def keyed_state_scan(
     Post-update is what a running aggregate means, it is what the hardware can
     produce without an extra pipeline stage holding the old value, and it makes
     back-to-back same-key rows well defined: the second row observes the first
-    row's write. In hardware that is a read-modify-write hazard the tile must
+    row's write. In hardware that is a read-modify-write hazard the core must
     FORWARD rather than stall, and this golden pins the answer it must forward
     to.
 
@@ -1741,7 +1741,7 @@ def keyed_state_scan(
     for raw_key, raw_value in rows:
         # Keys and values are int32 WIRES, not Python integers. -1 and
         # 0xFFFFFFFF are the same key on a 32-bit bus, and a state a 32-bit
-        # port cannot carry is not a state the tile can be in, so both are
+        # port cannot carry is not a state the core can be in, so both are
         # wrapped into the domain before anything else happens. Skipping this
         # made the golden unimplementable: it split one hardware key into two
         # and emitted 2**31 as a signed result.
@@ -1769,7 +1769,7 @@ SCRATCHPAD_MAX_WORDS = 16384
 
 
 class ScratchpadErrorCode(IntEnum):
-    """Status codes for the scratchpad owned-arena tile."""
+    """Status codes for the scratchpad owned-arena core."""
 
     OK = 0
     BAD_GRANT = 1  # granted_words outside [1, SCRATCHPAD_MAX_WORDS]
@@ -1781,7 +1781,7 @@ def scratchpad_scan(
     *,
     granted_words: int,
 ) -> tuple[list[tuple[int, int]], ScratchpadErrorCode]:
-    """Golden semantics for the scratchpad tile: the deliberately trivial
+    """Golden semantics for the scratchpad core: the deliberately trivial
     consumer of the OWNED storage class (STORAGE_AND_NOC.md). A private
     word-addressed arena; each row is ``(write_enable, addr, value)`` and
     emits ``(addr, post_op_value)`` — a write emits what it wrote, a read
@@ -1813,7 +1813,7 @@ SESSION_GAP_MAX_KEYS = 1024
 
 
 class SessionErrorCode(IntEnum):
-    """Status codes for the session-gap tile."""
+    """Status codes for the session-gap core."""
 
     OK = 0
     BAD_CAPACITY = 1  # capacity outside [1, SESSION_GAP_MAX_KEYS]
@@ -1828,7 +1828,7 @@ def sessionize_scan(
     gap: int,
     capacity: int,
 ) -> tuple[list[tuple[int, int, int, int]], SessionErrorCode]:
-    """Golden semantics for the session-gap tile: the Nexmark-Q11 shape over
+    """Golden semantics for the session-gap core: the Nexmark-Q11 shape over
     bounded keyed state (STORAGE_AND_NOC.md). Rows are ``(key, time)`` in
     arrival order; a session is a maximal per-key run of rows with no
     inter-row gap exceeding ``gap``. Each closed session emits
@@ -1891,23 +1891,23 @@ HASH_GROUPED_MAX_GROUPS = 1024
 
 
 class HashGroupedErrorCode(IntEnum):
-    """Status codes for the hash-mode grouped field-sum aggregation tile.
-    The values ARE the tile's ``status_error_code`` wire encoding, so the
+    """Status codes for the hash-mode grouped field-sum aggregation core.
+    The values ARE the core's ``status_error_code`` wire encoding, so the
     golden and the HDL cannot drift apart silently."""
 
     OK = 0
     BAD_CAPACITY = 1  # declared capacity outside [1, HASH_GROUPED_MAX_GROUPS]
-    BAD_FIELD_MASK = 2  # a zero mask (an unconfigured tile) or one past the four fields
+    BAD_FIELD_MASK = 2  # a zero mask (an unconfigured core) or one past the four fields
     GROUP_CAPACITY_EXCEEDED = 3  # a new group key arrived with the table full
     BAD_STREAM = 4  # hardware only: a torn row (input_last on a quad row's w0)
 
 
 @dataclass(frozen=True)
 class HashGroupedAggregate:
-    """One group from the hash-mode grouped field-sum aggregation tile:
+    """One group from the hash-mode grouped field-sum aggregation core:
     INT64 sums of the mask-selected fields (ascending field order) plus the
     group's row count — the same record shape the ORDERED grouped
-    field-sum tile emits, so the host decode path is shared."""
+    field-sum core emits, so the host decode path is shared."""
 
     key: int
     field_mask: int
@@ -1927,15 +1927,15 @@ def hash_grouped_field_sum_rows(
     field_mask: int,
     capacity: int,
 ) -> tuple[list[HashGroupedAggregate], HashGroupedErrorCode]:
-    """Golden semantics for the HASH-mode grouped field-sum aggregation tile:
+    """Golden semantics for the HASH-mode grouped field-sum aggregation core:
     one INT64 accumulator set per DISTINCT key in a bounded on-chip table,
     drained key-ascending at close-out.
 
     The difference from :func:`grouped_field_sum_rows` is the whole point of
-    the tile: the ordered tile groups CONSECUTIVE equal keys, so a key that
+    the core: the ordered core groups CONSECUTIVE equal keys, so a key that
     reappears after another key opens a second partial group the host must
     merge, and the staged table must be pre-sorted on the group key. This
-    tile holds a per-key accumulator, so **input order does not matter** and
+    core holds a per-key accumulator, so **input order does not matter** and
     a key may reappear anywhere in the batch — one record per distinct key,
     always. That removes the ``sorted_by_key`` staging precondition from
     every grouped scan.
@@ -1947,7 +1947,7 @@ def hash_grouped_field_sum_rows(
     the result depend on the hash function — an implementation detail no
     golden could pin and no host could rely on. Sorting the drain by signed
     key makes the order implementation-independent and physically true (the
-    session-gap tile's min-extraction drain is the same decision).
+    session-gap core's min-extraction drain is the same decision).
 
     **Overflow is an ERROR that invalidates the batch**, never an eviction.
     ``capacity`` is a hardware fact (the table depth). When a row presents a
@@ -1959,7 +1959,7 @@ def hash_grouped_field_sum_rows(
     key range, so a caller that merged the partial with the re-run results
     would DOUBLE-COUNT every key that had accumulated before the overflow.
     Discarding the batch is also the platform's uniform error convention (an
-    error close-out invalidates the whole batch; the tile's group_count
+    error close-out invalidates the whole batch; the core's group_count
     reads 0 and no success close-out is raised), which is what lets the
     golden and the HDL agree by construction rather than by inspection.
     Recovery is exact because INT64 sums and counts are additive per key —
@@ -1967,7 +1967,7 @@ def hash_grouped_field_sum_rows(
 
     ``field_mask`` bit i selects field i of the quad row ``(key, value,
     aux0, aux1)``; selecting field 0 sums the key itself, which is legal and
-    equals ``key * count`` (the ordered tile's convention).
+    equals ``key * count`` (the ordered core's convention).
 
     Returns ``(groups_key_ascending, error_code)``.
     """

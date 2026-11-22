@@ -1,4 +1,4 @@
-"""The rendered exp tile against the model it was rendered from.
+"""The rendered exp core against the model it was rendered from.
 
 Zero tolerance: the HDL mirrors ExpDatapath.evaluate step for step, so any
 difference is a defect in one of them. Deviation from correctly rounded exp
@@ -14,7 +14,7 @@ import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import ReadOnly, RisingEdge
 
-from dau_core.exp_generator import ExpTileGenerator
+from dau_core.exp_generator import ExpCoreGenerator
 from dau_core.fixed_point import exp_domain
 from dau_core.registry import loaded_cores
 
@@ -24,7 +24,7 @@ _MASK32 = 0xFFFF_FFFF
 # defaults to the exact point so the module imports standalone; the runner
 # names the core under test
 _GENERATOR = loaded_cores()[os.environ.get("DAU_EXP_CORE", "fixed-point-exp")].generator
-assert isinstance(_GENERATOR, ExpTileGenerator)
+assert isinstance(_GENERATOR, ExpCoreGenerator)
 _POINT = _GENERATOR.datapath
 
 
@@ -104,7 +104,7 @@ async def _send(dut, words) -> None:
 async def _collect(dut, *, expect: int, ready_pattern=(1,)):
     """The proven quad-row collector: drive ready, sample in ReadOnly, and
     only count a beat that actually fired. Sampling without checking the
-    handshake is what made this harness report zeros against a tile the
+    handshake is what made this harness report zeros against a core the
     waveform showed was correct."""
     words: list[int] = []
     held = None

@@ -2,12 +2,12 @@
 
 // Shared map/ALU semantics: one definition of the ALU opcodes and both
 // pipeline stages (single-cycle ops; product finish for the registered
-// multiply) so single-stream and keyed map tiles cannot drift
+// multiply) so single-stream and keyed map cores cannot drift
 // (dau_core.operators.MapConfig.apply is the golden; wraparound arithmetic).
 //
 // THE OPERANDS ARRIVE ALREADY SIGN-EXTENDED to MAP_ELEMENT_BITS and the
 // caller TRUNCATES the result back to its own element width, the same shape
-// dau_aggregation_pkg uses. That is what lets one package serve tiles at
+// dau_aggregation_pkg uses. That is what lets one package serve cores at
 // several element widths: sign-extending in and truncating out is the same
 // wraparound arithmetic one width down, for every opcode here -- add, sub and
 // the bitwise pair by construction, shift-left because the low bits of a
@@ -16,10 +16,10 @@
 //
 // MAP_ELEMENT_BITS IS THE FAMILY'S UPPER BOUND, and it is derived rather than
 // asserted: MULSHR needs the whole product to shift, so the widest element
-// the package can express is half the product path. A tile reading this
+// the package can express is half the product path. A core reading this
 // package therefore bounds its element type at MAP_ELEMENT_BITS and says so
 // in its own elaboration guard. A wider element is a wider product, which is
-// a different package and a different tile.
+// a different package and a different core.
 package dau_map_alu_pkg;
     // the widest element the ALU steps below carry, and the product path that
     // decides it

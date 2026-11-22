@@ -41,7 +41,7 @@ class CoreKind(Enum):
 
 
 class LoadImageKind(Enum):
-    """What a load-capable tile's LOAD-phase input stream is (the two-phase
+    """What a load-capable core's LOAD-phase input stream is (the two-phase
     load: cfg_load=1 streams the build image, cfg_load=0 probes). The
     composition validates image/length-grid rules per kind; a core without
     this marker has no cfg_load port and can never be phase-bound."""
@@ -54,13 +54,13 @@ class CoreRole(Enum):
     """What a core is FOR where a composition has to know, declared by the
     registry rather than recognized by its name.
 
-    Two composition rules cannot be read off a tile's ports: that the core in
+    Two composition rules cannot be read off a core's ports: that the core in
     the optional front-stage feed-transform slot is one that widens packed
     rows, and that a key-routing partitioner's lane count satisfies the decode
     its ``MODE`` selects. Both were exact-name comparisons, which is the one
     thing "composition IS the registry" forbids -- a second unpacker or a
     second router could not be written without editing this package, and a
-    tile rename silently turned the check into dead code. A core says here
+    core rename silently turned the check into dead code. A core says here
     what job it does; the composition asks.
 
     ``KEY_DISPATCH`` is a contract as well as a label: a core declaring it
@@ -70,14 +70,14 @@ class CoreRole(Enum):
     routes by ordered splitters instead and is deliberately not one.
     """
 
-    FRONT_UNPACK = "front-unpack"  # widens packed rows into the quad row the operator tiles read
+    FRONT_UNPACK = "front-unpack"  # widens packed rows into the quad row the operator cores read
     KEY_DISPATCH = "key-dispatch"  # routes whole records to lanes by a decode over the key
     # The shell infrastructure a composition sits in. Each of these is a job
     # exactly one registered core fills, and the composition asks for the
     # job rather than naming the core: the DDR scan shell's burst reader,
     # its lane broadcast, its per-lane record writer and its write mux; the
     # identity/capability register block every shell carries; the stream-job
-    # tops that hand one tile chain its rows from staging; and the front
+    # tops that hand one core chain its rows from staging; and the front
     # gearbox that reframes a wide feed into the 64-bit row stream.
     SCAN_READER = "scan-reader"
     SCAN_BROADCAST = "scan-broadcast"
@@ -89,11 +89,11 @@ class CoreRole(Enum):
 
 
 class ContractKind(Enum):
-    """Which streaming interface contract an operator tile speaks. Contract
+    """Which streaming interface contract an operator core speaks. Contract
     tests select their validator from this tag; a new core declares its
     contract here rather than being special-cased in test code."""
 
-    ROW_STREAM = "row-stream"  # the standard 64-bit stream + status tile contract
+    ROW_STREAM = "row-stream"  # the standard 64-bit stream + status core contract
     ARROW_LITE_DESCRIPTOR = "arrow-lite-descriptor"  # descriptor-driven Arrow-lite protocol
     # the wide-lane contract: SLOTS whole 128-bit quad rows per beat, one
     # beat per cycle, the all-ones row as the pad (drop-by-pad, no
@@ -317,7 +317,7 @@ class ParameterSpec(CheckedModel):
     def violation(self, value: int | str) -> str | None:
         """Why ``value`` is not a legal override, or ``None`` when it is.
         This is the ONE statement of the constraint -- composition wraps it
-        with tile context, and the model's own coherence check runs the
+        with core context, and the model's own coherence check runs the
         default through it, so the rule cannot drift between the two."""
         if self.element_type:
             try:
@@ -356,7 +356,7 @@ class ParameterSpec(CheckedModel):
             return None  # an enumerated choice set (which may include a 0 flag) is the whole constraint
         if magnitude <= 0 and self.minimum > 0:
             # a spec that declares minimum 0 mirrors an HDL guard that ADMITS
-            # zero (the fixed-point tiles' FRACTIONAL_BITS is [0, 31]); the
+            # zero (the fixed-point cores' FRACTIONAL_BITS is [0, 31]); the
             # blanket positive-int rule would make that bound unreachable
             return f"must be a positive int, got {self._spell(value)}"
         if magnitude < self.minimum:
@@ -441,14 +441,14 @@ class CoreDefinition(CheckedModel):
     # registry is a hydra search path, so a package that joins it through
     # the `hydra.lernaplugins` entry point contributes cores whose HDL
     # lives in ITS tree, not this one. Resolving every core's source under
-    # dau_core.hdl meant a tile could be registered from anywhere but its
+    # dau_core.hdl meant a core could be registered from anywhere but its
     # Verilog had to be vendored here.
     source_package: str = "dau_core.hdl"
     # Set when the HDL is RENDERED rather than checked in, because its
     # content is a function of configuration -- a transcendental table
     # cannot be computed at elaboration. `source` then names the file it
     # renders TO, so staging, dependency closure and synthesis reach it
-    # through the same seam as every hand-written tile.
+    # through the same seam as every hand-written core.
     generator: CoreGenerator | None = None
     description: str
     depends: tuple[str, ...] = ()
@@ -458,20 +458,20 @@ class CoreDefinition(CheckedModel):
     # The HDL closure digest (:meth:`hdl_closure_digest`) the numbers in
     # `resources` describe. It is what makes a recorded envelope falsifiable
     # without Vivado: the numbers cannot say which RTL produced them, so a
-    # commit that edits a tile and leaves its envelope alone is invisible
+    # commit that edits a core and leaves its envelope alone is invisible
     # until someone next runs synthesis. Stamping the RTL beside the numbers
-    # turns that into a test failure naming the tile.
+    # turns that into a test failure naming the core.
     #
     # None means UNSTAMPED -- the state every point recorded before this field
     # existed is in. It is permitted, and pinned as an exact set by
     # `test_measured_from_matches_the_hdl` so the population can only shrink.
     measured_from: str | None = None
-    count_port: str | None = None  # the tile's trailing status counter, if any
+    count_port: str | None = None  # the core's trailing status counter, if any
     contract_kind: ContractKind | None = None  # required for operators; None elsewhere (no declared stream contract)
     # the composition job this core fills, when a composition rule turns on it
     # (None = no rule does; most cores)
     role: CoreRole | None = None
-    # For a tile whose golden is a mathematical reference rather than an
+    # For a core whose golden is a mathematical reference rather than an
     # integer identity (the transcendentals): the worst deviation from the
     # correctly rounded answer, in ULP, over an exhaustive sweep of the
     # domain. 0 means correctly rounded. A fact of the operating point,
@@ -500,23 +500,23 @@ class CoreDefinition(CheckedModel):
     # false even if a bespoke internal pipeline exists.
     supports_pipeline_depth: bool = False
     # capability facts (HDL truth, consumed by the composition-derived
-    # capability contract): the descriptor-selectable OperationCodes a tile
+    # capability contract): the descriptor-selectable OperationCodes a core
     # executes in hardware and the logical types those opcodes accept.
     # AVERAGE is never declared here — it is not a hardware opcode (the host
     # divides the SUM/COUNT results at protocol level).
     opcodes: tuple[OperationCode, ...] = ()
     opcode_input_types: tuple[LogicalType, ...] = ()
-    row_capacity: int | None = None  # batch row capacity for buffered tiles (bitonic sorter CAPACITY)
-    unit_kind: UnitKind | None = None  # the design-inventory unit an instance of this tile contributes
-    # HDL status truth: True when the tile emits a status close-out after
-    # every successfully completed batch (terminal-tile behavior — the record
-    # writer's done waits on it); False when the tile is silent on success
+    row_capacity: int | None = None  # batch row capacity for buffered cores (bitonic sorter CAPACITY)
+    unit_kind: UnitKind | None = None  # the design-inventory unit an instance of this core contributes
+    # HDL status truth: True when the core emits a status close-out after
+    # every successfully completed batch (terminal-core behavior — the record
+    # writer's done waits on it); False when the core is silent on success
     # and raises status only for what the downstream cannot see (zero-rows
     # compaction, torn row, bad config — the chain-stage/partition contract,
     # exactly one close-out per lane per batch).
     success_close_out: bool = False
-    # the two-phase load capability: what this tile's LOAD-phase input stream
-    # is (None = no cfg_load port; the tile can never be phase-bound)
+    # the two-phase load capability: what this core's LOAD-phase input stream
+    # is (None = no cfg_load port; the core can never be phase-bound)
     load_image: LoadImageKind | None = None
     # overridable SystemVerilog module parameters and their HDL defaults (the
     # membership filter's KEY_SPACE, the broadcast hash join's KEY_SPACE, ...).
@@ -529,7 +529,7 @@ class CoreDefinition(CheckedModel):
     # declared storage needs; the walker wires them, contracts advertise them
     storage_intent: tuple[StorageIntent, ...] = ()
     # The operator each config port takes, as "module:Enum", for the ports
-    # that select one (a comparison, an ALU op, a membership mode). A tile
+    # that select one (a comparison, an ALU op, a membership mode). A core
     # of the catalog fixes such a port by the operator's name; this says
     # which operator that name belongs to.
     config_operators: Annotated[Mapping[str, str], *ReadOnly] = Field(default_factory=FrozenMapping)
@@ -689,7 +689,7 @@ class CoreDefinition(CheckedModel):
             return rendered
         checked_in = package_root(self.source_package) / self.source
         if not checked_in.is_file():
-            # An out-of-tree tile whose HDL directory is not an importable
+            # An out-of-tree core whose HDL directory is not an importable
             # package resolves to a MultiplexedPath that PRINTS correctly and
             # does not exist, so the first symptom is a synthesis run against a
             # missing file rather than a declaration error. Say it here.
@@ -712,8 +712,8 @@ class CoreDefinition(CheckedModel):
         then along the other source directories, which is exactly the
         ``-include_dirs`` list the synthesis task builds. A header nothing
         includes is NOT in the closure, so adding a second one to the palette
-        does not re-measure every tile that ignores it; and a package a tile
-        imports IS, so an edit there reaches every tile that reads it.
+        does not re-measure every core that ignores it; and a package a core
+        imports IS, so an edit there reaches every core that reads it.
 
         ``resolve`` maps a core name to its definition. It is a parameter
         rather than a registry import because the build package reaches these

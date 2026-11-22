@@ -75,7 +75,7 @@ def output_type_for(opcode: OperationCode) -> LogicalType:
 class StreamAggregationErrorCode(IntEnum):
     DESCRIPTOR = 1
     OPCODE = 2
-    TILE = 3
+    CORE = 3
 
 
 class GroupRole(IntEnum):

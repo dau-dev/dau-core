@@ -2,7 +2,7 @@
 
 A registry parameter that says ``32`` says a field is 32 bits. It does not say
 whether those bits are a signed integer, a Q16.16 fixed-point number or an
-IEEE-754 binary32 -- three things a tile must treat differently and which a
+IEEE-754 binary32 -- three things a core must treat differently and which a
 width cannot distinguish. This module gives the palette's element types names
 ("int32", "q16.16", "float64") and turns them into the single integer a
 SystemVerilog parameter can carry.
@@ -54,7 +54,7 @@ class ElementTypeError(ValueError):
 
 @dataclass(frozen=True)
 class ElementType:
-    """One element type: the four facts a tile needs, plus its encoding.
+    """One element type: the four facts a core needs, plus its encoding.
 
     Constructed by :func:`element_type` rather than directly, so that every
     instance has been through the same validity rules.
@@ -93,7 +93,7 @@ def _checked(element: ElementType, source: object) -> ElementType:
         raise ElementTypeError(f"element type {source!r} has width {element.width}, outside [1, {MAX_WIDTH}]")
     if element.fractional_bits >= element.width:
         # the sign bit alone leaves qI.F needing I >= 1; an all-fraction format
-        # has no integer part at all and no tile can address its high field
+        # has no integer part at all and no core can address its high field
         raise ElementTypeError(f"element type {source!r} spends all {element.width} bits on the fraction, leaving no integer part")
     if element.is_float and element.width not in FLOAT_WIDTHS:
         raise ElementTypeError(f"element type {source!r} is not an IEEE-754 interchange format; float widths are {FLOAT_WIDTHS}")
