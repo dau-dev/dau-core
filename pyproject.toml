@@ -12,7 +12,7 @@ authors = [
 description = "Core IP for dau projects"
 readme = "README.md"
 license = { text = "Apache-2.0" }
-version = "0.13.0"
+version = "0.14.0"
 requires-python = ">=3.11"
 keywords = []
 
@@ -80,7 +80,7 @@ Repository = "https://github.com/dau-dev/dau-core"
 Homepage = "https://github.com/dau-dev/dau-core"
 
 [tool.bumpversion]
-current_version = "0.13.0"
+current_version = "0.14.0"
 commit = true
 tag = true
 commit_args = "-s"
