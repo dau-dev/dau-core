@@ -1279,7 +1279,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">ccflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">LazyRegistry</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">.cores</span><span class="w"> </span><span class="kn">import</span> <span class="n">ContractKind</span><span class="p">,</span> <span class="n">CoreDefinition</span><span class="p">,</span> <span class="n">CoreKind</span><span class="p">,</span> <span class="n">CoreRole</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.cores</span><span class="w"> </span><span class="kn">import</span> <span class="n">CoreDefinition</span><span class="p">,</span> <span class="n">CoreKind</span><span class="p">,</span> <span class="n">CoreRole</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.tiles</span><span class="w"> </span><span class="kn">import</span> <span class="n">TileDefinition</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
@@ -1471,22 +1471,19 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="core_of_role">
 <a class="viewcode-back" href="../../autoapi/dau_core/registry/index.html#dau_core.registry.core_of_role">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">core_of_role</span><span class="p">(</span><span class="n">role</span><span class="p">:</span> <span class="n">CoreRole</span><span class="p">,</span> <span class="n">contract</span><span class="p">:</span> <span class="n">ContractKind</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CoreDefinition</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""The one composed core declaring ``role`` (and speaking ``contract``,</span>
-<span class="sd">    when given).</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">core_of_role</span><span class="p">(</span><span class="n">role</span><span class="p">:</span> <span class="n">CoreRole</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CoreDefinition</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The one composed core declaring ``role``.</span>
 
 <span class="sd">    The shell-infrastructure roles are jobs exactly one core fills, and a</span>
-<span class="sd">    composition selects the core by asking for the job. An operator job with</span>
-<span class="sd">    a narrow and a wide tile is asked for with the contract the lane speaks.</span>
-<span class="sd">    Zero is a palette with a hole in it; two is an ambiguity nothing here can</span>
-<span class="sd">    resolve, and silently taking the first would make the answer depend on</span>
-<span class="sd">    registry order, so both refuse.</span>
+<span class="sd">    composition selects the core by asking for the job. Zero is a palette</span>
+<span class="sd">    with a hole in it; two is an ambiguity nothing here can resolve, and</span>
+<span class="sd">    silently taking the first would make the answer depend on registry</span>
+<span class="sd">    order, so both refuse.</span>
 <span class="sd">    """</span>
-    <span class="n">found</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">definition</span> <span class="k">for</span> <span class="n">definition</span> <span class="ow">in</span> <span class="n">cores_of_role</span><span class="p">(</span><span class="n">role</span><span class="p">)</span> <span class="k">if</span> <span class="n">contract</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">definition</span><span class="o">.</span><span class="n">contract_kind</span> <span class="ow">is</span> <span class="n">contract</span><span class="p">)</span>
+    <span class="n">found</span> <span class="o">=</span> <span class="n">cores_of_role</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">found</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">definition</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">definition</span> <span class="ow">in</span> <span class="n">found</span><span class="p">]</span>
-        <span class="n">speaking</span> <span class="o">=</span> <span class="s2">""</span> <span class="k">if</span> <span class="n">contract</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">" speaking </span><span class="si">{</span><span class="n">contract</span><span class="o">.</span><span class="n">value</span><span class="si">!r}</span><span class="s2">"</span>
-        <span class="k">raise</span> <span class="n">UnknownCoreError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"expected exactly one composed core with role </span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">value</span><span class="si">!r}{</span><span class="n">speaking</span><span class="si">}</span><span class="s2">, found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">found</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">names</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">UnknownCoreError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"expected exactly one composed core with role </span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">value</span><span class="si">!r}</span><span class="s2">, found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">found</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">names</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">found</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
 

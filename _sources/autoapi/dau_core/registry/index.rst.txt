@@ -179,17 +179,15 @@ Module Contents
    Every composed core declaring ``role``, in registry order.
 
 
-.. py:function:: core_of_role(role: dau_core.cores.CoreRole, contract: dau_core.cores.ContractKind | None = None) -> dau_core.cores.CoreDefinition
+.. py:function:: core_of_role(role: dau_core.cores.CoreRole) -> dau_core.cores.CoreDefinition
 
-   The one composed core declaring ``role`` (and speaking ``contract``,
-   when given).
+   The one composed core declaring ``role``.
 
    The shell-infrastructure roles are jobs exactly one core fills, and a
-   composition selects the core by asking for the job. An operator job with
-   a narrow and a wide tile is asked for with the contract the lane speaks.
-   Zero is a palette with a hole in it; two is an ambiguity nothing here can
-   resolve, and silently taking the first would make the answer depend on
-   registry order, so both refuse.
+   composition selects the core by asking for the job. Zero is a palette
+   with a hole in it; two is an ambiguity nothing here can resolve, and
+   silently taking the first would make the answer depend on registry
+   order, so both refuse.
 
 
 .. py:function:: sources_for(*names: str) -> tuple[pathlib.Path, ...]
