@@ -32,9 +32,7 @@ def test_every_operator_conforms_to_the_stream_core_contract() -> None:
         # Arrow-lite contract, which has no slang validator yet)
         if definition.contract_kind is not ContractKind.ROW_STREAM:
             continue
-        # dau-build is released after dau-core, so its current release still calls this validate_stream_tile
-        validate = "validate_stream_core" if hasattr(sv_contract, "validate_stream_core") else "validate_stream_tile"
-        violations = getattr(sv_contract, validate)([definition.source_path()], definition.module, count_port=definition.count_port)
+        violations = sv_contract.validate_stream_core([definition.source_path()], definition.module, count_port=definition.count_port)
         if violations:
             failures.append(f"{definition.name}: {violations}")
     assert not failures, "\n".join(failures)

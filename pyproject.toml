@@ -46,7 +46,7 @@ develop = [
     # the cross-repo guards here check dau-core's register contract against the
     # generator that decodes it; 0.15.0 is the first release with the handle
     # aperture they check
-    "dau-build>=0.15",
+    "dau-build>=0.21",
     "dau-sim",
     "hatchling",
     "mdformat",
