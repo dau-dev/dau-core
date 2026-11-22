@@ -1568,11 +1568,26 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="tile">
 <a class="viewcode-back" href="../../autoapi/dau_core/registry/index.html#dau_core.registry.tile">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">tile</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TileDefinition</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""The composed tile called ``name``."""</span>
-    <span class="n">tiles</span> <span class="o">=</span> <span class="n">loaded_tiles</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">tiles</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">UnknownTileError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"unknown tile </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2">; known: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">tiles</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">tiles</span><span class="p">[</span><span class="n">name</span><span class="p">]</span></div>
+<span class="w">    </span><span class="sd">"""The composed tile called ``name``.</span>
+
+<span class="sd">    A keyed lookup per group, as :func:`core` is, so asking for one tile</span>
+<span class="sd">    does not read the catalog. A name declared by two composed groups is</span>
+<span class="sd">    refused here as :func:`loaded_tiles` refuses it.</span>
+<span class="sd">    """</span>
+    <span class="n">found</span><span class="p">:</span> <span class="n">TileDefinition</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">_groups</span><span class="p">():</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">TileDefinition</span><span class="p">)</span> <span class="ow">or</span> <span class="n">model</span> <span class="ow">is</span> <span class="n">found</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">found</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DuplicateTileError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"tile </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> is declared by more than one composed group (the second under </span><span class="si">{</span><span class="n">group_name</span><span class="si">!r}</span><span class="s2">)"</span><span class="p">)</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="n">model</span>
+    <span class="k">if</span> <span class="n">found</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">UnknownTileError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"unknown tile </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2">; known: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">loaded_tiles</span><span class="p">())</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">found</span></div>
 
 </pre></div>
 

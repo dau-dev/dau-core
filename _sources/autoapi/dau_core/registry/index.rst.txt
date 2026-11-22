@@ -233,4 +233,8 @@ Module Contents
 
    The composed tile called ``name``.
 
+   A keyed lookup per group, as :func:`core` is, so asking for one tile
+   does not read the catalog. A name declared by two composed groups is
+   refused here as :func:`loaded_tiles` refuses it.
+
 

@@ -1200,6 +1200,9 @@ alone, so the compiler asks for these separately.</p>
 <dt class="sig sig-object py" id="dau_core.registry.tile">
 <span class="sig-prename descclassname"><span class="pre">dau_core.registry.</span></span><span class="sig-name descname"><span class="pre">tile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../tiles/index.html#dau_core.tiles.TileDefinition" title="dau_core.tiles.TileDefinition"><span class="pre">dau_core.tiles.TileDefinition</span></a></span></span><a class="reference internal" href="../../../_modules/dau_core/registry.html#tile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_core.registry.tile" title="Link to this definition">¶</a></dt>
 <dd><p>The composed tile called <code class="docutils literal notranslate"><span class="pre">name</span></code>.</p>
+<p>A keyed lookup per group, as <a class="reference internal" href="#dau_core.registry.core" title="dau_core.registry.core"><code class="xref py py-func docutils literal notranslate"><span class="pre">core()</span></code></a> is, so asking for one tile
+does not read the catalog. A name declared by two composed groups is
+refused here as <a class="reference internal" href="#dau_core.registry.loaded_tiles" title="dau_core.registry.loaded_tiles"><code class="xref py py-func docutils literal notranslate"><span class="pre">loaded_tiles()</span></code></a> refuses it.</p>
 </dd></dl>
 
 </section>
