@@ -4,14 +4,14 @@
 
 // Scalar aggregation over a whole arrow-lite batch stream: header, one column
 // descriptor, one operation descriptor, then the column payload packed
-// SAMPLES_PER_WORD elements to a 64-bit word. The tile accepts exactly the
+// SAMPLES_PER_WORD elements to a 64-bit word. The core accepts exactly the
 // column type its VALUE_WIDTH parameter names; the accumulator and the result
 // descriptor are INT64 whatever the input element is, which is why the type
 // may narrow but not widen.
 module dau_arrow_lite_stream_aggregation #(
     // The ELEMENT TYPE of the aggregated column, as encoded by types.svh.
     // `DAU_TYPE_INT32 is 32, so the default accepts exactly the INT32 column
-    // the tile has always accepted, two samples to a payload word.
+    // the core has always accepted, two samples to a payload word.
     parameter int VALUE_WIDTH = `DAU_TYPE_INT32
 ) (
     input  wire logic        clk,
@@ -54,7 +54,7 @@ module dau_arrow_lite_stream_aggregation #(
 
     // The upper bound is the RESULT, not the lane: the accumulator and the
     // result descriptor are INT64, so a wider element could overflow a sum the
-    // result cannot express -- a versioned result, i.e. a different tile.
+    // result cannot express -- a versioned result, i.e. a different core.
     if (VALUE_BITS < 8 || VALUE_BITS > 32 || (64 % VALUE_BITS) != 0) begin : g_value_width_check
         $error("VALUE_WIDTH must divide 64 and lie in [8, 32]");
     end
@@ -62,10 +62,10 @@ module dau_arrow_lite_stream_aggregation #(
     // into a two's-complement INT64: a float would be ordered by its exponent
     // bits, an unsigned type read as negative above its half-range.
     if (VALUE_IS_FLOAT != 0) begin : g_value_float_check
-        $error("VALUE_WIDTH must not name a floating-point type: this tile orders and sums two's-complement integers");
+        $error("VALUE_WIDTH must not name a floating-point type: this core orders and sums two's-complement integers");
     end
     if (VALUE_IS_SIGNED == 0) begin : g_value_signed_check
-        $error("VALUE_WIDTH must not name an unsigned type: this tile orders and sums two's-complement integers");
+        $error("VALUE_WIDTH must not name an unsigned type: this core orders and sums two's-complement integers");
     end
 
     localparam logic [2:0] OP_SUM   = 3'd3;
@@ -73,7 +73,7 @@ module dau_arrow_lite_stream_aggregation #(
 
     localparam logic [7:0] ERR_DESCRIPTOR = 8'd1;
     localparam logic [7:0] ERR_OPCODE     = 8'd2;
-    localparam logic [7:0] ERR_TILE       = 8'd3;
+    localparam logic [7:0] ERR_CORE       = 8'd3;
 
     localparam logic [63:0] DESCRIPTOR_TABLE_OFFSET = 64'd64;
     localparam logic [63:0] INPUT_PAYLOAD_OFFSET = 64'd192;
@@ -196,7 +196,7 @@ module dau_arrow_lite_stream_aggregation #(
                         end
                     end
                     default: begin
-                        start_error_status(ERR_TILE);
+                        start_error_status(ERR_CORE);
                     end
                 endcase
             end

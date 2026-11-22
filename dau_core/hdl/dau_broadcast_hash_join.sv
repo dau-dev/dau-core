@@ -19,7 +19,7 @@
 //     build side is expected unique/PK). No output rows; the batch closes out
 //     with a success status (the load-done signal).
 //   * cfg_load=0 (PROBE phase): the input stream is probe rows (key, v0, v1,
-//     v2). On table[key].valid the tile emits ONE joined quad row (inner
+//     v2). On table[key].valid the core emits ONE joined quad row (inner
 //     join); a miss drops. The emitted row is (key, out0, out1, out2) where
 //     the key is the matched key and each out_i is chosen by cfg_out{i}_sel
 //     from the six sources {b0, b1, b2, v0, v1, v2} (0..5), so a composition
@@ -47,7 +47,7 @@
 // field-select reports ERR_CONFIG (config precedence: checked at the first
 // probe row, the batch drains first). Exactly one close-out per batch. The
 // newest joined row is held in a skid slot so input_last lands on the final
-// emitted word even when trailing probe rows miss; the tile NEVER re-arms for
+// emitted word even when trailing probe rows miss; the core NEVER re-arms for
 // a following batch or raises a close-out until the emit engine has drained to
 // idle (no cross-batch status overtake). joined_count reports the rows emitted
 // by the current/last probe batch (0 after a load or an error close-out).
@@ -63,8 +63,8 @@ module dau_broadcast_hash_join #(
     // `DAU_TYPE_INT32 is 32, so the default reproduces the (key, v0, v1, v2)
     // row port for port.
     //
-    // THE SLOT IS {valid, b2, b1, b0}, so unlike the tiles whose accumulators
-    // dominate, this tile's BRAM cost moves DIRECTLY with the element: the
+    // THE SLOT IS {valid, b2, b1, b0}, so unlike the cores whose accumulators
+    // dominate, this core's BRAM cost moves DIRECTLY with the element: the
     // payload is 3*FIELD_BITS wide. Every offered type is therefore its own
     // measured point at every KEY_SPACE rung, which is why only int32 is
     // offered until a narrower one is measured.
@@ -98,22 +98,22 @@ module dau_broadcast_hash_join #(
     localparam int FIELDS   = 4;    // key plus the three payload lanes
     localparam int FIELD_BITS      = `DAU_TYPE_WIDTH(FIELD_WIDTH);
     localparam int FIELD_IS_FLOAT  = `DAU_TYPE_IS_FLOAT(FIELD_WIDTH);
-    localparam int LANE_BITS       = FIELDS * FIELD_BITS;  // the part of the row this tile reads
+    localparam int LANE_BITS       = FIELDS * FIELD_BITS;  // the part of the row this core reads
 
     // table slot: {valid, b2, b1, b0}
     localparam int SLOTW = 1 + 3 * FIELD_BITS;
 
     // The key is an index into the table and the payload rides a lane, so the
-    // bound is the row: a lane must tile the 128-bit row, and 32 is where the
+    // bound is the row: a lane must core the 128-bit row, and 32 is where the
     // quad row runs out.
     if (FIELD_BITS < 8 || FIELD_BITS > 32 || (ROW_BITS % FIELD_BITS) != 0) begin : g_field_width_check
         $error("FIELD_WIDTH must divide 128 and lie in [8, 32]");
     end
-    // A TYPE IS NOT A CAPABILITY -- but this tile ORDERS NOTHING. The key is a
+    // A TYPE IS NOT A CAPABILITY -- but this core ORDERS NOTHING. The key is a
     // dictionary id, tested by one unsigned range compare and then used as an
     // address, and the payload lanes are carried opaquely from build row to
     // joined row without ever being interpreted. So an unsigned type is
-    // legitimate here (the membership bitmap, this tile's sibling, says the
+    // legitimate here (the membership bitmap, this core's sibling, says the
     // same) and only a float is refused: a float bit pattern is not an index,
     // and its exponent would select the slot while its mantissa selected
     // nothing meaningful.

@@ -2,7 +2,7 @@
 
 `include "types.svh"
 
-// Fused single-pass bar-aggregation tile (ordered close-out): price OHLC
+// Fused single-pass bar-aggregation core (ordered close-out): price OHLC
 // statistics plus the micro-share volume decomposition in one pass.
 //
 // Consumes two 64-bit words per row and reads the first four FIELD_WIDTH
@@ -59,17 +59,17 @@ module dau_bar_aggregation #(
     localparam logic [7:0] ERR_STREAM = 8'd2;
 
     localparam int ROW_BITS = 128;  // the transport unit, fixed
-    localparam int FIELDS   = 4;    // the lanes this tile reads
+    localparam int FIELDS   = 4;    // the lanes this core reads
     localparam int FIELD_BITS      = `DAU_TYPE_WIDTH(FIELD_WIDTH);
     localparam int FIELD_IS_FLOAT  = `DAU_TYPE_IS_FLOAT(FIELD_WIDTH);
     localparam int FIELD_IS_SIGNED = `DAU_TYPE_IS_SIGNED(FIELD_WIDTH);
-    localparam int LANE_BITS       = FIELDS * FIELD_BITS;       // the part of the row this tile reads
+    localparam int LANE_BITS       = FIELDS * FIELD_BITS;       // the part of the row this core reads
     localparam int DATA_BITS       = 3 * FIELD_BITS;            // its data lanes, key excluded
     localparam int SLOT_BITS       = 32;  // the record's element slot, fixed with the record
 
     // The upper bound is the RECORD, not the lane: open/high/low/close ride
     // 32-bit slots and the volume sums 64-bit words, so a wider element would
-    // need a versioned record, i.e. a different tile. Narrowing is free.
+    // need a versioned record, i.e. a different core. Narrowing is free.
     if (FIELD_BITS < 8 || FIELD_BITS > 32 || (ROW_BITS % FIELD_BITS) != 0) begin : g_field_width_check
         $error("FIELD_WIDTH must divide 128 and lie in [8, 32]");
     end
@@ -78,10 +78,10 @@ module dau_bar_aggregation #(
     // float it would order exponent bits as magnitude, and handed an unsigned
     // type it would read every high-bit-set value as negative.
     if (FIELD_IS_FLOAT != 0) begin : g_field_float_check
-        $error("FIELD_WIDTH must not name a floating-point type: this tile orders and sums two's-complement integers");
+        $error("FIELD_WIDTH must not name a floating-point type: this core orders and sums two's-complement integers");
     end
     if (FIELD_IS_SIGNED == 0) begin : g_field_signed_check
-        $error("FIELD_WIDTH must not name an unsigned type: this tile orders and sums two's-complement integers");
+        $error("FIELD_WIDTH must not name an unsigned type: this core orders and sums two's-complement integers");
     end
 
     typedef enum logic [3:0] {

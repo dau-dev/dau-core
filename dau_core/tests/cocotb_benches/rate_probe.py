@@ -25,9 +25,9 @@ async def assert_sustained_ingest(
 ) -> Fraction:
     """Measure continuous-valid input handshakes against the registry floor.
 
-    SCOPE: this measures INPUT ACCEPTANCE for a STREAMING tile, ending at
-    the last accepted beat. A tile that buffers a whole batch and works
-    afterward could accept quickly and still be slow overall; such a tile
+    SCOPE: this measures INPUT ACCEPTANCE for a STREAMING core, ending at
+    the last accepted beat. A core that buffers a whole batch and works
+    afterward could accept quickly and still be slow overall; such a core
     needs a measurement spanning its drain and re-arm instead. Every core
     probed here consumes and emits continuously."""
     if input_beats < 1 or rows_per_beat < 1 or beats_per_row < 1:
@@ -76,7 +76,7 @@ async def assert_sustained_ingest(
     # Simulation is deterministic — there is no measurement noise, and over
     # 256+ rows the pipeline's fill/drain endpoints distort a seven-cycle
     # cadence by well under half a percent. One percent therefore covers the
-    # endpoints without letting a genuinely slower tile certify its floor.
+    # endpoints without letting a genuinely slower core certify its floor.
     minimum = declared * (1 - RATE_TOLERANCE)
     dut._log.info(
         "RATE %s params=%s measured=%.6f declared=%.6f rows=%s cycles=%d",

@@ -28,7 +28,7 @@
 // output_data; not taken, because nothing yet needs it.
 //
 // A composed-pipeline stage: last-driven only (the upstream compaction's last
-// marker is trusted), silent on success -- the downstream tile's close-out is
+// marker is trusted), silent on success -- the downstream core's close-out is
 // authoritative. It raises its own status for a torn final row (input_last on
 // a w0: ERR_STREAM) and for a NEGATIVE source value, which has no root:
 // ERR_DOMAIN invalidates the batch rather than emitting a substituted number

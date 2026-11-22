@@ -69,8 +69,8 @@ async def rolling_extremum_resets_per_symbol(dut):
 @cocotb.test()
 async def rolling_extremum_all_warmup_emits_nothing_and_closes_out(dut):
     """A stream that forwards NOTHING still closes out. Zero forwarded rows is
-    the one outcome a downstream tile cannot tell apart from a stall, which is
-    why this tile is silent on success only while it is forwarding."""
+    the one outcome a downstream core cannot tell apart from a stall, which is
+    why this core is silent on success only while it is forwarding."""
     await _start(dut)
     short = [(3, 1)] * (WINDOW - 1)  # never fills the window
     rows = await _run(dut, short, expect_close_out=True)
@@ -95,7 +95,7 @@ async def rolling_extremum_last_rides_the_final_forwarded_row(dut):
 async def rolling_extremum_reuses_across_batches(dut):
     """A SECOND batch after input_last must be a fresh window.
 
-    Every other test resets first, which is exactly how a tile that carries
+    Every other test resets first, which is exactly how a core that carries
     its segment state across a batch boundary passes a whole bench. Here the
     second batch opens with the SAME symbol the first one closed on: if the
     run length survived, its first rows emit during what should be warm-up.

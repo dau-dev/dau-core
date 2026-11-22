@@ -15,7 +15,7 @@
 // Little's law says the depth needed is rate x latency. Against the measured
 // host bar (1.63-4.96 ns per probe row) that is 20-61 probes in flight
 // aggregate, or roughly 2.5-7.7 per lane across eight lanes -- unremarkable
-// for AXI ID tagging. This tile exists to replace that ASSUMED 100 ns with a
+// for AXI ID tagging. This core exists to replace that ASSUMED 100 ns with a
 // measurement, by sweeping MAX_OUTSTANDING and reporting cycles per probe.
 //
 // Addresses are a pseudo-random LFSR walk masked into a window, so the

@@ -2,7 +2,7 @@
 
 `include "types.svh"
 
-// Session-gap tile: the Nexmark-Q11 shape over bounded keyed state
+// Session-gap core: the Nexmark-Q11 shape over bounded keyed state
 // (STORAGE_AND_NOC.md). Per-key sessions over time-ordered rows: a row
 // whose time exceeds its key's last by more than cfg_gap CLOSES the old
 // session (emitted immediately, arrival order) and opens a new one;
@@ -13,7 +13,7 @@
 //
 // One 64-bit word in per row: {time, key}. Each CLOSED session emits two
 // words: w0 = {start, key}, w1 = {count, last}. Every lane is one
-// FIELD_WIDTH element, so a pair tiles a 64-bit stream word.
+// FIELD_WIDTH element, so a pair cores a 64-bit stream word.
 //
 // THE WHOLE RECORD IS ONE ELEMENT TYPE, including the session's ROW COUNT:
 // it shares a word with `last` and a record whose halves had different
@@ -48,7 +48,7 @@ module dau_session_gap #(
     // The ELEMENT TYPE of every lane of the row and the emitted session, as
     // encoded by types.svh. A plain signed integer encodes as its own width,
     // so `DAU_TYPE_INT32 is 32 and this reproduces the {time, key} word and
-    // the two-word session record the tile has always had. Times are
+    // the two-word session record the core has always had. Times are
     // SUBTRACTED and ORDERED and keys are SORTED SIGNED, so the type must be
     // one those operations mean something in: signed and non-float.
     parameter int FIELD_WIDTH = `DAU_TYPE_INT32
@@ -86,7 +86,7 @@ module dau_session_gap #(
     if (CAPACITY < 1 || CAPACITY > 1024) begin : g_param_check
         $error("CAPACITY must be in [1, 1024]");
     end
-    // a pair of lanes tiles one 64-bit stream word, on the way in and on
+    // a pair of lanes cores one 64-bit stream word, on the way in and on
     // both emitted words
     if (FIELD_BITS < 8 || FIELD_BITS > 32 || (64 % FIELD_BITS) != 0) begin : g_field_width_check
         $error("FIELD_WIDTH must divide 64 and lie in [8, 32]");
@@ -99,10 +99,10 @@ module dau_session_gap #(
     // is admissible unchanged -- scaling by 2**-F preserves both the
     // difference and the order, and cfg_gap arrives in the field's format.
     if (FIELD_IS_FLOAT != 0) begin : g_field_float_check
-        $error("FIELD_WIDTH must not name a floating-point type: this tile subtracts and orders two's-complement integers");
+        $error("FIELD_WIDTH must not name a floating-point type: this core subtracts and orders two's-complement integers");
     end
     if (FIELD_IS_SIGNED == 0) begin : g_field_signed_check
-        $error("FIELD_WIDTH must not name an unsigned type: this tile subtracts and orders two's-complement integers");
+        $error("FIELD_WIDTH must not name an unsigned type: this core subtracts and orders two's-complement integers");
     end
 
     typedef enum logic [3:0] {

@@ -7,7 +7,7 @@ Two layers, and the distinction is the whole accuracy contract:
 * :class:`ExpDatapath` is an ALGORITHM: a specific range reduction, table and
   polynomial at a specific internal precision. The HDL mirrors it exactly, so
   the cocotb benches compare against it with zero tolerance, like every other
-  tile in the package.
+  core in the package.
 
 An operating point that deviates from the reference does so by a MEASURED
 amount, swept exhaustively over every representable input and recorded in the
@@ -44,7 +44,7 @@ def exp_reference(x: int, *, fractional_bits: int = EXP_FRACTIONAL_BITS) -> int:
     The mathematical contract. Computed in 80 digits, so the half-way cases
     that double precision cannot decide are decided here.
 
-    Raises when the result does not fit int32; the tile reports ``RANGE``.
+    Raises when the result does not fit int32; the core reports ``RANGE``.
     """
     _decimal_context()
     one = 1 << fractional_bits
@@ -60,7 +60,7 @@ def exp_domain(*, fractional_bits: int = EXP_FRACTIONAL_BITS) -> tuple[int, int]
 
     Below the low bound the correctly rounded answer is 0; above the high
     bound it does not fit int32. Small enough to sweep exhaustively, which is
-    what makes a correctness claim about this tile a proof rather than a
+    what makes a correctness claim about this core a proof rather than a
     sample.
     """
     one = 1 << fractional_bits
@@ -96,7 +96,7 @@ class ExpDatapath(CheckedModel):
     # measured correctly rounded at every width down to 12 bits.
     # 12, not 24: the constant is 21 bits instead of 34, which shrinks the
     # multiply and the fabric adder summing its partial products -- that
-    # adder was an 11-deep CARRY4 chain between two DSPs and the tile's
+    # adder was an 11-deep CARRY4 chain between two DSPs and the core's
     # critical path. Measured correctly rounded at every width down to 12.
     k_bits: int = 12
 
@@ -125,7 +125,7 @@ class ExpDatapath(CheckedModel):
         half = 1 << (q - 1)
         # TRUNCATED, not rounded. The rounding add spanned the whole product
         # and measured as a 13-deep CARRY4 chain between two DSPs -- the
-        # critical path of the whole tile. k only picks the table/residue
+        # critical path of the whole core. k only picks the table/residue
         # split, so a half-step bias in it is absorbed by the residue.
         k = (x * c.inv_ln2_narrow) >> (self.k_bits + f)
         x_q = x << (q - f)
@@ -190,8 +190,8 @@ def ln_reference(x: int, *, fractional_bits: int = LN_FRACTIONAL_BITS) -> int:
     digits so the half-way cases double precision cannot decide are decided
     here.
 
-    Raises on a non-positive input; the tile reports ``DOMAIN``, the same
-    position the sqrt tile takes -- ln of zero or a negative has no value and
+    Raises on a non-positive input; the core reports ``DOMAIN``, the same
+    position the sqrt core takes -- ln of zero or a negative has no value and
     a substituted one would be a wrong number that looks right.
     """
     if x <= 0:
@@ -371,7 +371,7 @@ def normal_cdf_domain(*, fractional_bits: int = NORMAL_CDF_FRACTIONAL_BITS) -> t
     """The inputs where the CDF is neither 0 nor 1 to the last bit.
 
     Small enough to sweep EXHAUSTIVELY, which is what makes a correctness
-    claim about this tile a proof rather than a sample.
+    claim about this core a proof rather than a sample.
     """
     one = 1 << fractional_bits
     limit = 0
@@ -391,7 +391,7 @@ class NormalCdfDatapath(CheckedModel):
     CDF has no useful global series.
 
     Saturation is exact rather than a clamp: beyond the domain the correctly
-    rounded answer IS 0 or 1, so this tile is TOTAL and needs no error path
+    rounded answer IS 0 or 1, so this core is TOTAL and needs no error path
     -- the one transcendental here that does not.
     """
 

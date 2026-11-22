@@ -17,7 +17,7 @@ final rolling output. The gain is not a magic primitive: it is the avoided DMA o
 the intermediate the bar reduction discards.
 
 The per-row market-feature derivation (midpoint/spread/sign/signed_volume/dollar)
-is a map that fuses into the bar tile's front chain stage (the q1/q6 shape) — it
+is a map that fuses into the bar core's front chain stage (the q1/q6 shape) — it
 adds no materialized intermediate in either execution — so the cost model's
 materializing stages are align → bar → roll. ``market_features`` is still run and
 returned as the feature output branch (not discarded).
@@ -56,7 +56,7 @@ from .temporal import (
 )
 
 # On-wire record widths (bytes), from the registry's record words for each
-# stage's tile. Each stage reads its tile's input record and writes its tile's
+# stage's core. Each stage reads its core's input record and writes its core's
 # output record; a staged run DMAs both, a fused run DMAs only the pipeline
 # endpoints.
 _ASOF = core("asof-backward")
@@ -76,13 +76,13 @@ MARKET_BYTES = _output_record_bytes(_ASOF)  # as-of market row: time, {price, sy
 BAR_BYTES = _output_record_bytes(_BAR)  # bar record: OHLC + volume/dollar/signed accumulators + count
 ROLL_INPUT_BYTES = _ROLL.effective_record_words({}) * STREAM_WORD_BYTES  # rolling-moment input: one {value, symbol} word (a bar projection)
 ROLL_BYTES = _output_record_bytes(_ROLL)  # rolling-moment record: {count, symbol}, total, total_sq
-# the smallest count-based window the rolling-moments tile elaborates
+# the smallest count-based window the rolling-moments core elaborates
 ROLL_WINDOW_MINIMUM = _ROLL.parameters["WINDOW"].minimum
 
-# The bar fields the int32 rolling-moment tile can window: the OHLC prices are in
-# the int32 price domain and fit the tile's signed-int32 {value, symbol} word.
+# The bar fields the int32 rolling-moment core can window: the OHLC prices are in
+# the int32 price domain and fit the core's signed-int32 {value, symbol} word.
 # The volume/dollar/signed accumulators are int64 (a bar sums many trades) — they
-# would overflow the int32 tile, so rolling them needs the wide rolling variant
+# would overflow the int32 core, so rolling them needs the wide rolling variant
 # (a follow-up), not this model.
 RollField = Literal["open", "high", "low", "close"]
 ROLL_FIELDS: tuple[RollField, ...] = get_args(RollField)
@@ -90,7 +90,7 @@ ROLL_FIELDS: tuple[RollField, ...] = get_args(RollField)
 
 class WorkflowStage(CheckedModel):
     """One materializing stage and its cardinality: ``in_rows`` records of
-    ``in_bytes`` in, ``out_rows`` records of ``out_bytes`` out (the tile's own
+    ``in_bytes`` in, ``out_rows`` records of ``out_bytes`` out (the core's own
     input/output record widths). A staged run DMAs both; a fused run DMAs
     neither (except the pipeline endpoints)."""
 
@@ -142,15 +142,15 @@ def run_hero_workflow(
     """Run the predeclared workflow end to end over the goldens, recording each
     materializing stage's cardinality. ``roll_value`` selects the per-bar OHLC
     price the roll stage windows (:data:`ROLL_FIELDS`); ``roll_window`` is the
-    count-based window (at least :data:`ROLL_WINDOW_MINIMUM`, the tile's minimum). Both input streams must be
+    count-based window (at least :data:`ROLL_WINDOW_MINIMUM`, the core's minimum). Both input streams must be
     pre-sorted by ``(symbol_id, time)`` (the shared as-of / bar precondition)."""
     if roll_value not in ROLL_FIELDS:
-        raise ValueError(f"roll_value must be one of {ROLL_FIELDS} (the int32 bar prices the tile can window), got {roll_value!r}")
+        raise ValueError(f"roll_value must be one of {ROLL_FIELDS} (the int32 bar prices the core can window), got {roll_value!r}")
     if roll_window < ROLL_WINDOW_MINIMUM:
         raise ValueError(f"roll_window must be >= {ROLL_WINDOW_MINIMUM} (the rolling-moments WINDOW minimum), got {roll_window}")
     trades = list(trades)
     quotes = list(quotes)
-    n_input = len(trades) + len(quotes)  # the merged stream the as-of tile reads
+    n_input = len(trades) + len(quotes)  # the merged stream the as-of core reads
 
     market = matched_rows(asof_backward(trades, quotes, tolerance=tolerance))
     features = market_features(market)  # the fused per-row derivation, kept as an output branch

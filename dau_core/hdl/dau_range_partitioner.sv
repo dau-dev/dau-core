@@ -20,12 +20,12 @@
 // Row atomicity: input_last is only legal on w1 of a row. input_last on a w0
 // is a torn row — the whole batch is invalid and every lane reports
 // ERR_STREAM. A lane that receives zero rows closes out with a success status
-// (its downstream tile never starts), mirroring the pair-key filter; a lane
+// (its downstream core never starts), mirroring the pair-key filter; a lane
 // that received rows lands input_last on its own final forwarded word.
 
 // One partition's back half: a single-row skid that holds the newest row so
 // its stream-end can be tagged last, plus the zero-row / torn-row status the
-// downstream tile cannot see. Reused NUM_PARTITIONS times by the top.
+// downstream core cannot see. Reused NUM_PARTITIONS times by the top.
 module dau_range_partition_lane (
     input  wire logic        clk,
     input  wire logic        rst,
@@ -178,11 +178,11 @@ endmodule
 module dau_range_partitioner #(
     parameter int NUM_PARTITIONS = 4,
     // The ELEMENT TYPE of the key and the splitters, as encoded by types.svh.
-    // The key and its companion value lane tile one 64-bit stream word, so a
+    // The key and its companion value lane core one 64-bit stream word, so a
     // narrower type packs the pair into less of the word rather than changing
     // the beat; the rows themselves are routed opaquely, two words wide. A
     // plain signed integer encodes as its own width, so `DAU_TYPE_INT32 is 32
-    // and this routes by exactly the key the tile has always routed by. The
+    // and this routes by exactly the key the core has always routed by. The
     // decode ORDERS two's-complement magnitudes against the splitters, so the
     // type must be one it can order: signed and non-float.
     parameter int KEY_WIDTH = `DAU_TYPE_INT32
@@ -217,7 +217,7 @@ module dau_range_partitioner #(
     localparam int KEY_IS_FLOAT  = `DAU_TYPE_IS_FLOAT(KEY_WIDTH);
     localparam int KEY_IS_SIGNED = `DAU_TYPE_IS_SIGNED(KEY_WIDTH);
 
-    // {value, key} tile one 64-bit stream word, so the pair must fit it and
+    // {value, key} core one 64-bit stream word, so the pair must fit it and
     // divide it evenly
     if (KEY_BITS < 8 || KEY_BITS > 32 || (64 % KEY_BITS) != 0) begin : g_key_width_check
         $error("KEY_WIDTH must divide 64 and lie in [8, 32]");
@@ -230,10 +230,10 @@ module dau_range_partitioner #(
     // them at elaboration. Fixed point is admissible unchanged -- scaling by
     // a constant 2**-F preserves order.
     if (KEY_IS_FLOAT != 0) begin : g_key_float_check
-        $error("KEY_WIDTH must not name a floating-point type: this tile orders two's-complement integers");
+        $error("KEY_WIDTH must not name a floating-point type: this core orders two's-complement integers");
     end
     if (KEY_IS_SIGNED == 0) begin : g_key_signed_check
-        $error("KEY_WIDTH must not name an unsigned type: this tile orders two's-complement integers");
+        $error("KEY_WIDTH must not name an unsigned type: this core orders two's-complement integers");
     end
 
     typedef enum logic [1:0] {

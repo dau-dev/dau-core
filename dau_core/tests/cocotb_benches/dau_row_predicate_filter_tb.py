@@ -183,7 +183,7 @@ async def torn_row_mid_batch_reports_stream_error(dut):
 async def invalid_op_drains_batch_then_reports_config_error(dut):
     await _start(dut)
     _drive_config(dut, RowPredicateConfig(term0=RowPredicateTerm(field=RowField.KEY, op=PredicateOp.EQ, constant=0)))
-    dut.cfg_op0.value = 0  # reserved: an unconfigured tile fails explicitly
+    dut.cfg_op0.value = 0  # reserved: an unconfigured core fails explicitly
     send = cocotb.start_soon(_send_rows(dut, _ROWS))
     await _expect_status(dut, error=True, code=FilterErrorCode.CONFIG)
     await send
@@ -548,7 +548,7 @@ async def _collect_output(dut, ready_pattern, *, expect_words: int) -> list[int]
                 dut.output_ready.value = 0
                 assert len(words) == expect_words, f"expected {expect_words} words, got {len(words)}"
                 # rows forwarded: the filter stays silent (the downstream
-                # tile's status is authoritative)
+                # core's status is authoritative)
                 await _assert_quiescent(dut)
                 return words
     raise AssertionError(f"timed out collecting filter output ({len(words)}/{expect_words} words)")

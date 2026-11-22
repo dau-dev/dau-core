@@ -18,14 +18,14 @@ discipline): bars and rolling windows emit exact integer accumulators
 (sum / sum-of-squares / count) and the host divides once, so every value on the
 wire is exact.
 
-State is **bounded and per-symbol**: the as-of tile holds one current quote per
-symbol partition; a bar tile holds one open bar; a rolling tile holds one
+State is **bounded and per-symbol**: the as-of core holds one current quote per
+symbol partition; a bar core holds one open bar; a rolling core holds one
 window. The pre-sort precondition (both streams ordered by ``(symbol_id, time)``)
-is the same one the sorted-scan tiles already require — the host sorts, or the
+is the same one the sorted-scan cores already require — the host sorts, or the
 range-partitioner + sorter path does.
 
 These are semantic references, ahead of the HDL. The ``int64`` timestamp / sum
-tiles and the as-of / windowed-stat tiles byte-compare against them.
+cores and the as-of / windowed-stat cores byte-compare against them.
 """
 
 from __future__ import annotations
@@ -61,7 +61,7 @@ def asof_backward(
 
     Matches ``polars.DataFrame.join_asof(strategy="backward", by="symbol",
     tolerance=...)``: on equal timestamps the *last* qualifying quote wins.
-    Both streams must be pre-sorted by ``(symbol_id, time)``. The tile holds one
+    Both streams must be pre-sorted by ``(symbol_id, time)``. The core holds one
     current quote per symbol partition and advances it monotonically — bounded
     state, one pass.
     """
@@ -354,9 +354,9 @@ def rolling_moments(values: Iterable[tuple[int, int]], *, window: int) -> list[R
     ``window`` values — the deferred-division form of rolling mean/variance.
 
     REFUSES a window whose sum of squares leaves a signed 64-bit accumulator.
-    That is the tile's arithmetic precondition, and it binds inside the int32
+    That is the core's arithmetic precondition, and it binds inside the int32
     domain: ``(2**31-1)**2`` is already ``2**61``, so a full-range int32 column
-    overflows ``sum_sq`` from window 3. The tile cannot check it — it sees one
+    overflows ``sum_sq`` from window 3. The core cannot check it — it sees one
     row at a time and has no bound to compare against — and it wraps silently
     into a wrong variance rather than erroring. Python integers do not wrap, so
     a golden that computed the exact value would DISAGREE with the hardware
@@ -376,7 +376,7 @@ def rolling_moments(values: Iterable[tuple[int, int]], *, window: int) -> list[R
         if not -limit <= total_sq <= limit - 1:
             raise ValueError(
                 f"rolling window of {len(buf)} values needs {total_sq.bit_length()} bits of sum_sq, "
-                f"more than the tile's INT64; reduce the window or rescale the column"
+                f"more than the core's INT64; reduce the window or rescale the column"
             )
         return RollingMoment(count=len(buf), total=sum(buf), total_sq=total_sq)
 
@@ -411,7 +411,7 @@ def moment_std(moment: RollingMoment, *, ddof: int = 1) -> float:
     ``rolling_var``, so any other formulation would disagree with the
     reference in the last place for no benefit.
 
-    On device this is where the divide and sqrt tiles land -- variance
+    On device this is where the divide and sqrt cores land -- variance
     divides before it roots -- which is why the numerator stays exact
     integers right up to the single divide.
     """
@@ -422,7 +422,7 @@ def ewma(values: Iterable[tuple[int, int]], *, alpha: float) -> list[float]:
     """Per-symbol exponentially weighted moving average, non-adjusted recursion
     (``e[0] = x[0]``; ``e[i] = alpha*x[i] + (1-alpha)*e[i-1]``) — matches
     ``pl.col(x).ewm_mean(alpha=alpha, adjust=False).over("symbol")``. Float: the
-    reference real-valued semantics the fixed-point tile approximates under its
+    reference real-valued semantics the fixed-point core approximates under its
     declared error budget."""
     if not 0.0 < alpha <= 1.0:
         raise ValueError(f"alpha must be in (0, 1], got {alpha}")

@@ -2,9 +2,9 @@
 
 // Fused bar stage, all generic: the time-bucket key rewrite streams straight
 // into the generic multi-field aggregator. Rewritten rows never touch DDR
-// between the two tiles, and the aggregator's per-field first/last/min/max/sum
+// between the two cores, and the aggregator's per-field first/last/min/max/sum
 // record is selected into OHLCV bars downstream (dau_core.operators.
-// bars_from_field_aggregate) — no finance-specific bar tile. The bucket tile is
+// bars_from_field_aggregate) — no finance-specific bar core. The bucket core is
 // silent on success, so its output_last simply rides into the aggregator, which
 // closes the chain out; the bucket's (error-only) status is drained.
 module dau_bucket_agg_chain #(
@@ -33,7 +33,7 @@ module dau_bucket_agg_chain #(
     logic [63:0] keyed_data;
     logic        keyed_last;
 
-    // the bucket tile's error-only status (silent on success), drained here
+    // the bucket core's error-only status (silent on success), drained here
     logic       bucket_status_valid;
     logic       bucket_status_error;
     logic [7:0] bucket_status_error_code;

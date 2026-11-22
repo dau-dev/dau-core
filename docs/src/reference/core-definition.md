@@ -9,7 +9,7 @@ loaded into the ccflow `ModelRegistry` at `/dau-core/<name>`.
 
 | Field            | Type                    | Description                                                                                                                                                                                  |
 | ---------------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`           | `str`                   | Registry key, named for what the tile computes. A width belongs in the parameters, not the name; see [Add an operator tile](../how-to/add-an-operator-tile.md).                              |
+| `name`           | `str`                   | Registry key, named for what the tile computes. A width belongs in the parameters, not the name; see [Add an operator tile](../how-to/add-an-operator-core.md).                              |
 | `kind`           | `CoreKind`              | `operator`, `stream-infra`, `shell-adapter`, `package`, or `sim-model`.                                                                                                                      |
 | `module`         | `str`                   | The SystemVerilog module name.                                                                                                                                                               |
 | `source`         | `str`                   | The HDL filename within `source_package`.                                                                                                                                                    |

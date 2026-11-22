@@ -1,4 +1,4 @@
-"""The host's record layouts agree with what the registry says the tiles read
+"""The host's record layouts agree with what the registry says the cores read
 and write, and with the goldens' result types."""
 
 from __future__ import annotations
@@ -29,11 +29,11 @@ WORD_BYTES = 8
 
 
 @pytest.mark.parametrize(
-    ("tile", "row_bytes", "record_bytes"),
+    ("core", "row_bytes", "record_bytes"),
     [("grouped-aggregation", KEYED_ROW_BYTES, GROUP_RECORD_BYTES), ("bar-aggregation", BAR_ROW_BYTES, BAR_RECORD_BYTES)],
 )
-def test_each_layout_is_as_wide_as_the_registry_says(tile: str, row_bytes: int, record_bytes: int) -> None:
-    definition = core(tile)
+def test_each_layout_is_as_wide_as_the_registry_says(core: str, row_bytes: int, record_bytes: int) -> None:
+    definition = core(core)
     assert definition.record_words is not None and definition.output_record_words is not None
     assert row_bytes == definition.record_words * WORD_BYTES
     assert record_bytes == definition.output_record_words * WORD_BYTES
@@ -51,9 +51,9 @@ def test_the_struct_and_numpy_views_agree() -> None:
     assert struct_format(BAR_RECORD_FIELDS) == "<iiiiiiqqQ"
 
 
-def test_the_quad_row_is_the_row_tiles_input_in_field_order() -> None:
+def test_the_quad_row_is_the_row_cores_input_in_field_order() -> None:
     assert [name for name, _kind in QUAD_ROW_FIELDS] == [field.name.lower() for field in RowField]
-    for tile in ("row-predicate-filter", "row-map-alu", "field-sum-aggregation"):
-        record_words = core(tile).record_words
+    for core in ("row-predicate-filter", "row-map-alu", "field-sum-aggregation"):
+        record_words = core(core).record_words
         assert record_words is not None
         assert QUAD_ROW_BYTES == record_words * WORD_BYTES

@@ -1,4 +1,4 @@
-# How to add an operator tile
+# How to add an operator core
 
 This guide takes a new streaming operator from an idea to a registered core
 that a composition can instantiate. It follows the project's order,
@@ -12,46 +12,46 @@ the final envelope step.
 ## 1. Write the golden first
 
 The golden is a pure function in `dau_core/operators.py` (or
-`dau_core/temporal.py` for time-series shapes) that computes what the tile
-computes. It is the definition of the tile's meaning, so write it before
+`dau_core/temporal.py` for time-series shapes) that computes what the core
+computes. It is the definition of the core's meaning, so write it before
 any HDL exists and settle the semantics there.
 
 Decide these explicitly, since they are the parts prose gets wrong:
 
 - **The domain.** Fields are fixed-width, null-free *wires*, and the width
-  is a tile parameter, not part of the tile's identity. Wrap at the declared
+  is a core parameter, not part of the core's identity. Wrap at the declared
   width so `-1` and the all-ones pattern are the same key.
 
   **Do not put a width in the name.** Part of the existing palette is still
   called `int32-*` because it was written before the width was parameterized,
-  and the name becomes wrong as soon as the tile gains the parameter. The row
+  and the name becomes wrong as soon as the core gains the parameter. The row
   predicate filter's `FIELD_WIDTH` accepts 16, 32 and 64, so `int32-` would
   have been false for two of its three legal settings, which is why it is now
   `row-predicate-filter`.
 
-  `WIDTH_NAMED_TILES` in `dau_core/tests/test_cores.py` lists the tiles that
+  `WIDTH_NAMED_CORES` in `dau_core/tests/test_cores.py` lists the cores that
   still have a width in their name, each with a comment saying why and what
   would remove it. A few keep the width on purpose because for them it is
-  part of the contract. A new tile is not one of them: give it a width in its
+  part of the contract. A new core is not one of them: give it a width in its
   name and that guard fails.
 
-- **Emission order.** If your tile holds state, say exactly what order
+- **Emission order.** If your core holds state, say exactly what order
   results leave in, and pick something implementation-independent.
 
-- **Error codes.** Add an `IntEnum` whose values are the tile's
+- **Error codes.** Add an `IntEnum` whose values are the core's
   `status_error_code` wire encoding, and say so in its docstring.
 
 - **Capacity behavior.** A bounded table that fills is an error, never an
   eviction. State what the caller gets back.
 
-Return `(results, error_code)` when the tile can fail.
+Return `(results, error_code)` when the core can fail.
 
 ## 2. Prove the golden against itself
 
 Add `dau_core/tests/test_<name>.py` with property tests, not just examples:
 permutation invariance if order should not matter, agreement with an
 existing golden where the two overlap, boundary values, and the declared-width wire
-identity. If your tile has a host-side counterpart (a merge, a split), prove
+identity. If your core has a host-side counterpart (a merge, a split), prove
 the algebra: `merge(split(rows)) == one_shot(rows)`.
 
 Run it:
@@ -91,11 +91,11 @@ hand-written expected values.
 
 Cover, at minimum: the nominal case, backpressure (a stalled beat must stay
 asserted and byte-stable), reset, repeated batches back to back, malformed
-input, and every error path. If the tile is stateful, add the
+input, and every error path. If the core is stateful, add the
 **randomized-delay patience harness**: inject random delays on every
 channel and assert the emitted sequence is identical across seeds.
 
-If the tile is parameterized, **run the bench at its boundaries**: the
+If the core is parameterized, **run the bench at its boundaries**: the
 declared minimum, a small value that forces collisions or short scans, and
 the default. Cases whose point is holding several items at once should skip
 at parameter values too small for them rather than being weakened to fit.
@@ -113,16 +113,16 @@ Append a `CoreDefinition` to `dau_core/config/dau-core/cores.yaml`; the
 registry is that yaml file, with no Python list beside it. Declare:
 
 `name`, `kind: operator`, `module`, `source`, a `description` that says what
-the tile does and what its contracts are, `golden` (as
+the core does and what its contracts are, `golden` (as
 `module:function`), `bench`, `count_port`, `contract_kind`, `record_words`,
 `success_close_out`, and `parameters` mirroring your RTL elaboration guards.
 
-If the tile advertises capabilities, add `opcodes`, `opcode_input_types`,
-and `unit_kind`. A composition built only from tiles that declare none
+If the core advertises capabilities, add `opcodes`, `opcode_input_types`,
+and `unit_kind`. A composition built only from cores that declare none
 reports an empty opcode bitmap, and the planner cannot see it.
 
-Declare `ingest` as the rate the tile sustains: state the assumption your rate depends on and
-name the adversarial case rather than padding the number. If the tile owns
+Declare `ingest` as the rate the core sustains: state the assumption your rate depends on and
+name the adversarial case rather than padding the number. If the core owns
 on-chip storage, declare `storage_intent`.
 
 Check it loads:
@@ -155,7 +155,7 @@ full procedure.
 
 **Read a thin margin as a warning.** An out-of-context margin under about
 half a nanosecond is a risk for the composed build, not headroom, so budget
-a retime before composing the tile.
+a retime before composing the core.
 
 ## 7. Confirm the whole suite
 
@@ -164,4 +164,4 @@ python -m pytest dau_core -q
 ruff check dau_core/ && ruff format dau_core/
 ```
 
-The tile is now instantiable by any `ScanCompositionSpec` that names it.
+The core is now instantiable by any `ScanCompositionSpec` that names it.

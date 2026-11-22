@@ -14,7 +14,7 @@ import pytest
 from pydantic import ValidationError
 
 from dau_core.capability_contract import capability_contract
-from dau_core.composition import CompositionError, LaneSpec, ScanCompositionSpec, TileSpec, canonical_spec_json, spec_hash
+from dau_core.composition import CompositionError, LaneSpec, ScanCompositionSpec, CoreSpec, canonical_spec_json, spec_hash
 from dau_core.cores import ResourceMeasurement
 from dau_core.models import CheckedModel, FrozenMapping
 from dau_core.operators import RowField
@@ -26,8 +26,8 @@ def _spec() -> ScanCompositionSpec:
         name="checked",
         lanes=(
             LaneSpec(
-                tile=TileSpec(core="field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}),
-                partition=TileSpec(core="pair-key-filter", config={"cfg_key_mask": "32'd3", "cfg_key_match": "32'd1"}),
+                core=CoreSpec(core="field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}),
+                partition=CoreSpec(core="pair-key-filter", config={"cfg_key_mask": "32'd3", "cfg_key_match": "32'd1"}),
             ),
         ),
     )
@@ -67,34 +67,34 @@ def test_a_frozen_model_holds_no_mutable_mapping() -> None:
     would have been the weaker design -- ``dict.__setitem__(m, k, v)`` reaches
     past any override -- so that bypass is pinned here too.
     """
-    tile = TileSpec(core="field-sum-aggregation", config={"cfg_field_mask": "4'b0010"})
-    assert isinstance(tile.config, FrozenMapping)
+    core = CoreSpec(core="field-sum-aggregation", config={"cfg_field_mask": "4'b0010"})
+    assert isinstance(core.config, FrozenMapping)
     for method in ("__setitem__", "__delitem__", "update", "pop", "popitem", "clear", "setdefault"):
-        assert not hasattr(tile.config, method), method
+        assert not hasattr(core.config, method), method
     # through getattr because a type checker refuses the call outright, which
     # is the other half of the answer
     with pytest.raises(TypeError, match="requires a 'dict' object"):
-        getattr(dict, "__setitem__")(tile.config, "cfg_field_mask", "4'b1111")  # noqa: B009
+        getattr(dict, "__setitem__")(core.config, "cfg_field_mask", "4'b1111")  # noqa: B009
     # merging builds a new mapping and leaves this one alone
-    merged = tile.config | {"cfg_other": "1"}
-    assert set(merged) == {"cfg_field_mask", "cfg_other"} and set(tile.config) == {"cfg_field_mask"}
+    merged = core.config | {"cfg_other": "1"}
+    assert set(merged) == {"cfg_field_mask", "cfg_other"} and set(core.config) == {"cfg_field_mask"}
     assert isinstance(core("streaming-top-k").parameters, FrozenMapping)
 
 
 def test_a_read_only_mapping_still_behaves_like_the_dict_it_was() -> None:
     """The freeze is invisible to everything that reads: equality against a
     plain dict, membership, serialization, and the hash a frozen model needs."""
-    tile = TileSpec(core="field-sum-aggregation", config={"cfg_field_mask": "4'b0010"})
-    assert tile.config == {"cfg_field_mask": "4'b0010"}
-    assert dict(tile.config) == {"cfg_field_mask": "4'b0010"}
-    assert "cfg_field_mask" in tile.config
-    assert tile.model_dump()["config"] == {"cfg_field_mask": "4'b0010"}
-    assert json.loads(tile.model_dump_json())["config"] == {"cfg_field_mask": "4'b0010"}
-    assert hash(tile) == hash(TileSpec(core="field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}))
+    core = CoreSpec(core="field-sum-aggregation", config={"cfg_field_mask": "4'b0010"})
+    assert core.config == {"cfg_field_mask": "4'b0010"}
+    assert dict(core.config) == {"cfg_field_mask": "4'b0010"}
+    assert "cfg_field_mask" in core.config
+    assert core.model_dump()["config"] == {"cfg_field_mask": "4'b0010"}
+    assert json.loads(core.model_dump_json())["config"] == {"cfg_field_mask": "4'b0010"}
+    assert hash(core) == hash(CoreSpec(core="field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}))
     # an unset mapping field is frozen too: a default is never validated, so
     # its factory is what has to produce the read-only form
-    assert isinstance(tile.params, FrozenMapping)
-    assert hash(TileSpec(core="field-sum-aggregation")) == hash(TileSpec(core="field-sum-aggregation"))
+    assert isinstance(core.params, FrozenMapping)
+    assert hash(CoreSpec(core="field-sum-aggregation")) == hash(CoreSpec(core="field-sum-aggregation"))
 
 
 def test_the_canonical_form_and_the_cache_key_are_unchanged() -> None:
@@ -103,7 +103,7 @@ def test_the_canonical_form_and_the_cache_key_are_unchanged() -> None:
     test_composition.py keeps meaning what it meant."""
     spec = _spec()
     text = canonical_spec_json(spec)
-    assert json.loads(text)["lanes"][0]["tile"]["config"] == {"cfg_field_mask": "4'b0010"}
+    assert json.loads(text)["lanes"][0]["sink"]["config"] == {"cfg_field_mask": "4'b0010"}
     assert spec_hash(spec) == spec_hash(ScanCompositionSpec.model_validate(json.loads(text)))
 
 
@@ -134,7 +134,7 @@ def test_a_polymorphic_field_keeps_its_subclass() -> None:
     subclass is what validates one."""
     definition = core("fixed-point-exp")
     assert definition.generator is not None
-    assert type(definition.generator).__name__ == "ExpTileGenerator"
+    assert type(definition.generator).__name__ == "ExpCoreGenerator"
     assert definition.generator.check() == definition.generator
     assert "revalidate_instances" not in type(definition.generator).model_config
 
@@ -181,13 +181,13 @@ def test_a_copied_generator_cannot_render() -> None:
     """A generator is a field type, so nothing revalidates it on the way in.
     ``render()`` is therefore its own boundary: a copied operating point must
     not reach HDL, because that HDL's digest would then identify it."""
-    from dau_core.exp_generator import ExpTileGenerator
+    from dau_core.exp_generator import ExpCoreGenerator
 
     definition = core("fixed-point-exp")
     generator = definition.generator
     # the declared field type is the base, so the subclass is named here: the
     # datapath is the subclass's own field, which is the whole point below
-    assert isinstance(generator, ExpTileGenerator)
+    assert isinstance(generator, ExpCoreGenerator)
     # degree 0 is no polynomial at all; construction refuses it
     tampered = generator.model_copy(update={"datapath": generator.datapath.model_copy(update={"degree": 0})})
 

@@ -1,8 +1,8 @@
 `default_nettype none
 
-// AXI4 burst write master draining one tile's record stream to a memory
+// AXI4 burst write master draining one core's record stream to a memory
 // region: the write half of dau_axi_stream_job as a standalone unit so
-// NoC tops give every tile its own output region and let the shell
+// NoC tops give every core its own output region and let the shell
 // interconnect arbitrate. Buffers up to BURST_BEATS words and flushes
 // INCR bursts (partial burst at stream end); done waits for the final
 // write response and the consumed status. Status errors surface with the

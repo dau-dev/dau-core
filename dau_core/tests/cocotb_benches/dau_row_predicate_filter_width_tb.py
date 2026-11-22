@@ -1,6 +1,6 @@
 """The row predicate filter at element types other than int32.
 
-The tile's row is a fixed 128-bit transport unit; the field TYPE says how
+The core's row is a fixed 128-bit transport unit; the field TYPE says how
 many fields that row carries. So int16 packs eight values per row where
 int32 packs four, which is the reason to support narrow types at all -- more
 values per beat, not a smaller beat.
@@ -18,7 +18,7 @@ a composition would ask for are the same value. q16.16 is exercised
 alongside the integers because it is the case a width cannot express: 32
 bits wide like int32 but a different type, ordered by the identical
 comparator (scaling by 2**-F preserves order), which is exactly the claim
-the tile's fixed-point guard makes.
+the core's fixed-point guard makes.
 """
 
 from __future__ import annotations
@@ -93,7 +93,7 @@ async def _drive(dut, rows: list[list[int]], width: int) -> list[list[int]]:
         dut.input_data.value = word
         dut.input_last.value = int(index == len(words) - 1)
         dut.input_valid.value = 1
-        # the tile's handshake idiom: sample ready in ReadOnly, then leave
+        # the core's handshake idiom: sample ready in ReadOnly, then leave
         # that phase before driving again
         while True:
             await ReadOnly()
@@ -124,7 +124,7 @@ async def width_parameterized_filter_matches_golden(dut) -> None:
     # Select the LAST field, not the first. Field 0 sits at offset zero for
     # every width, so a predicate reading it cannot tell a correct
     # `sel * FIELD_BITS` slice from a stride hardcoded to 32 -- the bench
-    # would pass while the tile was width-broken. The highest index puts the
+    # would pass while the core was width-broken. The highest index puts the
     # stride under maximum load.
     #
     # The comparison is >= 0, which is what a zero-extending field select

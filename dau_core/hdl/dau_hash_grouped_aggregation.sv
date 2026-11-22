@@ -11,9 +11,9 @@
 // bit-for-bit.
 //
 // The difference from dau_grouped_field_sum_aggregation is the whole
-// point: the ordered tile groups CONSECUTIVE equal keys, so it needs the
+// point: the ordered core groups CONSECUTIVE equal keys, so it needs the
 // staged table pre-sorted on the group key and a reappearing key opens a
-// second partial the host must merge. This tile holds per-key state, so
+// second partial the host must merge. This core holds per-key state, so
 // input order does not matter and a key may reappear anywhere in the batch
 // — one record per distinct key, always. That removes the sorted_by_key
 // staging precondition from every grouped scan.
@@ -31,7 +31,7 @@
 // config-free, and cfg_field_mask selects only which sums the drain emits
 // (the golden's contract — summing field 0 is legal and equals key*count).
 //
-// Two contracts the golden pins and this tile must honour:
+// Two contracts the golden pins and this core must honour:
 //
 //   * The drain is signed-key ASCENDING, by repeated min-extraction over
 //     the valid slots. A hash table has no intrinsic order; leaking the
@@ -50,17 +50,17 @@
 //
 // The batch's group records form ONE record stream: output_last is set only
 // on the final group's count word, and exactly one success close-out per
-// batch follows it (the terminal tile convention). State is FRESH per
+// batch follows it (the terminal core convention). State is FRESH per
 // batch: the CLEAR sweep runs from BOTH reset and close-out, so a mid-batch
 // reset cannot leak one batch's keys into the next. A zero mask is an
-// unconfigured tile (ERR_CONFIG); input_last on a w0 is a torn row
+// unconfigured core (ERR_CONFIG); input_last on a w0 is a torn row
 // (ERR_STREAM).
 module dau_hash_grouped_aggregation #(
     parameter int CAPACITY = 512,  // group slots; [1, 1024]
     // The ELEMENT TYPE of one field, as encoded by types.svh. The 128-bit row
     // is the transport unit and stays fixed; lane i is its i-th FIELD_BITS
     // lane, the decode row-unpack packs and the quad-row filter family reads.
-    // This tile keeps the FIELDS lanes it names and ignores any a narrower
+    // This core keeps the FIELDS lanes it names and ignores any a narrower
     // type leaves beyond them -- the lane count is what the four INT64
     // accumulators per slot cost, and it sizes the slot BRAM. `DAU_TYPE_INT32
     // is 32, so the default reproduces the four-field row port for port. The
@@ -92,11 +92,11 @@ module dau_hash_grouped_aggregation #(
     localparam logic [7:0] ERR_STREAM = 8'd4;          // BAD_STREAM (hardware only)
     localparam int AW = (CAPACITY <= 1) ? 1 : $clog2(CAPACITY);
     localparam int ROW_BITS = 128;  // the transport unit, fixed
-    localparam int FIELDS   = 4;    // the lanes this tile sums
+    localparam int FIELDS   = 4;    // the lanes this core sums
     localparam int FIELD_BITS      = `DAU_TYPE_WIDTH(FIELD_WIDTH);
     localparam int FIELD_IS_FLOAT  = `DAU_TYPE_IS_FLOAT(FIELD_WIDTH);
     localparam int FIELD_IS_SIGNED = `DAU_TYPE_IS_SIGNED(FIELD_WIDTH);
-    localparam int LANE_BITS       = FIELDS * FIELD_BITS;  // the part of the row this tile reads
+    localparam int LANE_BITS       = FIELDS * FIELD_BITS;  // the part of the row this core reads
     // a per-group ROW COUNT, not an element: it counts rows, so it keeps its
     // own width whatever the summed values are
     localparam int COUNT_BITS = 32;
@@ -109,7 +109,7 @@ module dau_hash_grouped_aggregation #(
     end
     // The upper bound is the RECORD, not the lane: a sum word is 64 bits, so
     // an element wider than 32 would need more sum bits than the record can
-    // express -- a versioned record, i.e. a different tile. Narrowing is free.
+    // express -- a versioned record, i.e. a different core. Narrowing is free.
     if (FIELD_BITS < 8 || FIELD_BITS > 32 || (ROW_BITS % FIELD_BITS) != 0) begin : g_field_width_check
         $error("FIELD_WIDTH must divide 128 and lie in [8, 32]");
     end
@@ -119,10 +119,10 @@ module dau_hash_grouped_aggregation #(
     // magnitude, and handed an unsigned type it would read every high-bit-set
     // value as negative.
     if (FIELD_IS_FLOAT != 0) begin : g_field_float_check
-        $error("FIELD_WIDTH must not name a floating-point type: this tile orders and sums two's-complement integers");
+        $error("FIELD_WIDTH must not name a floating-point type: this core orders and sums two's-complement integers");
     end
     if (FIELD_IS_SIGNED == 0) begin : g_field_signed_check
-        $error("FIELD_WIDTH must not name an unsigned type: this tile orders and sums two's-complement integers");
+        $error("FIELD_WIDTH must not name an unsigned type: this core orders and sums two's-complement integers");
     end
 
     typedef enum logic [3:0] {
@@ -211,7 +211,7 @@ module dau_hash_grouped_aggregation #(
     assign empty = !valid_q;
 
     // The accumulate is split across two cycles, and the split is why this
-    // tile closes timing. Selecting the base (a 32-bit key compare feeding a
+    // core closes timing. Selecting the base (a 32-bit key compare feeding a
     // 64-bit mux) and adding into it (four 64-bit carry chains) each fit in a
     // cycle; chained into the same one they do not, and the BRAM write data
     // arrives late enough to miss. JUDGE latches the base, ACCUM adds and

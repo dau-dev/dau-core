@@ -24,17 +24,17 @@ if TYPE_CHECKING:
 
 __all__ = ("CONTRIB_GROUP", "compose_config", "contributed_options", "load_config")
 
-# Where a contributing package puts its tiles. `dau-core` itself cannot be
+# Where a contributing package puts its cores. `dau-core` itself cannot be
 # that place: `base.yaml` selects ONE option from it, so a second package
 # shipping `dau-core/<theirs>.yaml` adds an option that is never composed --
-# no error, no warning, the tile simply is not there. Hydra actively refuses
+# no error, no warning, the core simply is not there. Hydra actively refuses
 # the additive form for a single-select group, and `override` would REPLACE
 # our palette with theirs.
 CONTRIB_GROUP = "dau-core-contrib"
 
 
 def contributed_options(config_dir: str | None = None, *, version_base: str | None = None) -> tuple[str, ...]:
-    """Contributed tile options installed on the searchpath, discovered.
+    """Contributed core options installed on the searchpath, discovered.
 
     A consumer should not have to name the vendors it happens to have
     installed -- that is the difference between a package being installable
@@ -61,7 +61,7 @@ def contributed_options(config_dir: str | None = None, *, version_base: str | No
         try:
             return options(instance.config_loader())
         except Exception as error:  # noqa: BLE001  # discovery is best-effort; never fail a compose over it
-            warnings.warn(f"contributed tile discovery failed; composing dau-core's own palette only: {error!r}", stacklevel=2)
+            warnings.warn(f"contributed core discovery failed; composing dau-core's own palette only: {error!r}", stacklevel=2)
             return ()
 
     # Initializing hydra runs the searchpath plugin, which LOADS provider
@@ -77,8 +77,8 @@ def contributed_options(config_dir: str | None = None, *, version_base: str | No
     except Exception as error:  # noqa: BLE001
         # discovery is best-effort: a searchpath hydra cannot read must not
         # take down composition that would otherwise have worked, but a
-        # contributor whose tiles vanish deserves to be told why
-        warnings.warn(f"contributed tile discovery failed; composing dau-core's own palette only: {error!r}", stacklevel=2)
+        # contributor whose cores vanish deserves to be told why
+        warnings.warn(f"contributed core discovery failed; composing dau-core's own palette only: {error!r}", stacklevel=2)
         return ()
     finally:
         for added in set(root.models) - before:
@@ -97,7 +97,7 @@ def compose_config(
     """Compose dau-core's own config tree (group ``dau-core``, option
     ``cores``) with raw overrides.
 
-    Contributed tiles are composed too, without the caller naming them: the
+    Contributed cores are composed too, without the caller naming them: the
     options of :data:`CONTRIB_GROUP` are discovered across the searchpath and
     selected together as a list, which is the form that admits more than one
     (a bare ``+group=option`` selects exactly one, so two installed vendors
@@ -139,7 +139,7 @@ def load_config(
     The composed groups are loaded as ccflow ``LazyRegistry`` children, so a
     ``CoreDefinition`` is built when something asks for that core rather than
     all 59 at load. Loading the palette eagerly cost 164 ms and every
-    consumer paid it to reach one tile; lazily it is 10 ms plus about 4 ms
+    consumer paid it to reach one core; lazily it is 10 ms plus about 4 ms
     per core actually used (:func:`dau_core.registry.core`). A consumer that
     does need the whole palette -- the guards, source staging -- asks for it
     through :func:`dau_core.registry.loaded_cores` and pays for it there.

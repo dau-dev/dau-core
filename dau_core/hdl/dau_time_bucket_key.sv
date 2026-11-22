@@ -2,13 +2,13 @@
 
 `include "types.svh"
 
-// Generic time-bucket key tile: rewrites a row's partition key into a composite
+// Generic time-bucket key core: rewrites a row's partition key into a composite
 // (partition, time-bucket) group key so a downstream key-grouped aggregator (the
-// bar / grouped-sum tiles) produces fixed-width TIME-WINDOWED groups per
+// bar / grouped-sum cores) produces fixed-width TIME-WINDOWED groups per
 // partition. This is workload-agnostic — any windowed aggregation (finance time
 // bars, TSBS rate/window shapes, ...) composes it before the generic aggregator;
 // the aggregation itself (OHLC, sums, ...) and any per-row derivation stay in
-// their own tiles.
+// their own cores.
 //
 // bucket = time >>> cfg_bucket_shift (window width = 2**cfg_bucket_shift), and
 // the emitted key is {partition[PART_BITS-1:0], bucket[BUCKET_BITS-1:0]} so it
@@ -35,10 +35,10 @@ module dau_time_bucket_key #(
     parameter int BUCKET_BITS = 16,
     // The ELEMENT TYPE of the partition id, the composite key it becomes and
     // the payload lanes riding beside them, as encoded by types.svh. Two such
-    // lanes tile one 64-bit stream word, so a narrower type packs the row
+    // lanes core one 64-bit stream word, so a narrower type packs the row
     // into less of the word rather than changing the beat. A plain signed
     // integer encodes as its own width, so `DAU_TYPE_INT32 is 32 and this
-    // builds exactly the key the tile has always built.
+    // builds exactly the key the core has always built.
     //
     // THE TIME AXIS IS NOT THIS ELEMENT. It is a signed INT64 in its own
     // word, because nanosecond timestamps need one, and it stays 64 bits at
@@ -76,7 +76,7 @@ module dau_time_bucket_key #(
     if (BUCKET_BITS < 1 || BUCKET_BITS > 31) begin : g_param_check
         $error("BUCKET_BITS must be in [1, 31]");
     end
-    // {payload, key} tile one 64-bit stream word, so the pair must fit it and
+    // {payload, key} core one 64-bit stream word, so the pair must fit it and
     // divide it evenly
     if (KEY_BITS < 8 || KEY_BITS > 32 || (64 % KEY_BITS) != 0) begin : g_key_width_check
         $error("KEY_WIDTH must divide 64 and lie in [8, 32]");

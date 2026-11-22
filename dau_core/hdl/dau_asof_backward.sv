@@ -1,17 +1,17 @@
 `default_nettype none
 
-// Generic keyed backward as-of join tile. Attaches to each PROBE record the
+// Generic keyed backward as-of join core. Attaches to each PROBE record the
 // most recent BUILD record for the same key with build_time <= probe_time
 // (optionally within a tolerance on the time axis) — one held build of bounded
 // state, one pass. The payload fields are opaque; the temporal-finance backward
 // as-of is this join with quote=build {bid, ask}, trade=probe {price, size},
-// key=symbol (that vocabulary lives in the host merge, not the tile).
+// key=symbol (that vocabulary lives in the host merge, not the core).
 //
 // The two source streams are host-merged into ONE stream sorted by (key, time),
 // build-before-probe at equal (key, time). Because the stream is key-grouped,
 // exactly ONE key is live at a time: the held build resets when the key changes
-// (the same key-change shape the bar tile uses), so no per-key table is needed.
-// This is the merge precondition the sorted-scan tiles already require.
+// (the same key-change shape the bar core uses), so no per-key table is needed.
+// This is the merge precondition the sorted-scan cores already require.
 //
 // Each input record is three 64-bit words (a record is atomic; input_last is
 // only legal on w2):
@@ -20,7 +20,7 @@
 //   w2 = {payload_b[31:0], payload_a[31:0]}  build: a/b carried; probe: a/b out
 //
 // A matched probe emits a 4-word joined row (misses are dropped, like a filter
-// — the tile realizes matched joins only):
+// — the core realizes matched joins only):
 //   r0 = time[63:0]
 //   r1 = {probe_a[31:0], key[31:0]}
 //   r2 = {build_b[31:0], build_a[31:0]}

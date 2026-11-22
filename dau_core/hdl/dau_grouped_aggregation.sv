@@ -2,7 +2,7 @@
 
 `include "types.svh"
 
-// Ordered grouped-aggregation tile (the Q100 grouped-aggregate
+// Ordered grouped-aggregation core (the Q100 grouped-aggregate
 // shape, close-out mode).
 //
 // Consumes one keyed row per 64-bit word ({value, key}, lanes 0 and 1 of the
@@ -19,7 +19,7 @@
 //   w4 = count[63:0]
 //
 // A key that reappears after other keys opens a NEW group — partial groups
-// from separate batches merge on the host, never in the tile (the
+// from separate batches merge on the host, never in the core (the
 // partial-bar contract; first/last follow input order). Ordered mode holds
 // exactly one live group, so there is no key table (hash mode for unordered
 // input is a follow-on and rejects with CONFIG until then: cfg_mode must be
@@ -32,7 +32,7 @@ module dau_grouped_aggregation #(
     // The ELEMENT TYPE of the key and value lanes, as encoded by types.svh.
     // The 64-bit keyed word is the transport unit and stays fixed; lane i is
     // its i-th FIELD_BITS lane, so `DAU_TYPE_INT32 is 32 and the default
-    // reproduces the {value, key} word the tile has always read. The record's
+    // reproduces the {value, key} word the core has always read. The record's
     // element slots are 32 bits and its accumulators 64, which is why the
     // type may narrow but not widen.
     parameter int FIELD_WIDTH = `DAU_TYPE_INT32
@@ -73,7 +73,7 @@ module dau_grouped_aggregation #(
 
     // The upper bound is the RECORD, not the lane: first/last/min/max ride
     // 32-bit slots and the sum a 64-bit word, so a wider element would need a
-    // versioned record, i.e. a different tile. Narrowing is free.
+    // versioned record, i.e. a different core. Narrowing is free.
     if (FIELD_BITS < 8 || FIELD_BITS > 32 || (WORD_BITS % FIELD_BITS) != 0) begin : g_field_width_check
         $error("FIELD_WIDTH must divide 64 and lie in [8, 32]");
     end
@@ -82,10 +82,10 @@ module dau_grouped_aggregation #(
     // float it would order exponent bits as magnitude, and handed an unsigned
     // type it would read every high-bit-set value as negative.
     if (FIELD_IS_FLOAT != 0) begin : g_field_float_check
-        $error("FIELD_WIDTH must not name a floating-point type: this tile orders and sums two's-complement integers");
+        $error("FIELD_WIDTH must not name a floating-point type: this core orders and sums two's-complement integers");
     end
     if (FIELD_IS_SIGNED == 0) begin : g_field_signed_check
-        $error("FIELD_WIDTH must not name an unsigned type: this tile orders and sums two's-complement integers");
+        $error("FIELD_WIDTH must not name an unsigned type: this core orders and sums two's-complement integers");
     end
 
     typedef enum logic [3:0] {

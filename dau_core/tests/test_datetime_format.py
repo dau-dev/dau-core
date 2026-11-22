@@ -1,6 +1,6 @@
-"""The datetime formatter's golden, and the constants the tile divides by.
+"""The datetime formatter's golden, and the constants the core divides by.
 
-The tile has no divider: every division in it is a multiply-shift by a
+The core has no divider: every division in it is a multiply-shift by a
 compile-time constant, and a multiply-shift identity is only valid over a
 bounded input range. Those bounds are the whole correctness argument for the
 arithmetic, and they live in the HDL as bare magic numbers -- so this reads
@@ -29,7 +29,7 @@ from dau_core.operators import (
 
 EPOCH = datetime(1970, 1, 1, tzinfo=UTC)
 
-# (localparam name, pre-shift, divisor, largest input the tile can present).
+# (localparam name, pre-shift, divisor, largest input the core can present).
 # The bound is what the stage upstream proves, not a guess: day-of-era is at
 # most 146096 because the era subtraction just removed 146097 per era, and so
 # on down the chain.
@@ -57,7 +57,7 @@ def _hdl_constants() -> dict[str, int]:
 
 
 @pytest.mark.parametrize(("site", "pre_shift", "divisor", "max_input"), MULTIPLY_SHIFT_SITES)
-def test_the_tiles_multiply_shift_constants_are_exact_over_their_declared_range(site: str, pre_shift: int, divisor: int, max_input: int) -> None:
+def test_the_cores_multiply_shift_constants_are_exact_over_their_declared_range(site: str, pre_shift: int, divisor: int, max_input: int) -> None:
     constants = _hdl_constants()
     magic = constants[f"MAGIC_{site}"]
     shift = constants[f"SHIFT_{site}"]
@@ -120,5 +120,5 @@ def test_out_of_range_epochs_have_no_rendering() -> None:
     for value in (-1, DATETIME_FORMAT_MAX_EPOCH_SECONDS + 1):
         with pytest.raises(ValueError, match="outside"):
             format_datetime(value)
-    # the tile's wire encoding for the same case
+    # the core's wire encoding for the same case
     assert DatetimeFormatErrorCode.DOMAIN == 3

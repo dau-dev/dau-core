@@ -10,9 +10,9 @@ from dau_core.capability_contract import (
     LaneCapability,
     capability_contract,
     opcode_bitmap,
-    tile_capability,
+    core_capability,
 )
-from dau_core.composition import LaneSpec, ScanCompositionSpec, TileSpec
+from dau_core.composition import LaneSpec, ScanCompositionSpec, CoreSpec
 from dau_core.cores import ContractKind, CoreKind
 from dau_core.design import UnitKind
 from dau_core.registers import CURRENT_REGISTER_MAP_VERSION
@@ -29,7 +29,7 @@ def test_opcode_bitmap_encoding_matches_the_register_word() -> None:
     assert opcode_bitmap((OperationCode.AVERAGE,)) == 0x20
 
 
-def test_registry_declares_hardware_opcodes_only_for_opcode_driven_tiles() -> None:
+def test_registry_declares_hardware_opcodes_only_for_opcode_driven_cores() -> None:
     """MIN/MAX/SUM/COUNT are the implemented HDL opcodes; AVERAGE is
     protocol-level (host divide) and must never be declared as hardware."""
     declared = {d.name: d for d in cores_of_kind(CoreKind.OPERATOR) if d.opcodes}
@@ -49,7 +49,7 @@ def test_registry_declares_hardware_opcodes_only_for_opcode_driven_tiles() -> No
             "hash-grouped-aggregation",
             "wide-field-sum-aggregation",
         ):
-            # the field-sum tiles have a sum+count datapath only: they must
+            # the field-sum cores have a sum+count datapath only: they must
             # never over-declare MIN/MAX they cannot execute
             assert definition.opcodes == (OperationCode.SUM, OperationCode.COUNT), definition.name
         else:
@@ -60,7 +60,7 @@ def test_registry_declares_hardware_opcodes_only_for_opcode_driven_tiles() -> No
 
 
 def test_registry_declares_sorter_capacity() -> None:
-    sorter = tile_capability("bitonic-sorter")
+    sorter = core_capability("bitonic-sorter")
     assert sorter.unit_kind == UnitKind.SORT
     assert sorter.row_capacity == 16
     assert sorter.opcodes == ()
@@ -71,13 +71,13 @@ def test_registry_declares_sorter_capacity() -> None:
 def test_bar_noc_contract_advertises_no_scalar_aggregation_hardware() -> None:
     contract = capability_contract(bar_noc_spec(lanes=4))
     assert contract.lane_count == 4
-    assert contract.operator_bitmap == 0x0000_0000  # bar tiles execute no scalar OperationCode
+    assert contract.operator_bitmap == 0x0000_0000  # bar cores execute no scalar OperationCode
     assert contract.host_opcode_bitmap == 0x0000_0000
     assert contract.sort_capacity == 0
     assert contract.register_map_version == CURRENT_REGISTER_MAP_VERSION
     lane = contract.lanes[0]
-    assert lane.tile.core == "bar-aggregation"
-    assert lane.tile.count_port == "bar_count"
+    assert lane.sink.core == "bar-aggregation"
+    assert lane.sink.count_port == "bar_count"
     assert lane.partition is not None and lane.partition.core == "pair-key-filter"
     assert dict(lane.partition.config)["cfg_key_match"] == "32'd0"
 
@@ -92,10 +92,10 @@ def test_sorted_scan_contract_carries_sorter_capacity_and_splitters() -> None:
     assert "cfg_splitters" in dict(contract.partitioner.config)
 
 
-def test_scalar_aggregation_tile_contract_advertises_hardware_and_host_truth() -> None:
+def test_scalar_aggregation_core_contract_advertises_hardware_and_host_truth() -> None:
     contract = CapabilityContract(
         name="mm-stream-job",
-        lanes=(LaneCapability(tile=tile_capability("record-batch-aggregation")),),
+        lanes=(LaneCapability(sink=core_capability("record-batch-aggregation")),),
     )
     assert contract.hardware_opcodes == _HW_AGGREGATION_OPCODES
     assert contract.operator_bitmap == 0x1E
@@ -129,16 +129,16 @@ def test_contract_mapping_round_trips_and_is_json_able() -> None:
         CapabilityContract.from_mapping({"contract": "dau-capability-contract", "schema": 999})
 
 
-def test_contract_to_design_counts_units_by_identical_tile() -> None:
-    aggregation = tile_capability("record-batch-aggregation")
-    sorter = tile_capability("bitonic-sorter")
+def test_contract_to_design_counts_units_by_identical_core() -> None:
+    aggregation = core_capability("record-batch-aggregation")
+    sorter = core_capability("bitonic-sorter")
     contract = CapabilityContract(
         name="mixed",
         lanes=(
-            LaneCapability(tile=aggregation),
-            LaneCapability(tile=aggregation),
-            LaneCapability(tile=sorter),
-            LaneCapability(tile=tile_capability("bar-aggregation")),  # no unit contribution
+            LaneCapability(sink=aggregation),
+            LaneCapability(sink=aggregation),
+            LaneCapability(sink=sorter),
+            LaneCapability(sink=core_capability("bar-aggregation")),  # no unit contribution
         ),
     )
     design = contract.to_design()
@@ -156,10 +156,10 @@ def test_bar_noc_contract_design_offers_no_aggregation_capacity() -> None:
     assert design.units == ()
 
 
-def test_composition_and_hand_built_contracts_share_one_tile_derivation() -> None:
-    spec = ScanCompositionSpec(name="bar-scan", lanes=(LaneSpec(tile=TileSpec(core="bar-aggregation", config={"cfg_mode": "2'd0"})),))
+def test_composition_and_hand_built_contracts_share_one_core_derivation() -> None:
+    spec = ScanCompositionSpec(name="bar-scan", lanes=(LaneSpec(sink=CoreSpec(core="bar-aggregation", config={"cfg_mode": "2'd0"})),))
     contract = capability_contract(spec)
-    assert contract.lanes[0].tile == tile_capability(TileSpec(core="bar-aggregation", config={"cfg_mode": "2'd0"}))
+    assert contract.lanes[0].sink == core_capability(CoreSpec(core="bar-aggregation", config={"cfg_mode": "2'd0"}))
 
 
 def test_chain_lanes_carry_chain_capabilities_and_opcode_truth() -> None:
@@ -170,9 +170,9 @@ def test_chain_lanes_carry_chain_capabilities_and_opcode_truth() -> None:
         "row-predicate-filter",
         "row-map-alu",
     ]
-    assert lane.tile.core == "field-sum-aggregation"
-    assert lane.tile.count_port == "aggregated_count"
-    # the field-sum tile's real HDL opcodes reach the bitmap; AVERAGE derives
+    assert lane.sink.core == "field-sum-aggregation"
+    assert lane.sink.count_port == "aggregated_count"
+    # the field-sum core's real HDL opcodes reach the bitmap; AVERAGE derives
     # host-side from SUM+COUNT and never appears as hardware
     assert contract.hardware_opcodes == (OperationCode.SUM, OperationCode.COUNT)
     assert contract.operator_bitmap == opcode_bitmap((OperationCode.SUM, OperationCode.COUNT))
@@ -204,8 +204,8 @@ def test_a_contract_mapping_with_a_missing_or_unknown_key_raises() -> None:
     with pytest.raises(ValueError, match=r"lane capability mapping: missing keys \['chain'\]"):
         CapabilityContract.from_mapping(chainless)
     paramless = json.loads(json.dumps(mapping))
-    del paramless["lanes"][0]["tile"]["params"]
-    with pytest.raises(ValueError, match=r"tile capability mapping: missing keys \['params'\]"):
+    del paramless["lanes"][0]["sink"]["params"]
+    with pytest.raises(ValueError, match=r"core capability mapping: missing keys \['params'\]"):
         CapabilityContract.from_mapping(paramless)
 
 
@@ -217,20 +217,20 @@ def test_the_contract_models_are_ccflow_models_not_dataclasses() -> None:
 
     from ccflow import BaseModel
 
-    from dau_core.capability_contract import TileCapability
+    from dau_core.capability_contract import CoreCapability
 
-    for model in (TileCapability, LaneCapability, CapabilityContract):
+    for model in (CoreCapability, LaneCapability, CapabilityContract):
         assert issubclass(model, BaseModel), model
         assert not dataclasses.is_dataclass(model), model
         assert model.model_config.get("frozen") is True, model
 
 
 def test_a_contract_copies_with_a_field_replaced_and_stays_hashable() -> None:
-    lane = LaneCapability(tile=tile_capability("record-batch-aggregation"))
-    contract = CapabilityContract(name="twin", lanes=(lane,), partitioner=tile_capability("key-mask-dispatcher"))
+    lane = LaneCapability(sink=core_capability("record-batch-aggregation"))
+    contract = CapabilityContract(name="twin", lanes=(lane,), partitioner=core_capability("key-mask-dispatcher"))
     twin = contract.model_copy(update={"partitioner": None})
     assert twin.partitioner is None and twin.lanes == contract.lanes
-    assert len({lane.tile, tile_capability("record-batch-aggregation")}) == 1, "frozen models hash by value"
+    assert len({lane.sink, core_capability("record-batch-aggregation")}) == 1, "frozen models hash by value"
 
 
 def test_reconfigurable_is_a_manifest_fact() -> None:
@@ -249,11 +249,11 @@ def test_reconfigurable_is_a_manifest_fact() -> None:
         CapabilityContract.from_mapping(unstated)
 
 
-def test_a_tile_capability_carries_the_parameters_it_was_built_with() -> None:
+def test_a_core_capability_carries_the_parameters_it_was_built_with() -> None:
     from dau_core.operators import DispatchMode
 
-    dispatcher = TileSpec(core="key-mask-dispatcher", params={"NUM_PARTITIONS": 4, "MODE": int(DispatchMode.EXACT_BRANCH)})
-    lane = LaneSpec(tile=TileSpec(core="field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}))
+    dispatcher = CoreSpec(core="key-mask-dispatcher", params={"NUM_PARTITIONS": 4, "MODE": int(DispatchMode.EXACT_BRANCH)})
+    lane = LaneSpec(sink=CoreSpec(core="field-sum-aggregation", config={"cfg_field_mask": "4'b0010"}))
     contract = capability_contract(ScanCompositionSpec(name="t", lanes=(lane,) * 4, partitioner=dispatcher))
 
     assert contract.partitioner is not None

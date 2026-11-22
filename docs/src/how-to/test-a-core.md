@@ -1,8 +1,8 @@
 # How to test a core
 
-This guide shows you how to check that a tile does what its registry entry
-says. It assumes the tile already has a golden, HDL, and an entry; see
-[how to add an operator tile](add-an-operator-tile.md) for the order those
+This guide shows you how to check that a core does what its registry entry
+says. It assumes the core already has a golden, HDL, and an entry; see
+[how to add an operator core](add-an-operator-core.md) for the order those
 come in.
 
 Nothing here needs Vivado. The bench steps need `verilator` on `PATH` and
@@ -17,7 +17,7 @@ a kind of failure the next one would report in a more confusing way.
 
 ## 1. Prove the golden against itself
 
-The golden defines the tile, so it cannot be checked against the hardware;
+The golden defines the core, so it cannot be checked against the hardware;
 the hardware is checked against it. Test the golden against properties
 instead, in `dau_core/tests/test_<name>.py`:
 
@@ -25,7 +25,7 @@ instead, in `dau_core/tests/test_<name>.py`:
 - agreement with an existing golden wherever the two overlap;
 - boundary values, including the int32 wire identity (`-1` and
   `0xFFFFFFFF` are the same key);
-- the algebra, if the tile has a host-side counterpart:
+- the algebra, if the core has a host-side counterpart:
   `merge(split(rows)) == one_shot(rows)`.
 
 ```bash
@@ -36,7 +36,7 @@ python -m pytest dau_core/tests/test_<name>.py -q
 
 The cocotb bench in `dau_core/tests/cocotb_benches/dau_<name>_tb.py`
 drives the DUT and compares its output with the golden's, using no
-hand-written expected values. Build the tile's config object once and pass the same
+hand-written expected values. Build the core's config object once and pass the same
 object to both sides, so a misread config cannot cancel itself out:
 
 <!-- excerpt -->
@@ -59,7 +59,7 @@ parameter value, then:
 python -m pytest dau_core/tests/test_hdl_cocotb.py -q -k <name>
 ```
 
-For a parameterized tile the runner sets two coupled channels from the same
+For a parameterized core the runner sets two coupled channels from the same
 pytest parameter: `parameters={"SLOTS": slots}` tells Verilator how to
 elaborate, and an environment variable tells the bench how to shape its
 stimulus. Set both, or the bench will exercise the default shape against a
@@ -67,7 +67,7 @@ differently elaborated DUT.
 
 ## 3. Prove the bench can fail
 
-A bench that compares nothing always passes. Add your tile's failure mode
+A bench that compares nothing always passes. Add your core's failure mode
 to the mutation list in `dau_core/tests/test_benches_can_fail.py`. Each
 entry edits a copy of the HDL, runs the bench, and asserts that it fails,
 and that it failed while running rather than at compile time.
@@ -94,14 +94,14 @@ It reads the declared rate from the registry, holds every sink ready,
 forbids gaps in input valid, and fails when the measured rate is more than
 one percent short, with a message suggesting either lowering the
 declaration or fixing the RTL. It measures *input acceptance*, ending at the
-last accepted beat, so a tile that buffers a whole batch and does its work
+last accepted beat, so a core that buffers a whole batch and does its work
 afterwards needs a measurement that covers its drain instead.
 
 ## 5. Prove the declared parameter space elaborates
 
 The registry advertises a parameter's bounds; the RTL enforces them in a
 generate-scope `$error`. Two guards keep those from drifting, and both are
-already parametrized over the palette, so a new tile is covered as soon as
+already parametrized over the palette, so a new core is covered as soon as
 it is registered:
 
 ```bash
@@ -132,7 +132,7 @@ DAU_REQUIRE_VERILATOR=1 make coverage
 
 ## 6. Run the registry-wide guards
 
-These walk the whole registry instead of your tile, and they catch
+These walk the whole registry instead of your core, and they catch
 declarations that are well formed but wrong: an entry with no envelope, a
 golden that does not import, a source file no entry claims.
 
@@ -141,7 +141,7 @@ python -m pytest dau_core/tests/test_cores.py -q
 ```
 
 See the [registry guard reference](../reference/registry-guards.md) for what each one
-checks. Four of them compare exact sets instead of predicates. If your tile
+checks. Four of them compare exact sets instead of predicates. If your core
 belongs in one, a new silent-on-success stage for example, adding it to the
 pinned set is part of the change, so a reviewer sees it in the diff.
 
@@ -158,5 +158,5 @@ python -m ruff check dau_core && python -m ruff format --check dau_core
   that needs a synthesis host.
 - [Registry-wide guards](../reference/registry-guards.md): the full list, and what each one
   checks.
-- [Why each tile has a golden model](../explanation/why-each-tile-has-a-golden-model.md): why
+- [Why each core has a golden model](../explanation/why-each-core-has-a-golden-model.md): why
   step 1 comes first.

@@ -10,12 +10,12 @@
 // arithmetic-shifted right; SHL ignores src_b); the other fields pass
 // through unchanged, one row out per row in, row count preserved
 // (dau_core.operators.map_row_fields is the golden). The fixed-point
-// revenue derivation value = value * aux0 >>> shift is this tile's q6 job.
+// revenue derivation value = value * aux0 >>> shift is this core's q6 job.
 // The multiply runs register-to-register across a dedicated stage, keeping
 // the DSP cascade off the 8 ns critical path.
 //
 // A composed-pipeline stage: last-driven only (the upstream compaction's
-// last marker is trusted), silent on success — the downstream tile's
+// last marker is trusted), silent on success — the downstream core's
 // close-out is authoritative. It raises its own status only for an invalid
 // config (cfg_op zero/unknown, checked at the first row of a batch and
 // latched for the batch: the batch drains, then ERR_CONFIG) and for a torn
@@ -27,7 +27,7 @@ module dau_row_map_alu
     // quad row is the transport unit and stays fixed, so a narrower type
     // packs MORE fields per row rather than shrinking the beat. A plain
     // signed integer encodes as its own width, so `DAU_TYPE_INT32 is 32 and
-    // this reproduces the four-field row the tile has always had.
+    // this reproduces the four-field row the core has always had.
     parameter int FIELD_WIDTH = `DAU_TYPE_INT32
 ) (
     input  wire logic        clk,
@@ -78,10 +78,10 @@ module dau_row_map_alu
     // an unsigned type it would read every high-bit-set value as negative and
     // shift a borrowed sign in. Both are silently wrong answers.
     if (FIELD_IS_FLOAT != 0) begin : g_field_float_check
-        $error("FIELD_WIDTH must not name a floating-point type: this tile is an integer ALU");
+        $error("FIELD_WIDTH must not name a floating-point type: this core is an integer ALU");
     end
     if (FIELD_IS_SIGNED == 0) begin : g_field_signed_check
-        $error("FIELD_WIDTH must not name an unsigned type: this tile multiplies and shifts two's-complement integers");
+        $error("FIELD_WIDTH must not name an unsigned type: this core multiplies and shifts two's-complement integers");
     end
     // FIXED POINT IS ADMISSIBLE and is what MULSHR exists for: the shift the
     // host configures is the format's fractional width. The point must still
@@ -245,7 +245,7 @@ module dau_row_map_alu
                         output_last <= row_last;
                         output_data <= place_field(row_w1, active_dst, mapped, 1'b1);
                         if (row_last) begin
-                            // silent success: the downstream tile closes out
+                            // silent success: the downstream core closes out
                             batch_open <= 1'b0;
                         end
                         state <= STATE_W0;

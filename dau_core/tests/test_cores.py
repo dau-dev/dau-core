@@ -28,13 +28,13 @@ from dau_core.registry import (
 )
 
 # dau-core's own cores, which is what `source_package`'s default names. The
-# registry is open: a third party ships tiles by composing their own hydra
+# registry is open: a third party ships cores by composing their own hydra
 # config into `/dau-core`, and `loaded_cores()` then returns theirs beside
 # ours. Every guard below that asserts an EXACT set -- the HDL directory
-# listing, the descriptor-tagged operators, the envelope-free tiles, the
+# listing, the descriptor-tagged operators, the envelope-free cores, the
 # scalar-envelope holdouts -- is a statement about OUR palette, and would
-# otherwise report an installed vendor tile as drift in this suite. Scoping
-# them here is what makes the seam usable: a vendor can install tiles without
+# otherwise report an installed vendor core as drift in this suite. Scoping
+# them here is what makes the seam usable: a vendor can install cores without
 # failing our tests, and we still hold our own palette to the exact standard.
 OWN_PACKAGE = "dau_core.hdl"
 HDL_SUFFIXES = (".sv", ".v")
@@ -80,7 +80,7 @@ def test_every_hdl_file_belongs_to_exactly_one_core() -> None:
 
     The reach is the whole package, not one directory listing. Listing
     ``hdl/`` alone left the render root -- a SUBDIRECTORY of it -- outside
-    this guard entirely, and three rendered tiles sat committed there until a
+    this guard entirely, and three rendered cores sat committed there until a
     rename made their filenames disagree with their contents. So the walk
     descends, and the committed set comes from git: a rendered file being
     present in the render root is the normal working state (the suite renders
@@ -108,7 +108,7 @@ def test_every_hdl_file_belongs_to_exactly_one_core() -> None:
         if path.suffix in HDL_SUFFIXES and path.parent not in (hdl_dir, rendered_root)
     )
     assert not stray, (
-        f"HDL lives in a subdirectory no core reads from: {stray}. Every checked-in tile sits beside the "
+        f"HDL lives in a subdirectory no core reads from: {stray}. Every checked-in core sits beside the "
         f"registry entry naming it, and the only subdirectory any core resolves through is the render root ({rendered_root.name}/)"
     )
 
@@ -117,7 +117,7 @@ def test_every_hdl_file_belongs_to_exactly_one_core() -> None:
         assert committed == set(registry_files), (
             f"committed HDL is not the registry's checked-in sources: extra {sorted(committed - set(registry_files))}, "
             f"missing {sorted(set(registry_files) - committed)}. Rendered output committed anywhere under "
-            f"{hdl_dir.name}/ is a second copy of a tile only its operating point defines, and whichever copy is stale is the one that gets synthesized"
+            f"{hdl_dir.name}/ is a second copy of a core only its operating point defines, and whichever copy is stale is the one that gets synthesized"
         )
 
 
@@ -172,7 +172,7 @@ def test_every_selectable_operator_declares_its_ingest_rate() -> None:
     assert full_rate == {
         # a straight-line arithmetic pipeline with no state and no record
         # framing: one word in, one beat out, no reason to be slower. The
-        # cocotb-free evidence is the tile's own verilator run -- 4096 rows in
+        # cocotb-free evidence is the core's own verilator run -- 4096 rows in
         # 4128 cycles with the output always ready.
         "datetime-format",
         "key-mask-dispatcher",
@@ -189,7 +189,7 @@ def test_every_selectable_operator_declares_its_ingest_rate() -> None:
             assert definition.ingest.scales_with_param in definition.parameters, definition.name
 
 
-def test_wide_combinational_tiles_declare_pipeline_depth_without_changing_ingest() -> None:
+def test_wide_combinational_cores_declare_pipeline_depth_without_changing_ingest() -> None:
     for name in ("wide-row-predicate-filter", "wide-row-map-alu"):
         definition = core(name)
         depth = definition.parameters["PIPELINE_DEPTH"]
@@ -205,7 +205,7 @@ def test_every_selectable_operator_declares_its_contract_kind() -> None:
     sets."""
     for definition in cores_of_kind(CoreKind.OPERATOR):
         assert definition.contract_kind is not None, f"operator {definition.name} declares no contract_kind"
-    # the one descriptor-driven tile is registry data, not a test special case;
+    # the one descriptor-driven core is registry data, not a test special case;
     # pinned as a set: no Arrow-lite validator exists yet, so a newly
     # descriptor-tagged operator would skip conformance — confirm intent here
     descriptor = {d.name for d in own_cores() if d.kind is CoreKind.OPERATOR and d.contract_kind is ContractKind.ARROW_LITE_DESCRIPTOR}
@@ -262,7 +262,7 @@ def test_synthesizable_cores_carry_measured_envelopes() -> None:
 
     EMPTY as of 2026-08-16: the stride distributor was the last operator
     carrying no envelope at all, and no design containing it could be
-    priced. Asserted exactly, so a tile shipped without a measurement fails
+    priced. Asserted exactly, so a core shipped without a measurement fails
     here rather than surfacing as an unpriceable design later.
     """
     resource_free = {
@@ -271,7 +271,7 @@ def test_synthesizable_cores_carry_measured_envelopes() -> None:
         if definition.kind in (CoreKind.OPERATOR, CoreKind.STREAM_INFRA) and definition.resources is None
     }
     assert resource_free == set(), (
-        f"these tiles carry no measured envelope, so nothing can price a design containing them: {sorted(resource_free)}. "
+        f"these cores carry no measured envelope, so nothing can price a design containing them: {sorted(resource_free)}. "
         "Measure them at (part, clock, params) via the synthesize-cores task"
     )
     for definition in own_cores():
@@ -280,27 +280,27 @@ def test_synthesizable_cores_carry_measured_envelopes() -> None:
             assert all(point.lut > 0 for point in definition.resources), definition.name
 
 
-# Tiles whose NAME still carries a width. The rule the how-to teaches is
+# Cores whose NAME still carries a width. The rule the how-to teaches is
 # that a width is a PARAMETER, never part of the identity, and a name that
 # claims a width its parameters contradict has to be either renamed or kept
 # in step forever -- the second never happens.
 #
 # Asserted EXACTLY, in both directions, for the same reason as the set
-# above: a tile renamed without shrinking this set fails here, and a NEW
-# tile shipped with a width in its name fails here. That is what makes a
+# above: a core renamed without shrinking this set fails here, and a NEW
+# core shipped with a width in its name fails here. That is what makes a
 # staged migration safe -- at every point the suite states how far it has
 # got, so "the migration is complete" cannot be said while thirty remain.
 #
 # 43 as of 2026-08-16; 36 once the seven fixed-point and transcendental
-# tiles landed their rename, 31 once the five dau-core-only tiles
+# cores landed their rename, 31 once the five dau-core-only cores
 # (scratchpad, keyed-state, session-gap, streaming-dedup and the stride
-# distributor) landed theirs, 21 once the ten quad-row filter tiles landed
-# theirs, 9 once the twelve aggregation tiles landed theirs, and 5 once the
+# distributor) landed theirs, 21 once the ten quad-row filter cores landed
+# theirs, 9 once the twelve aggregation cores landed theirs, and 5 once the
 # map/ALU family landed its own. It ends HERE, at 5 and NOT at 0: for the
-# five REDESIGN tiles below the width is a true statement about the contract,
+# five REDESIGN cores below the width is a true statement about the contract,
 # and replacing a true name with a false one is the exact failure this rule
 # exists to prevent. Each of those five leaves when its redesign lands.
-WIDTH_NAMED_TILES: frozenset[str] = frozenset(
+WIDTH_NAMED_CORES: frozenset[str] = frozenset(
     {
         # REDESIGN -- these five KEEP their names. The width is genuinely part
         # of the contract, so renaming would replace a true name with a false
@@ -321,21 +321,21 @@ WIDTH_NAMED_TILES: frozenset[str] = frozenset(
 )
 
 
-def test_the_width_named_tiles_are_exactly_the_declared_ones() -> None:
+def test_the_width_named_cores_are_exactly_the_declared_ones() -> None:
     """The naming rule is that a width is a parameter, not an identity; this
     pins how much of the palette still contradicts it.
 
     Scoped to `own_cores()` for the same reason every exact-set guard here
-    is: an installed third-party tile with a width in its name is that
+    is: an installed third-party core with a width in its name is that
     vendor's business, not drift in our palette.
     """
     width_named = {definition.name for definition in own_cores() if definition.name.startswith("int32-")}
-    renamed_but_still_listed = WIDTH_NAMED_TILES - width_named
-    assert not renamed_but_still_listed, f"renamed -- remove from WIDTH_NAMED_TILES: {sorted(renamed_but_still_listed)}"
-    newly_width_named = width_named - WIDTH_NAMED_TILES
+    renamed_but_still_listed = WIDTH_NAMED_CORES - width_named
+    assert not renamed_but_still_listed, f"renamed -- remove from WIDTH_NAMED_CORES: {sorted(renamed_but_still_listed)}"
+    newly_width_named = width_named - WIDTH_NAMED_CORES
     assert not newly_width_named, (
-        f"these tiles put a width in their identity: {sorted(newly_width_named)}. "
-        "Name the tile for what it computes and declare the width as a parameter"
+        f"these cores put a width in their identity: {sorted(newly_width_named)}. "
+        "Name the core for what it computes and declare the width as a parameter"
     )
 
 
@@ -347,14 +347,14 @@ def test_the_width_named_tiles_are_exactly_the_declared_ones() -> None:
 # departure visible AT THE RENAME. A name that leaves the registry does not
 # merely change a value in the canonical text -- it makes every recorded text
 # spelling it unreadable, `spec_from_canonical` raising `UnknownCoreError` for
-# a tile nobody can look up. That surfaced months later, from the build
+# a core nobody can look up. That surfaced months later, from the build
 # manifest of a design that was flashed, resident and answering bit-exactly:
 # a flywheel session handed that manifest would have scheduled a rebuild of
 # hardware it was already running. The rename is not the defect; the silence
 # is, and this is where the silence ends.
 #
 # ARRIVALS ARE FREE. A name that was never in the registry cannot appear in a
-# text recorded against it, so a new tile adds a line here and nothing else.
+# text recorded against it, so a new core adds a line here and nothing else.
 # DEPARTURES ARE NOT: a rename or a removal must bump SPEC_CANONICAL_VERSION
 # in the SAME change, so recorded texts can be refused by version rather than
 # by whatever the registry says about the first departed name a reader meets.
@@ -427,7 +427,7 @@ def test_the_canonical_palette_is_exactly_the_registered_names() -> None:
     every recorded canonical spec that spells it with it.
 
     Scoped to `own_cores()` like every exact set here: a vendor's installed
-    tile is not in our canonical alphabet's history and cannot depart from
+    core is not in our canonical alphabet's history and cannot depart from
     it.
 
     There are exactly two honest ways past a DEPARTURE failure:
@@ -445,14 +445,14 @@ def test_the_canonical_palette_is_exactly_the_registered_names() -> None:
     registered = {definition.name for definition in own_cores() if definition.kind is not CoreKind.PACKAGE}
     departed = CANONICAL_PALETTE - registered
     assert not departed, (
-        f"these names left the tile palette: {sorted(departed)}. Every canonical spec text recorded against them is now "
+        f"these names left the core palette: {sorted(departed)}. Every canonical spec text recorded against them is now "
         "unreadable, and the manifests carrying those texts are immutable records of built bitstreams. Bump "
         "SPEC_CANONICAL_VERSION (and CANONICAL_PALETTE_VERSION beside this set) in THIS change so those texts are refused "
         "by version rather than by an UnknownCoreError months from now"
     )
     arrived = registered - CANONICAL_PALETTE
     assert not arrived, (
-        f"these names joined the tile palette: {sorted(arrived)}. Add them here -- an arrival needs no version bump "
+        f"these names joined the core palette: {sorted(arrived)}. Add them here -- an arrival needs no version bump "
         "(a name the registry never carried cannot appear in a text recorded against it), but the set has to state the "
         "alphabet in full or a later departure from an unlisted name goes unnoticed"
     )
@@ -629,7 +629,7 @@ def test_silent_on_success_operator_set_is_pinned() -> None:
         "wide-row-map-alu",
         "record-gearbox",
     }
-    # the grouped multi-sum tile emits many group records but exactly ONE
+    # the grouped multi-sum core emits many group records but exactly ONE
     # success close-out per batch (after the final group) — terminal-legal
     assert core("grouped-field-sum-aggregation").success_close_out
 
@@ -675,7 +675,7 @@ def test_parameter_spec_rejects_incoherent_constraints() -> None:
 
 
 def test_parameter_spec_violation_is_the_single_constraint_source() -> None:
-    # composition wraps this with tile context; the model owns the rule
+    # composition wraps this with core context; the model owns the rule
     spec = ParameterSpec(default=64, multiple_of=64, maximum=4096)
     assert spec.violation(128) is None
     assert "multiple of 64" in (spec.violation(65) or "")
@@ -754,7 +754,7 @@ def test_storage_intent_prices_against_declared_parameters() -> None:
         {
             **core("row-predicate-filter").model_dump(),
             "parameters": {"CAPACITY": {"default": 1024, "minimum": 1, "maximum": 16384}},
-            # the borrowed tile's points are keyed by ITS parameters (none);
+            # the borrowed core's points are keyed by ITS parameters (none);
             # declaring one here would leave them describing a shape that no
             # longer exists, which the model rightly refuses
             "resources": [],
@@ -805,23 +805,23 @@ def test_storage_bytes_refuses_illegal_scale_overrides() -> None:
 
 
 def test_a_core_resolves_hdl_from_the_package_that_declares_it(tmp_path, monkeypatch) -> None:
-    """A tile contributed by another distribution finds its own HDL.
+    """A core contributed by another distribution finds its own HDL.
 
     The registry is a hydra search path, so any package joining it through
     the `hydra.lernaplugins` entry point can contribute cores. Their HDL
     used to be resolved under dau_core.hdl regardless, so a third-party
-    tile could be registered from anywhere but had to vendor its Verilog
+    core could be registered from anywhere but had to vendor its Verilog
     into this package. `source_package` is the seam.
     """
     import sys
 
     from dau_core.cores import CoreDefinition, CoreKind, IngestRate
 
-    foreign = tmp_path / "vendor_tiles" / "hdl"
+    foreign = tmp_path / "vendor_cores" / "hdl"
     foreign.mkdir(parents=True)
     (foreign / "__init__.py").write_text("")
     (foreign / "vendor_widget.sv").write_text("module vendor_widget; endmodule\n")
-    (tmp_path / "vendor_tiles" / "__init__.py").write_text("")
+    (tmp_path / "vendor_cores" / "__init__.py").write_text("")
     monkeypatch.syspath_prepend(str(tmp_path))
 
     definition = CoreDefinition(
@@ -829,8 +829,8 @@ def test_a_core_resolves_hdl_from_the_package_that_declares_it(tmp_path, monkeyp
         kind=CoreKind.OPERATOR,
         module="vendor_widget",
         source="vendor_widget.sv",
-        source_package="vendor_tiles.hdl",
-        description="A tile from outside this package.",
+        source_package="vendor_cores.hdl",
+        description="A core from outside this package.",
         record_words=1,
         ingest=IngestRate(rows=1, per_cycles=2),
     )
@@ -842,27 +842,27 @@ def test_a_core_resolves_hdl_from_the_package_that_declares_it(tmp_path, monkeyp
 
     assert Path(str(dau_core_hdl.__path__[0])) not in resolved.parents
 
-    for module in [name for name in sys.modules if name.startswith("vendor_tiles")]:
+    for module in [name for name in sys.modules if name.startswith("vendor_cores")]:
         del sys.modules[module]
 
 
-def test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards(monkeypatch) -> None:
-    """Installing a third-party tile must not fail THIS suite.
+def test_a_well_formed_vendor_core_does_not_trip_our_palette_guards(monkeypatch) -> None:
+    """Installing a third-party core must not fail THIS suite.
 
     Four guards here assert an exact set over the whole registry -- the HDL
     directory listing, the descriptor-tagged operators, the envelope-free
-    tiles, and the scalar-envelope holdouts. Each is a statement about
-    dau-core's own palette, and each read `loaded_cores()`, so a vendor tile
+    cores, and the scalar-envelope holdouts. Each is a statement about
+    dau-core's own palette, and each read `loaded_cores()`, so a vendor core
     registered through the entry point showed up as drift in all four. A
     contributor's first experience of the platform was our test suite
-    failing on their correct tile.
+    failing on their correct core.
 
     The line drawn is between those four and the universal-property guards
     (every operator has a golden, a contract kind, record words, a measured
-    envelope). Those are contract requirements a well-formed tile satisfies,
-    so they stay registry-wide on purpose -- which is why the tile below is
+    envelope). Those are contract requirements a well-formed core satisfies,
+    so they stay registry-wide on purpose -- which is why the core below is
     built well-formed rather than minimal. It is the exact-set guards that
-    fail even a perfect vendor tile, and only those are scoped.
+    fail even a perfect vendor core, and only those are scoped.
     """
     from dau_core.cores import IngestRate
 
@@ -871,8 +871,8 @@ def test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards(monkeypatch)
         kind=CoreKind.OPERATOR,
         module="vendor_widget",
         source="vendor_widget.sv",
-        source_package="vendor_tiles.hdl",
-        description="A well-formed tile from outside this package.",
+        source_package="vendor_cores.hdl",
+        description="A well-formed core from outside this package.",
         record_words=1,
         ingest=IngestRate(rows=1, per_cycles=2),
         contract_kind=ContractKind.ROW_STREAM,
@@ -892,7 +892,7 @@ def test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards(monkeypatch)
     )
     # Both bindings: this module imported the accessor by name, and
     # `cores_of_kind` reads the registry's own. Patching only one would leave
-    # the vendor tile invisible to half the guards and prove nothing.
+    # the vendor core invisible to half the guards and prove nothing.
     #
     # The module target is `sys.modules[__name__]` rather than a dotted
     # string. There is no `__init__.py` here, so pytest imports this file as
@@ -906,9 +906,9 @@ def test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards(monkeypatch)
     monkeypatch.setattr("dau_core.registry.loaded_cores", lambda: with_vendor)
     monkeypatch.setattr(sys.modules[__name__], "loaded_cores", lambda: with_vendor)
 
-    assert vendor in cores_of_kind(CoreKind.OPERATOR), "the tile must be visible to the guards"
+    assert vendor in cores_of_kind(CoreKind.OPERATOR), "the core must be visible to the guards"
 
-    # The exact-set guards a vendor tile reaches, which is the regression.
+    # The exact-set guards a vendor core reaches, which is the regression.
     # Each fails against an unscoped `own_cores()`: the vendor source is not
     # in our HDL directory, and its name is in neither the descriptor set nor
     # the envelope-free set.
@@ -916,7 +916,7 @@ def test_a_well_formed_vendor_tile_does_not_trip_our_palette_guards(monkeypatch)
     test_every_selectable_operator_declares_its_contract_kind()
     test_synthesizable_cores_carry_measured_envelopes()
 
-    assert vendor not in own_cores(), "a vendor tile must not count as ours"
+    assert vendor not in own_cores(), "a vendor core must not count as ours"
 
 
 def test_a_core_naming_an_uninstalled_hdl_package_refuses_clearly() -> None:
@@ -986,7 +986,7 @@ def test_a_measured_point_matches_a_derived_clock_period() -> None:
 def test_an_unresolvable_hdl_source_says_so() -> None:
     """A declared source that does not resolve is a DECLARATION error.
 
-    An out-of-tree tile whose HDL directory is not an importable package
+    An out-of-tree core whose HDL directory is not an importable package
     resolves to a MultiplexedPath that prints the right path and does not
     exist, so the first symptom used to be a synthesis run against a missing
     file. The requirement -- an __init__.py beside the .sv files, so importlib

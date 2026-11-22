@@ -1,7 +1,7 @@
-"""The fixed-point sqrt tile against its golden, with NO tolerance.
+"""The fixed-point sqrt core against its golden, with NO tolerance.
 
 The root is exact by construction -- `isqrt(X << F)` -- so every comparison
-here is equality against `sqrt_row_fields`. If this tile ever grows a
+here is equality against `sqrt_row_fields`. If this core ever grows a
 polynomial approximation, these tests are what will refuse it, and that is
 deliberate: an approximate root would need an error bound nobody in the
 stack currently has a way to state.
@@ -124,7 +124,7 @@ async def constrained_random_batches_match_golden(dut):
 
 @cocotb.test()
 async def negative_source_drains_batch_then_reports_domain_error(dut):
-    """The whole reason the tile has its own error code: sqrt of a negative
+    """The whole reason the core has its own error code: sqrt of a negative
     has no answer, and emitting one anyway would be a wrong number that
     looks right."""
     await _start(dut)
@@ -140,7 +140,7 @@ async def negative_source_drains_batch_then_reports_domain_error(dut):
 
     # The offending row must never appear. Rows ahead of it in the batch may
     # already be out -- the error close-out invalidates the batch downstream --
-    # but the tile must not emit a root it does not have. Its key identifies it.
+    # but the core must not emit a root it does not have. Its key identifies it.
     emitted_keys = [_signed32(word & _MASK32) for word in seen[0::2]]
     assert 2 not in emitted_keys, f"the negative row was emitted with a substituted root: keys {emitted_keys}"
 
@@ -156,7 +156,7 @@ async def negative_row_never_escapes_while_the_close_out_waits(dut):
     negative row that entered would be dropped before it retired and the
     guard would look redundant. Hold status_ready low for longer than the
     pipeline is deep and the row reaches the output instead -- which is
-    exactly the case that must not emit a root the tile does not have.
+    exactly the case that must not emit a root the core does not have.
     """
     await _start(dut)
     _drive_config(dut, _SQRT_VALUE)
@@ -226,7 +226,7 @@ async def error_status_survives_backpressure(dut):
         assert int(dut.status_valid.value) == 1, "error status not held"
         assert int(dut.status_error.value) == 1
         assert int(dut.status_error_code.value) == SqrtErrorCode.STREAM
-        assert int(dut.input_ready.value) == 0, "tile accepted input while status pending"
+        assert int(dut.input_ready.value) == 0, "core accepted input while status pending"
         await RisingEdge(dut.clk)
 
     await _expect_status(dut, error=True, code=SqrtErrorCode.STREAM)

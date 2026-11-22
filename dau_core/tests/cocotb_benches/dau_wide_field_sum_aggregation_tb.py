@@ -1,7 +1,7 @@
 """Wide-lane field-sum terminal: SLOTS whole quad rows per beat, one beat
 per cycle, golden-equal to ``field_sum_rows``. The all-ones 128-bit PAD
 row (ragged tails, upstream drop-by-pad) is neither summed nor counted;
-the record/close-out protocol is byte-identical to the 64-bit tile. The
+the record/close-out protocol is byte-identical to the 64-bit core. The
 width-agnostic collect/status harness is shared with the 64-bit bench."""
 
 from __future__ import annotations

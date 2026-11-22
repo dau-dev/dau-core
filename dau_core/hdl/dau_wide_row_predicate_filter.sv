@@ -12,7 +12,7 @@
 // no compaction occurs. A globally stalled PIPELINE_DEPTH-stage pipeline
 // preserves elastic valid/ready flow; input_last travels with its beat.
 //
-// Predicate config and selected_count semantics match the 64-bit row tile.
+// Predicate config and selected_count semantics match the 64-bit row core.
 // Config latches on the first beat of each batch; invalid config drains the
 // batch and reports ERR_CONFIG. Whole-row beats cannot tear, so there is no
 // ERR_STREAM path. This composed-pipeline stage is silent on success; even
@@ -24,12 +24,12 @@ module dau_wide_row_predicate_filter
     parameter int SLOTS = 4,           // quad rows per beat: 1, 2, 4, or 8
     parameter int PIPELINE_DEPTH = 3,  // elastic stages: 1 through 8
     // The ELEMENT TYPE of one field, as encoded by types.svh -- the same
-    // declaration the 64-bit row filter carries, because this is that tile
+    // declaration the 64-bit row filter carries, because this is that core
     // widened to SLOTS rows per beat. The 128-bit quad row is the transport
     // unit and stays fixed, so a narrower type packs MORE fields per row
     // rather than shrinking the beat. A plain signed integer encodes as its
     // own width, so `DAU_TYPE_INT32 is 32 and this reproduces the four-field
-    // row the tile has always had. The type must be one this comparator can
+    // row the core has always had. The type must be one this comparator can
     // order: signed, non-float, and a whole divisor of 128.
     parameter int FIELD_WIDTH = `DAU_TYPE_INT32
 ) (
@@ -85,10 +85,10 @@ module dau_wide_row_predicate_filter
     // unsigned type it would read every high-bit-set value as negative. Both
     // are silently wrong answers, so refuse them at elaboration.
     if (FIELD_IS_FLOAT != 0) begin : g_field_float_check
-        $error("FIELD_WIDTH must not name a floating-point type: this tile compares two's-complement integers");
+        $error("FIELD_WIDTH must not name a floating-point type: this core compares two's-complement integers");
     end
     if (FIELD_IS_SIGNED == 0) begin : g_field_signed_check
-        $error("FIELD_WIDTH must not name an unsigned type: this tile compares two's-complement integers");
+        $error("FIELD_WIDTH must not name an unsigned type: this core compares two's-complement integers");
     end
     // FIXED POINT IS ADMISSIBLE and needs no separate datapath: scaling by a
     // constant 2**-F preserves order, so comparing qI.F values is comparing

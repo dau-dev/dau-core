@@ -70,7 +70,7 @@ def test_the_reference_is_the_mathematics_not_an_algorithm() -> None:
 
 
 def test_ln_of_a_non_positive_value_is_refused() -> None:
-    """Same position the sqrt tile takes: no value exists, and substituting
+    """Same position the sqrt core takes: no value exists, and substituting
     one would be a wrong number that looks right."""
     for bad in (0, -1, -(1 << 16)):
         with pytest.raises(ValueError, match="non-positive"):

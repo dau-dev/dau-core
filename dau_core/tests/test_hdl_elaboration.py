@@ -147,7 +147,7 @@ def test_every_declared_parameterization_elaborates(core_name: str) -> None:
             "-Wall",
             "-Wno-fatal",
             *_FATAL_CLASSES,
-            # tiles written against an element type `include types.svh, and
+            # cores written against an element type `include types.svh, and
             # Verilator does not search the including file's own directory
             f"-I{DAU_HDL_INCLUDE_DIR}",
             "--top-module",

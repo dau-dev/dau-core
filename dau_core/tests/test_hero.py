@@ -102,7 +102,7 @@ def test_roll_value_selects_the_windowed_bar_price() -> None:
 
 
 def test_int64_accumulator_roll_values_are_rejected() -> None:
-    # volume/dollar are int64 accumulators — the int32 rolling tile can't window
+    # volume/dollar are int64 accumulators — the int32 rolling core can't window
     # them; the model must refuse rather than claim an executable workflow
     for field in ("volume", "dollar", "signed_volume", "symbol_id", "nope"):
         with pytest.raises(ValueError, match="roll_value"):
@@ -115,7 +115,7 @@ def test_window_below_two_is_rejected() -> None:
 
 
 def test_hero_workflow_validates_its_roll_fields_at_construction() -> None:
-    """An unknown ``roll_value`` or a window below the tile's minimum used to
+    """An unknown ``roll_value`` or a window below the core's minimum used to
     pass construction and fail only when the workflow ran."""
     from pydantic import ValidationError
 
@@ -148,7 +148,7 @@ def test_estimate_rejects_invalid_physical_parameters() -> None:
 def test_bucket_then_generic_aggregator_composes_to_time_bars() -> None:
     # the MODULAR bar stage, fully generic: time-bucket key rewrite + the GENERIC
     # multi-field aggregator + the OHLCV field/stat select == time_bars. No
-    # finance-specific bar tile — the whole bar stage is generic primitives.
+    # finance-specific bar core — the whole bar stage is generic primitives.
     from dau_core.operators import bars_from_field_aggregate, grouped_field_aggregate_rows, time_bucket_key_rows
     from dau_core.temporal import asof_backward, matched_rows, signed_volume, time_bars
 

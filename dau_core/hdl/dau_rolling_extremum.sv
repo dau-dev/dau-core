@@ -10,7 +10,7 @@
 // as comparing them as their own type, because sign extension is order
 // preserving. So a single build serves every signed integer type that fits
 // the value field, and VALUE_WIDTH selects the FRAMING (how many stream words
-// a row occupies), not the arithmetic. That is the whole reason this tile
+// a row occupies), not the arithmetic. That is the whole reason this core
 // carries no `int32-` prefix while its neighbours do -- theirs accumulate,
 // and an accumulator's width is load-bearing.
 //
@@ -22,7 +22,7 @@
 //   w1 = {32'b0, value[63:32]}
 //
 // The stream must be symbol-GROUPED (rows for one symbol contiguous), which
-// the host guarantees the same way it does for the moments tile. A symbol
+// the host guarantees the same way it does for the moments core. A symbol
 // change is a segment boundary and resets the window for free: the network
 // tracks a saturating run length since the boundary and stage k combines with
 // the element 2**k back only when that element is inside the same segment.
@@ -256,7 +256,7 @@ module dau_rolling_extremum #(
     // one completes or the stream ends, so input_last always lands on the
     // final forwarded word even when trailing rows drop. Same contract the
     // row-predicate filter follows, and for the same reason: a consumer
-    // cannot see the rows this tile chose not to forward.
+    // cannot see the rows this core chose not to forward.
     wire        emit_now    = stage_valid[K] && (stage_run[K] >= CW'(WINDOW));
     wire        stream_end  = stage_valid[K] && stage_last[K];
     // a CONTINUOUS assignment: `value_t emit_value = stage_value[K];` would
@@ -347,7 +347,7 @@ module dau_rolling_extremum #(
     // ---- status ------------------------------------------------------------
     // SILENT ON SUCCESS while it forwards rows. A stream that ends having
     // forwarded NOTHING still closes out, because zero forwarded rows is the
-    // one outcome a downstream tile cannot distinguish from a stall.
+    // one outcome a downstream core cannot distinguish from a stall.
     logic status_valid_q;
     logic status_error_q;
     // the batch has closed out: everything drained and any status delivered.

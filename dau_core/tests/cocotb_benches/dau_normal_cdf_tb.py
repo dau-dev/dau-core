@@ -1,4 +1,4 @@
-"""The rendered normal-CDF tile against the model it was rendered from.
+"""The rendered normal-CDF core against the model it was rendered from.
 
 Zero tolerance. That model is correctly rounded over every representable
 input, so a mismatch here is a defect in the HDL, not an accuracy question.
@@ -29,7 +29,7 @@ async def matches_the_model_on_directed_inputs(dut):
 
 @cocotb.test()
 async def saturation_is_exact_and_needs_no_error_path(dut):
-    """Beyond the domain the answer IS 0 or 1.0; the tile must emit it and
+    """Beyond the domain the answer IS 0 or 1.0; the core must emit it and
     stay silent rather than raising anything."""
     await _start(dut)
     low, high = normal_cdf_domain()
@@ -119,7 +119,7 @@ async def _send(dut, words) -> None:
 async def _collect(dut, *, expect: int, ready_pattern=(1,)):
     """The proven quad-row collector: drive ready, sample in ReadOnly, and
     only count a beat that actually fired. Sampling without checking the
-    handshake is what made this harness report zeros against a tile the
+    handshake is what made this harness report zeros against a core the
     waveform showed was correct."""
     words: list[int] = []
     held = None

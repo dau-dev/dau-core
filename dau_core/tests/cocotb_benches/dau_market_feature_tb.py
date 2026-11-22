@@ -18,21 +18,21 @@ _ROWS = [
 
 
 @cocotb.test()
-async def feature_tile_matches_golden(dut):
+async def feature_core_matches_golden(dut):
     await _start(dut)
     feats = await _run(dut, _ROWS)
     assert feats == market_features(_ROWS)
 
 
 @cocotb.test()
-async def feature_tile_backpressure_both_sides(dut):
+async def feature_core_backpressure_both_sides(dut):
     await _start(dut)
     feats = await _run(dut, _ROWS, ready_pattern=(1, 0, 0, 1))
     assert feats == market_features(_ROWS)
 
 
 @cocotb.test()
-async def feature_tile_int64_dollar_volume(dut):
+async def feature_core_int64_dollar_volume(dut):
     await _start(dut)
     rows = [(3, 1, 2**30, 5000, 2**30 - 10, 2**30 + 10)]
     feats = await _run(dut, rows)
@@ -41,7 +41,7 @@ async def feature_tile_int64_dollar_volume(dut):
 
 
 @cocotb.test()
-async def feature_tile_wide_spread_and_midpoint_do_not_overflow(dut):
+async def feature_core_wide_spread_and_midpoint_do_not_overflow(dut):
     await _start(dut)
     # opposite-sign quotes: spread = ask-bid = 2**32-1 exceeds int32; midpoint
     # sum also exceeds int32 — both must be exact vs the arbitrary-precision golden
@@ -53,13 +53,13 @@ async def feature_tile_wide_spread_and_midpoint_do_not_overflow(dut):
 
 
 @cocotb.test()
-async def feature_tile_single_row(dut):
+async def feature_core_single_row(dut):
     await _start(dut)
     assert await _run(dut, [(9, 42, 7, 3, 4, 8)]) == market_features([(9, 42, 7, 3, 4, 8)])
 
 
 @cocotb.test()
-async def feature_tile_truncated_row_reports_stream_error(dut):
+async def feature_core_truncated_row_reports_stream_error(dut):
     await _start(dut)
     dut.output_ready.value = 1
     dut.input_data.value = 100  # r0 (time) with last asserted: a torn row

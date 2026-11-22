@@ -36,7 +36,7 @@ def _merge(quotes, trades):
 
 
 def _expected(quotes, trades, *, tolerance=None):
-    """The tile's golden is the generic keyed as-of join over the merged stream
+    """The core's golden is the generic keyed as-of join over the merged stream
     (quote = build {bid, ask}, trade = probe {price, size}) — the joined row
     (key, time, probe_a, probe_b, build_a, build_b) is the market row the bench
     decodes."""
@@ -44,21 +44,21 @@ def _expected(quotes, trades, *, tolerance=None):
 
 
 @cocotb.test()
-async def asof_tile_matches_golden(dut):
+async def asof_core_matches_golden(dut):
     await _start(dut)
     rows = await _run(dut, _merge(_QUOTES, _TRADES))
     assert rows == _expected(_QUOTES, _TRADES)
 
 
 @cocotb.test()
-async def asof_tile_backpressure_both_sides(dut):
+async def asof_core_backpressure_both_sides(dut):
     await _start(dut)
     rows = await _run(dut, _merge(_QUOTES, _TRADES), ready_pattern=(1, 0, 0, 1, 0))
     assert rows == _expected(_QUOTES, _TRADES)
 
 
 @cocotb.test()
-async def asof_tile_tolerance_drops_stale_quotes(dut):
+async def asof_core_tolerance_drops_stale_quotes(dut):
     await _start(dut)
     tol = 10
     rows = await _run(dut, _merge(_QUOTES, _TRADES), tolerance=tol)
@@ -66,7 +66,7 @@ async def asof_tile_tolerance_drops_stale_quotes(dut):
 
 
 @cocotb.test()
-async def asof_tile_all_misses_emit_nothing(dut):
+async def asof_core_all_misses_emit_nothing(dut):
     await _start(dut)
     trades = [(9, 5, 1, 1), (9, 6, 2, 2)]  # no build (quote) for key 9
     rows = await _run(dut, _merge([], trades))
@@ -75,7 +75,7 @@ async def asof_tile_all_misses_emit_nothing(dut):
 
 
 @cocotb.test()
-async def asof_tile_int64_time_axis(dut):
+async def asof_core_int64_time_axis(dut):
     await _start(dut)
     big = 1 << 40
     quotes = [(3, big, 7, 9)]
@@ -86,7 +86,7 @@ async def asof_tile_int64_time_axis(dut):
 
 
 @cocotb.test()
-async def asof_tile_reappearing_symbol_resets_quote(dut):
+async def asof_core_reappearing_symbol_resets_quote(dut):
     await _start(dut)
     # 570 appears, then 571, then 570 again: the second 570 group has no held
     # quote carried from the first, so its early trade is a miss
@@ -97,7 +97,7 @@ async def asof_tile_reappearing_symbol_resets_quote(dut):
 
 
 @cocotb.test()
-async def asof_tile_marks_output_last_on_final_row_after_trailing_miss(dut):
+async def asof_core_marks_output_last_on_final_row_after_trailing_miss(dut):
     await _start(dut)
     quotes = [(570, 10, 1, 2)]
     # two matches then a trailing miss (unmatched trade on a fresh symbol): the
@@ -117,7 +117,7 @@ async def asof_tile_marks_output_last_on_final_row_after_trailing_miss(dut):
 
 
 @cocotb.test()
-async def asof_tile_extreme_timestamp_age_misses(dut):
+async def asof_core_extreme_timestamp_age_misses(dut):
     await _start(dut)
     int64_min = -(1 << 63)
     int64_max = (1 << 63) - 1
@@ -129,7 +129,7 @@ async def asof_tile_extreme_timestamp_age_misses(dut):
 
 
 @cocotb.test()
-async def asof_tile_truncated_record_reports_stream_error(dut):
+async def asof_core_truncated_record_reports_stream_error(dut):
     await _start(dut)
     dut.output_ready.value = 1
     # input_last on w0 (the symbol word): a torn 3-word record

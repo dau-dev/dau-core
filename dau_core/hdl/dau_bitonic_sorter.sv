@@ -19,17 +19,17 @@
 // overflow (a lone last-carrying w0 after CAPACITY rows is ERR_STREAM, the
 // universal rule across cores, not ERR_CAPACITY). A legal batch of n rows
 // emits exactly n rows with input_last landing on the final word, then a
-// success close-out status (the tile convention: the record writer's done
+// success close-out status (the core convention: the record writer's done
 // waits on a consumed producer status). Error close-outs report through
 // the same status stream.
 module dau_bitonic_sorter #(
     parameter int CAPACITY = 16,  // power of two >= 2
     // The ELEMENT TYPE of the sort key, as encoded by types.svh. The key and
-    // its companion value lane tile one 64-bit stream word, so a narrower
+    // its companion value lane core one 64-bit stream word, so a narrower
     // type packs the pair into less of the word rather than changing the
     // beat; the rows themselves are carried opaquely, two words wide. A plain
     // signed integer encodes as its own width, so `DAU_TYPE_INT32 is 32 and
-    // this sorts by exactly the key the tile has always sorted by. The
+    // this sorts by exactly the key the core has always sorted by. The
     // network ORDERS two's-complement magnitudes, so the type must be one it
     // can order: signed and non-float.
     parameter int KEY_WIDTH = `DAU_TYPE_INT32
@@ -48,7 +48,7 @@ module dau_bitonic_sorter #(
     input  wire logic        status_ready,
     output logic             status_error,
     output logic [7:0]       status_error_code,
-    // rows drained by the last completed batch (the tile's trailing status
+    // rows drained by the last completed batch (the core's trailing status
     // counter for the NoC lane register block); 0 after an error close-out
     output logic [63:0]      sorted_count
 );
@@ -64,7 +64,7 @@ module dau_bitonic_sorter #(
     if (CAPACITY < 2 || (CAPACITY & (CAPACITY - 1)) != 0) begin : g_param_check
         $error("CAPACITY must be a power of two >= 2");
     end
-    // {value, key} tile one 64-bit stream word, so the pair must fit it and
+    // {value, key} core one 64-bit stream word, so the pair must fit it and
     // divide it evenly
     if (KEY_BITS < 8 || KEY_BITS > 32 || (64 % KEY_BITS) != 0) begin : g_key_width_check
         $error("KEY_WIDTH must divide 64 and lie in [8, 32]");
@@ -76,10 +76,10 @@ module dau_bitonic_sorter #(
     // refuse them at elaboration. Fixed point is admissible unchanged --
     // scaling by a constant 2**-F preserves order.
     if (KEY_IS_FLOAT != 0) begin : g_key_float_check
-        $error("KEY_WIDTH must not name a floating-point type: this tile orders two's-complement integers");
+        $error("KEY_WIDTH must not name a floating-point type: this core orders two's-complement integers");
     end
     if (KEY_IS_SIGNED == 0) begin : g_key_signed_check
-        $error("KEY_WIDTH must not name an unsigned type: this tile orders two's-complement integers");
+        $error("KEY_WIDTH must not name an unsigned type: this core orders two's-complement integers");
     end
 
     typedef enum logic [2:0] {

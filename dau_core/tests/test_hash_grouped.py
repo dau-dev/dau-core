@@ -1,5 +1,5 @@
 """Hash-mode grouped field-sum aggregation golden: one accumulator per
-DISTINCT key regardless of input order (the ordered tile's
+DISTINCT key regardless of input order (the ordered core's
 ``sorted_by_key`` staging precondition removed), key-ascending drain,
 explicit overflow, and the host split-and-merge algebra that makes
 overflow recoverable."""
@@ -33,8 +33,8 @@ def test_one_record_per_distinct_key_regardless_of_order() -> None:
     groups, error = hash_grouped_field_sum_rows(rows, field_mask=_MASK, capacity=8)
     assert error is HashGroupedErrorCode.OK
     assert _as_pairs(groups) == [(-3, (2,), 1), (5, (11,), 2), (7, (4,), 1)]
-    # the ORDERED tile opens a second partial for the reappearing key 5 —
-    # the difference this tile exists to remove
+    # the ORDERED core opens a second partial for the reappearing key 5 —
+    # the difference this core exists to remove
     ordered = grouped_field_sum_rows(rows, field_mask=_MASK)
     assert [group.key for group in ordered] == [5, -3, 5, 7]
 
@@ -52,9 +52,9 @@ def test_permutation_invariance() -> None:
         assert _as_pairs(groups) == _as_pairs(reference)
 
 
-def test_sorted_input_agrees_with_the_ordered_tile() -> None:
-    # the hash tile subsumes the ordered tile's answer when the input
-    # already satisfies the ordered tile's precondition
+def test_sorted_input_agrees_with_the_ordered_core() -> None:
+    # the hash core subsumes the ordered core's answer when the input
+    # already satisfies the ordered core's precondition
     rows = sorted(_rows(seed=3, count=300, keys=25), key=lambda row: row[0])
     hashed, error = hash_grouped_field_sum_rows(rows, field_mask=0b1110, capacity=64)
     assert error is HashGroupedErrorCode.OK
@@ -151,7 +151,7 @@ def test_empty_batch_emits_nothing() -> None:
     assert merge_hash_grouped([]) == []
 
 
-def test_record_words_match_the_ordered_tile_shape() -> None:
+def test_record_words_match_the_ordered_core_shape() -> None:
     groups, _ = hash_grouped_field_sum_rows([(-2, -5, 0, 0)], field_mask=_MASK, capacity=4)
     ordered = grouped_field_sum_rows([(-2, -5, 0, 0)], field_mask=_MASK)
     assert groups[0].record_words() == ordered[0].record_words()

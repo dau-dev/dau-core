@@ -11,7 +11,7 @@ party declaring a tile needs the models in :mod:`dau_core.cores`; it must
 never need this module, which knows only about the tiles dau-core itself
 ships. Keeping the two apart is what lets the surface be reachable by an
 author who does not have this repository -- see
-``tests/test_public_tile_surface.py``, which enforces the direction.
+``tests/test_public_core_surface.py``, which enforces the direction.
 """
 
 from __future__ import annotations

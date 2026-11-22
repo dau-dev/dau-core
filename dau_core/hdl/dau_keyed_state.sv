@@ -2,7 +2,7 @@
 
 `include "types.svh"
 
-// Keyed state tile: the first stateful operator, and the owned storage
+// Keyed state core: the first stateful operator, and the owned storage
 // class's first real consumer (STORAGE_AND_NOC.md). A per-key accumulator
 // updated once per row, emitting the POST-update state for every row —
 // matches dau_core.operators.keyed_state_scan bit-for-bit. This is the
@@ -13,10 +13,10 @@
 // Output mirrors it: {post_update, key}. The op (SET/ADD/MAX/MIN), the
 // initial accumulator, and the KEY GRANT latch from config ports on each
 // batch's first beat — host-written today, allocator-tile-driven tomorrow,
-// the tile cannot tell.
+// the core cannot tell.
 //
 // THE KEY AND THE VALUE ARE THE SAME ELEMENT TYPE, because they share the
-// row: two FIELD_WIDTH lanes tile one 64-bit word, and the emitted record
+// row: two FIELD_WIDTH lanes core one 64-bit word, and the emitted record
 // mirrors the accepted one. A narrower type therefore packs the pair into
 // less of the word rather than changing the beat, exactly as it does across
 // the quad-row family.
@@ -40,7 +40,7 @@ module dau_keyed_state #(
     parameter int CAPACITY = 1024,  // key slots; [1, 1024]
     // The ELEMENT TYPE of the key and value lanes, as encoded by types.svh.
     // A plain signed integer encodes as its own width, so `DAU_TYPE_INT32 is
-    // 32 and this reproduces the {value, key} word the tile has always had.
+    // 32 and this reproduces the {value, key} word the core has always had.
     // The accumulator ORDERS and ADDS two's-complement magnitudes, so the
     // type must be one it can actually compute in: signed and non-float.
     parameter int FIELD_WIDTH = `DAU_TYPE_INT32
@@ -77,7 +77,7 @@ module dau_keyed_state #(
     if (CAPACITY < 1 || CAPACITY > 1024) begin : g_param_check
         $error("CAPACITY must be in [1, 1024]");
     end
-    // {value, key} tile one 64-bit stream word, so the pair must fit it and
+    // {value, key} core one 64-bit stream word, so the pair must fit it and
     // divide it evenly
     if (FIELD_BITS < 8 || FIELD_BITS > 32 || (64 % FIELD_BITS) != 0) begin : g_field_width_check
         $error("FIELD_WIDTH must divide 64 and lie in [8, 32]");
@@ -90,10 +90,10 @@ module dau_keyed_state #(
     // admissible unchanged -- qI.F values order and add as their raw
     // integers, and cfg_initial arrives in the same format as the field.
     if (FIELD_IS_FLOAT != 0) begin : g_field_float_check
-        $error("FIELD_WIDTH must not name a floating-point type: this tile orders and adds two's-complement integers");
+        $error("FIELD_WIDTH must not name a floating-point type: this core orders and adds two's-complement integers");
     end
     if (FIELD_IS_SIGNED == 0) begin : g_field_signed_check
-        $error("FIELD_WIDTH must not name an unsigned type: this tile orders and adds two's-complement integers");
+        $error("FIELD_WIDTH must not name an unsigned type: this core orders and adds two's-complement integers");
     end
 
     typedef enum logic [2:0] {

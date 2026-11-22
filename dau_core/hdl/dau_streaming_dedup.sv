@@ -7,17 +7,17 @@
 // The row key (w0.lo, the row's first KEY_WIDTH lane) indexes a direct-mapped
 // bitmap over the dictionary-id space [0, KEY_SPACE); a row whose bit is CLEAR sets it and
 // increments the distinct count, a row whose bit is already set changes
-// nothing. Rows are not forwarded — at input_last the tile emits ONE 64-bit
+// nothing. Rows are not forwarded — at input_last the core emits ONE 64-bit
 // word, the distinct count, with output_last set, then a success close-out
 // status (the terminal-tile convention: the record writer's done waits on a
 // consumed producer status). N keys in, one count out is the whole point:
 // this is the rare operator whose output does not cross the bus.
 // dau_core.operators.count_distinct_rows is the golden.
 //
-// The membership filter is this tile's static sibling — the same
+// The membership filter is this core's static sibling — the same
 // direct-mapped bitmap, loaded once in a build phase and then probed
 // READ-ONLY. Dedup writes the bitmap while it probes, and that
-// read-modify-write is the entire difference between the two tiles. It is
+// read-modify-write is the entire difference between the two cores. It is
 // also the only thing here that is hard, for the reason below.
 //
 // READ-DURING-WRITE, and why FORWARDING rather than a stall. A row's bitmap
@@ -37,7 +37,7 @@
 // because a row's w0 cannot precede the previous row's w1. A stall was the
 // alternative and is the wrong trade here: duplicate keys are not the
 // exceptional case in a dedup, they are the workload, so stalling on them
-// would give up the ingest rate exactly where the tile is meant to earn it.
+// would give up the ingest rate exactly where the core is meant to earn it.
 // The forward mux sits on the stage-1 -> stage-2 hop, which keeps the memory
 // read itself pure (a clean BRAM inference) and puts the mux in the fabric
 // stage that the membership retime already showed has the slack.
@@ -50,15 +50,15 @@
 // word is offered — and sweeps the bitmap to zero and zeroes the count before
 // admitting it (the sweep costs KEY_SPACE/64 cycles, 0.2% of a million-row
 // batch at the largest bitmap that fits). Sampling at the batch's first word
-// rather than whenever the tile is idle is what makes a level-held cfg_clear
+// rather than whenever the core is idle is what makes a level-held cfg_clear
 // safe: a config register left high in the gap between batches requests
 // per-batch dedup, and cannot wipe a live accumulation before its next batch
 // arrives. Hold it high for per-batch dedup; raise it only on the first batch
-// of a scan to dedup the whole scan. The tile also sweeps out of reset, so a
+// of a scan to dedup the whole scan. The core also sweeps out of reset, so a
 // power-on bitmap is empty without relying on the memory's INIT surviving to
 // hardware.
 //
-// Status contract (success_close_out=True — a terminal tile): every batch
+// Status contract (success_close_out=True — a terminal core): every batch
 // closes out, with the count record first and the status after it drains.
 // A key outside [0, KEY_SPACE) is ERR_RANGE: unlike the membership filter,
 // where an unrepresentable key is honestly a non-member, a dedup has nowhere
@@ -78,7 +78,7 @@ module dau_streaming_dedup #(
     parameter int KEY_SPACE = 4096,
     // The ELEMENT TYPE of the key lane, as encoded by types.svh. A plain
     // signed integer encodes as its own width, so `DAU_TYPE_INT32 is 32 and
-    // this reads exactly the w0.lo key the tile has always read. The key is
+    // this reads exactly the w0.lo key the core has always read. The key is
     // a DICTIONARY ID — an index, not a magnitude — so the range test is one
     // unsigned compare against KEY_SPACE at either signedness, and it is a
     // float that has no meaning here rather than an unsigned integer.
@@ -116,7 +116,7 @@ module dau_streaming_dedup #(
     localparam int KEY_IS_FLOAT = `DAU_TYPE_IS_FLOAT(KEY_WIDTH);
 
     // no ERR_CONFIG: cfg_clear is one bit with no invalid encoding, so this
-    // tile has no configuration it can reject. The codes it does raise keep
+    // core has no configuration it can reject. The codes it does raise keep
     // the palette's values (2 = torn row everywhere; 3 = the range reject the
     // broadcast hash join gives the same condition).
     localparam logic [7:0] ERR_STREAM = 8'd2;
@@ -128,7 +128,7 @@ module dau_streaming_dedup #(
     if (KEY_SPACE % 64 != 0) begin : g_key_space_grid
         $error("KEY_SPACE must be a multiple of 64");
     end
-    // the key is one lane of the {value, key} word, so a pair of lanes tiles
+    // the key is one lane of the {value, key} word, so a pair of lanes cores
     // it; the id space itself tops out at 2**23, so a wider key would address
     // nothing the bitmap can hold
     if (KEY_BITS < 8 || KEY_BITS > 32 || (64 % KEY_BITS) != 0) begin : g_key_width_check
@@ -157,7 +157,7 @@ module dau_streaming_dedup #(
 
     // the direct-mapped dedup bitmap: WORDS x 64 bits, one write port (the
     // sweep and the insert share it) and one registered read port (the probe).
-    // ram_style=block keeps it BRAM-resident, which is the point of the tile:
+    // ram_style=block keeps it BRAM-resident, which is the point of the core:
     // LUT-light and BRAM-heavy, sized by cardinality.
     (* ram_style = "block" *) logic [63:0] dedup_mem [0:WORDS-1];
 
@@ -399,7 +399,7 @@ module dau_streaming_dedup #(
             clear_done <= 1'b0;
             // the read-pipeline DATA registers are deliberately absent: they
             // live in the memory process (one driver each, as the palette's
-            // other BRAM tiles do) and are only ever read while stage1_valid /
+            // other BRAM cores do) and are only ever read while stage1_valid /
             // resolve_pending say they carry a row, both of which reset here
             stage1_valid <= 1'b0;
             resolve_pending <= 1'b0;

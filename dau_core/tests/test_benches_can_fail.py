@@ -9,7 +9,7 @@ populated it. Every one of those was found by hand or by an adversarial
 reviewer. None was found by the suite, because a suite only reports what a
 test asserts, and none of them asserted that the check ran.
 
-The check here is mutation. Take a tile whose bench passes, change its
+The check here is mutation. Take a core whose bench passes, change its
 SystemVerilog so it computes the wrong answer, and require the bench to
 FAIL. Together with the existing pass-on-clean-source tests that is a
 two-sided proof: the bench distinguishes a correct implementation from an
@@ -37,7 +37,7 @@ _COCOTB_BENCH_PREFIX = "dau_core.tests.cocotb_benches"
 
 @dataclass(frozen=True)
 class _Mutation:
-    """One tile, and a textual change to its HDL that makes it wrong."""
+    """One core, and a textual change to its HDL that makes it wrong."""
 
     core_name: str
     find: str
@@ -48,7 +48,7 @@ class _Mutation:
 
 # Keep this small: every entry costs a verilator build. These are chosen to
 # cover different bench shapes -- an aggregation that accumulates, a filter
-# that decides, and a keyed tile that groups.
+# that decides, and a keyed core that groups.
 _MUTATIONS = (
     _Mutation(
         core_name="hash-grouped-aggregation",
@@ -66,7 +66,7 @@ _MUTATIONS = (
 
 
 def _mutated_sources(mutation: _Mutation, tmp_path: Path) -> tuple[Path, ...]:
-    """Every source the tile needs, with the named one mutated in a copy."""
+    """Every source the core needs, with the named one mutated in a copy."""
     staged = []
     applied = False
     for source in sources_for(mutation.core_name):
@@ -87,7 +87,7 @@ def _mutated_sources(mutation: _Mutation, tmp_path: Path) -> tuple[Path, ...]:
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 @pytest.mark.parametrize("mutation", _MUTATIONS, ids=lambda m: m.core_name)
-def test_a_bench_fails_when_its_tile_is_made_wrong(mutation: _Mutation, tmp_path: Path) -> None:
+def test_a_bench_fails_when_its_core_is_made_wrong(mutation: _Mutation, tmp_path: Path) -> None:
     """The bench must reject an implementation that computes the wrong
     answer. If it passes here it is not comparing anything, and its green
     result elsewhere means nothing."""

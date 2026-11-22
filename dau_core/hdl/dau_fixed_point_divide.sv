@@ -16,7 +16,7 @@
 // the golden bit for bit and the bench compares with no tolerance.
 //
 // FLOOR, not truncation toward zero: MULSHR already divides by powers of two
-// with an arithmetic shift, and -7 >> 1 is -4. A tile that truncated toward
+// with an arithmetic shift, and -7 >> 1 is -4. A core that truncated toward
 // zero would disagree with the map ALU on every negative operand. The
 // recurrence produces a magnitude, so the floor correction is applied at
 // retire -- negative and inexact rounds away from zero.
@@ -27,7 +27,7 @@
 // ITERATIONS-wide register here and not two.
 //
 // A composed-pipeline stage: last-driven only, silent on success -- the
-// downstream tile's close-out is authoritative. dst may be either source,
+// downstream core's close-out is authoritative. dst may be either source,
 // updating in place. Three of its own statuses, all raised at INGEST so
 // there is one drain path:
 //   ERR_STREAM  a torn final row (input_last on a w0)

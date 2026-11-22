@@ -20,7 +20,7 @@
 // 9999-12-31T23:59:59, which is exactly the range a four-digit year renders.
 // Anything else (a negative timestamp, a year past 9999) closes the batch out
 // with ERR_DOMAIN rather than emitting a wrong string that looks right, the
-// same position the sqrt tile takes on a negative radicand. A signed 64-bit
+// same position the sqrt core takes on a negative radicand. A signed 64-bit
 // value with its sign bit set exceeds the bound as an unsigned compare, so
 // the range check is ONE comparison.
 //
@@ -33,7 +33,7 @@
 // multiply-shift: q = ((x >> k) * M) >> S, with the power-of-two factor of
 // the divisor peeled off first (86400 = 128*675, 3600 = 16*225, 1460 = 4*365,
 // ...) so the multiplier is as narrow as the identity allows. There is no
-// general divider anywhere in this tile. Each (M, S) pair was verified over
+// general divider anywhere in this core. Each (M, S) pair was verified over
 // the exact input range it sees, at BOTH ENDS of every quotient block -- the
 // two places a multiply-shift identity fails first.
 //
@@ -46,11 +46,11 @@
 // PIPELINE. Fully pipelined, one row per cycle, PIPE_DEPTH stages plus the
 // output register. The whole pipeline advances as one under `pipe_en`, high
 // whenever the output register is free -- the same move-as-one discipline as
-// the sqrt tile, and for the same reason: per-stage elastic buffering would
+// the sqrt core, and for the same reason: per-stage elastic buffering would
 // cost more than the latency it saves, and nothing here needs the latency.
 //
 // A composed-pipeline stage: last-driven only, silent on success -- the
-// downstream tile's close-out is authoritative. It raises status only for
+// downstream core's close-out is authoritative. It raises status only for
 // ERR_DOMAIN.
 module dau_datetime_format (
     input  wire logic         clk,
@@ -261,7 +261,7 @@ module dau_datetime_format (
     // The pipeline moves as one, and may move whenever the output register is
     // free. Deliberately NOT a function of input_valid: deriving readiness
     // from the push would close a combinational loop that simulates fine and
-    // fails routed DRC (the lesson the sqrt tile's comment records).
+    // fails routed DRC (the lesson the sqrt core's comment records).
     assign pipe_en = !output_valid || output_ready;
     assign input_ready = !status_pending && (drain || pipe_en);
 

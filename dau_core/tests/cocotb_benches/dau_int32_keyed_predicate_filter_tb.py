@@ -69,7 +69,7 @@ async def int32_extremes_compare_signed(dut):
 
 @cocotb.test()
 async def all_dropped_still_closes_out_success(dut):
-    # zero forwarded rows: no output words, but the tile still raises its
+    # zero forwarded rows: no output words, but the core still raises its
     # per-batch success close-out with selected_count == 0
     await _start(dut)
     predicate = FilterPredicate(op0=PredicateOp.LT, constant0=_INT32_MIN)  # matches nothing
@@ -104,9 +104,9 @@ async def backpressure_holds_output_stable(dut):
 async def reset_clears_state(dut):
     # drive two matching rows without a batch terminator so a partial result
     # accumulates (selected_count, pending, a stalled output beat under
-    # backpressure), then assert rst and confirm the tile is fully quiescent.
+    # backpressure), then assert rst and confirm the core is fully quiescent.
     # A third row would jam the sender: the emit of the first match holds
-    # output_valid, and with output_ready low the tile stops accepting input.
+    # output_valid, and with output_ready low the core stops accepting input.
     await _start(dut)
     _drive_config(dut, FilterPredicate(op0=PredicateOp.GE, constant0=0), on_key=False, row_count=0)
     dut.output_ready.value = 0
@@ -161,7 +161,7 @@ async def long_stream_reports_stream_error(dut):
 async def reserved_op_reports_config_error(dut):
     await _start(dut)
     _drive_config(dut, FilterPredicate(op0=PredicateOp.EQ, constant0=0), on_key=False, row_count=len(_ROWS))
-    dut.cfg_op0.value = 0  # reserved: an unconfigured tile fails explicitly
+    dut.cfg_op0.value = 0  # reserved: an unconfigured core fails explicitly
     dut.output_ready.value = 1
     await _send_words(dut, _pack_rows(_ROWS))
     await _expect_error(dut, FilterErrorCode.CONFIG)
@@ -183,7 +183,7 @@ async def reserved_combine_op_reports_config_error(dut):
 @cocotb.test()
 async def error_status_survives_backpressure(dut):
     # while status_ready is held low the error close-out stays stable and the
-    # tile refuses new input; recovery only after the handshake
+    # core refuses new input; recovery only after the handshake
     await _start(dut)
     _drive_config(dut, FilterPredicate(op0=PredicateOp.GE, constant0=0), on_key=False, row_count=len(_ROWS) + 2)
     dut.status_ready.value = 0
@@ -196,7 +196,7 @@ async def error_status_survives_backpressure(dut):
         assert int(dut.status_valid.value) == 1, "error status not held"
         assert int(dut.status_error.value) == 1
         assert int(dut.status_error_code.value) == FilterErrorCode.STREAM
-        assert int(dut.input_ready.value) == 0, "tile accepted input while status pending"
+        assert int(dut.input_ready.value) == 0, "core accepted input while status pending"
         await RisingEdge(dut.clk)
 
     await _expect_error(dut, FilterErrorCode.STREAM)
@@ -206,7 +206,7 @@ async def error_status_survives_backpressure(dut):
 @cocotb.test()
 async def success_status_survives_backpressure(dut):
     # the per-batch success close-out must hold stable while status_ready is
-    # low and the tile must refuse new input until the handshake completes
+    # low and the core must refuse new input until the handshake completes
     await _start(dut)
     predicate = FilterPredicate(op0=PredicateOp.EQ, constant0=568)
     _drive_config(dut, predicate, on_key=True, row_count=len(_ROWS))
@@ -219,7 +219,7 @@ async def success_status_survives_backpressure(dut):
         await ReadOnly()
         assert int(dut.status_valid.value) == 1, "success status not held"
         assert int(dut.status_error.value) == 0
-        assert int(dut.input_ready.value) == 0, "tile accepted input while status pending"
+        assert int(dut.input_ready.value) == 0, "core accepted input while status pending"
         await RisingEdge(dut.clk)
 
     count = await _accept_success_status(dut)
@@ -411,7 +411,7 @@ async def _expect_error(dut, code: FilterErrorCode) -> None:
 
 
 async def _expect_recovers(dut) -> None:
-    # after any close-out the tile returns to IDLE and filters the next batch
+    # after any close-out the core returns to IDLE and filters the next batch
     predicate = FilterPredicate(op0=PredicateOp.EQ, constant0=568)
     out, count = await _run(dut, _ROWS, predicate, on_key=True)
     assert out == filter_rows(_ROWS, predicate, on_key=True)

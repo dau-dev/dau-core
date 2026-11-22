@@ -24,11 +24,11 @@ def _bar_noc_sim_sv(tmp_path: Path) -> Path:
         module_name="dau_axi_bar_noc",
         burst_beats=16,
         lanes=tuple(
-            scan_composition.LaneTile(
+            scan_composition.LaneSink(
                 module="dau_bar_aggregation",
                 config={"cfg_mode": "2'd0", "cfg_row_count": "64'd0"},
                 count_port="bar_count",
-                partition=scan_composition.TileInstance(
+                partition=scan_composition.CoreInstance(
                     module="dau_pair_key_filter",
                     config={"cfg_key_mask": "32'd3", "cfg_key_match": f"32'd{lane}"},
                 ),
@@ -50,8 +50,8 @@ def _sort_noc_sim_sv(tmp_path: Path) -> Path:
         name="sorted-scan",
         module_name="dau_axi_sort_noc",
         burst_beats=16,
-        lanes=tuple(scan_composition.LaneTile(module="dau_bitonic_sorter", count_port="sorted_count") for _ in range(4)),
-        partitioner=scan_composition.TileInstance(
+        lanes=tuple(scan_composition.LaneSink(module="dau_bitonic_sorter", count_port="sorted_count") for _ in range(4)),
+        partitioner=scan_composition.CoreInstance(
             module="dau_range_partitioner",
             config={"cfg_splitters": "cfg_splitters"},
         ),
@@ -185,7 +185,7 @@ def test_hero_datapath_runs_real_cocotb_against_systemverilog(tmp_path: Path) ->
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_bucket_agg_chain_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
     # the fused, fully-generic bar stage: time-bucket key -> generic aggregator,
-    # selected into OHLCV bars downstream (no finance-specific bar tile)
+    # selected into OHLCV bars downstream (no finance-specific bar core)
     _run_cocotb_verilator(
         sources=(
             DAU_HDL_INCLUDE_DIR / "dau_time_bucket_key.sv",
@@ -210,8 +210,8 @@ def test_market_feature_runs_real_cocotb_against_systemverilog(tmp_path: Path) -
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_asof_feature_chain_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
-    # the fused align -> derive datapath: the as-of tile streams market rows
-    # straight into the feature tile (same 4-word record, no reformatting)
+    # the fused align -> derive datapath: the as-of core streams market rows
+    # straight into the feature core (same 4-word record, no reformatting)
     _run_cocotb_verilator(
         sources=(
             DAU_HDL_INCLUDE_DIR / "dau_asof_backward.sv",
@@ -238,9 +238,9 @@ def test_rolling_moments_runs_real_cocotb_against_systemverilog(tmp_path: Path) 
 @pytest.mark.parametrize("value_width", [32, 64])
 @pytest.mark.parametrize("find_max", [1, 0])
 def test_rolling_extremum_matches_golden(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, value_width: int, find_max: int) -> None:
-    """Every build of the tile against the same golden.
+    """Every build of the core against the same golden.
 
-    The point of the parameter sweep is the tile's claim: extremum does not
+    The point of the parameter sweep is the core's claim: extremum does not
     depend on the width it is computed in, so ONE implementation serves every
     signed integer type. If that were wrong, a width would disagree with the
     golden here rather than on silicon.
@@ -419,11 +419,11 @@ def test_row_predicate_filter_runs_real_cocotb_against_systemverilog(tmp_path: P
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_normal_cdf_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
-    """The rendered CDF tile against its model, which is correctly rounded
+    """The rendered CDF core against its model, which is correctly rounded
     over every representable input."""
-    from dau_core.normal_cdf_generator import NormalCdfTileGenerator
+    from dau_core.normal_cdf_generator import NormalCdfCoreGenerator
 
-    generator = NormalCdfTileGenerator()
+    generator = NormalCdfCoreGenerator()
     source = generator.render().write(tmp_path / "rendered")
     _run_cocotb_verilator(
         sources=(source,),
@@ -457,7 +457,7 @@ def test_fixed_point_exp_runs_real_cocotb_against_systemverilog(tmp_path: Path, 
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_fixed_point_ln_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
-    """The rendered ln tile against the model it renders from, with zero
+    """The rendered ln core against the model it renders from, with zero
     tolerance -- the model's own 1 ULP deviation from the mathematics is a
     separate, measured question."""
     from dau_core.registry import loaded_cores
@@ -484,7 +484,7 @@ def test_fixed_point_divide_runs_real_cocotb_against_systemverilog(tmp_path: Pat
 
 @pytest.mark.skipif(which("verilator") is None, reason="verilator not found")
 def test_datetime_format_runs_real_cocotb_against_systemverilog(tmp_path: Path) -> None:
-    """The tile shipped with no bench at all: its only test read constants out
+    """The core shipped with no bench at all: its only test read constants out
     of the SystemVerilog and exercised the Python golden, so the module was
     never instantiated and its measured resource number described an
     unverified design."""
@@ -901,7 +901,7 @@ def test_record_batch_aggregation_runs_real_cocotb_against_systemverilog(tmp_pat
 
 # non-fatal, but these two classes mean "this will not synthesize" and are
 # promoted to hard errors. Verified to break nothing in the current RTL.
-# The include path is not optional: a tile that `includes types.svh does not
+# The include path is not optional: a core that `includes types.svh does not
 # compile without it, and Verilator does not search the including file's own
 # directory.
 VERILATOR_BUILD_ARGS = (
@@ -1049,7 +1049,7 @@ def test_row_predicate_filter_runs_at_every_field_type(field_type: str, tmp_path
         hdl_toplevel="dau_row_predicate_filter",
         test_module=f"{_COCOTB_BENCH_PREFIX}.dau_row_predicate_filter_width_tb",
         tmp_path=tmp_path,
-        # the tile's parameter takes the type's ENCODING, which is what a
+        # the core's parameter takes the type's ENCODING, which is what a
         # composition resolves a spelling to and what Vivado gets as a generic
         parameters={"FIELD_WIDTH": element_code(field_type)},
     )

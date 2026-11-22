@@ -2,7 +2,7 @@
 
 `include "types.svh"
 
-// Scratchpad owned-arena tile: the deliberately trivial consumer of the OWNED
+// Scratchpad owned-arena core: the deliberately trivial consumer of the OWNED
 // storage class (STORAGE_AND_NOC.md). A private word-addressed BRAM arena
 // behind a runtime GRANT; each row either writes a word or reads one, and
 // emits the post-op value. Matches dau_core.operators.scratchpad_scan
@@ -10,7 +10,7 @@
 // address at or past cfg_granted_words closes the batch out with
 // STORAGE_OVERFLOW — the defined error a grow-request replaces when the
 // allocator hardens. The grant arrives on a config port the host writes
-// today and an allocator tile drives tomorrow; the tile cannot tell.
+// today and an allocator core drives tomorrow; the core cannot tell.
 //
 // Two 64-bit words per row (a row is atomic; input_last only legal on w1):
 //   w0 = {value[VALUE_BITS-1:0], addr[31:0]}
@@ -22,7 +22,7 @@
 // INDEX into the arena, which is a property of the arena's size (CAPACITY <=
 // 16384) and not of what the arena holds. It therefore keeps its own width,
 // and the value lane sits above it — at the default int32 that is exactly the
-// {value, addr} halves this tile has always had, port for port.
+// {value, addr} halves this core has always had, port for port.
 //
 // The grant is latched on the first beat of each batch; a grant of zero or
 // beyond CAPACITY is BAD_GRANT (the batch drains, error close-out). The
@@ -34,7 +34,7 @@ module dau_scratchpad #(
     // The ELEMENT TYPE of one stored word, as encoded by types.svh. The arena
     // NEVER INTERPRETS what it holds — it stores a value and hands the same
     // bits back — so every type this parameter can name is admissible here,
-    // including the float and unsigned types the comparing tiles must refuse.
+    // including the float and unsigned types the comparing cores must refuse.
     // The only bound is the packing one: the value lane rides above the
     // 32-bit address in a single 64-bit word.
     parameter int VALUE_WIDTH = `DAU_TYPE_INT32
@@ -104,7 +104,7 @@ module dau_scratchpad #(
 
     // The arena lives in its own reset-free process: Vivado only infers
     // block RAM when the array access is not under a reset condition (the
-    // first OOC run of this tile landed in 512 LUTs of distributed RAM for
+    // first OOC run of this core landed in 512 LUTs of distributed RAM for
     // exactly this reason). Write-first: a write's post-op value is the
     // written value.
     logic arena_access;

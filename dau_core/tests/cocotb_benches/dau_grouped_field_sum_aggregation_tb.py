@@ -164,7 +164,7 @@ async def backpressure_on_the_record_drain(dut):
 @cocotb.test()
 async def group_boundary_under_backpressure_holds_input(dut):
     # a key change forces a mid-batch record drain; with the drain stalled
-    # the tile must not lose the held row that opens the next group
+    # the core must not lose the held row that opens the next group
     await _start(dut)
     rows = [(1, 100, 0, 0), (2, 200, 0, 0), (3, 300, 0, 0)]
     words = await _run(dut, rows, field_mask=0b0010, ready_pattern=(0, 0, 0, 1))
@@ -174,7 +174,7 @@ async def group_boundary_under_backpressure_holds_input(dut):
 @cocotb.test()
 async def zero_mask_drains_batch_then_reports_config_error(dut):
     await _start(dut)
-    dut.cfg_field_mask.value = 0  # unconfigured tile fails explicitly
+    dut.cfg_field_mask.value = 0  # unconfigured core fails explicitly
     send = cocotb.start_soon(_send_rows(dut, _ROWS))
     await _expect_status(dut, error=True, code=GroupedFieldSumErrorCode.CONFIG)
     await send
@@ -256,7 +256,7 @@ async def torn_row_after_emitted_group_records_invalidates_the_batch(dut):
 @cocotb.test()
 async def error_status_survives_backpressure(dut):
     # while status_ready is held low the error close-out must stay stable
-    # and the tile must refuse new input; recovery only after the handshake
+    # and the core must refuse new input; recovery only after the handshake
     await _start(dut)
     dut.cfg_field_mask.value = _Q1_MASK
     dut.status_ready.value = 0
@@ -275,7 +275,7 @@ async def error_status_survives_backpressure(dut):
         assert int(dut.status_valid.value) == 1, "error status not held"
         assert int(dut.status_error.value) == 1
         assert int(dut.status_error_code.value) == GroupedFieldSumErrorCode.STREAM
-        assert int(dut.input_ready.value) == 0, "tile accepted input while status pending"
+        assert int(dut.input_ready.value) == 0, "core accepted input while status pending"
         await RisingEdge(dut.clk)
 
     await _expect_status(dut, error=True, code=GroupedFieldSumErrorCode.STREAM)
@@ -286,7 +286,7 @@ async def error_status_survives_backpressure(dut):
 @cocotb.test()
 async def success_status_survives_backpressure(dut):
     # the success close-out must hold stable while status_ready is low and
-    # the tile must refuse new input until the handshake completes
+    # the core must refuse new input until the handshake completes
     await _start(dut)
     dut.cfg_field_mask.value = _Q1_MASK
     dut.status_ready.value = 0
@@ -320,7 +320,7 @@ async def success_status_survives_backpressure(dut):
         assert int(dut.status_valid.value) == 1, "success status not held"
         assert int(dut.status_error.value) == 0
         assert int(dut.status_error_code.value) == 0
-        assert int(dut.input_ready.value) == 0, "tile accepted input while status pending"
+        assert int(dut.input_ready.value) == 0, "core accepted input while status pending"
         await RisingEdge(dut.clk)
 
     await _expect_status(dut, error=False)

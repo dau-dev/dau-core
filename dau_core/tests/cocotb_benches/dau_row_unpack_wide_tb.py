@@ -8,7 +8,7 @@ from cocotb.triggers import ReadOnly, RisingEdge
 
 from dau_core.operators import UnpackErrorCode, UnpackFieldSpec, unpack_rows
 
-# OUT_WIDTH == 128 (the rows/cycle axis): the same tile with a 128-bit quad
+# OUT_WIDTH == 128 (the rows/cycle axis): the same core with a 128-bit quad
 # stream — one whole quad row per output beat ({w1, w0}), lifting the shared
 # 2-beat emit cap to 1 row/cycle. Runner passes parameters={"OUT_WIDTH": 128};
 # the width-agnostic helpers are shared with the 64-bit bench.
@@ -189,7 +189,7 @@ async def wide_backpressure_holds_stable(dut):
 
 @cocotb.test()
 async def wide_bypass_gearboxes_two_words_into_one_beat(dut):
-    # bypass input stays the two-word quad framing; the wide tile assembles
+    # bypass input stays the two-word quad framing; the wide core assembles
     # each row into ONE {w1, w0} beat (golden identity, order/count preserved)
     await _start(dut)
     dut.cfg_bypass.value = 1

@@ -57,11 +57,11 @@ module dau_key_membership_filter #(
     parameter int KEY_SPACE = 4096,
     // The ELEMENT TYPE of the key lane, as encoded by types.svh. A plain
     // signed integer encodes as its own width, so `DAU_TYPE_INT32 is 32 and
-    // this reads exactly the w0.lo key the tile has always read. The key is a
+    // this reads exactly the w0.lo key the core has always read. The key is a
     // DICTIONARY ID — an index, not a magnitude — so the range test is one
     // unsigned compare against KEY_SPACE at either signedness, and it is a
     // float that has no meaning here rather than an unsigned integer (the
-    // streaming dedup, this tile's read-write sibling, says the same).
+    // streaming dedup, this core's read-write sibling, says the same).
     // A narrower type does not shrink the bitmap: KEY_SPACE does that.
     parameter int KEY_WIDTH = `DAU_TYPE_INT32
 ) (
@@ -98,7 +98,7 @@ module dau_key_membership_filter #(
     localparam logic [7:0] ERR_STREAM = 8'd2;
     localparam logic [7:0] ERR_LOAD   = 8'd3;
 
-    // the key is one lane of the {value, key} word, so a pair of lanes tiles
+    // the key is one lane of the {value, key} word, so a pair of lanes cores
     // it; the id space itself tops out at 2**23, so a wider key would address
     // nothing the bitmap can hold
     if (KEY_BITS < 8 || KEY_BITS > 32 || (64 % KEY_BITS) != 0) begin : g_key_width_check

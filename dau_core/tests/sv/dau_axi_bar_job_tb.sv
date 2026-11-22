@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 `default_nettype none
 
-// The composed AXI job datapath (runner + bar tile + RAM sim): load three
+// The composed AXI job datapath (runner + bar core + RAM sim): load three
 // rows through the backdoor, run a job, check the two bar records land in
 // the output region with the right result length and bar count; then a
 // misaligned length must fail fast with the job-length error.

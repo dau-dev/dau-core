@@ -2,7 +2,7 @@
 
 A scan composition is the one-scan-N-lanes shape proven by the broadcast
 NoC shell: an AXI burst reader fans a row stream to N lanes, each an
-optional partition filter feeding an operator tile and a record writer
+optional partition filter feeding an operator core and a record writer
 with its own output region. The spec names registry cores and their
 config-port bindings; a generator walks it to emit the shell top, and
 ``estimated_resources`` sums the registry's measured envelopes — the
@@ -31,9 +31,9 @@ from .registry import core, core_of_role, cores_of_role
 
 # THE SHELL INFRASTRUCTURE a composition sits in is selected by ROLE, not by
 # name (see ``CoreRole``): the DDR scan shell reads bursts and fans out to
-# lanes; the stream-job shells hand a single tile chain its rows from
+# lanes; the stream-job shells hand a single core chain its rows from
 # staging BRAM (or straight off AXI) and take the records back the same way.
-# They are different infrastructure, not different tile graphs, so the shape
+# They are different infrastructure, not different core graphs, so the shape
 # is one field (``stream_job``) rather than a second composition hierarchy,
 # and it is what lets a stream job be composition-declared at all, which is
 # what makes its cores reach ``core_names`` (and therefore the staged HDL),
@@ -58,7 +58,7 @@ def _stream_job_cores(name: str) -> tuple[str, ...]:
 
 
 # the reserved config-binding symbol for the shell's LOAD_PHASE register
-# (RegisterOffset.LOAD_PHASE): a tile binding ``cfg_load`` to this symbol is
+# (RegisterOffset.LOAD_PHASE): a core binding ``cfg_load`` to this symbol is
 # phase-switched by the host instead of baked, making the composition
 # two-phase (LOAD the build image, then PROBE)
 LOAD_PHASE_BINDING = "load_phase"
@@ -71,40 +71,40 @@ class CompositionError(Exception):
     pass
 
 
-def _validate_tile_params(tile: TileSpec, role: str) -> None:
-    """Every module-parameter override on a tile must name a parameter the
+def _validate_core_params(core: CoreSpec, role: str) -> None:
+    """Every module-parameter override on a core must name a parameter the
     core declares as overridable (``CoreDefinition.parameters``) and carry a
     positive integer value (SV sizes are positive; an element type has already
     been resolved to its encoding by then). An unknown name is a typo or a
     param the core does not expose — rejected up front."""
-    if not tile.params:
+    if not core.params:
         return
-    declared = tile.definition().parameters
-    for name, value in tile.params.items():
+    declared = core.definition().parameters
+    for name, value in core.params.items():
         if name not in declared:
             known = ", ".join(sorted(declared)) or "none"
-            raise CompositionError(f"{role} {tile.core!r} has no overridable parameter {name!r} (declared: {known})")
+            raise CompositionError(f"{role} {core.core!r} has no overridable parameter {name!r} (declared: {known})")
         spec = declared[name]
         if isinstance(value, bool) or not isinstance(value, int):
-            raise CompositionError(f"{role} {tile.core!r} parameter {name!r} must be a positive int, got {value!r}")
+            raise CompositionError(f"{role} {core.core!r} parameter {name!r} must be a positive int, got {value!r}")
         # the constraint itself lives on ParameterSpec.violation -- one
         # statement of the rule, shared with the spec's own coherence check
         reason = spec.violation(value)
         if reason is not None:
-            raise CompositionError(f"{role} {tile.core!r} parameter {name!r} {reason}")
+            raise CompositionError(f"{role} {core.core!r} parameter {name!r} {reason}")
 
 
-def _contract_param(tile: TileSpec, name: str, role: str) -> int:
-    """A parameter the composition reads off a tile: its override, else the
+def _contract_param(core: CoreSpec, name: str, role: str) -> int:
+    """A parameter the composition reads off a core: its override, else the
     default the core declares. A core whose role requires ``name`` but which
     does not declare it raises ``CompositionError``."""
-    declared = tile.definition().parameters.get(name)
+    declared = core.definition().parameters.get(name)
     if declared is None:
-        raise CompositionError(f"{role} {tile.core!r} declares no {name} parameter")
-    return int(tile.params.get(name, declared.default))
+        raise CompositionError(f"{role} {core.core!r} declares no {name} parameter")
+    return int(core.params.get(name, declared.default))
 
 
-class TileSpec(CheckedModel):
+class CoreSpec(CheckedModel):
     """One registry core plus its config-port bindings (SystemVerilog
     literals or expressions in terms of the top's signals) and any
     module-parameter overrides (``params``: SystemVerilog PARAMETERs, e.g.
@@ -119,7 +119,7 @@ class TileSpec(CheckedModel):
     core: str
     config: Annotated[Mapping[str, str], *ReadOnly] = Field(default_factory=FrozenMapping)
     # StrictInt: lax coercion (True -> 1, "4" -> 4) would silently satisfy the
-    # positive-int parameter contract before _validate_tile_params ever ran
+    # positive-int parameter contract before _validate_core_params ever ran
     params: Annotated[Mapping[str, StrictInt], *ReadOnly] = Field(default_factory=FrozenMapping)
 
     @model_validator(mode="before")
@@ -146,11 +146,11 @@ class TileSpec(CheckedModel):
             if isinstance(value, str):
                 spec = declared.get(parameter)
                 if spec is None or not spec.element_type:
-                    raise CompositionError(f"tile {name!r} parameter {parameter!r} is not an element type, so it takes an integer, not {value!r}")
+                    raise CompositionError(f"core {name!r} parameter {parameter!r} is not an element type, so it takes an integer, not {value!r}")
                 try:
                     value = element_code(value)
                 except ElementTypeError as error:
-                    raise CompositionError(f"tile {name!r} parameter {parameter!r}: {error}") from error
+                    raise CompositionError(f"core {name!r} parameter {parameter!r}: {error}") from error
             resolved[parameter] = value
         return {**data, "params": resolved}
 
@@ -161,13 +161,13 @@ class TileSpec(CheckedModel):
 class LaneSpec(CheckedModel):
     """One lane of the scan: an optional row-atomic partition filter, an
     optional ordered ``chain`` of mid-lane operator stages
-    (filter -> map -> ...), and the terminal operator tile. Chain stages
+    (filter -> map -> ...), and the terminal operator core. Chain stages
     speak the stream+status contract but need no status counter; the
-    terminal tile's count port backs the lane register block."""
+    terminal core's count port backs the lane register block."""
 
-    tile: TileSpec
-    partition: TileSpec | None = None
-    chain: tuple[TileSpec, ...] = ()
+    sink: CoreSpec
+    partition: CoreSpec | None = None
+    chain: tuple[CoreSpec, ...] = ()
 
 
 class ScanCompositionSpec(CheckedModel):
@@ -200,8 +200,8 @@ class ScanCompositionSpec(CheckedModel):
     # the classic single shared M_AXI; wider tiers split a wide read-only
     # master off from the 64-bit record-write master in the walker.
     data_width: int = 64
-    partitioner: TileSpec | None = None
-    front_unpack: TileSpec | None = None
+    partitioner: CoreSpec | None = None
+    front_unpack: CoreSpec | None = None
     # THE RECORD GEARBOX: reframes wide beats into whole records so the
     # fan-out behind it consumes one record per cycle instead of one word.
     # It is declared HERE, in the composition, rather than as a build-time
@@ -209,11 +209,11 @@ class ScanCompositionSpec(CheckedModel):
     # ``core_names`` (which stages the HDL Vivado compiles) and the
     # canonical spec (which keys the design cache). A geared and an
     # ungeared design are different bitstreams and must not share a hash.
-    front_gearbox: TileSpec | None = None
+    front_gearbox: CoreSpec | None = None
     # the shell this composition is staged in: None = the DDR scan shell,
     # otherwise the stream-job core that feeds the single lane
     stream_job: str | None = None
-    # THE FUSED CHAIN: allow terminal-shaped tiles (a join, an aggregator) to
+    # THE FUSED CHAIN: allow terminal-shaped cores (a join, an aggregator) to
     # sit MID-LANE so their intermediate records never touch DDR — the
     # avoided-materialization shape. The lane still presents exactly one
     # close-out: each fused stage's success status is drained the cycle it
@@ -262,7 +262,7 @@ class ScanCompositionSpec(CheckedModel):
             raise CompositionError(f"addr_width must be 32 or 64, got {self.addr_width}")
         if self.handle_table_capacity < 0:
             raise CompositionError(f"handle_table_capacity must be 0 (no table) or a positive slot count, got {self.handle_table_capacity}")
-        wide_lane = self.lanes[0].tile.definition().contract_kind is ContractKind.WIDE_ROW_STREAM
+        wide_lane = self.lanes[0].sink.definition().contract_kind is ContractKind.WIDE_ROW_STREAM
         if wide_lane:
             # THE WIDE LANE: reader beats wire straight into a chain of
             # wide-row-stream stages, SLOTS rows per cycle. One lane takes the
@@ -272,24 +272,24 @@ class ScanCompositionSpec(CheckedModel):
             if self.partitioner is not None:
                 raise CompositionError("a wide lane consumes the reader stream directly; a shared partitioner cannot feed it")
             for index, lane in enumerate(self.lanes):
-                if lane.tile.definition().contract_kind is not ContractKind.WIDE_ROW_STREAM:
+                if lane.sink.definition().contract_kind is not ContractKind.WIDE_ROW_STREAM:
                     raise CompositionError(
-                        f"lane {index} terminal {lane.tile.core!r} is not a wide-row-stream core; wide lanes share one beat, so every lane must be wide"
+                        f"lane {index} terminal {lane.sink.core!r} is not a wide-row-stream core; wide lanes share one beat, so every lane must be wide"
                     )
                 if lane.partition is not None:
                     raise CompositionError("a wide lane takes no per-lane partition filter (it sees every row by construction)")
 
-            def _slots_of(tile: TileSpec, role: str) -> int:
-                if tile.definition().contract_kind is not ContractKind.WIDE_ROW_STREAM:
+            def _slots_of(core: CoreSpec, role: str) -> int:
+                if core.definition().contract_kind is not ContractKind.WIDE_ROW_STREAM:
                     raise CompositionError(
-                        f"{role} {tile.core!r} speaks the 64-bit row-stream contract inside a wide lane; every stage of a "
+                        f"{role} {core.core!r} speaks the 64-bit row-stream contract inside a wide lane; every stage of a "
                         "wide lane must be a wide-row-stream core (mixed framings cannot wire)"
                     )
-                return _contract_param(tile, "SLOTS", role)
+                return _contract_param(core, "SLOTS", role)
 
-            slots = _slots_of(self.lanes[0].tile, "wide lane terminal")
+            slots = _slots_of(self.lanes[0].sink, "wide lane terminal")
             for index, lane in enumerate(self.lanes):
-                lane_slots = _slots_of(lane.tile, "wide lane terminal")
+                lane_slots = _slots_of(lane.sink, "wide lane terminal")
                 if lane_slots != slots:
                     raise CompositionError(f"wide lane SLOTS disagree: lane {index} terminal has {lane_slots}, lane 0 has {slots}")
                 for stage in lane.chain:
@@ -333,13 +333,13 @@ class ScanCompositionSpec(CheckedModel):
             if definition.success_close_out:
                 raise CompositionError(
                     f"partitioner {self.partitioner.core!r} emits a success close-out per batch; the lane status mux allows exactly one — "
-                    "only the terminal tile may close out on success"
+                    "only the terminal core may close out on success"
                 )
             if definition.contract_kind is ContractKind.WIDE_ROW_STREAM:
                 raise CompositionError(
                     f"partitioner {self.partitioner.core!r} speaks the wide-row-stream contract; the shared router slot is not a wide chain stage"
                 )
-            _validate_tile_params(self.partitioner, "partitioner")
+            _validate_core_params(self.partitioner, "partitioner")
             # the key-mask dispatcher's mask decode (dest = key & (N-1)) needs
             # a power-of-two partition count; the exact-branch mode does not —
             # the conditional pairing the per-parameter spec cannot express.
@@ -386,7 +386,7 @@ class ScanCompositionSpec(CheckedModel):
                         )
         if self.stream_job is not None:
             _stream_job_shell(self.stream_job)
-            # a stream job stages one tile chain: there is no fan-out to
+            # a stream job stages one core chain: there is no fan-out to
             # partition and no burst feed to re-time
             if len(self.lanes) != 1:
                 raise CompositionError(f"a {self.stream_job} composition stages exactly one lane, got {len(self.lanes)}")
@@ -394,14 +394,14 @@ class ScanCompositionSpec(CheckedModel):
                 raise CompositionError(f"a {self.stream_job} composition has no fan-out or front stage to configure")
             if self.lanes[0].partition is not None:
                 raise CompositionError(f"a {self.stream_job} composition has no fan-out, so its lane takes no partition filter")
-            # the stream-job tops wire their tile ports at a fixed 64 bits, so
+            # the stream-job tops wire their core ports at a fixed 64 bits, so
             # a wide terminal or a wide feed describes hardware they cannot
-            # lower — the tile's rows would simply not fit the job core's port
+            # lower — the core's rows would simply not fit the job core's port
             if self.data_width != 64:
                 raise CompositionError(f"a {self.stream_job} composition feeds 64-bit rows; data_width={self.data_width} has no lowering")
-            for stage in (*self.lanes[0].chain, self.lanes[0].tile):
+            for stage in (*self.lanes[0].chain, self.lanes[0].sink):
                 if stage.definition().contract_kind is ContractKind.WIDE_ROW_STREAM:
-                    raise CompositionError(f"{stage.core!r} speaks the wide-row-stream contract; the {self.stream_job} tile ports are 64-bit")
+                    raise CompositionError(f"{stage.core!r} speaks the wide-row-stream contract; the {self.stream_job} core ports are 64-bit")
             # the handle table is emitted by the SCAN walker, around the burst
             # reader it resolves an address for. A stream-job top is
             # hand-written and has neither the aperture nor a reader to gate,
@@ -413,7 +413,7 @@ class ScanCompositionSpec(CheckedModel):
                 )
             # the stream-job tops expose no LOAD_PHASE register, so a chain
             # that expects a two-phase load has nothing to drive it
-            for stage in (*self.lanes[0].chain, self.lanes[0].tile):
+            for stage in (*self.lanes[0].chain, self.lanes[0].sink):
                 if LOAD_PHASE_BINDING in stage.config.values():
                     raise CompositionError(f"{stage.core!r} binds {LOAD_PHASE_BINDING}; the {self.stream_job} top has no load-phase register")
         if self.front_gearbox is not None:
@@ -422,7 +422,7 @@ class ScanCompositionSpec(CheckedModel):
                 raise CompositionError(
                     f"front gearbox {self.front_gearbox.core!r} does not declare role {CoreRole.FRONT_GEARBOX.value!r} ({options})"
                 )
-            _validate_tile_params(self.front_gearbox, "front gearbox")
+            _validate_core_params(self.front_gearbox, "front gearbox")
             if self.data_width <= 64:
                 raise CompositionError("front_gearbox requires data_width > 64: a 64-bit feed already delivers one word per cycle")
         if self.front_unpack is not None:
@@ -431,7 +431,7 @@ class ScanCompositionSpec(CheckedModel):
                     f"front unpacker {self.front_unpack.core!r} does not declare the {CoreRole.FRONT_UNPACK.value!r} role; the front stage "
                     "widens packed rows after the burst reader and before the fan-out, and only a core declaring that role fills it"
                 )
-            _validate_tile_params(self.front_unpack, "front unpacker")
+            _validate_core_params(self.front_unpack, "front unpacker")
             # a WIDE lane consumes the unpacker's beats directly — there is no
             # broadcast in that shape, so this width rule does not apply to it
             # (the lane's own SLOTS check above is what constrains the front)
@@ -444,21 +444,21 @@ class ScanCompositionSpec(CheckedModel):
                     )
         for lane in self.lanes:
             if not wide_lane:
-                for slot_tile, slot_role in (
-                    (lane.tile, "lane tile"),
+                for slot_core, slot_role in (
+                    (lane.sink, "lane core"),
                     (lane.partition, "lane partition"),
                     *((stage, "lane chain stage") for stage in lane.chain),
                 ):
-                    if slot_tile is None:
+                    if slot_core is None:
                         continue
-                    if slot_tile.definition().contract_kind is ContractKind.WIDE_ROW_STREAM:
+                    if slot_core.definition().contract_kind is ContractKind.WIDE_ROW_STREAM:
                         raise CompositionError(
-                            f"{slot_role} {slot_tile.core!r} speaks the wide-row-stream contract; this lane's fan-out delivers 64-bit "
+                            f"{slot_role} {slot_core.core!r} speaks the wide-row-stream contract; this lane's fan-out delivers 64-bit "
                             "two-beat rows — a wide core rides only the wide-lane shape (a lane whose TERMINAL is wide)"
                         )
-            tile = lane.tile.definition()
-            if tile.kind != CoreKind.OPERATOR:
-                raise CompositionError(f"lane tile {lane.tile.core!r} is {tile.kind.value}, not an operator")
+            core = lane.sink.definition()
+            if core.kind != CoreKind.OPERATOR:
+                raise CompositionError(f"lane core {lane.sink.core!r} is {core.kind.value}, not an operator")
             # the SCAN walker wires this port into the lane's register readback
             # latch, so a scan lane without one cannot be lowered.
             #
@@ -466,19 +466,19 @@ class ScanCompositionSpec(CheckedModel):
             # counter -- `bram-stream-job` covers both the countless
             # record-batch top and the count-consuming bar top -- so the
             # composition genuinely cannot decide it here. The check that DOES
-            # hold is that each top and its declared tile agree, and that is
+            # hold is that each top and its declared core agree, and that is
             # pinned where the tops live (dau: the stream-job correspondence
             # tests). Do not read this waiver as "stream jobs need no counter".
-            if tile.count_port is None and self.stream_job is None:
-                raise CompositionError(f"lane tile {lane.tile.core!r} does not expose a status counter")
-            if not tile.success_close_out:
+            if core.count_port is None and self.stream_job is None:
+                raise CompositionError(f"lane core {lane.sink.core!r} does not expose a status counter")
+            if not core.success_close_out:
                 raise CompositionError(
-                    f"lane tile {lane.tile.core!r} is silent on success; the record writer's done waits on a consumed close-out, "
-                    "so the terminal tile must emit one per batch"
+                    f"lane core {lane.sink.core!r} is silent on success; the record writer's done waits on a consumed close-out, "
+                    "so the terminal core must emit one per batch"
                 )
-            _validate_tile_params(lane.tile, "lane tile")
+            _validate_core_params(lane.sink, "lane core")
             if lane.partition is not None and self.partitioner is not None:
-                raise CompositionError(f"lane tile {lane.tile.core!r} carries a partition filter but the scan already has a shared partitioner")
+                raise CompositionError(f"lane core {lane.sink.core!r} carries a partition filter but the scan already has a shared partitioner")
             if lane.partition is not None:
                 partition = lane.partition.definition()
                 if partition.kind != CoreKind.OPERATOR:
@@ -486,9 +486,9 @@ class ScanCompositionSpec(CheckedModel):
                 if partition.success_close_out:
                     raise CompositionError(
                         f"lane partition {lane.partition.core!r} emits a success close-out per batch; the lane status mux allows exactly one — "
-                        "only the terminal tile may close out on success"
+                        "only the terminal core may close out on success"
                     )
-                _validate_tile_params(lane.partition, "lane partition")
+                _validate_core_params(lane.partition, "lane partition")
             for stage in lane.chain:
                 definition = stage.definition()
                 if definition.kind != CoreKind.OPERATOR:
@@ -499,35 +499,35 @@ class ScanCompositionSpec(CheckedModel):
                         "chain stages must be silent on success, or the composition must declare fused_chain=True (the fused-chain "
                         "protocol: mid-stage close-outs are drained and only their errors reach the lane status)"
                     )
-                _validate_tile_params(stage, "lane chain stage")
+                _validate_core_params(stage, "lane chain stage")
         self._validate_load_phase_shape()
 
     def _validate_load_phase_shape(self) -> None:
-        """The two-phase load shape (v1): a tile binding ``cfg_load`` to the
+        """The two-phase load shape (v1): a core binding ``cfg_load`` to the
         reserved ``load_phase`` symbol is driven by the shell's LOAD_PHASE
         register, making the composition two-phase (a LOAD job streams the
-        tile's build image; a PROBE job streams rows). The LOAD image must
-        reach every load tile unmolested, so the shape is constrained: every
-        lane's ``chain[0]`` is the load tile (uniformly — a loadless lane
+        core's build image; a PROBE job streams rows). The LOAD image must
+        reach every load core unmolested, so the shape is constrained: every
+        lane's ``chain[0]`` is the load core (uniformly — a loadless lane
         would misread the image as rows), no partition filters, no shared
         partitioner (the broadcast delivers the image to every lane), no
         front unpacker (it would re-slice image words), and — for a BITMAP_64
-        load tile — ``KEY_SPACE`` a multiple of 128 so the
+        load core — ``KEY_SPACE`` a multiple of 128 so the
         ``KEY_SPACE/64``-word image lands on the 16-byte input length grid
         (QUAD_ROWS images are 16-byte rows, always on the grid)."""
 
-        def binds_load(tile: TileSpec | None) -> bool:
-            return tile is not None and tile.config.get("cfg_load") == LOAD_PHASE_BINDING
+        def binds_load(core: CoreSpec | None) -> bool:
+            return core is not None and core.config.get("cfg_load") == LOAD_PHASE_BINDING
 
-        def stray(tile: TileSpec | None, role: str) -> None:
-            if tile is None:
+        def stray(core: CoreSpec | None, role: str) -> None:
+            if core is None:
                 return
-            for key, value in tile.config.items():
+            for key, value in core.config.items():
                 if value == LOAD_PHASE_BINDING and key != "cfg_load":
-                    raise CompositionError(f"{role} {tile.core!r} binds {key!r} to the reserved {LOAD_PHASE_BINDING!r} symbol; only cfg_load may")
-            if binds_load(tile) and role != "lane chain stage 0":
+                    raise CompositionError(f"{role} {core.core!r} binds {key!r} to the reserved {LOAD_PHASE_BINDING!r} symbol; only cfg_load may")
+            if binds_load(core) and role != "lane chain stage 0":
                 raise CompositionError(
-                    f"{role} {tile.core!r} binds cfg_load to {LOAD_PHASE_BINDING!r}; a load tile must be the first chain stage "
+                    f"{role} {core.core!r} binds cfg_load to {LOAD_PHASE_BINDING!r}; a load core must be the first chain stage "
                     "(the LOAD image must reach it unmolested)"
                 )
 
@@ -535,7 +535,7 @@ class ScanCompositionSpec(CheckedModel):
         stray(self.front_unpack, "front unpacker")
         stray(self.front_gearbox, "front gearbox")
         for lane in self.lanes:
-            stray(lane.tile, "lane tile")
+            stray(lane.sink, "lane core")
             stray(lane.partition, "lane partition")
             for index, stage in enumerate(lane.chain):
                 stray(stage, "lane chain stage 0" if index == 0 else "lane chain stage")
@@ -545,11 +545,11 @@ class ScanCompositionSpec(CheckedModel):
             return
         if len(load_lanes) != len(self.lanes):
             raise CompositionError(
-                "a two-phase composition must carry the load tile at chain[0] of EVERY lane: a loadless lane would misread the "
+                "a two-phase composition must carry the load core at chain[0] of EVERY lane: a loadless lane would misread the "
                 f"LOAD image as rows ({len(load_lanes)} of {len(self.lanes)} lanes bind cfg_load to {LOAD_PHASE_BINDING!r})"
             )
         if self.partitioner is not None:
-            raise CompositionError("a two-phase composition cannot use a shared partitioner: the LOAD image must broadcast to every lane's load tile")
+            raise CompositionError("a two-phase composition cannot use a shared partitioner: the LOAD image must broadcast to every lane's load core")
         if self.front_unpack is not None:
             raise CompositionError("a two-phase composition cannot use a front unpacker: it would re-slice the LOAD image words")
         for lane in self.lanes:
@@ -557,22 +557,22 @@ class ScanCompositionSpec(CheckedModel):
                 raise CompositionError(
                     f"a two-phase composition cannot use per-lane partition filters: {lane.partition.core!r} would filter the LOAD image"
                 )
-            load_tile = lane.chain[0]
-            definition = load_tile.definition()
+            load_core = lane.chain[0]
+            definition = load_core.definition()
             # load capability is registry truth, not config spelling: only a
             # core declaring its LOAD-phase image kind has a cfg_load port
             if definition.load_image is None:
                 raise CompositionError(
-                    f"chain stage {load_tile.core!r} binds cfg_load to {LOAD_PHASE_BINDING!r} but declares no load_image kind; "
+                    f"chain stage {load_core.core!r} binds cfg_load to {LOAD_PHASE_BINDING!r} but declares no load_image kind; "
                     "only load-capable cores (membership filter, broadcast hash join) can be phase-bound"
                 )
             if definition.load_image is LoadImageKind.BITMAP_64:
                 # the bitmap image is KEY_SPACE/64 64-bit words = KEY_SPACE/8
                 # bytes; it lands on the 16-byte input grid iff KEY_SPACE % 128
-                key_space = load_tile.params.get("KEY_SPACE", definition.parameters["KEY_SPACE"].default)
+                key_space = load_core.params.get("KEY_SPACE", definition.parameters["KEY_SPACE"].default)
                 if key_space % 128 != 0:
                     raise CompositionError(
-                        f"load tile {load_tile.core!r} KEY_SPACE={key_space} must be a multiple of 128: the KEY_SPACE/64-word LOAD image "
+                        f"load core {load_core.core!r} KEY_SPACE={key_space} must be a multiple of 128: the KEY_SPACE/64-word LOAD image "
                         "must land on the 16-byte input length grid"
                     )
             # QUAD_ROWS images are 16-byte build rows — always on the grid
@@ -582,7 +582,7 @@ class ScanCompositionSpec(CheckedModel):
         wide-row-stream contract, so the reader (or front unpacker) feeds
         them whole beats of quad rows with no partitioner (validated at
         construction)."""
-        return self.lanes[0].tile.definition().contract_kind is ContractKind.WIDE_ROW_STREAM
+        return self.lanes[0].sink.definition().contract_kind is ContractKind.WIDE_ROW_STREAM
 
     def wide_fanout_width(self) -> int | None:
         """The beat width the stream broadcast fans out to several wide
@@ -590,7 +590,7 @@ class ScanCompositionSpec(CheckedModel):
         the stream directly; narrow lanes use the 64-bit broadcast)."""
         if not self.is_wide_lane() or len(self.lanes) == 1:
             return None
-        slots = int(self.lanes[0].tile.params.get("SLOTS", self.lanes[0].tile.definition().parameters["SLOTS"].default))
+        slots = int(self.lanes[0].sink.params.get("SLOTS", self.lanes[0].sink.definition().parameters["SLOTS"].default))
         return slots * 128
 
     def core_names(self) -> tuple[str, ...]:
@@ -623,7 +623,7 @@ class ScanCompositionSpec(CheckedModel):
                 names.setdefault(lane.partition.core)
             for stage in lane.chain:
                 names.setdefault(stage.core)
-            names.setdefault(lane.tile.core)
+            names.setdefault(lane.sink.core)
         return tuple(names)
 
 
@@ -637,7 +637,7 @@ def stream_shape_mismatches(spec: ScanCompositionSpec) -> tuple[str, ...]:
     spec = spec.check()
     mismatches: list[str] = []
 
-    def compare(producer: TileSpec, consumer: TileSpec, location: str) -> None:
+    def compare(producer: CoreSpec, consumer: CoreSpec, location: str) -> None:
         emitted = producer.definition().effective_output_record_words(producer.params)
         expected = consumer.definition().effective_record_words(consumer.params)
         if emitted is not None and emitted != expected:
@@ -656,7 +656,7 @@ def stream_shape_mismatches(spec: ScanCompositionSpec) -> tuple[str, ...]:
 
     lane_feed = spec.partitioner if spec.partitioner is not None else front
     for index, lane in enumerate(spec.lanes):
-        stages = [*([] if lane.partition is None else [lane.partition]), *lane.chain, lane.tile]
+        stages = [*([] if lane.partition is None else [lane.partition]), *lane.chain, lane.sink]
         if lane_feed is not None:
             compare(lane_feed, stages[0], f"lane {index} feed")
         for producer, consumer in pairwise(stages):
@@ -684,7 +684,7 @@ def throughput_rows_per_cycle(spec: ScanCompositionSpec, *, stage_pass_fractions
       lanes, so lane rates SUM; a broadcast shows every row to every lane,
       so the SLOWEST lane is the system rate (no summing). A lane's rate
       is the minimum declared ingest over its partition, chain, and
-      terminal tile.
+      terminal core.
 
     DISTRIBUTION ASSUMPTION (explicit, not fine print): the partitioned
     sum assumes rows spread across lanes per the partitioner's routing —
@@ -741,15 +741,15 @@ def throughput_breakdown(spec: ScanCompositionSpec, *, stage_pass_fractions: Map
     marked."""
     spec = spec.check()
 
-    def _tile_rate(tile: TileSpec, role: str) -> Fraction:
-        definition = tile.definition()
+    def _core_rate(core: CoreSpec, role: str) -> Fraction:
+        definition = core.definition()
         ingest = definition.ingest
         if ingest is None:
-            raise CompositionError(f"{role} core {tile.core!r} declares no ingest rate (required public interface for stream operators)")
+            raise CompositionError(f"{role} core {core.core!r} declares no ingest rate (required public interface for stream operators)")
         try:
-            return ingest.effective(tile.params, definition.parameters)
+            return ingest.effective(core.params, definition.parameters)
         except ValueError as exc:
-            raise CompositionError(f"{role} core {tile.core!r}: {exc}") from exc
+            raise CompositionError(f"{role} core {core.core!r}: {exc}") from exc
 
     front = None
     if spec.front_gearbox is not None:
@@ -767,7 +767,7 @@ def throughput_breakdown(spec: ScanCompositionSpec, *, stage_pass_fractions: Map
         # GUARANTEED floor.
         record_words = spec.front_gearbox.definition().effective_record_words(spec.front_gearbox.params)
         reader = Fraction(spec.data_width, 64 * record_words)
-        front = StageRate("front gearbox", spec.front_gearbox.core, None, _tile_rate(spec.front_gearbox, "front gearbox"))
+        front = StageRate("front gearbox", spec.front_gearbox.core, None, _core_rate(spec.front_gearbox, "front gearbox"))
     elif spec.front_unpack is not None:
         # the packed feed: the reader supplies data_width/64 packed rows per
         # beat (a packed row is 8 bytes), and the unpacker re-times them at its
@@ -779,7 +779,7 @@ def throughput_breakdown(spec: ScanCompositionSpec, *, stage_pass_fractions: Map
         # the flat cap under-reported the silicon-measured eight-slot lane by
         # 8x, pricing it as no faster than the build it replaced.
         reader = Fraction(spec.data_width, 64)
-        front = StageRate("front unpacker", spec.front_unpack.core, None, _tile_rate(spec.front_unpack, "front unpacker"))
+        front = StageRate("front unpacker", spec.front_unpack.core, None, _core_rate(spec.front_unpack, "front unpacker"))
     elif spec.data_width == 64:
         reader = Fraction(1, 2)
     else:
@@ -791,7 +791,7 @@ def throughput_breakdown(spec: ScanCompositionSpec, *, stage_pass_fractions: Map
     delivery = (front.rows_per_cycle, 1) if front is not None and front.rows_per_cycle <= reader else (reader, 0)
     partitioner = None
     if spec.partitioner is not None:
-        stages.append(StageRate("partitioner", spec.partitioner.core, None, _tile_rate(spec.partitioner, "partitioner")))
+        stages.append(StageRate("partitioner", spec.partitioner.core, None, _core_rate(spec.partitioner, "partitioner")))
         partitioner = (stages[-1].rows_per_cycle, len(stages) - 1)
 
     supplied = stage_pass_fractions or {}
@@ -825,16 +825,16 @@ def throughput_breakdown(spec: ScanCompositionSpec, *, stage_pass_fractions: Map
         # rows that reach it: a stage seeing a tenth of the rows can be ten
         # times slower before it binds. A stage nothing reaches cannot bind.
         limits = []
-        for position, tile in enumerate([*lane.chain, lane.tile]):
+        for position, core in enumerate([*lane.chain, lane.sink]):
             role = "lane terminal" if position == len(lane.chain) else "lane chain stage"
-            stages.append(StageRate(role, tile.core, index, _tile_rate(tile, f"lane {index} {role.removeprefix('lane ')}")))
+            stages.append(StageRate(role, core.core, index, _core_rate(core, f"lane {index} {role.removeprefix('lane ')}")))
             reaching = passes[position]
             if reaching == 0:
                 continue
             limits.append((stages[-1].rows_per_cycle / reaching, len(stages) - 1))
         terminal = len(stages) - 1
         if lane.partition is not None:
-            stages.append(StageRate("lane partition", lane.partition.core, index, _tile_rate(lane.partition, f"lane {index} partition")))
+            stages.append(StageRate("lane partition", lane.partition.core, index, _core_rate(lane.partition, f"lane {index} partition")))
             limits.append((stages[-1].rows_per_cycle, len(stages) - 1))
         if not limits:
             limits.append((stages[terminal].rows_per_cycle, terminal))
@@ -905,7 +905,7 @@ def estimated_resources(spec: ScanCompositionSpec, *, part: str, clock_ns: float
             add(lane.partition.core, lane.partition.params)
         for stage in lane.chain:
             add(stage.core, stage.params)
-        add(lane.tile.core, lane.tile.params)
+        add(lane.sink.core, lane.sink.params)
     return ResourceEnvelope(lut=lut, ff=ff, bram36=bram, dsp=dsp)
 
 
@@ -925,8 +925,8 @@ def estimated_resources(spec: ScanCompositionSpec, *, part: str, clock_ns: float
 # text written under the old rule means what a reader of the new rule would
 # think, and the cheap side of the asymmetry is a cold cache entry.
 #
-#   7: the tile palette dropped its width-named entries, so a version-6 text
-#      can name a tile this registry cannot resolve (2026-08-24)
+#   7: the core palette dropped its width-named entries, so a version-6 text
+#      can name a core this registry cannot resolve (2026-08-24)
 #   6: handle_table_capacity joined the canonical form (a table is hardware,
 #      so it is design identity, 2026-08-14)
 SPEC_CANONICAL_VERSION = "7"
@@ -1002,7 +1002,7 @@ def canonical_version(value: str) -> str:
 
     Ask this BEFORE reading the text recorded beside it. The canonical form
     is written against the registry, so a text from an older version can
-    name a tile this palette no longer carries, and
+    name a core this palette no longer carries, and
     :func:`spec_from_canonical` then raises ``UnknownCoreError`` — an error
     that names the registry, which is not the thing at fault. The version is
     the only place a reader can learn that the text predates the palette it

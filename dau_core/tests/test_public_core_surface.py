@@ -1,6 +1,6 @@
-"""The modules a third-party tile author needs, and what they may import.
+"""The modules a third-party core author needs, and what they may import.
 
-A tile contributed from outside this package declares a ``CoreDefinition``,
+A core contributed from outside this package declares a ``CoreDefinition``,
 speaks the row-stream ABI, names the element types its parameters take, and
 may render its HDL through a ``CoreGenerator``. Those modules are
 therefore the *authoring surface* -- the part that has to be reachable by
@@ -27,7 +27,7 @@ import dau_core
 
 # The authoring surface: models + the stream ABI + the element type
 # vocabulary + the generator protocol. element_types is here rather than
-# recorded as debt because a tile declared elsewhere has to spell its types
+# recorded as debt because a core declared elsewhere has to spell its types
 # the SAME way this one does -- "int32" and "q16.16" mean a particular
 # encoding, which the author's own HDL decodes out of the shipped
 # dau_core/hdl/types.svh. A private copy of that vocabulary would be a
@@ -50,7 +50,7 @@ ALLOWED_INTERNAL = {
     *SURFACE_MODULES,
     # DAU_MAGIC_WORD only. The magic word is protocol, not implementation --
     # an author encoding a status record has to write it -- but it lives in
-    # the register map alongside a great deal that is NOT the tile surface.
+    # the register map alongside a great deal that is NOT the core surface.
     # Extracting the surface means taking the constant with it, not
     # registers.py entire.
     "registers",
@@ -64,7 +64,7 @@ ALLOWED_INTERNAL = {
 # It is empty. It held `config` until the registry accessors moved to
 # dau_core.registry: cores.py had been two things in one file -- the
 # declaration models a third-party author needs, and the accessors that
-# load THIS package's own tiles, which reached for the packaged config to
+# load THIS package's own cores, which reached for the packaged config to
 # do it. An author needs the former and must never carry the latter.
 EXTRACTION_DEBT: set[str] = set()
 
@@ -100,7 +100,7 @@ def test_the_authoring_surface_stays_extractable() -> None:
         assert path.is_file(), f"{path.name} is named as authoring surface but does not exist"
         leaked = _internal_imports(path) - ALLOWED_INTERNAL - EXTRACTION_DEBT
         assert not leaked, (
-            f"{path.name} imports {sorted(leaked)} from dau-core's private side. The tile authoring surface "
+            f"{path.name} imports {sorted(leaked)} from dau-core's private side. The core authoring surface "
             f"({', '.join(SURFACE_MODULES)}) has to be reachable by an author who does not have this repository; "
             "every module it reaches for has to travel with it. Either move what is needed into the surface, or "
             "keep the dependency out of it"
@@ -110,7 +110,7 @@ def test_the_authoring_surface_stays_extractable() -> None:
 def test_the_surface_declares_its_third_party_dependencies() -> None:
     """The authoring surface may not grow a heavy runtime dependency.
 
-    An author installs this to declare a tile, not to run a build: pulling
+    An author installs this to declare a core, not to run a build: pulling
     in hydra, a simulator, or a synthesis toolchain here would make the
     declaration surface as expensive as the toolchain it feeds.
     """
@@ -128,8 +128,8 @@ def test_the_surface_declares_its_third_party_dependencies() -> None:
                 continue
             if root and root not in _STDLIB and root != "dau_core":
                 assert root in ALLOWED_THIRD_PARTY, (
-                    f"{path.name} imports {root!r}, which is not part of the tile declaration language "
-                    f"({sorted(ALLOWED_THIRD_PARTY)}). An author installs this to DECLARE a tile, not to build one"
+                    f"{path.name} imports {root!r}, which is not part of the core declaration language "
+                    f"({sorted(ALLOWED_THIRD_PARTY)}). An author installs this to DECLARE a core, not to build one"
                 )
 
 
@@ -167,7 +167,7 @@ def test_the_extraction_debt_does_not_grow() -> None:
     for path in _surface_paths():
         observed |= _internal_imports(path) - ALLOWED_INTERNAL
     assert observed <= EXTRACTION_DEBT, (
-        f"the tile authoring surface grew a new private dependency: {sorted(observed - EXTRACTION_DEBT)}. "
+        f"the core authoring surface grew a new private dependency: {sorted(observed - EXTRACTION_DEBT)}. "
         "Keep it out, or record it as extraction debt with the reason"
     )
     # and the recorded debt is real, not stale

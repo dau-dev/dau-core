@@ -2,10 +2,10 @@
 
 `include "types.svh"
 
-// Per-symbol rolling-moment tile (the roll stage of the temporal workflow,
+// Per-symbol rolling-moment core (the roll stage of the temporal workflow,
 // over the reduced bar/feature stream). Over a count-based window of the last
 // WINDOW values per symbol, emits the deferred-division moment record
-// (count, sum, sum-of-squares) for every FULL window — one tile serving
+// (count, sum, sum-of-squares) for every FULL window — one core serving
 // rolling sum (=sum), mean (=sum/count) and sample variance
 // (=(count*sum_sq - sum*sum)/(count*(count-1))), the host dividing once.
 // Matches dau_core.temporal.rolling_moments/rolling_sum (warm-up rows, where
@@ -16,10 +16,10 @@
 // VALUE_WIDTH; input_last on
 // the word ends the stream). The SYMBOL ID is a 32-bit container, not an
 // element -- it identifies a series rather than measuring anything, and the
-// rolling extremum tile, which alternates with this one in a composition,
+// rolling extremum core, which alternates with this one in a composition,
 // fixes it the same way. Because the stream is symbol-grouped, exactly one
-// symbol is live at a time, so the tile holds ONE window (a depth-WINDOW shift
-// register) reset on symbol change — the bar tile's key-change shape, no
+// symbol is live at a time, so the core holds ONE window (a depth-WINDOW shift
+// register) reset on symbol change — the bar core's key-change shape, no
 // per-symbol table. sum/sum_sq are INT64, which is what bounds VALUE_WIDTH
 // from above.
 //
@@ -36,7 +36,7 @@
 //     WINDOW   8 -> |v| <= 1,073,741,823
 //     WINDOW  64 -> |v| <= 379,625,062
 //     WINDOW 256 -> |v| <= 189,812,531
-// The tile cannot check this -- it sees one row at a time and has no bound to
+// The core cannot check this -- it sees one row at a time and has no bound to
 // compare against -- so the obligation is DECLARED in three places that can:
 // the registry entry states it, dau_core.temporal.rolling_moments REFUSES a
 // window whose sum of squares leaves INT64 (so the golden can never quietly
@@ -72,7 +72,7 @@ module dau_rolling_moments #(
     // The ELEMENT TYPE of the value lane, as encoded by types.svh -- what a
     // value IS, from which its width follows. The symbol id beside it is a
     // 32-bit container and does not move. `DAU_TYPE_INT32 is 32, so the
-    // default reads exactly the {value, symbol} word the tile has always read.
+    // default reads exactly the {value, symbol} word the core has always read.
     parameter int VALUE_WIDTH = `DAU_TYPE_INT32
 ) (
     input  wire logic        clk,
@@ -107,7 +107,7 @@ module dau_rolling_moments #(
     end
     // The upper bound is sum_sq: 32 is where a squared value still leaves the
     // INT64 accumulator any window at all (see the precondition above), and a
-    // wider element would need a wider record, i.e. a different tile. The
+    // wider element would need a wider record, i.e. a different core. The
     // lower bound is the palette's narrowest element.
     if (VALUE_BITS < 8 || VALUE_BITS > 32) begin : g_value_width_check
         $error("VALUE_WIDTH must be in [8, 32]");
@@ -117,10 +117,10 @@ module dau_rolling_moments #(
     // handed a float it would multiply exponent bits, and handed an unsigned
     // type it would read every high-bit-set value as negative.
     if (VALUE_IS_FLOAT != 0) begin : g_value_float_check
-        $error("VALUE_WIDTH must not name a floating-point type: this tile sums two's-complement integers and their squares");
+        $error("VALUE_WIDTH must not name a floating-point type: this core sums two's-complement integers and their squares");
     end
     if (VALUE_IS_SIGNED == 0) begin : g_value_signed_check
-        $error("VALUE_WIDTH must not name an unsigned type: this tile sign-extends into signed accumulators");
+        $error("VALUE_WIDTH must not name an unsigned type: this core sign-extends into signed accumulators");
     end
 
     typedef enum logic [2:0] {

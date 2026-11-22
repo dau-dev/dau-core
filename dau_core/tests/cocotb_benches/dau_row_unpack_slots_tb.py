@@ -25,7 +25,7 @@ from dau_core.tests.cocotb_benches.rate_probe import assert_sustained_ingest
 # elaborating -- that slot s reads packed row s and lands at quad row s.
 #
 # The failure this is built to catch: a slice stride hardcoded to one row, so
-# every slot reads packed row 0 and the tile emits SLOTS copies of it. Every
+# every slot reads packed row 0 and the core emits SLOTS copies of it. Every
 # row therefore carries DISTINCT field values, and no test uses a uniform
 # batch, because a uniform batch cannot tell a correct stride from a broken
 # one.
@@ -50,7 +50,7 @@ async def multi_slot_unpack_matches_golden(dut):
 async def every_slot_reads_its_own_packed_row(dut):
     """The stride test, stated directly.
 
-    One beat, every slot carrying a different key. A tile whose slice stride
+    One beat, every slot carrying a different key. A core whose slice stride
     is hardcoded emits SLOTS copies of slot 0 and passes any test built on a
     uniform batch; here the keys are all distinct, so it cannot.
     """
@@ -81,7 +81,7 @@ async def ragged_tail_pads_pass_through_unsliced(dut):
     """A row count that is not a multiple of SLOTS is padded by the host with
     the reserved all-ones packed word. It must emerge as the reserved all-ones
     PAD quad row -- NOT as whatever the field descriptors would slice out of
-    it -- so the wide-row tiles downstream drop it by the convention they
+    it -- so the wide-row cores downstream drop it by the convention they
     already implement."""
     if SLOTS == 1:
         return  # raggedness cannot arise when a beat is exactly one row
@@ -143,13 +143,13 @@ async def sustained_ingest_meets_the_slots_floor(dut):
     )
     # The registry floor is DELIBERATELY capped at 1 row/cycle until silicon
     # proves the multi-row claim, so clearing it proves nothing about SLOTS:
-    # at SLOTS=8 a tile accepting one beat every eight cycles still measures
+    # at SLOTS=8 a core accepting one beat every eight cycles still measures
     # 8/8 = 1 and would pass. Assert the rate this parameter exists to buy.
     assert measured >= SLOTS, f"SLOTS={SLOTS} must sustain {SLOTS} rows/cycle, measured {measured}"
 
 
 def _packable_specs(rng):
-    """A random field map this tile will accept at the configured SLOTS.
+    """A random field map this core will accept at the configured SLOTS.
 
     ``_random_specs`` happily fills all 64 bits, and at SLOTS > 1 a layout
     with no spare bit is refused as a bad config precisely because it could
@@ -322,7 +322,7 @@ async def a_layout_that_could_forge_the_pad_is_rejected(dut):
     """REGRESSION. The all-ones packed word is the ragged-tail PAD at
     SLOTS > 1. A field layout covering all 64 bits can PRODUCE all-ones from
     real data -- four unsigned 16-bit fields at max -- and that row would be
-    dropped by the wide tiles. The same input unpacks normally at SLOTS == 1,
+    dropped by the wide cores. The same input unpacks normally at SLOTS == 1,
     so the ANSWER WOULD DEPEND ON OUT_WIDTH.
 
     Rejecting the layout makes the sentinel unreachable by construction

@@ -10,9 +10,9 @@
 // cycles after it is accepted, one beat per cycle throughout.
 //
 // Config latches on the first beat of each batch. Invalid config drains the
-// batch and reports ERR_CONFIG, matching the 64-bit row tile. Whole-row
+// batch and reports ERR_CONFIG, matching the 64-bit row core. Whole-row
 // beats cannot tear, so there is no ERR_STREAM path. This composed-pipeline
-// stage is silent on success; the downstream tile's close-out is
+// stage is silent on success; the downstream core's close-out is
 // authoritative.
 module dau_wide_row_map_alu
     import dau_map_alu_pkg::*;
@@ -81,7 +81,7 @@ module dau_wide_row_map_alu
     // The multiply stage. MULSHR's 32x32 product is two cascaded DSP48E1s;
     // finishing it (shift, saturate) and re-muxing the destination field in
     // the same cycle put all of that between two pipeline registers, which
-    // is what the whole tile's critical path was. Registering the product
+    // is what the whole core's critical path was. Registering the product
     // splits it: operand select + multiply land here, finish + destination
     // mux land in pipeline_data[0]. Costs one cycle of latency and no
     // throughput -- the pipeline still retires one beat per cycle.

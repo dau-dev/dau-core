@@ -10,16 +10,16 @@
 // forwarded word even when trailing rows drop.
 //
 // The filter raises its own status only for the two cases the downstream
-// tile cannot see: a stream that ends with zero forwarded rows closes out
-// with a success status (the tile never started), and a torn final row
-// (input_last on a w0) reports ERR_STREAM. Otherwise the tile's status is
+// core cannot see: a stream that ends with zero forwarded rows closes out
+// with a success status (the core never started), and a torn final row
+// (input_last on a w0) reports ERR_STREAM. Otherwise the core's status is
 // authoritative and the filter stays silent.
 module dau_pair_key_filter #(
     // The ELEMENT TYPE of the key lane, as encoded by types.svh. The key and
-    // its companion payload lane tile one 64-bit stream word, so a narrower
+    // its companion payload lane core one 64-bit stream word, so a narrower
     // type packs the pair into less of the word rather than changing the
     // beat. A plain signed integer encodes as its own width, so
-    // `DAU_TYPE_INT32 is 32 and this reads exactly the w0.lo key the tile has
+    // `DAU_TYPE_INT32 is 32 and this reads exactly the w0.lo key the core has
     // always read.
     //
     // THE DECODE IS A BITWISE MASK AND AN EQUALITY, not an ordering, so
@@ -52,7 +52,7 @@ module dau_pair_key_filter #(
     localparam int KEY_BITS     = `DAU_TYPE_WIDTH(KEY_WIDTH);
     localparam int KEY_IS_FLOAT = `DAU_TYPE_IS_FLOAT(KEY_WIDTH);
 
-    // {price, key} tile one 64-bit stream word, so the pair must fit it and
+    // {price, key} core one 64-bit stream word, so the pair must fit it and
     // divide it evenly
     if (KEY_BITS < 8 || KEY_BITS > 32 || (64 % KEY_BITS) != 0) begin : g_key_width_check
         $error("KEY_WIDTH must divide 64 and lie in [8, 32]");
@@ -62,7 +62,7 @@ module dau_pair_key_filter #(
     // the same value and different patterns, and NaN is neither. Refuse it at
     // elaboration rather than partitioning on bit patterns.
     if (KEY_IS_FLOAT != 0) begin : g_key_float_check
-        $error("KEY_WIDTH must not name a floating-point type: this tile masks and compares raw key bits");
+        $error("KEY_WIDTH must not name a floating-point type: this core masks and compares raw key bits");
     end
 
     typedef enum logic [2:0] {
@@ -167,7 +167,7 @@ module dau_pair_key_filter #(
                             if (row_keep || held_valid) begin
                                 state <= STATE_FLUSH;
                             end else begin
-                                // nothing forwarded: close out for the tile
+                                // nothing forwarded: close out for the core
                                 status_valid <= 1'b1;
                                 status_error <= 1'b0;
                                 status_error_code <= 8'd0;

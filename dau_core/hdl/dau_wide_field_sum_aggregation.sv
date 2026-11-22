@@ -4,7 +4,7 @@
 
 // Wide-lane batch field-sum aggregation: SLOTS whole 16-byte quad rows per
 // beat, one beat per cycle — the multi-row-per-cycle terminal of the wide
-// lane (ingest SLOTS rows/cycle vs the 64-bit tile's one per two). A slot
+// lane (ingest SLOTS rows/cycle vs the 64-bit core's one per two). A slot
 // carries one row {aux1, aux0, value, key} (field i at bits
 // [FIELD_BITS*i +: FIELD_BITS]);
 // the reserved ALL-ONES 128-bit row is the PAD (the ragged-tail / dropped-
@@ -13,18 +13,18 @@
 // filter drops a row by replacing its slot with the pad — no compaction.
 //
 // Semantics are dau_core.operators.field_sum_rows, identical to the 64-bit
-// tile: one signed 64-bit sum per cfg_field_mask-selected field plus the
+// core: one signed 64-bit sum per cfg_field_mask-selected field plus the
 // row count, emitted as one record at input_last (sums ascending, then the
 // count word with output_last), then the success close-out. The mask
 // latches at the first beat; a zero mask drains the batch and reports
 // ERR_CONFIG. Torn rows cannot exist (a beat is whole rows), so the 64-bit
-// tile's ERR_STREAM path has no equivalent here. An all-pad beat (a
+// core's ERR_STREAM path has no equivalent here. An all-pad beat (a
 // trailing pad-only tail) accumulates nothing and closes normally.
 module dau_wide_field_sum_aggregation #(
     parameter int SLOTS = 4,  // quad rows per beat: 1, 2, 4, or 8
     // The ELEMENT TYPE of one field, as encoded by types.svh. A slot stays a
     // 128-bit row (the wide lane's transport unit, and what the PAD is a value
-    // of), and field i is its i-th FIELD_BITS lane. This tile sums the FIELDS
+    // of), and field i is its i-th FIELD_BITS lane. This core sums the FIELDS
     // lanes it names and ignores any a narrower type leaves beyond them.
     // `DAU_TYPE_INT32 is 32, so the default reproduces the four-field slot
     // port for port; the sums are INT64 whatever the element is, which is why
@@ -49,7 +49,7 @@ module dau_wide_field_sum_aggregation #(
     output logic [63:0]                   aggregated_count
 );
     localparam int ROW_BITS = 128;  // one slot, the wide lane's transport unit
-    localparam int FIELDS   = 4;    // the lanes this tile accumulates
+    localparam int FIELDS   = 4;    // the lanes this core accumulates
     localparam int FIELD_BITS      = `DAU_TYPE_WIDTH(FIELD_WIDTH);
     localparam int FIELD_IS_FLOAT  = `DAU_TYPE_IS_FLOAT(FIELD_WIDTH);
     localparam int FIELD_IS_SIGNED = `DAU_TYPE_IS_SIGNED(FIELD_WIDTH);
@@ -59,7 +59,7 @@ module dau_wide_field_sum_aggregation #(
     end
     // The upper bound is the RECORD, not the lane: a sum word is 64 bits, so
     // an element wider than 32 would need more sum bits than the record can
-    // express -- a versioned record, i.e. a different tile. Narrowing is free.
+    // express -- a versioned record, i.e. a different core. Narrowing is free.
     if (FIELD_BITS < 8 || FIELD_BITS > 32 || (ROW_BITS % FIELD_BITS) != 0) begin : g_field_width_check
         $error("FIELD_WIDTH must divide 128 and lie in [8, 32]");
     end
@@ -67,10 +67,10 @@ module dau_wide_field_sum_aggregation #(
     // and the accumulator is two's-complement INT64: a float would be added as
     // exponent bits, an unsigned type read as negative above its half-range.
     if (FIELD_IS_FLOAT != 0) begin : g_field_float_check
-        $error("FIELD_WIDTH must not name a floating-point type: this tile sums two's-complement integers");
+        $error("FIELD_WIDTH must not name a floating-point type: this core sums two's-complement integers");
     end
     if (FIELD_IS_SIGNED == 0) begin : g_field_signed_check
-        $error("FIELD_WIDTH must not name an unsigned type: this tile sign-extends into a signed accumulator");
+        $error("FIELD_WIDTH must not name an unsigned type: this core sign-extends into a signed accumulator");
     end
 
     localparam logic [7:0] ERR_CONFIG = 8'd1;
@@ -117,7 +117,7 @@ module dau_wide_field_sum_aggregation #(
     // FIELD_BITS+clog2(SLOTS) bits, and only the running accumulator below
     // needs the full 64. A left-fold at
     // 64 bits put four chained 64-bit carry chains ahead of the accumulator and
-    // made this tile the path that bound the whole job clock.
+    // made this core the path that bound the whole job clock.
     localparam int BEAT_SUM_W = FIELD_BITS + $clog2(SLOTS);
     localparam int ROWS_W = $clog2(SLOTS + 1);
 
@@ -130,7 +130,7 @@ module dau_wide_field_sum_aggregation #(
     // [field][level][node]: level 0 is the slot terms, each level halves, and
     // level LEVELS node 0 is the beat sum. Written as a parameterized tree
     // rather than the hand-written (a+b)+(c+d) it replaces, which silently
-    // fixed the tile at four slots.
+    // fixed the core at four slots.
     logic signed [BEAT_SUM_W-1:0] tree [0:FIELDS-1][0:LEVELS][0:SLOTS-1];
     logic signed [BEAT_SUM_W-1:0] beat_sum [FIELDS];
     logic [ROWS_W-1:0] beat_rows;

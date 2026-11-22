@@ -33,9 +33,9 @@ generate their source from their parameters when rendered.
 The full documentation is at
 [dau-dev.github.io/dau-core](https://dau-dev.github.io/dau-core/).
 
-- **Tutorial**: [Read a tile's contract end to end](docs/src/tutorial/read-a-tile-contract.md)
+- **Tutorial**: [Read a tile's contract end to end](docs/src/tutorial/read-a-core-contract.md)
   follows one operator through the five places its definition lives.
-- **How-to guides**: [Add an operator tile](docs/src/how-to/add-an-operator-tile.md) ·
+- **How-to guides**: [Add an operator tile](docs/src/how-to/add-an-operator-core.md) ·
   [Test a core](docs/src/how-to/test-a-core.md) ·
   [Measure a resource envelope](docs/src/how-to/measure-a-resource-envelope.md), the one
   step that needs a synthesis host · [Develop and contribute](docs/src/how-to/develop.md).
@@ -43,7 +43,7 @@ The full documentation is at
   [Tile catalog](docs/src/reference/tile-catalog.md) ·
   [Registry guards](docs/src/reference/registry-guards.md) and what each one checks.
 - **Explanation**: [Why cores are declared in config](docs/src/explanation/why-cores-are-declared-in-config.md) ·
-  [Why each tile has a golden model](docs/src/explanation/why-each-tile-has-a-golden-model.md) ·
+  [Why each tile has a golden model](docs/src/explanation/why-each-core-has-a-golden-model.md) ·
   [Why resource costs are measured](docs/src/explanation/why-resources-are-measured.md).
 
 ## The core registry
@@ -119,14 +119,14 @@ bounds) and raises `CompositionError` before any HDL is generated;
 `estimated_resources` prices a spec from the measured envelopes.
 
 ```python
-from dau_core.composition import LaneSpec, ScanCompositionSpec, TileSpec, estimated_resources
+from dau_core.composition import LaneSpec, ScanCompositionSpec, CoreSpec, estimated_resources
 
 spec = ScanCompositionSpec(
     name="bar-noc-4",
     lanes=tuple(
         LaneSpec(
-            tile=TileSpec(core="bar-aggregation", config={"cfg_mode": "2'd0"}),
-            partition=TileSpec(core="pair-key-filter",
+            tile=CoreSpec(core="bar-aggregation", config={"cfg_mode": "2'd0"}),
+            partition=CoreSpec(core="pair-key-filter",
                                config={"cfg_key_mask": "32'd3", "cfg_key_match": f"32'd{lane}"}),
         )
         for lane in range(4)
@@ -157,25 +157,25 @@ because packing saves DMA bytes at the cost of job time and a wide lane
 needs whole rows.
 
 ```python
-from dau_core.composition import LaneSpec, ScanCompositionSpec, TileSpec, estimated_resources
+from dau_core.composition import LaneSpec, ScanCompositionSpec, CoreSpec, estimated_resources
 
 spec = ScanCompositionSpec(
     name="q6-wide",
     data_width=512,   # SLOTS=4: four quad rows per cycle
     lanes=(
         LaneSpec(
-            tile=TileSpec(core="wide-field-sum-aggregation",
+            tile=CoreSpec(core="wide-field-sum-aggregation",
                           config={"cfg_field_mask": "4'b0010"}),
             chain=(
                 # shipdate >= 8766 AND shipdate < 9131
-                TileSpec(core="wide-row-predicate-filter", config={
+                CoreSpec(core="wide-row-predicate-filter", config={
                     "cfg_field0": "2'd0", "cfg_op0": "3'd6", "cfg_constant0": "32'd8766",
                     "cfg_combine01": "2'd1",
                     "cfg_field1": "2'd0", "cfg_op1": "3'd3", "cfg_constant1": "32'd9131",
                     "cfg_combine2": "2'd0",
                     "cfg_field2": "2'd0", "cfg_op2": "3'd0", "cfg_constant2": "32'd0"}),
                 # value = value * aux0 >> 15
-                TileSpec(core="wide-row-map-alu", config={
+                CoreSpec(core="wide-row-map-alu", config={
                     "cfg_op": "3'd4", "cfg_dst_field": "2'd1",
                     "cfg_src_a_field": "2'd1", "cfg_src_b_field": "2'd2",
                     "cfg_shift": "5'd15"}),

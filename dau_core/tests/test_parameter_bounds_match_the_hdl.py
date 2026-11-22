@@ -1,12 +1,12 @@
 """A parameter bound stated twice is a bound that can disagree with itself.
 
-The registry declares what a tile's parameters may be; the tile's own
+The registry declares what a core's parameters may be; the core's own
 elaboration guard declares the same thing in SystemVerilog, because Verilog
 cannot read the registry. Both are necessary. Nothing made them agree, so
-the registry could offer a K the tile refuses to elaborate, or -- worse --
-accept one the tile elaborates into something unmeasured.
+the registry could offer a K the core refuses to elaborate, or -- worse --
+accept one the core elaborates into something unmeasured.
 
-The tiles state their bounds in a small set of conventional forms, which is
+The cores state their bounds in a small set of conventional forms, which is
 what makes this checkable. A form this cannot parse is listed explicitly
 rather than skipped silently: an unparsed guard is an unchecked guard, and a
 holdout list that nobody can see is how the last audit went stale.
@@ -39,7 +39,7 @@ _CHOICE_FORMS = (
 )
 
 # Guards stating something this cannot turn into a bound. Each is a real
-# constraint the tile enforces; it is simply not a range or a value list, so
+# constraint the core enforces; it is simply not a range or a value list, so
 # the registry cannot be checked against it here.
 UNPARSED_GUARDS = {
     ("rolling-moments", "WINDOW"): "open-ended >= 2; the registry declares the same minimum and no maximum",
@@ -73,7 +73,7 @@ def _parameterized_cores() -> list[tuple[str, CoreDefinition]]:
 
 
 def _magnitude(parameter, value: int) -> int:
-    """What the tile's guard is a bound ON.
+    """What the core's guard is a bound ON.
 
     An element-type parameter carries a type encoding, and a guard reading
     "must divide 128 and lie in [8, 64]" bounds the type's WIDTH -- the
@@ -86,7 +86,7 @@ def _magnitude(parameter, value: int) -> int:
     return decode_element_type(value).width if parameter.element_type else value
 
 
-def test_declared_bounds_match_the_tiles_elaboration_guard() -> None:
+def test_declared_bounds_match_the_cores_elaboration_guard() -> None:
     checked: list[str] = []
     for name, definition in _parameterized_cores():
         source = (_HDL_DIR / definition.source).read_text(encoding="utf-8")
@@ -102,10 +102,10 @@ def test_declared_bounds_match_the_tiles_elaboration_guard() -> None:
                     assert parameter.minimum == low, f"{where}: registry minimum {parameter.minimum} != elaboration guard {low}"
                 if parameter.maximum is not None:
                     assert parameter.maximum == high, f"{where}: registry maximum {parameter.maximum} != elaboration guard {high}"
-                assert low <= default <= high, f"{where}: default {default} outside the tile's own [{low}, {high}]"
+                assert low <= default <= high, f"{where}: default {default} outside the core's own [{low}, {high}]"
                 for choice in parameter.choices or ():
                     magnitude = _magnitude(parameter, choice)
-                    assert low <= magnitude <= high, f"{where}: declared choice {magnitude} outside the tile's own [{low}, {high}]"
+                    assert low <= magnitude <= high, f"{where}: declared choice {magnitude} outside the core's own [{low}, {high}]"
                 checked.append(where)
 
             elif parameter_name in choices:
@@ -113,10 +113,10 @@ def test_declared_bounds_match_the_tiles_elaboration_guard() -> None:
                 declared = tuple(_magnitude(parameter, choice) for choice in parameter.choices or ())
                 if parameter.choices:
                     assert tuple(sorted(declared)) == tuple(sorted(legal)), (
-                        f"{where}: registry offers {sorted(declared)} but the tile elaborates only {sorted(legal)}"
+                        f"{where}: registry offers {sorted(declared)} but the core elaborates only {sorted(legal)}"
                     )
                 default = _magnitude(parameter, parameter.default)
-                assert default in legal, f"{where}: default {default} is not one the tile elaborates {legal}"
+                assert default in legal, f"{where}: default {default} is not one the core elaborates {legal}"
                 checked.append(where)
 
     assert len(checked) >= 8, f"parsed almost no bounds -- the guard wording has changed: {checked}"
@@ -139,7 +139,7 @@ def test_unparsed_guards_are_declared_and_still_exist() -> None:
 def test_the_python_mirror_of_the_top_k_bound_matches_the_registry() -> None:
     """`TOP_K_MAX` is a third copy of the same number: the compiler rejects an
     out-of-envelope limit against it, the registry prices against its maximum,
-    and the tile refuses to elaborate outside its guard."""
+    and the core refuses to elaborate outside its guard."""
     from dau_core.operators import TOP_K_MAX
 
     parameter = loaded_cores()["streaming-top-k"].parameters["K"]

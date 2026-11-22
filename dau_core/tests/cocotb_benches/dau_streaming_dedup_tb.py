@@ -148,7 +148,7 @@ async def backpressure_on_the_count_word_and_gaps_in_the_input(dut):
 
 @cocotb.test()
 async def success_status_survives_backpressure(dut):
-    # the close-out must hold stable while status_ready is low, and the tile
+    # the close-out must hold stable while status_ready is low, and the core
     # must refuse new input until the handshake completes
     await _start(dut)
     dut.cfg_clear.value = 1

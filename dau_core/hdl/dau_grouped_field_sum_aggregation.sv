@@ -18,15 +18,15 @@
 // (disc_price, charge) arrive chain-computed by row-map-alu stages.
 //
 // The batch's group records form ONE record stream: output_last is set
-// only on the final group's count word, and the tile raises exactly one
+// only on the final group's count word, and the core raises exactly one
 // success close-out per batch after that word is accepted (the terminal
-// tile convention — the record writer's done waits on a consumed producer
+// core convention — the record writer's done waits on a consumed producer
 // status). group_count reports the groups emitted by the last completed
 // batch (0 after an error close-out). A key that reappears after other
-// keys opens a NEW group; partials merge on the host, never in the tile.
+// keys opens a NEW group; partials merge on the host, never in the core.
 //
 // The mask is latched at the first row of a batch; a zero mask is an
-// unconfigured tile and drains the batch to report ERR_CONFIG. input_last
+// unconfigured core and drains the batch to report ERR_CONFIG. input_last
 // on a w0 is a torn row and reports ERR_STREAM. An error close-out
 // invalidates the whole batch: group records already drained before the
 // error (earlier groups close as their key changes) must be discarded by
@@ -36,7 +36,7 @@ module dau_grouped_field_sum_aggregation #(
     // The ELEMENT TYPE of one field, as encoded by types.svh. The 128-bit row
     // is the transport unit and stays fixed; field i is its i-th FIELD_BITS
     // lane, the decode row-unpack packs and the quad-row filter family reads.
-    // This tile groups on lane 0 and sums the FIELDS lanes it names, ignoring
+    // This core groups on lane 0 and sums the FIELDS lanes it names, ignoring
     // any a narrower type leaves beyond them -- the lane count is what the
     // accumulators cost. `DAU_TYPE_INT32 is 32, so the default reproduces the
     // four-field row port for port. The sums are INT64 and the emitted key
@@ -65,15 +65,15 @@ module dau_grouped_field_sum_aggregation #(
     localparam logic [7:0] ERR_STREAM = 8'd2;
 
     localparam int ROW_BITS = 128;   // the transport unit, fixed
-    localparam int FIELDS   = 4;     // the lanes this tile sums
+    localparam int FIELDS   = 4;     // the lanes this core sums
     localparam int FIELD_BITS      = `DAU_TYPE_WIDTH(FIELD_WIDTH);
     localparam int FIELD_IS_FLOAT  = `DAU_TYPE_IS_FLOAT(FIELD_WIDTH);
     localparam int FIELD_IS_SIGNED = `DAU_TYPE_IS_SIGNED(FIELD_WIDTH);
-    localparam int LANE_BITS       = FIELDS * FIELD_BITS;  // the part of the row this tile reads
+    localparam int LANE_BITS       = FIELDS * FIELD_BITS;  // the part of the row this core reads
 
     // The upper bound is the RECORD, not the lane: a sum word is 64 bits, so
     // an element wider than 32 would need more sum bits than the record can
-    // express -- a versioned record, i.e. a different tile. Narrowing is free.
+    // express -- a versioned record, i.e. a different core. Narrowing is free.
     if (FIELD_BITS < 8 || FIELD_BITS > 32 || (ROW_BITS % FIELD_BITS) != 0) begin : g_field_width_check
         $error("FIELD_WIDTH must divide 128 and lie in [8, 32]");
     end
@@ -83,10 +83,10 @@ module dau_grouped_field_sum_aggregation #(
     // they were magnitude, and handed an unsigned type it would read every
     // high-bit-set value as negative. Both are silently wrong sums.
     if (FIELD_IS_FLOAT != 0) begin : g_field_float_check
-        $error("FIELD_WIDTH must not name a floating-point type: this tile sums two's-complement integers");
+        $error("FIELD_WIDTH must not name a floating-point type: this core sums two's-complement integers");
     end
     if (FIELD_IS_SIGNED == 0) begin : g_field_signed_check
-        $error("FIELD_WIDTH must not name an unsigned type: this tile sign-extends into a signed accumulator");
+        $error("FIELD_WIDTH must not name an unsigned type: this core sign-extends into a signed accumulator");
     end
 
     typedef enum logic [2:0] {
