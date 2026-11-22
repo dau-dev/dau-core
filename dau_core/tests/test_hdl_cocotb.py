@@ -15,20 +15,30 @@ _COCOTB_BENCH_PREFIX = "dau_core.tests.cocotb_benches"
 _SV_TB_DIR = Path(__file__).parent / "sv"
 
 
+def _lane_models(scan_composition):
+    """dau-build's lane and core instance models. dau-build is released after
+    dau-core, so its current release still names them LaneTile and
+    TileInstance."""
+    if hasattr(scan_composition, "LaneSink"):
+        return scan_composition.LaneSink, scan_composition.CoreInstance
+    return scan_composition.LaneTile, scan_composition.TileInstance
+
+
 def _bar_noc_sim_sv(tmp_path: Path) -> Path:
     """Generate the broadcast-NoC sim harness (four key-filtered bar lanes)
     from the same composition data the shell top is walked from."""
     scan_composition = pytest.importorskip("dau_build.scan_composition", reason="dau-build not installed")
+    lane_sink, core_instance = _lane_models(scan_composition)
     composition = scan_composition.ScanComposition(
         name="bar-noc-4",
         module_name="dau_axi_bar_noc",
         burst_beats=16,
         lanes=tuple(
-            scan_composition.LaneSink(
+            lane_sink(
                 module="dau_bar_aggregation",
                 config={"cfg_mode": "2'd0", "cfg_row_count": "64'd0"},
                 count_port="bar_count",
-                partition=scan_composition.CoreInstance(
+                partition=core_instance(
                     module="dau_pair_key_filter",
                     config={"cfg_key_mask": "32'd3", "cfg_key_match": f"32'd{lane}"},
                 ),
@@ -46,12 +56,13 @@ def _sort_noc_sim_sv(tmp_path: Path) -> Path:
     four sorter lanes) with the splitters surfaced as a testbench-driven
     config input."""
     scan_composition = pytest.importorskip("dau_build.scan_composition", reason="dau-build not installed")
+    lane_sink, core_instance = _lane_models(scan_composition)
     composition = scan_composition.ScanComposition(
         name="sorted-scan",
         module_name="dau_axi_sort_noc",
         burst_beats=16,
-        lanes=tuple(scan_composition.LaneSink(module="dau_bitonic_sorter", count_port="sorted_count") for _ in range(4)),
-        partitioner=scan_composition.CoreInstance(
+        lanes=tuple(lane_sink(module="dau_bitonic_sorter", count_port="sorted_count") for _ in range(4)),
+        partitioner=core_instance(
             module="dau_range_partitioner",
             config={"cfg_splitters": "cfg_splitters"},
         ),
