@@ -157,6 +157,8 @@ def test_a_contributed_tile_is_found_apart_from_the_catalog() -> None:
     try:
         with pytest.raises(DuplicateTileError, match="compare"):
             loaded_tiles()
+        with pytest.raises(DuplicateTileError, match="vendor-tiles"):
+            tile("compare")
     finally:
         root.remove("vendor-tiles")
 
@@ -199,6 +201,9 @@ def test_the_catalog_composes_and_an_unknown_tile_is_refused() -> None:
     assert all(name == declared.name for name, declared in loaded_tiles().items())
     with pytest.raises(UnknownTileError, match="known:"):
         tile("no-such-tile")
+    # a core's name is not a tile's
+    with pytest.raises(UnknownTileError, match="known:"):
+        tile("row-predicate-filter")
 
 
 def _input_ports(name: str) -> set[str]:
