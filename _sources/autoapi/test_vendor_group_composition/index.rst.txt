@@ -1,0 +1,102 @@
+test_vendor_group_composition
+=============================
+
+.. py:module:: test_vendor_group_composition
+
+.. autoapi-nested-parse::
+
+   Another package's cores are an ordinary config group, composed when it
+   is selected.
+
+   A package ships ``<group>/cores.yaml`` on the hydra search path. The group
+   cannot be ``dau-core``: ``base.yaml`` already selects from it, and hydra
+   takes one selection per group. Being on the search path makes a group
+   available; an override or a defaults list selects it, and only then are
+   its cores composed at ``/<group>/<core-name>``.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_vendor_group_composition._CORE
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_vendor_group_composition.search_path
+   test_vendor_group_composition.restored_registry
+   test_vendor_group_composition.test_a_group_on_the_search_path_is_not_composed_until_selected
+   test_vendor_group_composition.test_selecting_an_option_that_is_not_there_is_hydras_error
+   test_vendor_group_composition.test_a_second_option_cannot_join_the_dau_core_group
+   test_vendor_group_composition.test_a_selected_groups_cores_reach_the_registry_with_their_group
+   test_vendor_group_composition.test_a_group_the_application_composed_is_kept
+
+
+Module Contents
+---------------
+
+.. py:data:: _CORE
+   :value: Multiline-String
+
+   .. raw:: html
+
+      <details><summary>Show Value</summary>
+
+   .. code-block:: python
+
+      """{name}:
+        _target_: dau_core.cores.CoreDefinition
+        name: {name}
+        kind: operator
+        module: {module}
+        source: {module}.sv
+        source_package: {package}.hdl
+        description: a core another package declares
+        contract_kind: row-stream
+        record_words: 1
+        ingest:
+          _target_: dau_core.cores.IngestRate
+          rows: 1
+          per_cycles: 1
+      """
+
+   .. raw:: html
+
+      </details>
+
+
+
+.. py:function:: search_path(tmp_path)
+
+   A search path directory holding one ``<group>/cores.yaml`` per name.
+
+
+.. py:function:: restored_registry()
+
+   Put the packaged composition back after a test loads another one.
+
+
+.. py:function:: test_a_group_on_the_search_path_is_not_composed_until_selected(search_path) -> None
+
+.. py:function:: test_selecting_an_option_that_is_not_there_is_hydras_error(search_path) -> None
+
+.. py:function:: test_a_second_option_cannot_join_the_dau_core_group(tmp_path) -> None
+
+   Why another package needs a group of its own.
+
+
+.. py:function:: test_a_selected_groups_cores_reach_the_registry_with_their_group(search_path, restored_registry) -> None
+
+.. py:function:: test_a_group_the_application_composed_is_kept(search_path, restored_registry) -> None
+
+   A CLI may compose another package's group from its own search path
+   before anything asks dau-core for a core. Loading dau-core's palette
+   afterwards must keep that group, not fail adding a second one.
+
+

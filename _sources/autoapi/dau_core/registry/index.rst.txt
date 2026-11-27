@@ -50,7 +50,9 @@ Functions
    dau_core.registry._groups
    dau_core.registry._entry
    dau_core.registry._declared_names
+   dau_core.registry._declared
    dau_core.registry.core
+   dau_core.registry.core_group
    dau_core.registry.loaded_cores
    dau_core.registry.core_for_module
    dau_core.registry.cores_of_kind
@@ -133,14 +135,28 @@ Module Contents
    Every entry name in ``group``, without building any of its models.
 
 
-.. py:function:: core(name: str) -> dau_core.cores.CoreDefinition
+.. py:function:: _declared(name: str) -> tuple[str, dau_core.cores.CoreDefinition]
 
-   The composed core called ``name``.
+   The composed core called ``name`` with the group that declares it.
 
    A keyed lookup per group, so asking for one core builds one model. The
    duplicate check still runs: a name declared by two composed groups is
    refused here exactly as :func:`loaded_cores` refuses it, because a core
    name is how every design, spec hash and cached manifest refers to it.
+
+
+.. py:function:: core(name: str) -> dau_core.cores.CoreDefinition
+
+   The composed core called ``name``.
+
+
+.. py:function:: core_group(name: str) -> str
+
+   The config group the core called ``name`` was composed under:
+   ``dau-core`` for this package's own, another package's group otherwise.
+
+   A design that places another package's core selects that group in its
+   defaults list, and this is how whoever writes the design learns which.
 
 
 .. py:function:: loaded_cores() -> collections.abc.Mapping[str, dau_core.cores.CoreDefinition]

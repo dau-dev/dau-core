@@ -15,20 +15,11 @@ dau_core.config
 
 
 
-Attributes
-----------
-
-.. autoapisummary::
-
-   dau_core.config.CONTRIB_GROUP
-
-
 Functions
 ---------
 
 .. autoapisummary::
 
-   dau_core.config.contributed_options
    dau_core.config.compose_config
    dau_core.config.load_config
 
@@ -36,35 +27,17 @@ Functions
 Package Contents
 ----------------
 
-.. py:data:: CONTRIB_GROUP
-   :value: 'dau-core-contrib'
-
-
-.. py:function:: contributed_options(config_dir: str | None = None, *, version_base: str | None = None) -> tuple[str, ...]
-
-   Contributed core options installed on the searchpath, discovered.
-
-   A consumer should not have to name the vendors it happens to have
-   installed -- that is the difference between a package being installable
-   and a package being usable. Hydra can enumerate a group's options across
-   the whole searchpath, so ask it.
-
-
 .. py:function:: compose_config(overrides: collections.abc.Sequence[str] | None = None, *, config_dir: str | None = None, version_base: str | None = None) -> ccflow.utils.hydra.ConfigLoadResult
 
    Compose dau-core's own config tree (group ``dau-core``, option
    ``cores``) with raw overrides.
 
-   Contributed cores are composed too, without the caller naming them: the
-   options of :data:`CONTRIB_GROUP` are discovered across the searchpath and
-   selected together as a list, which is the form that admits more than one
-   (a bare ``+group=option`` selects exactly one, so two installed vendors
-   would silently mean one). A contributor therefore never edits
-   ``cores.yaml``, which is the whole point of contribution.
-
-   Two-phase -- initialize to discover, then compose -- because a group's
-   options cannot be listed without a searchpath, and the searchpath is what
-   the composition is about to be built from.
+   Another package's cores are an ordinary config group on the search
+   path, ``<group>/cores.yaml``, composed at ``/<group>/<core-name>``.
+   Nothing here looks for them: they are composed when an override
+   (``+<group>=cores``) or a defaults list selects them, as any hydra
+   option is. ``dau-core`` cannot be that group, because ``base.yaml``
+   already selects from it and hydra takes one selection per group.
 
 
 .. py:function:: load_config(overrides: collections.abc.Sequence[str] | None = None, *, overwrite: bool = False, config_dir: str | None = None, version_base: str | None = None) -> ccflow.ModelRegistry
