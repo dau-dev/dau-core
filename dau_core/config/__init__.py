@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 # plugin imports this package to discover what is installed, and importing
 # ccflow pulls in its whole stack (~0.9 s) for names discovery never reads.
 
-__all__ = ("CONTRIB_GROUP", "compose_config", "contributed_options", "load_config")
+__all__ = ("CONTRIB_GROUP", "compose_config", "composed_contributions", "contributed_options", "load_config")
 
 # Where a contributing package puts its cores. `dau-core` itself cannot be
 # that place: `base.yaml` selects ONE option from it, so a second package
@@ -108,15 +108,26 @@ def compose_config(
     options cannot be listed without a searchpath, and the searchpath is what
     the composition is about to be built from.
     """
+    return _compose(overrides, config_dir, version_base)[0]
+
+
+def _compose(overrides: Sequence[str] | None, config_dir: str | None, version_base: str | None) -> tuple[ConfigLoadResult, tuple[str, ...]]:
+    """:func:`compose_config`, with the :data:`CONTRIB_GROUP` options it
+    selected: the caller's own selection, or the discovered ones."""
     from ccflow.utils.hydra import load_config as base_load_config
+    from hydra.core.override_parser.overrides_parser import OverridesParser
 
     parent_dir = str(Path(__file__).resolve().parent)
     resolved = list(overrides or ())
-    if not any(override.lstrip("+~").startswith(f"{CONTRIB_GROUP}=") for override in resolved):
+    named = [override for override in resolved if override.lstrip("+~").startswith(f"{CONTRIB_GROUP}=")]
+    if named:
+        value = OverridesParser.create().parse_override(named[-1]).value()
+        contributed = tuple(value) if isinstance(value, list) else (str(value),)
+    else:
         contributed = contributed_options(config_dir, version_base=version_base)
         if contributed:
             resolved.append(f"+{CONTRIB_GROUP}=[{','.join(contributed)}]")
-    return base_load_config(
+    result = base_load_config(
         root_config_dir=parent_dir,
         root_config_name="base",
         config_dir=config_dir or "",  # ccflow treats an empty directory like an absent one
@@ -125,6 +136,28 @@ def compose_config(
         basepath=parent_dir,
         debug=False,
     )
+    return result, contributed
+
+
+# the contributed group `load_config` last put in the registry, and the
+# options it was composed from
+_loaded: tuple[object, tuple[str, ...]] | None = None
+
+
+def composed_contributions() -> tuple[str, ...]:
+    """The :data:`CONTRIB_GROUP` options the registry's contributed cores
+    were composed from.
+
+    Hydra merges the selected options into one group and does not keep
+    their names, and a design that places a contributed core has to name
+    them for whoever builds it. Empty when the registry holds no
+    contributed group, or one that :func:`load_config` did not put there.
+    """
+    from ccflow import ModelRegistry
+
+    if _loaded is not None and ModelRegistry.root().models.get(CONTRIB_GROUP) is _loaded[0]:
+        return _loaded[1]
+    return ()
 
 
 def load_config(
@@ -146,7 +179,8 @@ def load_config(
     """
     from ccflow import LazyRegistry, ModelRegistry
 
-    result = compose_config(overrides, config_dir=config_dir, version_base=version_base)
+    global _loaded
+    result, contributed = _compose(overrides, config_dir, version_base)
     registry = ModelRegistry.root()
     composed = LazyRegistry()
     composed.load_config(cfg=result.cfg, overwrite=True)
@@ -157,4 +191,6 @@ def load_config(
             # composition is the source of truth, as for /dau-core
             continue
         registry.add(name, group, overwrite=overwrite)
+        if name == CONTRIB_GROUP:
+            _loaded = (registry.models[name], contributed)
     return registry

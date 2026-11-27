@@ -112,6 +112,28 @@ def test_contributed_cores_reach_the_registry(contrib_dir) -> None:
         load_config(overwrite=True)
 
 
+def test_the_registry_says_which_options_its_contributed_cores_came_from(contrib_dir) -> None:
+    """Hydra merges the selected options into one group, so the names are
+    kept beside it: a design placing a contributed core names them."""
+    from dau_core.config import composed_contributions, load_config
+
+    path = contrib_dir("vendor-a", "vendor-b")
+    try:
+        load_config(config_dir=path, overwrite=True)
+        assert composed_contributions() == _with_installed("vendor-a", "vendor-b")
+        load_config([f"+{CONTRIB_GROUP}=vendor-b"], config_dir=path, overwrite=True)
+        assert composed_contributions() == ("vendor-b",)
+        load_config([f"+{CONTRIB_GROUP}=[vendor-b,vendor-a]"], config_dir=path, overwrite=True)
+        assert composed_contributions() == ("vendor-b", "vendor-a")
+        # a group something else composed is not this module's to describe
+        ModelRegistry.root().clear()
+        assert composed_contributions() == ()
+    finally:
+        ModelRegistry.root().clear()
+        load_config(overwrite=True)
+    assert composed_contributions() == _with_installed()
+
+
 def test_discovery_inside_an_existing_initialization_leaves_it_standing(contrib_dir) -> None:
     """The regression that broke two downstream suites.
 
