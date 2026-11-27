@@ -88,8 +88,8 @@ def _declared_names(group: ModelRegistry) -> tuple[str, ...]:
     return tuple(group.models)
 
 
-def core(name: str) -> CoreDefinition:
-    """The composed core called ``name``.
+def _declared(name: str) -> tuple[str, CoreDefinition]:
+    """The composed core called ``name`` with the group that declares it.
 
     A keyed lookup per group, so asking for one core builds one model. The
     duplicate check still runs: a name declared by two composed groups is
@@ -114,7 +114,22 @@ def core(name: str) -> CoreDefinition:
     if found is None:
         known = sorted(loaded_cores())
         raise UnknownCoreError(f"unknown core {name!r}; known: {known}")
-    return found
+    return found_in, found
+
+
+def core(name: str) -> CoreDefinition:
+    """The composed core called ``name``."""
+    return _declared(name)[1]
+
+
+def core_group(name: str) -> str:
+    """The config group the core called ``name`` was composed under:
+    ``dau-core`` for this package's own, another package's group otherwise.
+
+    A design that places another package's core selects that group in its
+    defaults list, and this is how whoever writes the design learns which.
+    """
+    return _declared(name)[0]
 
 
 def loaded_cores() -> Mapping[str, CoreDefinition]:
